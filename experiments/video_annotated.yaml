@@ -1,0 +1,22 @@
+# Corrida DBE sobre video local (recorte-1.mp4) con YOLOE-26s y salida de video anotado.
+# Output: runs/<run_id>/annotated.mp4 (FPS = fps_origen / stride).
+run:
+  scenario: DBE
+  name: dbe_yoloe_video_annotated
+  description: "DBE YOLOE-26s sobre recorte-1.mp4 con video anotado (stride=3)"
+
+source:
+  ref: video_sample
+
+rate_control:
+  stride: 3
+
+model:
+  ref: yoloe/yoloe-26s
+
+prompts:
+  ref: cr01_cr02_v2_short
+  active_ids: [person, helmet, vest]
+
+outputs:
+  save_annotated_video: true
