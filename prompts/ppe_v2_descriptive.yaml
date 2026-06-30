@@ -1,0 +1,39 @@
+prompt_set:
+  id: ppe_v2_descriptive
+  description: >
+    Set descriptivo v2 (NO congelado) para A/B contra los sets congelados del BENCH.
+    Fraseo por backend: GDINO recibe sinónimos descriptivos cortos (acotados para no
+    diluir el caption); YOLOE recibe etiquetas nominales. Mismas clases canónicas que
+    canonical_v2 (person/helmet/vest/bare_head). Ver spec 2026-06-25-prompt-layer-design §11.
+  language: en
+  classes:
+    - id: person
+      role: entity
+      phrasings:
+        default: ["person"]
+        gdino: ["person", "worker"]
+        yoloe: ["person"]
+    - id: helmet
+      role: ppe
+      condition_id: CR-01
+      strategy: positive_evidence
+      phrasings:
+        default: ["helmet"]
+        gdino: ["hard hat", "safety helmet"]
+        yoloe: ["helmet"]
+    - id: vest
+      role: ppe
+      condition_id: CR-02
+      strategy: positive_evidence
+      phrasings:
+        default: ["vest"]
+        gdino: ["reflective vest", "high-visibility vest"]
+        yoloe: ["vest"]
+    - id: bare_head
+      role: visual_risk_indicator
+      condition_id: CR-01
+      strategy: positive_evidence
+      phrasings:
+        default: ["bare head"]
+        gdino: ["bare head", "uncovered head"]
+        yoloe: ["bare head"]

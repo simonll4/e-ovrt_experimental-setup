@@ -1,0 +1,15 @@
+# Smoke test del pipeline con detector mock (sin pesos reales)
+run:
+  scenario: DBE
+  name: dbe_mock_demo_v2
+  description: "Smoke test (mock) sobre CHV demo v2 — valida el pipeline sin pesos"
+
+source:
+  ref: demo_v2
+
+model:
+  ref: mock
+
+prompts:
+  ref: cr01_cr02_v2_short
+  active_ids: [person, helmet, vest]
