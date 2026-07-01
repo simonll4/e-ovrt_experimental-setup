@@ -1,0 +1,33 @@
+experiment:
+  id: cp_detections_3_cr01_cr02_matrix
+  description: "Comparacion inicial de configuraciones CR-01/CR-02 sobre detections_3.jsonl."
+  input:
+    media_jsonl: ../../../../e-ovrt_control-plane/tests/generator/detections_3.jsonl
+    source_id: video6bis
+    notes: "Clip estable de ~10.67 segundos con person, helmet y vest."
+  variants:
+    - id: baseline
+      replay_config: ../../replay/detections_3/baseline.yaml
+      pattern_config: ../../patterns/cr01_cr02/baseline.yaml
+      intent: "Config actual usada como referencia."
+    - id: fast_confirm
+      replay_config: ../../replay/detections_3/fast_confirm.yaml
+      pattern_config: ../../patterns/cr01_cr02/fast_confirm.yaml
+      intent: "Mayor sensibilidad temporal; confirma condiciones mas cortas."
+    - id: conservative
+      replay_config: ../../replay/detections_3/conservative.yaml
+      pattern_config: ../../patterns/cr01_cr02/conservative.yaml
+      intent: "Menor sensibilidad; exige mas persistencia y confianza."
+    - id: wide_association
+      replay_config: ../../replay/detections_3/wide_association.yaml
+      pattern_config: ../../patterns/cr01_cr02/wide_association.yaml
+      intent: "Asociacion espacial mas tolerante para reducir falsos positivos por desalineacion de bbox."
+    - id: strict_association
+      replay_config: ../../replay/detections_3/strict_association.yaml
+      pattern_config: ../../patterns/cr01_cr02/strict_association.yaml
+      intent: "Asociacion espacial mas estricta para evitar asociar EPP dudoso."
+    - id: epp_lenient
+      replay_config: ../../replay/detections_3/epp_lenient.yaml
+      pattern_config: ../../patterns/cr01_cr02/epp_lenient.yaml
+      intent: "Acepta EPP de menor confianza para observar cuanto baja la alerta por ausencia."
+

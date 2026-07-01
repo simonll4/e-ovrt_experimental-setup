@@ -1,0 +1,47 @@
+pattern_set:
+  id: cr01_cr02_wide_association
+  description: "Variante con regiones de asociacion mas amplias para tolerar desalineacion de bboxes."
+  patterns:
+    - id: CR-01
+      name: person_without_helmet
+      enabled: true
+      condition_id: CR-01
+      severity: medium
+      subject_class: person
+      required_absent_class: helmet
+      region:
+        type: upper_body
+        y_min_ratio: 0.0
+        y_max_ratio: 0.55
+        x_margin_ratio: 0.05
+      evidence:
+        min_subject_confidence: 0.35
+        min_absent_class_confidence: 0.25
+        min_subject_area_px: 400.0
+      timing:
+        confirm_after_frames: 3
+        resolve_after_frames: 2
+        confirm_after_ms: 1000.0
+        resolve_after_ms: 500.0
+    - id: CR-02
+      name: person_without_vest
+      enabled: true
+      condition_id: CR-02
+      severity: medium
+      subject_class: person
+      required_absent_class: vest
+      region:
+        type: torso
+        y_min_ratio: 0.15
+        y_max_ratio: 0.95
+        x_margin_ratio: 0.02
+      evidence:
+        min_subject_confidence: 0.35
+        min_absent_class_confidence: 0.25
+        min_subject_area_px: 400.0
+      timing:
+        confirm_after_frames: 3
+        resolve_after_frames: 2
+        confirm_after_ms: 1000.0
+        resolve_after_ms: 500.0
+

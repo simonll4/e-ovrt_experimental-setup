@@ -1,0 +1,7 @@
+run_id,pattern_set_id,units_processed,units_failed,errors_count,pattern_events_count,alerts_count,cr01_alerts,cr02_alerts,avg_processing_ms
+cp_d3_baseline,cr01_cr02_baseline,161,0,0,19,1,0,1,0.049580
+cp_d3_conservative,cr01_cr02_conservative,161,0,0,17,1,0,1,0.043620
+cp_d3_epp_lenient,cr01_cr02_epp_lenient,161,0,0,19,1,0,1,0.043760
+cp_d3_fast_confirm,cr01_cr02_fast_confirm,161,0,0,22,3,0,3,0.043947
+cp_d3_strict_association,cr01_cr02_strict_association,161,0,0,19,1,0,1,0.044426
+cp_d3_wide_association,cr01_cr02_wide_association,161,0,0,17,1,0,1,0.043037

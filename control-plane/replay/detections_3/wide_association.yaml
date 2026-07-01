@@ -1,0 +1,27 @@
+run:
+  id: cp_d3_wide_association
+  scenario: DBE
+  name: cp_d3_wide_association
+  description: "Replay con regiones de asociacion amplias sobre detections_3.jsonl."
+
+input:
+  type: media_jsonl
+  path: ../../../../e-ovrt_control-plane/tests/generator/detections_3.jsonl
+
+patterns:
+  file: ../../patterns/cr01_cr02/wide_association.yaml
+  active_ids:
+    - CR-01
+    - CR-02
+
+outputs:
+  base_dir: ../../results/detections_3/runs
+  save_pattern_events_jsonl: true
+  save_alerts_jsonl: true
+  save_metrics_jsonl: true
+  save_errors_jsonl: true
+  save_summary_json: true
+
+logging:
+  level: INFO
+

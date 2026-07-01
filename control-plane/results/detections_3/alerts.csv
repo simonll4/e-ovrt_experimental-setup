@@ -1,0 +1,9 @@
+run_id,pattern_id,missing_class,frame_index,second,subject_key,subject_id,confidence,bbox_xyxy
+cp_d3_baseline,CR-02,vest,114,3.800,CR-02:video6bis:subject_001,subject_001,0.7116,"[633.4, 199.3, 729.7, 417.8]"
+cp_d3_conservative,CR-02,vest,80,2.667,CR-02:video6bis:subject_001,subject_001,0.7705,"[566.7, 200.6, 638.5, 401.9]"
+cp_d3_epp_lenient,CR-02,vest,114,3.800,CR-02:video6bis:subject_001,subject_001,0.7116,"[633.4, 199.3, 729.7, 417.8]"
+cp_d3_fast_confirm,CR-02,vest,44,1.467,CR-02:video6bis:subject_001,subject_001,0.6690,"[469.8, 202.2, 580.6, 428.2]"
+cp_d3_fast_confirm,CR-02,vest,96,3.200,CR-02:video6bis:subject_001,subject_001,0.5777,"[604.8, 203.0, 667.8, 407.4]"
+cp_d3_fast_confirm,CR-02,vest,172,5.733,CR-02:video6bis:subject_001,subject_001,0.5052,"[813.4, 180.4, 852.0, 436.1]"
+cp_d3_strict_association,CR-02,vest,32,1.067,CR-02:video6bis:subject_001,subject_001,0.7429,"[525.2, 214.2, 584.0, 404.5]"
+cp_d3_wide_association,CR-02,vest,114,3.800,CR-02:video6bis:subject_001,subject_001,0.7116,"[633.4, 199.3, 729.7, 417.8]"
