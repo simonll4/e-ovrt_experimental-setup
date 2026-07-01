@@ -1,248 +1,212 @@
-# E-OVRT Web Console — Diseño (spec)
+# E-OVRT Web Console — Diseño (Spec B)
 
-- **Fecha:** 2026-07-01
-- **Estado:** ⚠️ **PENDIENTE DE REESCRITURA (Spec B).** Superado por el pivote del
-  2026-07-01: el media-plane deja de ser CLI y pasa a ser un **servicio de inferencia
-  desplegado** (ver Spec A, `2026-07-01-media-plane-service-design.md`). Cuando Spec A
-  cierre, este documento se reescribe: la consola pasa a ser **cliente del servicio**
-  (se cae el subprocess, la correlación de `run_id`, el tailing de archivos y los hacks
-  de `cwd`; el `RunBackend` se convierte en "cliente del servicio media-plane"). Las
-  decisiones de UI/alcance/monitoreo de abajo siguen vigentes; cambia la capa de
-  integración.
+- **Fecha:** 2026-07-01 (reescrito tras el pivote a servicio)
+- **Estado:** aprobado para escribir plan de implementación (tras Spec A)
 - **Repo:** `e-ovrt_experimental-setup` (monorepo) — la consola vive en `webconsole/`.
-  Repos hermanos externos: `e-ovrt_media-plane`, `e-ovrt_datasets`.
+- **Depende de:** Spec A — `e-ovrt_media-plane/docs/superpowers/specs/2026-07-01-media-plane-service-design.md`
+  (el media-plane es ahora un **servicio de inferencia**). La consola es **cliente** de ese servicio.
 
 ## 1. Propósito
 
-Interfaz web experimental para la plataforma **E-OVRT-VDP**. Punto único desde el
-cual **componer, lanzar, monitorear en vivo y explorar** corridas del pipeline de
-detección open-vocabulary, sobre datasets de imágenes/video (y, a futuro, fuentes en
-vivo). Es el germen del **control plane** de la plataforma.
+Interfaz web experimental para la plataforma **E-OVRT-VDP**. Punto único desde el cual
+**componer, lanzar, monitorear en vivo y explorar** corridas de detección
+open-vocabulary. Es el germen del **control plane** de la plataforma.
 
-Hoy, definir y correr un experimento exige editar YAML a mano y ejecutar el CLI
-`eovrt-media` desde la raíz del media-plane. La consola elimina ese dolor sin duplicar la
-lógica del motor. Al vivir en el mismo repo que las declaraciones (`prompts/`,
-`experiments/`), guardar un manifiesto es una escritura **in-repo** (commit atómico).
+La consola **no ejecuta el pipeline**: es un **BFF** (backend-for-frontend) que habla con
+el/los servicio(s) media-plane por HTTP/WS, y que además resuelve las declaraciones
+(`prompts/`, `experiments/`) que viven en su mismo repo. Al vivir junto a las
+declaraciones, guardar un manifiesto es una escritura **in-repo** (commit atómico).
 
 ### Alcance
 
-- **MVP (Fase 1):** consola de plataforma acotada pero extensible — componer corridas
-  desde catálogos, lanzarlas sobre datasets/video, ver progreso + telemetría en vivo,
-  explorar resultados. Catálogos en modo lectura. Un solo nodo de cómputo (local).
-- **Explícitamente fuera del MVP (Fase 2+):** fuentes en vivo (RTSP/OAK-D) con
-  lifecycle, registro de cámaras, editor de manifiestos/prompt sets, evaluación BENCH +
-  compare-runs, despliegue multi-nodo, auth/multi-usuario.
+- **MVP (Fase 1):** componer corridas seleccionando plugin de ingesta + prompts + params
+  contra **una instancia local del servicio** (un modelo cargado); lanzar sobre
+  datasets/video; ver progreso + telemetría en vivo; explorar resultados; guardar
+  manifiesto. Catálogos read-only. Un solo nodo/instancia.
+- **Fuera del MVP (Fase 2+):** fuentes en vivo (RTSP con lifecycle), registro de cámaras,
+  editor de manifiestos/prompt sets, evaluación BENCH + compare-runs, **multi-instancia /
+  multi-nodo** (elegir modelo = targetear/lanzar la instancia con ese `MODEL_REF`),
+  auth/multi-usuario.
 
 ## 2. Decisiones de diseño (cerradas)
 
 | Decisión | Resolución |
 |---|---|
-| Alcance | Consola de plataforma, MVP extensible |
-| Monitoreo en vivo | Progreso + telemetría por WebSocket (sin video en vivo) |
-| Stack | FastAPI (backend) + subprocess + SPA React/Vite/TypeScript |
-| Integración con el motor | Subprocess `eovrt-media run` para ejecutar; import de `eovrt_media.config` **solo** para parsear/validar |
-| Fuentes en vivo | Datasets/video ahora; RTSP/OAK-D como *plugin-slot* (Fase 2). Modelo de datos ya las contempla |
-| Definir corrida | Formulario compositor + opción de guardar manifiesto (in-repo) |
-| Multi-nodo | Costura `RunBackend` desde el día 1; solo `LocalRunBackend` implementado en MVP |
-| Auth | Sin auth, localhost (Fase 1). Auth → Fase 2 |
+| Rol de la consola | **BFF cliente** del servicio media-plane (no ejecuta el pipeline) |
+| Integración | HTTP/REST + WebSocket contra el servicio. **Sin subprocess, sin tailing de archivos, sin `cwd` hacks** |
+| Monitoreo en vivo | Progreso + telemetría por WebSocket (proxy del stream del servicio). Sin video en vivo |
+| Stack | FastAPI (BFF) + SPA React/Vite/TypeScript |
+| Definir corrida | Formulario compositor (ingesta + prompts + params) + guardar manifiesto in-repo |
+| Modelo | **Fijo por instancia** (lo define el servicio). La UI muestra el modelo activo (`GET /api/model`); no hay dropdown de modelo en caliente en Fase 1 |
+| Prompts | La consola resuelve el prompt set in-repo y lo envía **inline** al crear el run |
+| Multi-nodo | Costura `RunBackend` = cliente de una instancia del servicio. Fase 1: una instancia local. Fase 2: varias instancias/nodos |
+| Auth | Sin auth, localhost (Fase 1) |
 | Ubicación | Monorepo `e-ovrt_experimental-setup`, consola en `webconsole/` |
 
 ## 3. Arquitectura
 
-Monorepo unificado. Los artefactos declarativos permanecen en la **raíz** del repo; la
-consola vive en un subdirectorio. Esto preserva el contrato con el media-plane (ver
-§3.1).
-
 ```
 e-ovrt_experimental-setup/          (repo unificado)
-├── prompts/            ← se mantienen en la raíz
-├── experiments/        ← se mantienen en la raíz
+├── prompts/            ← declarativo (raíz; ver §3.1)
+├── experiments/        ← declarativo (raíz)
 ├── docs/
 └── webconsole/
-    ├── backend/        FastAPI (Python) — orquesta y lee artefactos
+    ├── backend/        FastAPI (BFF) — cliente del servicio + acceso a prompts/experiments in-repo
     └── frontend/       React + Vite + TypeScript — SPA
 ```
 
-**Principio rector:** el backend **nunca importa GPU ni corre el pipeline en su
-proceso**. Ejecuta `eovrt-media run` como **subproceso** con `cwd = <raíz media-plane>`
-(para resolver las rutas relativas `../e-ovrt_datasets/...`) usando el **Python del venv
-del media-plane**. Importa `eovrt_media.config` **solo para parsear/validar** configs,
-manteniendo una única fuente de verdad de los schemas Pydantic (sin duplicarlos).
-
 ```
 Navegador (React SPA)
-   │  REST + WebSocket
+   │  REST + WebSocket (un solo origen)
    ▼
-FastAPI backend  ── importa eovrt_media.config (solo validar) ──▶ schemas Pydantic
-   ├─ CatalogService   lee ../prompts + ../experiments (in-repo) + configs/ del media-plane (externo)
-   ├─ RunComposer      form → RunConfig YAML → valida con loader → (opcional) guarda manifiesto in-repo
-   ├─ RunManager       ── usa ──▶ RunBackend
-   ├─ TelemetryTailer  ── usa ──▶ RunBackend
-   └─ ResultsService   ── usa ──▶ RunBackend
-                                    │
-                                    ├─ LocalRunBackend (MVP): subprocess + FS local
-                                    └─ RemoteNodeBackend (Fase 2): node-agent por HTTP
+FastAPI BFF (webconsole/backend)
+   ├─ CatalogService   proxya catálogos del servicio (ingest-plugins, datasets, /model) + lee prompts/ y experiments/ in-repo
+   ├─ RunComposer      form → run request; resuelve prompt set in-repo → prompts inline; valida
+   ├─ ManifestWriter   guarda manifiesto YAML in-repo (experiments/)
+   ├─ RunBackend       cliente HTTP/WS del servicio (una instancia = un "node/target")
+   │     ├─ crea run (POST /api/runs) · stop · estado
+   │     ├─ proxya el WS de telemetría (/api/runs/{id}/stream)
+   │     └─ proxya artefactos (annotated.mp4 con range, previews, detections)
    ▼
-e-ovrt_media-plane/runs/<run_id>/  (detections/metrics/errors.jsonl, annotated.mp4, previews/, summary.json)
+Servicio media-plane (Spec A)  ── GET /api/model, POST /api/runs, WS stream, artefactos ──
+   ▼
+runs/<run_id>/  (propiedad del servicio; la consola los consume por API)
 ```
 
 ### 3.1 Invariante con el media-plane (two-root loader)
 
-El *two-root loader* del media-plane descubre la "raíz del experimento" **subiendo desde
-el manifiesto hasta el directorio que contiene `prompts/`**. Por eso `prompts/` y
-`experiments/` **deben permanecer en la raíz del repo**; agregar `webconsole/` como
-subdirectorio no altera esa resolución. `prompts.ref` resuelve contra la raíz del repo;
-`model.ref` y `source.ref` resuelven contra los catálogos del media-plane (externo).
+`prompts/` y `experiments/` **permanecen en la raíz del repo**; `webconsole/` es un
+subdirectorio. Esto preserva la resolución del loader del media-plane y permite al BFF
+leer/escribir las declaraciones por ruta relativa desde `webconsole/backend`.
 
-### Settings del backend (env / archivo)
+### Settings del BFF (env / archivo)
 
-`MEDIA_PLANE_ROOT`, `DATASETS_ROOT` (hermanos externos), `PYTHON_BIN` (venv del
-media-plane), `RUNS_DIR`, `CONCURRENCY` (default 1, GPU serie). La raíz de
-`experimental-setup` (donde viven `prompts/`, `experiments/`) es el propio repo — se
-resuelve relativa a `webconsole/`, no por env. Al arrancar, el backend valida que
-`PYTHON_BIN` existe y que `eovrt-media` es invocable (el venv del media-plane se rompe si
-el repo se mueve; hay que detectarlo temprano).
+- `SERVICE_URL` — URL base de la instancia del servicio media-plane (Fase 1: una local).
+  Fase 2: **registro de instancias/nodos** (`{node_id → url, model}`).
+- La raíz de las declaraciones (`prompts/`, `experiments/`) se resuelve relativa a
+  `webconsole/` (no por env).
+- `CONCURRENCY` de runs lo impone el **servicio** (un run activo); el BFF solo refleja el
+  estado (`409 busy`).
 
-## 4. La costura `RunBackend` (control plane)
+## 4. Relación con el servicio y modelo de nodo
 
-Toda interacción con "dónde y cómo se ejecuta" pasa por una interfaz. Ni la API REST ni
-el frontend asumen ejecución local ni filesystem local.
+- Cada **instancia del servicio = un node/target** con **un modelo cargado**. `RunBackend`
+  apunta a una instancia. El campo `node` existe en el modelo de datos y en la UI desde el
+  MVP (un único nodo `local` en Fase 1).
+- **Selección de modelo:** como el modelo es fijo por instancia, la UI **muestra** el
+  modelo activo del target (`GET /api/model`) en lugar de ofrecer un dropdown libre. En
+  Fase 2, elegir otro modelo = seleccionar/lanzar la instancia con ese `MODEL_REF`
+  (routing en `RunBackend`).
+- **Despliegue EBE (Fase 2):** la consola vive en Nodo A (edge) y apunta a la instancia del
+  servicio en Nodo B (GPU) vía `SERVICE_URL` de ese nodo. La ingesta la hace el servicio
+  (su adaptador de ingesta); la consola solo selecciona y observa.
 
-```
-RunBackend (interfaz)
-  launch(run_config, node) -> job_handle
-  stream_telemetry(job_handle) -> iterador de eventos
-  stop(job_handle) -> None
-  list_runs(node) -> [RunSummaryRef]
-  get_result(node, run_id) -> RunResult
-  open_artifact(node, run_id, rel_path) -> stream de bytes
-```
+## 5. Componentes del BFF
 
-- **MVP → `LocalRunBackend`:** subprocess + tail del FS local. Único implementado.
-- **Fase 2 → `RemoteNodeBackend`:** habla con un **node-agent** (daemon liviano, mismo
-  contrato) en cada nodo de cómputo; artefactos por HTTP o volumen compartido.
-
-**Modelo de datos con `node`/`target`:** cada job y cada run se atribuyen a un nodo. En
-MVP hay un único nodo implícito (`local`), pero el campo existe en API y UI.
-
-### Despliegue objetivo EBE (Fase 2, registrado — no se construye aún)
-
-La web console se despliega en **Nodo A (edge)**, junto al punto de ingesta (posee la
-conexión con la fuente de video), compone la config y la **envía a Nodo B (GPU)**, que
-queda como target de inferencia headless. Calza con el split existente del media-plane
-(`run-producer` en A / `run-consumer` en B vía ZeroMQ): el `RemoteNodeBackend` orquesta
-ambos. Como en EBE los sinks corren en B, la console en A obtiene telemetría y artefactos
-de B a través de la costura `RunBackend` (node-agent o volumen compartido). El modelo
-`node` + `RunBackend` no impide este escenario; el MVP simplemente no lo implementa.
-
-## 5. Componentes del backend
-
-### 5.1 CatalogService (read-only)
-Parsea los YAML declarativos (in-repo: `prompts/`, `experiments/`) y los catálogos del
-media-plane (externo: `configs/`), y expone:
-- `GET /api/catalog/models` — refs de modelo (family/variant, adapter, device default, thresholds).
-- `GET /api/catalog/datasets` — refs de dataset (type, path, bounded vs live).
-- `GET /api/catalog/prompt-sets` — sets con clases, backends de phrasing, flag `frozen`.
-- `GET /api/catalog/manifests` — manifiestos existentes (plantillas de corrida).
-- `GET /api/catalog/source-plugins` — registro de tipos de fuente (`image_folder`,
-  `video_file`, `rtsp`, `oak_d`) con flag de disponibilidad. MVP: `rtsp`=*fase 2*,
-  `oak_d`=*no disponible*.
+### 5.1 CatalogService
+- Proxya del servicio: `GET /api/catalog/ingest-plugins`, `GET /api/catalog/datasets`,
+  `GET /api/model` (modelo activo del target).
+- Lee in-repo: `prompts/*.yaml` (sets + clases + `frozen`) y `experiments/*.yaml`
+  (manifiestos como plantillas).
+- Expone al frontend un catálogo unificado por target.
 
 ### 5.2 RunComposer
-Recibe la composición del form (source ref, model ref, prompt set + `active_ids`,
-overrides: `stride`, `device`, thresholds, `save_annotated_video`), arma el `RunConfig`,
-lo **valida con `load_run_config`** (mismos errores que el CLI, mapeados a nivel de
-campo) y opcionalmente lo **persiste como manifiesto** in-repo en `experiments/`
-(escritura atómica; respeta los sets congelados y la estructura existente).
-- `POST /api/runs/validate` → errores de validación.
-- `POST /api/runs` → lanza (via RunManager).
-- `POST /api/manifests` → guarda manifiesto YAML in-repo.
+- Recibe la composición del form: `{ ingest: {plugin, config}, prompts: {set_id, active_ids},
+  run: {stride, max_units, save_annotated_video, ...} }` (el modelo lo define el target).
+- **Resuelve el prompt set in-repo** y arma el request con **prompts inline** para el
+  servicio.
+- Valida (esquema del request + validación del servicio) antes de lanzar.
+- `POST /api/compose/validate` → errores a nivel de campo.
+- `POST /api/runs` → delega en `RunBackend.launch` (que hace `POST` al servicio).
 
-### 5.3 RunManager
-Estado del job (`queued/running/succeeded/failed/stopped`, node, run_id, exit code, log),
-**cola en serie** (`CONCURRENCY`, default 1 por GPU), **stop** (termina el proceso vía
-`RunBackend`), captura de stdout/stderr a log.
-- **Correlación job ↔ run dir:** el `run_id` lo genera el media-plane en runtime
-  (timestamp + name). El `LocalRunBackend` detecta el directorio nuevo bajo `RUNS_DIR`
-  cuyo nombre matchea el `run.name`, creado tras el launch. **Riesgo / mitigación:** si
-  resulta frágil (colisión de nombres, concurrencia), se agrega una opción mínima al CLI
-  del media-plane (`--print-run-dir` o `--run-id`). Autorizado como fallback.
+### 5.3 ManifestWriter
+- `POST /api/manifests` → guarda la composición como manifiesto YAML **in-repo** en
+  `experiments/` (escritura atómica; respeta sets congelados y estructura existente).
 
-### 5.4 TelemetryTailer
-Cuando conoce el run dir (vía `RunBackend`), sigue `metrics.jsonl` y `detections.jsonl`,
-lee `summary.json` al cerrar, y emite por **WebSocket** (`/api/runs/{id}/ws`):
-progreso (units hechas/total), FPS efectivo, latencia p95, GPU mem, detecciones por
-label, contador de errores y tail del log.
-- **Total de units:** para fuentes bounded sale del tamaño del dataset (nº de imágenes o
-  frames/stride del video). Para fuentes live (Fase 2) el progreso es indefinido.
-- **Fallback:** si el WebSocket cae, la UI hace polling de `GET /api/runs/{id}` y
-  re-hidrata desde `summary.json` al reconectar.
+### 5.4 RunBackend (la costura de control plane)
+Cliente del servicio. Interfaz estable independiente de "qué/dónde":
+```
+RunBackend
+  launch(run_request, node) -> run_id            # POST {service}/api/runs
+  stop(node, run_id)                             # POST {service}/api/runs/{id}/stop
+  status(node, run_id) -> RunStatus              # GET  {service}/api/runs/{id}
+  stream(node, run_id) -> eventos                # WS   {service}/api/runs/{id}/stream (proxy)
+  list_runs(node) -> [...]                        # GET  {service}/api/runs
+  open_artifact(node, run_id, rel) -> bytes      # GET  {service}/api/runs/{id}/artifacts/...
+```
+- **Fase 1:** un único target `local` (`SERVICE_URL`).
+- **Fase 2:** varios targets (registro de nodos); `launch` rutea al target del modelo pedido.
 
-### 5.5 ResultsService
-Para runs terminados, a través de `RunBackend.open_artifact`:
-- `GET /api/runs/{id}` — summary + effective_config + estado.
-- `GET /api/runs/{id}/detections?page=` — detections.jsonl paginado.
-- `GET /api/runs/{id}/artifacts/annotated.mp4` — con **range requests** para el player.
-- `GET /api/runs/{id}/artifacts/previews/*` — galería de previews.
+### 5.5 TelemetryProxy / ResultsProxy
+- **Telemetry:** el BFF se suscribe al WS del servicio y lo reexpone al SPA
+  (`WS /api/runs/{id}/stream`), manteniendo un solo origen. Si el WS cae, el SPA hace
+  polling de `GET /api/runs/{id}` y re-hidrata.
+- **Results:** proxya `summary`, `detections` paginadas, `annotated.mp4` (con range
+  requests) y `previews/` desde el servicio.
 
 ## 6. Frontend (pantallas)
 
-- **Runs (home):** tabla de corridas (jobs vivos + `runs/` existentes) con estado,
-  nodo, modelo, dataset, métricas clave; botón *Nueva corrida*.
-- **Nueva corrida (compositor):** form fuente (dataset/video) → modelo → prompt set con
-  toggles de clases activas → overrides. Validación en vivo (`/validate`). Botones
-  *Lanzar* y *Guardar como manifiesto*. Puede partir de un manifiesto existente como
-  plantilla.
-- **Detalle de corrida (vivo):** barra de progreso + gráficos de telemetría (FPS, p95,
-  GPU mem, detecciones-por-label) + consola de log en streaming. Al terminar: player del
+- **Runs (home):** tabla de corridas (activa + historial vía servicio) con estado, nodo,
+  modelo activo, plugin de ingesta, métricas clave; botón *Nueva corrida*.
+- **Nueva corrida (compositor):** target/nodo (Fase 1: `local`, muestra su modelo) →
+  plugin de ingesta (dataset/video) + su config → prompt set con toggles de clases activas
+  → overrides (stride, thresholds, save_annotated_video). Validación en vivo. Botones
+  *Lanzar* y *Guardar como manifiesto*. Puede partir de un manifiesto existente.
+- **Detalle de corrida (vivo):** barra de progreso + gráficos de telemetría (FPS, p95, GPU
+  mem, detecciones-por-label) + consola de log en streaming (WS). Al terminar: player del
   `annotated.mp4`, galería de previews, tabla de detecciones, summary y config efectiva.
-- **Catálogos (read-only):** modelos, datasets, prompt sets, plugins de fuente (badges de
-  disponibilidad).
+- **Catálogos (read-only):** modelo activo del target, plugins de ingesta (badges de
+  disponibilidad: RTSP=fase 2, OAK-D=no disponible), datasets, prompt sets.
 
 ## 7. Flujo de datos
 
 ```
-form → POST /validate → POST /runs → RunManager → RunBackend.launch → subprocess eovrt-media
-   → media-plane escribe runs/<id>/*.jsonl → TelemetryTailer (RunBackend) sigue archivos
-   → WebSocket → UI en vivo → al cerrar, ResultsService (RunBackend.open_artifact) sirve artefactos
+form → POST /api/compose/validate → POST /api/runs (BFF) → RunBackend.launch → POST {service}/api/runs
+   → el servicio ingiere+infiere y escribe runs/<id>/ → WS del servicio → BFF proxya WS → SPA en vivo
+   → al terminar, ResultsProxy sirve artefactos desde el servicio
 ```
 
 ## 8. Manejo de errores
 
-- **Validación de config:** errores del loader del media-plane mapeados a campos del
-  compositor.
-- **Fallo de launch** (venv/pesos faltantes): job `failed` + stderr visible. El backend
-  valida `PYTHON_BIN`/`eovrt-media` al arrancar.
-- **Errores de runtime:** el media-plane escribe `errors.jsonl` sin frenar; la UI muestra
-  contador + tail. Exit code ≠ 0 → `failed`.
-- **WebSocket caído:** la UI cae a polling y re-hidrata desde `summary.json`.
-- **Fuente live/OAK-D pedida en MVP:** el backend la rechaza con mensaje claro; la UI la
-  muestra deshabilitada con badge.
+- **Validación:** errores del request (esquema BFF) + validación del servicio (`422`)
+  mapeados a campos del compositor.
+- **Servicio no disponible / no `ready`:** el BFF detecta `GET /healthz`/`/readyz` del
+  target y muestra estado; los lanzamientos se bloquean con mensaje claro.
+- **`409 busy`:** ya hay un run activo en el target; la UI lo informa y ofrece ver el run
+  activo.
+- **Errores de runtime:** el servicio los expone (contador + tail vía WS/summary); la UI
+  los muestra.
+- **WS caído:** fallback a polling; re-hidrata desde `summary`.
+- **Plugin live/OAK-D pedido en MVP:** el servicio lo rechaza; la UI lo muestra
+  deshabilitado con badge.
 
 ## 9. Testing
 
-- **Backend (pytest):** e2e con el detector `mock` sobre `demo_v2` (sin GPU) —
-  compose → validate → launch → tailer emite telemetría → results legibles. Unit:
-  parsing de catálogos, composer→YAML, correlación de run dir, agregación del tailer,
-  contrato `RunBackend` (fake in-memory).
-- **Frontend (Vitest):** tests de componentes + integración contra backend stub.
+- **Backend BFF (pytest):** contra un **servicio fake** (o el servicio real con detector
+  `mock`): compose → validate → launch → proxy de WS emite telemetría → results legibles;
+  resolución de prompt set in-repo → inline; escritura de manifiesto in-repo; `RunBackend`
+  contra fake HTTP/WS; manejo de `409`/servicio no `ready`.
+- **Frontend (Vitest):** componentes + integración contra BFF stub.
 
 ## 10. Plan de fases
 
-- **Fase 1 (MVP):** catálogos read-only; compositor + guardar manifiesto in-repo; lanzar
-  mock/GDINO/YOLOE sobre datasets+video; telemetría en vivo; detalle + resultados; lista
-  de runs; `LocalRunBackend`; costura `RunBackend` + modelo `node` en su lugar.
-- **Fase 2:** RTSP en vivo (lifecycle start/stop, corrida sin fin); registro de cámaras;
-  editor de manifiestos/prompt sets; evaluación BENCH + compare-runs; `RemoteNodeBackend`
-  + node-agent (despliegue EBE Nodo A/Nodo B); auth/multi-usuario.
+- **Fase 1 (MVP):** BFF cliente de **una instancia local** del servicio; catálogos
+  read-only (proxy + in-repo); compositor (ingesta + prompts + params) + guardar manifiesto
+  in-repo; lanzar sobre datasets/video; telemetría en vivo (proxy WS); detalle + resultados;
+  lista de runs; costura `RunBackend` + modelo `node`.
+- **Fase 2:** RTSP en vivo (lifecycle); registro de cámaras; **multi-instancia/multi-nodo**
+  (elegir modelo = targetear/lanzar instancia); editor de manifiestos/prompt sets;
+  evaluación BENCH + compare-runs; auth/multi-usuario.
 
-## 11. Riesgos e integración
+## 11. Riesgos
 
-1. **Correlación job ↔ run dir** — mitigado con opción de CLI si hace falta (§5.3).
-2. **Venv del media-plane** — se rompe si el repo se mueve; validar al arranque.
-3. **Ejecutar desde la raíz del media-plane** — requisito de rutas relativas; el
-   `LocalRunBackend` fija `cwd` siempre.
-4. **Invariante del two-root loader** — `prompts/` y `experiments/` deben quedar en la
-   raíz del repo (§3.1); el subdir `webconsole/` no debe moverlos.
-5. **Toolchain mixto** — el repo suma dependencias Python (web) y Node; aislar bajo
-   `webconsole/` y no contaminar la capa declarativa.
+1. **Proxy de WebSocket en el BFF** — mantener el stream del servicio hacia el SPA sin
+   introducir latencia/backpressure; alternativa: que el SPA se conecte directo al WS del
+   servicio (se pierde el único-origen). Decisión Fase 1: proxy en el BFF por simplicidad
+   de origen/routing.
+2. **Streaming de artefactos grandes** (`annotated.mp4`) — proxyar con range requests sin
+   bufferizar en memoria (stream pass-through).
+3. **Selección de modelo por instancia** — en Fase 1 el modelo es el del target; cambiarlo
+   exige otra instancia (Fase 2). La UI debe dejar esto claro (muestra modelo activo).
+4. **Sincronía de catálogos** — datasets/plugins vienen del servicio y prompts del repo;
+   evitar estados incoherentes (validar contra el target al componer).
