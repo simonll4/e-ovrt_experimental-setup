@@ -1,7 +1,14 @@
 # E-OVRT Web Console — Diseño (spec)
 
 - **Fecha:** 2026-07-01
-- **Estado:** aprobado para escribir plan de implementación
+- **Estado:** ⚠️ **PENDIENTE DE REESCRITURA (Spec B).** Superado por el pivote del
+  2026-07-01: el media-plane deja de ser CLI y pasa a ser un **servicio de inferencia
+  desplegado** (ver Spec A, `2026-07-01-media-plane-service-design.md`). Cuando Spec A
+  cierre, este documento se reescribe: la consola pasa a ser **cliente del servicio**
+  (se cae el subprocess, la correlación de `run_id`, el tailing de archivos y los hacks
+  de `cwd`; el `RunBackend` se convierte en "cliente del servicio media-plane"). Las
+  decisiones de UI/alcance/monitoreo de abajo siguen vigentes; cambia la capa de
+  integración.
 - **Repo:** `e-ovrt_experimental-setup` (monorepo) — la consola vive en `webconsole/`.
   Repos hermanos externos: `e-ovrt_media-plane`, `e-ovrt_datasets`.
 
