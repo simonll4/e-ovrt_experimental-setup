@@ -1,0 +1,23 @@
+# Corrida DBE sobre video local (recorte-1.mp4) con Grounding DINO tiny (GPU) y
+# salida de video anotado. NMS per-clase canónica aplicado en el adaptador.
+run:
+  scenario: DBE
+  name: dbe_gdino_video_annotated
+  description: "DBE GDINO-tiny sobre recorte-1.mp4 con video anotado (stride=3, cuda)"
+
+source:
+  ref: video_sample
+
+rate_control:
+  stride: 3
+
+model:
+  ref: grounding-dino/gdino-tiny
+  device: cuda
+
+prompts:
+  ref: cr01_cr02_v2_short
+  active_ids: [person, helmet, vest]
+
+outputs:
+  save_annotated_video: true
