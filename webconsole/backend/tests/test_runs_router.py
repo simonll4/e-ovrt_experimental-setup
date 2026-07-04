@@ -1,4 +1,5 @@
 from eovrt_webconsole.routers.runs import _row
+from eovrt_webconsole.run_backend import ServiceUnavailable
 
 
 def _body(**overrides) -> dict:
@@ -86,3 +87,57 @@ def test_listado_hidratado_degrada_sin_500(client, fake_state, monkeypatch):
     assert len(rows) == 2
     assert all(row["status"] == "unknown" for row in rows)
     assert all(row["run_id"] is None for row in rows)
+
+
+def test_evaluate_ok(client):
+    r = client.post("/api/runs/run_done_1/evaluate")
+    assert r.status_code == 200
+    body = r.json()
+    assert body["mAP50"] == 0.47
+    assert body["bench_split"] == "bench_v2_test"
+
+
+def test_evaluate_409_run_en_curso(client, fake_state):
+    fake_state.active_run_id = "run_active_1"
+    r = client.post("/api/runs/run_active_1/evaluate")
+    assert r.status_code == 409
+    assert "detail" in r.json()
+
+
+def test_evaluate_422_no_bench_va_como_service(client, fake_state):
+    fake_state.evaluate_not_bench = True
+    r = client.post("/api/runs/run_done_1/evaluate")
+    assert r.status_code == 422
+    assert any(e["field"] == "_service" for e in r.json()["errors"])
+
+
+def test_evaluate_404_desconocido(client):
+    assert client.post("/api/runs/nope/evaluate").status_code == 404
+
+
+def test_evaluate_502_servicio_caido(client, monkeypatch):
+    async def down(_run_id):
+        raise ServiceUnavailable("down")
+
+    monkeypatch.setattr(client.app.state.backend, "evaluate", down)
+    assert client.post("/api/runs/run_done_1/evaluate").status_code == 502
+
+
+def test_get_evaluation_404_y_luego_200(client):
+    assert client.get("/api/runs/run_done_1/evaluate").status_code == 404
+    client.post("/api/runs/run_done_1/evaluate")
+    r = client.get("/api/runs/run_done_1/evaluate")
+    assert r.status_code == 200
+    assert r.json()["mAP50"] == 0.47
+
+
+def test_listado_trae_flags_de_evaluacion(client):
+    rows = {r["run_id"]: r for r in client.get("/api/runs").json()}
+    assert rows["run_done_1"]["bench_split"] == "bench_v2_test"
+    assert rows["run_done_1"]["evaluated"] is False
+
+
+def test_get_run_passthrough_trae_bench_split(client):
+    body = client.get("/api/runs/run_done_1").json()
+    assert body["bench_split"] == "bench_v2_test"
+    assert body["evaluated"] is False

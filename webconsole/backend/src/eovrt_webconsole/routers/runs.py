@@ -8,7 +8,7 @@ from fastapi.responses import JSONResponse, StreamingResponse
 from starlette.background import BackgroundTask
 
 from eovrt_webconsole.routers.compose import validate_composition
-from eovrt_webconsole.run_backend import RunBusy, ServiceRejected, ServiceUnavailable, UnknownRun
+from eovrt_webconsole.run_backend import RunBusy, RunNotFinished, ServiceRejected, ServiceUnavailable, UnknownRun
 from eovrt_webconsole.translation import Composition, composition_to_run_request
 
 logger = logging.getLogger(__name__)
@@ -30,6 +30,8 @@ def _row(info: dict) -> dict:
         "total_detections": summary.get("total_detections"),
         "duration_seconds": summary.get("duration_seconds"),
         "started_at": info.get("started_at") or summary.get("started_at"),
+        "bench_split": info.get("bench_split"),
+        "evaluated": info.get("evaluated"),
     }
 
 
@@ -79,9 +81,21 @@ async def list_runs(request: Request) -> list[dict]:
         try:
             rows.append(_row(await backend.status(item["run_id"])))
         except (UnknownRun, ServiceUnavailable):
-            rows.append({"run_id": item["run_id"], "status": item["status"]})
+            rows.append(
+                {
+                    "run_id": item["run_id"],
+                    "status": item["status"],
+                    "bench_split": item.get("bench_split"),
+                    "evaluated": item.get("evaluated"),
+                }
+            )
     rows.extend(
-        {"run_id": item["run_id"], "status": item["status"]}
+        {
+            "run_id": item["run_id"],
+            "status": item["status"],
+            "bench_split": item.get("bench_split"),
+            "evaluated": item.get("evaluated"),
+        }
         for item in base[settings.hydration_limit :]
     )
     return rows
@@ -109,6 +123,35 @@ async def stop_run(run_id: str, request: Request) -> dict:
         raise HTTPException(status_code=502, detail=str(exc)) from exc
     logger.info("stop_run: solicitado stop de run_id=%s", run_id)
     return {"run_id": run_id, "stopping": True}
+
+
+@router.post("/{run_id}/evaluate")
+async def evaluate_run(run_id: str, request: Request):
+    try:
+        return await request.app.state.backend.evaluate(run_id)
+    except UnknownRun as exc:
+        raise HTTPException(status_code=404, detail=f"Run desconocido: {run_id}") from exc
+    except RunNotFinished as exc:
+        return JSONResponse(status_code=409, content={"detail": exc.detail})
+    except ServiceRejected as exc:
+        return JSONResponse(
+            status_code=422,
+            content={"errors": [{"field": "_service", "message": str(exc.detail)}]},
+        )
+    except ServiceUnavailable as exc:
+        logger.warning("evaluate(%s): servicio inaccesible: %s", run_id, exc)
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+
+@router.get("/{run_id}/evaluate")
+async def get_evaluation(run_id: str, request: Request):
+    try:
+        return await request.app.state.backend.get_evaluation(run_id)
+    except UnknownRun as exc:
+        raise HTTPException(status_code=404, detail=f"Run no evaluado: {run_id}") from exc
+    except ServiceUnavailable as exc:
+        logger.warning("get_evaluation(%s): servicio inaccesible: %s", run_id, exc)
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
 
 
 @router.get("/{run_id}/detections")

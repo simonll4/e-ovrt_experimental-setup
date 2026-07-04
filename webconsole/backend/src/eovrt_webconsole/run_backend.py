@@ -20,6 +20,15 @@ class RunBusy(Exception):
         self.active_run_id = active_run_id
 
 
+class RunNotFinished(Exception):
+    """409 al evaluar: el run sigue en curso (sin active_run_id, a diferencia
+    de RunBusy que es el 409 de lanzamiento)."""
+
+    def __init__(self, detail: str) -> None:
+        super().__init__(detail)
+        self.detail = detail
+
+
 class ServiceRejected(Exception):
     """422 del servicio (config inválida, plugin no disponible, etc.)."""
 
@@ -88,6 +97,27 @@ class RunBackend:
         if response.status_code >= 500:
             raise ServiceUnavailable(f"POST /api/runs/{run_id}/stop -> {response.status_code}")
         response.raise_for_status()
+
+    async def evaluate(self, run_id: str) -> dict:
+        try:
+            response = await self._http.post(f"/api/runs/{run_id}/evaluate")
+        except httpx.HTTPError as exc:
+            raise ServiceUnavailable(str(exc)) from exc
+        if response.status_code == 404:
+            raise UnknownRun(run_id)
+        if response.status_code == 409:
+            raise RunNotFinished(response.json().get("detail", "run en curso"))
+        if response.status_code == 422:
+            raise ServiceRejected(response.json().get("detail"))
+        if response.status_code >= 500 or response.status_code == 503:
+            raise ServiceUnavailable(
+                f"POST /api/runs/{run_id}/evaluate -> {response.status_code}"
+            )
+        response.raise_for_status()
+        return response.json()
+
+    async def get_evaluation(self, run_id: str) -> dict:
+        return await self._get_json(f"/api/runs/{run_id}/evaluate")
 
     async def detections(self, run_id: str, page: int = 1, page_size: int = 100) -> dict:
         return await self._get_json(

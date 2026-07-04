@@ -4,6 +4,10 @@ Consola web de la plataforma E-OVRT-VDP: BFF FastAPI (`backend/`) + SPA React (`
 **cliente** del servicio media-plane (Spec B). No ejecuta el pipeline: habla HTTP/WS con la
 instancia del servicio (`EOVRT_CONSOLE_SERVICE_URL`, default `http://localhost:8080`).
 
+Funciones: componer y lanzar corridas, ver el detalle en vivo (WS), **evaluar un run
+BENCH contra el GT de seguridad** (AP@0.5 por clase, CR-01 recall, mAP@0.5) y **comparar
+varios runs** (tabla + gráfico) en la página `/compare`.
+
 ## Uso
 
 ```bash

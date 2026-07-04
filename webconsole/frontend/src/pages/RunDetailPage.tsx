@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { artifactUrl, getDetections, getRun, stopRun } from '../api'
+import EvalSection from '../components/EvalSection'
 import Sparkline from '../components/Sparkline'
 import { useRunStream } from '../stream'
 import type { DetectionsPage, RunDetail } from '../types'
@@ -120,6 +121,9 @@ export default function RunDetailPage() {
             </>
           )}
         </section>
+      )}
+      {!running && (
+        <EvalSection runId={id} benchSplit={run.bench_split} evaluated={run.evaluated} />
       )}
     </div>
   )

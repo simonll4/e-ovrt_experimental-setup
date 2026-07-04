@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { ApiError, artifactUrl, launchRun, listRuns, streamUrl } from '../api'
+import { ApiError, artifactUrl, evaluateRun, getCompare, launchRun, listRuns, streamUrl } from '../api'
 
 const COMP = {
   ingest: { plugin: 'image_folder', config: { dataset: 'demo_v2' } },
@@ -53,5 +53,31 @@ describe('api client', () => {
   it('streamUrl encodea el id', () => {
     const url = streamUrl('run x#1')
     expect(url).toContain('/api/runs/run%20x%231/stream')
+  })
+
+  it('evaluateRun postea y parsea el eval', async () => {
+    stubFetch(200, { run_id: 'r1', mAP50: 0.47, per_class: [] })
+    const result = await evaluateRun('r1')
+    expect(result.mAP50).toBe(0.47)
+  })
+
+  it('evaluateRun lanza ApiError en 422', async () => {
+    stubFetch(422, { errors: [{ field: '_service', message: 'no evaluable' }] })
+    const error = await evaluateRun('r1').catch((e) => e)
+    expect(error).toBeInstanceOf(ApiError)
+    expect(error.status).toBe(422)
+  })
+
+  it('getCompare arma la URL con ids encodeados', async () => {
+    const fetchMock = vi.fn(
+      async () =>
+        new Response(JSON.stringify({ runs: [], classes: [], ap_by_class: {}, skipped: [] }), {
+          status: 200,
+        }),
+    )
+    vi.stubGlobal('fetch', fetchMock)
+    await getCompare(['run a', 'run_b'])
+    const calls = (fetchMock.mock.calls as Array<unknown[]>)[0]
+    expect(calls?.[0]).toBe('/api/compare?runs=run%20a,run_b')
   })
 })

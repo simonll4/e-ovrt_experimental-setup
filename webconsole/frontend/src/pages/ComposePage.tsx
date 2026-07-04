@@ -27,6 +27,10 @@ export default function ComposePage() {
   const [plugin, setPlugin] = useState('image_folder')
   const [dataset, setDataset] = useState('')
   const [path, setPath] = useState('')
+  // `source.type` original del manifiesto prefilleado (video/video_frame/…): se
+  // conserva para que guardar no lo colapse a video_file. null cuando la fuente
+  // se arma desde cero o por dataset ref.
+  const [sourceType, setSourceType] = useState<string | null>(null)
   const [setId, setSetId] = useState('')
   const [activeIds, setActiveIds] = useState<string[]>([])
   const [stride, setStride] = useState('')
@@ -80,9 +84,11 @@ export default function ComposePage() {
     if (source.ref) {
       setPlugin('image_folder')
       setDataset(source.ref)
+      setSourceType(null)
     } else if (source.type) {
       setPlugin(source.type.includes('video') ? 'video_file' : source.type)
       setPath(source.path ?? '')
+      setSourceType(source.type) // preserva el string exacto para el round-trip
     }
     if (m.prompts?.ref) setSetId(m.prompts.ref)
     if (m.prompts?.active_ids) setActiveIds(m.prompts.active_ids)
@@ -96,6 +102,8 @@ export default function ComposePage() {
     ingest: {
       plugin,
       config: dataset ? { dataset } : path ? { path } : {},
+      // Solo relevante para fuentes por `path` (video); en dataset ref queda null.
+      source_type: dataset ? null : sourceType,
     },
     prompts: { set_id: setId, active_ids: activeIds },
     run: {

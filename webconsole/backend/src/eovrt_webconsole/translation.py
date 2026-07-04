@@ -27,6 +27,11 @@ class IngestSpec(BaseModel):
     model_config = ConfigDict(extra="forbid")
     plugin: str
     config: dict[str, Any] = Field(default_factory=dict)
+    # Tipo `source.type` original del manifiesto (video/video_frame/video_file, …).
+    # Varios tipos mapean a un mismo plugin, así que sin esto el round-trip
+    # manifiesto→composición→manifiesto colapsa el string. Interno del BFF: NO
+    # viaja al servicio (composition_to_run_request solo manda plugin+config).
+    source_type: str | None = None
 
 
 class PromptsSpec(BaseModel):
@@ -81,10 +86,15 @@ def manifest_to_composition(manifest: dict) -> Composition:
         # desde su catálogo de datasets (run_request.py:to_raw_run_config).
         ingest = {"plugin": "image_folder", "config": {"dataset": source["ref"]}}
     elif source.get("type"):
-        plugin = _SOURCE_TYPE_TO_PLUGIN.get(source["type"])
+        source_type = source["type"]
+        plugin = _SOURCE_TYPE_TO_PLUGIN.get(source_type)
         if plugin is None:
-            raise ValueError(f"source.type fuera del MVP: {source['type']!r}")
-        ingest = {"plugin": plugin, "config": {k: v for k, v in source.items() if k != "type"}}
+            raise ValueError(f"source.type fuera del MVP: {source_type!r}")
+        ingest = {
+            "plugin": plugin,
+            "config": {k: v for k, v in source.items() if k != "type"},
+            "source_type": source_type,  # preserva el string exacto para el round-trip
+        }
     else:
         raise ValueError("Manifiesto sin source.ref ni source.type")
     prompts = manifest.get("prompts") or {}
@@ -117,7 +127,9 @@ def composition_to_manifest(comp: Composition, target_model_ref: str) -> dict[st
     if dataset:
         source: dict[str, Any] = {"ref": dataset}
     else:
-        plugin_type = _PLUGIN_TO_SOURCE_TYPE.get(comp.ingest.plugin)
+        # Preferir el source.type original (round-trip sin pérdida); si la
+        # composición viene del formulario (sin source_type), derivarlo del plugin.
+        plugin_type = comp.ingest.source_type or _PLUGIN_TO_SOURCE_TYPE.get(comp.ingest.plugin)
         if plugin_type is None:
             raise ValueError(
                 f"Plugin no soportado para guardar manifiesto: {comp.ingest.plugin!r} "

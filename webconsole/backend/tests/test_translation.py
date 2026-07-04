@@ -92,6 +92,32 @@ def test_ida_y_vuelta_sobre_manifiestos_reales(path):
     assert regenerated["run"].get("name") == original.get("run", {}).get("name")
 
 
+@pytest.mark.parametrize("original_type", ["video", "video_frame", "video_file"])
+def test_ida_y_vuelta_preserva_source_type_de_video(original_type):
+    # video/video_frame/video_file mapean todos al plugin video_file; el
+    # round-trip debe devolver el MISMO string, no colapsarlo a "video_file"
+    # (deuda: la consola reescribía manifiestos curados hechos a mano).
+    manifest = {
+        "run": {"scenario": "DBE"},
+        "source": {"type": original_type, "path": "/data/x.mp4"},
+        "prompts": {"ref": "frozen_set"},
+        "model": {"ref": "yoloe/yoloe-26l"},
+    }
+    comp = manifest_to_composition(manifest)
+    regenerated = composition_to_manifest(comp, target_model_ref="ignored/target")
+    assert regenerated["source"]["type"] == original_type
+    assert regenerated["source"]["path"] == "/data/x.mp4"
+
+
+def test_composition_de_formulario_sin_source_type_usa_el_del_plugin(repo):
+    # Una composición armada por el formulario (sin source_type) debe seguir
+    # derivando el type desde el plugin al guardar el manifiesto.
+    comp = _composition(ingest={"plugin": "video_file", "config": {"path": "/v.mp4"}})
+    manifest = composition_to_manifest(comp, target_model_ref="t/t")
+    assert manifest["source"]["type"] == "video_file"
+    assert manifest["source"]["path"] == "/v.mp4"
+
+
 def test_composition_to_manifest_usa_target_si_no_hay_ref(repo):
     manifest = composition_to_manifest(_composition(), target_model_ref="grounding-dino/gdino-tiny")
     assert manifest["model"] == {"ref": "grounding-dino/gdino-tiny"}

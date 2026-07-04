@@ -7,7 +7,7 @@ import httpx
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
-from eovrt_webconsole.routers import catalog, compose, manifests, meta, runs, stream
+from eovrt_webconsole.routers import catalog, compare, compose, manifests, meta, runs, stream
 from eovrt_webconsole.run_backend import RunBackend
 from eovrt_webconsole.settings import ConsoleSettings
 
@@ -31,6 +31,7 @@ def create_app(
     app.state.settings = settings
     app.include_router(meta.router)
     app.include_router(catalog.router)
+    app.include_router(compare.router)
     app.include_router(compose.router)
     app.include_router(runs.router)
     app.include_router(stream.router)

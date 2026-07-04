@@ -84,6 +84,20 @@ def test_pump_descarta_frame_malformado(live_client, fake_state):
     assert len(metrics) >= 1
 
 
+def test_ws_cliente_desconectado_con_upstream_silencioso_cierra_upstream(live_client, fake_state):
+    # Deuda F/Task10: si el SPA se va mientras el upstream está en silencio, el
+    # proxy debe detectarlo igual y cerrar el WS al servicio (no dejar colgados
+    # la conexión upstream ni las tasks). El fake acepta y queda callado; al
+    # cerrar el SPA, el proxy debe cerrar el upstream y el fake señaliza.
+    fake_state.active_run_id = "run_active_1"
+    fake_state.quiet_stream = True
+    with live_client.websocket_connect("/api/runs/run_active_1/stream") as ws:
+        ws.close()  # el SPA se desconecta con el upstream aún en silencio
+        assert fake_state.upstream_closed.wait(timeout=5.0), (
+            "el proxy no cerró el upstream tras irse el SPA (fuga en stream silencioso)"
+        )
+
+
 def test_ws_run_desconocido_cierra_4404(live_client):
     with live_client.websocket_connect("/api/runs/nope/stream") as ws:
         try:

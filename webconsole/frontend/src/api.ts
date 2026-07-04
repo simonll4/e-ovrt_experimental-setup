@@ -1,5 +1,5 @@
 import type {
-  Composition, DatasetEntry, DetectionsPage, Experiment, FieldError,
+  CompareResult, Composition, DatasetEntry, DetectionsPage, EvalResult, Experiment, FieldError,
   IngestPlugin, PromptSet, RunDetail, RunRow, TargetStatus,
 } from './types'
 
@@ -48,6 +48,12 @@ export const stopRun = (id: string) =>
     `/api/runs/${encodeURIComponent(id)}/stop`,
     { method: 'POST' },
   )
+export const evaluateRun = (id: string) =>
+  request<EvalResult>(`/api/runs/${encodeURIComponent(id)}/evaluate`, { method: 'POST' })
+export const getEvaluation = (id: string) =>
+  request<EvalResult>(`/api/runs/${encodeURIComponent(id)}/evaluate`)
+export const getCompare = (ids: string[]) =>
+  request<CompareResult>(`/api/compare?runs=${ids.map(encodeURIComponent).join(',')}`)
 export const getDetections = (id: string, page = 1, pageSize = 50) =>
   request<DetectionsPage>(
     `/api/runs/${encodeURIComponent(id)}/detections?page=${page}&page_size=${pageSize}`,

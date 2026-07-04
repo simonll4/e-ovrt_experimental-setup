@@ -46,6 +46,15 @@ vi.mock('../api', () => ({
         model: { ref: 'mock' },
       },
     },
+    {
+      id: 'expVideo',
+      group: '',
+      manifest: {
+        source: { type: 'video_frame', path: '/data/x.mp4' },
+        prompts: { ref: 'demo_set', active_ids: ['person'] },
+        model: { ref: 'mock' },
+      },
+    },
   ]),
   launchRun: vi.fn(),
   saveManifest: vi.fn(),
@@ -66,6 +75,34 @@ describe('ComposePage prefill', () => {
 
     await waitFor(() => expect(personCheckbox.checked).toBe(true))
     expect(helmetCheckbox.checked).toBe(false)
+  })
+})
+
+describe('ComposePage prefill de source.type video', () => {
+  beforeEach(() => cleanup())
+  afterEach(() => vi.mocked(api.launchRun).mockReset())
+
+  it('conserva el source.type original en la composición (round-trip sin colapso a video_file)', async () => {
+    vi.mocked(api.launchRun).mockResolvedValue({ run_id: 'r1' })
+    render(
+      <MemoryRouter initialEntries={['/compose?from=expVideo']}>
+        <Routes>
+          <Route path="/compose" element={<ComposePage />} />
+        </Routes>
+      </MemoryRouter>,
+    )
+    // El prefill corre tras cargar catálogos+experiments: esperar a que marque
+    // el active_id del manifiesto (person) antes de lanzar.
+    const personCheckbox = await screen.findByLabelText<HTMLInputElement>(/^person$/)
+    await waitFor(() => expect(personCheckbox.checked).toBe(true))
+
+    fireEvent.click(screen.getByText('Lanzar'))
+
+    await waitFor(() => expect(api.launchRun).toHaveBeenCalled())
+    const comp = vi.mocked(api.launchRun).mock.calls[0][0]
+    expect(comp.ingest.plugin).toBe('video_file')
+    expect(comp.ingest.source_type).toBe('video_frame')
+    expect(comp.ingest.config).toEqual({ path: '/data/x.mp4' })
   })
 })
 

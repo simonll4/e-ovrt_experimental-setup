@@ -67,10 +67,12 @@ async def stream(websocket: WebSocket, run_id: str) -> None:
     settings = websocket.app.state.settings
     buffer = _CoalescingBuffer()
     close_code = 1000
+    client_gone = False
     try:
         async with websockets.connect(_ws_url(settings.service_url, run_id)) as upstream:
 
             async def _pump() -> None:
+                """Lee del upstream y coalesce en el buffer (termina al cerrar upstream)."""
                 discarded = 0
                 async for raw in upstream:
                     try:
@@ -85,22 +87,70 @@ async def stream(websocket: WebSocket, run_id: str) -> None:
                         continue
                     buffer.push(event)
 
-            pump = asyncio.create_task(_pump())
-            try:
-                while not pump.done():
+            async def _flush() -> None:
+                """Drena el buffer al SPA cada FLUSH_INTERVAL (termina si el send falla)."""
+                while True:
                     await asyncio.sleep(FLUSH_INTERVAL)
-                    for event in buffer.drain():
-                        await websocket.send_json(event)
-                for event in buffer.drain():  # drain final: no perder la cola
-                    await websocket.send_json(event)
+                    pending = buffer.drain()
+                    for index, event in enumerate(pending):
+                        try:
+                            await websocket.send_json(event)
+                        except asyncio.CancelledError:
+                            # Nos cancelan (p.ej. el upstream cerró) a mitad del
+                            # batch ya drenado: devolver la cola no enviada al
+                            # buffer para que el drain final no la pierda (incluye
+                            # el evento terminal `state`).
+                            for leftover in pending[index:]:
+                                buffer.push(leftover)
+                            raise
+
+            async def _watch_client() -> None:
+                """Detecta la desconexión del SPA aunque el upstream esté en
+                silencio. Sin esto, un stream quieto tras irse el cliente dejaba
+                colgados el WS al servicio y las tasks (fuga de recursos)."""
+                try:
+                    while True:
+                        message = await websocket.receive()
+                        if message["type"] == "websocket.disconnect":
+                            return
+                except (WebSocketDisconnect, RuntimeError):
+                    return
+
+            pump = asyncio.create_task(_pump())
+            flush = asyncio.create_task(_flush())
+            watch = asyncio.create_task(_watch_client())
+            active = {pump, flush, watch}
+            try:
+                done, _ = await asyncio.wait(active, return_when=asyncio.FIRST_COMPLETED)
             finally:
-                pump.cancel()
-                await asyncio.gather(pump, return_exceptions=True)
-            close_code = upstream.close_code
+                for task in active:
+                    task.cancel()
+                await asyncio.gather(*active, return_exceptions=True)
+
+            if watch in done or flush in done:
+                # El SPA se fue (watch) o un send falló porque se fue (flush): no
+                # hay a quién enviarle ni a quién cerrarle el WS.
+                client_gone = True
+            else:
+                # El upstream terminó con el SPA aún conectado: drain final para
+                # no perder la cola y propagar el close code real del servicio.
+                for event in buffer.drain():
+                    try:
+                        await websocket.send_json(event)
+                    except (
+                        RuntimeError,
+                        WebSocketDisconnect,
+                        websockets.exceptions.WebSocketException,
+                    ):
+                        client_gone = True
+                        break
+                close_code = upstream.close_code
     except (OSError, websockets.exceptions.WebSocketException):
         close_code = 4503  # servicio inaccesible: el SPA reintenta la conexión
     except WebSocketDisconnect:
         return  # el SPA se fue: nada que cerrar
+    if client_gone:
+        return
     try:
         await websocket.close(code=_safe_close_code(close_code))
     except (RuntimeError, websockets.exceptions.WebSocketException):

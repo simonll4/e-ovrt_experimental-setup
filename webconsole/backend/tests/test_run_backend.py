@@ -4,6 +4,7 @@ import pytest
 from eovrt_webconsole.run_backend import (
     RunBackend,
     RunBusy,
+    RunNotFinished,
     ServiceRejected,
     ServiceUnavailable,
     UnknownRun,
@@ -102,3 +103,41 @@ async def test_servicio_caido():
                                  base_url="http://service.fake") as http:
         with pytest.raises(ServiceUnavailable):
             await RunBackend(http).model()
+
+
+async def test_evaluate_ok(backend, state):
+    result = await backend.evaluate("run_done_1")
+    assert result["mAP50"] == 0.47
+    assert result["bench_split"] == "bench_v2_test"
+    assert "run_done_1" in state.eval_results
+
+
+async def test_evaluate_run_en_curso_es_run_not_finished(backend, state):
+    state.active_run_id = "run_x"
+    with pytest.raises(RunNotFinished):
+        await backend.evaluate("run_x")
+
+
+async def test_evaluate_no_bench_es_service_rejected(backend, state):
+    state.evaluate_not_bench = True
+    with pytest.raises(ServiceRejected):
+        await backend.evaluate("run_done_1")
+
+
+async def test_evaluate_desconocido_es_unknown_run(backend):
+    with pytest.raises(UnknownRun):
+        await backend.evaluate("nope")
+
+
+async def test_evaluate_servicio_no_listo_503(backend, state):
+    state.ready = False
+    with pytest.raises(ServiceUnavailable):
+        await backend.evaluate("run_done_1")
+
+
+async def test_get_evaluation_404_y_ok(backend, state):
+    with pytest.raises(UnknownRun):
+        await backend.get_evaluation("run_done_1")
+    await backend.evaluate("run_done_1")
+    result = await backend.get_evaluation("run_done_1")
+    assert result["cr01_detection_recall"] == 0.64

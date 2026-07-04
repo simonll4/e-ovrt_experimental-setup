@@ -5,7 +5,9 @@ runs.py, model.py, catalog.py, run_manager.py, stream.py, events.py.
 """
 from __future__ import annotations
 
-from fastapi import FastAPI, Query, WebSocket
+import threading
+
+from fastapi import FastAPI, Query, WebSocket, WebSocketDisconnect
 from fastapi.responses import JSONResponse, Response
 
 MODEL = {
@@ -43,6 +45,23 @@ SUMMARY_FINISHED = {
     "device": "cpu",
     "started_at": "2026-07-03T10:00:00+00:00",
 }
+EVAL_RESULT = {
+    "type": "perception",
+    "run_id": "run_done_1",
+    "benchmark": "construction_site_safety_bench",
+    "iou_threshold": 0.5,
+    "evaluated_at": "2026-07-04T10:00:00+00:00",
+    "per_class": [
+        {"class_name": "person", "AP50": 0.72, "n_gt": 82, "n_det": 90},
+        {"class_name": "helmet", "AP50": 0.61, "n_gt": 60, "n_det": 70},
+        {"class_name": "vest", "AP50": 0.55, "n_gt": 48, "n_det": 44},
+        {"class_name": "bare_head", "AP50": 0.0, "n_gt": 12, "n_det": 20},
+    ],
+    "cr01_detection_recall": 0.64,
+    "mAP50": 0.47,
+    "model": "mock",
+    "bench_split": "bench_v2_test",
+}
 DETECTIONS = [{"unit_id": f"u{i}", "detections": [{"label": "person"}]} for i in range(5)]
 ARTIFACTS = {"summary.json": b'{"status": "succeeded"}', "previews/u0.preview.jpg": b"JPEGDATA"}
 DEFAULT_STREAM_EVENTS = [
@@ -65,6 +84,14 @@ class FakeState:
         self.stream_events: list[dict] = list(DEFAULT_STREAM_EVENTS)
         self.reject_launch: bool = False
         self.send_malformed: bool = False
+        self.eval_results: dict[str, dict] = {}
+        self.evaluate_not_bench: bool = False
+        # Stream que acepta y queda en silencio (nunca envía ni cierra): sirve
+        # para verificar que el proxy detecta la desconexión del SPA aunque el
+        # upstream esté callado. `upstream_closed` se activa cuando el proxy
+        # cierra su conexión hacia este fake (cross-thread: se lee desde el test).
+        self.quiet_stream: bool = False
+        self.upstream_closed: threading.Event = threading.Event()
 
 
 def make_fake_service(state: FakeState) -> FastAPI:
@@ -121,7 +148,14 @@ def make_fake_service(state: FakeState) -> FastAPI:
         runs = []
         if state.active_run_id:
             runs.append({"run_id": state.active_run_id, "status": "running"})
-        runs.append({"run_id": "run_done_1", "status": "succeeded"})
+        runs.append(
+            {
+                "run_id": "run_done_1",
+                "status": "succeeded",
+                "bench_split": "bench_v2_test",
+                "evaluated": "run_done_1" in state.eval_results,
+            }
+        )
         return runs
 
     @app.get("/api/runs/{run_id}")
@@ -132,7 +166,13 @@ def make_fake_service(state: FakeState) -> FastAPI:
             return {"run_id": run_id, "status": "running",
                     "started_at": "2026-07-03T12:00:00+00:00", "model": MODEL["ref"]}
         if run_id == "run_done_1":
-            return {"run_id": run_id, "status": "succeeded", "summary": SUMMARY_FINISHED}
+            return {
+                "run_id": run_id,
+                "status": "succeeded",
+                "summary": SUMMARY_FINISHED,
+                "bench_split": "bench_v2_test",
+                "evaluated": run_id in state.eval_results,
+            }
         return JSONResponse(status_code=404, content={"detail": f"Run desconocido: {run_id}"})
 
     @app.post("/api/runs/{run_id}/stop", status_code=202)
@@ -143,6 +183,32 @@ def make_fake_service(state: FakeState) -> FastAPI:
             return JSONResponse(status_code=404, content={"detail": f"Run desconocido: {run_id}"})
         state.stopped.append(run_id)
         return {"run_id": run_id, "stopping": True}
+
+    @app.post("/api/runs/{run_id}/evaluate")
+    def evaluate_run(run_id: str):
+        if not state.ready:
+            return JSONResponse(status_code=503, content={"detail": "Servicio no listo (modelo no cargado)"})
+        if run_id == state.active_run_id:
+            return JSONResponse(status_code=409, content={"detail": "No se evalúa un run en curso"})
+        if run_id != "run_done_1":
+            return JSONResponse(status_code=404, content={"detail": f"Run desconocido: {run_id}"})
+        if state.evaluate_not_bench:
+            return JSONResponse(
+                status_code=422,
+                content={"detail": "El run no fue sobre un split del BENCH (no evaluable)"},
+            )
+        result = {**EVAL_RESULT, "run_id": run_id}
+        state.eval_results[run_id] = result
+        return result
+
+    @app.get("/api/runs/{run_id}/evaluate")
+    def get_evaluation(run_id: str):
+        if not state.ready:
+            return JSONResponse(status_code=503, content={"detail": "Servicio no listo (modelo no cargado)"})
+        result = state.eval_results.get(run_id)
+        if result is None:
+            return JSONResponse(status_code=404, content={"detail": f"Run no evaluado: {run_id}"})
+        return result
 
     @app.get("/api/runs/{run_id}/detections")
     def detections(run_id: str, page: int = Query(1, ge=1), page_size: int = Query(100, ge=1, le=1000)):
@@ -165,6 +231,18 @@ def make_fake_service(state: FakeState) -> FastAPI:
     @app.websocket("/api/runs/{run_id}/stream")
     async def stream(ws: WebSocket, run_id: str):
         await ws.accept()
+        if state.quiet_stream and run_id == state.active_run_id:
+            # Acepta y no emite nada; espera hasta que el proxy cierre el
+            # upstream (al detectar que el SPA se fue) y lo señaliza.
+            try:
+                while True:
+                    message = await ws.receive()
+                    if message["type"] == "websocket.disconnect":
+                        break
+            except (WebSocketDisconnect, RuntimeError):
+                pass
+            state.upstream_closed.set()
+            return
         if run_id == state.active_run_id:
             if state.send_malformed:
                 # Frame no-JSON: ejercita el guard de _pump (no debe matar el proxy).
