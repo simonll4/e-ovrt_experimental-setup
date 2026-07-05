@@ -3,6 +3,7 @@ import TargetBadge from './components/TargetBadge'
 import CatalogPage from './pages/CatalogPage'
 import ComparePage from './pages/ComparePage'
 import ComposePage from './pages/ComposePage'
+import PlatformPage from './pages/PlatformPage'
 import RunDetailPage from './pages/RunDetailPage'
 import RunsPage from './pages/RunsPage'
 
@@ -16,6 +17,7 @@ export default function App() {
           <Link to="/compose">Nueva corrida</Link>
           <Link to="/catalog">Catálogos</Link>
           <Link to="/compare">Comparar</Link>
+          <Link to="/platform">Plataforma</Link>
         </nav>
         <div style={{ marginLeft: 'auto' }}><TargetBadge /></div>
       </header>
@@ -25,6 +27,7 @@ export default function App() {
         <Route path="/catalog" element={<CatalogPage />} />
         <Route path="/compare" element={<ComparePage />} />
         <Route path="/runs/:id" element={<RunDetailPage />} />
+        <Route path="/platform" element={<PlatformPage />} />
       </Routes>
     </div>
   )

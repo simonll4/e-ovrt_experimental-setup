@@ -129,3 +129,10 @@ export interface CompareResult {
   ap_by_class: Record<string, Array<number | null>>
   skipped: string[]
 }
+export interface PlatformInstance {
+  name: string
+  model_ref: string
+  state: string // running | exited | created | absent
+  ready: boolean
+  is_target: boolean
+}

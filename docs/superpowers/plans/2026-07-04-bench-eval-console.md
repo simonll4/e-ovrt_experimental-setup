@@ -1,5 +1,7 @@
 # Evaluación BENCH + compare-runs en la consola — Plan de implementación
 
+> **Estado: COMPLETO (12/12 tasks + verificación final).** Whole-branch review "Ready to merge". Verificado end-to-end con GPU real (RTX 4060): GDINO-tiny mAP@0.5=0.4197, YOLOE-26s mAP@0.5=0.3561 sobre bench_v2_test completo (82 imgs); `/api/compare` agregando ambos runs correctamente. Detalle en `.superpowers/sdd/progress-bench-eval-console.md`.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Evaluar runs BENCH terminados contra el GT desde la consola (AP@0.5 por clase, CR-01 recall, mAP@0.5) y comparar N runs con tabla + gráfico de barras agrupadas.
@@ -42,7 +44,7 @@ Contexto de datos (verificado en `e-ovrt_datasets/datasets/scripts/bench/evaluat
 - `images_by_filename: dict[basename, img]` (del COCO), `gt_by_image_id: dict[image_id, list[ann]]`, `person_gt_records: list[{file_name, has_helmet, person_bbox}]`.
 - `evaluate_class` cuenta `n_gt` desde `gt_by_image_id` y recorre `images_by_filename` para las detecciones; `evaluate_cr01` recorre `person_gt_records`. Filtrar esas tres estructuras a las imágenes del run implementa la restricción.
 
-- [ ] **Step 1: Escribir los tests que fallan**
+- [x] **Step 1: Escribir los tests que fallan**
 
 Agregar al final de `tests/test_evaluate.py`:
 
@@ -133,12 +135,12 @@ def test_persist_false_no_escribe_eval_json(
     assert not (run_dir / "eval_perception.json").exists()
 ```
 
-- [ ] **Step 2: Correr los tests y verificar que fallan**
+- [x] **Step 2: Correr los tests y verificar que fallan**
 
 Run: `cd /home/simonll4/projects/e-ovrt_media-plane && .venv/bin/python -m pytest tests/test_evaluate.py -q`
 Expected: FAIL con `TypeError: run_evaluation() got an unexpected keyword argument 'restrict_gt_to_detections'` (y `'persist'`).
 
-- [ ] **Step 3: Implementar en `runner.py`**
+- [x] **Step 3: Implementar en `runner.py`**
 
 Reemplazar la firma y el cuerpo de `run_evaluation` (líneas 86–139) por:
 
@@ -221,7 +223,7 @@ def run_evaluation(
     return result
 ```
 
-- [ ] **Step 4: Correr los tests y verificar que pasan (todo el archivo, sin regresiones)**
+- [x] **Step 4: Correr los tests y verificar que pasan (todo el archivo, sin regresiones)**
 
 Run: `.venv/bin/python -m pytest tests/test_evaluate.py -q`
 Expected: PASS (todos, incluidos los preexistentes).
@@ -238,7 +240,7 @@ Expected: PASS (todos, incluidos los preexistentes).
 - Produces: `bench_metadata(run_dir: Path) -> dict[str, Any]` con keys `bench_split: str | None` y `evaluated: bool`; constante `BENCH_SPLITS = frozenset({"bench_v2_test", "bench_v2_val"})`. Todo dict devuelto por `get()` y toda fila de `list_runs()` incluye ambas keys. Task 3 usa `info.get("bench_split")` para el gate 422; el BFF (Task 6) las pasa al frontend.
 - Nota: `run_provenance.json` lo escribe `RunArtifactWriter` con shape `{"run_id", "dataset_id", "view", "split", "vocabulary", "source_fingerprint"}`; `split` es p.ej. `"bench_v2_test"` o `"demo_v2"`.
 
-- [ ] **Step 1: Escribir los tests que fallan**
+- [x] **Step 1: Escribir los tests que fallan**
 
 Crear `tests/test_bench_info.py`:
 
@@ -325,12 +327,12 @@ def test_list_runs_incluye_flags(client, tmp_path):
     assert rows["run_demo"]["bench_split"] is None
 ```
 
-- [ ] **Step 2: Correr y verificar que fallan**
+- [x] **Step 2: Correr y verificar que fallan**
 
 Run: `.venv/bin/python -m pytest tests/test_bench_info.py -q`
 Expected: FAIL con `KeyError: 'bench_split'` en las aserciones.
 
-- [ ] **Step 3: Implementar en `run_manager.py`**
+- [x] **Step 3: Implementar en `run_manager.py`**
 
 Después de `UnknownRunError` (línea ~36), agregar:
 
@@ -419,7 +421,7 @@ y dentro del loop de `dirs`:
                     )
 ```
 
-- [ ] **Step 4: Correr y verificar que pasan + sin regresiones del área**
+- [x] **Step 4: Correr y verificar que pasan + sin regresiones del área**
 
 Run: `.venv/bin/python -m pytest tests/test_bench_info.py tests/test_runs_api.py tests/test_run_manager.py -q`
 Expected: PASS.
@@ -437,7 +439,7 @@ Expected: PASS.
 - Consumes: `run_evaluation(..., restrict_gt_to_detections=True, persist=False)` (Task 1); `info["bench_split"]` de `manager.get()` (Task 2); `atomic_write_json` de `eovrt_media.sinks.jsonl_sink`; `require_valid_run_id`.
 - Produces: `POST /api/runs/{run_id}/evaluate` → `200` con el JSON de §3.3 del spec (`EvalPerceptionResults` + `mAP50: float | None` + `model: str | None` + `bench_split: str`), persistido atómico en `runs/<run_id>/eval_perception.json`. Errores: `404` (desconocido/inválido), `409` (run en curso, chequeado ANTES que el 422), `422` (no-BENCH o GT ausente, con mensaje accionable), `503` (no ready). Helper `_mean_ap50(per_class: list[ClassResult]) -> float | None`. `ServiceSettings.eval_iou_threshold: float` (env `EOVRT_EVAL_IOU_THRESHOLD`, default `0.5`).
 
-- [ ] **Step 1: Escribir los tests que fallan**
+- [x] **Step 1: Escribir los tests que fallan**
 
 Crear `tests/test_eval_api.py`:
 
@@ -600,12 +602,12 @@ def test_settings_eval_iou_threshold():
     )
 ```
 
-- [ ] **Step 2: Correr y verificar que fallan**
+- [x] **Step 2: Correr y verificar que fallan**
 
 Run: `.venv/bin/python -m pytest tests/test_eval_api.py -q`
 Expected: FAIL — `405`/`404` en los POST (endpoint inexistente), `ImportError: _mean_ap50`, `AttributeError: eval_iou_threshold`.
 
-- [ ] **Step 3: Implementar settings**
+- [x] **Step 3: Implementar settings**
 
 En `service/settings.py`, agregar el campo al dataclass (después de `shutdown_grace_seconds`):
 
@@ -619,7 +621,7 @@ y en `from_env`, dentro del `return cls(...)`:
             eval_iou_threshold=float(env.get("EOVRT_EVAL_IOU_THRESHOLD", "0.5")),
 ```
 
-- [ ] **Step 4: Implementar el endpoint en `service/routers/runs.py`**
+- [x] **Step 4: Implementar el endpoint en `service/routers/runs.py`**
 
 Agregar imports arriba:
 
@@ -681,7 +683,7 @@ def evaluate_run(run_id: str, request: Request):
     return payload
 ```
 
-- [ ] **Step 5: Correr y verificar que pasan**
+- [x] **Step 5: Correr y verificar que pasan**
 
 Run: `.venv/bin/python -m pytest tests/test_eval_api.py tests/test_runs_api.py tests/test_service_settings.py -q`
 Expected: PASS.
@@ -697,7 +699,7 @@ Expected: PASS.
 **Interfaces:**
 - Produces: `GET /api/runs/{run_id}/evaluate` → `200` con el `eval_perception.json` persistido (ya trae `mAP50`/`model`/`bench_split`) o `404` si no fue evaluado / archivo ilegible. No corre nada. El BFF (Task 5) lo consume vía `_get_json`.
 
-- [ ] **Step 1: Escribir los tests que fallan** (agregar a `tests/test_eval_api.py`)
+- [x] **Step 1: Escribir los tests que fallan** (agregar a `tests/test_eval_api.py`)
 
 ```python
 def test_get_evaluate_404_si_no_evaluado(client, tmp_path):
@@ -726,12 +728,12 @@ def test_get_evaluate_run_id_invalido_404(client):
     assert client.get("/api/runs/%2e%2e/evaluate").status_code == 404
 ```
 
-- [ ] **Step 2: Correr y verificar que fallan**
+- [x] **Step 2: Correr y verificar que fallan**
 
 Run: `.venv/bin/python -m pytest tests/test_eval_api.py -q`
 Expected: FAIL — `404` esperado pero `405`/otro en el caso 200 (`test_get_evaluate_devuelve_lo_persistido`).
 
-- [ ] **Step 3: Implementar** (agregar a `service/routers/runs.py`, después de `evaluate_run`)
+- [x] **Step 3: Implementar** (agregar a `service/routers/runs.py`, después de `evaluate_run`)
 
 ```python
 @router.get("/runs/{run_id}/evaluate")
@@ -746,7 +748,7 @@ def get_evaluation(run_id: str, request: Request):
         raise HTTPException(status_code=404, detail=f"Run no evaluado: {run_id}") from exc
 ```
 
-- [ ] **Step 4: Correr y verificar que pasan + suite completa del repo**
+- [x] **Step 4: Correr y verificar que pasan + suite completa del repo**
 
 Run: `.venv/bin/python -m pytest tests/test_eval_api.py -q && make test`
 Expected: PASS (suite completa, sin regresiones). `make lint` también limpio.
@@ -763,7 +765,7 @@ Expected: PASS (suite completa, sin regresiones). `make lint` también limpio.
 **Interfaces:**
 - Produces: excepción `RunNotFinished(detail: str)` (409 del evaluate — SIN `active_run_id`; no confundir con `RunBusy`); `RunBackend.evaluate(run_id) -> dict` (POST; mapea 404→`UnknownRun`, 409→`RunNotFinished`, 422→`ServiceRejected`, 5xx/503/red→`ServiceUnavailable`); `RunBackend.get_evaluation(run_id) -> dict` (GET vía `_get_json`: 404→`UnknownRun`, 5xx→`ServiceUnavailable`). Fake service: constante `EVAL_RESULT`, `FakeState.eval_results: dict[str, dict]` (pre-sembrable) y knob `evaluate_not_bench: bool`; el fake `get_run`/`list_runs` exponen `bench_split`/`evaluated` para `run_done_1`. Tasks 6–7 usan todo esto.
 
-- [ ] **Step 1: Extender el fake service** (`tests/fake_service.py`)
+- [x] **Step 1: Extender el fake service** (`tests/fake_service.py`)
 
 Después de `SUMMARY_FINISHED`, agregar:
 
@@ -850,7 +852,7 @@ Después de `stop_run`, agregar los endpoints (mismos semánticos que el servici
         return result
 ```
 
-- [ ] **Step 2: Escribir los tests que fallan** (agregar a `tests/test_run_backend.py`; sumar `RunNotFinished` al import de `eovrt_webconsole.run_backend`)
+- [x] **Step 2: Escribir los tests que fallan** (agregar a `tests/test_run_backend.py`; sumar `RunNotFinished` al import de `eovrt_webconsole.run_backend`)
 
 ```python
 async def test_evaluate_ok(backend, state):
@@ -891,12 +893,12 @@ async def test_get_evaluation_404_y_ok(backend, state):
     assert result["cr01_detection_recall"] == 0.64
 ```
 
-- [ ] **Step 3: Correr y verificar que fallan**
+- [x] **Step 3: Correr y verificar que fallan**
 
 Run: `cd /home/simonll4/projects/e-ovrt_experimental-setup/webconsole/backend && .venv/bin/python -m pytest tests/test_run_backend.py -q`
 Expected: FAIL con `ImportError: cannot import name 'RunNotFinished'`.
 
-- [ ] **Step 4: Implementar en `run_backend.py`**
+- [x] **Step 4: Implementar en `run_backend.py`**
 
 Después de `RunBusy`, agregar:
 
@@ -935,7 +937,7 @@ En la clase `RunBackend`, después de `stop`, agregar:
         return await self._get_json(f"/api/runs/{run_id}/evaluate")
 ```
 
-- [ ] **Step 5: Correr y verificar que pasan**
+- [x] **Step 5: Correr y verificar que pasan**
 
 Run: `.venv/bin/python -m pytest tests/test_run_backend.py -q`
 Expected: PASS.
@@ -952,7 +954,7 @@ Expected: PASS.
 - Consumes: `RunBackend.evaluate/get_evaluation`, `RunNotFinished` (Task 5).
 - Produces: `POST /api/runs/{id}/evaluate` (200 passthrough; `UnknownRun→404`, `RunNotFinished→409 {detail}`, `ServiceRejected→422 {errors:[{field:"_service"}]}`, `ServiceUnavailable→502`); `GET /api/runs/{id}/evaluate` (200 / 404 / 502). `_row` y los fallbacks de `list_runs` incluyen `bench_split`/`evaluated`. `GET /api/runs/{id}` ya es passthrough (los flags fluyen solos).
 
-- [ ] **Step 1: Escribir los tests que fallan** (agregar a `tests/test_runs_router.py`; sumar import `from eovrt_webconsole.run_backend import ServiceUnavailable`)
+- [x] **Step 1: Escribir los tests que fallan** (agregar a `tests/test_runs_router.py`; sumar import `from eovrt_webconsole.run_backend import ServiceUnavailable`)
 
 ```python
 def test_evaluate_ok(client):
@@ -1009,12 +1011,12 @@ def test_get_run_passthrough_trae_bench_split(client):
     assert body["evaluated"] is False
 ```
 
-- [ ] **Step 2: Correr y verificar que fallan**
+- [x] **Step 2: Correr y verificar que fallan**
 
 Run: `.venv/bin/python -m pytest tests/test_runs_router.py -q`
 Expected: FAIL — 405/404 en evaluate; `KeyError: 'bench_split'` en el listado.
 
-- [ ] **Step 3: Implementar en `routers/runs.py`**
+- [x] **Step 3: Implementar en `routers/runs.py`**
 
 Sumar `RunNotFinished` al import de `eovrt_webconsole.run_backend`.
 
@@ -1080,7 +1082,7 @@ async def get_evaluation(run_id: str, request: Request):
         raise HTTPException(status_code=502, detail=str(exc)) from exc
 ```
 
-- [ ] **Step 4: Correr y verificar que pasan**
+- [x] **Step 4: Correr y verificar que pasan**
 
 Run: `.venv/bin/python -m pytest tests/test_runs_router.py tests/test_run_backend.py -q`
 Expected: PASS.
@@ -1098,7 +1100,7 @@ Expected: PASS.
 - Consumes: `RunBackend.get_evaluation` (Task 5). Solo N GETs de evals — `model`/`bench_split` vienen embebidos, no hace falta info extra por run.
 - Produces: `GET /api/compare?runs=id1,id2,...` (coma-separado, dedupe preservando orden, tope 8) → `{"runs": [{run_id,label,model,bench_split,mAP50,cr01_detection_recall}], "classes": [...], "ap_by_class": {clase: [valores paralelos a runs]}, "skipped": [...]}`. `label` = `"{model} · {bench_split}"`. Runs sin eval (404) van a `skipped`. `422` con `detail` si vacío o >8; `502` si el servicio no responde.
 
-- [ ] **Step 1: Escribir los tests que fallan**
+- [x] **Step 1: Escribir los tests que fallan**
 
 Crear `tests/test_compare_api.py`:
 
@@ -1159,12 +1161,12 @@ def test_compare_vacio_es_422(client):
     assert client.get("/api/compare?runs=,").status_code == 422
 ```
 
-- [ ] **Step 2: Correr y verificar que fallan**
+- [x] **Step 2: Correr y verificar que fallan**
 
 Run: `.venv/bin/python -m pytest tests/test_compare_api.py -q`
 Expected: FAIL con `404` (ruta inexistente).
 
-- [ ] **Step 3: Implementar**
+- [x] **Step 3: Implementar**
 
 Crear `src/eovrt_webconsole/routers/compare.py`:
 
@@ -1239,7 +1241,7 @@ async def compare(request: Request, runs: str = Query(...)):
 
 En `app.py`: sumar `compare` al import de `eovrt_webconsole.routers` y registrar `app.include_router(compare.router)` junto a los demás.
 
-- [ ] **Step 4: Correr y verificar que pasan + suite BFF completa**
+- [x] **Step 4: Correr y verificar que pasan + suite BFF completa**
 
 Run: `.venv/bin/python -m pytest tests/ -q`
 Expected: PASS.
@@ -1256,7 +1258,7 @@ Expected: PASS.
 **Interfaces:**
 - Produces: tipos `EvalClassRow`, `EvalResult`, `CompareRunEntry`, `CompareResult`; `RunRow`/`RunDetail` ganan `bench_split?: string | null` y `evaluated?: boolean`. Funciones `evaluateRun(id): Promise<EvalResult>`, `getEvaluation(id): Promise<EvalResult>`, `getCompare(ids: string[]): Promise<CompareResult>`. Tasks 9–11 consumen estos nombres exactos.
 
-- [ ] **Step 1: Escribir los tests que fallan** (agregar a `__tests__/api.test.ts`; sumar `evaluateRun, getCompare` al import de `'../api'`)
+- [x] **Step 1: Escribir los tests que fallan** (agregar a `__tests__/api.test.ts`; sumar `evaluateRun, getCompare` al import de `'../api'`)
 
 ```ts
   it('evaluateRun postea y parsea el eval', async () => {
@@ -1285,12 +1287,12 @@ Expected: PASS.
   })
 ```
 
-- [ ] **Step 2: Correr y verificar que fallan**
+- [x] **Step 2: Correr y verificar que fallan**
 
 Run: `cd /home/simonll4/projects/e-ovrt_experimental-setup/webconsole/frontend && npm test`
 Expected: FAIL (imports inexistentes).
 
-- [ ] **Step 3: Implementar tipos** (en `types.ts`)
+- [x] **Step 3: Implementar tipos** (en `types.ts`)
 
 A `RunRow` agregar:
 
@@ -1343,7 +1345,7 @@ export interface CompareResult {
 }
 ```
 
-- [ ] **Step 4: Implementar API** (en `api.ts`: sumar `CompareResult, EvalResult` al import de tipos; agregar después de `stopRun`)
+- [x] **Step 4: Implementar API** (en `api.ts`: sumar `CompareResult, EvalResult` al import de tipos; agregar después de `stopRun`)
 
 ```ts
 export const evaluateRun = (id: string) =>
@@ -1354,7 +1356,7 @@ export const getCompare = (ids: string[]) =>
   request<CompareResult>(`/api/compare?runs=${ids.map(encodeURIComponent).join(',')}`)
 ```
 
-- [ ] **Step 5: Correr y verificar que pasan (tests + build strict)**
+- [x] **Step 5: Correr y verificar que pasan (tests + build strict)**
 
 Run: `npm test && npm run build`
 Expected: PASS / build sin errores TS.
@@ -1371,7 +1373,7 @@ Expected: PASS / build sin errores TS.
 - Produces: `groupedBarsLayout(groups: string[], series: Array<Array<number | null>>, width: number, plotHeight: number): BarRect[]` (función pura, exportada para test); `SERIES_COLORS: string[]` (paleta categórica fija de 8, validada CVD — coincide con el tope de 8 runs del compare); default export `GroupedBars({ groups, series, labels, width?, height? })`. `series[i]` es la fila del run `i`, paralela a `groups`; `null` = sin barra. Dominio de valores fijo [0,1] (AP@0.5). Task 11 lo consume con `groups=classes`, una serie por run y `labels` = labels del compare.
 - Decisiones de diseño (dataviz): color por identidad de serie en orden fijo (nunca ciclado por aparición), gap de 2px entre barras adyacentes, leyenda siempre presente (≥2 series), tooltip nativo por barra (`<title>`), texto en tinta (no en color de serie); la tabla comparativa adyacente (Task 11) cubre el caso CVD/contraste.
 
-- [ ] **Step 1: Escribir los tests que fallan**
+- [x] **Step 1: Escribir los tests que fallan**
 
 Crear `__tests__/GroupedBars.test.tsx`:
 
@@ -1417,12 +1419,12 @@ describe('groupedBarsLayout', () => {
 })
 ```
 
-- [ ] **Step 2: Correr y verificar que fallan**
+- [x] **Step 2: Correr y verificar que fallan**
 
 Run: `npm test`
 Expected: FAIL (módulo inexistente).
 
-- [ ] **Step 3: Implementar**
+- [x] **Step 3: Implementar**
 
 Crear `components/GroupedBars.tsx`:
 
@@ -1532,7 +1534,7 @@ export default function GroupedBars({ groups, series, labels, width = 560, heigh
 }
 ```
 
-- [ ] **Step 4: Correr y verificar que pasan**
+- [x] **Step 4: Correr y verificar que pasan**
 
 Run: `npm test && npm run build`
 Expected: PASS.
@@ -1550,7 +1552,7 @@ Expected: PASS.
 - Consumes: `evaluateRun`, `getEvaluation`, `ApiError` (Task 8); `run.bench_split`/`run.evaluated` del `RunDetail` (fluyen del servicio vía passthrough del BFF).
 - Produces: `EvalSection({ runId, benchSplit, evaluated })` — no renderiza nada si `benchSplit` es null/undefined; si `evaluated`, carga el eval con GET; si no, botón "Evaluar contra BENCH" (estado "Evaluando…") que dispara el POST. Muestra mAP@0.5 destacado + CR-01 recall + tabla AP@0.5 por clase con n_gt/n_det (`null`→"—"). Errores: 422 "no evaluable", 409 "esperá a que termine", 502 "servicio inaccesible".
 
-- [ ] **Step 1: Escribir los tests que fallan**
+- [x] **Step 1: Escribir los tests que fallan**
 
 Crear `__tests__/EvalSection.test.tsx`:
 
@@ -1618,12 +1620,12 @@ describe('EvalSection', () => {
 })
 ```
 
-- [ ] **Step 2: Correr y verificar que fallan**
+- [x] **Step 2: Correr y verificar que fallan**
 
 Run: `npm test`
 Expected: FAIL (componente inexistente).
 
-- [ ] **Step 3: Implementar el componente**
+- [x] **Step 3: Implementar el componente**
 
 Crear `components/EvalSection.tsx`:
 
@@ -1712,7 +1714,7 @@ export default function EvalSection({ runId, benchSplit, evaluated }: {
 }
 ```
 
-- [ ] **Step 4: Integrar en `RunDetailPage.tsx`**
+- [x] **Step 4: Integrar en `RunDetailPage.tsx`**
 
 Sumar el import:
 
@@ -1728,7 +1730,7 @@ Dentro del JSX, inmediatamente después del cierre del bloque `{!running && run.
       )}
 ```
 
-- [ ] **Step 5: Correr y verificar que pasan**
+- [x] **Step 5: Correr y verificar que pasan**
 
 Run: `npm test && npm run build`
 Expected: PASS.
@@ -1746,7 +1748,7 @@ Expected: PASS.
 - Consumes: `listRuns` (filtra `evaluated: true`), `getCompare` (Task 8), `GroupedBars` (Task 9).
 - Produces: página `/compare` (multi-select con checkboxes de runs evaluados etiquetados `run_id — model · split`; con ≥2 seleccionados fetchea el compare y muestra tabla con mejor-por-fila en negrita + `GroupedBars` + aviso de omitidos); helper puro exportado `bestPerRow(values: Array<number | null>): number` (índice del máximo no-nulo, −1 si no hay); link "Comparar" en el nav y ruta en `App.tsx`.
 
-- [ ] **Step 1: Escribir los tests que fallan**
+- [x] **Step 1: Escribir los tests que fallan**
 
 Crear `__tests__/ComparePage.test.tsx`:
 
@@ -1807,12 +1809,12 @@ describe('ComparePage', () => {
 })
 ```
 
-- [ ] **Step 2: Correr y verificar que fallan**
+- [x] **Step 2: Correr y verificar que fallan**
 
 Run: `npm test`
 Expected: FAIL (página inexistente).
 
-- [ ] **Step 3: Implementar la página**
+- [x] **Step 3: Implementar la página**
 
 Crear `pages/ComparePage.tsx`:
 
@@ -1943,7 +1945,7 @@ export default function ComparePage() {
 }
 ```
 
-- [ ] **Step 4: Registrar ruta y nav en `App.tsx`**
+- [x] **Step 4: Registrar ruta y nav en `App.tsx`**
 
 Sumar el import:
 
@@ -1963,7 +1965,7 @@ En `<Routes>`:
         <Route path="/compare" element={<ComparePage />} />
 ```
 
-- [ ] **Step 5: Correr y verificar que pasan (suite frontend completa + build)**
+- [x] **Step 5: Correr y verificar que pasan (suite frontend completa + build)**
 
 Run: `npm test && npm run build`
 Expected: PASS.
@@ -1974,7 +1976,7 @@ Expected: PASS.
 
 **Files:** ninguno (verificación operativa; spec §9).
 
-- [ ] **Step 1: Suites completas en los tres módulos**
+- [x] **Step 1: Suites completas en los tres módulos**
 
 ```bash
 cd /home/simonll4/projects/e-ovrt_media-plane && make test && make lint
@@ -1983,7 +1985,7 @@ cd /home/simonll4/projects/e-ovrt_experimental-setup/webconsole/frontend && npm 
 ```
 Expected: todo PASS.
 
-- [ ] **Step 2: Smoke E2E con mock (verifica el cableado y la restricción del GT)**
+- [x] **Step 2: Smoke E2E con mock (verifica el cableado y la restricción del GT)**
 
 ```bash
 # Terminal 1 — servicio desde la raíz del media-plane (CWD importa para el GT)
@@ -2008,7 +2010,7 @@ curl -s -X POST http://localhost:8090/api/runs/<run_id>/evaluate | python3 -m js
 
 Verificar: la respuesta trae `mAP50`, `model`, `bench_split`; los `n_gt` por clase corresponden a las ~10 imágenes procesadas (decenas, **no** los totales de las 196 del GT completo) — esa es la prueba viva de `restrict_gt_to_detections`. `GET .../evaluate` devuelve lo mismo; en la UI (`http://localhost:8090`) el detalle del run muestra la sección de evaluación y `/compare` lista el run.
 
-- [ ] **Step 3: Verificación final del spec §9 (requiere GPU + pesos descargados)**
+- [x] **Step 3: Verificación final del spec §9 (requiere GPU + pesos descargados)**
 
 Correr GDINO-tiny y YOLOE-26s sobre `bench_v2_test` completo desde la consola (mismo flow del Step 2, sin `max_units`, arrancando el servicio una vez con cada `EOVRT_MODEL_REF`), evaluar ambos runs y compararlos en `/compare`: tabla + gráfico con AP@0.5 no-deflactados (`n_gt` de person ≈ el del split test, no el del GT combinado). Si no hay GPU disponible en la sesión, dejar este paso documentado como pendiente para el usuario.
 

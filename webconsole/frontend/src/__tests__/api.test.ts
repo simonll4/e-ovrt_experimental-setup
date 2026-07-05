@@ -1,5 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { ApiError, artifactUrl, evaluateRun, getCompare, launchRun, listRuns, streamUrl } from '../api'
+import {
+  ApiError, activateInstance, artifactUrl, evaluateRun, getCompare, getInstances, launchRun,
+  listRuns, streamUrl,
+} from '../api'
 
 const COMP = {
   ingest: { plugin: 'image_folder', config: { dataset: 'demo_v2' } },
@@ -79,5 +82,26 @@ describe('api client', () => {
     await getCompare(['run a', 'run_b'])
     const calls = (fetchMock.mock.calls as Array<unknown[]>)[0]
     expect(calls?.[0]).toBe('/api/compare?runs=run%20a,run_b')
+  })
+
+  it('getInstances parsea la lista', async () => {
+    stubFetch(200, [{ name: 'mp-mock', model_ref: 'mock', state: 'exited', ready: false, is_target: false }])
+    expect(await getInstances()).toHaveLength(1)
+  })
+
+  it('activateInstance postea al endpoint con el nombre encodeado', async () => {
+    const fetchMock = vi.fn(async () => new Response(JSON.stringify({ target: 'mp-mock', model_ref: 'mock' }), { status: 200 }))
+    vi.stubGlobal('fetch', fetchMock)
+    await activateInstance('mp-mock')
+    const calls = fetchMock.mock.calls as Array<unknown[]>
+    expect(calls?.[0]?.[0]).toBe('/api/platform/instances/mp-mock/activate')
+    expect((calls?.[0]?.[1] as RequestInit)?.method).toBe('POST')
+  })
+
+  it('activateInstance lanza ApiError con payload en 409', async () => {
+    stubFetch(409, { detail: 'Hay un run activo en el target actual', run_id: 'run_x' })
+    const error = await activateInstance('mp-mock').catch((e) => e)
+    expect(error).toBeInstanceOf(ApiError)
+    expect(error.status).toBe(409)
   })
 })

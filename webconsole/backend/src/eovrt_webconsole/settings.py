@@ -33,6 +33,12 @@ class ConsoleSettings:
     mvp_plugins: frozenset[str] = MVP_PLUGINS
     hydration_limit: int = 50
     protected_groups: frozenset[str] = DEFAULT_PROTECTED_GROUPS
+    # Orquestación de plataforma (None = modo static, la consola opera como cliente
+    # de un único EOVRT_CONSOLE_SERVICE_URL fijo, sin tocar Docker).
+    compose_dir: Path | None = None
+    switch_timeout_seconds: float = 300.0
+    # Dist de la SPA embebido en la imagen de la consola; None = repo_root/webconsole/frontend/dist.
+    spa_dist: Path | None = None
 
     @property
     def prompts_dir(self) -> Path:
@@ -72,4 +78,7 @@ class ConsoleSettings:
             frozen_set_ids=frozen,
             hydration_limit=int(env.get("EOVRT_CONSOLE_HYDRATION_LIMIT", "50")),
             protected_groups=protected,
+            compose_dir=Path(env["EOVRT_CONSOLE_COMPOSE_DIR"]) if env.get("EOVRT_CONSOLE_COMPOSE_DIR") else None,
+            switch_timeout_seconds=float(env.get("EOVRT_CONSOLE_SWITCH_TIMEOUT", "300")),
+            spa_dist=Path(env["EOVRT_CONSOLE_SPA_DIST"]) if env.get("EOVRT_CONSOLE_SPA_DIST") else None,
         )

@@ -1,6 +1,6 @@
 import type {
   CompareResult, Composition, DatasetEntry, DetectionsPage, EvalResult, Experiment, FieldError,
-  IngestPlugin, PromptSet, RunDetail, RunRow, TargetStatus,
+  IngestPlugin, PlatformInstance, PromptSet, RunDetail, RunRow, TargetStatus,
 } from './types'
 
 export class ApiError extends Error {
@@ -75,3 +75,12 @@ export const streamUrl = (id: string) => {
   const proto = window.location.protocol === 'https:' ? 'wss' : 'ws'
   return `${proto}://${window.location.host}/api/runs/${encodeURIComponent(id)}/stream`
 }
+
+export const getInstances = () => request<PlatformInstance[]>('/api/platform/instances')
+export const activateInstance = (name: string) =>
+  request<{ target: string; model_ref: string }>(
+    `/api/platform/instances/${encodeURIComponent(name)}/activate`,
+    { method: 'POST' },
+  )
+export const stopPlatform = () =>
+  request<{ target: null }>('/api/platform/stop', { method: 'POST' })

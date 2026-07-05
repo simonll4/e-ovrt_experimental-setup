@@ -1,0 +1,85 @@
+# Plataforma E-OVRT (DBE single-host): consola + fleet de instancias del servicio
+# media-plane (una por modelo, apagadas; la consola las orquesta vía este mismo
+# compose). Bootstrap: ver README.md.
+name: eovrt
+
+x-mp-common: &mp-common
+  image: eovrt/media-plane:latest
+  build:
+    context: ${EOVRT_WORKSPACE:?definí EOVRT_WORKSPACE en infra/platform/.env}/e-ovrt_media-plane
+    dockerfile: infra/docker/Dockerfile
+  networks: [eovrt]
+  profiles: [models]
+  volumes:
+    - ${EOVRT_WORKSPACE}/e-ovrt_media-plane/models:/app/models:ro
+    - ${EOVRT_WORKSPACE}/e-ovrt_media-plane/mobileclip2_b.ts:/app/mobileclip2_b.ts:ro
+    - ${EOVRT_WORKSPACE}/e-ovrt_media-plane/runs:/data/runs
+    - ${EOVRT_WORKSPACE}/e-ovrt_datasets:/e-ovrt_datasets:ro
+    - weights-cache:/data/weights
+
+x-gpu: &gpu
+  deploy:
+    resources:
+      reservations:
+        devices:
+          - driver: nvidia
+            count: 1
+            capabilities: [gpu]
+
+services:
+  console:
+    image: eovrt/console:latest
+    build:
+      context: ${EOVRT_WORKSPACE}/e-ovrt_experimental-setup
+      dockerfile: infra/console/Dockerfile
+    ports: ["8090:8090"]
+    networks: [eovrt]
+    environment:
+      EOVRT_CONSOLE_COMPOSE_DIR: /repo/infra/platform
+      EOVRT_CONSOLE_REPO_ROOT: /repo
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${EOVRT_WORKSPACE}/e-ovrt_experimental-setup:/repo:ro
+      - ${EOVRT_WORKSPACE}/e-ovrt_experimental-setup/experiments:/repo/experiments:rw
+
+  mp-mock:
+    <<: *mp-common
+    environment: { EOVRT_MODEL_REF: mock, EOVRT_DATASETS_ROOT: /e-ovrt_datasets }
+    labels: { eovrt.instance: "true", eovrt.model_ref: mock }
+
+  mp-gdino-tiny:
+    <<: [*gpu, *mp-common]
+    environment: { EOVRT_MODEL_REF: grounding-dino/gdino-tiny, EOVRT_DATASETS_ROOT: /e-ovrt_datasets }
+    labels: { eovrt.instance: "true", eovrt.model_ref: grounding-dino/gdino-tiny }
+
+  mp-gdino-base:
+    <<: [*gpu, *mp-common]
+    environment: { EOVRT_MODEL_REF: grounding-dino/gdino-base, EOVRT_DATASETS_ROOT: /e-ovrt_datasets }
+    labels: { eovrt.instance: "true", eovrt.model_ref: grounding-dino/gdino-base }
+
+  mp-yoloe-26s:
+    <<: [*gpu, *mp-common]
+    environment: { EOVRT_MODEL_REF: yoloe/yoloe-26s, EOVRT_DATASETS_ROOT: /e-ovrt_datasets }
+    labels: { eovrt.instance: "true", eovrt.model_ref: yoloe/yoloe-26s }
+
+  mp-yoloe-26m:
+    <<: [*gpu, *mp-common]
+    environment: { EOVRT_MODEL_REF: yoloe/yoloe-26m, EOVRT_DATASETS_ROOT: /e-ovrt_datasets }
+    labels: { eovrt.instance: "true", eovrt.model_ref: yoloe/yoloe-26m }
+
+  mp-yoloe-26l:
+    <<: [*gpu, *mp-common]
+    environment: { EOVRT_MODEL_REF: yoloe/yoloe-26l, EOVRT_DATASETS_ROOT: /e-ovrt_datasets }
+    labels: { eovrt.instance: "true", eovrt.model_ref: yoloe/yoloe-26l }
+
+  mp-yoloe-26x:
+    <<: [*gpu, *mp-common]
+    environment: { EOVRT_MODEL_REF: yoloe/yoloe-26x, EOVRT_DATASETS_ROOT: /e-ovrt_datasets }
+    labels: { eovrt.instance: "true", eovrt.model_ref: yoloe/yoloe-26x }
+
+networks:
+  eovrt:
+    driver: bridge
+
+volumes:
+  weights-cache: {}

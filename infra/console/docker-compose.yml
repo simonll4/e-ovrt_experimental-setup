@@ -1,0 +1,18 @@
+# Consola standalone (modo static): cliente de UN servicio media-plane externo.
+# Sin socket de Docker: acá no hay orquestación. La plataforma completa vive en ../platform.
+name: eovrt-console
+services:
+  console:
+    build:
+      context: ../..
+      dockerfile: infra/console/Dockerfile
+    image: eovrt/console:latest
+    ports: ["8090:8090"]
+    environment:
+      EOVRT_CONSOLE_SERVICE_URL: ${EOVRT_CONSOLE_SERVICE_URL:-http://host.docker.internal:8080}
+      EOVRT_CONSOLE_REPO_ROOT: /repo
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ../..:/repo:ro
+      - ../../experiments:/repo/experiments:rw
