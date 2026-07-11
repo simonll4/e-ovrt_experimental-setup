@@ -44,6 +44,11 @@ experiments/                     # manifiestos de corrida (un experimento por ar
 docs/
   prompt-sets.md                  # formato de prompt sets + los 3 sets actuales + cómo agregar
   experiments.md                  # formato de manifiesto + naming bench_v2 + cómo correr/agregar
+infra/
+  platform/                       # compose de la plataforma completa: fleet de instancias
+                                   # media-plane (una por modelo) + consola. Ver infra/platform/README.md.
+  console/                        # consola standalone (Dockerfile + compose) contra un
+                                   # servicio media-plane externo, sin fleet propio.
 README.md
 ```
 
@@ -116,9 +121,12 @@ Las salidas (`detections.jsonl`, `summary.json`, `metrics.jsonl`, previews) se e
 - `ppe_v2_descriptive`: **no congelado**, con fraseo descriptivo por backend (GDINO sinónimos cortos,
   YOLOE nominales) para A/B contra los congelados.
 
-**Experimentos** — ver [`docs/experiments.md`](docs/experiments.md):
-- 3 corridas de muestra single-host (`gdino`, `yoloe`, `yoloe_video`) sobre CHV demo v2.
+**Experimentos** — ver [`docs/experiments.md`](docs/experiments.md) para la lista completa y
+actualizada; resumen:
+- Corridas de muestra single-host (`gdino`, `yoloe`, `yoloe_video`) sobre CHV demo v2.
 - 2 smoke con detector mock (`mock`, `mock_chv`).
+- 2 corridas sobre video local con salida de video anotado (`video_annotated` con YOLOE-26s,
+  `video_annotated_gdino` con GDINO-tiny).
 - Matriz **`bench_v2/`**: 6 modelos (GDINO t/b, MM-GDINO t/b, YOLOE 26s/26l) × 2 splits (val/test)
   = 12 manifiestos, para evaluación contra el BENCH v2.
 

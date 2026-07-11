@@ -99,6 +99,10 @@ leer/escribir las declaraciones por ruta relativa desde `webconsole/backend`.
   modelo activo del target (`GET /api/model`) en lugar de ofrecer un dropdown libre. En
   Fase 2, elegir otro modelo = seleccionar/lanzar la instancia con ese `MODEL_REF`
   (routing en `RunBackend`).
+> **Nota (2026-07-06):** esta descripción del despliegue EBE quedó reemplazada — la Fase 2
+> real construyó un split batch por ZeroMQ sin servicio HTTP en los nodos. Ver
+> `2026-07-06-webconsole-twonode-visibility-design.md`.
+
 - **Despliegue EBE (Fase 2):** la consola vive en Nodo A (edge) y apunta a la instancia del
   servicio en Nodo B (GPU) vía `SERVICE_URL` de ese nodo. La ingesta la hace el servicio
   (su adaptador de ingesta); la consola solo selecciona y observa.

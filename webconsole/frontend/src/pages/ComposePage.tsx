@@ -27,6 +27,7 @@ export default function ComposePage() {
   const [plugin, setPlugin] = useState('image_folder')
   const [dataset, setDataset] = useState('')
   const [path, setPath] = useState('')
+  const [rtspUrl, setRtspUrl] = useState('')
   // `source.type` original del manifiesto prefilleado (video/video_frame/…): se
   // conserva para que guardar no lo colapse a video_file. null cuando la fuente
   // se arma desde cero o por dataset ref.
@@ -88,6 +89,7 @@ export default function ComposePage() {
     } else if (source.type) {
       setPlugin(source.type.includes('video') ? 'video_file' : source.type)
       setPath(source.path ?? '')
+      setRtspUrl(source.type === 'rtsp' ? (source.url ?? '') : '')
       setSourceType(source.type) // preserva el string exacto para el round-trip
     }
     if (m.prompts?.ref) setSetId(m.prompts.ref)
@@ -101,9 +103,12 @@ export default function ComposePage() {
   const composition = (): Composition => ({
     ingest: {
       plugin,
-      config: dataset ? { dataset } : path ? { path } : {},
-      // Solo relevante para fuentes por `path` (video); en dataset ref queda null.
-      source_type: dataset ? null : sourceType,
+      config:
+        plugin === 'rtsp'
+          ? (rtspUrl ? { url: rtspUrl } : {})
+          : dataset ? { dataset } : path ? { path } : {},
+      // Solo relevante para fuentes por `path` (video); rtsp deriva el type en el BFF.
+      source_type: plugin === 'rtsp' ? null : dataset ? null : sourceType,
     },
     prompts: { set_id: setId, active_ids: activeIds },
     run: {
@@ -166,32 +171,44 @@ export default function ComposePage() {
         <label>Plugin de ingesta</label>
         <select value={plugin} onChange={(e) => setPlugin(e.target.value)}>
           {plugins.map((p) => (
-            <option key={p.id} value={p.id} disabled={!p.mvp_enabled}>
-              {p.id}{!p.mvp_enabled ? ' (no disponible en MVP)' : ''}
+            <option key={p.id} value={p.id} disabled={!p.enabled}>
+              {p.id}{!p.enabled ? ' (no soportado)' : ''}
             </option>
           ))}
         </select>
         <FieldMsg errors={errors} field="ingest.plugin" />
       </div>
-      <div style={ROW}>
-        <label>Dataset del catálogo (o dejar vacío y dar un path)</label>
-        <select value={dataset} onChange={(e) => setDataset(e.target.value)}>
-          <option value="">— path manual —</option>
-          {datasets.map((d) => (
-            <option key={d.id} value={d.id} disabled={!d.available}>
-              {d.id}{!d.available ? ' (no montado)' : ''}
-            </option>
-          ))}
-        </select>
-        <FieldMsg errors={errors} field="ingest.config.dataset" />
-        {!dataset && (
-          <>
-            <input placeholder="/ruta/a/imagenes o /ruta/video.mp4" value={path}
-                   onChange={(e) => setPath(e.target.value)} />
-            <FieldMsg errors={errors} field="ingest.config.path" />
-          </>
-        )}
-      </div>
+      {plugin === 'rtsp' ? (
+        <div style={ROW}>
+          <label>URL RTSP de la cámara</label>
+          <input placeholder="rtsp://usuario:clave@192.168.1.50:554/stream1" value={rtspUrl}
+                 onChange={(e) => setRtspUrl(e.target.value)} />
+          <FieldMsg errors={errors} field="ingest.config.url" />
+          {rtspUrl.includes('***') && (
+            <small style={{ color: '#c80' }}>Recompletá las credenciales antes de lanzar.</small>
+          )}
+        </div>
+      ) : (
+        <div style={ROW}>
+          <label>Dataset del catálogo (o dejar vacío y dar un path)</label>
+          <select value={dataset} onChange={(e) => setDataset(e.target.value)}>
+            <option value="">— path manual —</option>
+            {datasets.map((d) => (
+              <option key={d.id} value={d.id} disabled={!d.available}>
+                {d.id}{!d.available ? ' (no montado)' : ''}
+              </option>
+            ))}
+          </select>
+          <FieldMsg errors={errors} field="ingest.config.dataset" />
+          {!dataset && (
+            <>
+              <input placeholder="/ruta/a/imagenes o /ruta/video.mp4" value={path}
+                     onChange={(e) => setPath(e.target.value)} />
+              <FieldMsg errors={errors} field="ingest.config.path" />
+            </>
+          )}
+        </div>
+      )}
       <div style={ROW}>
         <label>Prompt set</label>
         <select

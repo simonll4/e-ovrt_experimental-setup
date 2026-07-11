@@ -7,6 +7,7 @@ La ref de dataset viaja como ingest.config.dataset (el servicio la retraduce a s
 """
 from __future__ import annotations
 
+import re
 from pathlib import Path
 from typing import Any
 
@@ -15,8 +16,20 @@ from pydantic import BaseModel, ConfigDict, Field
 from eovrt_webconsole.repo_catalog import get_prompt_set
 
 _SOURCE_TYPE_TO_PLUGIN = {"image_folder": "image_folder", "video_file": "video_file",
-                          "video": "video_file", "video_frame": "video_file"}
-_PLUGIN_TO_SOURCE_TYPE = {"image_folder": "image_folder", "video_file": "video_file"}
+                          "video": "video_file", "video_frame": "video_file",
+                          "rtsp": "rtsp"}
+_PLUGIN_TO_SOURCE_TYPE = {"image_folder": "image_folder", "video_file": "video_file",
+                          "rtsp": "rtsp"}
+
+# Redacta el userinfo (user[:pass]) entre el esquema y el primer '/'. Case-insensitive
+# (RTSP:// es válido por RFC 3986), cubre rtsps:// (TLS) y toma el ÚLTIMO '@' antes del
+# path para no dejar credenciales si el password trae un '@' sin escapar. La redacción es
+# la única defensa en el camino de guardado (save_manifest no valida), así que debe ser robusta.
+_RTSP_USERINFO = re.compile(r"(rtsps?://)[^/]+@", re.IGNORECASE)
+
+
+def _redact_rtsp_credentials(url: str) -> str:
+    return _RTSP_USERINFO.sub(r"\1***:***@", url)
 
 
 class UnknownPromptSetError(ValueError):
@@ -89,7 +102,7 @@ def manifest_to_composition(manifest: dict) -> Composition:
         source_type = source["type"]
         plugin = _SOURCE_TYPE_TO_PLUGIN.get(source_type)
         if plugin is None:
-            raise ValueError(f"source.type fuera del MVP: {source_type!r}")
+            raise ValueError(f"source.type no soportado: {source_type!r}")
         ingest = {
             "plugin": plugin,
             "config": {k: v for k, v in source.items() if k != "type"},
@@ -136,6 +149,10 @@ def composition_to_manifest(comp: Composition, target_model_ref: str) -> dict[st
                 f"(soportados: {sorted(_PLUGIN_TO_SOURCE_TYPE)})"
             )
         source = {"type": plugin_type, **{k: v for k, v in comp.ingest.config.items()}}
+        # Nunca escribir credenciales de cámara a disco: el run activo usa la url real
+        # (composition_to_run_request), el manifiesto guardado va redactado.
+        if plugin_type == "rtsp" and isinstance(source.get("url"), str):
+            source["url"] = _redact_rtsp_credentials(source["url"])
     manifest: dict[str, Any] = {"run": run_block, "source": source}
     if comp.run.stride is not None:
         manifest["rate_control"] = {"stride": comp.run.stride}

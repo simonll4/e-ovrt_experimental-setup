@@ -135,14 +135,14 @@ def test_manifest_grupo_protegido_no_sobrescribe(client, repo):
 
 
 def test_endpoint_plugin_no_soportado_422(client):
-    # Schema-válido (Composition acepta cualquier str en ingest.plugin) pero fuera del
-    # MVP: no está en _PLUGIN_TO_SOURCE_TYPE y config no trae "dataset" (no toma el
-    # camino source.ref). Antes del fix, composition_to_manifest hacía un KeyError sin
-    # capturar -> 500. Debe dar 422, no 500.
+    # Schema-válido (Composition acepta cualquier str en ingest.plugin) pero sin mapeo
+    # en _PLUGIN_TO_SOURCE_TYPE y sin "dataset" (no toma el camino source.ref): antes
+    # del fix, composition_to_manifest hacía un KeyError sin capturar -> 500. Debe dar
+    # 422, no 500. (rtsp ya está soportado; usamos oak_d, que sigue fuera del mapeo.)
     body = {
-        "name": "rtsp_no_soportado",
+        "name": "oak_d_no_soportado",
         "composition": {
-            "ingest": {"plugin": "rtsp", "config": {}},
+            "ingest": {"plugin": "oak_d", "config": {}},
             "prompts": {"set_id": "demo_set", "active_ids": None},
         },
     }

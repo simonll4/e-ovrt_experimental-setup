@@ -47,7 +47,7 @@ export default function CatalogPage() {
             <li key={p.id}>
               <b>{p.id}</b> ({p.kind}) — {p.description}{' '}
               {!p.available && <em>[no disponible]</em>}
-              {p.available && !p.mvp_enabled && <em>[fuera del MVP]</em>}
+              {p.available && !p.enabled && <em>[no soportado]</em>}
             </li>
           ))}
         </ul>

@@ -7,9 +7,11 @@ from dataclasses import dataclass
 from pathlib import Path
 
 DEFAULT_FROZEN_SETS = frozenset({"cr01_cr02_bench_v2"})
-# Policy MVP (Spec B §6): RTSP/oak_d quedan fuera por decisión de la consola,
-# no del catálogo del servicio (que marca rtsp como disponible).
-MVP_PLUGINS = frozenset({"image_folder", "video_file"})
+# Fuentes de ingesta que la consola sabe lanzar (decisión 2026-07-07: rtsp queda
+# habilitado de forma permanente; supersede la restricción "MVP" de
+# 2026-07-01-webconsole-design.md §6). oak_d queda fuera hasta tener hardware
+# (el servicio lo marca available=False).
+SUPPORTED_PLUGINS = frozenset({"image_folder", "video_file", "rtsp"})
 # Grupos de manifiestos curados/versionados (p.ej. la matriz BENCH) cuyo write-path
 # nunca debe pisar un archivo existente vía la API, ni con overwrite=true.
 DEFAULT_PROTECTED_GROUPS = frozenset({"bench_v2"})
@@ -30,7 +32,7 @@ class ConsoleSettings:
     service_url: str
     repo_root: Path
     frozen_set_ids: frozenset[str]
-    mvp_plugins: frozenset[str] = MVP_PLUGINS
+    supported_plugins: frozenset[str] = SUPPORTED_PLUGINS
     hydration_limit: int = 50
     protected_groups: frozenset[str] = DEFAULT_PROTECTED_GROUPS
     # Orquestación de plataforma (None = modo static, la consola opera como cliente

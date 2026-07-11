@@ -14,10 +14,29 @@ def test_composicion_valida(client):
     assert r.json() == {"valid": True, "errors": []}
 
 
-def test_plugin_fuera_del_mvp(client):
-    r = client.post("/api/compose/validate", json=_body(ingest={"plugin": "rtsp", "config": {}}))
+def test_plugin_no_soportado(client):
+    # oak_d no está soportado por la consola (available=False en el servicio).
+    r = client.post("/api/compose/validate", json=_body(ingest={"plugin": "oak_d", "config": {}}))
     errors = r.json()["errors"]
     assert any(e["field"] == "ingest.plugin" for e in errors)
+
+
+def test_rtsp_sin_url(client):
+    r = client.post("/api/compose/validate", json=_body(ingest={"plugin": "rtsp", "config": {}}))
+    errors = r.json()["errors"]
+    assert any(e["field"] == "ingest.config.url" for e in errors)
+
+
+def test_rtsp_url_con_prefijo_invalido(client):
+    body = _body(ingest={"plugin": "rtsp", "config": {"url": "http://cam/stream"}})
+    errors = client.post("/api/compose/validate", json=body).json()["errors"]
+    assert any(e["field"] == "ingest.config.url" for e in errors)
+
+
+def test_rtsp_url_valida(client):
+    body = _body(ingest={"plugin": "rtsp", "config": {"url": "rtsp://u:p@10.0.0.5:554/s"}})
+    errors = client.post("/api/compose/validate", json=body).json()["errors"]
+    assert not any(e["field"].startswith("ingest.config") for e in errors)
 
 
 def test_dataset_desconocido_o_no_disponible(client):

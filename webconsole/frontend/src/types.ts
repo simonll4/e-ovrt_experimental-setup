@@ -35,7 +35,7 @@ export interface IngestPlugin {
   kind: string
   available: boolean
   description: string
-  mvp_enabled: boolean
+  enabled: boolean
 }
 export interface DatasetEntry {
   id: string
@@ -75,6 +75,8 @@ export interface RunRow {
   started_at?: string | null
   bench_split?: string | null
   evaluated?: boolean
+  live?: boolean
+  topology?: string | null
 }
 export interface RunDetail {
   run_id: string
@@ -84,6 +86,7 @@ export interface RunDetail {
   summary?: Record<string, unknown>
   bench_split?: string | null
   evaluated?: boolean
+  live?: boolean
 }
 export interface DetectionsPage {
   page: number

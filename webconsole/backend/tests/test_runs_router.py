@@ -141,3 +141,11 @@ def test_get_run_passthrough_trae_bench_split(client):
     body = client.get("/api/runs/run_done_1").json()
     assert body["bench_split"] == "bench_v2_test"
     assert body["evaluated"] is False
+
+
+def test_listado_incluye_live_y_topology(client):
+    rows = client.get("/api/runs").json()
+    by_id = {r["run_id"]: r for r in rows}
+    # el fake declara un run terminado con run_descriptor two_node
+    assert by_id["run_done_1"]["live"] is False
+    assert by_id["run_done_1"]["topology"] == "two_node"

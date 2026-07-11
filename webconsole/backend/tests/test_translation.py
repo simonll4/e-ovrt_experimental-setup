@@ -125,3 +125,48 @@ def test_composition_to_manifest_usa_target_si_no_hay_ref(repo):
     assert manifest["rate_control"] == {"stride": 2}
     assert manifest["run"]["max_units"] == 10
     assert manifest["outputs"] == {"save_annotated_video": True}
+
+
+def test_run_request_rtsp_lleva_url_real(repo):
+    comp = _composition(ingest={"plugin": "rtsp", "config": {"url": "rtsp://u:p@10.0.0.5:554/s"}})
+    raw = composition_to_run_request(comp, repo / "prompts")
+    assert raw["ingest"] == {"plugin": "rtsp", "config": {"url": "rtsp://u:p@10.0.0.5:554/s"}}
+
+
+def test_manifest_rtsp_redacta_credenciales(repo):
+    comp = _composition(ingest={"plugin": "rtsp", "config": {"url": "rtsp://u:p@10.0.0.5:554/s"}})
+    manifest = composition_to_manifest(comp, target_model_ref="t/t")
+    assert manifest["source"]["type"] == "rtsp"
+    assert manifest["source"]["url"] == "rtsp://***:***@10.0.0.5:554/s"
+
+
+def test_manifest_rtsp_sin_credenciales_no_cambia(repo):
+    comp = _composition(ingest={"plugin": "rtsp", "config": {"url": "rtsp://10.0.0.5:554/s"}})
+    manifest = composition_to_manifest(comp, target_model_ref="t/t")
+    assert manifest["source"]["url"] == "rtsp://10.0.0.5:554/s"
+
+
+def test_round_trip_manifiesto_rtsp_redactado():
+    manifest = {
+        "run": {"scenario": "DBE"},
+        "source": {"type": "rtsp", "url": "rtsp://***:***@10.0.0.5:554/s"},
+        "prompts": {"ref": "frozen_set"},
+        "model": {"ref": "yoloe/yoloe-26l"},
+    }
+    comp = manifest_to_composition(manifest)
+    assert comp.ingest.plugin == "rtsp"
+    assert comp.ingest.config == {"url": "rtsp://***:***@10.0.0.5:554/s"}
+    regenerated = composition_to_manifest(comp, target_model_ref="ignored/target")
+    assert regenerated["source"]["type"] == "rtsp"
+    assert regenerated["source"]["url"] == "rtsp://***:***@10.0.0.5:554/s"
+
+
+@pytest.mark.parametrize("url,expected", [
+    ("RTSP://u:p@10.0.0.5:554/s", "RTSP://***:***@10.0.0.5:554/s"),   # esquema en mayúsculas
+    ("rtsps://u:p@10.0.0.5:554/s", "rtsps://***:***@10.0.0.5:554/s"),  # RTSP sobre TLS
+    ("rtsp://u:p@ss@10.0.0.5:554/s", "rtsp://***:***@10.0.0.5:554/s"), # '@' sin escapar en el password
+])
+def test_manifest_rtsp_redacta_esquemas_y_arroba(repo, url, expected):
+    comp = _composition(ingest={"plugin": "rtsp", "config": {"url": url}})
+    manifest = composition_to_manifest(comp, target_model_ref="t/t")
+    assert manifest["source"]["url"] == expected

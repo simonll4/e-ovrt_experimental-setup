@@ -15,7 +15,8 @@ vi.mock('../api', () => ({
     }
   },
   getIngestPlugins: vi.fn(async () => [
-    { id: 'image_folder', kind: 'bounded', available: true, description: '', mvp_enabled: true },
+    { id: 'image_folder', kind: 'bounded', available: true, description: '', enabled: true },
+    { id: 'rtsp', kind: 'live', available: true, description: '', enabled: true },
   ]),
   getDatasets: vi.fn(async () => [
     { id: 'demo_v2', description: '', path: '', available: true },
@@ -222,5 +223,55 @@ describe('ComposePage prefill survives catalog re-fetch (no clobber)', () => {
     // mismo `from=exp1` solo porque `experiments` cambió de referencia.
     expect(helmetCheckbox.checked).toBe(true)
     expect(personCheckbox.checked).toBe(true)
+  })
+})
+
+describe('ComposePage fuente RTSP', () => {
+  beforeEach(() => cleanup())
+  afterEach(() => vi.mocked(api.launchRun).mockReset())
+
+  it('al elegir rtsp muestra el campo URL y arma config { url }', async () => {
+    vi.mocked(api.launchRun).mockResolvedValue({ run_id: 'r1' })
+    render(
+      <MemoryRouter initialEntries={['/compose']}>
+        <Routes>
+          <Route path="/compose" element={<ComposePage />} />
+        </Routes>
+      </MemoryRouter>,
+    )
+
+    // NOTA (adaptación respecto al brief): los <label> de ComposePage no están
+    // asociados por htmlFor ni anidan el control, así que findByLabelText no
+    // resuelve (confirmado: falla igual que sin los cambios de producción).
+    // En su lugar ubicamos el <select>/<input> por el texto del <label> vecino
+    // dentro de su contenedor. Para el plugin, además esperamos a que la opción
+    // "rtsp" esté poblada (carga async de getIngestPlugins) antes de disparar el
+    // change, porque jsdom no aplica un value sin una <option> que lo respalde.
+    const pluginSelect = await waitFor(() => {
+      const label = screen.getByText(/Plugin de ingesta/i)
+      const select = label.closest('div')!.querySelector('select') as HTMLSelectElement
+      expect(select.querySelector('option[value="rtsp"]')).toBeTruthy()
+      return select
+    })
+    fireEvent.change(pluginSelect, { target: { value: 'rtsp' } })
+
+    const urlInput = await screen.findByPlaceholderText<HTMLInputElement>(/^rtsp:\/\//)
+    fireEvent.change(urlInput, { target: { value: 'rtsp://u:p@10.0.0.5:554/s' } })
+
+    // Elegir prompt set para no bloquear el lanzamiento por campos ajenos.
+    const setSelect = await waitFor(() => {
+      const label = screen.getByText(/^Prompt set$/i)
+      const select = label.closest('div')!.querySelector('select') as HTMLSelectElement
+      expect(select.querySelector('option[value="demo_set"]')).toBeTruthy()
+      return select
+    })
+    fireEvent.change(setSelect, { target: { value: 'demo_set' } })
+
+    fireEvent.click(screen.getByText('Lanzar'))
+
+    await waitFor(() => expect(api.launchRun).toHaveBeenCalled())
+    const comp = vi.mocked(api.launchRun).mock.calls[0][0]
+    expect(comp.ingest.plugin).toBe('rtsp')
+    expect(comp.ingest.config).toEqual({ url: 'rtsp://u:p@10.0.0.5:554/s' })
   })
 })

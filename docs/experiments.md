@@ -1,8 +1,9 @@
 # Experimentos (manifiestos de corrida)
 
 Un **manifiesto** declara un experimento ejecutable: qué fuente, qué modelo, qué prompts y con qué
-mecánica de runtime. Viven en `experiments/`. El media-plane los consume con
-`eovrt-media run --config <manifiesto>`.
+mecánica de runtime. Viven en `experiments/`. El media-plane ya no es un CLI: los manifiestos se
+componen y lanzan desde la **webconsole**, o directamente vía `POST /api/runs` contra el servicio
+media-plane (ver §4).
 
 ## 1. Formato
 
@@ -38,7 +39,9 @@ Solo `run`, `source`, `model`, `prompts` son obligatorios; el resto toma default
 | `mock_chv.yaml` | mock | chv | cr01_cr02_v2_short | smoke sobre CHV completo |
 | `gdino.yaml` | grounding-dino/gdino-tiny | demo_v2 | cr01_cr02_v2_short | muestra GDINO (CPU) |
 | `yoloe.yaml` | yoloe/yoloe-26s | demo_v2 | cr01_cr02_v2_short | muestra YOLOE |
-| `yoloe_video.yaml` | yoloe/yoloe-26s | (video, stride 5) | cr01_cr02_v2_short | muestra con muestreo por stride |
+| `yoloe_video.yaml` | yoloe/yoloe-26s | demo_v2 (stride 5) | cr01_cr02_v2_short | muestra con muestreo por stride |
+| `video_annotated.yaml` | yoloe/yoloe-26s | video_sample (stride 3) | cr01_cr02_v2_short | DBE sobre video local (`recorte-1.mp4`) con salida de video anotado |
+| `video_annotated_gdino.yaml` | grounding-dino/gdino-tiny (cuda) | video_sample (stride 3) | cr01_cr02_v2_short | DBE sobre video local (`recorte-1.mp4`) con GDINO-tiny y salida de video anotado |
 
 ## 3. Matriz BENCH v2 (`experiments/bench_v2/`)
 
@@ -112,8 +115,9 @@ decisión en Fase 2 (docker-compose de dos nodos).
    el naming).
 2. Ajustá `source.ref` (debe existir en `configs/datasets/` del media-plane), `model.ref` (en
    `configs/models/`) y `prompts.ref` (en `prompts/` de este repo) + `active_ids`.
-3. Validá sin correr:
-   `cd ../e-ovrt_media-plane && eovrt-media validate-config --config ../e-ovrt_experimental-setup/experiments/<nombre>.yaml`.
+3. No hay validación standalone por CLI: el servicio media-plane valida el manifiesto al
+   lanzarlo (`POST /api/runs` rechaza con `422` si es inválido), tanto si lo componés desde
+   la webconsole como si lo mandás directo contra el servicio.
 4. (Opcional) agregá `experiment: {id: <id>}` para que la provenance del run lo registre en
    `summary.json` (`experiment_id`).
 

@@ -16,11 +16,11 @@ async def validate_composition(
 ) -> list[dict]:
     errors: list[dict] = []
 
-    if comp.ingest.plugin not in settings.mvp_plugins:
+    if comp.ingest.plugin not in settings.supported_plugins:
         errors.append({
             "field": "ingest.plugin",
-            "message": f"Plugin '{comp.ingest.plugin}' fuera del MVP "
-                       f"(permitidos: {sorted(settings.mvp_plugins)})",
+            "message": f"Plugin '{comp.ingest.plugin}' no soportado por la consola "
+                       f"(soportados: {sorted(settings.supported_plugins)})",
         })
 
     try:
@@ -36,18 +36,27 @@ async def validate_composition(
         errors.append({"field": "ingest.plugin",
                        "message": f"Plugin '{comp.ingest.plugin}' no disponible en el target"})
 
-    dataset = comp.ingest.config.get("dataset")
-    if dataset:
-        entry = datasets.get(dataset)
-        if entry is None:
-            errors.append({"field": "ingest.config.dataset",
-                           "message": f"Dataset '{dataset}' no existe en el catálogo del target"})
-        elif not entry.get("available", False):
-            errors.append({"field": "ingest.config.dataset",
-                           "message": f"Dataset '{dataset}' no disponible (path no montado)"})
-    elif not comp.ingest.config.get("path"):
-        errors.append({"field": "ingest.config.path",
-                       "message": "Se requiere 'dataset' (catálogo) o 'path' explícito"})
+    if comp.ingest.plugin == "rtsp":
+        url = comp.ingest.config.get("url")
+        if not url:
+            errors.append({"field": "ingest.config.url",
+                           "message": "Se requiere 'url' de la cámara (rtsp://...)"})
+        elif not str(url).startswith("rtsp://"):
+            errors.append({"field": "ingest.config.url",
+                           "message": "La URL debe empezar con 'rtsp://'"})
+    else:
+        dataset = comp.ingest.config.get("dataset")
+        if dataset:
+            entry = datasets.get(dataset)
+            if entry is None:
+                errors.append({"field": "ingest.config.dataset",
+                               "message": f"Dataset '{dataset}' no existe en el catálogo del target"})
+            elif not entry.get("available", False):
+                errors.append({"field": "ingest.config.dataset",
+                               "message": f"Dataset '{dataset}' no disponible (path no montado)"})
+        elif not comp.ingest.config.get("path"):
+            errors.append({"field": "ingest.config.path",
+                           "message": "Se requiere 'dataset' (catálogo) o 'path' explícito"})
 
     prompt_set = get_prompt_set(settings.prompts_dir, comp.prompts.set_id)
     if prompt_set is None:

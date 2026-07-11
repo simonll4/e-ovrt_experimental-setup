@@ -45,7 +45,10 @@ export default function RunsPage() {
           {rows.map((r) => (
             <tr key={r.run_id}>
               <td style={CELL}><Link to={`/runs/${r.run_id}`}>{r.run_id}</Link></td>
-              <td style={CELL}>{r.status === 'running' ? '🟢 running' : r.status}</td>
+              <td style={CELL}>
+                {r.status === 'running' ? '🟢 running' : r.status}
+                {r.topology === 'two_node' ? ' · two-node' : ''}
+              </td>
               <td style={CELL}>{r.model ?? '—'}</td>
               <td style={CELL}>{r.source_type ?? '—'}</td>
               <td style={CELL}>{r.prompt_set_id ?? '—'}</td>

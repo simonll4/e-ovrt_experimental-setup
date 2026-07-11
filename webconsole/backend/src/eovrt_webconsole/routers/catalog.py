@@ -34,10 +34,10 @@ async def _service_get(request: Request, path: str) -> list[dict]:
 async def ingest_plugins(request: Request) -> list[dict]:
     settings = request.app.state.settings
     plugins = await _service_get(request, "/api/catalog/ingest-plugins")
-    # mvp_enabled es policy de la CONSOLA (Spec B §6): el catálogo del servicio marca
-    # rtsp como disponible, pero el MVP solo lanza fuentes acotadas.
+    # `enabled` es policy de la CONSOLA: un plugin se ofrece si está soportado por la
+    # consola Y disponible en el servicio (decisión 2026-07-07, rtsp habilitado).
     return [
-        {**p, "mvp_enabled": p["id"] in settings.mvp_plugins and p.get("available", False)}
+        {**p, "enabled": p["id"] in settings.supported_plugins and p.get("available", False)}
         for p in plugins
     ]
 

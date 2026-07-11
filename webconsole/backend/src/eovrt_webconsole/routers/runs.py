@@ -32,6 +32,8 @@ def _row(info: dict) -> dict:
         "started_at": info.get("started_at") or summary.get("started_at"),
         "bench_split": info.get("bench_split"),
         "evaluated": info.get("evaluated"),
+        "live": info.get("live", False),
+        "topology": (summary.get("run_descriptor") or {}).get("topology"),
     }
 
 
@@ -87,6 +89,7 @@ async def list_runs(request: Request) -> list[dict]:
                     "status": item["status"],
                     "bench_split": item.get("bench_split"),
                     "evaluated": item.get("evaluated"),
+                    "live": item.get("live", False),
                 }
             )
     rows.extend(
@@ -95,6 +98,7 @@ async def list_runs(request: Request) -> list[dict]:
             "status": item["status"],
             "bench_split": item.get("bench_split"),
             "evaluated": item.get("evaluated"),
+            "live": item.get("live", False),
         }
         for item in base[settings.hydration_limit :]
     )

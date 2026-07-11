@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import { artifactUrl, getDetections, getRun, stopRun } from '../api'
 import EvalSection from '../components/EvalSection'
 import Sparkline from '../components/Sparkline'
+import { isLive, topologyBadge } from '../runview'
 import { useRunStream } from '../stream'
 import type { DetectionsPage, RunDetail } from '../types'
 
@@ -13,7 +14,8 @@ export default function RunDetailPage() {
   const [hasVideo, setHasVideo] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const running = run?.status === 'running'
-  const live = useRunStream(id, Boolean(running))
+  const streamable = Boolean(run && isLive(run))
+  const live = useRunStream(id, streamable)
 
   const refresh = () =>
     getRun(id)
@@ -29,6 +31,12 @@ export default function RunDetailPage() {
   useEffect(() => {
     if (live.finalState) refresh()
   }, [live.finalState])
+  // Run externo (two-node) en curso: sin WS, el estado se re-hidrata por polling.
+  useEffect(() => {
+    if (!running || streamable) return
+    const timer = setInterval(refresh, 4000)
+    return () => clearInterval(timer)
+  }, [running, streamable])
   useEffect(() => {
     if (run && !running) {
       getDetections(id, 1, 24).then(setDetections).catch(() => setDetections(null))
@@ -45,7 +53,12 @@ export default function RunDetailPage() {
     <div style={{ display: 'grid', gap: 20 }}>
       <h2>
         {run.run_id} — {run.status}{' '}
-        {running && (
+        {topologyBadge(summary) && (
+          <span style={{ fontSize: 14, background: '#eef', borderRadius: 4, padding: '2px 8px' }}>
+            {topologyBadge(summary)}
+          </span>
+        )}{' '}
+        {streamable && (
           <button
             onClick={() => {
               stopRun(id).catch((e) => setError(`No se pudo detener: ${String(e)}`))
@@ -55,7 +68,7 @@ export default function RunDetailPage() {
           </button>
         )}
       </h2>
-      {running && (
+      {streamable && (
         <section style={{ display: 'flex', gap: 32, flexWrap: 'wrap' }}>
           <div>
             <b>FPS</b> {live.lastMetric?.fps ?? '—'}

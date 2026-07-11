@@ -76,8 +76,9 @@ Resultado: cada detección sale ligada por construcción (`label` canónico + `p
 - **Congelados (`cr01_cr02_*`)**: sus frases son byte-equivalentes a las del protocolo v2. No se
   tocan; cualquier cambio rompería la comparabilidad histórica del BENCH.
 - **Experimentales (`ppe_v2_descriptive`, nuevos)**: acá se itera el fraseo. Para A/B, correr el mismo
-  modelo/split con el set congelado y con el experimental, y comparar con `eovrt-media compare-runs` /
-  el `evaluate_bench.py` del repo `e-ovrt_datasets`.
+  modelo/split con el set congelado y con el experimental, y comparar con
+  `python -m eovrt_media.tools.inspect_runs compare runs/` (desde el media-plane) / el
+  `evaluate_bench.py` del repo `e-ovrt_datasets`.
 
 ## 5. Guía de fraseo (respaldada por investigación)
 
@@ -98,4 +99,5 @@ prompts):
 2. Mantené los `canonical` dentro de canonical_v2 si vas a evaluar contra el BENCH; usá otros `id`/
    `canonical` si querés un modo exploración (esas corridas no se evalúan contra el BENCH).
 3. Referencialo desde un manifiesto: `prompts: {ref: <nuevo>, active_ids: [...]}`.
-4. Validá: `cd ../e-ovrt_media-plane && eovrt-media validate-config --config ../e-ovrt_experimental-setup/experiments/<tu_manifiesto>.yaml`.
+4. No hay validación standalone por CLI: el servicio media-plane valida el manifiesto al
+   lanzarlo (`POST /api/runs` rechaza con `422` si es inválido).

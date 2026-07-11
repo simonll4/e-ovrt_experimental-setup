@@ -29,4 +29,5 @@ line-length = 100
 asyncio_mode = "auto"
 filterwarnings = [
     "ignore:Using `httpx` with `starlette.testclient` is deprecated.*:starlette.exceptions.StarletteDeprecationWarning",
+    "ignore:remove second argument of ws_handler:DeprecationWarning:websockets.legacy.server",
 ]

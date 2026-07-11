@@ -1,15 +1,16 @@
 from __future__ import annotations
 
 
-def test_ingest_plugins_con_policy_mvp(client):
+def test_ingest_plugins_con_policy_soporte(client):
     plugins = {p["id"]: p for p in client.get("/api/catalog/ingest-plugins").json()}
     assert set(plugins) == {"image_folder", "video_file", "rtsp", "oak_d"}
-    assert plugins["image_folder"]["mvp_enabled"] is True
-    assert plugins["video_file"]["mvp_enabled"] is True
-    # rtsp está available en el servicio, pero fuera del MVP por policy del BFF
+    assert plugins["image_folder"]["enabled"] is True
+    assert plugins["video_file"]["enabled"] is True
+    # rtsp: fuente viva soportada de forma permanente por la consola
     assert plugins["rtsp"]["available"] is True
-    assert plugins["rtsp"]["mvp_enabled"] is False
-    assert plugins["oak_d"]["mvp_enabled"] is False
+    assert plugins["rtsp"]["enabled"] is True
+    # oak_d: available=False en el servicio (sin hardware) -> no soportado
+    assert plugins["oak_d"]["enabled"] is False
 
 
 def test_datasets_pass_through(client):

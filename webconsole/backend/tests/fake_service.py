@@ -44,6 +44,7 @@ SUMMARY_FINISHED = {
     "duration_seconds": 0.24,
     "device": "cpu",
     "started_at": "2026-07-03T10:00:00+00:00",
+    "run_descriptor": {"topology": "two_node"},
 }
 EVAL_RESULT = {
     "type": "perception",
@@ -147,13 +148,14 @@ def make_fake_service(state: FakeState) -> FastAPI:
             return JSONResponse(status_code=503, content={"detail": "Servicio no listo (modelo no cargado)"})
         runs = []
         if state.active_run_id:
-            runs.append({"run_id": state.active_run_id, "status": "running"})
+            runs.append({"run_id": state.active_run_id, "status": "running", "live": True})
         runs.append(
             {
                 "run_id": "run_done_1",
                 "status": "succeeded",
                 "bench_split": "bench_v2_test",
                 "evaluated": "run_done_1" in state.eval_results,
+                "live": False,
             }
         )
         return runs
@@ -163,7 +165,7 @@ def make_fake_service(state: FakeState) -> FastAPI:
         if not state.ready:
             return JSONResponse(status_code=503, content={"detail": "Servicio no listo (modelo no cargado)"})
         if run_id == state.active_run_id:
-            return {"run_id": run_id, "status": "running",
+            return {"run_id": run_id, "status": "running", "live": True,
                     "started_at": "2026-07-03T12:00:00+00:00", "model": MODEL["ref"]}
         if run_id == "run_done_1":
             return {
@@ -172,6 +174,7 @@ def make_fake_service(state: FakeState) -> FastAPI:
                 "summary": SUMMARY_FINISHED,
                 "bench_split": "bench_v2_test",
                 "evaluated": run_id in state.eval_results,
+                "live": False,
             }
         return JSONResponse(status_code=404, content={"detail": f"Run desconocido: {run_id}"})
 
