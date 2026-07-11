@@ -1,0 +1,574 @@
+"""Generador del reporte consolidado (spec 40 SS6, spec 44 SS4 Tarea 3).
+
+Agrega lo que ambos planos ya persistieron en el dir consolidado (ADR-014,
+`consolidation.py`): NO recalcula metricas (ADR-006). La UNICA excepcion es el
+join `t_capture->alert` (spec 40 SS5.2.4), que se recomputa aca invocando
+`applicability.join_capture_to_alert`.
+
+El diccionario de metricas de spec 40 SS5.1 se enumera SIEMPRE en
+`resultados`: cada entrada figura con su `status` + `cause` de aplicabilidad
+(ADR-006), aunque el insumo no este disponible ("figuran, no se omiten").
+
+Nota sobre el borde `two_node` + `source_clock: none` (Tarea 1): no se trata
+de forma especial aca -- `join_capture_to_alert` ya resuelve la precedencia
+(`none` gana sobre `two_node`) y este modulo solo pasa el flag que lee de
+`run_descriptor.topology` (heuristica minima, ver `_is_two_node`).
+"""
+from __future__ import annotations
+
+import hashlib
+import json
+from pathlib import Path
+from statistics import fmean
+
+import yaml
+
+from eovrt_webconsole.experiment.applicability import MetricResult, join_capture_to_alert
+
+# Vocabulario cerrado de causas que este modulo asigna por decision propia
+# (las metricas del tramo plataforma sin GT, la excepcion del join, y las
+# metricas sin trayecto de distribucion instrumentado). Los bloques que se
+# copian tal cual de los summaries (p.ej. `g2a.causes`) conservan SU causa
+# verbatim, que puede no pertenecer a este vocabulario.
+NO_GROUND_TRUTH = "no_ground_truth"
+DBE_MEDIA_TIME = "dbe_media_time"
+CLOCK_SKEW = "clock_skew"
+NON_TEMPORAL_SOURCE = "non_temporal_source"
+MISSING_JOIN_KEY = "missing_join_key"
+NO_DISTRIBUTION = "no_distribution"
+
+
+# ---------------------------------------------------------------------------
+# Lectura tolerante de artefactos (agregar, no recalcular: si falta, {} / []).
+# ---------------------------------------------------------------------------
+
+
+def _read_json(path: Path) -> dict:
+    if not path.is_file():
+        return {}
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def _read_yaml(path: Path) -> dict:
+    if not path.is_file():
+        return {}
+    data = yaml.safe_load(path.read_text(encoding="utf-8"))
+    return data or {}
+
+
+def _read_jsonl(path: Path) -> list[dict]:
+    if not path.is_file():
+        return []
+    rows = []
+    for line in path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if line:
+            rows.append(json.loads(line))
+    return rows
+
+
+def _find_effective_config(plane_dir: Path) -> dict | None:
+    """Carga effective_config.yaml o .json de un plano, lo que exista."""
+    for name in ("effective_config.yaml", "effective_config.json"):
+        path = plane_dir / name
+        if path.is_file():
+            return yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    return None
+
+
+def _hash_dict(data: dict) -> str:
+    """Hash determinista de un dict, independiente del orden de claves."""
+    canonical = json.dumps(data, sort_keys=True, ensure_ascii=False, default=str)
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+
+# ---------------------------------------------------------------------------
+# t_capture->alert / t_compute-budget: la unica excepcion a "no recalcular".
+# ---------------------------------------------------------------------------
+
+
+def _is_two_node(media_summary: dict) -> bool:
+    """Heuristica minima (ver docstring del modulo): topologia declarada por
+    el media-plane en `run_descriptor.topology`. Sin sobre-ingenieria: si el
+    campo no esta, se asume single-host (False)."""
+    descriptor = media_summary.get("run_descriptor") or {}
+    return descriptor.get("topology") == "two_node"
+
+
+def _mean(values: list[float]) -> float | None:
+    return fmean(values) if values else None
+
+
+def _aggregate_t_capture_to_alert(
+    join_results: list[dict], *, source_clock: str, two_node: bool
+) -> MetricResult:
+    if not join_results:
+        if source_clock == "none":
+            return MetricResult(
+                name="t_capture->alert", unit="ms",
+                status="not_applicable", cause=NON_TEMPORAL_SOURCE,
+            )
+        if source_clock == "media":
+            return MetricResult(
+                name="t_capture->alert", unit="ms",
+                status="not_interpretable", cause=DBE_MEDIA_TIME,
+            )
+        if two_node:
+            return MetricResult(
+                name="t_capture->alert", unit="ms",
+                status="not_interpretable", cause=CLOCK_SKEW,
+            )
+        return MetricResult(
+            name="t_capture->alert", unit="ms",
+            status="applicable_not_computed", cause=MISSING_JOIN_KEY,
+        )
+
+    statuses = {row["status"] for row in join_results}
+    if statuses == {"computed"}:
+        values = [row["t_capture_to_alert_ms"] for row in join_results
+                  if row["t_capture_to_alert_ms"] is not None]
+        return MetricResult(
+            name="t_capture->alert", value=_mean(values), unit="ms",
+            status="computed", cause=None,
+        )
+    if "not_applicable" in statuses:
+        return MetricResult(
+            name="t_capture->alert", unit="ms",
+            status="not_applicable", cause=NON_TEMPORAL_SOURCE,
+        )
+    if "not_interpretable" in statuses:
+        cause = CLOCK_SKEW if two_node else DBE_MEDIA_TIME
+        return MetricResult(
+            name="t_capture->alert", unit="ms",
+            status="not_interpretable", cause=cause,
+        )
+    return MetricResult(
+        name="t_capture->alert", unit="ms",
+        status="applicable_not_computed", cause=MISSING_JOIN_KEY,
+    )
+
+
+def _aggregate_t_compute_budget(join_results: list[dict]) -> MetricResult:
+    # t_compute-budget es monotonico e independiente de la fuente (spec 40
+    # SS5.2.1): se computa siempre que haya al menos un valor derivable, sin
+    # importar el estado de t_capture->alert.
+    values = [row["t_compute_budget_ms"] for row in join_results
+              if row.get("t_compute_budget_ms") is not None]
+    if values:
+        return MetricResult(
+            name="t_compute-budget", value=_mean(values), unit="ms",
+            status="computed", cause=None,
+        )
+    return MetricResult(
+        name="t_compute-budget", unit="ms",
+        status="applicable_not_computed", cause=MISSING_JOIN_KEY,
+    )
+
+
+# ---------------------------------------------------------------------------
+# Resto del diccionario SS5.1: agregado directo de los summaries persistidos.
+# ---------------------------------------------------------------------------
+
+
+def _g2a_metric(media_summary: dict) -> MetricResult:
+    g2a = media_summary.get("g2a") or {}
+    state = g2a.get("state")
+    if state == "computed":
+        return MetricResult(name="G2A", value=g2a.get("p95_ms"), unit="ms",
+                             status="computed", cause=None)
+    if state:
+        causes = g2a.get("causes") or []
+        return MetricResult(name="G2A", unit="ms", status=state,
+                             cause=causes[0] if causes else None)
+    return MetricResult(name="G2A", unit="ms", status="applicable_not_computed", cause=None)
+
+
+def _ttfa_interna_metric(control_summary: dict, source_clock: str) -> MetricResult:
+    if source_clock == "none":
+        return MetricResult(name="TTFA interna", unit="ms",
+                             status="not_applicable", cause=NON_TEMPORAL_SOURCE)
+    percentiles = control_summary.get("ttfa_internal_ms_percentiles")
+    if percentiles:
+        value = percentiles.get("p50")
+        return MetricResult(name="TTFA interna", value=value, unit="ms",
+                             status="computed", cause=None)
+    return MetricResult(name="TTFA interna", unit="ms",
+                         status="applicable_not_computed", cause=None)
+
+
+def _simple_numeric_metric(name: str, value, unit: str) -> MetricResult:
+    """Metrica de passthrough directo de un summary (latencias, FPS, drops)."""
+    if value is None:
+        return MetricResult(name=name, unit=unit, status="applicable_not_computed", cause=None)
+    return MetricResult(name=name, value=float(value), unit=unit, status="computed", cause=None)
+
+
+def _substage_metrics(media_summary: dict, control_summary: dict) -> list[MetricResult]:
+    metrics = [
+        _simple_numeric_metric("latencia_media_p50_ms", media_summary.get("p50_latency_ms"), "ms"),
+        _simple_numeric_metric("latencia_media_p95_ms", media_summary.get("p95_latency_ms"), "ms"),
+        _simple_numeric_metric("latencia_media_p99_ms", media_summary.get("p99_latency_ms"), "ms"),
+        _simple_numeric_metric("fps_efectivo", media_summary.get("fps_effective"), "fps"),
+        _simple_numeric_metric("drops_media", media_summary.get("units_dropped"), "count"),
+        _simple_numeric_metric(
+            "latencia_control_avg_ms", control_summary.get("avg_processing_ms"), "ms"
+        ),
+        _simple_numeric_metric(
+            "bus_dropped_events", control_summary.get("bus_dropped_events"), "count"
+        ),
+    ]
+    control_percentiles = control_summary.get("processing_ms_percentiles") or {}
+    for pct in ("p50", "p95", "p99"):
+        metrics.append(
+            _simple_numeric_metric(
+                f"latencia_control_{pct}_ms", control_percentiles.get(pct), "ms"
+            )
+        )
+    return metrics
+
+
+def _eval_perception(consolidated_dir: Path, media_summary: dict) -> dict | None:
+    """Busca una evaluacion de percepcion con GT, si existe (extension
+    forward-compatible: ninguna tarea previa la produce todavia -- spec 43,
+    diferido). Se busca embebida en el summary o en un archivo dedicado."""
+    embedded = media_summary.get("eval_perception")
+    if embedded:
+        return embedded
+    path = consolidated_dir / "media" / "eval_perception.json"
+    if path.is_file():
+        return json.loads(path.read_text(encoding="utf-8"))
+    return None
+
+
+def _perception_metrics(
+    consolidated_dir: Path, media_summary: dict, control_summary: dict, source_clock: str
+) -> list[MetricResult]:
+    eval_perception = _eval_perception(consolidated_dir, media_summary)
+    metrics: list[MetricResult] = []
+
+    if eval_perception:
+        metrics.append(
+            MetricResult(name="mAP", value=eval_perception.get("map"), unit="ratio",
+                         status="computed", cause=None)
+        )
+        ap_by_class = eval_perception.get("ap_by_class") or {}
+        for class_name, ap_value in ap_by_class.items():
+            metrics.append(
+                MetricResult(name=f"AP {class_name}", value=ap_value, unit="ratio",
+                             status="computed", cause=None)
+            )
+        metrics.append(
+            MetricResult(name="recall CR-01", value=eval_perception.get("recall_cr01"),
+                         unit="ratio", status="computed", cause=None)
+        )
+    else:
+        metrics.append(MetricResult(name="mAP", unit="ratio",
+                                     status="not_applicable", cause=NO_GROUND_TRUTH))
+        metrics.append(MetricResult(name="AP por clase", unit="ratio",
+                                     status="not_applicable", cause=NO_GROUND_TRUTH))
+        metrics.append(MetricResult(name="recall CR-01", unit="ratio",
+                                     status="not_applicable", cause=NO_GROUND_TRUTH))
+
+    re_alerts = control_summary.get("re_alerts_count")
+    if re_alerts is None:
+        temporal_eval = control_summary.get("temporal_evaluation") or {}
+        re_alerts = temporal_eval.get("re_alerts_count")
+    if re_alerts is not None:
+        metrics.append(MetricResult(name="re_alerts", value=float(re_alerts), unit="count",
+                                     status="computed", cause=None))
+    else:
+        # re_alerts es metrica de patron/temporal (spec 40 SS5.2.3.3): en fuente
+        # no temporal (source_clock=none) toda evaluacion de patrones es
+        # non_temporal_source, no no_ground_truth (finding de revision).
+        cause = NON_TEMPORAL_SOURCE if source_clock == "none" else NO_GROUND_TRUTH
+        metrics.append(MetricResult(name="re_alerts", unit="count",
+                                     status="not_applicable", cause=cause))
+
+    return metrics
+
+
+def _build_resultados(
+    consolidated_dir: Path, media_summary: dict, control_summary: dict,
+    join_results: list[dict], *, source_clock: str, two_node: bool,
+) -> list[MetricResult]:
+    resultados = [
+        _g2a_metric(media_summary),
+        MetricResult(name="t_alert-system", unit="s",
+                     status="not_applicable", cause=NO_GROUND_TRUTH),
+        _aggregate_t_capture_to_alert(join_results, source_clock=source_clock,
+                                       two_node=two_node),
+        _aggregate_t_compute_budget(join_results),
+        MetricResult(name="t_alert-notification", unit="ms",
+                     status="not_applicable", cause=NO_DISTRIBUTION),
+        MetricResult(name="TTFD", unit="s",
+                     status="not_applicable", cause=NO_GROUND_TRUTH),
+        MetricResult(name="SDR", unit="ratio",
+                     status="not_applicable", cause=NO_GROUND_TRUTH),
+        _ttfa_interna_metric(control_summary, source_clock),
+        MetricResult(name="ΔFP_tracker", unit="count",
+                     status="not_applicable", cause=None),
+    ]
+    resultados.extend(_substage_metrics(media_summary, control_summary))
+    resultados.extend(
+        _perception_metrics(consolidated_dir, media_summary, control_summary, source_clock)
+    )
+    return resultados
+
+
+# ---------------------------------------------------------------------------
+# Anti-drift: hash de la config "enviada" (congelada en el manifiesto
+# efectivo, clave opcional `sent_config.<plano>`) vs la effective_config que
+# cada plano persistio. Si cualquiera de las dos no esta disponible (por
+# ejemplo, el cableado del runner -- Tarea 4 -- todavia no persiste
+# `sent_config`), el chequeo queda "no verificable" y NO rompe el reporte.
+# ---------------------------------------------------------------------------
+
+
+def _anti_drift_for_plane(sent_config: dict | None, persisted_config: dict | None) -> dict:
+    if sent_config is None or persisted_config is None:
+        return {
+            "checked": False,
+            "reason": "sent_config o effective_config no disponibles en el consolidado",
+        }
+    hash_sent = _hash_dict(sent_config)
+    hash_effective = _hash_dict(persisted_config)
+    return {
+        "checked": True,
+        "hash_sent": hash_sent,
+        "hash_effective": hash_effective,
+        "drift_detected": hash_sent != hash_effective,
+    }
+
+
+def _build_anti_drift(manifest_effective: dict, media_dir: Path, control_dir: Path) -> dict:
+    sent_config = manifest_effective.get("sent_config") or {}
+    return {
+        "media": _anti_drift_for_plane(sent_config.get("media"), _find_effective_config(media_dir)),
+        "control": _anti_drift_for_plane(
+            sent_config.get("control"), _find_effective_config(control_dir)
+        ),
+    }
+
+
+# ---------------------------------------------------------------------------
+# Secciones descriptivas (identidad, entrada, temporalidad, eventos, ...).
+# ---------------------------------------------------------------------------
+
+
+def _clock_criterion_text(source_clock: str | None) -> str:
+    if source_clock == "wallclock":
+        return "reloj de pared local (single-host); latencias intra-nodo monotonicas."
+    if source_clock == "media":
+        return ("reloj de medio (tiempo de video, no de pared): t_capture->alert no "
+                "interpretable (dbe_media_time); t_compute-budget si es valido.")
+    if source_clock == "none":
+        return ("fuente no temporal (dataset de imagenes, ADR-013): no hay episodio en "
+                "el tiempo; t_capture->alert no aplica (non_temporal_source).")
+    return "source_clock no declarado en el summary del media-plane."
+
+
+def _hitos(alerts: list[dict], pattern_events: list[dict]) -> dict:
+    return {
+        "primera_evidencia": any(a.get("first_evidence_unit_id") for a in alerts),
+        "patron_confirmado": bool(pattern_events),
+        "alerta_registrada": any(a.get("alert_registered_ms") is not None for a in alerts),
+        # Hito de spec 45 (distribucion): sin trayecto instrumentado todavia.
+        "notificacion_entregada": False,
+    }
+
+
+def _observaciones(source_clock: str, anti_drift: dict) -> list[str]:
+    notas = [
+        "Reporte agregado (ADR-006): no recalcula metricas persistidas; la unica "
+        "excepcion es el join t_capture->alert (spec 40 SS5.2.4).",
+    ]
+    if source_clock == "none":
+        notas.append(
+            "Corrida rotulada como diagnostico espacial / smoke de contrato: fuente no "
+            "temporal (source_clock=none), la evaluacion de patrones es "
+            "not_applicable/non_temporal_source."
+        )
+    for plano, entry in anti_drift.items():
+        if entry.get("checked") and entry.get("drift_detected"):
+            notas.append(f"anti-drift: la config enviada del plano '{plano}' difiere de la "
+                         "effective_config persistida.")
+    return notas
+
+
+def generate_report(consolidated_dir: str | Path) -> dict:
+    """Arma el `report.json` (dict) de un experimento consolidado (ADR-014).
+
+    Lee `media/summary.json`, `media/metrics.jsonl`, `control/summary.json`,
+    `control/alerts.jsonl`, `control/pattern_events.jsonl` y
+    `manifest.effective.yaml` del dir consolidado; no recalcula nada salvo el
+    join `t_capture->alert` / `t_compute-budget` (unica excepcion, ADR-006).
+    """
+    consolidated_dir = Path(consolidated_dir)
+    media_dir = consolidated_dir / "media"
+    control_dir = consolidated_dir / "control"
+
+    media_summary = _read_json(media_dir / "summary.json")
+    media_metrics = _read_jsonl(media_dir / "metrics.jsonl")
+    control_summary = _read_json(control_dir / "summary.json")
+    alerts = _read_jsonl(control_dir / "alerts.jsonl")
+    pattern_events = _read_jsonl(control_dir / "pattern_events.jsonl")
+    manifest_effective = _read_yaml(consolidated_dir / "manifest.effective.yaml")
+
+    source_clock = media_summary.get("source_clock") or "none"
+    two_node = _is_two_node(media_summary)
+
+    media_metrics_by_unit = {
+        row["unit_id"]: row for row in media_metrics if row.get("unit_id")
+    }
+    join_results = join_capture_to_alert(
+        alerts, media_metrics_by_unit, source_clock=source_clock, two_node=two_node
+    )
+
+    anti_drift = _build_anti_drift(manifest_effective, media_dir, control_dir)
+
+    experiment_id = manifest_effective.get("experiment_id") or consolidated_dir.name
+
+    identificacion = {
+        "experiment_id": experiment_id,
+        "media_run_id": media_summary.get("run_id"),
+        "control_run_id": control_summary.get("control_run_id"),
+        "fecha_inicio": media_summary.get("started_at"),
+        "fecha_fin": media_summary.get("finished_at"),
+    }
+    modelo = {
+        "model_name": media_summary.get("model_name"),
+        "prompt_set_id": media_summary.get("prompt_set_id"),
+        "pattern_set_id": control_summary.get("pattern_set_id"),
+        "active_pattern_ids": control_summary.get("active_pattern_ids"),
+    }
+    entrada = {
+        "source_type": media_summary.get("source_type"),
+        "source_count": media_summary.get("source_count"),
+        "scenario": media_summary.get("scenario"),
+    }
+    parametros = {
+        "frozen": manifest_effective.get("frozen", {}),
+        "warmup_units": (media_summary.get("g2a") or {}).get("warmup_units"),
+        "active_pattern_ids": control_summary.get("active_pattern_ids"),
+    }
+    hardware_entorno = {
+        "device": media_summary.get("device"),
+        "gpu_memory_peak_mb": media_summary.get("gpu_memory_peak_mb"),
+        "topology": (media_summary.get("run_descriptor") or {}).get("topology"),
+    }
+    temporalidad = {
+        "source_clock": source_clock,
+        "two_node": two_node,
+        "warmup_units": (media_summary.get("g2a") or {}).get("warmup_units"),
+        "criterio_relojes": _clock_criterion_text(source_clock),
+    }
+    eventos = {
+        "pattern_events_count": control_summary.get("pattern_events_count"),
+        "alerts_count": control_summary.get("alerts_count"),
+        "errors_count": control_summary.get("errors_count"),
+        "units_processed_media": media_summary.get("units_processed"),
+        "units_processed_control": control_summary.get("units_processed"),
+        "hitos": _hitos(alerts, pattern_events),
+    }
+
+    resultados = _build_resultados(
+        consolidated_dir, media_summary, control_summary, join_results,
+        source_clock=source_clock, two_node=two_node,
+    )
+
+    return {
+        "identificacion": identificacion,
+        "modelo": modelo,
+        "entrada": entrada,
+        "parametros": parametros,
+        "hardware_entorno": hardware_entorno,
+        "temporalidad": temporalidad,
+        "eventos": eventos,
+        "resultados": [m.model_dump() for m in resultados],
+        "anti_drift": anti_drift,
+        "observaciones": _observaciones(source_clock, anti_drift),
+    }
+
+
+# ---------------------------------------------------------------------------
+# report.md
+# ---------------------------------------------------------------------------
+
+
+def _render_dict_section(title: str, data: dict) -> str:
+    lines = [f"## {title}", ""]
+    if not data:
+        lines.append("(sin datos)")
+    for key, value in data.items():
+        lines.append(f"- **{key}**: {value}")
+    lines.append("")
+    return "\n".join(lines)
+
+
+def _render_resultados_section(resultados: list[dict]) -> str:
+    lines = ["## Resultados", "", "| Metrica | Valor | Unidad | Estado | Causa |",
+              "|---|---|---|---|---|"]
+    for metric in resultados:
+        lines.append(
+            f"| {metric['name']} | {metric['value']} | {metric['unit']} | "
+            f"{metric['status']} | {metric['cause']} |"
+        )
+    lines.append("")
+    return "\n".join(lines)
+
+
+def _render_anti_drift_section(anti_drift: dict) -> str:
+    lines = ["## Anti-drift", ""]
+    for plano, entry in anti_drift.items():
+        if not entry.get("checked"):
+            lines.append(f"- **{plano}**: no verificable ({entry.get('reason')})")
+            continue
+        estado = "DRIFT DETECTADO" if entry.get("drift_detected") else "sin diferencias"
+        lines.append(f"- **{plano}**: {estado} (sent={entry['hash_sent'][:12]}..., "
+                     f"effective={entry['hash_effective'][:12]}...)")
+    lines.append("")
+    return "\n".join(lines)
+
+
+def render_markdown(report: dict) -> str:
+    """Renderiza el `report.json` a un `report.md` legible por humanos.
+
+    Mapea las mismas secciones que `generate_report` (spec 40 SS6 / Tabla D.6).
+    """
+    experiment_id = report["identificacion"].get("experiment_id", "?")
+    parts = [
+        f"# Reporte del experimento {experiment_id}",
+        "",
+        _render_dict_section("Identificacion", report["identificacion"]),
+        _render_dict_section("Modelo", report["modelo"]),
+        _render_dict_section("Entrada", report["entrada"]),
+        _render_dict_section("Parametros", report["parametros"]),
+        _render_dict_section("Hardware y entorno", report["hardware_entorno"]),
+        _render_dict_section("Temporalidad", report["temporalidad"]),
+        _render_dict_section("Eventos", report["eventos"]),
+        _render_resultados_section(report["resultados"]),
+        _render_anti_drift_section(report["anti_drift"]),
+        "## Observaciones",
+        "",
+    ]
+    parts.extend(f"- {nota}" for nota in report["observaciones"])
+    parts.append("")
+    return "\n".join(parts)
+
+
+def write_report(consolidated_dir: str | Path) -> tuple[Path, Path]:
+    """Genera y persiste `report/report.json` + `report/report.md`."""
+    consolidated_dir = Path(consolidated_dir)
+    report = generate_report(consolidated_dir)
+    markdown = render_markdown(report)
+
+    report_dir = consolidated_dir / "report"
+    report_dir.mkdir(parents=True, exist_ok=True)
+
+    json_path = report_dir / "report.json"
+    md_path = report_dir / "report.md"
+    json_path.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n",
+                          encoding="utf-8")
+    md_path.write_text(markdown, encoding="utf-8")
+
+    return json_path, md_path

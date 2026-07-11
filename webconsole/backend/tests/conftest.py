@@ -12,6 +12,7 @@ from fastapi.testclient import TestClient
 
 from eovrt_webconsole.app import create_app
 from eovrt_webconsole.settings import ConsoleSettings
+from tests.fake_control_service import FakeControlState, make_fake_control_service
 from tests.fake_service import FakeState, make_fake_service
 
 PROMPT_SET_YAML = """\
@@ -74,6 +75,11 @@ def fake_state() -> FakeState:
 
 
 @pytest.fixture
+def control_state() -> FakeControlState:
+    return FakeControlState()
+
+
+@pytest.fixture
 def repo(tmp_path: Path) -> Path:
     (tmp_path / "prompts").mkdir()
     (tmp_path / "experiments" / "bench_v2").mkdir(parents=True)
@@ -97,6 +103,20 @@ def settings(repo: Path) -> ConsoleSettings:
 def client(settings: ConsoleSettings, fake_state: FakeState):
     transport = httpx.ASGITransport(app=make_fake_service(fake_state))
     app = create_app(settings, service_transport=transport)
+    with TestClient(app) as test_client:
+        yield test_client
+
+
+@pytest.fixture
+def two_plane_client(
+    settings: ConsoleSettings, fake_state: FakeState, control_state: FakeControlState
+):
+    """BFF (TestClient) con AMBOS fakes inyectados: media-plane + control-plane."""
+    service_transport = httpx.ASGITransport(app=make_fake_service(fake_state))
+    control_transport = httpx.ASGITransport(app=make_fake_control_service(control_state))
+    app = create_app(
+        settings, service_transport=service_transport, control_transport=control_transport
+    )
     with TestClient(app) as test_client:
         yield test_client
 

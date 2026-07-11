@@ -13,6 +13,7 @@ planos por HTTP en el orden correcto. Cubre las dos ramas:
 from __future__ import annotations
 
 import asyncio
+import logging
 import time
 from datetime import datetime
 from pathlib import Path
@@ -21,12 +22,21 @@ from typing import Any, Callable, Protocol
 import yaml
 from pydantic import BaseModel
 
+from eovrt_webconsole.experiment.consolidation import consolidate_experiment
 from eovrt_webconsole.experiment.manifest import ExperimentManifest, generate_experiment_id
+from eovrt_webconsole.experiment.report import write_report
+
+logger = logging.getLogger(__name__)
 
 # Estados terminales de un run en cualquiera de los dos planos.
 TERMINAL_STATUSES = frozenset({"succeeded", "failed", "error"})
 
 LoadConfig = Callable[[str], dict]
+# Resuelve el directorio runs/<run_id>/ de un plano ("media" | "control") a
+# partir del run_id devuelto por ese plano. Inyectable para tests (dirs
+# sinteticos); el default de produccion es la convencion de workspace hermano
+# (ver CLAUDE.md raiz: los planos son repos hermanos de este).
+ResolveRunDir = Callable[[str, str], Path]
 
 
 class ExperimentTimeout(Exception):
@@ -53,6 +63,10 @@ class ExperimentResult(BaseModel):
     media_status: str | None
     control_status: str | None
     ok: bool
+    # Paso final post-run (Tarea 4): set solo si ambas corridas terminaron OK
+    # y la consolidacion + el reporte se generaron sin error.
+    consolidated_dir: str | None = None
+    report_path: str | None = None
 
 
 def _default_load_config(config_path: str) -> dict:
@@ -62,6 +76,24 @@ def _default_load_config(config_path: str) -> dict:
     load_config que resuelva rutas relativas al directorio del manifiesto.
     """
     return yaml.safe_load(Path(config_path).read_text(encoding="utf-8"))
+
+
+def _repo_root() -> Path:
+    """Raiz de e-ovrt_experimental-setup, derivada de la ubicacion de este archivo."""
+    # runner.py -> experiment -> eovrt_webconsole -> src -> backend -> webconsole -> repo_root
+    return Path(__file__).resolve().parents[5]
+
+
+def _default_resolve_run_dir(plane: str, run_id: str) -> Path:
+    """Convencion por defecto de layout de workspace (ver CLAUDE.md raiz):
+    los planos son repos hermanos de e-ovrt_experimental-setup, y cada uno
+    persiste sus corridas en `runs/<run_id>/` dentro de su propio repo."""
+    return _repo_root().parent / f"e-ovrt_{plane}-plane" / "runs" / run_id
+
+
+def _default_dest_root() -> Path:
+    """dest_root por defecto para la consolidacion: `<repo_root>/runs`."""
+    return _repo_root() / "runs"
 
 
 async def _poll_until_terminal(
@@ -144,6 +176,8 @@ async def run_experiment(
     poll_interval_s: float = 0.0,
     timeout_s: float = 300.0,
     load_config: LoadConfig | None = None,
+    resolve_run_dir: ResolveRunDir | None = None,
+    dest_root: Path | str | None = None,
 ) -> ExperimentResult:
     """Orquesta el experimento paraguas segun el modo del control-plane.
 
@@ -158,16 +192,25 @@ async def run_experiment(
     `manifest.sequencing` se valida contra `runs.control.mode` antes de
     dispatchear (regla en `_validate_sequencing`): si contradicen se rechaza
     el manifiesto en vez de arrancar una secuencia ambigua.
+
+    Paso final (Tarea 4, post-run): si ambas corridas terminan OK se invoca
+    `consolidate_experiment` + `write_report` (`manifest.report` es siempre
+    un dict presente en el manifiesto -- default `{}` -- asi que su sola
+    presencia se interpreta como opt-in y el paso corre siempre que el
+    resultado sea exitoso; no hay hoy un flag para desactivarlo). Es un paso
+    protegido (`_consolidate_and_report`): si falla no tumba la corrida.
     """
     experiment_id = manifest.experiment_id or generate_experiment_id(manifest.slug, now)
     loader = load_config or _default_load_config
+    resolver = resolve_run_dir or _default_resolve_run_dir
+    resolved_dest_root = Path(dest_root) if dest_root is not None else _default_dest_root()
 
     _validate_planes_present(manifest.runs)
     control_run = manifest.runs["control"]
     _validate_sequencing(manifest.sequencing, control_run.mode)
 
     if control_run.mode == "replay":
-        return await _run_dbe_replay(
+        result = await _run_dbe_replay(
             manifest,
             experiment_id,
             media_backend=media_backend,
@@ -176,8 +219,8 @@ async def run_experiment(
             timeout_s=timeout_s,
             loader=loader,
         )
-    if control_run.mode == "live":
-        return await _run_live(
+    elif control_run.mode == "live":
+        result = await _run_live(
             manifest,
             experiment_id,
             media_backend=media_backend,
@@ -186,7 +229,65 @@ async def run_experiment(
             timeout_s=timeout_s,
             loader=loader,
         )
-    raise NotImplementedError(f"modo de control '{control_run.mode}' no soportado")
+    else:
+        raise NotImplementedError(f"modo de control '{control_run.mode}' no soportado")
+
+    if not result.ok:
+        # Si cualquiera de las dos corridas fallo, no hay artefactos
+        # completos que consolidar: se deja consolidated_dir/report_path en None.
+        return result
+
+    manifest_effective = manifest.model_dump(mode="json")
+    manifest_effective["experiment_id"] = experiment_id
+
+    return await _consolidate_and_report(
+        result,
+        manifest_effective=manifest_effective,
+        resolve_run_dir=resolver,
+        dest_root=resolved_dest_root,
+    )
+
+
+async def _consolidate_and_report(
+    result: ExperimentResult,
+    *,
+    manifest_effective: dict,
+    resolve_run_dir: ResolveRunDir,
+    dest_root: Path,
+) -> ExperimentResult:
+    """Paso final protegido: consolida + reporta un experimento ya exitoso.
+
+    No debe tumbar la corrida si la consolidacion o el reporte fallan (dirs
+    no resolubles, IO rota, etc.): se logea una advertencia y se devuelve el
+    `result` original (con consolidated_dir/report_path en None), preservando
+    `result.ok` tal cual refleja la corrida real.
+    """
+    try:
+        media_run_dir = resolve_run_dir("media", result.media_run_id)
+        control_run_dir = resolve_run_dir("control", result.control_run_id)
+        consolidated_dir = consolidate_experiment(
+            result.experiment_id,
+            media_run_dir=media_run_dir,
+            control_run_dir=control_run_dir,
+            manifest_effective=manifest_effective,
+            dest_root=dest_root,
+        )
+        report_json_path, _report_md_path = write_report(consolidated_dir)
+    except Exception:
+        logger.warning(
+            "post-run: fallo la consolidacion/reporte del experimento %s "
+            "(no afecta el resultado de la corrida)",
+            result.experiment_id,
+            exc_info=True,
+        )
+        return result
+
+    return result.model_copy(
+        update={
+            "consolidated_dir": str(consolidated_dir),
+            "report_path": str(report_json_path),
+        }
+    )
 
 
 async def _run_dbe_replay(

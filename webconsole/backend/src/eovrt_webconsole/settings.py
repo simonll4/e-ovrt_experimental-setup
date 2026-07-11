@@ -35,6 +35,9 @@ class ConsoleSettings:
     supported_plugins: frozenset[str] = SUPPORTED_PLUGINS
     hydration_limit: int = 50
     protected_groups: frozenset[str] = DEFAULT_PROTECTED_GROUPS
+    # Segundo backend (control-plane :8081, spec 44b tarea 1): target fijo, no
+    # depende del swap de fleet del modo orquestado (ese swap es solo media-plane).
+    control_service_url: str = "http://localhost:8081"
     # Orquestación de plataforma (None = modo static, la consola opera como cliente
     # de un único EOVRT_CONSOLE_SERVICE_URL fijo, sin tocar Docker).
     compose_dir: Path | None = None
@@ -78,6 +81,9 @@ class ConsoleSettings:
             service_url=env.get("EOVRT_CONSOLE_SERVICE_URL", "http://localhost:8080").rstrip("/"),
             repo_root=repo_root,
             frozen_set_ids=frozen,
+            control_service_url=env.get(
+                "EOVRT_CONSOLE_CONTROL_SERVICE_URL", "http://localhost:8081"
+            ).rstrip("/"),
             hydration_limit=int(env.get("EOVRT_CONSOLE_HYDRATION_LIMIT", "50")),
             protected_groups=protected,
             compose_dir=Path(env["EOVRT_CONSOLE_COMPOSE_DIR"]) if env.get("EOVRT_CONSOLE_COMPOSE_DIR") else None,
