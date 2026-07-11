@@ -1,5 +1,6 @@
 import type {
-  CompareResult, Composition, DatasetEntry, DetectionsPage, EvalResult, Experiment, FieldError,
+  CompareResult, Composition, DatasetEntry, DetectionsPage, EvalResult, Experiment,
+  ExperimentAlert, ExperimentManifestSummary, ExperimentReport, ExperimentRunState, FieldError,
   IngestPlugin, PlatformInstance, PromptSet, RunDetail, RunRow, TargetStatus,
 } from './types'
 
@@ -84,3 +85,25 @@ export const activateInstance = (name: string) =>
   )
 export const stopPlatform = () =>
   request<{ target: null }>('/api/platform/stop', { method: 'POST' })
+
+export const getExperimentManifests = () =>
+  request<ExperimentManifestSummary[]>('/api/experiments/manifests')
+export const runExperiment = (body: { slug: string }) =>
+  request<{ experiment_id: string }>('/api/experiments/run', {
+    method: 'POST',
+    body: JSON.stringify(body),
+  })
+export const getCurrentExperiment = async (): Promise<ExperimentRunState | null> => {
+  try {
+    return await request<ExperimentRunState>('/api/experiments/current')
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) return null
+    throw error
+  }
+}
+export const getExperiment = (id: string) =>
+  request<ExperimentRunState>(`/api/experiments/${encodeURIComponent(id)}`)
+export const getExperimentAlerts = (id: string) =>
+  request<ExperimentAlert[]>(`/api/experiments/${encodeURIComponent(id)}/alerts`)
+export const getExperimentReport = (id: string) =>
+  request<ExperimentReport>(`/api/experiments/${encodeURIComponent(id)}/report`)

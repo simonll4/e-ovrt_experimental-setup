@@ -139,3 +139,31 @@ export interface PlatformInstance {
   ready: boolean
   is_target: boolean
 }
+export interface ExperimentManifestSummary {
+  slug: string
+  experiment_id?: string | null
+  description?: string | null
+  group?: string | null
+}
+export interface ExperimentRunState {
+  experiment_id: string
+  status: string
+  ok?: boolean
+  media_run_id?: string
+  control_run_id?: string
+  slug?: string | null
+  started_at?: string | null
+  error?: string | null
+}
+export interface ExperimentAlert {
+  alert_id: string
+  condition_id: string
+  severity: string
+  timestamp_ms?: number | null
+  message?: string | null
+}
+export interface ExperimentReport {
+  non_temporal: boolean
+  resultados?: unknown[]
+  identificacion?: Record<string, unknown>
+}
