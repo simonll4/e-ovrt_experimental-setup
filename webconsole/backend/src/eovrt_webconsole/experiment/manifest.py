@@ -31,6 +31,18 @@ class ExperimentManifest(BaseModel):
     sequencing: Literal["control_first", "media_first"] = "control_first"
     report: dict = Field(default_factory=dict)
     frozen: dict = Field(default_factory=dict)
+    # Trazabilidad spec 43 SS6 (experiment_id -> clip_id -> gt/*.json), campos
+    # OPTATIVOS y aditivos: un manifiesto sin ellos sigue siendo valido (corrida
+    # sin video-gt-lab detras). Cuando `clip_id` esta presente, el runner lo
+    # inyecta como `ingest.config.source_id` en la config que le manda al
+    # media-plane (ver runner._inject_source_id). Cuando `ground_truth` esta
+    # presente (path a un clip_gt.v2), el runner corre la evaluacion temporal
+    # tras el replay y liga el resultado al reporte consolidado (ver
+    # runner._run_temporal_evaluation / report._temporal_evaluation).
+    # El path de `ground_truth` se resuelve igual que `runs.*.config`: relativo
+    # al cwd del proceso del runner (no hay resolucion propia aca), o absoluto.
+    clip_id: str | None = None
+    ground_truth: str | None = None
 
 
 def generate_experiment_id(slug: str, now: datetime) -> str:

@@ -28,6 +28,54 @@ def test_manifest_parses_umbrella_schema():
     assert m.runs["control"].mode == "live" and m.sequencing == "control_first"
 
 
+def test_manifest_clip_id_and_ground_truth_default_to_none():
+    """Aditivo: un manifiesto sin clip_id/ground_truth sigue siendo valido."""
+    from eovrt_webconsole.experiment.manifest import ExperimentManifest
+
+    m = ExperimentManifest.model_validate(
+        {
+            "schema_version": "experiment.manifest.v1",
+            "slug": "d1",
+            "runs": {
+                "media": {"service": "u", "config": "c", "mode": "run"},
+                "control": {"service": "u", "config": "c", "mode": "replay"},
+            },
+            "sequencing": "media_first",
+            "report": {},
+            "frozen": {},
+        }
+    )
+    assert m.clip_id is None
+    assert m.ground_truth is None
+
+
+def test_manifest_accepts_clip_id_and_ground_truth():
+    """Spec 43 SS6: experiment_id -> clip_id -> gt/*.json. Los campos viajan
+    tal cual por model_dump (usado para el manifest.effective.yaml)."""
+    from eovrt_webconsole.experiment.manifest import ExperimentManifest
+
+    m = ExperimentManifest.model_validate(
+        {
+            "schema_version": "experiment.manifest.v1",
+            "slug": "d1",
+            "runs": {
+                "media": {"service": "u", "config": "c", "mode": "run"},
+                "control": {"service": "u", "config": "c", "mode": "replay"},
+            },
+            "sequencing": "media_first",
+            "report": {},
+            "frozen": {},
+            "clip_id": "clip_0007",
+            "ground_truth": "gt/clip_0007.gt.json",
+        }
+    )
+    assert m.clip_id == "clip_0007"
+    assert m.ground_truth == "gt/clip_0007.gt.json"
+    dumped = m.model_dump(mode="json")
+    assert dumped["clip_id"] == "clip_0007"
+    assert dumped["ground_truth"] == "gt/clip_0007.gt.json"
+
+
 def test_manifest_rejects_unknown_sequencing():
     import pytest
 

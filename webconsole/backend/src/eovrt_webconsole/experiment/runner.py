@@ -13,7 +13,10 @@ planos por HTTP en el orden correcto. Cubre las dos ramas:
 from __future__ import annotations
 
 import asyncio
+import functools
+import json
 import logging
+import subprocess
 import time
 from datetime import datetime
 from pathlib import Path
@@ -30,6 +33,14 @@ logger = logging.getLogger(__name__)
 
 # Estados terminales de un run en cualquiera de los dos planos.
 TERMINAL_STATUSES = frozenset({"succeeded", "failed", "error"})
+
+# Evalua alertas del control-plane contra un ground truth temporal (spec 43
+# SS6). Firma: (alerts_path, ground_truth_path, output_path, detections_path,
+# patterns_path) -> dict de la evaluacion (ya persistido en output_path por el
+# propio callable) o None si la evaluacion no se pudo correr. Inyectable para
+# tests; el default de produccion invoca la CLI `eovrt-control evaluate-alerts`
+# (ver `_default_evaluate_temporal`).
+EvaluateTemporal = Callable[[Path, Path, Path, Path | None, Path | None], dict | None]
 
 LoadConfig = Callable[[str], dict]
 # Resuelve el directorio runs/<run_id>/ de un plano ("media" | "control") a
@@ -153,6 +164,88 @@ def _validate_planes_present(runs: dict[str, Any]) -> None:
         )
 
 
+def _inject_source_id(media_config: dict, clip_id: str | None) -> dict:
+    """Inyecta `ingest.config.source_id = clip_id` (spec 43 SS6), sin pisar un
+    `source_id` explicito ya presente en la config (el explicito gana).
+
+    No muta `media_config` in-place (ni sus dicts anidados `ingest`/`config`):
+    el llamador puede reusar el dict devuelto por `loader()` en otro contexto
+    (p.ej. anti-drift/sent_config) sin que esta inyeccion lo contamine.
+    """
+    if not clip_id:
+        return media_config
+    ingest = media_config.get("ingest")
+    if not isinstance(ingest, dict):
+        return media_config
+    config = dict(ingest.get("config") or {})
+    if "source_id" not in config:
+        config["source_id"] = clip_id
+    return {**media_config, "ingest": {**ingest, "config": config}}
+
+
+_EVALUATE_ALERTS_CMD = ("eovrt-control", "evaluate-alerts")
+
+
+@functools.lru_cache(maxsize=1)
+def _evaluate_alerts_supports_extra_flags() -> bool:
+    """Sonda si la CLI instalada de `eovrt-control evaluate-alerts` ya trae
+    los flags `--detections`/`--patterns` (fix paralelo del control-plane, ver
+    docstring de `_default_evaluate_temporal`). Cacheado: se corre `--help`
+    una sola vez por proceso. Si la CLI no esta instalada o falla la sonda,
+    se asume que no los soporta (False) y se hace el llamado sin ellos.
+    """
+    try:
+        probe = subprocess.run(
+            [*_EVALUATE_ALERTS_CMD, "--help"],
+            capture_output=True, text=True, timeout=10, check=False,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return False
+    return "--detections" in probe.stdout and "--patterns" in probe.stdout
+
+
+def _default_evaluate_temporal(
+    alerts_path: Path,
+    ground_truth_path: Path,
+    output_path: Path,
+    detections_path: Path | None = None,
+    patterns_path: Path | None = None,
+) -> dict | None:
+    """Corre `eovrt-control evaluate-alerts` como subproceso (spec 43 SS6).
+
+    No hay endpoint HTTP para esto en el control-plane (:8081 solo expone
+    /api/runs, /api/config -- ver `control_backend.py`); la evaluacion
+    temporal contra ground truth es CLI-only (`eovrt_control.cli:evaluate_alerts`),
+    asi que el runner la invoca por subproceso en vez de por HTTP, a
+    diferencia del resto de la orquestacion (media/control por RunBackend/
+    ControlPlaneBackend).
+
+    Firma actual de la CLI (2026-07-11): `alerts` y `ground_truth` son
+    posicionales, `--output/-o` es el unico flag. Los flags `--detections`/
+    `--patterns` estan en desarrollo en paralelo en el control-plane (todavia
+    no aterrizaron); se sondan con `--help` (`_evaluate_alerts_supports_extra_flags`,
+    cacheado) y solo se agregan al comando si la CLI instalada los soporta Y
+    el path correspondiente esta disponible. Mientras el fix paralelo no
+    aterrice, la evaluacion corre igual, solo que sin cruzar detections/patterns.
+    """
+    cmd = [*_EVALUATE_ALERTS_CMD, str(alerts_path), str(ground_truth_path),
+           "--output", str(output_path)]
+    if _evaluate_alerts_supports_extra_flags():
+        if detections_path is not None:
+            cmd.extend(["--detections", str(detections_path)])
+        if patterns_path is not None:
+            cmd.extend(["--patterns", str(patterns_path)])
+    try:
+        subprocess.run(cmd, capture_output=True, text=True, check=True, timeout=300)
+    except (OSError, subprocess.SubprocessError) as exc:
+        logger.warning("evaluate-alerts fallo (%s): %s", " ".join(cmd), exc)
+        return None
+    if not output_path.is_file():
+        logger.warning("evaluate-alerts no escribio %s", output_path)
+        return None
+    return json.loads(output_path.read_text(encoding="utf-8"))
+
+
 def _detections_path_for(media_run_id: str, media_summary: dict) -> str:
     """Deriva la ruta del detections.jsonl del run de media.
 
@@ -178,6 +271,7 @@ async def run_experiment(
     load_config: LoadConfig | None = None,
     resolve_run_dir: ResolveRunDir | None = None,
     dest_root: Path | str | None = None,
+    evaluate_temporal: EvaluateTemporal | None = None,
 ) -> ExperimentResult:
     """Orquesta el experimento paraguas segun el modo del control-plane.
 
@@ -245,6 +339,48 @@ async def run_experiment(
         manifest_effective=manifest_effective,
         resolve_run_dir=resolver,
         dest_root=resolved_dest_root,
+        evaluate_temporal=evaluate_temporal or _default_evaluate_temporal,
+    )
+
+
+def _run_temporal_evaluation(
+    evaluate_temporal: EvaluateTemporal,
+    *,
+    consolidated_dir: Path,
+    media_run_dir: Path,
+    ground_truth: str,
+) -> None:
+    """Corre la evaluacion temporal post-replay y persiste su salida en el
+    consolidado (spec 43 SS6), si el manifiesto declara `ground_truth`.
+
+    Insumos (todos ya estan disponibles en este punto -- se llama despues de
+    `consolidate_experiment`):
+    - `alerts_path`: `control/alerts.jsonl` ya copiado al consolidado.
+    - `ground_truth_path`: el path del manifiesto, resuelto igual que
+      `runs.*.config` (relativo al cwd del proceso, o absoluto).
+    - `detections_path`: el `detections.jsonl` pesado del media-plane (no se
+      copia al consolidado -- ADR-014 -- pero para el fix paralelo del
+      control-plane el subproceso lo lee directo del `runs/` del media-plane).
+    - `patterns_path`: `control/pattern_events.jsonl` ya copiado al consolidado
+      (mejor insumo disponible hoy para el flag `--patterns`; a falta de una
+      definicion mas especifica del fix paralelo, es la fuente de "patrones"
+      que ya persiste el control-plane).
+
+    La salida se escribe en `control/temporal_evaluation.json` dentro del
+    consolidado -- `report._temporal_evaluation` la busca ahi (mismo patron
+    que `media/eval_perception.json` para las metricas de percepcion).
+    """
+    alerts_path = consolidated_dir / "control" / "alerts.jsonl"
+    patterns_path = consolidated_dir / "control" / "pattern_events.jsonl"
+    detections_path = media_run_dir / "detections.jsonl"
+    output_path = consolidated_dir / "control" / "temporal_evaluation.json"
+
+    evaluate_temporal(
+        alerts_path,
+        Path(ground_truth),
+        output_path,
+        detections_path if detections_path.is_file() else None,
+        patterns_path if patterns_path.is_file() else None,
     )
 
 
@@ -254,13 +390,19 @@ async def _consolidate_and_report(
     manifest_effective: dict,
     resolve_run_dir: ResolveRunDir,
     dest_root: Path,
+    evaluate_temporal: EvaluateTemporal,
 ) -> ExperimentResult:
     """Paso final protegido: consolida + reporta un experimento ya exitoso.
 
     No debe tumbar la corrida si la consolidacion o el reporte fallan (dirs
     no resolubles, IO rota, etc.): se logea una advertencia y se devuelve el
     `result` original (con consolidated_dir/report_path en None), preservando
-    `result.ok` tal cual refleja la corrida real.
+    `result.ok` tal cual refleja la corrida real. La evaluacion temporal
+    (`_run_temporal_evaluation`) corre dentro de este mismo bloque protegido:
+    si `ground_truth` no esta en el manifiesto, se saltea (comportamiento
+    actual intacto); si esta pero la evaluacion falla, no tumba el reporte
+    (queda sin `temporal_evaluation.json`, el reporte cae al fallback
+    `no_ground_truth` de todas formas).
     """
     try:
         media_run_dir = resolve_run_dir("media", result.media_run_id)
@@ -272,6 +414,14 @@ async def _consolidate_and_report(
             manifest_effective=manifest_effective,
             dest_root=dest_root,
         )
+        ground_truth = manifest_effective.get("ground_truth")
+        if ground_truth:
+            _run_temporal_evaluation(
+                evaluate_temporal,
+                consolidated_dir=consolidated_dir,
+                media_run_dir=media_run_dir,
+                ground_truth=ground_truth,
+            )
         report_json_path, _report_md_path = write_report(consolidated_dir)
     except Exception:
         logger.warning(
@@ -305,6 +455,7 @@ async def _run_dbe_replay(
 
     media_config = dict(loader(media_run.config))
     media_config["experiment_id"] = experiment_id
+    media_config = _inject_source_id(media_config, manifest.clip_id)
 
     media_run_id = await media_backend.launch(media_config)
     media_summary = await _poll_until_terminal(
@@ -400,6 +551,7 @@ async def _run_live(
     media_config = dict(loader(media_run.config))
     media_config["experiment_id"] = experiment_id
     media_config["bus"] = {"enabled": True}
+    media_config = _inject_source_id(media_config, manifest.clip_id)
 
     media_run_id = await media_backend.launch(media_config)
 

@@ -240,6 +240,53 @@ def _eval_perception(consolidated_dir: Path, media_summary: dict) -> dict | None
     return None
 
 
+def _temporal_evaluation(consolidated_dir: Path, control_summary: dict) -> dict | None:
+    """Busca la evaluacion temporal contra ground truth (spec 43 SS6), si el
+    runner la corrio (`runner._run_temporal_evaluation`). Mismo patron que
+    `_eval_perception`: embebida en el summary o en un archivo dedicado."""
+    embedded = control_summary.get("temporal_evaluation")
+    if embedded:
+        return embedded
+    path = consolidated_dir / "control" / "temporal_evaluation.json"
+    if path.is_file():
+        return json.loads(path.read_text(encoding="utf-8"))
+    return None
+
+
+def _sdr_metric(temporal_eval: dict | None) -> MetricResult:
+    """SDR (spec 43 SS10 / spec 40 SS17.1.7): proporcion del intervalo anotado
+    con deteccion sostenida. Campo nativo del control-plane: `avg_sdr`
+    (evaluate-alerts con --detections). Sin el campo (evaluacion sin
+    detecciones), no hay proxy honesto: recall mide otra cosa (episodios
+    alertados, no cobertura de deteccion) y usarlo inflaria/deprimiria SDR
+    en silencio."""
+    if temporal_eval is None:
+        return MetricResult(name="SDR", unit="ratio", status="not_applicable", cause=NO_GROUND_TRUTH)
+    sdr = temporal_eval.get("avg_sdr")
+    if sdr is None:
+        cause = temporal_eval.get("ttfd_sdr_applicability")
+        return MetricResult(name="SDR", unit="ratio", status="applicable_not_computed",
+                            cause=cause)
+    return MetricResult(name="SDR", value=float(sdr), unit="ratio", status="computed", cause=None)
+
+
+def _ttfd_metric(temporal_eval: dict | None) -> MetricResult:
+    """TTFD (spec 43 SS10): t0 = start_ms del episodio, t1 = primera deteccion
+    positiva valida. Campo nativo del control-plane: `avg_ttfd_ms` (ms -> s;
+    evaluate-alerts con --detections). Sin el campo no se estima: la latencia
+    de ALERTA (avg_latency_ms_from_episode_start) es t_alert-system, otra
+    metrica del diccionario -- usarla como TTFD la sobreestimaria siempre."""
+    if temporal_eval is None:
+        return MetricResult(name="TTFD", unit="s", status="not_applicable", cause=NO_GROUND_TRUTH)
+    ttfd_ms = temporal_eval.get("avg_ttfd_ms")
+    if ttfd_ms is None:
+        cause = temporal_eval.get("ttfd_sdr_applicability")
+        return MetricResult(name="TTFD", unit="s", status="applicable_not_computed",
+                            cause=cause)
+    return MetricResult(name="TTFD", value=float(ttfd_ms) / 1000.0, unit="s",
+                        status="computed", cause=None)
+
+
 def _perception_metrics(
     consolidated_dir: Path, media_summary: dict, control_summary: dict, source_clock: str
 ) -> list[MetricResult]:
@@ -290,6 +337,7 @@ def _perception_metrics(
 def _build_resultados(
     consolidated_dir: Path, media_summary: dict, control_summary: dict,
     join_results: list[dict], *, source_clock: str, two_node: bool,
+    temporal_eval: dict | None,
 ) -> list[MetricResult]:
     resultados = [
         _g2a_metric(media_summary),
@@ -300,10 +348,8 @@ def _build_resultados(
         _aggregate_t_compute_budget(join_results),
         MetricResult(name="t_alert-notification", unit="ms",
                      status="not_applicable", cause=NO_DISTRIBUTION),
-        MetricResult(name="TTFD", unit="s",
-                     status="not_applicable", cause=NO_GROUND_TRUTH),
-        MetricResult(name="SDR", unit="ratio",
-                     status="not_applicable", cause=NO_GROUND_TRUTH),
+        _ttfd_metric(temporal_eval),
+        _sdr_metric(temporal_eval),
         _ttfa_interna_metric(control_summary, source_clock),
         MetricResult(name="ΔFP_tracker", unit="count",
                      status="not_applicable", cause=None),
@@ -425,6 +471,7 @@ def generate_report(consolidated_dir: str | Path) -> dict:
     )
 
     anti_drift = _build_anti_drift(manifest_effective, media_dir, control_dir)
+    temporal_eval = _temporal_evaluation(consolidated_dir, control_summary)
 
     experiment_id = manifest_effective.get("experiment_id") or consolidated_dir.name
 
@@ -434,6 +481,11 @@ def generate_report(consolidated_dir: str | Path) -> dict:
         "control_run_id": control_summary.get("control_run_id"),
         "fecha_inicio": media_summary.get("started_at"),
         "fecha_fin": media_summary.get("finished_at"),
+        # Trazabilidad spec 43 SS6 (experiment_id -> clip_id -> gt/*.json):
+        # None cuando la corrida no declaro clip_id/ground_truth en el
+        # manifiesto (comportamiento actual intacto, campo aditivo).
+        "clip_id": manifest_effective.get("clip_id"),
+        "ground_truth_path": manifest_effective.get("ground_truth"),
     }
     modelo = {
         "model_name": media_summary.get("model_name"),
@@ -473,7 +525,7 @@ def generate_report(consolidated_dir: str | Path) -> dict:
 
     resultados = _build_resultados(
         consolidated_dir, media_summary, control_summary, join_results,
-        source_clock=source_clock, two_node=two_node,
+        source_clock=source_clock, two_node=two_node, temporal_eval=temporal_eval,
     )
 
     return {

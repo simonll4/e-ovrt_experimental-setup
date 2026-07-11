@@ -317,6 +317,62 @@ def test_re_alerts_no_temporal_source_cuando_source_clock_none(tmp_path):
     assert re_alerts["cause"] == "non_temporal_source"
 
 
+def test_sdr_ttfd_computed_desde_temporal_evaluation_json(tmp_path):
+    """Cuando el runner corrio la evaluacion temporal (spec 43 SS6) y dejo
+    `control/temporal_evaluation.json`, SDR/TTFD dejan de ser not_applicable."""
+    consolidated_dir = _build_video_experiment(tmp_path)
+    _write_json(
+        consolidated_dir / "control" / "temporal_evaluation.json",
+        {
+            "schema_version": "control.eval.temporal.v1",
+            "scenario_id": "clip_0007",
+            "recall": 0.75,
+            "precision": 0.9,
+            "f1": 0.81,
+            "avg_latency_ms_from_episode_start": 2500.0,
+            # Campos NATIVOS de evaluate-alerts con --detections (spec 43 SS10).
+            # SDR/TTFD salen SOLO de estos: recall y la latencia de alerta miden
+            # otras metricas del diccionario y usarlas como proxy seria mentir.
+            "avg_sdr": 0.68,
+            "avg_ttfd_ms": 1200.0,
+        },
+    )
+
+    report = generate_report(consolidated_dir)
+    resultados_by_name = {m["name"]: m for m in report["resultados"]}
+
+    sdr = resultados_by_name["SDR"]
+    assert sdr["status"] == "computed"
+    assert sdr["value"] == 0.68  # avg_sdr nativo, NO recall (0.75)
+
+    ttfd = resultados_by_name["TTFD"]
+    assert ttfd["status"] == "computed"
+    assert ttfd["value"] == 1.2  # avg_ttfd_ms/1000, NO la latencia de alerta (2.5)
+
+
+def test_identificacion_liga_clip_id_y_ground_truth_path(tmp_path):
+    consolidated_dir = _build_video_experiment(tmp_path)
+    manifest_path = consolidated_dir / "manifest.effective.yaml"
+    manifest_effective = yaml.safe_load(manifest_path.read_text(encoding="utf-8"))
+    manifest_effective["clip_id"] = "clip_0007"
+    manifest_effective["ground_truth"] = "gt/clip_0007.gt.json"
+    _write_yaml(manifest_path, manifest_effective)
+
+    report = generate_report(consolidated_dir)
+
+    assert report["identificacion"]["clip_id"] == "clip_0007"
+    assert report["identificacion"]["ground_truth_path"] == "gt/clip_0007.gt.json"
+
+
+def test_identificacion_clip_id_none_sin_video_gt_lab(tmp_path):
+    consolidated_dir = _build_video_experiment(tmp_path)
+
+    report = generate_report(consolidated_dir)
+
+    assert report["identificacion"]["clip_id"] is None
+    assert report["identificacion"]["ground_truth_path"] is None
+
+
 def test_anti_drift_marca_diferencia_entre_config_enviada_y_efectiva(tmp_path):
     consolidated_dir = _build_video_experiment(tmp_path)
 
