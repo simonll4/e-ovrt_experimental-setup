@@ -250,14 +250,22 @@ def _detections_path_for(media_run_id: str, media_summary: dict) -> str:
     """Deriva la ruta del detections.jsonl del run de media.
 
     Preferencia: si el summary del media-plane declara detections_path lo
-    usamos tal cual; si no, aplicamos la convencion runs/<run_id>/detections.jsonl.
+    usamos tal cual; si no, aplicamos la convencion de workspace hermano
+    (`_default_resolve_run_dir`) para derivar una ruta ABSOLUTA.
+
+    El control-plane recibe la config por payload (ADR-009), lo que exige
+    `input.path` absoluto (`_PAYLOAD_PATH_FIELDS` en config.py del
+    control-plane); el fallback relativo `runs/<run_id>/detections.jsonl`
+    resuelve contra el cwd del proceso que lo interpreta, que en topologia
+    real (media-plane y control-plane como servicios separados, posiblemente
+    en hosts/cwd distintos) no es el mismo que el del media-plane que escribio
+    el archivo. Ver hallazgo del smoke DBE-replay real (2026-07-12).
     """
     nested = media_summary.get("summary") or {}
-    return (
-        media_summary.get("detections_path")
-        or nested.get("detections_path")
-        or f"runs/{media_run_id}/detections.jsonl"
-    )
+    declared = media_summary.get("detections_path") or nested.get("detections_path")
+    if declared:
+        return declared
+    return str(_default_resolve_run_dir("media", media_run_id) / "detections.jsonl")
 
 
 async def run_experiment(
@@ -343,6 +351,28 @@ async def run_experiment(
     )
 
 
+def _control_patterns_file_path(effective_config_path: Path) -> Path:
+    """Lee `patterns.file` de `control/effective_config.yaml` (ya copiado al
+    consolidado) para ubicar el YAML de definicion de patrones real usado por
+    la corrida de control -- ver nota en `_run_temporal_evaluation`.
+
+    Devuelve un `Path` (existente o no); el llamador decide con `.is_file()`
+    si lo pasa al subproceso. Si el archivo no existe o no se puede parsear,
+    devuelve un path inexistente (el guard `.is_file()` del llamador se
+    encarga de omitir el flag sin romper la evaluacion).
+    """
+    if not effective_config_path.is_file():
+        return effective_config_path
+    try:
+        data = yaml.safe_load(effective_config_path.read_text(encoding="utf-8")) or {}
+        patterns_file = (data.get("patterns") or {}).get("file")
+    except (OSError, yaml.YAMLError):
+        return effective_config_path
+    if not patterns_file:
+        return effective_config_path
+    return Path(patterns_file)
+
+
 def _run_temporal_evaluation(
     evaluate_temporal: EvaluateTemporal,
     *,
@@ -361,17 +391,23 @@ def _run_temporal_evaluation(
     - `detections_path`: el `detections.jsonl` pesado del media-plane (no se
       copia al consolidado -- ADR-014 -- pero para el fix paralelo del
       control-plane el subproceso lo lee directo del `runs/` del media-plane).
-    - `patterns_path`: `control/pattern_events.jsonl` ya copiado al consolidado
-      (mejor insumo disponible hoy para el flag `--patterns`; a falta de una
-      definicion mas especifica del fix paralelo, es la fuente de "patrones"
-      que ya persiste el control-plane).
+    - `patterns_path`: el YAML de definicion de patrones (`pattern_set`) que
+      uso la corrida de control, resuelto desde `patterns.file` en
+      `control/effective_config.yaml` (ya copiado al consolidado). Verificado
+      contra la CLI real (smoke DBE-replay, 2026-07-12): `evaluate-alerts
+      --patterns` espera ese YAML (`load_patterns_file`/`PatternsFile`), NO el
+      `pattern_events.jsonl` (eventos ya emitidos, formato JSONL) que se
+      asumia antes de correr contra servicios reales -- pasarle el JSONL hace
+      que el subproceso explote (yaml.safe_load sobre JSONL). Si
+      `effective_config.yaml` falta o no trae `patterns.file`, se omite el
+      flag (mismo comportamiento que si la CLI no lo soportara).
 
     La salida se escribe en `control/temporal_evaluation.json` dentro del
     consolidado -- `report._temporal_evaluation` la busca ahi (mismo patron
     que `media/eval_perception.json` para las metricas de percepcion).
     """
     alerts_path = consolidated_dir / "control" / "alerts.jsonl"
-    patterns_path = consolidated_dir / "control" / "pattern_events.jsonl"
+    patterns_path = _control_patterns_file_path(consolidated_dir / "control" / "effective_config.yaml")
     detections_path = media_run_dir / "detections.jsonl"
     output_path = consolidated_dir / "control" / "temporal_evaluation.json"
 
@@ -477,7 +513,7 @@ async def _run_dbe_replay(
     detections_path = _detections_path_for(media_run_id, media_summary)
     control_config = dict(loader(control_run.config))
     control_config["experiment_id"] = experiment_id
-    control_config["input"] = {"type": "replay", "path": detections_path}
+    control_config["input"] = {"type": "media_jsonl", "path": detections_path}
 
     control_run_id = await control_backend.launch(
         control_config, mode="replay", experiment_id=experiment_id

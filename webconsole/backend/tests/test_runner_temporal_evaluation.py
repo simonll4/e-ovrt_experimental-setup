@@ -16,6 +16,7 @@ from pathlib import Path
 
 import httpx
 import pytest
+import yaml
 
 from eovrt_webconsole.experiment.control_backend import ControlPlaneBackend
 from eovrt_webconsole.experiment.manifest import ExperimentManifest
@@ -83,12 +84,20 @@ def _write_media_artifacts(run_dir: Path) -> None:
     (run_dir / "detections.jsonl").write_text("", encoding="utf-8")
 
 
-def _write_control_artifacts(run_dir: Path) -> None:
+def _write_control_artifacts(run_dir: Path, *, patterns_file: str | None = None) -> None:
     run_dir.mkdir(parents=True, exist_ok=True)
     summary = {"schema_version": "control.summary.v1", "control_run_id": run_dir.name}
     (run_dir / "summary.json").write_text(json.dumps(summary), encoding="utf-8")
     (run_dir / "alerts.jsonl").write_text('{"alert_id": "a1"}\n', encoding="utf-8")
     (run_dir / "pattern_events.jsonl").write_text('{"event": "cr01"}\n', encoding="utf-8")
+    if patterns_file is not None:
+        # `--patterns` real espera el YAML de definicion de patrones
+        # (`pattern_set`), no el pattern_events.jsonl (verificado contra la
+        # CLI real, ver nota en runner._run_temporal_evaluation).
+        effective_config = {"patterns": {"file": patterns_file}}
+        (run_dir / "effective_config.yaml").write_text(
+            yaml.safe_dump(effective_config), encoding="utf-8"
+        )
 
 
 @pytest.fixture
@@ -117,7 +126,11 @@ async def test_ground_truth_triggers_evaluation_with_expected_paths(
     media_dir = tmp_path / "artifacts" / "media"
     control_dir = tmp_path / "artifacts" / "control"
     _write_media_artifacts(media_dir)
-    _write_control_artifacts(control_dir)
+    patterns_file = tmp_path / "configs" / "patterns" / "cr01_cr02_v2.yaml"
+    patterns_file.parent.mkdir(parents=True, exist_ok=True)
+    patterns_file.write_text("pattern_set:\n  id: cr01_cr02_v2\n  patterns: []\n", encoding="utf-8")
+    patterns_file_path = str(patterns_file)
+    _write_control_artifacts(control_dir, patterns_file=patterns_file_path)
 
     def resolve_run_dir(plane: str, run_id: str) -> Path:
         return media_dir if plane == "media" else control_dir
@@ -161,7 +174,7 @@ async def test_ground_truth_triggers_evaluation_with_expected_paths(
     assert ground_truth_path == gt_path
     assert output_path == consolidated_dir / "control" / "temporal_evaluation.json"
     assert detections_path == media_dir / "detections.jsonl"
-    assert patterns_path == consolidated_dir / "control" / "pattern_events.jsonl"
+    assert patterns_path == Path(patterns_file_path)
 
     # el resultado quedo persistido y disponible para el reporte
     assert output_path.is_file()
