@@ -15,10 +15,25 @@ def test_composicion_valida(client):
 
 
 def test_plugin_no_soportado(client):
-    # oak_d no está soportado por la consola (available=False en el servicio).
-    r = client.post("/api/compose/validate", json=_body(ingest={"plugin": "oak_d", "config": {}}))
+    # thermal_cam está en el catálogo del servicio pero available=False.
+    r = client.post("/api/compose/validate", json=_body(ingest={"plugin": "thermal_cam", "config": {}}))
     errors = r.json()["errors"]
     assert any(e["field"] == "ingest.plugin" for e in errors)
+
+
+def test_oak_d_sin_url(client):
+    # oak_d es fuente viva por IP: sin url no hay a qué conectarse.
+    r = client.post("/api/compose/validate", json=_body(ingest={"plugin": "oak_d", "config": {}}))
+    errors = r.json()["errors"]
+    assert any(e["field"] == "ingest.config.url" for e in errors)
+
+
+def test_oak_d_con_url_valida(client):
+    r = client.post(
+        "/api/compose/validate",
+        json=_body(ingest={"plugin": "oak_d", "config": {"url": "192.168.1.50"}}),
+    )
+    assert r.json() == {"valid": True, "errors": []}
 
 
 def test_rtsp_sin_url(client):

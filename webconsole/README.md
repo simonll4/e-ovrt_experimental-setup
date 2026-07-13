@@ -15,7 +15,9 @@ video (`video_file`) y cámaras IP por RTSP (`rtsp`). Las fuentes vivas (rtsp)
 generan runs **infinitos**: se detienen manualmente desde la vista de run
 ("■ Detener"). Al guardar un manifiesto con una cámara RTSP, las credenciales
 de la URL se escriben redactadas (`rtsp://***:***@...`); recompletá usuario y
-clave al re-lanzar. `oak_d` no está soportado hasta contar con el hardware.
+clave al re-lanzar. `oak_d` (OAK-D Pro PoE) está soportado desde 2026-07-13:
+requiere `url` = IP fija de la cámara, y aparece deshabilitado si el servicio
+no tiene el SDK DepthAI instalado (extra `edge` del media-plane).
 
 ## Uso
 

@@ -22,7 +22,9 @@ PLUGINS = [
     {"id": "image_folder", "kind": "bounded", "available": True, "description": "Carpeta de imágenes"},
     {"id": "video_file", "kind": "bounded", "available": True, "description": "Archivo de video local"},
     {"id": "rtsp", "kind": "live", "available": True, "description": "Stream RTSP (cámara IP)"},
-    {"id": "oak_d", "kind": "live", "available": False, "description": "OAK-D Pro PoE (no disponible)"},
+    {"id": "oak_d", "kind": "live", "available": True, "description": "OAK-D Pro PoE (RGB vía DepthAI, IP fija)"},
+    # Plugin ficticio no disponible: cubre la política enabled = soportado ∧ available.
+    {"id": "thermal_cam", "kind": "live", "available": False, "description": "cámara térmica (no disponible)"},
 ]
 DATASETS = [
     {"id": "demo_v2", "description": "CHV demo v2", "path": "/data/demo", "available": True},

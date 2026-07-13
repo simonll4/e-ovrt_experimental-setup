@@ -44,6 +44,11 @@ async def validate_composition(
         elif not str(url).startswith("rtsp://"):
             errors.append({"field": "ingest.config.url",
                            "message": "La URL debe empezar con 'rtsp://'"})
+    elif comp.ingest.plugin == "oak_d":
+        if not comp.ingest.config.get("url"):
+            errors.append({"field": "ingest.config.url",
+                           "message": "Se requiere 'url' = IP de la cámara OAK-D "
+                                      "(ej. 192.168.1.50)"})
     else:
         dataset = comp.ingest.config.get("dataset")
         if dataset:

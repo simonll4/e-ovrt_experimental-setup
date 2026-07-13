@@ -17,9 +17,9 @@ from eovrt_webconsole.repo_catalog import get_prompt_set
 
 _SOURCE_TYPE_TO_PLUGIN = {"image_folder": "image_folder", "video_file": "video_file",
                           "video": "video_file", "video_frame": "video_file",
-                          "rtsp": "rtsp"}
+                          "rtsp": "rtsp", "oak_d": "oak_d"}
 _PLUGIN_TO_SOURCE_TYPE = {"image_folder": "image_folder", "video_file": "video_file",
-                          "rtsp": "rtsp"}
+                          "rtsp": "rtsp", "oak_d": "oak_d"}
 
 # Redacta el userinfo (user[:pass]) entre el esquema y el primer '/'. Case-insensitive
 # (RTSP:// es válido por RFC 3986), cubre rtsps:// (TLS) y toma el ÚLTIMO '@' antes del

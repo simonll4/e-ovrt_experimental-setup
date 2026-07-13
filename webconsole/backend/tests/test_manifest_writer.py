@@ -138,11 +138,11 @@ def test_endpoint_plugin_no_soportado_422(client):
     # Schema-válido (Composition acepta cualquier str en ingest.plugin) pero sin mapeo
     # en _PLUGIN_TO_SOURCE_TYPE y sin "dataset" (no toma el camino source.ref): antes
     # del fix, composition_to_manifest hacía un KeyError sin capturar -> 500. Debe dar
-    # 422, no 500. (rtsp ya está soportado; usamos oak_d, que sigue fuera del mapeo.)
+    # 422, no 500. (oak_d ya está mapeado desde 2026-07-13; se usa un plugin ficticio.)
     body = {
-        "name": "oak_d_no_soportado",
+        "name": "plugin_no_soportado",
         "composition": {
-            "ingest": {"plugin": "oak_d", "config": {}},
+            "ingest": {"plugin": "thermal_cam", "config": {}},
             "prompts": {"set_id": "demo_set", "active_ids": None},
         },
     }

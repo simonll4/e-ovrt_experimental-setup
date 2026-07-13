@@ -3,14 +3,18 @@ from __future__ import annotations
 
 def test_ingest_plugins_con_policy_soporte(client):
     plugins = {p["id"]: p for p in client.get("/api/catalog/ingest-plugins").json()}
-    assert set(plugins) == {"image_folder", "video_file", "rtsp", "oak_d"}
+    assert set(plugins) == {"image_folder", "video_file", "rtsp", "oak_d", "thermal_cam"}
     assert plugins["image_folder"]["enabled"] is True
     assert plugins["video_file"]["enabled"] is True
     # rtsp: fuente viva soportada de forma permanente por la consola
     assert plugins["rtsp"]["available"] is True
     assert plugins["rtsp"]["enabled"] is True
-    # oak_d: available=False en el servicio (sin hardware) -> no soportado
-    assert plugins["oak_d"]["enabled"] is False
+    # oak_d: soportado por la consola desde 2026-07-13 y disponible en el servicio
+    assert plugins["oak_d"]["available"] is True
+    assert plugins["oak_d"]["enabled"] is True
+    # enabled = soportado por la consola ∧ available en el servicio:
+    # un plugin no disponible queda deshabilitado aunque el catálogo lo liste.
+    assert plugins["thermal_cam"]["enabled"] is False
 
 
 def test_datasets_pass_through(client):

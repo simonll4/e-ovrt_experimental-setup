@@ -9,9 +9,10 @@ from pathlib import Path
 DEFAULT_FROZEN_SETS = frozenset({"cr01_cr02_bench_v2"})
 # Fuentes de ingesta que la consola sabe lanzar (decisión 2026-07-07: rtsp queda
 # habilitado de forma permanente; supersede la restricción "MVP" de
-# 2026-07-01-webconsole-design.md §6). oak_d queda fuera hasta tener hardware
-# (el servicio lo marca available=False).
-SUPPORTED_PLUGINS = frozenset({"image_folder", "video_file", "rtsp"})
+# 2026-07-01-webconsole-design.md §6). oak_d habilitado desde 2026-07-13 (hardware
+# integrado al media-plane); si el servicio no tiene el SDK DepthAI lo marca
+# available=False y la consola lo muestra deshabilitado igual que antes.
+SUPPORTED_PLUGINS = frozenset({"image_folder", "video_file", "rtsp", "oak_d"})
 # Grupos de manifiestos curados/versionados (p.ej. la matriz BENCH) cuyo write-path
 # nunca debe pisar un archivo existente vía la API, ni con overwrite=true.
 DEFAULT_PROTECTED_GROUPS = frozenset({"bench_v2"})
