@@ -1,0 +1,317 @@
+/* Kit de componentes — clases eo-*. */
+
+/* Badge */
+.eo-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 1px var(--space-2);
+  border-radius: 999px;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  white-space: nowrap;
+  border: 1px solid currentColor;
+}
+.eo-badge::before { content: '●'; font-size: 0.7em; }
+.eo-badge--live { color: var(--status-live); }
+.eo-badge--ok { color: var(--status-ok); }
+.eo-badge--warn { color: var(--status-warn); }
+.eo-badge--error { color: var(--status-error); }
+.eo-badge--neutral { color: var(--status-neutral); }
+
+/* Inline group — texto + badge (o similares) con separación consistente */
+.eo-inline { display: inline-flex; align-items: center; gap: var(--space-2); }
+
+/* Card */
+.eo-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+.eo-card__title {
+  margin-bottom: var(--space-3);
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ErrorBanner */
+.eo-error {
+  border: 1px solid var(--status-error);
+  border-left-width: 3px;
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--status-error) 12%, transparent);
+  color: var(--text);
+  padding: var(--space-2) var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+/* EmptyState */
+.eo-empty {
+  color: var(--text-muted);
+  padding: var(--space-5);
+  text-align: center;
+}
+
+/* StatTile */
+.eo-stat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--space-2) var(--space-3);
+  min-width: 96px;
+}
+.eo-stat__label {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.eo-stat__value { font-size: var(--text-lg); font-weight: 600; }
+.eo-stat__unit {
+  font-size: var(--text-sm);
+  font-weight: 400;
+  color: var(--text-muted);
+  margin-left: var(--space-1);
+}
+.eo-stats-row { display: flex; gap: var(--space-2); flex-wrap: wrap; margin-bottom: var(--space-4); }
+
+/* Field */
+.eo-field { display: grid; gap: var(--space-1); margin-bottom: var(--space-3); max-width: 560px; }
+.eo-field__label { font-size: var(--text-sm); color: var(--text-secondary); }
+.eo-field__hint { font-size: var(--text-sm); color: var(--text-muted); }
+.eo-field__error { font-size: var(--text-sm); color: var(--status-error); }
+
+/* Inline note — texto chico fuera de un Field (avisos, asides mudos) */
+.eo-note { font-size: var(--text-sm); color: var(--text-muted); }
+.eo-note--warn { color: var(--status-warn); }
+.eo-note--error { color: var(--status-error); }
+
+/* Link-like button — affordance de apertura sin ser un <a> */
+.eo-linklike {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--accent);
+  cursor: pointer;
+  font-size: inherit;
+  font-family: inherit;
+}
+.eo-linklike:hover { color: var(--accent-hover); text-decoration: underline; }
+
+/* Fila de acciones al pie de un editor — jerarquía primario/normal/peligroso */
+.eo-actions {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+  flex-wrap: wrap;
+  align-items: center;
+}
+.eo-btn--primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--text);
+}
+.eo-btn--primary:hover:not(:disabled) { background: var(--accent-hover); }
+.eo-btn--danger {
+  color: var(--status-error);
+  border-color: var(--status-error);
+  margin-left: auto;
+}
+
+/* Table */
+.eo-table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: var(--text-md);
+}
+.eo-table th,
+.eo-table td {
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  vertical-align: top;
+}
+.eo-table th {
+  background: var(--surface-raised);
+  color: var(--text-secondary);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  position: sticky;
+  top: 0;
+}
+.eo-table tbody tr:hover { background: var(--surface-raised); }
+.eo-table td.eo-num { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* Progress bar — traza correlacionada por frame */
+.eo-progressbar {
+  height: 6px;
+  background: var(--surface-sunken);
+  border-radius: 999px;
+  overflow: hidden;
+  flex: 1 1 auto;
+  min-width: 60px;
+  max-width: 140px;
+}
+.eo-progressbar__fill { height: 100%; background: var(--status-warn); }
+.eo-progressbar__fill--alert { background: var(--status-error); }
+.eo-best { font-weight: 700; color: var(--status-ok); }
+
+/* Fila de progreso de patrón — condition_id + barra + % en una línea alineada */
+.eo-patternrow { display: flex; align-items: center; gap: var(--space-2); }
+.eo-patternrow__id { font-size: var(--text-xs); color: var(--text-secondary); min-width: 44px; }
+.eo-patternrow__pct {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  min-width: 32px;
+  text-align: right;
+}
+
+/* Celda de frame — preview arriba, identificador siempre debajo (evita zigzag) */
+.eo-framecell { display: flex; flex-direction: column; gap: var(--space-1); align-items: flex-start; }
+.eo-framecell__id { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--text-muted); }
+
+/* Chip de detección — label + confianza/conteo, punto de color = labelColor */
+.eo-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--text-sm);
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0 var(--space-2);
+}
+.eo-chip__dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.eo-chip__conf { color: var(--text-muted); font-variant-numeric: tabular-nums; }
+
+/* Definition list — summary de run (modelo/prompts/unidades/por label) */
+.eo-deflist { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-5); margin: var(--space-3) 0 0; }
+.eo-deflist dt { font-size: var(--text-xs); color: var(--text-muted); text-transform: uppercase; letter-spacing: .05em; }
+.eo-deflist dd { margin: 0; font-size: var(--text-md); }
+
+/* Breadcrumbs */
+.eo-crumbs { font-size: var(--text-md); color: var(--text-muted); }
+.eo-crumbs__sep { color: var(--border-strong); }
+.eo-crumbs__current { color: var(--text); font-weight: 600; }
+
+/* Shell */
+.eo-shell { display: flex; min-height: 100vh; }
+
+.eo-sidebar {
+  width: var(--sidebar-width);
+  flex-shrink: 0;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  padding: var(--space-4) var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+.eo-sidebar__brand h1 { font-size: var(--text-lg); letter-spacing: 0.02em; }
+
+.eo-sidebar__action {
+  display: block;
+  text-align: center;
+  background: var(--accent);
+  color: var(--text);
+  border-radius: var(--radius);
+  padding: var(--space-2) var(--space-3);
+  font-weight: 600;
+  font-size: var(--text-md);
+}
+.eo-sidebar__action:hover { background: var(--accent-hover); color: var(--text); text-decoration: none; }
+
+.eo-sidebar__nav { display: flex; flex-direction: column; gap: var(--space-4); }
+.eo-sidebar__group { display: flex; flex-direction: column; gap: 2px; }
+.eo-sidebar__group-title {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: var(--space-1);
+}
+.eo-sidebar__link {
+  color: var(--text-secondary);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius);
+  border-left: 2px solid transparent;
+}
+.eo-sidebar__link:hover { background: var(--surface-raised); color: var(--text); text-decoration: none; }
+.eo-sidebar__link--active {
+  background: var(--surface-raised);
+  color: var(--text);
+  border-left-color: var(--accent);
+  font-weight: 600;
+}
+
+/* Live run pill */
+.eo-livepill {
+  margin-top: auto;
+  display: grid;
+  gap: 2px;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--status-live);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--status-live) 12%, transparent);
+  color: var(--text);
+  min-width: 0;
+  max-width: 100%;
+}
+.eo-livepill:hover { text-decoration: none; background: color-mix(in srgb, var(--status-live) 20%, transparent); }
+.eo-livepill__dot { color: var(--status-live); font-size: 0.7em; }
+.eo-livepill__id {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+  display: block;
+}
+.eo-livepill__meta { font-size: var(--text-xs); color: var(--text-muted); }
+
+.eo-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.eo-topbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-5);
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+.eo-topbar__right { margin-left: auto; }
+.eo-content { padding: var(--space-5); max-width: var(--content-max); width: 100%; }
+
+/* Preview con bboxes + zoom al hover */
+.eo-preview { position: relative; display: inline-block; line-height: 0; transition: transform .12s ease; }
+.eo-preview img { display: block; max-width: 100%; }
+.eo-preview__box { position: absolute; border: 1.5px solid; pointer-events: none; border-radius: 1px; }
+.eo-preview:hover { transform: scale(2.2); transform-origin: left center; z-index: 10; }
+/* Fila con alerta */
+.eo-row--alert > td { background: color-mix(in srgb, var(--status-error) 8%, transparent); }
+
+/* Recuadro de clase del editor de prompt sets: acotado al contenido (no full-width)
+   y con atenuación visible cuando el set no es editable (frozen / pending review). */
+.eo-classbox {
+  max-width: 640px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--space-3) var(--space-4);
+  margin: 0 0 var(--space-3);
+}
+.eo-classbox[disabled] {
+  opacity: 0.6;
+}

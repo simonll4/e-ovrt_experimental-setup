@@ -1,10 +1,8 @@
 import { useEffect, useState } from 'react'
-import type { CSSProperties } from 'react'
 import { getCompare, listRuns } from '../api'
 import GroupedBars from '../components/GroupedBars'
+import { Badge, EmptyState, ErrorBanner } from '../components/ui'
 import type { CompareResult, RunRow } from '../types'
-
-const CELL: CSSProperties = { padding: '4px 10px', borderBottom: '1px solid #ddd' }
 
 // Índice del mejor valor no-nulo de la fila (−1 si no hay ninguno).
 export function bestPerRow(values: Array<number | null>): number {
@@ -23,9 +21,9 @@ function MetricRow({ name, values }: { name: string; values: Array<number | null
   const best = bestPerRow(values)
   return (
     <tr>
-      <td style={CELL}>{name}</td>
+      <td>{name}</td>
       {values.map((v, i) => (
-        <td key={i} style={{ ...CELL, fontWeight: i === best ? 700 : 400 }}>
+        <td key={i} className={i === best ? 'eo-num eo-best' : 'eo-num'}>
           {v ?? '—'}
         </td>
       ))}
@@ -59,19 +57,19 @@ export default function ComparePage() {
   const toggle = (id: string) =>
     setSelected((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]))
 
-  if (error && !rows) return <p style={{ color: '#b00' }}>Error: {error}</p>
-  if (!rows) return <p>Cargando…</p>
+  if (error && !rows) return <ErrorBanner>Error: {error}</ErrorBanner>
+  if (!rows) return <p className="eo-empty">Cargando…</p>
   const evaluables = rows.filter((r) => r.evaluated)
   const series = result
     ? result.runs.map((_r, i) => result.classes.map((c) => result.ap_by_class[c]?.[i] ?? null))
     : []
   return (
-    <div style={{ display: 'grid', gap: 16 }}>
+    <div style={{ display: 'grid', gap: 'var(--space-4)' }}>
       <h2>Comparar runs (BENCH)</h2>
       {evaluables.length === 0 && (
-        <p>No hay runs evaluados todavía. Evaluá un run BENCH desde su detalle.</p>
+        <EmptyState>No hay runs evaluados todavía. Evaluá un run BENCH desde su detalle.</EmptyState>
       )}
-      <div style={{ display: 'grid', gap: 4 }}>
+      <div style={{ display: 'grid', gap: 'var(--space-1)' }}>
         {evaluables.map((r) => (
           <label key={r.run_id}>
             <input
@@ -84,20 +82,25 @@ export default function ComparePage() {
         ))}
       </div>
       {evaluables.length > 0 && selected.length < 2 && <p>Seleccioná al menos 2 runs.</p>}
-      {error && rows && <p style={{ color: '#b00' }}>{error}</p>}
+      {error && rows && <ErrorBanner>{error}</ErrorBanner>}
       {result && (
         <>
           {result.skipped.length > 0 && (
-            <p style={{ color: '#a60' }}>Sin evaluación (omitidos): {result.skipped.join(', ')}</p>
+            <p>
+              Sin evaluación (omitidos):{' '}
+              {result.skipped.map((id) => (
+                <Badge key={id} tone="warn">
+                  {id}
+                </Badge>
+              ))}
+            </p>
           )}
-          <table style={{ borderCollapse: 'collapse', maxWidth: 760 }}>
+          <table className="eo-table">
             <thead>
               <tr>
-                <th style={{ ...CELL, textAlign: 'left', background: '#f5f5f5' }}>métrica</th>
+                <th>métrica</th>
                 {result.runs.map((r) => (
-                  <th key={r.run_id} style={{ ...CELL, textAlign: 'left', background: '#f5f5f5' }}>
-                    {r.label}
-                  </th>
+                  <th key={r.run_id}>{r.label}</th>
                 ))}
               </tr>
             </thead>

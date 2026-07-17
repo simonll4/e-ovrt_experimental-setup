@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import type { CSSProperties } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import {
   ApiError, getDatasets, getExperiments, getIngestPlugins, getPromptSets,
@@ -9,13 +8,7 @@ import type {
   Composition, DatasetEntry, Experiment, FieldError, IngestPlugin, PromptSet,
 } from '../types'
 import { useTargetModelRef } from '../useTarget'
-
-const ROW: CSSProperties = { display: 'grid', gap: 4, marginBottom: 14, maxWidth: 560 }
-
-function FieldMsg({ errors, field }: { errors: FieldError[]; field: string }) {
-  const msg = errors.filter((e) => e.field === field).map((e) => e.message).join('; ')
-  return msg ? <small style={{ color: '#b00' }}>{msg}</small> : null
-}
+import { Card, ErrorBanner, Field } from '../components/ui'
 
 export default function ComposePage() {
   const navigate = useNavigate()
@@ -43,6 +36,11 @@ export default function ComposePage() {
   const [busyRunId, setBusyRunId] = useState<string | null>(null)
   const [saveName, setSaveName] = useState('')
   const [saveMsg, setSaveMsg] = useState<string | null>(null)
+
+  const fieldError = (field: string): string | undefined => {
+    const msg = errors.filter((e) => e.field === field).map((e) => e.message).join('; ')
+    return msg || undefined
+  }
 
   // Si el servicio se reinicia con otro EOVRT_MODEL_REF, `modelRef` cambia (poll de
   // useTargetModelRef) y re-fetcheamos los catálogos para no quedar con datos stale.
@@ -152,132 +150,144 @@ export default function ComposePage() {
   }
 
   const modelError = errors.some((e) => e.field === 'model')
+  const generalError = fieldError('_target') ?? fieldError('_service')
   return (
     <div>
       <h2>Nueva corrida</h2>
-      <div style={ROW}>
-        <label>Partir de un manifiesto</label>
-        <select
-          value={params.get('from') ?? ''}
-          onChange={(e) => navigate(`/compose?from=${encodeURIComponent(e.target.value)}`)}
-        >
-          <option value="">— desde cero —</option>
-          {experiments.map((x) => (
-            <option key={x.id} value={x.id}>{x.group ? `[${x.group}] ` : ''}{x.id}</option>
-          ))}
-        </select>
-      </div>
-      <div style={ROW}>
-        <label>Plugin de ingesta</label>
-        <select value={plugin} onChange={(e) => setPlugin(e.target.value)}>
-          {plugins.map((p) => (
-            <option key={p.id} value={p.id} disabled={!p.enabled}>
-              {p.id}{!p.enabled ? ' (no soportado)' : ''}
-            </option>
-          ))}
-        </select>
-        <FieldMsg errors={errors} field="ingest.plugin" />
-      </div>
-      {plugin === 'rtsp' ? (
-        <div style={ROW}>
-          <label>URL RTSP de la cámara</label>
-          <input placeholder="rtsp://usuario:clave@192.168.1.50:554/stream1" value={rtspUrl}
-                 onChange={(e) => setRtspUrl(e.target.value)} />
-          <FieldMsg errors={errors} field="ingest.config.url" />
-          {rtspUrl.includes('***') && (
-            <small style={{ color: '#c80' }}>Recompletá las credenciales antes de lanzar.</small>
-          )}
-        </div>
-      ) : (
-        <div style={ROW}>
-          <label>Dataset del catálogo (o dejar vacío y dar un path)</label>
-          <select value={dataset} onChange={(e) => setDataset(e.target.value)}>
-            <option value="">— path manual —</option>
-            {datasets.map((d) => (
-              <option key={d.id} value={d.id} disabled={!d.available}>
-                {d.id}{!d.available ? ' (no montado)' : ''}
-              </option>
+      <div>
+        <Field label="Partir de un manifiesto">
+          <select
+            value={params.get('from') ?? ''}
+            onChange={(e) => navigate(`/compose?from=${encodeURIComponent(e.target.value)}`)}
+          >
+            <option value="">— desde cero —</option>
+            {experiments.map((x) => (
+              <option key={x.id} value={x.id}>{x.group ? `[${x.group}] ` : ''}{x.id}</option>
             ))}
           </select>
-          <FieldMsg errors={errors} field="ingest.config.dataset" />
-          {!dataset && (
-            <>
-              <input placeholder="/ruta/a/imagenes o /ruta/video.mp4" value={path}
-                     onChange={(e) => setPath(e.target.value)} />
-              <FieldMsg errors={errors} field="ingest.config.path" />
-            </>
-          )}
+        </Field>
+      </div>
+      <Card title="Ingesta">
+        <div>
+          <Field label="Plugin de ingesta" error={fieldError('ingest.plugin')}>
+            <select value={plugin} onChange={(e) => setPlugin(e.target.value)}>
+              {plugins.map((p) => (
+                <option key={p.id} value={p.id} disabled={!p.enabled}>
+                  {p.id}{!p.enabled ? ' (no soportado)' : ''}
+                </option>
+              ))}
+            </select>
+          </Field>
         </div>
-      )}
-      <div style={ROW}>
-        <label>Prompt set</label>
-        <select
-          value={setId}
-          onChange={(e) => {
-            const nextId = e.target.value
-            setSetId(nextId)
-            const found = sets.find((s) => s.id === nextId)
-            setActiveIds(found ? found.classes.filter((c) => c.enabled_by_default).map((c) => c.id) : [])
-          }}
-        >
-          <option value="">— elegir —</option>
-          {sets.map((s) => (
-            <option key={s.id} value={s.id}>{s.id}{s.frozen ? ' ❄' : ''}</option>
-          ))}
-        </select>
-        <FieldMsg errors={errors} field="prompts.set_id" />
-        {selectedSet && (
-          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-            {selectedSet.classes.map((c) => (
-              <label key={c.id}>
-                <input
-                  type="checkbox"
-                  checked={activeIds.includes(c.id)}
-                  onChange={(e) =>
-                    setActiveIds((prev) =>
-                      e.target.checked ? [...prev, c.id] : prev.filter((i) => i !== c.id),
-                    )
-                  }
-                />{' '}
-                {c.id}
-              </label>
-            ))}
+        {plugin === 'rtsp' ? (
+          <div>
+            <Field label="URL RTSP de la cámara" error={fieldError('ingest.config.url')}>
+              <input placeholder="rtsp://usuario:clave@192.168.1.50:554/stream1" value={rtspUrl}
+                     onChange={(e) => setRtspUrl(e.target.value)} />
+            </Field>
+            {rtspUrl.includes('***') && (
+              <small className="eo-note eo-note--warn">Recompletá las credenciales antes de lanzar.</small>
+            )}
+          </div>
+        ) : (
+          <div>
+            <Field label="Dataset del catálogo (o dejar vacío y dar un path)" error={fieldError('ingest.config.dataset')}>
+              <select value={dataset} onChange={(e) => setDataset(e.target.value)}>
+                <option value="">— path manual —</option>
+                {datasets.map((d) => (
+                  <option key={d.id} value={d.id} disabled={!d.available}>
+                    {d.id}{!d.available ? ' (no montado)' : ''}
+                  </option>
+                ))}
+              </select>
+            </Field>
+            {!dataset && (
+              <Field label="Ruta manual" hint="/ruta/a/imagenes o /ruta/video.mp4" error={fieldError('ingest.config.path')}>
+                <input placeholder="/ruta/a/imagenes o /ruta/video.mp4" value={path}
+                       onChange={(e) => setPath(e.target.value)} />
+              </Field>
+            )}
           </div>
         )}
-        <FieldMsg errors={errors} field="prompts.active_ids" />
-      </div>
-      <div style={ROW}>
-        <label>Overrides (thresholds: read-only del modelo, ver Catálogos)</label>
-        <input placeholder="stride (opcional)" value={stride} onChange={(e) => setStride(e.target.value)} />
-        <FieldMsg errors={errors} field="run.stride" />
-        <input placeholder="max_units (opcional)" value={maxUnits} onChange={(e) => setMaxUnits(e.target.value)} />
-        <FieldMsg errors={errors} field="run.max_units" />
+      </Card>
+      <Card title="Prompts">
+        <div>
+          <Field label="Prompt set" error={fieldError('prompts.set_id')}>
+            <select
+              value={setId}
+              onChange={(e) => {
+                const nextId = e.target.value
+                setSetId(nextId)
+                const found = sets.find((s) => s.id === nextId)
+                setActiveIds(found ? found.classes.filter((c) => c.enabled_by_default).map((c) => c.id) : [])
+              }}
+            >
+              <option value="">— elegir —</option>
+              {sets.map((s) => (
+                <option key={s.id} value={s.id}>{s.id}{s.frozen ? ' ❄' : ''}</option>
+              ))}
+            </select>
+          </Field>
+          {selectedSet && (
+            <div style={{ display: 'flex', gap: 'var(--space-3)', flexWrap: 'wrap' }}>
+              {selectedSet.classes.map((c) => (
+                <label key={c.id}>
+                  <input
+                    type="checkbox"
+                    checked={activeIds.includes(c.id)}
+                    onChange={(e) =>
+                      setActiveIds((prev) =>
+                        e.target.checked ? [...prev, c.id] : prev.filter((i) => i !== c.id),
+                      )
+                    }
+                  />{' '}
+                  {c.id}
+                </label>
+              ))}
+            </div>
+          )}
+          {fieldError('prompts.active_ids') && (
+            <small className="eo-field__error">{fieldError('prompts.active_ids')}</small>
+          )}
+        </div>
+      </Card>
+      <Card title="Parámetros">
+        <p className="eo-note">Overrides (thresholds: read-only del modelo, ver Catálogos)</p>
+        <div>
+          <Field label="stride (opcional)" error={fieldError('run.stride')}>
+            <input value={stride} onChange={(e) => setStride(e.target.value)} />
+          </Field>
+        </div>
+        <div>
+          <Field label="max_units (opcional)" error={fieldError('run.max_units')}>
+            <input value={maxUnits} onChange={(e) => setMaxUnits(e.target.value)} />
+          </Field>
+        </div>
         <label>
           <input type="checkbox" checked={annotated} onChange={(e) => setAnnotated(e.target.checked)} />{' '}
           save_annotated_video
         </label>
-      </div>
+      </Card>
       {manifestModelRef && (
-        <div style={ROW}>
-          <small>El manifiesto declara modelo <b>{manifestModelRef}</b>.</small>
+        <div>
+          <small className="eo-note">El manifiesto declara modelo <b>{manifestModelRef}</b>.</small>
           {modelError && (
-            <label style={{ color: '#b00' }}>
+            <label className="eo-note eo-note--error">
               <input type="checkbox" checked={confirmModel}
                      onChange={(e) => setConfirmModel(e.target.checked)} />{' '}
               Usar el modelo del target de todas formas
             </label>
           )}
-          <FieldMsg errors={errors} field="model" />
+          {fieldError('model') && <small className="eo-field__error">{fieldError('model')}</small>}
         </div>
       )}
-      <FieldMsg errors={errors} field="_target" />
-      <FieldMsg errors={errors} field="_service" />
+      {generalError && <ErrorBanner>{generalError}</ErrorBanner>}
       {busyRunId && (
-        <p style={{ color: '#c80' }}>
+        <p className="eo-note eo-note--warn">
           Ya hay un run activo: <a href={`#/runs/${busyRunId}`}>{busyRunId}</a>
         </p>
       )}
-      <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+      <div style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'center' }}>
         <button onClick={submit}>Lanzar</button>
         <input placeholder="nombre_manifiesto" value={saveName}
                onChange={(e) => setSaveName(e.target.value)} />

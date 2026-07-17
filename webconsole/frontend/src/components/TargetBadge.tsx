@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { getTarget } from '../api'
 import type { TargetStatus } from '../types'
+import { Badge } from './ui'
 
 export default function TargetBadge() {
   const [target, setTarget] = useState<TargetStatus | null>(null)
@@ -15,12 +16,12 @@ export default function TargetBadge() {
       clearInterval(timer)
     }
   }, [])
-  if (!target) return <span style={{ color: '#b00' }}>● BFF inaccesible</span>
-  if (!target.healthy) return <span style={{ color: '#b00' }}>● servicio caído</span>
-  if (!target.ready) return <span style={{ color: '#c80' }}>● cargando modelo…</span>
+  if (!target) return <Badge tone="error">BFF inaccesible</Badge>
+  if (!target.healthy) return <Badge tone="error">servicio caído</Badge>
+  if (!target.ready) return <Badge tone="warn">cargando modelo…</Badge>
   return (
-    <span style={{ color: '#080' }}>
-      ● {target.model?.ref} <small>({target.model?.device ?? '?'})</small>
-    </span>
+    <Badge tone="ok">
+      {target.model?.ref} <small>({target.model?.device ?? '?'})</small>
+    </Badge>
   )
 }

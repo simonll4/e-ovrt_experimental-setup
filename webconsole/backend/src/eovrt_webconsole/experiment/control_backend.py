@@ -77,3 +77,13 @@ class ControlPlaneBackend:
 
     async def config(self) -> dict:
         return await self._get_json("/api/config")
+
+    async def list_runs(self, media_run_id: str | None = None) -> list[dict]:
+        params = {"media_run_id": media_run_id} if media_run_id else {}
+        return await self._get_json("/api/runs", **params)
+
+    async def pattern_progress(self, control_run_id: str) -> list[dict]:
+        return await self._get_json(f"/api/runs/{control_run_id}/pattern-progress")
+
+    async def received_units(self, control_run_id: str) -> list[dict]:
+        return await self._get_json(f"/api/runs/{control_run_id}/received-units")

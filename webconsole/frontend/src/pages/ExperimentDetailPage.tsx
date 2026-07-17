@@ -1,11 +1,9 @@
 import { useEffect, useState } from 'react'
-import type { CSSProperties } from 'react'
 import { useParams } from 'react-router-dom'
 import { ApiError, getExperiment, getExperimentAlerts, getExperimentReport } from '../api'
-import { alertSeverityColor, experimentStatusLabel, isNonTemporal } from '../experimentview'
+import { alertSeverityTone, experimentStatusLabel, experimentStatusTone, isNonTemporal } from '../experimentview'
 import type { ExperimentAlert, ExperimentReport, ExperimentRunState } from '../types'
-
-const CELL: CSSProperties = { padding: '4px 10px', borderBottom: '1px solid #ddd' }
+import { Badge, Card, EmptyState, ErrorBanner } from '../components/ui'
 
 function errorMessage(e: unknown): string {
   if (e instanceof ApiError) return `error ${e.status}`
@@ -78,66 +76,62 @@ export default function ExperimentDetailPage() {
     }
   }, [id])
 
-  if (error) return <p style={{ color: '#b00' }}>Error cargando el experimento {id}: {error}</p>
-  if (!experiment) return <p>Cargando experimento {id}…</p>
+  if (error) return <ErrorBanner>Error cargando el experimento {id}: {error}</ErrorBanner>
+  if (!experiment) return <p className="eo-empty">Cargando experimento {id}…</p>
 
   const nonTemporal = isNonTemporal(report)
 
   return (
-    <div style={{ display: 'grid', gap: 20 }}>
+    <div style={{ display: 'grid', gap: 'var(--space-5)' }}>
       <h2>
-        {experiment.experiment_id} — {experimentStatusLabel(experiment)}
+        {experiment.experiment_id} — <Badge tone={experimentStatusTone(experiment)}>{experimentStatusLabel(experiment)}</Badge>
       </h2>
       <p>
         media run: {experiment.media_run_id ?? '—'} · control run: {experiment.control_run_id ?? '—'}
       </p>
-      <section>
-        <h3>Alertas</h3>
-        {alertsError && <p style={{ color: '#b00' }}>{alertsError}</p>}
-        {!alertsError && alerts && alerts.length === 0 && <p>Sin alertas.</p>}
+      <Card title="Alertas">
+        {alertsError && <ErrorBanner>{alertsError}</ErrorBanner>}
+        {!alertsError && alerts && alerts.length === 0 && <EmptyState>Sin alertas.</EmptyState>}
         {!alertsError && alerts && alerts.length > 0 && (
-          <table style={{ borderCollapse: 'collapse', width: '100%' }}>
+          <table className="eo-table">
             <thead>
               <tr>
                 {['alerta', 'condicion', 'severidad', 'ts (ms)'].map((h) => (
-                  <th key={h} style={{ ...CELL, textAlign: 'left', background: '#f5f5f5' }}>{h}</th>
+                  <th key={h}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {alerts.map((a) => (
                 <tr key={a.alert_id}>
-                  <td style={CELL}>{a.alert_id}</td>
-                  <td style={CELL}>{a.condition_id}</td>
-                  <td style={CELL}>
-                    <span style={{ color: alertSeverityColor(a.severity) }}>● {a.severity}</span>
+                  <td>{a.alert_id}</td>
+                  <td>{a.condition_id}</td>
+                  <td>
+                    <Badge tone={alertSeverityTone(a.severity)}>{a.severity}</Badge>
                   </td>
-                  <td style={CELL}>{a.timestamp_ms ?? '—'}</td>
+                  <td className="eo-num">{a.timestamp_ms ?? '—'}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         )}
-      </section>
-      <section>
-        <h3>Reporte</h3>
-        {reportError && <p>{reportError}</p>}
+      </Card>
+      <Card title="Reporte">
+        {reportError && <ErrorBanner>{reportError}</ErrorBanner>}
         {!reportError && report && (
           <>
             {nonTemporal && (
               <p>
-                <span style={{ background: '#eef', borderRadius: 4, padding: '2px 8px' }}>
-                  diagnostico espacial / no-temporal
-                </span>
+                <Badge tone="neutral">no-temporal</Badge>
                 {' '}— metricas temporales no disponibles (N/A).
               </p>
             )}
             {Array.isArray(report.resultados) && report.resultados.length > 0 && (
-              <table style={{ borderCollapse: 'collapse', width: '100%' }}>
+              <table className="eo-table">
                 <thead>
                   <tr>
                     {['metrica', 'status', 'causa'].map((h) => (
-                      <th key={h} style={{ ...CELL, textAlign: 'left', background: '#f5f5f5' }}>{h}</th>
+                      <th key={h}>{h}</th>
                     ))}
                   </tr>
                 </thead>
@@ -146,9 +140,9 @@ export default function ExperimentDetailPage() {
                     const row = (r ?? {}) as Record<string, unknown>
                     return (
                       <tr key={i}>
-                        <td style={CELL}>{String(row.name ?? row.metrica ?? row.metric ?? '—')}</td>
-                        <td style={CELL}>{String(row.status ?? '—')}</td>
-                        <td style={CELL}>{String(row.cause ?? row.causa ?? '—')}</td>
+                        <td>{String(row.name ?? row.metrica ?? row.metric ?? '—')}</td>
+                        <td>{String(row.status ?? '—')}</td>
+                        <td>{String(row.cause ?? row.causa ?? '—')}</td>
                       </tr>
                     )
                   })}
@@ -156,11 +150,11 @@ export default function ExperimentDetailPage() {
               </table>
             )}
             {(!Array.isArray(report.resultados) || report.resultados.length === 0) && (
-              <p>Sin resultados todavia.</p>
+              <EmptyState>Sin resultados todavia.</EmptyState>
             )}
           </>
         )}
-      </section>
+      </Card>
     </div>
   )
 }

@@ -1,13 +1,13 @@
-import type { ExperimentReport, ExperimentRunState } from './types'
+import type { BadgeTone, ExperimentReport, ExperimentRunState } from './types'
 
 export function isNonTemporal(report: ExperimentReport | null): boolean {
   return report?.non_temporal === true
 }
 
-export function alertSeverityColor(severity: string): string {
-  if (severity === 'high') return '#b00'
-  if (severity === 'medium') return '#c80'
-  return '#080'
+export function alertSeverityTone(severity: string): BadgeTone {
+  if (severity === 'high') return 'error'
+  if (severity === 'medium') return 'warn'
+  return 'ok'
 }
 
 export function experimentStatusLabel(state: ExperimentRunState | null): string {
@@ -16,4 +16,12 @@ export function experimentStatusLabel(state: ExperimentRunState | null): string 
   if (state.status === 'succeeded' || state.ok === true) return 'OK'
   if (state.status === 'failed') return 'fallo'
   return state.status
+}
+
+export function experimentStatusTone(state: ExperimentRunState | null): BadgeTone {
+  if (state === null) return 'neutral'
+  if (state.status === 'running') return 'live'
+  if (state.status === 'succeeded' || state.ok === true) return 'ok'
+  if (state.status === 'failed') return 'error'
+  return 'neutral'
 }

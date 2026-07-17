@@ -7,8 +7,13 @@ from fastapi import APIRouter, HTTPException, Query, Request
 from fastapi.responses import JSONResponse, StreamingResponse
 from starlette.background import BackgroundTask
 
+from eovrt_webconsole.experiment.control_backend import (
+    ServiceUnavailable as ControlServiceUnavailable,
+    UnknownRun as ControlUnknownRun,
+)
 from eovrt_webconsole.routers.compose import validate_composition
 from eovrt_webconsole.run_backend import RunBusy, RunNotFinished, ServiceRejected, ServiceUnavailable, UnknownRun
+from eovrt_webconsole.trace import compose_trace
 from eovrt_webconsole.translation import Composition, composition_to_run_request
 
 logger = logging.getLogger(__name__)
@@ -172,6 +177,96 @@ async def detections(
     except ServiceUnavailable as exc:
         logger.warning("detections(%s): servicio inaccesible: %s", run_id, exc)
         raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+
+async def _fetch_all(fetch, run_id: str) -> list[dict]:
+    """Pagina un endpoint del media-plane (detections/dropped) hasta traer
+    todas las filas (trampa de volumen del spec §7: sin esto, el trace solo
+    vería la primera página)."""
+    items: list[dict] = []
+    page = 1
+    page_size = 1000
+    while True:
+        result = await fetch(run_id, page=page, page_size=page_size)
+        if not result["items"]:
+            break
+        items.extend(result["items"])
+        if len(items) >= result["total"]:
+            break
+        page += 1
+    return items
+
+
+@router.get("/{run_id}/trace")
+async def trace(
+    run_id: str,
+    request: Request,
+    page: int = Query(1, ge=1),
+    page_size: int = Query(100, ge=1, le=1000),
+    control_run_id: str | None = Query(default=None),
+) -> dict:
+    backend = request.app.state.backend
+    control = request.app.state.control_backend
+    try:
+        summary = await backend.status(run_id)
+    except UnknownRun as exc:
+        raise HTTPException(status_code=404, detail=f"Run desconocido: {run_id}") from exc
+    except ServiceUnavailable as exc:
+        logger.warning("trace(%s): servicio media inaccesible: %s", run_id, exc)
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+    # Trae TODAS las paginas de detections y dropped (page_size=1000, loop hasta total).
+    # UnknownRun en cualquiera de las dos lecturas se tolera como lista vacia: el
+    # run ya fue validado por status() arriba, asi que un 404 puntual de detections
+    # o dropped no debe tumbar el trace (I2 del review).
+    try:
+        detections_rows = await _fetch_all(backend.detections, run_id)
+    except UnknownRun:
+        detections_rows = []
+    except ServiceUnavailable as exc:
+        logger.warning("trace(%s): servicio media inaccesible (detections): %s", run_id, exc)
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+    try:
+        dropped_rows = await _fetch_all(backend.dropped, run_id)
+    except UnknownRun:
+        dropped_rows = []
+    except ServiceUnavailable as exc:
+        logger.warning("trace(%s): servicio media inaccesible (dropped): %s", run_id, exc)
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+    # Lado control: best-effort (degradacion del spec §6). ControlUnknownRun en
+    # el lookup o en las lecturas se trata como "sin control run" (no 404 del
+    # trace); ControlServiceUnavailable puebla control_error y deja todo en n/d.
+    progress, alerts, received, control_error = [], [], None, None
+    try:
+        if control_run_id is None:
+            candidates = await control.list_runs(media_run_id=run_id)
+            control_run_id = candidates[0]["control_run_id"] if candidates else None
+        if control_run_id is not None:
+            progress = await control.pattern_progress(control_run_id)
+            alerts = await control.alerts(control_run_id)
+            received = {u["unit_id"] for u in await control.received_units(control_run_id)}
+    except ControlServiceUnavailable as exc:
+        logger.warning("trace(%s): servicio control inaccesible: %s", run_id, exc)
+        control_error = str(exc)
+        control_run_id, progress, alerts, received = None, [], [], None
+    except ControlUnknownRun:
+        control_run_id, progress, alerts, received = None, [], [], None
+    topology = ((summary.get("summary") or {}).get("run_descriptor") or {}).get("topology")
+    composed = compose_trace(
+        detections=detections_rows, dropped=dropped_rows, progress=progress, alerts=alerts,
+        received_unit_ids=received, control_run_id=control_run_id,
+        topology=topology,
+    )
+    frames = composed.pop("frames")
+    start = (page - 1) * page_size
+    return {
+        "media_run_id": run_id,
+        **composed,
+        "control_error": control_error,
+        "page": page,
+        "page_size": page_size,
+        "total": len(frames),
+        "frames": frames[start : start + page_size],
+    }
 
 
 @router.get("/{run_id}/artifacts/{artifact_path:path}")

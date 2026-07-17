@@ -8,6 +8,16 @@ Funciones: componer y lanzar corridas, ver el detalle en vivo (WS), **evaluar un
 BENCH contra el GT de seguridad** (AP@0.5 por clase, CR-01 recall, mAP@0.5) y **comparar
 varios runs** (tabla + gráfico) en la página `/compare`.
 
+Desde 2026-07-17 el detalle de un run terminado incluye la **vista correlacionada
+media↔control** ("Evaluación del control-plane"): el BFF compone un trace por-frame
+(`GET /api/runs/{id}/trace`) uniendo por `unit_id` las detecciones (con bboxes dibujadas
+sobre los previews), el ledger de descartes del media-plane (`rate_gate`/sobrecarga), los
+`unit_id` que el control-plane recibió (la diferencia = drops del bus en EBE), el progreso
+parcial de patrones (barra 0–100% por condición) y las alertas confirmadas. La correlación
+es automática (lookup por `media_run_id` en el control-plane, `EOVRT_CONSOLE_CONTROL_SERVICE_URL`,
+default `:8081`); degradación explícita si el control está caído, el run no fue evaluado,
+o es two-node (descartes internos "n/d").
+
 ### Fuentes de ingesta
 
 La consola lanza runs desde: carpetas de imágenes (`image_folder`), archivos de

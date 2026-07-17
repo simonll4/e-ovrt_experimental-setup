@@ -198,3 +198,52 @@ export interface ExperimentReport {
   resultados?: unknown[]
   identificacion?: Record<string, unknown>
 }
+
+/** Vocabulario de estado de la UI. Vive acá —y no en Badge.tsx— porque lo consumen
+ *  runview.ts y experimentview.ts, que son lógica pura y no deben importar de un .tsx. */
+export type BadgeTone = 'live' | 'ok' | 'warn' | 'error' | 'neutral'
+
+export interface TraceDetection {
+  label: string
+  confidence: number
+  bbox_norm_xyxy?: number[] | null
+}
+export interface TraceProgress {
+  condition_id: string
+  progress: number
+  elapsed_ms?: number | null
+  threshold_ms?: number | null
+  mode?: string | null
+}
+export interface TraceAlert {
+  condition_id: string
+  severity: string
+}
+export interface TraceFrame {
+  frame_index: number | null
+  unit_id: string | null
+  timestamp_ms: number | null
+  detections: TraceDetection[] | null
+  control: string
+  progress: TraceProgress[]
+  alert: TraceAlert[]
+}
+export interface TraceTotals {
+  frames: number
+  detections: number
+  dropped_by_reason: Record<string, number>
+  alerts: number
+  received: number | null
+  not_received: number | null
+}
+export interface TracePage {
+  media_run_id: string
+  control_run_id: string | null
+  topology: string | null
+  control_error: string | null
+  totals: TraceTotals
+  page: number
+  page_size: number
+  total: number
+  frames: TraceFrame[]
+}

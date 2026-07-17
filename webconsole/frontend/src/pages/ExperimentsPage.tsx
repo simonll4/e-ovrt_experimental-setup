@@ -1,11 +1,9 @@
 import { useEffect, useState } from 'react'
-import type { CSSProperties } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ApiError, getCurrentExperiment, getExperimentManifests, runExperiment } from '../api'
 import type { ExperimentManifestSummary, ExperimentRunState } from '../types'
-import { experimentStatusLabel } from '../experimentview'
-
-const CELL: CSSProperties = { padding: '4px 10px', borderBottom: '1px solid #ddd' }
+import { experimentStatusLabel, experimentStatusTone } from '../experimentview'
+import { Badge, ErrorBanner, EmptyState } from '../components/ui'
 
 function errorMessage(e: unknown): string {
   if (e instanceof ApiError) {
@@ -78,18 +76,18 @@ export default function ExperimentsPage() {
     }
   }
 
-  if (error) return <p style={{ color: '#b00' }}>Error listando experimentos: {error}</p>
-  if (!rows) return <p>Cargando…</p>
+  if (error) return <ErrorBanner>Error listando experimentos: {error}</ErrorBanner>
+  if (!rows) return <p className="eo-empty">Cargando…</p>
   return (
-    <div style={{ display: 'grid', gap: 16 }}>
+    <div style={{ display: 'grid', gap: 'var(--space-4)' }}>
       <h2>Experimentos</h2>
       {current && (
         <p>
           Experimento activo: <Link to={`/experiments/${current.experiment_id}`}>{current.experiment_id}</Link>
-          {' — '}{experimentStatusLabel(current)}
+          {' — '}<Badge tone={experimentStatusTone(current)}>{experimentStatusLabel(current)}</Badge>
         </p>
       )}
-      <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+      <div style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'center' }}>
         <select value={slug} onChange={(e) => setSlug(e.target.value)}>
           {rows.map((r) => (
             <option key={r.slug} value={r.slug}>{r.slug}</option>
@@ -99,31 +97,32 @@ export default function ExperimentsPage() {
           {busy ? 'Ejecutando…' : 'Ejecutar experimento'}
         </button>
       </div>
-      {runError && <p style={{ color: '#b00' }}>{runError}</p>}
-      <table style={{ borderCollapse: 'collapse', width: '100%' }}>
-        <thead>
-          <tr>
-            {['slug', 'experimento'].map((h) => (
-              <th key={h} style={{ ...CELL, textAlign: 'left', background: '#f5f5f5' }}>{h}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((r) => (
-            <tr key={r.slug}>
-              <td style={CELL}>{r.slug}</td>
-              <td style={CELL}>
-                {r.experiment_id ? (
-                  <Link to={`/experiments/${r.experiment_id}`}>{r.experiment_id}</Link>
-                ) : '—'}
-              </td>
+      {runError && <ErrorBanner>{runError}</ErrorBanner>}
+      {rows.length === 0 ? (
+        <EmptyState>Sin manifiestos todavía.</EmptyState>
+      ) : (
+        <table className="eo-table">
+          <thead>
+            <tr>
+              {['slug', 'experimento'].map((h) => (
+                <th key={h}>{h}</th>
+              ))}
             </tr>
-          ))}
-          {rows.length === 0 && (
-            <tr><td style={CELL} colSpan={2}>Sin manifiestos todavía.</td></tr>
-          )}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {rows.map((r) => (
+              <tr key={r.slug}>
+                <td>{r.slug}</td>
+                <td>
+                  {r.experiment_id ? (
+                    <Link to={`/experiments/${r.experiment_id}`}>{r.experiment_id}</Link>
+                  ) : '—'}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   )
 }

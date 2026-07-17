@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
-import type { CSSProperties } from 'react'
 import { Link } from 'react-router-dom'
 import { listRuns } from '../api'
 import type { RunRow } from '../types'
+import { Badge, EmptyState, ErrorBanner } from '../components/ui'
+import { runStatusTone, runStatusLabel } from '../runview'
 
-const CELL: CSSProperties = { padding: '4px 10px', borderBottom: '1px solid #ddd' }
+const HEADERS = ['run', 'estado', 'modelo', 'fuente', 'prompts', 'FPS', 'dets', 'dur (s)']
 
 export default function RunsPage() {
   const [rows, setRows] = useState<RunRow[] | null>(null)
@@ -28,37 +29,33 @@ export default function RunsPage() {
       clearTimeout(timer)
     }
   }, [])
-  if (error) return <p style={{ color: '#b00' }}>Error listando runs: {error}</p>
-  if (!rows) return <p>Cargando…</p>
+
+  if (error) return <ErrorBanner>Error listando runs: {error}</ErrorBanner>
+  if (!rows) return <p className="eo-empty">Cargando…</p>
   return (
     <div>
-      <p><Link to="/compose">➕ Nueva corrida</Link></p>
-      <table style={{ borderCollapse: 'collapse', width: '100%' }}>
+      <table className="eo-table">
         <thead>
-          <tr>
-            {['run', 'estado', 'modelo', 'fuente', 'prompts', 'FPS', 'dets', 'dur (s)'].map((h) => (
-              <th key={h} style={{ ...CELL, textAlign: 'left', background: '#f5f5f5' }}>{h}</th>
-            ))}
-          </tr>
+          <tr>{HEADERS.map((h) => <th key={h}>{h}</th>)}</tr>
         </thead>
         <tbody>
           {rows.map((r) => (
             <tr key={r.run_id}>
-              <td style={CELL}><Link to={`/runs/${r.run_id}`}>{r.run_id}</Link></td>
-              <td style={CELL}>
-                {r.status === 'running' ? '🟢 running' : r.status}
-                {r.topology === 'two_node' ? ' · two-node' : ''}
+              <td><Link to={`/runs/${r.run_id}`}>{r.run_id}</Link></td>
+              <td>
+                <Badge tone={runStatusTone(r)}>{runStatusLabel(r)}</Badge>
+                {r.topology === 'two_node' ? <small> two-node</small> : null}
               </td>
-              <td style={CELL}>{r.model ?? '—'}</td>
-              <td style={CELL}>{r.source_type ?? '—'}</td>
-              <td style={CELL}>{r.prompt_set_id ?? '—'}</td>
-              <td style={CELL}>{r.fps_effective ?? '—'}</td>
-              <td style={CELL}>{r.total_detections ?? '—'}</td>
-              <td style={CELL}>{r.duration_seconds ?? '—'}</td>
+              <td>{r.model ?? '—'}</td>
+              <td>{r.source_type ?? '—'}</td>
+              <td>{r.prompt_set_id ?? '—'}</td>
+              <td className="eo-num">{r.fps_effective ?? '—'}</td>
+              <td className="eo-num">{r.total_detections ?? '—'}</td>
+              <td className="eo-num">{r.duration_seconds ?? '—'}</td>
             </tr>
           ))}
           {rows.length === 0 && (
-            <tr><td style={CELL} colSpan={8}>Sin corridas todavía.</td></tr>
+            <tr><td colSpan={8}><EmptyState>Sin corridas todavía.</EmptyState></td></tr>
           )}
         </tbody>
       </table>

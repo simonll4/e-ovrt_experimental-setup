@@ -1,0 +1,47 @@
+import { afterEach, describe, expect, it } from 'vitest'
+import { cleanup, render } from '@testing-library/react'
+import PreviewWithBoxes from '../components/PreviewWithBoxes'
+import type { TraceDetection } from '../types'
+
+afterEach(() => cleanup())
+
+describe('PreviewWithBoxes', () => {
+  it('dibuja una caja por cada detección con bbox_norm_xyxy', () => {
+    const detections: TraceDetection[] = [
+      { label: 'person', confidence: 0.9, bbox_norm_xyxy: [0.1, 0.1, 0.5, 0.5] },
+      { label: 'helmet', confidence: 0.8, bbox_norm_xyxy: [0.2, 0.2, 0.6, 0.6] },
+    ]
+    const { container } = render(<PreviewWithBoxes src="x.jpg" alt="u0" detections={detections} />)
+    expect(container.querySelectorAll('.eo-preview__box').length).toBe(2)
+  })
+
+  it('no dibuja cajas si bbox_norm_xyxy es null o está ausente', () => {
+    const detections: TraceDetection[] = [
+      { label: 'person', confidence: 0.9, bbox_norm_xyxy: null },
+      { label: 'helmet', confidence: 0.8 },
+    ]
+    const { container } = render(<PreviewWithBoxes src="x.jpg" alt="u0" detections={detections} />)
+    expect(container.querySelectorAll('.eo-preview__box').length).toBe(0)
+  })
+
+  it('calcula left/top/width/height en % para una caja conocida', () => {
+    const detections: TraceDetection[] = [
+      { label: 'person', confidence: 0.9, bbox_norm_xyxy: [0.1, 0.2, 0.5, 0.9] },
+    ]
+    const { container } = render(<PreviewWithBoxes src="x.jpg" alt="u0" detections={detections} />)
+    const box = container.querySelector('.eo-preview__box') as HTMLElement
+    expect(box.style.left).toBe('10%')
+    expect(box.style.top).toBe('20%')
+    expect(box.style.width).toBe('40%')
+    expect(box.style.height).toBe('70%')
+  })
+
+  it('el title incluye el label y la confidence', () => {
+    const detections: TraceDetection[] = [
+      { label: 'vest', confidence: 0.876, bbox_norm_xyxy: [0, 0, 1, 1] },
+    ]
+    const { container } = render(<PreviewWithBoxes src="x.jpg" alt="u0" detections={detections} />)
+    const box = container.querySelector('.eo-preview__box') as HTMLElement
+    expect(box.getAttribute('title')).toBe('vest 0.88')
+  })
+})

@@ -8,7 +8,7 @@ export default function Sparkline({ values, width = 220, height = 40 }: {
     .join(' ')
   return (
     <svg width={width} height={height}>
-      <polyline points={points} fill="none" stroke="#36c" strokeWidth={1.5} />
+      <polyline points={points} fill="none" style={{ stroke: 'var(--accent)' }} strokeWidth={2} />
     </svg>
   )
 }

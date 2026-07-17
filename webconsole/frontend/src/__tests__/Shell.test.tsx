@@ -1,0 +1,53 @@
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { cleanup, render, screen } from '@testing-library/react'
+import { MemoryRouter } from 'react-router-dom'
+import Shell from '../components/Shell'
+
+vi.mock('../api', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../api')>()),
+  getTarget: vi.fn().mockResolvedValue(null),
+  listRuns: vi.fn().mockResolvedValue([]),
+}))
+
+afterEach(() => cleanup())
+
+const renderShell = (path = '/') =>
+  render(
+    <MemoryRouter initialEntries={[path]}>
+      <Shell><p>contenido</p></Shell>
+    </MemoryRouter>,
+  )
+
+describe('Shell', () => {
+  it('renderiza los tres títulos de grupo', () => {
+    renderShell()
+    expect(screen.getByText('Trabajo')).toBeTruthy()
+    expect(screen.getByText('Definiciones')).toBeTruthy()
+    expect(screen.getByText('Sistema')).toBeTruthy()
+  })
+
+  it('renderiza los 6 destinos', () => {
+    renderShell()
+    for (const label of ['Corridas', 'Experimentos', 'Comparar', 'Prompt sets', 'Catálogos', 'Plataforma']) {
+      expect(screen.getAllByText(label).length).toBeGreaterThan(0)
+    }
+  })
+
+  it('"Nueva corrida" es acción primaria y apunta a /compose', () => {
+    renderShell()
+    const link = screen.getByRole('link', { name: /nueva corrida/i })
+    expect(link.getAttribute('href')).toContain('/compose')
+    expect(link.className).toContain('eo-sidebar__action')
+  })
+
+  it('marca el destino activo', () => {
+    renderShell('/prompts')
+    const active = screen.getByRole('link', { name: 'Prompt sets' })
+    expect(active.className).toContain('eo-sidebar__link--active')
+  })
+
+  it('renderiza el contenido hijo', () => {
+    renderShell()
+    expect(screen.getByText('contenido')).toBeTruthy()
+  })
+})

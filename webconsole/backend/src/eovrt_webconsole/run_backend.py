@@ -124,6 +124,11 @@ class RunBackend:
             f"/api/runs/{run_id}/detections", page=page, page_size=page_size
         )
 
+    async def dropped(self, run_id: str, page: int = 1, page_size: int = 100) -> dict:
+        return await self._get_json(
+            f"/api/runs/{run_id}/dropped", page=page, page_size=page_size
+        )
+
     async def open_artifact(
         self, run_id: str, artifact_path: str, range_header: str | None = None
     ) -> httpx.Response:

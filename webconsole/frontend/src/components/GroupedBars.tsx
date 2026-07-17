@@ -1,7 +1,15 @@
-// Paleta categórica fija (orden nunca ciclado): 8 slots validados para CVD
-// (ΔE adyacente ≥ 24 en fondo claro). 8 = tope de runs del compare.
+// Paleta categórica de 8 slots (skill dataviz), stepped para superficie oscura #1a1a19.
+// Validada: banda L, croma, CVD adyacente (peor ΔE 8.4 protan), visión normal (19.3), contraste >=3:1.
+// El ORDEN es el mecanismo de seguridad CVD, no cosmética: no reordenar sin re-validar.
 export const SERIES_COLORS = [
-  '#2a78d6', '#1baf7a', '#eda100', '#008300', '#4a3aa7', '#e34948', '#e87ba4', '#eb6834',
+  '#3987e5', // azul
+  '#008300', // verde
+  '#d55181', // magenta
+  '#c98500', // amarillo
+  '#199e70', // aqua
+  '#d95926', // naranja
+  '#9085e9', // violeta
+  '#e66767', // rojo
 ]
 
 export interface BarRect {
@@ -63,7 +71,7 @@ export default function GroupedBars({ groups, series, labels, width = 560, heigh
   return (
     <div>
       <svg width={width} height={height}>
-        <line x1={0} y1={plotHeight} x2={width} y2={plotHeight} stroke="#ccc" />
+        <line x1={0} y1={plotHeight} x2={width} y2={plotHeight} style={{ stroke: 'var(--border-strong)' }} />
         {rects.map((r) => (
           <rect
             key={`${r.series}-${r.group}`}
@@ -78,14 +86,13 @@ export default function GroupedBars({ groups, series, labels, width = 560, heigh
             x={(gi + 0.5) * (width / groups.length)}
             y={plotHeight + 16}
             textAnchor="middle"
-            fontSize={12}
-            fill="#444"
+            style={{ fontSize: 'var(--text-xs)', fill: 'var(--text-muted)' }}
           >
             {group}
           </text>
         ))}
       </svg>
-      <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', fontSize: 12 }}>
+      <div style={{ display: 'flex', gap: 'var(--space-3)', flexWrap: 'wrap', fontSize: 'var(--text-sm)' }}>
         {labels.map((label, i) => (
           <span key={label}>
             <span

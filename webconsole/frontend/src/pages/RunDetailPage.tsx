@@ -1,16 +1,35 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { artifactUrl, getDetections, getRun, stopRun } from '../api'
+import { artifactUrl, getRun, stopRun } from '../api'
 import EvalSection from '../components/EvalSection'
 import Sparkline from '../components/Sparkline'
-import { isLive, topologyBadge } from '../runview'
+import TraceSection from '../components/TraceSection'
+import { Badge, Card, DetChip, EmptyState, ErrorBanner, StatTile } from '../components/ui'
+import { isLive, runStatusLabel, runStatusTone, topologyBadge } from '../runview'
 import { useRunStream } from '../stream'
-import type { DetectionsPage, RunDetail } from '../types'
+import type { RunDetail } from '../types'
+
+function num(summary: Record<string, unknown> | undefined, key: string): number | null {
+  const v = summary?.[key]
+  return typeof v === 'number' ? v : null
+}
+
+function str(summary: Record<string, unknown> | undefined, key: string): string | null {
+  const v = summary?.[key]
+  return typeof v === 'string' ? v : null
+}
+
+function labelCounts(summary: Record<string, unknown> | undefined): Array<[string, number]> {
+  const v = summary?.detections_by_label
+  if (!v || typeof v !== 'object') return []
+  return Object.entries(v as Record<string, unknown>).filter(
+    (entry): entry is [string, number] => typeof entry[1] === 'number',
+  )
+}
 
 export default function RunDetailPage() {
   const { id = '' } = useParams()
   const [run, setRun] = useState<RunDetail | null>(null)
-  const [detections, setDetections] = useState<DetectionsPage | null>(null)
   const [hasVideo, setHasVideo] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const running = run?.status === 'running'
@@ -39,25 +58,22 @@ export default function RunDetailPage() {
   }, [running, streamable])
   useEffect(() => {
     if (run && !running) {
-      getDetections(id, 1, 24).then(setDetections).catch(() => setDetections(null))
       fetch(artifactUrl(id, 'annotated.mp4'), { method: 'GET', headers: { range: 'bytes=0-0' } })
         .then((r) => setHasVideo(r.ok))
         .catch(() => setHasVideo(false))
     }
   }, [run?.status])
 
-  if (error) return <p style={{ color: '#b00' }}>Error cargando el run {id}: {error}</p>
-  if (!run) return <p>Cargando run {id}…</p>
-  const summary = (run.summary ?? {}) as Record<string, any>
+  if (error) return <ErrorBanner>Error cargando el run {id}: {error}</ErrorBanner>
+  if (!run) return <p className="eo-empty">Cargando run {id}…</p>
+  const summary = run.summary
+  const topology = topologyBadge(summary)
   return (
-    <div style={{ display: 'grid', gap: 20 }}>
-      <h2>
-        {run.run_id} — {run.status}{' '}
-        {topologyBadge(summary) && (
-          <span style={{ fontSize: 14, background: '#eef', borderRadius: 4, padding: '2px 8px' }}>
-            {topologyBadge(summary)}
-          </span>
-        )}{' '}
+    <div style={{ display: 'grid', gap: 'var(--space-5)' }}>
+      <h2 className="eo-inline">
+        <span>{run.run_id}</span>
+        <Badge tone={runStatusTone(run)}>{runStatusLabel(run)}</Badge>
+        {topology && <Badge tone="neutral">{topology}</Badge>}
         {streamable && (
           <button
             onClick={() => {
@@ -69,72 +85,87 @@ export default function RunDetailPage() {
         )}
       </h2>
       {streamable && (
-        <section style={{ display: 'flex', gap: 32, flexWrap: 'wrap' }}>
-          <div>
-            <b>FPS</b> {live.lastMetric?.fps ?? '—'}
-            <Sparkline values={live.fpsHistory} />
+        <section>
+          <div className="eo-stats-row">
+            <StatTile label="FPS" value={live.lastMetric?.fps ?? '—'} />
+            <StatTile label="Latencia/unidad" value={live.lastMetric?.latency_total_ms ?? '—'} unit="ms" />
+            <StatTile label="VRAM" value={live.lastMetric?.gpu_memory_mb ?? '—'} unit="MB" />
+            <StatTile label="Detecciones" value={live.detectionsTotal} />
           </div>
-          <div>
-            <b>Latencia/unidad (ms)</b> {live.lastMetric?.latency_total_ms ?? '—'}
-            <Sparkline values={live.latencyHistory} />
+          <div style={{ display: 'flex', gap: 'var(--space-6)', flexWrap: 'wrap' }}>
+            <div>
+              <b>FPS</b>
+              <Sparkline values={live.fpsHistory} />
+            </div>
+            <div>
+              <b>Latencia/unidad (ms)</b>
+              <Sparkline values={live.latencyHistory} />
+            </div>
           </div>
-          <div><b>VRAM (MB)</b> {live.lastMetric?.gpu_memory_mb ?? '—'}</div>
-          <div><b>Detecciones</b> {live.detectionsTotal}</div>
-          <div style={{ width: '100%' }}>
-            <b>Errores (tail)</b>
-            <pre style={{ maxHeight: 140, overflow: 'auto', background: '#f6f6f6', padding: 8 }}>
-              {live.errors.map((e) => `${e.unit_id ?? '?'} [${e.stage}] ${e.message}\n`)}
-              {live.errors.length === 0 && 'sin errores'}
-            </pre>
-          </div>
+          {live.errors.length > 0 ? (
+            <ErrorBanner>
+              {live.errors.map((e, i) => (
+                <div key={i}>{e.unit_id ?? '?'} [{e.stage}] {e.message}</div>
+              ))}
+            </ErrorBanner>
+          ) : (
+            <EmptyState>sin errores</EmptyState>
+          )}
           <small>p95 y detecciones-por-label se calculan al terminar (summary).</small>
         </section>
       )}
       {!running && run.summary && (
-        <section>
-          <h3>Summary</h3>
-          <ul>
-            <li>
-              modelo: {summary.model_name ?? '—'} ({summary.device ?? '—'}) — prompts:{' '}
-              {summary.prompt_set_id ?? '—'}
-            </li>
-            <li>
-              unidades: {summary.units_processed ?? '—'} · detecciones: {summary.total_detections ?? '—'}
-            </li>
-            <li>
-              FPS: {summary.fps_effective ?? '—'} · p95: {summary.p95_latency_ms ?? '—'} ms · dur:{' '}
-              {summary.duration_seconds ?? '—'}s
-            </li>
-            <li>
-              por label:{' '}
-              {Object.entries(summary.detections_by_label ?? {})
-                .map(([k, v]) => `${k}=${v}`)
-                .join(', ') || '—'}
-            </li>
-          </ul>
-          {hasVideo && (
-            <video controls width={640} src={artifactUrl(id, 'annotated.mp4')} />
-          )}
-          {detections && (
-            <>
-              <h3>Detecciones (pág. 1 de {Math.ceil(detections.total / detections.page_size)})</h3>
-              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                {detections.items.map((d: any) => (
-                  <figure key={d.unit_id} style={{ margin: 0 }}>
-                    <img
-                      src={artifactUrl(id, `previews/${d.unit_id}.preview.jpg`)}
-                      alt={d.unit_id}
-                      width={160}
-                      onError={(e) => ((e.target as HTMLImageElement).style.display = 'none')}
-                    />
-                    <figcaption><small>{d.unit_id} ({(d.detections ?? []).length})</small></figcaption>
-                  </figure>
-                ))}
-              </div>
-            </>
-          )}
-        </section>
+        <Card title="Summary">
+          <div className="eo-stats-row">
+            <StatTile label="FPS" value={num(summary, 'fps_effective') ?? '—'} />
+            <StatTile label="Latencia p50" value={num(summary, 'p50_latency_ms') ?? '—'} unit="ms" />
+            <StatTile label="Detecciones" value={num(summary, 'total_detections') ?? '—'} />
+            <StatTile label="Duración" value={num(summary, 'duration_seconds') ?? '—'} unit="s" />
+          </div>
+          <dl className="eo-deflist">
+            <div>
+              <dt>modelo</dt>
+              <dd>
+                {str(summary, 'model_name') ?? '—'} ({str(summary, 'device') ?? '—'})
+              </dd>
+            </div>
+            <div>
+              <dt>prompts</dt>
+              <dd>{str(summary, 'prompt_set_id') ?? '—'}</dd>
+            </div>
+            <div>
+              <dt>unidades</dt>
+              <dd>{num(summary, 'units_processed') ?? '—'}</dd>
+            </div>
+            <div>
+              <dt>p95</dt>
+              <dd>{num(summary, 'p95_latency_ms') ?? '—'} ms</dd>
+            </div>
+            <div>
+              <dt>por label</dt>
+              <dd>
+                {labelCounts(summary).length > 0 ? (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-1)' }}>
+                    {labelCounts(summary).map(([k, v]) => (
+                      <DetChip key={k} label={k} count={v} />
+                    ))}
+                  </div>
+                ) : (
+                  '—'
+                )}
+              </dd>
+            </div>
+          </dl>
+        </Card>
       )}
+      {!running && run.summary && hasVideo && (
+        <Card title="Artefactos">
+          <video controls width={640} src={artifactUrl(id, 'annotated.mp4')} />
+        </Card>
+      )}
+      {/* key={id}: remonta la sección al navegar run→run — sin esto el `page`
+          interno quedaría apuntando a una página que el run nuevo quizás no tiene */}
+      {!running && <TraceSection key={id} runId={id} />}
       {!running && (
         <EvalSection runId={id} benchSplit={run.bench_split} evaluated={run.evaluated} />
       )}

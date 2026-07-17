@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { isLive, topologyBadge } from '../runview'
+import { isLive, isRunning, runStatusLabel, runStatusTone, topologyBadge } from '../runview'
 
 describe('isLive', () => {
   it('true solo cuando running y live', () => {
@@ -24,5 +24,39 @@ describe('topologyBadge', () => {
   it('sin descriptor → null', () => {
     expect(topologyBadge({})).toBeNull()
     expect(topologyBadge(undefined)).toBeNull()
+  })
+})
+
+describe('isRunning', () => {
+  it('true para cualquier running, incluso sin live (two-node externo)', () => {
+    expect(isRunning({ status: 'running' })).toBe(true)
+  })
+  it('false para terminados', () => {
+    expect(isRunning({ status: 'succeeded' })).toBe(false)
+    expect(isRunning({ status: 'failed' })).toBe(false)
+  })
+  it('no es isLive: isRunning no exige live=true', () => {
+    const externo = { status: 'running' as const }
+    expect(isRunning(externo)).toBe(true)
+    expect(isLive(externo)).toBe(false)
+  })
+})
+
+describe('runStatusTone / runStatusLabel', () => {
+  it('running es live', () => {
+    expect(runStatusTone({ status: 'running' })).toBe('live')
+    expect(runStatusLabel({ status: 'running' })).toBe('vivo')
+  })
+  it('succeeded es ok', () => {
+    expect(runStatusTone({ status: 'succeeded' })).toBe('ok')
+    expect(runStatusLabel({ status: 'succeeded' })).toBe('OK')
+  })
+  it('failed es error', () => {
+    expect(runStatusTone({ status: 'failed' })).toBe('error')
+    expect(runStatusLabel({ status: 'failed' })).toBe('fallo')
+  })
+  it('desconocido cae a neutral y muestra el status crudo', () => {
+    expect(runStatusTone({ status: 'weird' })).toBe('neutral')
+    expect(runStatusLabel({ status: 'weird' })).toBe('weird')
   })
 })

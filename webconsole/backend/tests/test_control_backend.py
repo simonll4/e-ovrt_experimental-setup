@@ -71,6 +71,61 @@ async def test_alerts_y_config(control_backend):
     assert "effective_config" in config
 
 
+async def test_control_lookup_and_readers(control_backend):
+    backend, state = control_backend
+    state.runs_index = [
+        {"control_run_id": "ctrl-a", "status": "succeeded", "started_at": "2026-07-17T00:00:00+00:00",
+         "alerts_count": 1, "media_run_id": "media-1"},
+        {"control_run_id": "ctrl-b", "status": "succeeded", "started_at": "2026-07-17T00:00:00+00:00",
+         "alerts_count": 0, "media_run_id": "media-2"},
+    ]
+    state.pattern_progress["ctrl-a"] = [
+        {"progress": 0.5, "condition_id": "CR-01", "frame_index": 3},
+    ]
+    state.received_units["ctrl-a"] = [{"unit_id": "u0"}, {"unit_id": "u1"}]
+
+    runs = await backend.list_runs(media_run_id="media-1")
+    assert runs[0]["control_run_id"] == "ctrl-a"
+
+    prog = await backend.pattern_progress("ctrl-a")
+    assert prog[0]["progress"] == 0.5
+
+    units = await backend.received_units("ctrl-a")
+    assert [u["unit_id"] for u in units] == ["u0", "u1"]
+
+
+async def test_list_runs_sin_media_run_id_devuelve_todo(control_backend):
+    backend, state = control_backend
+    state.runs_index = [
+        {"control_run_id": "ctrl-a", "status": "succeeded", "started_at": "2026-07-17T00:00:00+00:00",
+         "alerts_count": 1, "media_run_id": "media-1"},
+    ]
+    runs = await backend.list_runs()
+    assert len(runs) == 1
+
+
+async def test_list_runs_sin_match_devuelve_vacio(control_backend):
+    backend, state = control_backend
+    state.runs_index = [
+        {"control_run_id": "ctrl-a", "status": "succeeded", "started_at": "2026-07-17T00:00:00+00:00",
+         "alerts_count": 1, "media_run_id": "media-1"},
+    ]
+    runs = await backend.list_runs(media_run_id="media-desconocido")
+    assert runs == []
+
+
+async def test_pattern_progress_desconocido(control_backend):
+    backend, _ = control_backend
+    with pytest.raises(UnknownRun):
+        await backend.pattern_progress("nope")
+
+
+async def test_received_units_desconocido(control_backend):
+    backend, _ = control_backend
+    with pytest.raises(UnknownRun):
+        await backend.received_units("nope")
+
+
 async def test_servicio_caido():
     def _down(request: httpx.Request) -> httpx.Response:
         raise httpx.ConnectError("down", request=request)

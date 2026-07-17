@@ -1,9 +1,7 @@
 import { useEffect, useState } from 'react'
-import type { CSSProperties } from 'react'
 import { ApiError, activateInstance, getInstances, stopPlatform } from '../api'
 import type { PlatformInstance } from '../types'
-
-const CELL: CSSProperties = { padding: '4px 10px', borderBottom: '1px solid #ddd' }
+import { Badge, ErrorBanner } from '../components/ui'
 
 function errorMessage(e: unknown): string {
   if (e instanceof ApiError) {
@@ -71,10 +69,10 @@ export default function PlatformPage() {
         plataforma con <code>infra/platform/</code> (define <code>EOVRT_CONSOLE_COMPOSE_DIR</code>).
       </p>
     )
-  if (error && !rows) return <p style={{ color: '#b00' }}>Error: {error}</p>
-  if (!rows) return <p>Cargando…</p>
+  if (error && !rows) return <ErrorBanner>Error: {error}</ErrorBanner>
+  if (!rows) return <p className="eo-empty">Cargando…</p>
   return (
-    <div style={{ display: 'grid', gap: 16 }}>
+    <div style={{ display: 'grid', gap: 'var(--space-4)' }}>
       <h2>Plataforma — instancias del servicio</h2>
       <p>
         <small>
@@ -82,35 +80,35 @@ export default function PlatformPage() {
           modelo cargue (puede tardar minutos).
         </small>
       </p>
-      {error && <p style={{ color: '#b00' }}>{error}</p>}
-      <table style={{ borderCollapse: 'collapse', maxWidth: 760 }}>
+      {error && <ErrorBanner>{error}</ErrorBanner>}
+      <table className="eo-table" style={{ maxWidth: 760 }}>
         <thead>
           <tr>
             {['instancia', 'modelo', 'estado', 'ready', '', ''].map((h, i) => (
-              <th key={i} style={{ ...CELL, textAlign: 'left', background: '#f5f5f5' }}>{h}</th>
+              <th key={i}>{h}</th>
             ))}
           </tr>
         </thead>
         <tbody>
           {rows.map((r) => (
             <tr key={r.name}>
-              <td style={CELL}>{r.name}</td>
-              <td style={CELL}>{r.model_ref}</td>
-              <td style={CELL}>
-                {busy === r.name ? 'activando…' : r.state}
-                {r.is_target && (
-                  <b style={{ marginLeft: 8, color: '#080' }}>TARGET</b>
-                )}
+              <td>{r.name}</td>
+              <td>{r.model_ref}</td>
+              <td>
+                <span className="eo-inline">
+                  {busy === r.name ? 'activando…' : r.state}
+                  {r.is_target && <Badge tone="ok">TARGET</Badge>}
+                </span>
               </td>
-              <td style={CELL}>{r.ready ? '✓' : '—'}</td>
-              <td style={CELL}>
+              <td>{r.ready ? '✓' : '—'}</td>
+              <td>
                 {!r.is_target && (
                   <button onClick={() => activate(r.name)} disabled={busy !== null}>
                     {busy === r.name ? 'Activando…' : 'Activar'}
                   </button>
                 )}
               </td>
-              <td style={CELL}>
+              <td>
                 {r.is_target && (
                   <button onClick={stop} disabled={busy !== null}>Apagar</button>
                 )}

@@ -2,7 +2,7 @@ import type {
   CompareResult, Composition, DatasetEntry, DetectionsPage, EvalResult, Experiment,
   ExperimentAlert, ExperimentManifestSummary, ExperimentReport, ExperimentRunState, FieldError,
   IngestPlugin, PlatformInstance, PromptSet, PromptSetDetail, PromptSetSummary, RunDetail, RunRow,
-  TargetStatus,
+  TargetStatus, TracePage,
 } from './types'
 
 export class ApiError extends Error {
@@ -135,3 +135,9 @@ export const derivePromptSet = (id: string, newId: string, changes: string) =>
     method: 'POST',
     body: JSON.stringify({ new_id: newId, changes }),
   })
+
+export const getTrace = (id: string, page = 1, pageSize = 50, controlRunId?: string) => {
+  const params = new URLSearchParams({ page: String(page), page_size: String(pageSize) })
+  if (controlRunId) params.set('control_run_id', controlRunId)
+  return request<TracePage>(`/api/runs/${encodeURIComponent(id)}/trace?${params.toString()}`)
+}

@@ -65,7 +65,14 @@ EVAL_RESULT = {
     "model": "mock",
     "bench_split": "bench_v2_test",
 }
-DETECTIONS = [{"unit_id": f"u{i}", "detections": [{"label": "person"}]} for i in range(5)]
+DETECTIONS = [
+    {
+        "unit_id": f"u{i}",
+        "source": {"frame_index": i, "timestamp_ms": float(i) * 100.0},
+        "detections": [{"label": "person"}],
+    }
+    for i in range(5)
+]
 ARTIFACTS = {"summary.json": b'{"status": "succeeded"}', "previews/u0.preview.jpg": b"JPEGDATA"}
 DEFAULT_STREAM_EVENTS = [
     {"type": "metric", "unit_id": "u0", "fps": 1.0, "latency_total_ms": 100.0,
@@ -89,6 +96,7 @@ class FakeState:
         self.send_malformed: bool = False
         self.eval_results: dict[str, dict] = {}
         self.evaluate_not_bench: bool = False
+        self.dropped: dict[str, list[dict]] = {}
         # Stream que acepta y queda en silencio (nunca envía ni cierra): sirve
         # para verificar que el proxy detecta la desconexión del SPA aunque el
         # upstream esté callado. `upstream_closed` se activa cuando el proxy
@@ -224,6 +232,17 @@ def make_fake_service(state: FakeState) -> FastAPI:
         start = (page - 1) * page_size
         items = DETECTIONS[start : start + page_size]
         return {"page": page, "page_size": page_size, "total": len(DETECTIONS), "items": items}
+
+    @app.get("/api/runs/{run_id}/dropped")
+    def dropped(run_id: str, page: int = Query(1, ge=1), page_size: int = Query(100, ge=1, le=1000)):
+        if not state.ready:
+            return JSONResponse(status_code=503, content={"detail": "Servicio no listo (modelo no cargado)"})
+        if run_id not in state.dropped:
+            return JSONResponse(status_code=404, content={"detail": f"Run desconocido: {run_id}"})
+        items_all = state.dropped[run_id]
+        start = (page - 1) * page_size
+        items = items_all[start : start + page_size]
+        return {"page": page, "page_size": page_size, "total": len(items_all), "items": items}
 
     @app.get("/api/runs/{run_id}/artifacts/{artifact_path:path}")
     def artifact(run_id: str, artifact_path: str):

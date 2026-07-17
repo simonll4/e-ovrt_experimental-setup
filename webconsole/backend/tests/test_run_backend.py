@@ -141,3 +141,18 @@ async def test_get_evaluation_404_y_ok(backend, state):
     await backend.evaluate("run_done_1")
     result = await backend.get_evaluation("run_done_1")
     assert result["cr01_detection_recall"] == 0.64
+
+
+async def test_dropped_passthrough(backend, state):
+    state.dropped["run-1"] = [
+        {"reason": "queue_full", "unit_id": "u0", "frame_index": 0},
+        {"reason": "queue_full", "unit_id": "u1", "frame_index": 1},
+        {"reason": "backpressure", "unit_id": "u2", "frame_index": 2},
+    ]
+    result = await backend.dropped("run-1", page=1, page_size=2)
+    assert result["total"] == 3 and len(result["items"]) == 2
+
+
+async def test_dropped_desconocido(backend):
+    with pytest.raises(UnknownRun):
+        await backend.dropped("nope")

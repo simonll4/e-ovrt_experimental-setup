@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { getDatasets, getIngestPlugins, getPromptSets } from '../api'
+import { Card, EmptyState } from '../components/ui'
 import type { DatasetEntry, IngestPlugin, PromptSet } from '../types'
 import { useTarget } from '../useTarget'
 
@@ -21,58 +22,97 @@ export default function CatalogPage() {
     }
   }, [modelRef])
   return (
-    <div style={{ display: 'grid', gap: 24 }}>
-      <section>
-        <h2>Modelo del target (read-only)</h2>
+    <div style={{ display: 'grid', gap: 'var(--space-1)' }}>
+      <Card title="Modelo del target (read-only)">
         {target?.model ? (
-          <ul>
-            <li><b>{target.model.ref}</b> — adapter {target.model.adapter}, device {target.model.device}</li>
-            <li>
-              thresholds:{' '}
-              {Object.entries(target.model.thresholds)
-                .filter(([, v]) => v != null)
-                .map(([k, v]) => `${k}=${v}`)
-                .join(', ') || '—'}
-              {' '}<em>(fijos por instancia; cambiar de modelo = otra instancia)</em>
-            </li>
-          </ul>
+          <table className="eo-table">
+            <thead>
+              <tr><th>ref</th><th>adapter</th><th>device</th><th>thresholds</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>{target.model.ref}</td>
+                <td>{target.model.adapter}</td>
+                <td>{target.model.device}</td>
+                <td>
+                  {Object.entries(target.model.thresholds)
+                    .filter(([, v]) => v != null)
+                    .map(([k, v]) => `${k}=${v}`)
+                    .join(', ') || '—'}
+                </td>
+              </tr>
+            </tbody>
+          </table>
         ) : (
-          <p>Servicio no listo.</p>
+          <EmptyState>Servicio no listo.</EmptyState>
         )}
-      </section>
-      <section>
-        <h2>Plugins de ingesta</h2>
-        <ul>
-          {plugins.map((p) => (
-            <li key={p.id}>
-              <b>{p.id}</b> ({p.kind}) — {p.description}{' '}
-              {!p.available && <em>[no disponible]</em>}
-              {p.available && !p.enabled && <em>[no soportado]</em>}
-            </li>
-          ))}
-        </ul>
-      </section>
-      <section>
-        <h2>Datasets</h2>
-        <ul>
-          {datasets.map((d) => (
-            <li key={d.id}>
-              <b>{d.id}</b> — {d.description} {!d.available && <em>[no montado]</em>}
-            </li>
-          ))}
-        </ul>
-      </section>
-      <section>
-        <h2>Prompt sets (in-repo)</h2>
-        <ul>
-          {sets.map((s) => (
-            <li key={s.id}>
-              <b>{s.id}</b> {s.frozen && <em>[congelado]</em>} —{' '}
-              {s.classes.map((c) => c.id).join(', ')}
-            </li>
-          ))}
-        </ul>
-      </section>
+        {target?.model && <small>(fijos por instancia; cambiar de modelo = otra instancia)</small>}
+      </Card>
+      <Card title="Plugins de ingesta">
+        {plugins.length === 0 ? (
+          <EmptyState>Sin plugins de ingesta.</EmptyState>
+        ) : (
+          <table className="eo-table">
+            <thead>
+              <tr><th>id</th><th>kind</th><th>descripción</th><th>estado</th></tr>
+            </thead>
+            <tbody>
+              {plugins.map((p) => (
+                <tr key={p.id}>
+                  <td>{p.id}</td>
+                  <td>{p.kind}</td>
+                  <td>{p.description}</td>
+                  <td>
+                    {!p.available && <em>no disponible</em>}
+                    {p.available && !p.enabled && <em>no soportado</em>}
+                    {p.available && p.enabled && '—'}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </Card>
+      <Card title="Datasets">
+        {datasets.length === 0 ? (
+          <EmptyState>Sin datasets disponibles.</EmptyState>
+        ) : (
+          <table className="eo-table">
+            <thead>
+              <tr><th>id</th><th>descripción</th><th>estado</th></tr>
+            </thead>
+            <tbody>
+              {datasets.map((d) => (
+                <tr key={d.id}>
+                  <td>{d.id}</td>
+                  <td>{d.description}</td>
+                  <td>{!d.available ? <em>no montado</em> : '—'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </Card>
+      <Card title="Prompt sets (in-repo)">
+        {sets.length === 0 ? (
+          <EmptyState>Sin prompt sets.</EmptyState>
+        ) : (
+          <table className="eo-table">
+            <thead>
+              <tr><th>id</th><th>estado</th><th>clases</th></tr>
+            </thead>
+            <tbody>
+              {sets.map((s) => (
+                <tr key={s.id}>
+                  <td>{s.id}</td>
+                  <td>{s.frozen ? <em>congelado</em> : '—'}</td>
+                  <td>{s.classes.map((c) => c.id).join(', ')}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </Card>
     </div>
   )
 }
