@@ -1,7 +1,8 @@
 import type {
   CompareResult, Composition, DatasetEntry, DetectionsPage, EvalResult, Experiment,
   ExperimentAlert, ExperimentManifestSummary, ExperimentReport, ExperimentRunState, FieldError,
-  IngestPlugin, PlatformInstance, PromptSet, RunDetail, RunRow, TargetStatus,
+  IngestPlugin, PlatformInstance, PromptSet, PromptSetDetail, PromptSetSummary, RunDetail, RunRow,
+  TargetStatus,
 } from './types'
 
 export class ApiError extends Error {
@@ -27,6 +28,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     }
     throw new ApiError(response.status, payload)
   }
+  if (response.status === 204) return undefined as T
   return (await response.json()) as T
 }
 
@@ -107,3 +109,29 @@ export const getExperimentAlerts = (id: string) =>
   request<ExperimentAlert[]>(`/api/experiments/${encodeURIComponent(id)}/alerts`)
 export const getExperimentReport = (id: string) =>
   request<ExperimentReport>(`/api/experiments/${encodeURIComponent(id)}/report`)
+
+export const listPromptSets = () => request<PromptSetSummary[]>('/api/prompt-sets')
+export const getPromptSetDetail = (id: string) =>
+  request<PromptSetDetail>(`/api/prompt-sets/${encodeURIComponent(id)}`)
+export const createPromptSet = (set: PromptSetDetail) =>
+  request<PromptSetDetail>('/api/prompt-sets', { method: 'POST', body: JSON.stringify(set) })
+export const updatePromptSet = (id: string, set: PromptSetDetail) =>
+  request<PromptSetDetail>(`/api/prompt-sets/${encodeURIComponent(id)}`, {
+    method: 'PUT',
+    body: JSON.stringify(set),
+  })
+export const deletePromptSet = (id: string) =>
+  request<void>(`/api/prompt-sets/${encodeURIComponent(id)}`, { method: 'DELETE' })
+export const requestFreeze = (id: string) =>
+  request<PromptSetDetail>(`/api/prompt-sets/${encodeURIComponent(id)}/freeze-request`, {
+    method: 'POST',
+  })
+export const confirmFreeze = (id: string) =>
+  request<PromptSetDetail>(`/api/prompt-sets/${encodeURIComponent(id)}/freeze`, {
+    method: 'POST',
+  })
+export const derivePromptSet = (id: string, newId: string, changes: string) =>
+  request<PromptSetDetail>(`/api/prompt-sets/${encodeURIComponent(id)}/derive`, {
+    method: 'POST',
+    body: JSON.stringify({ new_id: newId, changes }),
+  })

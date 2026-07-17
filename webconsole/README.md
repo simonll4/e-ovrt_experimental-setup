@@ -36,3 +36,39 @@ Requiere el servicio media-plane corriendo (p.ej. `EOVRT_MODEL_REF=mock make ser
 en `../e-ovrt_media-plane`). Env vars: `EOVRT_CONSOLE_SERVICE_URL`,
 `EOVRT_CONSOLE_REPO_ROOT` (default: autodescubierto), `EOVRT_CONSOLE_FROZEN_SETS`
 (default `cr01_cr02_bench_v2`).
+
+## Gestión de prompt sets
+
+La vista `/prompts` lista y edita los prompt sets del repo (`prompts/*.yaml`) sin salir
+de la consola: alta, edición, freeze con confirmación en dos pasos y derivación de un
+set nuevo a partir de uno existente. El BFF expone el ciclo de vida completo en
+`/api/prompt-sets`:
+
+- `GET /api/prompt-sets` — lista todos los sets con `status`/`track`/conteos.
+- `GET /api/prompt-sets/{set_id}` — detalle completo, incluye `frozen_sha256` si aplica.
+- `POST /api/prompt-sets` — crea un set nuevo (`exploratory` por defecto).
+- `PUT /api/prompt-sets/{set_id}` — actualiza un set no congelado.
+- `DELETE /api/prompt-sets/{set_id}` — borra un set no congelado.
+- `POST /api/prompt-sets/{set_id}/freeze-request` — pasa a `frozen_pending_review`.
+- `POST /api/prompt-sets/{set_id}/freeze` — confirma el freeze, calcula y persiste
+  `frozen_sha256`.
+- `POST /api/prompt-sets/{set_id}/derive` — crea un set nuevo (`exploratory`) a partir de
+  uno existente, con `derives_from` apuntando al origen.
+
+Tres garantías, no negociables:
+
+1. **Validación de schema**: todo alta/edición pasa por un espejo Pydantic del schema de
+   prompt set (clases, phrasings, campos de lifecycle); un payload inválido devuelve 422
+   con el detalle de qué campo falló, nunca se escribe a disco a medias.
+2. **Inmutabilidad de los sets `frozen` por hash**: un set congelado no se puede editar ni
+   borrar; `freeze` calcula `frozen_sha256` sobre las clases y lo persiste junto al set —
+   cualquier intento de modificar un frozen es un 409, y el hash permite verificar en
+   cualquier momento que el contenido no cambió desde el freeze.
+3. **Transiciones de estado solo por acciones explícitas**: no hay edición implícita de
+   `status`; se pasa de `exploratory` a `frozen` únicamente vía `freeze-request` →
+   `freeze` (dos pasos, con revisión humana en el medio), y de un set existente a uno
+   nuevo únicamente vía `derive`.
+
+La consola nunca commitea: todos los cambios (crear, editar, borrar, freeze, derive)
+quedan como working tree del repo — para revisión y `git commit` del usuario, no
+automático.

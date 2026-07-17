@@ -24,6 +24,11 @@ prompt_set:
   id: <nombre>                  # == nombre de archivo (sin .yaml); lo referencia prompts.ref
   description: "..."
   language: en
+  status: exploratory       # exploratory | frozen_pending_review | frozen (ver docs/prompt-strategy.md)
+  track: core               # core | demo (demo = carril demostrativo, fuera del protocolo comparativo)
+  derives_from: <id>        # opcional: set del que deriva (lineage)
+  changes: "..."            # opcional: qué cambió respecto de derives_from y por qué
+  frozen_sha256: "<hex>"    # solo en frozen: sha256 del bloque classes (lo calcula la webconsole al congelar)
   classes:
     - id: helmet                # identidad estable del prompt → Detection.prompt_id
       canonical: helmet         # clase de evaluación (canonical_v2); opcional, default = id
@@ -46,8 +51,11 @@ prompt_set:
   para una clase activa, es **error de validación**. Una entrada presente pero **vacía** (`gdino: []`)
   también es error (no cae silenciosamente a `default`).
 - `strategy` / `condition_id`: **solo provenance** — se propagan a `detections.jsonl` pero el
-  media-plane **no** ramifica lógica sobre ellos (eso es del plano de control). `strategy` etiqueta la
-  estrategia de fraseo (`positive_evidence`, `direct_absence`, …); `condition_id` traza a CR-01..06.
+  media-plane **no** ramifica lógica sobre ellos (eso es del plano de control). Los valores de
+  `strategy` son la taxonomía de ejes de [`docs/prompt-strategy.md`](prompt-strategy.md):
+  `canonical_positive`, `syntactic_negation`, `specificity`, `observable_state`,
+  `presence_template`; `positive_evidence`/`direct_absence` son históricos, solo en sets frozen
+  retro-etiquetados. `condition_id` traza a CR-01..06.
 
 ## 3. Cómo se consumen (en el media-plane)
 
@@ -68,17 +76,23 @@ Resultado: cada detección sale ligada por construcción (`label` canónico + `p
 
 | Set | Estado | Clases | Notas |
 |---|---|---|---|
-| `cr01_cr02_v2_short` | **congelado** | person, helmet, vest | Etiquetas cortas v2 (mejor activación de YOLOE/CLIP que las frases compuestas de v1). Solo `phrasings.default`. |
-| `cr01_cr02_bench_v2` | **congelado** | person, helmet, vest, **bare_head** | Set de evaluación BENCH v2. `bare_head` (`role: visual_risk_indicator`) para cabeza sin casco. **NO modificar** — reproducibilidad del BENCH. |
-| `ppe_v2_descriptive` | **no congelado** | person, helmet, vest, bare_head | Fraseo descriptivo por backend para A/B contra los congelados: `gdino` con sinónimos cortos (`hard hat`/`safety helmet`, `reflective vest`/`high-visibility vest`, `bare head`/`uncovered head`), `yoloe` nominal. `strategy: positive_evidence`, `condition_id` CR-01/CR-02. |
+| `cr01_cr02_v2_short` | `frozen` | person, helmet, vest | Etiquetas cortas v2 (mejor activación de YOLOE/CLIP que las frases compuestas de v1). Solo `phrasings.default`. Retro-etiquetado. |
+| `cr01_cr02_bench_v2` | `frozen` | person, helmet, vest, **bare_head** | Set de evaluación BENCH v2. `bare_head` (`role: visual_risk_indicator`) para cabeza sin casco. **NO modificar** — reproducibilidad del BENCH. Retro-etiquetado. |
+| `eind_v1` | `frozen_pending_review` | person, helmet, vest | Carril 1 (núcleo): vocabulario positivo canónico, `canonical_positive`, phrasings idénticos ambos backends. Deriva de `cr01_cr02_v2_short`. |
+| `ppe_v2_descriptive` | `exploratory` | person, helmet, vest, bare_head | Fraseo descriptivo por backend para A/B contra los congelados: `gdino` con sinónimos cortos (`hard hat`/`safety helmet`, `reflective vest`/`high-visibility vest`, `bare head`/`uncovered head`), `yoloe` nominal. `strategy` migrado a la taxonomía de ejes. |
+| `edir_exp_cr01_candidates` | `exploratory` | según CR-01 | Carril 2: candidatas por eje para CR-01, corridas rápidas sobre la mitad calib del BENCH. |
+| `edir_exp_cr02_candidates` | `exploratory` | según CR-02 | Carril 2: candidatas por eje para CR-02, ídem. |
+| `edir_exp_weak_classes` | `exploratory` | bare_head, vest | Carril 2: rescate de clases débiles (Sprint 2) con sinónimos dentro de `observable_state`/`specificity`. Deriva de `cr01_cr02_bench_v2`. |
 
 ### Congelado vs experimental
-- **Congelados (`cr01_cr02_*`)**: sus frases son byte-equivalentes a las del protocolo v2. No se
-  tocan; cualquier cambio rompería la comparabilidad histórica del BENCH.
-- **Experimentales (`ppe_v2_descriptive`, nuevos)**: acá se itera el fraseo. Para A/B, correr el mismo
-  modelo/split con el set congelado y con el experimental, y comparar con
-  `python -m eovrt_media.tools.inspect_runs compare runs/` (desde el media-plane) / el
-  `evaluate_bench.py` del repo `e-ovrt_datasets`.
+
+Detalle del ciclo de vida (estados, `frozen_sha256`, lineage, regla de promoción, programa de
+estudios en tres carriles): [`docs/prompt-strategy.md`](prompt-strategy.md). En síntesis: los
+`frozen` (`cr01_cr02_*`) son byte-equivalentes al protocolo v2 y no se tocan — cualquier cambio
+rompería la comparabilidad histórica del BENCH. En los `exploratory` se itera el fraseo; para
+A/B, correr el mismo modelo/split con el set frozen y con el exploratorio, y comparar con
+`python -m eovrt_media.tools.inspect_runs compare runs/` (desde el media-plane) / el
+`evaluate_bench.py` del repo `e-ovrt_datasets`.
 
 ## 5. Guía de fraseo (respaldada por investigación)
 
@@ -94,6 +108,13 @@ prompts):
   (FG-OVD). No es un problema del set sino de la **evaluación**: medir con/sin negativos.
 
 ## 6. Agregar un prompt set
+
+La vía recomendada es la **webconsole**: valida el schema al guardar y aplica el ciclo de vida
+declarativo (transiciones de `status` solo por acción explícita, `frozen_sha256` calculado al
+congelar, `derives_from` auto-completado al derivar). Ver
+[`docs/prompt-strategy.md`](prompt-strategy.md) §5.
+
+Editar a mano sigue siendo válido para sets `exploratory`:
 
 1. Copiá un set existente en `prompts/<nuevo>.yaml`, ajustá `id` (== nombre de archivo) y `classes`.
 2. Mantené los `canonical` dentro de canonical_v2 si vas a evaluar contra el BENCH; usá otros `id`/

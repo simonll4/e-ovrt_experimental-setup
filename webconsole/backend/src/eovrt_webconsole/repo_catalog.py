@@ -28,7 +28,11 @@ def list_prompt_sets(prompts_dir: Path, frozen_ids: frozenset[str]) -> list[dict
                 "id": prompt_set["id"],
                 "description": prompt_set.get("description"),
                 "language": prompt_set.get("language"),
-                "frozen": prompt_set["id"] in frozen_ids,
+                "status": prompt_set.get("status", "exploratory"),
+                "track": prompt_set.get("track"),
+                "frozen": (
+                    prompt_set.get("status") == "frozen" or prompt_set["id"] in frozen_ids
+                ),
                 "classes": [
                     {
                         "id": c.get("id"),

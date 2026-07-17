@@ -6,6 +6,9 @@ prompt_set:
     de v1 ("safety helmet", "high visibility safety vest").
     Derivado del diagnóstico P-E1 sobre dataset_v1 (2026-06-10).
   language: en
+  status: frozen            # retro-etiquetado 2026-07-17 (spec prompt-strategy §2.1)
+  track: core
+  frozen_sha256: "95f0c4284a90364e2aa3044b7c2a14f0293eea5624d64446f6270aeea9c9a495"
   classes:
     - id: person
       role: entity

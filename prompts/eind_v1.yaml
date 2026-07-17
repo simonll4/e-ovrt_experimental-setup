@@ -1,0 +1,29 @@
+prompt_set:
+  id: eind_v1
+  description: >
+    Set del núcleo E-IND (ADR-001, doc 12 §2.1): vocabulario positivo canónico
+    (canonical_v2 sin bare_head), etiquetas nominales, phrasings idénticos para
+    ambos backends (pista doble GDINO-tiny/YOLOE-26s, enmienda doc 12 §3).
+    La Fase 1 de E-IND se puntúa sin re-inferir (reusa Sprint 2).
+  language: en
+  status: frozen_pending_review
+  track: core
+  derives_from: cr01_cr02_v2_short
+  changes: >
+    Mismo vocabulario de 3 clases que cr01_cr02_v2_short; explicita
+    strategy canonical_positive, condition_id y phrasings por backend.
+  classes:
+    - id: person
+      role: entity
+      strategy: canonical_positive
+      phrasings: { default: ["person"], gdino: ["person"], yoloe: ["person"] }
+    - id: helmet
+      role: ppe
+      strategy: canonical_positive
+      condition_id: CR-01
+      phrasings: { default: ["helmet"], gdino: ["helmet"], yoloe: ["helmet"] }
+    - id: vest
+      role: ppe
+      strategy: canonical_positive
+      condition_id: CR-02
+      phrasings: { default: ["vest"], gdino: ["vest"], yoloe: ["vest"] }

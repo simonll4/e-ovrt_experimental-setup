@@ -1,0 +1,51 @@
+prompt_set:
+  id: edir_exp_cr02_candidates
+  description: >
+    Candidatas E-DIR para CR-02 (sin chaleco), 2-3 por eje de la Tabla C.1
+    (doc 12 §2.2), análogas a las de CR-01. Exploratorio (ver
+    edir_exp_cr01_candidates para el flujo hacia edir_v1).
+  language: en
+  status: exploratory
+  track: core
+  changes: "Set inicial de candidatas; análogo CR-02 de la Tabla C.1."
+  classes:
+    - id: cr02_neg_without_vest
+      canonical: person
+      strategy: syntactic_negation
+      condition_id: CR-02
+      phrasings: { default: ["person without safety vest"] }
+    - id: cr02_neg_not_wearing_vest
+      canonical: person
+      strategy: syntactic_negation
+      condition_id: CR-02
+      phrasings: { default: ["person not wearing a reflective vest"] }
+    - id: cr02_spec_construction_worker
+      canonical: person
+      strategy: specificity
+      condition_id: CR-02
+      phrasings: { default: ["construction worker without reflective vest"] }
+    - id: cr02_spec_worker_site
+      canonical: person
+      strategy: specificity
+      condition_id: CR-02
+      phrasings: { default: ["worker on construction site without high-visibility vest"] }
+    - id: cr02_state_no_bright_clothing
+      canonical: person
+      strategy: observable_state
+      condition_id: CR-02
+      phrasings: { default: ["person without bright colored safety clothing"] }
+    - id: cr02_state_dark_clothing
+      canonical: person
+      strategy: observable_state
+      condition_id: CR-02
+      phrasings: { default: ["worker in plain dark clothing"] }
+    - id: cr02_tmpl_safety_vest
+      canonical: vest
+      strategy: presence_template
+      condition_id: CR-02
+      phrasings: { default: ["a photo of a safety vest"] }
+    - id: cr02_tmpl_hivis_vest
+      canonical: vest
+      strategy: presence_template
+      condition_id: CR-02
+      phrasings: { default: ["a photo of a high-visibility vest"] }

@@ -24,6 +24,37 @@ export interface PromptSet {
   language: string | null
   frozen: boolean
   classes: PromptClass[]
+  status?: string
+  track?: string | null
+}
+export interface PromptClassSpec {
+  id: string
+  canonical?: string | null
+  role?: string | null
+  strategy?: string | null
+  condition_id?: string | null
+  enabled_by_default?: boolean
+  phrasings: Record<string, string[]>
+}
+export interface PromptSetSummary {
+  id: string
+  description?: string | null
+  status: string
+  track?: string | null
+  derives_from?: string | null
+  n_classes: number
+  n_phrases: number
+}
+export interface PromptSetDetail {
+  id: string
+  description?: string | null
+  language?: string | null
+  status?: string
+  track?: string | null
+  derives_from?: string | null
+  changes?: string | null
+  frozen_sha256?: string | null
+  classes: PromptClassSpec[]
 }
 export interface Experiment {
   id: string

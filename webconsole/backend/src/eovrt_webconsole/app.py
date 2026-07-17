@@ -18,6 +18,7 @@ from eovrt_webconsole.routers import (
     manifests,
     meta,
     platform,
+    prompts,
     runs,
     stream,
 )
@@ -78,6 +79,7 @@ def create_app(
     app.include_router(manifests.router)
     app.include_router(experiments.router)
     app.include_router(platform.router)
+    app.include_router(prompts.router)
 
     frontend_dist = settings.spa_dist or (settings.repo_root / "webconsole" / "frontend" / "dist")
     if frontend_dist.is_dir():

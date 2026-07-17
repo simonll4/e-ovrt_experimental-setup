@@ -1,0 +1,39 @@
+prompt_set:
+  id: edir_exp_weak_classes
+  description: >
+    Rescate de clases débiles (Sprint 2: bare_head débil en todos los modelos;
+    vest débil en YOLOE). Sinónimos dentro de los ejes observable_state /
+    specificity, con fraseo por backend. Exploratorio: A/B contra
+    cr01_cr02_bench_v2 sobre la mitad calib; las frases ganadoras informan
+    edir_v1 y quedan registradas en el lineage.
+  language: en
+  status: exploratory
+  track: core
+  derives_from: cr01_cr02_bench_v2
+  changes: "Variantes de fraseo SOLO para bare_head y vest; person/helmet nominales como ancla."
+  classes:
+    - id: person
+      role: entity
+      strategy: canonical_positive
+      phrasings: { default: ["person"] }
+    - id: helmet
+      role: ppe
+      strategy: canonical_positive
+      condition_id: CR-01
+      phrasings: { default: ["helmet"] }
+    - id: bare_head
+      role: visual_risk_indicator
+      strategy: observable_state
+      condition_id: CR-01
+      phrasings:
+        default: ["bare head"]
+        gdino: ["bare head", "uncovered head", "exposed head without helmet"]
+        yoloe: ["bare head", "uncovered head"]
+    - id: vest
+      role: ppe
+      strategy: canonical_positive
+      condition_id: CR-02
+      phrasings:
+        default: ["vest"]
+        gdino: ["safety vest", "reflective vest"]
+        yoloe: ["vest", "safety vest", "hi-vis vest"]

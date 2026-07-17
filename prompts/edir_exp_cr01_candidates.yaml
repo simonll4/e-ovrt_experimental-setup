@@ -1,0 +1,53 @@
+prompt_set:
+  id: edir_exp_cr01_candidates
+  description: >
+    Candidatas E-DIR para CR-01 (sin casco), 2-3 por eje de la Tabla C.1
+    (doc 12 §2.2). Exploratorio: corridas rápidas sobre la mitad calib del
+    BENCH; las finalistas (una por eje, por datos + revisión del usuario)
+    alimentan edir_v1. Los templates son de presencia: solo diagnóstico
+    sintáctico, nunca evidencia de ausencia.
+  language: en
+  status: exploratory
+  track: core
+  changes: "Set inicial de candidatas; fuente literal Tabla C.1 + variantes."
+  classes:
+    - id: cr01_neg_without_hard_hat
+      canonical: person
+      strategy: syntactic_negation
+      condition_id: CR-01
+      phrasings: { default: ["person without hard hat"] }
+    - id: cr01_neg_not_wearing_helmet
+      canonical: person
+      strategy: syntactic_negation
+      condition_id: CR-01
+      phrasings: { default: ["person not wearing a helmet"] }
+    - id: cr01_spec_construction_worker
+      canonical: person
+      strategy: specificity
+      condition_id: CR-01
+      phrasings: { default: ["construction worker without safety helmet"] }
+    - id: cr01_spec_worker_site
+      canonical: person
+      strategy: specificity
+      condition_id: CR-01
+      phrasings: { default: ["worker on construction site without hard hat"] }
+    - id: cr01_state_bare_head_site
+      canonical: person
+      strategy: observable_state
+      condition_id: CR-01
+      phrasings: { default: ["person with bare head on construction site"] }
+    - id: cr01_state_uncovered_head
+      canonical: person
+      strategy: observable_state
+      condition_id: CR-01
+      phrasings: { default: ["worker with uncovered head"] }
+    - id: cr01_tmpl_hard_hat
+      canonical: helmet
+      strategy: presence_template
+      condition_id: CR-01
+      phrasings: { default: ["a photo of a hard hat"] }
+    - id: cr01_tmpl_safety_helmet
+      canonical: helmet
+      strategy: presence_template
+      condition_id: CR-01
+      phrasings: { default: ["a photo of a safety helmet"] }

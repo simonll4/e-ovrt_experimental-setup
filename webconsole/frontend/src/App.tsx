@@ -6,6 +6,7 @@ import ComposePage from './pages/ComposePage'
 import ExperimentDetailPage from './pages/ExperimentDetailPage'
 import ExperimentsPage from './pages/ExperimentsPage'
 import PlatformPage from './pages/PlatformPage'
+import PromptSetsPage from './pages/PromptSetsPage'
 import RunDetailPage from './pages/RunDetailPage'
 import RunsPage from './pages/RunsPage'
 
@@ -21,6 +22,7 @@ export default function App() {
           <Link to="/compare">Comparar</Link>
           <Link to="/platform">Plataforma</Link>
           <Link to="/experiments">Experimentos</Link>
+          <Link to="/prompts">Prompts</Link>
         </nav>
         <div style={{ marginLeft: 'auto' }}><TargetBadge /></div>
       </header>
@@ -33,6 +35,7 @@ export default function App() {
         <Route path="/platform" element={<PlatformPage />} />
         <Route path="/experiments" element={<ExperimentsPage />} />
         <Route path="/experiments/:id" element={<ExperimentDetailPage />} />
+        <Route path="/prompts" element={<PromptSetsPage />} />
       </Routes>
     </div>
   )

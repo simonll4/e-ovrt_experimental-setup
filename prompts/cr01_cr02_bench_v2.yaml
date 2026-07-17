@@ -7,6 +7,9 @@ prompt_set:
     y el protocolo experimental v2 (2026-06-18).
     NO modificar — congelado para reproducibilidad del BENCH.
   language: en
+  status: frozen            # retro-etiquetado 2026-07-17 (spec prompt-strategy §2.1)
+  track: core
+  frozen_sha256: "25fde7d42d6c6224a1a01417597b6e4defee54d1ef65ab7df55d21fa4a7fba5b"
   classes:
     - id: person
       role: entity

@@ -42,7 +42,8 @@ experiments/                     # manifiestos de corrida (un experimento por ar
   gdino.yaml  yoloe.yaml  yoloe_video.yaml   # corridas de muestra DBE (single-host)
   bench_v2/                       # matriz de evaluación BENCH v2 (6 modelos × 2 splits = 12)
 docs/
-  prompt-sets.md                  # formato de prompt sets + los 3 sets actuales + cómo agregar
+  prompt-strategy.md              # metodología, taxonomía de ejes, ciclo de vida y programa de estudios
+  prompt-sets.md                  # formato de prompt sets + los sets actuales + cómo agregar
   experiments.md                  # formato de manifiesto + naming bench_v2 + cómo correr/agregar
 infra/
   platform/                       # compose de la plataforma completa: fleet de instancias
@@ -115,11 +116,15 @@ Las salidas (`detections.jsonl`, `summary.json`, `metrics.jsonl`, previews) se e
 
 ## 5. Qué hay desarrollado actualmente
 
-**Prompt sets (3)** — ver [`docs/prompt-sets.md`](docs/prompt-sets.md):
-- `cr01_cr02_v2_short` y `cr01_cr02_bench_v2`: **congelados** (reproducibilidad del BENCH), etiquetas
+**Prompt sets (7)** — metodología, taxonomía de ejes y ciclo de vida en
+[`docs/prompt-strategy.md`](docs/prompt-strategy.md); formato y detalle de cada set en
+[`docs/prompt-sets.md`](docs/prompt-sets.md) §4:
+- `cr01_cr02_v2_short` y `cr01_cr02_bench_v2`: `frozen` (reproducibilidad del BENCH), etiquetas
   cortas para canonical_v2.
-- `ppe_v2_descriptive`: **no congelado**, con fraseo descriptivo por backend (GDINO sinónimos cortos,
-  YOLOE nominales) para A/B contra los congelados.
+- `eind_v1`: `frozen_pending_review` (carril 1 del núcleo, vocabulario positivo canónico).
+- `ppe_v2_descriptive`, `edir_exp_cr01_candidates`, `edir_exp_cr02_candidates`,
+  `edir_exp_weak_classes`: `exploratory` (carril 2, exploración pre-freeze del fraseo E-DIR y
+  rescate de clases débiles).
 
 **Experimentos** — ver [`docs/experiments.md`](docs/experiments.md) para la lista completa y
 actualizada; resumen:

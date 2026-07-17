@@ -6,9 +6,17 @@ prompt_set:
     diluir el caption); YOLOE recibe etiquetas nominales. Mismas clases canónicas que
     canonical_v2 (person/helmet/vest/bare_head). Ver spec 2026-06-25-prompt-layer-design §11.
   language: en
+  status: exploratory
+  track: core
+  derives_from: cr01_cr02_bench_v2
+  changes: >
+    Fraseo descriptivo por backend para A/B contra el set congelado del BENCH
+    (mismas 4 clases canónicas). Migrado a la taxonomía de ejes del informe
+    (spec 2026-07-17 §1): strategy por rol de la clase.
   classes:
     - id: person
       role: entity
+      strategy: canonical_positive
       phrasings:
         default: ["person"]
         gdino: ["person", "worker"]
@@ -16,7 +24,7 @@ prompt_set:
     - id: helmet
       role: ppe
       condition_id: CR-01
-      strategy: positive_evidence
+      strategy: canonical_positive
       phrasings:
         default: ["helmet"]
         gdino: ["hard hat", "safety helmet"]
@@ -24,7 +32,7 @@ prompt_set:
     - id: vest
       role: ppe
       condition_id: CR-02
-      strategy: positive_evidence
+      strategy: canonical_positive
       phrasings:
         default: ["vest"]
         gdino: ["reflective vest", "high-visibility vest"]
@@ -32,7 +40,7 @@ prompt_set:
     - id: bare_head
       role: visual_risk_indicator
       condition_id: CR-01
-      strategy: positive_evidence
+      strategy: observable_state
       phrasings:
         default: ["bare head"]
         gdino: ["bare head", "uncovered head"]
