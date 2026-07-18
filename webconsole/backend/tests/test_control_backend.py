@@ -3,6 +3,7 @@ import pytest
 
 from eovrt_webconsole.experiment.control_backend import (
     ControlPlaneBackend,
+    RunActive,
     RunBusy,
     ServiceRejected,
     ServiceUnavailable,
@@ -124,6 +125,29 @@ async def test_received_units_desconocido(control_backend):
     backend, _ = control_backend
     with pytest.raises(UnknownRun):
         await backend.received_units("nope")
+
+
+async def test_delete_ok(control_backend):
+    backend, state = control_backend
+    run_id = await backend.launch({"input": {"type": "file"}}, mode="replay", experiment_id="exp-5")
+    # El fake protege el run activo con 409 (mismo guard que el servidor real);
+    # marcarlo terminado antes de borrar es necesario para ejercitar el 204.
+    state.finish_status = "succeeded"
+    await backend.delete(run_id)
+    assert state.deleted == [run_id]
+
+
+async def test_delete_404_desconocido(control_backend):
+    backend, _ = control_backend
+    with pytest.raises(UnknownRun):
+        await backend.delete("nope")
+
+
+async def test_delete_409_run_activo(control_backend):
+    backend, state = control_backend
+    state.active_run_id = "otro"
+    with pytest.raises(RunActive):
+        await backend.delete("otro")
 
 
 async def test_servicio_caido():

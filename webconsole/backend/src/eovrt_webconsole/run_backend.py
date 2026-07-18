@@ -41,6 +41,14 @@ class UnknownRun(Exception):
     pass
 
 
+class RunActive(Exception):
+    """409 al borrar: el run sigue activo."""
+
+    def __init__(self, detail: str) -> None:
+        super().__init__(detail)
+        self.detail = detail
+
+
 class RunBackend:
     def __init__(self, http: httpx.AsyncClient) -> None:
         self._http = http
@@ -141,3 +149,16 @@ class RunBackend:
             return await self._http.send(request, stream=True)
         except httpx.HTTPError as exc:
             raise ServiceUnavailable(str(exc)) from exc
+
+    async def delete(self, run_id: str) -> None:
+        try:
+            response = await self._http.delete(f"/api/runs/{run_id}")
+        except httpx.HTTPError as exc:
+            raise ServiceUnavailable(str(exc)) from exc
+        if response.status_code == 404:
+            raise UnknownRun(run_id)
+        if response.status_code == 409:
+            raise RunActive(response.json().get("detail", "run activo"))
+        if response.status_code >= 500 or response.status_code == 503:
+            raise ServiceUnavailable(f"DELETE /api/runs/{run_id} -> {response.status_code}")
+        response.raise_for_status()

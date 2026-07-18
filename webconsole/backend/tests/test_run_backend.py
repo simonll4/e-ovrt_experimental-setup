@@ -2,6 +2,7 @@ import httpx
 import pytest
 
 from eovrt_webconsole.run_backend import (
+    RunActive,
     RunBackend,
     RunBusy,
     RunNotFinished,
@@ -156,3 +157,20 @@ async def test_dropped_passthrough(backend, state):
 async def test_dropped_desconocido(backend):
     with pytest.raises(UnknownRun):
         await backend.dropped("nope")
+
+
+async def test_delete_ok(backend, state):
+    await backend.delete("run_done_1")
+    assert state.deleted == ["run_done_1"]
+
+
+async def test_delete_404_desconocido(backend):
+    with pytest.raises(UnknownRun):
+        await backend.delete("nope")
+
+
+async def test_delete_409_run_activo(backend, state):
+    state.active_run_id = "run_x"
+    with pytest.raises(RunActive) as exc:
+        await backend.delete("run_x")
+    assert "activo" in exc.value.detail
