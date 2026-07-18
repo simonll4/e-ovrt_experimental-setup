@@ -1,28 +1,37 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { listRuns } from '../api'
+import { deleteRun, listRuns } from '../api'
 import type { RunRow } from '../types'
 import { Badge, EmptyState, ErrorBanner } from '../components/ui'
-import { runStatusTone, runStatusLabel } from '../runview'
+import { isRunning, runStatusTone, runStatusLabel } from '../runview'
 
-const HEADERS = ['run', 'estado', 'modelo', 'fuente', 'prompts', 'FPS', 'dets', 'dur (s)']
+const HEADERS = ['run', 'estado', 'modelo', 'fuente', 'prompts', 'FPS', 'dets', 'dur (s)', '']
 
 export default function RunsPage() {
   const [rows, setRows] = useState<RunRow[] | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
+
+  const refresh = () =>
+    listRuns()
+      .then((r) => {
+        setRows(r)
+        setError(null)
+        return r
+      })
+      .catch((e) => {
+        setError(String(e))
+        return null
+      })
+
   useEffect(() => {
     let alive = true
     let timer: ReturnType<typeof setTimeout>
     const tick = () =>
-      listRuns()
-        .then((r) => {
-          if (!alive) return
-          setRows(r)
-          setError(null)
-          // refresco solo mientras hay actividad (el resto es historial estático)
-          if (r.some((row) => row.status === 'running')) timer = setTimeout(tick, 4000)
-        })
-        .catch((e) => alive && setError(String(e)))
+      refresh().then((r) => {
+        // refresco solo mientras hay actividad (el resto es historial estático)
+        if (alive && r && r.some((row) => row.status === 'running')) timer = setTimeout(tick, 4000)
+      })
     tick()
     return () => {
       alive = false
@@ -30,7 +39,29 @@ export default function RunsPage() {
     }
   }, [])
 
-  if (error) return <ErrorBanner>Error listando runs: {error}</ErrorBanner>
+  const handleDelete = async (row: RunRow) => {
+    if (!window.confirm(`¿Borrar el run ${row.run_id}? No se puede deshacer.`)) return
+    setDeletingId(row.run_id)
+    try {
+      const result = await deleteRun(row.run_id)
+      if (result?.errors) {
+        setError(
+          `Borrado parcial de ${row.run_id}: ${Object.entries(result.errors)
+            .map(([plane, detail]) => `${plane}: ${detail}`)
+            .join('; ')}`,
+        )
+      } else {
+        setError(null)
+      }
+    } catch (e) {
+      setError(`No se pudo borrar ${row.run_id}: ${String(e)}`)
+    } finally {
+      setDeletingId(null)
+      await refresh()
+    }
+  }
+
+  if (error) return <ErrorBanner>{error}</ErrorBanner>
   if (!rows) return <p className="eo-empty">Cargando…</p>
   return (
     <div>
@@ -52,10 +83,21 @@ export default function RunsPage() {
               <td className="eo-num">{r.fps_effective ?? '—'}</td>
               <td className="eo-num">{r.total_detections ?? '—'}</td>
               <td className="eo-num">{r.duration_seconds ?? '—'}</td>
+              <td>
+                {!isRunning(r) && (
+                  <button
+                    type="button"
+                    disabled={deletingId === r.run_id}
+                    onClick={() => void handleDelete(r)}
+                  >
+                    Borrar
+                  </button>
+                )}
+              </td>
             </tr>
           ))}
           {rows.length === 0 && (
-            <tr><td colSpan={8}><EmptyState>Sin corridas todavía.</EmptyState></td></tr>
+            <tr><td colSpan={9}><EmptyState>Sin corridas todavía.</EmptyState></td></tr>
           )}
         </tbody>
       </table>
