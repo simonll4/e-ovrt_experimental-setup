@@ -97,6 +97,7 @@ class FakeState:
         self.eval_results: dict[str, dict] = {}
         self.evaluate_not_bench: bool = False
         self.dropped: dict[str, list[dict]] = {}
+        self.deleted: list[str] = []
         # Stream que acepta y queda en silencio (nunca envía ni cierra): sirve
         # para verificar que el proxy detecta la desconexión del SPA aunque el
         # upstream esté callado. `upstream_closed` se activa cuando el proxy
@@ -196,6 +197,17 @@ def make_fake_service(state: FakeState) -> FastAPI:
             return JSONResponse(status_code=404, content={"detail": f"Run desconocido: {run_id}"})
         state.stopped.append(run_id)
         return {"run_id": run_id, "stopping": True}
+
+    @app.delete("/api/runs/{run_id}", status_code=204)
+    def delete_run(run_id: str):
+        if not state.ready:
+            return JSONResponse(status_code=503, content={"detail": "Servicio no listo (modelo no cargado)"})
+        if run_id == state.active_run_id:
+            return JSONResponse(status_code=409, content={"detail": "No se puede borrar un run activo"})
+        if run_id != "run_done_1" or run_id in state.deleted:
+            return JSONResponse(status_code=404, content={"detail": f"Run desconocido: {run_id}"})
+        state.deleted.append(run_id)
+        return Response(status_code=204)
 
     @app.post("/api/runs/{run_id}/evaluate")
     def evaluate_run(run_id: str):

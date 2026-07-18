@@ -8,7 +8,7 @@ from __future__ import annotations
 import itertools
 
 from fastapi import FastAPI, Query
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 
 EFFECTIVE_CONFIG = {
     "run": {"scenario": "EBE", "experiment_id": "exp-1"},
@@ -44,6 +44,7 @@ class FakeControlState:
         self.runs_index: list[dict] = []
         self.pattern_progress: dict[str, list[dict]] = {}
         self.received_units: dict[str, list[dict]] = {}
+        self.deleted: list[str] = []
 
 
 def make_fake_control_service(state: FakeControlState) -> FastAPI:
@@ -148,13 +149,6 @@ def make_fake_control_service(state: FakeControlState) -> FastAPI:
     def get_effective_config():
         return {"effective_config": EFFECTIVE_CONFIG}
 
-    @app.get("/api/runs")
-    def list_runs(media_run_id: str | None = Query(default=None)):
-        rows = state.runs_index
-        if media_run_id:
-            rows = [r for r in rows if r.get("media_run_id") == media_run_id]
-        return rows
-
     def _known_run(run_id: str) -> bool:
         # Sembrar CUALQUIERA de los indices alcanza para que el run sea "conocido":
         # evita 404 sorpresivos cuando un test siembra solo pattern_progress o
@@ -165,6 +159,26 @@ def make_fake_control_service(state: FakeControlState) -> FastAPI:
             or run_id in state.received_units
             or any(r.get("control_run_id") == run_id for r in state.runs_index)
         )
+
+    @app.get("/api/runs")
+    def list_runs(media_run_id: str | None = Query(default=None)):
+        rows = state.runs_index
+        if media_run_id:
+            rows = [r for r in rows if r.get("media_run_id") == media_run_id]
+        return rows
+
+    @app.delete("/api/runs/{run_id}", status_code=204)
+    def delete_run(run_id: str):
+        if run_id == state.active_run_id and state.finish_status is None:
+            return JSONResponse(status_code=409, content={"detail": "No se puede borrar un run activo"})
+        if run_id in state.deleted:
+            return JSONResponse(status_code=404, content={"detail": f"Run desconocido: {run_id}"})
+        if not _known_run(run_id):
+            return JSONResponse(status_code=404, content={"detail": f"Run desconocido: {run_id}"})
+        state.deleted.append(run_id)
+        state.alerts.pop(run_id, None)
+        state.runs_index = [r for r in state.runs_index if r.get("control_run_id") != run_id]
+        return Response(status_code=204)
 
     @app.get("/api/runs/{run_id}/pattern-progress")
     def get_pattern_progress(run_id: str, limit: int | None = Query(default=None, ge=0)):
