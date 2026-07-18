@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest'
-import { cleanup, render } from '@testing-library/react'
+import { cleanup, fireEvent, render } from '@testing-library/react'
 import PreviewWithBoxes from '../components/PreviewWithBoxes'
 import type { TraceDetection } from '../types'
 
@@ -43,5 +43,15 @@ describe('PreviewWithBoxes', () => {
     const { container } = render(<PreviewWithBoxes src="x.jpg" alt="u0" detections={detections} />)
     const box = container.querySelector('.eo-preview__box') as HTMLElement
     expect(box.getAttribute('title')).toBe('vest 0.88')
+  })
+
+  it('si la imagen no carga muestra el placeholder "sin preview" (no un hueco)', () => {
+    const { container, getByText } = render(
+      <PreviewWithBoxes src="no-existe.jpg" alt="u0" detections={[]} />,
+    )
+    fireEvent.error(container.querySelector('img') as HTMLImageElement)
+    expect(getByText('sin preview')).toBeTruthy()
+    expect(container.querySelector('.eo-preview--empty')).toBeTruthy()
+    expect(container.querySelector('img')).toBeNull()
   })
 })

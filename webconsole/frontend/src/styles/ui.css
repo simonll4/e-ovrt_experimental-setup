@@ -315,3 +315,17 @@
 .eo-classbox[disabled] {
   opacity: 0.6;
 }
+
+/* Placeholder cuando un frame no tiene preview (descartado / no procesado / archivo ausente):
+   lee como "sin imagen a propósito", no como render roto. */
+.eo-preview--empty {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 4 / 3;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+  background: var(--surface-sunken);
+}

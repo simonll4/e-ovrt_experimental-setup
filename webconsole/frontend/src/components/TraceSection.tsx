@@ -80,7 +80,9 @@ export default function TraceSection({ runId }: { runId: string }) {
                     />
                   )}
                   <span className="eo-framecell__id">
-                    {(f.frame_index !== null ? `#${f.frame_index}` : '') + (f.unit_id ?? '')}
+                    {[f.frame_index !== null ? `#${f.frame_index}` : null, f.unit_id]
+                      .filter((x) => x !== null && x !== '')
+                      .join(' · ')}
                   </span>
                 </div>
               </td>

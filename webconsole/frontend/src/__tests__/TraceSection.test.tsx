@@ -143,10 +143,10 @@ describe('TraceSection', () => {
     vi.mocked(api.getTrace).mockResolvedValue(page)
     render(<TraceSection runId="r_1" />)
     // F2: la celda de frame siempre muestra "#frame_index" + unit_id (eo-framecell__id).
-    await waitFor(() => expect(screen.getByText('#3u3')).toBeTruthy())
+    await waitFor(() => expect(screen.getByText('#3 · u3')).toBeTruthy())
     const checkbox = screen.getByRole('checkbox')
     fireEvent.click(checkbox)
-    await waitFor(() => expect(screen.queryByText('#3u3')).toBeFalsy())
+    await waitFor(() => expect(screen.queryByText('#3 · u3')).toBeFalsy())
   })
 
   it('solo pinta --alert en la barra cuya condition_id coincide con la alerta', async () => {

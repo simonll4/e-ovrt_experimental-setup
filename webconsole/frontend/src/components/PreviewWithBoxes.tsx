@@ -15,7 +15,15 @@ export default function PreviewWithBoxes({
 }) {
   const [hidden, setHidden] = useState(false)
 
-  if (hidden) return null
+  // Sin imagen (frame descartado, nunca procesado, o preview no escrita): placeholder
+  // explícito en vez de un hueco que parezca roto. El motivo real lo dice la columna control.
+  if (hidden) {
+    return (
+      <span className="eo-preview eo-preview--empty" style={{ width }}>
+        sin preview
+      </span>
+    )
+  }
 
   return (
     <span className="eo-preview">
