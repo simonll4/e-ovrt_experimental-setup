@@ -19,7 +19,10 @@ export const NAV_GROUPS: NavGroup[] = [
   },
   {
     title: 'Sistema',
-    items: [{ to: '/platform', label: 'Plataforma' }],
+    items: [
+      { to: '/platform', label: 'Plataforma' },
+      { to: '/cameras', label: 'Cámaras' },
+    ],
   },
 ]
 

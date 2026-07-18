@@ -14,10 +14,13 @@ class ServiceUnavailable(Exception):
 
 
 class RunBusy(Exception):
-    def __init__(self, detail: str, active_run_id: str | None) -> None:
+    def __init__(
+        self, detail: str, active_run_id: str | None, reason: str | None = None
+    ) -> None:
         super().__init__(detail)
         self.detail = detail
         self.active_run_id = active_run_id
+        self.reason = reason
 
 
 class RunNotFinished(Exception):
@@ -47,6 +50,14 @@ class RunActive(Exception):
     def __init__(self, detail: str) -> None:
         super().__init__(detail)
         self.detail = detail
+
+
+class PreviewConflict(Exception):
+    """409 del media-plane al iniciar preview; body completo del upstream."""
+
+    def __init__(self, body: dict) -> None:
+        super().__init__(body.get("detail", "slot ocupado"))
+        self.body = body
 
 
 class RunBackend:
@@ -81,7 +92,11 @@ class RunBackend:
             raise ServiceUnavailable(str(exc)) from exc
         if response.status_code == 409:
             body = response.json()
-            raise RunBusy(body.get("detail", "run activo"), body.get("active_run_id"))
+            raise RunBusy(
+                body.get("detail", "run activo"),
+                body.get("active_run_id"),
+                body.get("reason"),
+            )
         if response.status_code == 422:
             raise ServiceRejected(response.json().get("detail"))
         if response.status_code >= 500 or response.status_code == 503:
@@ -161,4 +176,30 @@ class RunBackend:
             raise RunActive(response.json().get("detail", "run activo"))
         if response.status_code >= 500 or response.status_code == 503:
             raise ServiceUnavailable(f"DELETE /api/runs/{run_id} -> {response.status_code}")
+        response.raise_for_status()
+
+    async def preview_start(self, body: dict) -> dict:
+        try:
+            response = await self._http.post("/api/preview", json=body)
+        except httpx.HTTPError as exc:
+            raise ServiceUnavailable(str(exc)) from exc
+        if response.status_code == 409:
+            raise PreviewConflict(response.json())
+        if response.status_code == 422:
+            raise ServiceRejected(response.json().get("detail", "config inválida"))
+        if response.status_code >= 500 or response.status_code == 503:
+            raise ServiceUnavailable(response.text)
+        response.raise_for_status()
+        return response.json()
+
+    async def preview_status(self) -> dict:
+        return await self._get_json("/api/preview")
+
+    async def preview_stop(self) -> None:
+        try:
+            response = await self._http.delete("/api/preview")
+        except httpx.HTTPError as exc:
+            raise ServiceUnavailable(str(exc)) from exc
+        if response.status_code >= 500:
+            raise ServiceUnavailable(response.text)
         response.raise_for_status()

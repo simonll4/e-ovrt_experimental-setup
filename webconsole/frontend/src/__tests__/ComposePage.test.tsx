@@ -226,6 +226,45 @@ describe('ComposePage prefill survives catalog re-fetch (no clobber)', () => {
   })
 })
 
+describe('ComposePage aviso de 409 al lanzar', () => {
+  beforeEach(() => cleanup())
+  afterEach(() => vi.mocked(api.launchRun).mockReset())
+
+  it('muestra aviso de prueba de cámara activa ante 409 preview_active', async () => {
+    vi.mocked(api.launchRun).mockRejectedValue(
+      new api.ApiError(409, { detail: 'ocupado', reason: 'preview_active' }),
+    )
+    render(
+      <MemoryRouter initialEntries={['/compose']}>
+        <Routes>
+          <Route path="/compose" element={<ComposePage />} />
+        </Routes>
+      </MemoryRouter>,
+    )
+
+    fireEvent.click(screen.getByText('Lanzar'))
+
+    expect(await screen.findByText(/prueba de cámara activa/i)).toBeTruthy()
+  })
+
+  it('muestra aviso de run activo ante 409 con active_run_id', async () => {
+    vi.mocked(api.launchRun).mockRejectedValue(
+      new api.ApiError(409, { detail: 'ocupado', active_run_id: 'r99' }),
+    )
+    render(
+      <MemoryRouter initialEntries={['/compose']}>
+        <Routes>
+          <Route path="/compose" element={<ComposePage />} />
+        </Routes>
+      </MemoryRouter>,
+    )
+
+    fireEvent.click(screen.getByText('Lanzar'))
+
+    expect(await screen.findByText(/ya hay un run activo/i)).toBeTruthy()
+  })
+})
+
 describe('ComposePage fuente RTSP', () => {
   beforeEach(() => cleanup())
   afterEach(() => vi.mocked(api.launchRun).mockReset())

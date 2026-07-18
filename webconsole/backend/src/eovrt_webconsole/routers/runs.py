@@ -56,9 +56,10 @@ async def launch(comp: Composition, request: Request):
     try:
         run_id = await backend.launch(run_request)
     except RunBusy as exc:
-        return JSONResponse(
-            status_code=409, content={"detail": exc.detail, "active_run_id": exc.active_run_id}
-        )
+        content = {"detail": exc.detail, "active_run_id": exc.active_run_id}
+        if exc.reason is not None:
+            content["reason"] = exc.reason
+        return JSONResponse(status_code=409, content=content)
     except ServiceRejected as exc:
         logger.warning("launch: el servicio rechazó la composición: %s", exc.detail)
         return JSONResponse(

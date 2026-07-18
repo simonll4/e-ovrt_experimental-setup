@@ -2,6 +2,7 @@ import httpx
 import pytest
 
 from eovrt_webconsole.run_backend import (
+    PreviewConflict,
     RunActive,
     RunBackend,
     RunBusy,
@@ -42,6 +43,18 @@ async def test_launch_busy(backend, state):
     with pytest.raises(RunBusy) as exc:
         await backend.launch(RUN_REQUEST)
     assert exc.value.active_run_id == "run_activo_previo"
+    assert exc.value.reason is None
+
+
+async def test_launch_busy_reason_preview_active(backend, state):
+    # F1: RunBusy debe transportar el "reason" que manda el media-plane
+    # (p.ej. "preview_active") en vez de descartarlo.
+    state.active_run_id = "run_activo_previo"
+    state.launch_busy_reason = "preview_active"
+    with pytest.raises(RunBusy) as exc:
+        await backend.launch(RUN_REQUEST)
+    assert exc.value.active_run_id == "run_activo_previo"
+    assert exc.value.reason == "preview_active"
 
 
 async def test_launch_rechazado_422(backend):
@@ -174,3 +187,23 @@ async def test_delete_409_run_activo(backend, state):
     with pytest.raises(RunActive) as exc:
         await backend.delete("run_x")
     assert "activo" in exc.value.detail
+
+
+async def test_preview_start_ok(backend, state):
+    result = await backend.preview_start({"mode": "raw", "ingest": {"plugin": "rtsp", "config": {}}})
+    assert result["preview_id"] == "pv_1"
+    assert state.preview_started[0]["mode"] == "raw"
+
+
+async def test_preview_start_409_run_activo(backend, state):
+    state.preview_conflict = {"detail": "ocupado", "reason": "run_active", "active_run_id": "run_9"}
+    with pytest.raises(PreviewConflict) as exc:
+        await backend.preview_start({"mode": "raw", "ingest": {"plugin": "rtsp", "config": {}}})
+    assert exc.value.body["reason"] == "run_active"
+
+
+async def test_preview_status_y_stop(backend, state):
+    state.preview_status = "streaming"
+    assert (await backend.preview_status())["status"] == "streaming"
+    await backend.preview_stop()
+    assert state.preview_stopped == 1

@@ -11,6 +11,7 @@ from eovrt_webconsole.experiment.control_backend import ControlPlaneBackend
 from eovrt_webconsole.experiment.run_manager import ExperimentRunManager
 from eovrt_webconsole.orchestrator import ComposeOrchestrator, RunCmd, TargetManager
 from eovrt_webconsole.routers import (
+    cameras,
     catalog,
     compare,
     compose,
@@ -18,6 +19,7 @@ from eovrt_webconsole.routers import (
     manifests,
     meta,
     platform,
+    preview,
     prompts,
     runs,
     stream,
@@ -80,6 +82,8 @@ def create_app(
     app.include_router(experiments.router)
     app.include_router(platform.router)
     app.include_router(prompts.router)
+    app.include_router(cameras.router)
+    app.include_router(preview.router)
 
     frontend_dist = settings.spa_dist or (settings.repo_root / "webconsole" / "frontend" / "dist")
     if frontend_dist.is_dir():

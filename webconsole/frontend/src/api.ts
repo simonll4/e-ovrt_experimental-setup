@@ -1,8 +1,8 @@
 import type {
-  CompareResult, Composition, DatasetEntry, DetectionsPage, EvalResult, Experiment,
+  CameraPreset, CompareResult, Composition, DatasetEntry, DetectionsPage, EvalResult, Experiment,
   ExperimentAlert, ExperimentManifestSummary, ExperimentReport, ExperimentRunState, FieldError,
-  IngestPlugin, PlatformInstance, PromptSet, PromptSetDetail, PromptSetSummary, RunDetail, RunRow,
-  TargetStatus, TracePage,
+  IngestPlugin, PlatformInstance, PreviewStartBody, PreviewStatus, PromptSet, PromptSetDetail,
+  PromptSetSummary, RunDetail, RunRow, TargetStatus, TracePage,
 } from './types'
 
 export class ApiError extends Error {
@@ -145,4 +145,23 @@ export const getTrace = (id: string, page = 1, pageSize = 50, controlRunId?: str
   const params = new URLSearchParams({ page: String(page), page_size: String(pageSize) })
   if (controlRunId) params.set('control_run_id', controlRunId)
   return request<TracePage>(`/api/runs/${encodeURIComponent(id)}/trace?${params.toString()}`)
+}
+
+export const listCameras = () => request<CameraPreset[]>('/api/cameras')
+export const createCamera = (p: CameraPreset) =>
+  request<CameraPreset>('/api/cameras', { method: 'POST', body: JSON.stringify(p) })
+export const updateCamera = (id: string, p: CameraPreset) =>
+  request<CameraPreset>(`/api/cameras/${encodeURIComponent(id)}`, {
+    method: 'PUT',
+    body: JSON.stringify(p),
+  })
+export const deleteCamera = (id: string) =>
+  request<undefined>(`/api/cameras/${encodeURIComponent(id)}`, { method: 'DELETE' })
+export const startPreview = (body: PreviewStartBody) =>
+  request<{ preview_id: string }>('/api/preview', { method: 'POST', body: JSON.stringify(body) })
+export const getPreview = () => request<PreviewStatus>('/api/preview')
+export const stopPreview = () => request<undefined>('/api/preview', { method: 'DELETE' })
+export function previewStreamUrl(): string {
+  const proto = window.location.protocol === 'https:' ? 'wss' : 'ws'
+  return `${proto}://${window.location.host}/api/preview/stream`
 }

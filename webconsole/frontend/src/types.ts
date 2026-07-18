@@ -247,3 +247,35 @@ export interface TracePage {
   total: number
   frames: TraceFrame[]
 }
+
+export interface CameraPreset {
+  id: string
+  name: string
+  plugin: string
+  config: Record<string, unknown>
+}
+export interface PreviewDetection {
+  label: string
+  score: number
+  bbox_norm_xyxy: [number, number, number, number]
+}
+export interface PreviewFrameHeader {
+  seq: number
+  ts: number
+  width: number
+  height: number
+  mode: 'raw' | 'detect'
+  detections: PreviewDetection[]
+}
+export interface PreviewStatus {
+  status: 'idle' | 'streaming' | 'error'
+  preview_id: string | null
+  mode: string | null
+  error: string | null
+}
+export interface PreviewStartBody {
+  mode: 'raw' | 'detect'
+  ingest: { plugin: string; config: Record<string, unknown> }
+  prompts?: { set_inline: Record<string, unknown>; active_ids?: string[] }
+  params?: { score_threshold?: number | null }
+}

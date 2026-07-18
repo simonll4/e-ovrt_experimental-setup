@@ -6,15 +6,20 @@ describe('NAV_GROUPS', () => {
     expect(NAV_GROUPS.map((g) => g.title)).toEqual(['Trabajo', 'Definiciones', 'Sistema'])
   })
 
-  it('cubre los 6 destinos y NO incluye /compose (es acción, no destino)', () => {
+  it('cubre los 7 destinos y NO incluye /compose (es acción, no destino)', () => {
     const tos = NAV_GROUPS.flatMap((g) => g.items.map((i) => i.to))
-    expect(tos).toEqual(['/', '/experiments', '/compare', '/prompts', '/catalog', '/platform'])
+    expect(tos).toEqual(['/', '/experiments', '/compare', '/prompts', '/catalog', '/platform', '/cameras'])
     expect(tos).not.toContain('/compose')
   })
 
   it('ningún destino aparece dos veces', () => {
     const tos = NAV_GROUPS.flatMap((g) => g.items.map((i) => i.to))
     expect(new Set(tos).size).toBe(tos.length)
+  })
+
+  it('incluye Cámaras en Sistema', () => {
+    const sistema = NAV_GROUPS.find((g) => g.title === 'Sistema')!
+    expect(sistema.items.map((i) => i.to)).toContain('/cameras')
   })
 })
 

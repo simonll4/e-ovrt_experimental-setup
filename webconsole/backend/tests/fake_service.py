@@ -5,6 +5,8 @@ runs.py, model.py, catalog.py, run_manager.py, stream.py, events.py.
 """
 from __future__ import annotations
 
+import json
+import struct
 import threading
 
 from fastapi import FastAPI, Query, WebSocket, WebSocketDisconnect
@@ -89,6 +91,10 @@ class FakeState:
     def __init__(self) -> None:
         self.ready = True
         self.active_run_id: str | None = None
+        # Análogo a preview_conflict: cuando está seteado, el 409 de lanzamiento
+        # (create_run) incluye este "reason" en el body, como haría el
+        # media-plane real al rechazar un run mientras hay una preview activa.
+        self.launch_busy_reason: str | None = None
         self.launched: list[dict] = []
         self.stopped: list[str] = []
         self.stream_events: list[dict] = list(DEFAULT_STREAM_EVENTS)
@@ -104,6 +110,19 @@ class FakeState:
         # cierra su conexión hacia este fake (cross-thread: se lee desde el test).
         self.quiet_stream: bool = False
         self.upstream_closed: threading.Event = threading.Event()
+        self.preview_status: str = "idle"
+        self.preview_started: list[dict] = []
+        self.preview_stopped: int = 0
+        self.preview_conflict: dict | None = None
+        # Análogo a quiet_stream/upstream_closed pero para el WS de preview:
+        # acepta y queda en silencio hasta que el proxy cierre el upstream tras
+        # irse el cliente (Fix 2, Tarea 7).
+        self.preview_quiet_stream: bool = False
+        self.preview_upstream_closed: threading.Event = threading.Event()
+        # Simula una caída abrupta del upstream de preview (sin close frame):
+        # el handler revienta después de aceptar, así el server ASGI corta el
+        # socket sin handshake de cierre (Fix 1, Tarea 7).
+        self.preview_abrupt_close: bool = False
 
 
 def make_fake_service(state: FakeState) -> FastAPI:
@@ -145,10 +164,10 @@ def make_fake_service(state: FakeState) -> FastAPI:
         if state.reject_launch:
             return JSONResponse(status_code=422, content={"detail": "config rechazada por el servicio"})
         if state.active_run_id:
-            return JSONResponse(
-                status_code=409,
-                content={"detail": "run activo", "active_run_id": state.active_run_id},
-            )
+            content = {"detail": "run activo", "active_run_id": state.active_run_id}
+            if state.launch_busy_reason is not None:
+                content["reason"] = state.launch_busy_reason
+            return JSONResponse(status_code=409, content=content)
         state.launched.append(body)
         state.active_run_id = "run_active_1"
         return {"run_id": "run_active_1"}
@@ -293,5 +312,50 @@ def make_fake_service(state: FakeState) -> FastAPI:
             await ws.close(code=1000)
             return
         await ws.close(code=4404)
+
+    @app.post("/api/preview", status_code=201)
+    def start_preview(body: dict):
+        if state.preview_conflict is not None:
+            return JSONResponse(status_code=409, content=state.preview_conflict)
+        state.preview_started.append(body)
+        state.preview_status = "streaming"
+        return {"preview_id": "pv_1"}
+
+    @app.get("/api/preview")
+    def preview_status():
+        return {"status": state.preview_status, "preview_id": None, "mode": None, "error": None}
+
+    @app.delete("/api/preview", status_code=204)
+    def stop_preview():
+        state.preview_stopped += 1
+        state.preview_status = "idle"
+        return Response(status_code=204)
+
+    @app.websocket("/api/preview/stream")
+    async def fake_preview_stream(ws: WebSocket):
+        await ws.accept()
+        if state.preview_quiet_stream:
+            # Acepta y no emite nada; espera hasta que el proxy cierre el
+            # upstream (al detectar que el SPA se fue) y lo señaliza.
+            try:
+                while True:
+                    message = await ws.receive()
+                    if message["type"] == "websocket.disconnect":
+                        break
+            except (WebSocketDisconnect, RuntimeError):
+                pass
+            state.preview_upstream_closed.set()
+            return
+        if state.preview_abrupt_close:
+            # Revienta después de aceptar: el server ASGI corta el socket sin
+            # handshake de cierre, así el cliente (websockets) ve una caída
+            # abrupta (ConnectionClosedError, close_code None/no enviable).
+            raise RuntimeError("upstream de preview cae abrupto (simulado)")
+        header = json.dumps(
+            {"seq": 1, "ts": 0.0, "width": 64, "height": 48, "mode": "raw", "detections": []}
+        ).encode("utf-8")
+        await ws.send_bytes(struct.pack(">I", len(header)) + header + b"\xff\xd8fake")
+        await ws.send_json({"type": "state", "status": "idle", "error": None})
+        await ws.close()
 
     return app

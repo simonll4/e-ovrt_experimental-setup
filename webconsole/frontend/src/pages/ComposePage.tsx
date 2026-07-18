@@ -34,6 +34,7 @@ export default function ComposePage() {
   const [confirmModel, setConfirmModel] = useState(false)
   const [errors, setErrors] = useState<FieldError[]>([])
   const [busyRunId, setBusyRunId] = useState<string | null>(null)
+  const [previewBusy, setPreviewBusy] = useState(false)
   const [saveName, setSaveName] = useState('')
   const [saveMsg, setSaveMsg] = useState<string | null>(null)
 
@@ -121,6 +122,7 @@ export default function ComposePage() {
   const submit = async () => {
     setErrors([])
     setBusyRunId(null)
+    setPreviewBusy(false)
     try {
       const { run_id } = await launchRun(composition())
       navigate(`/runs/${run_id}`)
@@ -131,8 +133,14 @@ export default function ComposePage() {
           payload.errors ?? [{ field: '_service', message: String(payload.detail ?? 'Error del servicio') }],
         )
       } else if (e instanceof ApiError && e.status === 409) {
-        const payload = (e.payload ?? {}) as { active_run_id?: string }
-        setBusyRunId(payload.active_run_id ?? null)
+        const payload = (e.payload ?? {}) as { active_run_id?: string; reason?: string }
+        if (payload.reason === 'preview_active') {
+          setPreviewBusy(true)
+          setBusyRunId(null)
+        } else {
+          setBusyRunId(payload.active_run_id ?? null)
+          setPreviewBusy(false)
+        }
       } else {
         setErrors([{ field: '_target', message: String(e) }])
       }
@@ -219,7 +227,7 @@ export default function ComposePage() {
                 const nextId = e.target.value
                 setSetId(nextId)
                 const found = sets.find((s) => s.id === nextId)
-                setActiveIds(found ? found.classes.filter((c) => c.enabled_by_default).map((c) => c.id) : [])
+                setActiveIds(found ? found.classes.filter((c) => c.enabled_by_default !== false).map((c) => c.id) : [])
               }}
             >
               <option value="">— elegir —</option>
@@ -285,6 +293,11 @@ export default function ComposePage() {
       {busyRunId && (
         <p className="eo-note eo-note--warn">
           Ya hay un run activo: <a href={`#/runs/${busyRunId}`}>{busyRunId}</a>
+        </p>
+      )}
+      {previewBusy && (
+        <p className="eo-note eo-note--warn">
+          Hay una prueba de cámara activa. Cerrala en <a href="#/cameras">Cámaras</a> para lanzar el run.
         </p>
       )}
       <div style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'center' }}>

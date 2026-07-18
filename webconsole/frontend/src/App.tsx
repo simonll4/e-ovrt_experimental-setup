@@ -1,5 +1,6 @@
 import { Route, Routes } from 'react-router-dom'
 import Shell from './components/Shell'
+import CamerasPage from './pages/CamerasPage'
 import CatalogPage from './pages/CatalogPage'
 import ComparePage from './pages/ComparePage'
 import ComposePage from './pages/ComposePage'
@@ -23,6 +24,7 @@ export default function App() {
         <Route path="/experiments" element={<ExperimentsPage />} />
         <Route path="/experiments/:id" element={<ExperimentDetailPage />} />
         <Route path="/prompts" element={<PromptSetsPage />} />
+        <Route path="/cameras" element={<CamerasPage />} />
       </Routes>
     </Shell>
   )

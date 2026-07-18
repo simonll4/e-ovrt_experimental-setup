@@ -57,6 +57,10 @@ class ConsoleSettings:
     def experiments_dir(self) -> Path:
         return self.repo_root / "experiments"
 
+    @property
+    def cameras_dir(self) -> Path:
+        return self.repo_root / "cameras"
+
     @classmethod
     def from_env(cls, env: Mapping[str, str] | None = None) -> ConsoleSettings:
         env = os.environ if env is None else env

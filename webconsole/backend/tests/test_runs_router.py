@@ -36,6 +36,28 @@ def test_lanzar_busy_409(client, fake_state):
     assert r.json()["active_run_id"] == "run_previo"
 
 
+def test_lanzar_busy_409_reason_preview_active(client, fake_state):
+    # F1: cuando el media-plane rechaza el lanzamiento porque hay una preview
+    # activa, el BFF debe re-emitir el "reason" (no descartarlo) para que el
+    # frontend pueda distinguir este caso de un run activo.
+    fake_state.active_run_id = "run_previo"
+    fake_state.launch_busy_reason = "preview_active"
+    r = client.post("/api/runs", json=_body())
+    assert r.status_code == 409
+    body = r.json()
+    assert body["active_run_id"] == "run_previo"
+    assert body["reason"] == "preview_active"
+
+
+def test_lanzar_busy_409_sin_reason_no_lo_agrega(client, fake_state):
+    # Un media-plane viejo que no manda "reason" no debe hacer aparecer la
+    # clave en el body (aditivo, no rompe consumidores existentes).
+    fake_state.active_run_id = "run_previo"
+    r = client.post("/api/runs", json=_body())
+    assert r.status_code == 409
+    assert "reason" not in r.json()
+
+
 def test_lanzar_rechazo_servicio_422_service(client, fake_state):
     fake_state.reject_launch = True
     r = client.post("/api/runs", json=_body())
