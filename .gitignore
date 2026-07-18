@@ -1,2 +1,4 @@
 infra/platform/.env
 runs/
+# presets de cámara con credenciales en claro (doc 56 §7 de docs/)
+cameras/
