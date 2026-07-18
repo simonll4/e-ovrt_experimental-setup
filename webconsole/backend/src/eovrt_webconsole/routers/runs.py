@@ -4,15 +4,18 @@ from __future__ import annotations
 import logging
 
 from fastapi import APIRouter, HTTPException, Query, Request
-from fastapi.responses import JSONResponse, StreamingResponse
+from fastapi.responses import JSONResponse, Response, StreamingResponse
 from starlette.background import BackgroundTask
 
 from eovrt_webconsole.experiment.control_backend import (
+    RunActive as ControlRunActive,
     ServiceUnavailable as ControlServiceUnavailable,
     UnknownRun as ControlUnknownRun,
 )
 from eovrt_webconsole.routers.compose import validate_composition
-from eovrt_webconsole.run_backend import RunBusy, RunNotFinished, ServiceRejected, ServiceUnavailable, UnknownRun
+from eovrt_webconsole.run_backend import (
+    RunActive, RunBusy, RunNotFinished, ServiceRejected, ServiceUnavailable, UnknownRun,
+)
 from eovrt_webconsole.trace import compose_trace
 from eovrt_webconsole.translation import Composition, composition_to_run_request
 
@@ -132,6 +135,76 @@ async def stop_run(run_id: str, request: Request) -> dict:
         raise HTTPException(status_code=502, detail=str(exc)) from exc
     logger.info("stop_run: solicitado stop de run_id=%s", run_id)
     return {"run_id": run_id, "stopping": True}
+
+
+@router.delete("/{run_id}", status_code=204)
+async def delete_run(run_id: str, request: Request):
+    backend = request.app.state.backend
+    control = request.app.state.control_backend
+
+    media_gone = False
+    try:
+        media_status = await backend.status(run_id)
+    except UnknownRun:
+        media_gone = True
+    except ServiceUnavailable as exc:
+        logger.warning("delete_run(%s): servicio media inaccesible: %s", run_id, exc)
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+    else:
+        if media_status.get("status") == "running":
+            raise HTTPException(status_code=409, detail="No se puede borrar un run activo")
+
+    try:
+        candidates = await control.list_runs(media_run_id=run_id)
+    except ControlServiceUnavailable as exc:
+        logger.warning(
+            "delete_run(%s): control-plane inaccesible al resolver correlación: %s", run_id, exc
+        )
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+    control_run_ids = [item["control_run_id"] for item in candidates]
+
+    if media_gone and not control_run_ids:
+        raise HTTPException(status_code=404, detail=f"Run desconocido: {run_id}")
+
+    for control_run_id in control_run_ids:
+        try:
+            control_status = await control.status(control_run_id)
+        except ControlUnknownRun:
+            continue
+        except ControlServiceUnavailable as exc:
+            logger.warning("delete_run(%s): control-plane inaccesible: %s", run_id, exc)
+            raise HTTPException(status_code=502, detail=str(exc)) from exc
+        if control_status.get("status") == "running":
+            raise HTTPException(
+                status_code=409, detail=f"No se puede borrar: {control_run_id} sigue activo"
+            )
+
+    errors: dict[str, str] = {}
+    if not media_gone:
+        try:
+            await backend.delete(run_id)
+        except UnknownRun:
+            pass
+        except RunActive as exc:
+            errors["media"] = exc.detail
+        except ServiceUnavailable as exc:
+            errors["media"] = str(exc)
+
+    for control_run_id in control_run_ids:
+        try:
+            await control.delete(control_run_id)
+        except ControlUnknownRun:
+            continue
+        except ControlRunActive as exc:
+            errors["control"] = exc.detail
+        except ControlServiceUnavailable as exc:
+            errors["control"] = str(exc)
+
+    if errors:
+        logger.warning("delete_run(%s): borrado parcial: %s", run_id, errors)
+        return JSONResponse(status_code=207, content={"detail": "borrado parcial", "errors": errors})
+    logger.info("delete_run: run_id=%s borrado en ambos planos", run_id)
+    return Response(status_code=204)
 
 
 @router.post("/{run_id}/evaluate")
