@@ -27,7 +27,7 @@ Por eso se separa en este repo:
 *instancias* que se conforman a él. Así el media-plane sigue siendo ejecutable y testeable de forma
 self-contained, y este repo es la única fuente de verdad de los experimentos.
 
-> Diseño completo: `e-ovrt_media-plane/docs/superpowers/specs/2026-06-27-experimental-setup-config-design.md`
+> Diseño completo: `e-ovrt_media-plane/docs/_archive/superpowers/specs/2026-06-27-experimental-setup-config-design.md`
 > y el rediseño de la capa de prompts en `…/specs/2026-06-25-prompt-layer-design.md`.
 
 ## 2. Layout

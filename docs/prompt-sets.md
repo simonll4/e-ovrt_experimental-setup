@@ -74,15 +74,19 @@ Resultado: cada detección sale ligada por construcción (`label` canónico + `p
 
 ## 4. Sets actuales
 
+Catálogo **activo** (`prompts/*.yaml`) — lo que la consola lista y los manifiestos pueden
+referenciar por `ref`:
+
 | Set | Estado | Clases | Notas |
 |---|---|---|---|
 | `cr01_cr02_v2_short` | `frozen` | person, helmet, vest | Etiquetas cortas v2 (mejor activación de YOLOE/CLIP que las frases compuestas de v1). Solo `phrasings.default`. Retro-etiquetado. |
 | `cr01_cr02_bench_v2` | `frozen` | person, helmet, vest, **bare_head** | Set de evaluación BENCH v2. `bare_head` (`role: visual_risk_indicator`) para cabeza sin casco. **NO modificar** — reproducibilidad del BENCH. Retro-etiquetado. |
-| `eind_v1` | `frozen_pending_review` | person, helmet, vest | Carril 1 (núcleo): vocabulario positivo canónico, `canonical_positive`, phrasings idénticos ambos backends. Deriva de `cr01_cr02_v2_short`. |
-| `ppe_v2_descriptive` | `exploratory` | person, helmet, vest, bare_head | Fraseo descriptivo por backend para A/B contra los congelados: `gdino` con sinónimos cortos (`hard hat`/`safety helmet`, `reflective vest`/`high-visibility vest`, `bare head`/`uncovered head`), `yoloe` nominal. `strategy` migrado a la taxonomía de ejes. |
-| `edir_exp_cr01_candidates` | `exploratory` | según CR-01 | Carril 2: candidatas por eje para CR-01, corridas rápidas sobre la mitad calib del BENCH. |
-| `edir_exp_cr02_candidates` | `exploratory` | según CR-02 | Carril 2: candidatas por eje para CR-02, ídem. |
-| `edir_exp_weak_classes` | `exploratory` | bare_head, vest | Carril 2: rescate de clases débiles (Sprint 2) con sinónimos dentro de `observable_state`/`specificity`. Deriva de `cr01_cr02_bench_v2`. |
+| `eind_v1` | `frozen_pending_review` | person, helmet, vest | Carril 1 (núcleo): vocabulario positivo canónico, `canonical_positive`, phrasings idénticos ambos backends. Deriva de `cr01_cr02_v2_short`. Espera acta para congelarse. |
+
+**Archivados** (2026-07-18, `prompts/_archive/`) — sets exploratorios del Carril 2 (E-DIR)
+que ningún manifiesto corre todavía; fuera del catálogo activo hasta que se retomen (ver
+`prompts/_archive/README.md`): `ppe_v2_descriptive`, `edir_exp_cr01_candidates`,
+`edir_exp_cr02_candidates`, `edir_exp_weak_classes`.
 
 ### Congelado vs experimental
 

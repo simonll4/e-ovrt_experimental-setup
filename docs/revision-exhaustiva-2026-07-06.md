@@ -135,8 +135,8 @@ reconciliación durante run en vuelo), y whole-branch review final cross-repo:
 
 ## 6. Referencias
 
-- Spec de la feature: `docs/superpowers/specs/2026-07-06-webconsole-twonode-visibility-design.md`
-- Plan ejecutado: `docs/superpowers/plans/2026-07-06-webconsole-twonode-visibility.md`
+- Spec de la feature: `docs/_archive/superpowers/specs/2026-07-06-webconsole-twonode-visibility-design.md`
+- Plan ejecutado: `docs/_archive/superpowers/plans/2026-07-06-webconsole-twonode-visibility.md`
 - Ledgers de ejecución: `.superpowers/sdd/progress.md` (este repo) y
   `e-ovrt_media-plane/.superpowers/sdd/progress.md`
 - Smoke E2E documentado: `e-ovrt_media-plane/infra/twonode/README.md`,

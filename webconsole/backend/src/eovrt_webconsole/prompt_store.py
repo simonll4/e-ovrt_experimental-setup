@@ -1,6 +1,6 @@
 """Almacén de prompt sets sobre prompts/ — los YAML son la fuente de verdad.
 
-Spec: docs/superpowers/specs/2026-07-17-prompt-strategy-design.md §2/§3.
+Spec: docs/_archive/superpowers/specs/2026-07-17-prompt-strategy-design.md §2/§3.
 PromptSetModel es un ESPEJO MÍNIMO de eovrt_media.config.schemas.PromptSet
 (+ campos de ciclo de vida): la consola no depende de eovrt_media; el
 validador final sigue siendo el media-plane en POST /api/runs.

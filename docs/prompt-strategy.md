@@ -7,7 +7,7 @@ prompt sets de esta plataforma, y el **programa de estudios** que los organiza. 
 al **doc núcleo 12** del repo `docs` (`12-diseno-prompts-y-fusion-ehyb.md`, enmendado
 2026-07-17 para la **pista doble** GDINO-tiny primaria + YOLOE-26s réplica) — el protocolo
 experimental es el del doc 12, no uno nuevo — y al spec de diseño
-[`docs/superpowers/specs/2026-07-17-prompt-strategy-design.md`](superpowers/specs/2026-07-17-prompt-strategy-design.md).
+[`docs/_archive/superpowers/specs/2026-07-17-prompt-strategy-design.md`](superpowers/specs/2026-07-17-prompt-strategy-design.md).
 
 [`docs/prompt-sets.md`](prompt-sets.md) queda como referencia de **formato** (estructura del
 YAML, resolución de `phrasings`, cómo los consume el media-plane); este documento cubre lo que
