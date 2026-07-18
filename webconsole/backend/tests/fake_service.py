@@ -160,15 +160,16 @@ def make_fake_service(state: FakeState) -> FastAPI:
         runs = []
         if state.active_run_id:
             runs.append({"run_id": state.active_run_id, "status": "running", "live": True})
-        runs.append(
-            {
-                "run_id": "run_done_1",
-                "status": "succeeded",
-                "bench_split": "bench_v2_test",
-                "evaluated": "run_done_1" in state.eval_results,
-                "live": False,
-            }
-        )
+        if "run_done_1" not in state.deleted:
+            runs.append(
+                {
+                    "run_id": "run_done_1",
+                    "status": "succeeded",
+                    "bench_split": "bench_v2_test",
+                    "evaluated": "run_done_1" in state.eval_results,
+                    "live": False,
+                }
+            )
         return runs
 
     @app.get("/api/runs/{run_id}")
@@ -178,7 +179,7 @@ def make_fake_service(state: FakeState) -> FastAPI:
         if run_id == state.active_run_id:
             return {"run_id": run_id, "status": "running", "live": True,
                     "started_at": "2026-07-03T12:00:00+00:00", "model": MODEL["ref"]}
-        if run_id == "run_done_1":
+        if run_id == "run_done_1" and run_id not in state.deleted:
             return {
                 "run_id": run_id,
                 "status": "succeeded",
@@ -215,7 +216,7 @@ def make_fake_service(state: FakeState) -> FastAPI:
             return JSONResponse(status_code=503, content={"detail": "Servicio no listo (modelo no cargado)"})
         if run_id == state.active_run_id:
             return JSONResponse(status_code=409, content={"detail": "No se evalúa un run en curso"})
-        if run_id != "run_done_1":
+        if run_id != "run_done_1" or run_id in state.deleted:
             return JSONResponse(status_code=404, content={"detail": f"Run desconocido: {run_id}"})
         if state.evaluate_not_bench:
             return JSONResponse(
@@ -231,7 +232,7 @@ def make_fake_service(state: FakeState) -> FastAPI:
         if not state.ready:
             return JSONResponse(status_code=503, content={"detail": "Servicio no listo (modelo no cargado)"})
         result = state.eval_results.get(run_id)
-        if result is None:
+        if result is None or run_id in state.deleted:
             return JSONResponse(status_code=404, content={"detail": f"Run no evaluado: {run_id}"})
         return result
 
@@ -239,7 +240,7 @@ def make_fake_service(state: FakeState) -> FastAPI:
     def detections(run_id: str, page: int = Query(1, ge=1), page_size: int = Query(100, ge=1, le=1000)):
         if not state.ready:
             return JSONResponse(status_code=503, content={"detail": "Servicio no listo (modelo no cargado)"})
-        if run_id != "run_done_1":
+        if run_id != "run_done_1" or run_id in state.deleted:
             return JSONResponse(status_code=404, content={"detail": "Sin detecciones"})
         start = (page - 1) * page_size
         items = DETECTIONS[start : start + page_size]
@@ -259,7 +260,7 @@ def make_fake_service(state: FakeState) -> FastAPI:
     @app.get("/api/runs/{run_id}/artifacts/{artifact_path:path}")
     def artifact(run_id: str, artifact_path: str):
         data = ARTIFACTS.get(artifact_path)
-        if run_id != "run_done_1" or data is None:
+        if run_id != "run_done_1" or run_id in state.deleted or data is None:
             return JSONResponse(status_code=404, content={"detail": "Artefacto no encontrado"})
         return Response(content=data, media_type="application/octet-stream",
                         headers={"accept-ranges": "bytes"})
@@ -287,7 +288,7 @@ def make_fake_service(state: FakeState) -> FastAPI:
                 await ws.send_json(event)
             await ws.close(code=1000)
             return
-        if run_id == "run_done_1":
+        if run_id == "run_done_1" and run_id not in state.deleted:
             await ws.send_json({"type": "state", "status": "succeeded", "error": None})
             await ws.close(code=1000)
             return
