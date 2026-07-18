@@ -3,8 +3,8 @@ import {
   ApiError, deleteCamera, getPreview, listCameras, startPreview, stopPreview,
 } from '../api'
 import CameraPresetForm from '../components/CameraPresetForm'
+import LiveViewer from '../components/LiveViewer'
 import LivePromptPanel from '../components/LivePromptPanel'
-import PreviewWithBoxes from '../components/PreviewWithBoxes'
 import { Badge, Card, DetChip, EmptyState, ErrorBanner } from '../components/ui'
 import { usePreviewStream } from '../preview'
 import { useTargetModelRef } from '../useTarget'
@@ -152,12 +152,38 @@ export default function CamerasPage() {
           <button type="button" onClick={() => void disconnect()}>Detener</button>
         </p>
       )}
+      <Card title="Viewer">
+        {live.finalState?.status === 'error' && (
+          <ErrorBanner>{live.finalState.error}</ErrorBanner>
+        )}
+        <LiveViewer
+          frameUrl={live.frameUrl}
+          header={live.header}
+          connected={live.connected}
+          fps={live.fps}
+          mode={mode}
+        />
+        {live.frameUrl && (
+          <div style={{ display: 'grid', gap: 'var(--space-3)', marginTop: 'var(--space-3)' }}>
+            <div className="eo-stats-row">
+              <button type="button" onClick={() => void disconnect()}>Desconectar</button>
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-1)' }}>
+              {totalsByLabel.map(([label, count]) => (
+                <DetChip key={label} label={label} count={count} />
+              ))}
+            </div>
+          </div>
+        )}
+      </Card>
+
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'minmax(220px, 1fr) minmax(280px, 1.4fr) minmax(260px, 1fr)',
+          gridTemplateColumns: 'minmax(220px, 1fr) minmax(280px, 1.4fr)',
           gap: 'var(--space-5)',
           alignItems: 'start',
+          marginTop: 'var(--space-5)',
         }}
       >
         <Card title="Presets">
@@ -212,41 +238,6 @@ export default function CamerasPage() {
                 {presets.length === 0 && <EmptyState>Sin presets de cámara todavía.</EmptyState>}
               </ul>
             </>
-          )}
-        </Card>
-
-        <Card title="Viewer">
-          {live.finalState?.status === 'error' && (
-            <ErrorBanner>{live.finalState.error}</ErrorBanner>
-          )}
-          {live.frameUrl ? (
-            <div style={{ display: 'grid', gap: 'var(--space-3)' }}>
-              <PreviewWithBoxes
-                src={live.frameUrl}
-                alt="preview"
-                detections={currentDetections.map((d) => ({
-                  label: d.label,
-                  confidence: d.score,
-                  bbox_norm_xyxy: d.bbox_norm_xyxy,
-                }))}
-                width={100}
-              />
-              <div className="eo-stats-row">
-                <Badge tone={live.connected ? 'live' : 'neutral'}>
-                  {live.connected ? 'conectado' : 'desconectado'}
-                </Badge>
-                <span>{live.fps} fps</span>
-                <span>modo: {live.header?.mode ?? mode}</span>
-                <button type="button" onClick={() => void disconnect()}>Desconectar</button>
-              </div>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-1)' }}>
-                {totalsByLabel.map(([label, count]) => (
-                  <DetChip key={label} label={label} count={count} />
-                ))}
-              </div>
-            </div>
-          ) : (
-            <EmptyState>Sin señal — conectá una cámara para ver el stream.</EmptyState>
           )}
         </Card>
 

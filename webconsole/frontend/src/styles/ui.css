@@ -329,3 +329,44 @@
   font-size: var(--text-xs);
   background: var(--surface-sunken);
 }
+
+/* Viewer en vivo (ventana Cámaras): canvas responsive, tamaño derivado del
+   aspect-ratio real del frame, con una franja de indicadores superpuesta. */
+.eo-live-viewer {
+  position: relative;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  background: var(--surface-sunken);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.eo-live-viewer__canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.eo-live-viewer__empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+}
+.eo-live-viewer__overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  background: linear-gradient(to bottom, rgba(13, 13, 13, 0.75), transparent);
+  color: var(--text);
+  font-size: var(--text-sm);
+  pointer-events: none;
+}
