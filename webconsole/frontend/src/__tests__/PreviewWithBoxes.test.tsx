@@ -15,6 +15,20 @@ describe('PreviewWithBoxes', () => {
     expect(container.querySelectorAll('.eo-preview__box').length).toBe(2)
   })
 
+  it('renderiza la preview a un tamaño legible por defecto (no un thumbnail diminuto)', () => {
+    const { container } = render(<PreviewWithBoxes src="x.jpg" alt="u0" detections={[]} />)
+    const img = container.querySelector('img') as HTMLImageElement
+    expect(Number(img.getAttribute('width'))).toBeGreaterThanOrEqual(200)
+  })
+
+  it('respeta un width explícito', () => {
+    const { container } = render(
+      <PreviewWithBoxes src="x.jpg" alt="u0" detections={[]} width={120} />,
+    )
+    const img = container.querySelector('img') as HTMLImageElement
+    expect(img.getAttribute('width')).toBe('120')
+  })
+
   it('no dibuja cajas si bbox_norm_xyxy es null o está ausente', () => {
     const detections: TraceDetection[] = [
       { label: 'person', confidence: 0.9, bbox_norm_xyxy: null },

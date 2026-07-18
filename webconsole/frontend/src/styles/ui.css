@@ -299,7 +299,7 @@
 .eo-preview { position: relative; display: inline-block; line-height: 0; transition: transform .12s ease; }
 .eo-preview img { display: block; max-width: 100%; }
 .eo-preview__box { position: absolute; border: 1.5px solid; pointer-events: none; border-radius: 1px; }
-.eo-preview:hover { transform: scale(2.2); transform-origin: left center; z-index: 10; }
+.eo-preview:hover { transform: scale(1.6); transform-origin: left center; z-index: 10; }
 /* Fila con alerta */
 .eo-row--alert > td { background: color-mix(in srgb, var(--status-error) 8%, transparent); }
 

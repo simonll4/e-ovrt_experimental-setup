@@ -6,7 +6,7 @@ export default function PreviewWithBoxes({
   src,
   alt,
   detections,
-  width = 80,
+  width = 240,
 }: {
   src: string
   alt: string
