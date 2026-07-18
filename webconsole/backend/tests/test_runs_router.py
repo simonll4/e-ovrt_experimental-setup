@@ -216,12 +216,17 @@ def test_delete_reintento_idempotente_tras_fallo_parcial(two_plane_client, fake_
     r1 = two_plane_client.delete("/api/runs/run_done_1")
     assert r1.status_code == 207
     assert "control" in r1.json()["errors"]
-    assert fake_state.deleted == ["run_done_1"]  # el lado media sí se borró
+    # control se intenta ANTES que media: si control falla, media ni se toca
+    # (sigue existiendo), que es justo la propiedad que garantiza que el run
+    # siga visible en la UI (media-sourced) para poder reintentar.
+    assert fake_state.deleted == []
+    assert two_plane_client.get("/api/runs/run_done_1").status_code == 200
 
     monkeypatch.setattr(two_plane_client.app.state.control_backend, "delete", original_delete)
     r2 = two_plane_client.delete("/api/runs/run_done_1")
     assert r2.status_code == 204
     assert control_state.deleted == ["ctrl-3"]
+    assert fake_state.deleted == ["run_done_1"]
 
 
 def test_delete_falla_media_control_ok(two_plane_client, fake_state, control_state, monkeypatch):
@@ -243,7 +248,11 @@ def test_delete_falla_media_control_ok(two_plane_client, fake_state, control_sta
     assert control_state.deleted == ["ctrl-4"]  # el lado control sí se borró
 
 
-def test_delete_falla_ambos_lados(two_plane_client, fake_state, control_state, monkeypatch):
+def test_delete_control_falla_media_no_se_intenta(two_plane_client, fake_state, control_state, monkeypatch):
+    """Con el gating nuevo (media solo se intenta si control terminó sin
+    errores), una falla de control dentro de una misma llamada implica que
+    media NUNCA se llega a tocar en esa llamada: solo aparece "control" en
+    errors, y el lado media queda intacto (visible) para el reintento."""
     from eovrt_webconsole.experiment.control_backend import ServiceUnavailable as ControlServiceUnavailable
 
     control_state.runs_index = [
@@ -265,5 +274,48 @@ def test_delete_falla_ambos_lados(two_plane_client, fake_state, control_state, m
 
     assert r.status_code == 207
     errors = r.json()["errors"]
-    assert "media" in errors
     assert "control" in errors
+    assert "media" not in errors
+    assert fake_state.deleted == []
+    assert two_plane_client.get("/api/runs/run_done_1").status_code == 200
+
+
+def test_delete_control_ok_media_falla_luego_de_retry_de_control(
+    two_plane_client, fake_state, control_state, monkeypatch
+):
+    """Simula ambos lados fallando en sucesivas llamadas: primero control falla
+    (media ni se intenta), luego -tras arreglarse control- el retry alcanza a
+    media y ese lado falla. El run sigue visible en todo momento hasta que
+    ambos lados terminan bien."""
+    from eovrt_webconsole.experiment.control_backend import ServiceUnavailable as ControlServiceUnavailable
+
+    control_state.runs_index = [
+        {"control_run_id": "ctrl-6", "status": "succeeded", "started_at": "2026-07-18T00:00:00+00:00",
+         "alerts_count": 0, "media_run_id": "run_done_1"},
+    ]
+    control_state.alerts["ctrl-6"] = []
+
+    async def control_down(_control_run_id):
+        raise ControlServiceUnavailable("caído control")
+
+    async def media_down(_run_id):
+        raise ServiceUnavailable("caído media")
+
+    monkeypatch.setattr(two_plane_client.app.state.control_backend, "delete", control_down)
+    r1 = two_plane_client.delete("/api/runs/run_done_1")
+    assert r1.status_code == 207
+    assert "control" in r1.json()["errors"]
+    assert "media" not in r1.json()["errors"]
+    assert fake_state.deleted == []
+
+    control_state.deleted = []  # el fake ya habría marcado deleted si hubiera llegado a llamarse; no se llamó
+    monkeypatch.undo()  # restaura control.delete real (éxito) manteniendo media_down
+    monkeypatch.setattr(two_plane_client.app.state.backend, "delete", media_down)
+
+    r2 = two_plane_client.delete("/api/runs/run_done_1")
+    assert r2.status_code == 207
+    errors2 = r2.json()["errors"]
+    assert "media" in errors2
+    assert "control" not in errors2
+    assert control_state.deleted == ["ctrl-6"]
+    assert two_plane_client.get("/api/runs/run_done_1").status_code == 200

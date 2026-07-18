@@ -179,17 +179,20 @@ async def delete_run(run_id: str, request: Request):
                 status_code=409, detail=f"No se puede borrar: {control_run_id} sigue activo"
             )
 
+    # Orden de borrado (finding de la revisión final): control-plane PRIMERO,
+    # media-plane AL FINAL — y el borrado de media SOLO se intenta si el lado
+    # control terminó sin errores. La visibilidad de la UI (RunsPage/
+    # RunDetailPage) se nutre enteramente del media-plane, así que dejar media
+    # como lo último en tocarse, y condicionado al éxito de control, garantiza
+    # que ante CUALQUIER falla parcial el run siga visible para reintentar:
+    # si control falla, media NI SE INTENTA (sigue existiendo, visible); si
+    # control tiene éxito pero media falla, el borrado quedó incompleto y el
+    # run también sigue visible (no se borró). Solo cuando ambos lados
+    # terminan bien el run desaparece de la UI, que es lo correcto. Con el
+    # orden inverso (media primero, sin gating), una falla del lado control
+    # (el endpoint más nuevo, menos probado) dejaba el run invisible en la UI
+    # sin forma de reintentar, pese a que control seguía huérfano.
     errors: dict[str, str] = {}
-    if not media_gone:
-        try:
-            await backend.delete(run_id)
-        except UnknownRun:
-            pass
-        except RunActive as exc:
-            errors["media"] = exc.detail
-        except ServiceUnavailable as exc:
-            errors["media"] = str(exc)
-
     control_errors: list[str] = []
     for control_run_id in control_run_ids:
         try:
@@ -202,6 +205,16 @@ async def delete_run(run_id: str, request: Request):
             control_errors.append(str(exc))
     if control_errors:
         errors["control"] = "; ".join(control_errors)
+
+    if not control_errors and not media_gone:
+        try:
+            await backend.delete(run_id)
+        except UnknownRun:
+            pass
+        except RunActive as exc:
+            errors["media"] = exc.detail
+        except ServiceUnavailable as exc:
+            errors["media"] = str(exc)
 
     if errors:
         logger.warning("delete_run(%s): borrado parcial: %s", run_id, errors)
