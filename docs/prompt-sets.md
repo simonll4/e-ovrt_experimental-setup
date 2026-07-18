@@ -30,12 +30,12 @@ prompt_set:
   changes: "..."            # opcional: qué cambió respecto de derives_from y por qué
   frozen_sha256: "<hex>"    # solo en frozen: sha256 del bloque classes (lo calcula la webconsole al congelar)
   classes:
-    - id: helmet                # identidad estable del prompt → Detection.prompt_id
+    - id: helmet                # clave estable → Detection.prompt_id; la referencian manifiestos y patterns
       canonical: helmet         # clase de evaluación (canonical_v2); opcional, default = id
-      role: ppe                 # metadato semántico (entity | ppe | visual_risk_indicator)
-      strategy: positive_evidence   # metadato/provenance opcional (etiqueta, no lógica)
-      condition_id: CR-01       # metadato/provenance opcional (trazabilidad de riesgo)
-      enabled_by_default: true  # si entra cuando active_ids no lo lista explícitamente
+      role: ppe                 # solo documentación (entity | ppe | visual_risk_indicator); NO se propaga
+      strategy: canonical_positive   # provenance → Detection.strategy (taxonomía de ejes, ver §"Reglas")
+      condition_id: CR-01       # provenance → Detection.condition_id (trazabilidad de riesgo, etiqueta libre)
+      enabled_by_default: true  # entra por default si el manifiesto no trae active_ids
       phrasings:                # dict backend → lista de frases
         default: ["helmet"]      #   fallback para cualquier backend sin entrada propia
         gdino:   ["hard hat", "safety helmet"]   # sinónimos descriptivos cortos
@@ -43,19 +43,34 @@ prompt_set:
 ```
 
 ### Reglas de resolución
-- `id`: único en el set. Se propaga a `Detection.prompt_id`.
+- `id`: único en el set. Es la **clave estable** de la clase — no cambia aunque cambie el fraseo.
+  Se propaga a `Detection.prompt_id`. Además es lo que referencian por fuera del prompt set:
+  el `active_ids` de un manifiesto de experimento, y del lado del control-plane los patterns
+  (`subject_class: person`, `required_absent_class: helmet` en `configs/patterns/*.yaml`)
+  esperan encontrar exactamente estos ids en las detecciones que les llegan. Por eso `id` y
+  `phrasings` son campos separados a propósito: podés cambiar el fraseo (iterar frases,
+  agregar sinónimos, correr un A/B) sin romper nada río abajo, porque lo que ancla al resto de
+  la plataforma es el `id`, no el texto que se le manda al modelo.
 - `canonical`: clase del vocabulario de evaluación (canonical_v2: `person`/`helmet`/`vest`/`bare_head`).
   Default = `id`. Se propaga a `Detection.label`. **Alinea las detecciones con el BENCH de forma
   determinista** (binding por construcción, sin heurísticos).
 - `phrasings`: cadena de fallback `phrasings[backend]` → `phrasings["default"]`. Si falta toda entrada
   para una clase activa, es **error de validación**. Una entrada presente pero **vacía** (`gdino: []`)
   también es error (no cae silenciosamente a `default`).
-- `strategy` / `condition_id`: **solo provenance** — se propagan a `detections.jsonl` pero el
-  media-plane **no** ramifica lógica sobre ellos (eso es del plano de control). Los valores de
-  `strategy` son la taxonomía de ejes de [`docs/prompt-strategy.md`](prompt-strategy.md):
-  `canonical_positive`, `syntactic_negation`, `specificity`, `observable_state`,
-  `presence_template`; `positive_evidence`/`direct_absence` son históricos, solo en sets frozen
-  retro-etiquetados. `condition_id` traza a CR-01..06.
+- `role`: **solo documentación** — clasifica la clase (`entity`/`ppe`/`visual_risk_indicator`) para
+  quien lee el YAML. A diferencia de `strategy`/`condition_id`, **no se propaga** a
+  `detections.jsonl` ni a ningún contrato — no busques `role` río abajo, no está.
+- `strategy` / `condition_id`: **provenance activo** — sí se propagan a `detections.jsonl`
+  (`Detection.strategy`/`Detection.condition_id`), pero el media-plane **no ramifica lógica**
+  sobre ellos (eso es del plano de control, y hoy tampoco lo consume — quedan como campo de
+  trazabilidad para el informe). Los valores de `strategy` son la taxonomía de ejes de
+  [`docs/prompt-strategy.md`](prompt-strategy.md): `canonical_positive`, `syntactic_negation`,
+  `specificity`, `observable_state`, `presence_template`. No hay valores históricos tolerados.
+  `condition_id` es una etiqueta libre que traza a CR-01..06 (no valida contra una lista cerrada).
+- `enabled_by_default`: decide si la clase entra **cuando el manifiesto no especifica
+  `active_ids`** (`prompts: {ref: <set>}` sin más). Si el manifiesto sí trae `active_ids: [...]`,
+  esa lista manda tal cual y `enabled_by_default` se ignora — podés activar ahí incluso una clase
+  con `enabled_by_default: false`.
 
 ## 3. Cómo se consumen (en el media-plane)
 
@@ -79,8 +94,8 @@ referenciar por `ref`:
 
 | Set | Estado | Clases | Notas |
 |---|---|---|---|
-| `cr01_cr02_v2_short` | `frozen` | person, helmet, vest | Etiquetas cortas v2 (mejor activación de YOLOE/CLIP que las frases compuestas de v1). Solo `phrasings.default`. Retro-etiquetado. |
-| `cr01_cr02_bench_v2` | `frozen` | person, helmet, vest, **bare_head** | Set de evaluación BENCH v2. `bare_head` (`role: visual_risk_indicator`) para cabeza sin casco. **NO modificar** — reproducibilidad del BENCH. Retro-etiquetado. |
+| `cr01_cr02_v2_short` | `exploratory` | person, helmet, vest | Etiquetas cortas v2 (mejor activación de YOLOE/CLIP que las frases compuestas de v1). Solo `phrasings.default`. Recreado 2026-07-18 con `strategy` por clase; pendiente de pedir congelamiento. |
+| `cr01_cr02_bench_v2` | `exploratory` | person, helmet, vest, **bare_head** | Set de evaluación BENCH v2. `bare_head` (`role: visual_risk_indicator`) para cabeza sin casco. Recreado 2026-07-18 con `strategy` por clase; pendiente de pedir congelamiento. |
 | `eind_v1` | `frozen_pending_review` | person, helmet, vest | Carril 1 (núcleo): vocabulario positivo canónico, `canonical_positive`, phrasings idénticos ambos backends. Deriva de `cr01_cr02_v2_short`. Espera acta para congelarse. |
 
 **Archivados** (2026-07-18, `prompts/_archive/`) — sets exploratorios del Carril 2 (E-DIR)
@@ -91,10 +106,11 @@ que ningún manifiesto corre todavía; fuera del catálogo activo hasta que se r
 ### Congelado vs experimental
 
 Detalle del ciclo de vida (estados, `frozen_sha256`, lineage, regla de promoción, programa de
-estudios en tres carriles): [`docs/prompt-strategy.md`](prompt-strategy.md). En síntesis: los
-`frozen` (`cr01_cr02_*`) son byte-equivalentes al protocolo v2 y no se tocan — cualquier cambio
-rompería la comparabilidad histórica del BENCH. En los `exploratory` se itera el fraseo; para
-A/B, correr el mismo modelo/split con el set frozen y con el exploratorio, y comparar con
+estudios en tres carriles): [`docs/prompt-strategy.md`](prompt-strategy.md). En síntesis: un
+`frozen` es byte-equivalente y no se toca — cualquier cambio rompería la comparabilidad
+histórica del BENCH; si un set frozen necesita metadata nueva, se borra y se recrea (no se
+edita in place). En los `exploratory` se itera el fraseo; para A/B, correr el mismo
+modelo/split con un set congelado y con el exploratorio, y comparar con
 `python -m eovrt_media.tools.inspect_runs compare runs/` (desde el media-plane) / el
 `evaluate_bench.py` del repo `e-ovrt_datasets`.
 
@@ -104,25 +120,87 @@ Resumen de `e-ovrt_media-plane/docs/research/prompt_module_research.md` (y §11 
 prompts):
 
 - **Sesgo afirmativo**: los OVD ignoran la negación. Detectar **evidencia positiva** (`bare_head` como
-  indicador visible de "sin casco") rinde mejor que prompts negados ("person without helmet"). El
-  `direct_absence` queda como variante **diagnóstica**, no primaria.
+  indicador visible de "sin casco", eje `observable_state`) rinde mejor que prompts negados
+  ("person without helmet", eje `syntactic_negation`). La negación queda como variante
+  **diagnóstica**, no primaria.
 - **Longitud de caption (GDINO)**: acotar el nº de frases activas; no agregar sinónimos ilimitados.
-  Los sets congelados del BENCH **no** llevan sinónimos por esto.
+  Por eso `cr01_cr02_v2_short`/`cr01_cr02_bench_v2` no llevan sinónimos (solo
+  `phrasings.default`, una frase por clase).
 - **Atributos finos + hard negatives**: el desempeño cae con distractores semánticamente cercanos
   (FG-OVD). No es un problema del set sino de la **evaluación**: medir con/sin negativos.
 
-## 6. Agregar un prompt set
+## 6. Crear un prompt set — de punta a punta desde la webconsole
 
-La vía recomendada es la **webconsole**: valida el schema al guardar y aplica el ciclo de vida
-declarativo (transiciones de `status` solo por acción explícita, `frozen_sha256` calculado al
-congelar, `derives_from` auto-completado al derivar). Ver
+La vía recomendada es la **webconsole** (vista `/prompts`): valida el schema al guardar y aplica
+el ciclo de vida declarativo (transiciones de `status` solo por acción explícita, `frozen_sha256`
+calculado al congelar, `derives_from` auto-completado al derivar). El editor **no es texto
+libre**: es un formulario estructurado sobre el mismo formato de §2 — clases, phrasings por
+backend, `strategy` como lista cerrada. Contrato de API completo (endpoints, garantías del BFF):
 [`docs/prompt-strategy.md`](prompt-strategy.md) §5.
 
-Editar a mano sigue siendo válido para sets `exploratory`:
+### 6.1 Alta (set nuevo, `status: exploratory`)
 
-1. Copiá un set existente en `prompts/<nuevo>.yaml`, ajustá `id` (== nombre de archivo) y `classes`.
-2. Mantené los `canonical` dentro de canonical_v2 si vas a evaluar contra el BENCH; usá otros `id`/
-   `canonical` si querés un modo exploración (esas corridas no se evalúan contra el BENCH).
-3. Referencialo desde un manifiesto: `prompts: {ref: <nuevo>, active_ids: [...]}`.
-4. No hay validación standalone por CLI: el servicio media-plane valida el manifiesto al
-   lanzarlo (`POST /api/runs` rechaza con `422` si es inválido).
+1. **"Nuevo set"** en `/prompts` → se abre el editor vacío. Único momento en que se pide el
+   **id**: minúsculas/números/`_`, va a ser el nombre del archivo (`prompts/<id>.yaml`) y la
+   clave que después usa `prompts: {ref: <id>}` en un manifiesto.
+2. Completá **descripción** (para qué es este set, de qué se deriva conceptualmente).
+3. **"Agregar clase"** por cada clase a detectar. Por clase:
+   - **clase id** — el identificador estable (`person`, `helmet`, `bare_head`...). Ver §"Reglas
+     de resolución" arriba: esto es lo que otros componentes (manifiestos, patterns del
+     control-plane) van a referenciar, así que elegilo pensando en eso, no en el fraseo.
+   - **strategy** — el eje de formulación de la Tabla C.1 (`docs/prompt-strategy.md` §2):
+     `canonical_positive` para vocabulario positivo directo (la mayoría de las clases),
+     `observable_state`/`syntactic_negation`/`specificity`/`presence_template` para las
+     variantes de E-DIR. Metadato de trazabilidad — no cambia cómo se detecta, pero sí queda
+     registrado en cada detección para poder analizar después qué eje rindió mejor.
+   - **phrasings.\<backend\>** — las frases candidatas, separadas por `;` (`person; worker;
+     obrero`). Al menos `phrasings.default`; agregá `gdino`/`yoloe` si necesitás fraseo
+     distinto por backend (§1: GDINO tolera frases descriptivas, YOLOE rinde mejor con
+     etiquetas cortas).
+4. **Guardar** — el set queda escrito en `prompts/<id>.yaml` con `status: exploratory`. Desde
+   acá podés seguir iterando: reabrir, cambiar phrasings, agregar/sacar clases, guardar de
+   nuevo. Es la **única** ventana en la que el set es editable.
+
+### 6.2 Congelamiento (cuando el fraseo ya es finalista)
+
+Un set se congela cuando va a anclar una corrida cuyo resultado se va a citar (regla de
+promoción, `docs/prompt-strategy.md` §3.3) — no antes. Mientras estés iterando frases, dejalo en
+`exploratory`.
+
+5. **"Pedir congelamiento"** → pasa a `frozen_pending_review`. El set deja de ser editable acá
+   (es el checkpoint: revisar antes de comprometerse a algo inmutable, mitiga el sesgo de elegir
+   la frase que más te gusta después de ver el resultado).
+6. Revisión humana fuera de la consola (no hay un paso de UI para esto — es vos leyendo el set
+   y decidiendo si el fraseo elegido es el que querés citar).
+7. **"Confirmar freeze"** → pasa a `frozen`. El backend calcula `frozen_sha256` sobre el bloque
+   `classes` y lo persiste en el propio YAML. A partir de acá el set es inmutable: ni editar ni
+   borrar. Es el único estado citable en resultados/informe.
+
+### 6.3 Iterar sobre un set frozen: derivar, nunca editar
+
+8. Sobre un set `frozen`, la única acción disponible es **"Derivar set nuevo"**: pedís un id
+   nuevo y un campo **"cambios"** obligatorio (qué cambia y por qué — el backend rechaza el
+   derive si viene vacío). Esto copia todas las clases del origen, arranca en `exploratory` de
+   nuevo, y guarda `derives_from: <id origen>` — así se reconstruye la genealogía completa del
+   fraseo desde los YAML solos (§3.2 de `prompt-strategy.md`).
+9. Si un set frozen resulta tener un error real (no un cambio de fraseo, sino algo mal puesto:
+   falta `strategy`, `role` mal clasificado, etc.) **no se edita in place** — se borra y se
+   recrea desde cero. La inmutabilidad de un frozen es una garantía dura, no hay excepción de
+   "solo esta vez".
+
+### 6.4 Usarlo en un experimento
+
+10. Referencialo desde un manifiesto de `experiments/`: `prompts: {ref: <id>, active_ids:
+    [...]}`. `active_ids` es opcional — si lo omitís, entran las clases con
+    `enabled_by_default: true` (ver §"Reglas de resolución").
+11. No hay validación standalone por CLI: el servicio media-plane valida el manifiesto completo
+    al lanzarlo (`POST /api/runs` rechaza con `422` si el prompt set referenciado es inválido).
+
+### 6.5 Alternativa: editar el YAML a mano
+
+Sigue siendo válido para sets `exploratory` — copiá un set existente a `prompts/<nuevo>.yaml`,
+ajustá `id` (== nombre de archivo) y `classes`, seguí los mismos campos de §2. Mantené los
+`canonical` dentro de canonical_v2 si vas a evaluar contra el BENCH. La consola es la vía
+recomendada porque valida el schema al guardar (a mano, el primer error lo tira recién
+`POST /api/runs`); a mano es más rápido para prototipar algo que ni siquiera vas a correr
+todavía.

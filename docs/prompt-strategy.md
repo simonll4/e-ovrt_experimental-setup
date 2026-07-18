@@ -16,6 +16,13 @@ la webconsole y el programa de estudios en tres carriles.
 
 ## 2. Taxonomía: los ejes del informe como vocabulario único
 
+**Para qué sirve `strategy`:** cada clase de un prompt set declara *cómo* fue formulada — no
+cambia el comportamiento del detector (el media-plane no ramifica lógica sobre este campo), pero
+viaja como provenance hasta `detections.jsonl`. Eso permite, después de correr un experimento,
+responder "¿qué eje de fraseo rindió mejor?" agrupando resultados por `strategy` sin tener que
+volver a mirar el YAML del prompt set. Es la variable independiente del programa de estudios
+de E-DIR (§4).
+
 La taxonomía de estrategias de fraseo **es la del informe de tesis** (§17.1.5.4.2 / Tabla
 C.1). No se inventa vocabulario paralelo. Cada formulación declara su eje en el campo
 `strategy` del prompt set (campo ya existente, ya propagado a `detections.jsonl` como
@@ -43,15 +50,9 @@ provenance):
    como fraseo de ambos backends salvo variante justificada en la exploración pre-freeze,
    registrada antes del congelamiento.
 
-### Migración de valores `strategy` existentes
-
-Los valores históricos mapean **por rol de la clase**: `positive_evidence` →
-`canonical_positive` cuando la clase es vocabulario positivo (person/helmet/vest) y →
-`observable_state` cuando la clase es un indicador visible de ausencia (`bare_head`);
-`direct_absence` → `syntactic_negation`. Los sets **frozen** históricos no se tocan
-(inmutabilidad, §3.1); la migración aplica solo a sets exploratorios (`ppe_v2_descriptive`) y a
-sets nuevos. El binding del media-plane no cambia: `strategy` es metadata de provenance, no
-ramifica lógica.
+No hay valores `strategy` históricos tolerados: todo set (nuevo o recreado) usa únicamente los
+5 ejes de la tabla. El binding del media-plane no cambia: `strategy` es metadata de provenance,
+no ramifica lógica.
 
 ## 3. Ciclo de vida y gestión declarativa
 
@@ -71,9 +72,8 @@ Campo `status` en el YAML del set; transiciones en un solo sentido:
 
 **Alcance de la inmutabilidad:** lo inmutable es el **payload semántico** (el bloque `classes`
 completo: ids, canonical, phrasings, strategy). Al congelar se calcula `frozen_sha256`, y se
-guarda en el propio set. Esto permite retro-etiquetar los sets históricos
-(`cr01_cr02_v2_short`, `cr01_cr02_bench_v2` → `status: frozen`) agregando solo metadata, sin
-violar su garantía de byte-equivalencia de frases.
+guarda en el propio set. No se retro-etiqueta: un set frozen que necesita metadata nueva se
+recrea desde cero (borrar + crear) o se deriva (§4) — nunca se edita in place.
 
 **Fórmula del hash** (única convención, usarla siempre igual):
 
@@ -150,6 +150,10 @@ las frases (anti-sesgo del auditor). El carril termina en el freeze.
 - Carril 3 → video V2 (clase nueva solo con lenguaje) y el límite honesto del enfoque (arnés).
 
 ## 5. Gestión desde la webconsole
+
+Walkthrough paso a paso de cómo crear/congelar/derivar un set desde la UI:
+[`docs/prompt-sets.md`](prompt-sets.md) §6. Esta sección documenta el contrato (por qué esta
+arquitectura, garantías del BFF, API).
 
 Extensión natural del ADR-009 (webconsole = superficie de gestión de la config centralizada).
 Decisión: **opción A — el BFF edita los YAML de `prompts/`**; se descartó un almacén propio

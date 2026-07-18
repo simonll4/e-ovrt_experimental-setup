@@ -158,11 +158,8 @@ def test_get_set_on_corrupt_yaml_raises_prompt_set_invalid(prompts_dir: Path):
 def test_repo_frozen_sets_integrity():
     """Contrato sobre los sets REALES del repo: todo frozen tiene hash válido."""
     repo_prompts = Path(__file__).resolve().parents[3] / "prompts"
-    frozen = 0
     for path in sorted(repo_prompts.glob("*.yaml")):
         data = yaml.safe_load(path.read_text())["prompt_set"]
         ps.PromptSetModel.model_validate(data)  # el espejo acepta todos los sets reales
         if data.get("status") == "frozen":
-            frozen += 1
             assert data["frozen_sha256"] == ps.classes_sha256(data["classes"]), path.name
-    assert frozen >= 2  # cr01_cr02_v2_short + cr01_cr02_bench_v2 (Task 1)

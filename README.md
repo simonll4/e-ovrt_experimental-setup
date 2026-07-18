@@ -34,9 +34,10 @@ self-contained, y este repo es la única fuente de verdad de los experimentos.
 
 ```
 prompts/                         # prompt sets — el vocabulario open-vocabulary del experimento
-  cr01_cr02_v2_short.yaml         # congelado: 3 clases (person/helmet/vest)
-  cr01_cr02_bench_v2.yaml         # congelado BENCH v2: 4 clases (+ bare_head)
-  ppe_v2_descriptive.yaml         # NO congelado: fraseo descriptivo por backend (A/B)
+  cr01_cr02_v2_short.yaml         # exploratory: 3 clases (person/helmet/vest)
+  cr01_cr02_bench_v2.yaml         # exploratory BENCH v2: 4 clases (+ bare_head)
+  eind_v1.yaml                    # frozen_pending_review: núcleo E-IND, deriva de v2_short
+  _archive/                       # sets exploratorios sin manifiesto activo (ver README propio)
 experiments/                     # manifiestos de corrida (un experimento por archivo)
   mock.yaml  mock_chv.yaml         # smoke / dev (detector mock, sin pesos)
   gdino.yaml  yoloe.yaml  yoloe_video.yaml   # corridas de muestra DBE (single-host)
@@ -116,15 +117,15 @@ Las salidas (`detections.jsonl`, `summary.json`, `metrics.jsonl`, previews) se e
 
 ## 5. Qué hay desarrollado actualmente
 
-**Prompt sets (7)** — metodología, taxonomía de ejes y ciclo de vida en
+**Prompt sets — catálogo activo (3)** — metodología, taxonomía de ejes y ciclo de vida en
 [`docs/prompt-strategy.md`](docs/prompt-strategy.md); formato y detalle de cada set en
 [`docs/prompt-sets.md`](docs/prompt-sets.md) §4:
-- `cr01_cr02_v2_short` y `cr01_cr02_bench_v2`: `frozen` (reproducibilidad del BENCH), etiquetas
-  cortas para canonical_v2.
+- `cr01_cr02_v2_short` y `cr01_cr02_bench_v2`: `exploratory`, etiquetas cortas para canonical_v2,
+  citados por los 19 manifiestos de experimento; pendientes de pedir congelamiento.
 - `eind_v1`: `frozen_pending_review` (carril 1 del núcleo, vocabulario positivo canónico).
-- `ppe_v2_descriptive`, `edir_exp_cr01_candidates`, `edir_exp_cr02_candidates`,
-  `edir_exp_weak_classes`: `exploratory` (carril 2, exploración pre-freeze del fraseo E-DIR y
-  rescate de clases débiles).
+
+4 sets exploratorios del carril 2 (E-DIR) sin manifiesto activo están archivados en
+`prompts/_archive/` (ver su README) — fuera del catálogo hasta que se retomen.
 
 **Experimentos** — ver [`docs/experiments.md`](docs/experiments.md) para la lista completa y
 actualizada; resumen:

@@ -45,7 +45,7 @@ make smoke                         # curl /api/health + /api/target contra :8090
 Requiere el servicio media-plane corriendo (p.ej. `EOVRT_MODEL_REF=mock make serve`
 en `../e-ovrt_media-plane`). Env vars: `EOVRT_CONSOLE_SERVICE_URL`,
 `EOVRT_CONSOLE_REPO_ROOT` (default: autodescubierto), `EOVRT_CONSOLE_FROZEN_SETS`
-(default `cr01_cr02_bench_v2`).
+(default vacío — el `status` propio de cada YAML ya basta; ver `settings.py`).
 
 ## Gestión de prompt sets
 

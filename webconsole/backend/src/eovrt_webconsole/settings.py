@@ -6,7 +6,10 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
 
-DEFAULT_FROZEN_SETS = frozenset({"cr01_cr02_bench_v2"})
+# Override manual de ids "congelados" para el badge del catálogo, además del campo
+# `status` propio de cada YAML (fuente de verdad). Vacío por default: el status del
+# set ya alcanza; usar EOVRT_CONSOLE_FROZEN_SETS solo para casos excepcionales.
+DEFAULT_FROZEN_SETS: frozenset[str] = frozenset()
 # Fuentes de ingesta que la consola sabe lanzar (decisión 2026-07-07: rtsp queda
 # habilitado de forma permanente; supersede la restricción "MVP" de
 # 2026-07-01-webconsole-design.md §6). oak_d habilitado desde 2026-07-13 (hardware

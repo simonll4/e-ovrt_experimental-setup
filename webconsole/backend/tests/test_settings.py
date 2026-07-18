@@ -14,7 +14,7 @@ def _repo(tmp_path: Path) -> Path:
 def test_from_env_minimo(tmp_path):
     s = ConsoleSettings.from_env({"EOVRT_CONSOLE_REPO_ROOT": str(_repo(tmp_path))})
     assert s.service_url == "http://localhost:8080"
-    assert s.frozen_set_ids == frozenset({"cr01_cr02_bench_v2"})
+    assert s.frozen_set_ids == frozenset()
     assert s.supported_plugins == frozenset({"image_folder", "video_file", "rtsp", "oak_d"})
     assert s.prompts_dir == tmp_path / "prompts"
     assert s.experiments_dir == tmp_path / "experiments"

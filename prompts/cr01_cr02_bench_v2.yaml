@@ -5,21 +5,23 @@ prompt_set:
     Incluye bare_head para detección de cabeza sin casco (canonical_v2 class).
     Basado en el diagnóstico P-E1 (etiquetas cortas > frases compuestas para YOLOE)
     y el protocolo experimental v2 (2026-06-18).
-    NO modificar — congelado para reproducibilidad del BENCH.
   language: en
-  status: frozen            # retro-etiquetado 2026-07-17 (spec prompt-strategy §2.1)
+  status: exploratory
   track: core
-  frozen_sha256: "25fde7d42d6c6224a1a01417597b6e4defee54d1ef65ab7df55d21fa4a7fba5b"
   classes:
     - id: person
       role: entity
+      strategy: canonical_positive
       phrasings: { default: ["person"] }
     - id: helmet
       role: ppe
+      strategy: canonical_positive
       phrasings: { default: ["helmet"] }
     - id: vest
       role: ppe
+      strategy: canonical_positive
       phrasings: { default: ["vest"] }
     - id: bare_head
       role: visual_risk_indicator
+      strategy: observable_state
       phrasings: { default: ["bare head"] }

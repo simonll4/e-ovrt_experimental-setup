@@ -21,8 +21,6 @@ _SET_ID_RE = re.compile(r"^[a-z0-9_]+$")
 STRATEGY_VALUES = frozenset({
     "canonical_positive", "syntactic_negation", "specificity",
     "observable_state", "presence_template",
-    # históricos: solo en sets frozen retro-etiquetados, no usar en sets nuevos
-    "positive_evidence", "direct_absence",
 })
 
 Status = Literal["exploratory", "frozen_pending_review", "frozen"]
