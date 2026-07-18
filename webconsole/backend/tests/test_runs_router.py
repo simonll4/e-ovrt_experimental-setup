@@ -222,3 +222,48 @@ def test_delete_reintento_idempotente_tras_fallo_parcial(two_plane_client, fake_
     r2 = two_plane_client.delete("/api/runs/run_done_1")
     assert r2.status_code == 204
     assert control_state.deleted == ["ctrl-3"]
+
+
+def test_delete_falla_media_control_ok(two_plane_client, fake_state, control_state, monkeypatch):
+    control_state.runs_index = [
+        {"control_run_id": "ctrl-4", "status": "succeeded", "started_at": "2026-07-18T00:00:00+00:00",
+         "alerts_count": 0, "media_run_id": "run_done_1"},
+    ]
+    control_state.alerts["ctrl-4"] = []
+
+    async def media_down(_run_id):
+        raise ServiceUnavailable("caído")
+
+    monkeypatch.setattr(two_plane_client.app.state.backend, "delete", media_down)
+
+    r = two_plane_client.delete("/api/runs/run_done_1")
+
+    assert r.status_code == 207
+    assert "media" in r.json()["errors"]
+    assert control_state.deleted == ["ctrl-4"]  # el lado control sí se borró
+
+
+def test_delete_falla_ambos_lados(two_plane_client, fake_state, control_state, monkeypatch):
+    from eovrt_webconsole.experiment.control_backend import ServiceUnavailable as ControlServiceUnavailable
+
+    control_state.runs_index = [
+        {"control_run_id": "ctrl-5", "status": "succeeded", "started_at": "2026-07-18T00:00:00+00:00",
+         "alerts_count": 0, "media_run_id": "run_done_1"},
+    ]
+    control_state.alerts["ctrl-5"] = []
+
+    async def media_down(_run_id):
+        raise ServiceUnavailable("caído media")
+
+    async def control_down(_control_run_id):
+        raise ControlServiceUnavailable("caído control")
+
+    monkeypatch.setattr(two_plane_client.app.state.backend, "delete", media_down)
+    monkeypatch.setattr(two_plane_client.app.state.control_backend, "delete", control_down)
+
+    r = two_plane_client.delete("/api/runs/run_done_1")
+
+    assert r.status_code == 207
+    errors = r.json()["errors"]
+    assert "media" in errors
+    assert "control" in errors

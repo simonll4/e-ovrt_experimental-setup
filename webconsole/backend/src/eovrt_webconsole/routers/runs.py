@@ -190,15 +190,18 @@ async def delete_run(run_id: str, request: Request):
         except ServiceUnavailable as exc:
             errors["media"] = str(exc)
 
+    control_errors: list[str] = []
     for control_run_id in control_run_ids:
         try:
             await control.delete(control_run_id)
         except ControlUnknownRun:
             continue
         except ControlRunActive as exc:
-            errors["control"] = exc.detail
+            control_errors.append(exc.detail)
         except ControlServiceUnavailable as exc:
-            errors["control"] = str(exc)
+            control_errors.append(str(exc))
+    if control_errors:
+        errors["control"] = "; ".join(control_errors)
 
     if errors:
         logger.warning("delete_run(%s): borrado parcial: %s", run_id, errors)
