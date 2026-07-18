@@ -73,7 +73,7 @@ describe('RunsPage', () => {
     await waitFor(() => expect(screen.getByText('Sin corridas todavía.')).toBeTruthy())
   })
 
-  it('borrado parcial muestra el detalle de los planos que fallaron', async () => {
+  it('borrado parcial muestra el detalle de los planos que fallaron, y persiste tras el refresh de la lista', async () => {
     vi.mocked(api.listRuns).mockResolvedValue([
       { run_id: 'r_2', status: 'succeeded', model: 'gdino' } as any,
     ])
@@ -85,6 +85,13 @@ describe('RunsPage', () => {
     renderPage()
     await waitFor(() => expect(screen.getByText('r_2')).toBeTruthy())
     fireEvent.click(screen.getByRole('button', { name: 'Borrar' }))
+    await waitFor(() => expect(screen.getByRole('alert').textContent).toContain('control'))
+
+    // El `finally` de handleDelete dispara un refresh() de la lista (listRuns) que
+    // resuelve exitosamente. Ese refresh no debe borrar el mensaje de borrado parcial:
+    // esperamos a que el refresh termine de asentarse y volvemos a comprobar que el
+    // alert sigue presente (regresión del bug: refresh() pisaba `error` con `null`).
+    await waitFor(() => expect(vi.mocked(api.listRuns).mock.calls.length).toBeGreaterThanOrEqual(2))
     await waitFor(() => expect(screen.getByRole('alert').textContent).toContain('control'))
   })
 })

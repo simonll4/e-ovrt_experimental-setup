@@ -11,6 +11,7 @@ export default function RunsPage() {
   const [rows, setRows] = useState<RunRow[] | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
 
   const refresh = () =>
     listRuns()
@@ -42,19 +43,20 @@ export default function RunsPage() {
   const handleDelete = async (row: RunRow) => {
     if (!window.confirm(`¿Borrar el run ${row.run_id}? No se puede deshacer.`)) return
     setDeletingId(row.run_id)
+    setDeleteError(null)
     try {
       const result = await deleteRun(row.run_id)
       if (result?.errors) {
-        setError(
+        setDeleteError(
           `Borrado parcial de ${row.run_id}: ${Object.entries(result.errors)
             .map(([plane, detail]) => `${plane}: ${detail}`)
             .join('; ')}`,
         )
       } else {
-        setError(null)
+        setDeleteError(null)
       }
     } catch (e) {
-      setError(`No se pudo borrar ${row.run_id}: ${String(e)}`)
+      setDeleteError(`No se pudo borrar ${row.run_id}: ${String(e)}`)
     } finally {
       setDeletingId(null)
       await refresh()
@@ -65,6 +67,7 @@ export default function RunsPage() {
   if (!rows) return <p className="eo-empty">Cargando…</p>
   return (
     <div>
+      {deleteError && <ErrorBanner>{deleteError}</ErrorBanner>}
       <table className="eo-table">
         <thead>
           <tr>{HEADERS.map((h) => <th key={h}>{h}</th>)}</tr>
