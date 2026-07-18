@@ -37,14 +37,16 @@ export default function RunDetailPage() {
   const live = useRunStream(id, streamable)
   const navigate = useNavigate()
   const [deleting, setDeleting] = useState(false)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
 
   const handleDelete = async () => {
     if (!window.confirm(`¿Borrar el run ${id}? No se puede deshacer.`)) return
     setDeleting(true)
+    setDeleteError(null)
     try {
       const result = await deleteRun(id)
       if (result?.errors) {
-        setError(
+        setDeleteError(
           `Borrado parcial: ${Object.entries(result.errors)
             .map(([plane, detail]) => `${plane}: ${detail}`)
             .join('; ')}`,
@@ -54,7 +56,7 @@ export default function RunDetailPage() {
       }
       navigate('/runs')
     } catch (e) {
-      setError(`No se pudo borrar: ${String(e)}`)
+      setDeleteError(`No se pudo borrar: ${String(e)}`)
       setDeleting(false)
     }
   }
@@ -93,6 +95,7 @@ export default function RunDetailPage() {
   const topology = topologyBadge(summary)
   return (
     <div style={{ display: 'grid', gap: 'var(--space-5)' }}>
+      {deleteError && <ErrorBanner>{deleteError}</ErrorBanner>}
       <h2 className="eo-inline">
         <span>{run.run_id}</span>
         <Badge tone={runStatusTone(run)}>{runStatusLabel(run)}</Badge>

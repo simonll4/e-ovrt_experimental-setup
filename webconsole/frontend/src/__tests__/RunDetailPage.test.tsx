@@ -110,6 +110,14 @@ describe('RunDetailPage', () => {
     await waitFor(() => expect(screen.getByRole('alert').textContent).toContain('control'))
     expect(navigateMock).not.toHaveBeenCalled()
 
+    // El error de borrado se guarda en un estado separado (`deleteError`) del error de
+    // carga (`error`), y se renderiza como un banner inline junto al resto de la página
+    // en lugar de reemplazarla vía el `if (error) return <ErrorBanner>...` de arriba: el
+    // resto del detalle del run (incluido el propio botón "Borrar", para poder
+    // reintentar) sigue visible.
+    expect(screen.getByRole('button', { name: 'Borrar' })).toBeTruthy()
+    expect(screen.getByText('r_1')).toBeTruthy()
+
     // Este componente no dispara ningún refresh automático (polling/WS) cuando el run
     // no está corriendo ni es streamable, así que no hay ruta por la que el mensaje de
     // borrado parcial pueda ser pisado por un `refresh()` posterior (a diferencia del
