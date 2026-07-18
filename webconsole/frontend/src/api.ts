@@ -51,6 +51,11 @@ export const stopRun = (id: string) =>
     `/api/runs/${encodeURIComponent(id)}/stop`,
     { method: 'POST' },
   )
+export const deleteRun = (id: string) =>
+  request<{ detail: string; errors: Record<string, string> } | undefined>(
+    `/api/runs/${encodeURIComponent(id)}`,
+    { method: 'DELETE' },
+  )
 export const evaluateRun = (id: string) =>
   request<EvalResult>(`/api/runs/${encodeURIComponent(id)}/evaluate`, { method: 'POST' })
 export const getEvaluation = (id: string) =>
