@@ -1,0 +1,26 @@
+# Payload control-plane (POST /api/runs, mode replay) para el experimento
+# orquestado exp_video16_clip10_gt. El runner inyecta `input` con el path
+# ABSOLUTO al detections.jsonl del run de media (ADR-009: payload exige
+# paths absolutos en patterns.file / input.path / outputs.base_dir).
+run:
+  id: null
+  scenario: DBE
+  name: control_video16_clip10_gt
+  description: "Replay orquestado (experimental-setup) del clip video16_clip10 contra pattern set oficial v2."
+
+patterns:
+  file: /home/simonll4/projects/e-ovrt_control-plane/configs/patterns/cr01_cr02_v2.yaml
+  active_ids:
+    - CR-01
+    - CR-02
+
+outputs:
+  base_dir: /home/simonll4/projects/e-ovrt_control-plane/runs
+  save_pattern_events_jsonl: true
+  save_alerts_jsonl: true
+  save_metrics_jsonl: true
+  save_errors_jsonl: true
+  save_summary_json: true
+
+logging:
+  level: INFO

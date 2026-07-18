@@ -1,0 +1,19 @@
+# Payload media-plane (POST /api/runs) para el experimento orquestado
+# exp_video16_clip10_gt. El runner inyecta ingest.config.source_id = clip_id
+# del manifiesto paraguas (spec 43 §6) — no declararlo acá.
+# Prompt set = espejo inline de prompts/cr01_cr02_v2_short.yaml.
+ingest:
+  plugin: video_file
+  config:
+    path: /home/simonll4/projects/e-ovrt_datasets/datasets-videos/clips/video16_clip10.mp4
+prompts:
+  set_inline:
+    id: cr01_cr02_v2_short
+    classes:
+      - id: person
+        phrasings: { default: ["person"] }
+      - id: helmet
+        phrasings: { default: ["helmet"] }
+      - id: vest
+        phrasings: { default: ["vest"] }
+  active_ids: [person, helmet, vest]

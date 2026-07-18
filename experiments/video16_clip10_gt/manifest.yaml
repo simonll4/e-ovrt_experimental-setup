@@ -1,0 +1,20 @@
+# Manifiesto paraguas (experiment.manifest.v1, ADR-004 / spec 44 §2) —
+# primera corrida orquestada real con trazabilidad video-gt-lab (spec 43 §6):
+# clip_id -> ingest.config.source_id (inyectado por el runner) y ground_truth
+# -> evaluacion temporal post-replay ligada al reporte consolidado.
+schema_version: experiment.manifest.v1
+slug: video16_clip10_gt
+runs:
+  media:
+    service: media-plane
+    config: /home/simonll4/projects/e-ovrt_experimental-setup/experiments/video16_clip10_gt/media.yaml
+    mode: run
+  control:
+    service: control-plane
+    config: /home/simonll4/projects/e-ovrt_experimental-setup/experiments/video16_clip10_gt/control.yaml
+    mode: replay
+sequencing: media_first
+report: {}
+frozen: {}
+clip_id: video16_clip10
+ground_truth: /home/simonll4/projects/e-ovrt_datasets/datasets-videos/gt/video16_clip10.json
