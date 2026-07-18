@@ -14,7 +14,26 @@ from eovrt_webconsole.translation import (
 # Raíz REAL del repo (tests corren desde webconsole/backend): ida-y-vuelta sobre
 # los manifiestos reales de experiments/ (incluida la matriz bench_v2/).
 REPO_ROOT = Path(__file__).resolve().parents[3]
-REAL_MANIFESTS = sorted((REPO_ROOT / "experiments").rglob("*.yaml"))
+
+
+def _is_run_manifest(path: Path) -> bool:
+    """Un manifiesto de corrida del webconsole tiene una sección ``source``.
+
+    experiments/ también aloja otros yaml que NO son manifiestos de corrida y
+    no round-trippean por ``manifest_to_composition``: bundles de orquestación
+    (``experiment.manifest.v1``), payloads RunRequest (``media.yaml``) y configs
+    del control-plane. Se los excluye por forma, no por nombre de carpeta.
+    """
+    try:
+        doc = yaml.safe_load(path.read_text())
+    except yaml.YAMLError:
+        return False
+    return isinstance(doc, dict) and "source" in doc
+
+
+REAL_MANIFESTS = sorted(
+    p for p in (REPO_ROOT / "experiments").rglob("*.yaml") if _is_run_manifest(p)
+)
 
 
 def _composition(**overrides) -> Composition:
