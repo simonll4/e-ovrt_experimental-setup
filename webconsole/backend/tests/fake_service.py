@@ -250,7 +250,7 @@ def make_fake_service(state: FakeState) -> FastAPI:
     def dropped(run_id: str, page: int = Query(1, ge=1), page_size: int = Query(100, ge=1, le=1000)):
         if not state.ready:
             return JSONResponse(status_code=503, content={"detail": "Servicio no listo (modelo no cargado)"})
-        if run_id not in state.dropped:
+        if run_id not in state.dropped or run_id in state.deleted:
             return JSONResponse(status_code=404, content={"detail": f"Run desconocido: {run_id}"})
         items_all = state.dropped[run_id]
         start = (page - 1) * page_size
