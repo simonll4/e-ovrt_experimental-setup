@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
-import { artifactUrl, getRun, stopRun } from '../api'
+import { useNavigate, useParams } from 'react-router-dom'
+import { artifactUrl, deleteRun, getRun, stopRun } from '../api'
 import EvalSection from '../components/EvalSection'
 import Sparkline from '../components/Sparkline'
 import TraceSection from '../components/TraceSection'
@@ -35,6 +35,29 @@ export default function RunDetailPage() {
   const running = run?.status === 'running'
   const streamable = Boolean(run && isLive(run))
   const live = useRunStream(id, streamable)
+  const navigate = useNavigate()
+  const [deleting, setDeleting] = useState(false)
+
+  const handleDelete = async () => {
+    if (!window.confirm(`¿Borrar el run ${id}? No se puede deshacer.`)) return
+    setDeleting(true)
+    try {
+      const result = await deleteRun(id)
+      if (result?.errors) {
+        setError(
+          `Borrado parcial: ${Object.entries(result.errors)
+            .map(([plane, detail]) => `${plane}: ${detail}`)
+            .join('; ')}`,
+        )
+        setDeleting(false)
+        return
+      }
+      navigate('/runs')
+    } catch (e) {
+      setError(`No se pudo borrar: ${String(e)}`)
+      setDeleting(false)
+    }
+  }
 
   const refresh = () =>
     getRun(id)
@@ -81,6 +104,11 @@ export default function RunDetailPage() {
             }}
           >
             ■ Detener
+          </button>
+        )}
+        {!running && (
+          <button type="button" disabled={deleting} onClick={() => void handleDelete()}>
+            Borrar
           </button>
         )}
       </h2>
