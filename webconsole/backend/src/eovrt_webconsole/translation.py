@@ -7,12 +7,12 @@ La ref de dataset viaja como ingest.config.dataset (el servicio la retraduce a s
 """
 from __future__ import annotations
 
-import re
 from pathlib import Path
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from eovrt_webconsole.redact import redact_rtsp_credentials as _redact_rtsp_credentials
 from eovrt_webconsole.repo_catalog import get_prompt_set
 
 _SOURCE_TYPE_TO_PLUGIN = {"image_folder": "image_folder", "video_file": "video_file",
@@ -21,15 +21,9 @@ _SOURCE_TYPE_TO_PLUGIN = {"image_folder": "image_folder", "video_file": "video_f
 _PLUGIN_TO_SOURCE_TYPE = {"image_folder": "image_folder", "video_file": "video_file",
                           "rtsp": "rtsp", "oak_d": "oak_d"}
 
-# Redacta el userinfo (user[:pass]) entre el esquema y el primer '/'. Case-insensitive
-# (RTSP:// es válido por RFC 3986), cubre rtsps:// (TLS) y toma el ÚLTIMO '@' antes del
-# path para no dejar credenciales si el password trae un '@' sin escapar. La redacción es
-# la única defensa en el camino de guardado (save_manifest no valida), así que debe ser robusta.
-_RTSP_USERINFO = re.compile(r"(rtsps?://)[^/]+@", re.IGNORECASE)
-
-
-def _redact_rtsp_credentials(url: str) -> str:
-    return _RTSP_USERINFO.sub(r"\1***:***@", url)
+# La redacción vive en eovrt_webconsole.redact (single source of truth, ver docstring
+# ahí). La redacción es la única defensa en el camino de guardado (save_manifest no
+# valida), así que debe ser robusta y no divergir entre módulos.
 
 
 class UnknownPromptSetError(ValueError):

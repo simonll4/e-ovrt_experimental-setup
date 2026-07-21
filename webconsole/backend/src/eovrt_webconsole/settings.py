@@ -48,6 +48,11 @@ class ConsoleSettings:
     switch_timeout_seconds: float = 300.0
     # Dist de la SPA embebido en la imagen de la consola; None = repo_root/webconsole/frontend/dist.
     spa_dist: Path | None = None
+    # Destino de los masters de rodaje. None = repo hermano e-ovrt_datasets.
+    recordings_dir: Path | None = None
+    # Intérprete con el SDK DepthAI para la rama OAK-D (el backend corre 3.14 y
+    # depthai no tiene wheels para 3.14). None = venv del media-plane.
+    oakd_python: Path | None = None
 
     @property
     def prompts_dir(self) -> Path:
@@ -60,6 +65,18 @@ class ConsoleSettings:
     @property
     def cameras_dir(self) -> Path:
         return self.repo_root / "cameras"
+
+    @property
+    def raw_dir(self) -> Path:
+        if self.recordings_dir is not None:
+            return self.recordings_dir
+        return self.repo_root.parent / "e-ovrt_datasets" / "datasets-videos" / "raw"
+
+    @property
+    def oakd_interpreter(self) -> Path:
+        if self.oakd_python is not None:
+            return self.oakd_python
+        return self.repo_root.parent / "e-ovrt_media-plane" / ".venv" / "bin" / "python"
 
     @classmethod
     def from_env(cls, env: Mapping[str, str] | None = None) -> ConsoleSettings:
@@ -97,4 +114,14 @@ class ConsoleSettings:
             compose_dir=Path(env["EOVRT_CONSOLE_COMPOSE_DIR"]) if env.get("EOVRT_CONSOLE_COMPOSE_DIR") else None,
             switch_timeout_seconds=float(env.get("EOVRT_CONSOLE_SWITCH_TIMEOUT", "300")),
             spa_dist=Path(env["EOVRT_CONSOLE_SPA_DIST"]) if env.get("EOVRT_CONSOLE_SPA_DIST") else None,
+            recordings_dir=(
+                Path(env["EOVRT_CONSOLE_RECORDINGS_DIR"])
+                if env.get("EOVRT_CONSOLE_RECORDINGS_DIR")
+                else None
+            ),
+            oakd_python=(
+                Path(env["EOVRT_CONSOLE_OAKD_PYTHON"])
+                if env.get("EOVRT_CONSOLE_OAKD_PYTHON")
+                else None
+            ),
         )
