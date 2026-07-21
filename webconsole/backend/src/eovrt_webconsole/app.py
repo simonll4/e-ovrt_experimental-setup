@@ -1,6 +1,7 @@
 """Factory de la app FastAPI del BFF de la consola."""
 from __future__ import annotations
 
+import logging
 from contextlib import asynccontextmanager
 
 import httpx
@@ -10,6 +11,8 @@ from fastapi.staticfiles import StaticFiles
 from eovrt_webconsole.experiment.control_backend import ControlPlaneBackend
 from eovrt_webconsole.experiment.run_manager import ExperimentRunManager
 from eovrt_webconsole.orchestrator import ComposeOrchestrator, RunCmd, TargetManager
+from eovrt_webconsole.recording.manager import RecordingManager
+from eovrt_webconsole.recording.oakd_recorder import InterpreterUnavailable, check_interpreter
 from eovrt_webconsole.routers import (
     cameras,
     catalog,
@@ -21,6 +24,7 @@ from eovrt_webconsole.routers import (
     platform,
     preview,
     prompts,
+    recordings,
     runs,
     stream,
 )
@@ -63,6 +67,21 @@ def create_app(
         # Manager del disparo orquestado (Tarea 3): un experimento activo por vez,
         # corrido como asyncio.Task en este mismo loop (ver run_manager.py).
         app.state.experiment_manager = ExperimentRunManager()
+        # Grabación de rodaje: vive en la consola, no depende del media-plane
+        # (spec 2026-07-21). El chequeo del intérprete se hace acá y no al
+        # apretar grabar: el fallo se descubre ahora, no en medio del rodaje.
+        oakd_script = settings.repo_root / "webconsole" / "tools" / "record_oakd.py"
+        app.state.recording_manager = RecordingManager(
+            raw_dir=settings.raw_dir,
+            oakd_interpreter=settings.oakd_interpreter,
+            oakd_script=oakd_script,
+        )
+        try:
+            check_interpreter(settings.oakd_interpreter)
+        except InterpreterUnavailable as exc:
+            logging.getLogger(__name__).warning("Rama OAK-D no disponible: %s", exc)
+        for basename in app.state.recording_manager.recover_orphans():
+            logging.getLogger(__name__).warning("Grabación huérfana cerrada: %s", basename)
         yield
         # Cancela/awaitea cualquier experimento en curso antes de cerrar los
         # clientes HTTP que usa -- evita un task pendiente huerfano al apagar.
@@ -84,6 +103,7 @@ def create_app(
     app.include_router(prompts.router)
     app.include_router(cameras.router)
     app.include_router(preview.router)
+    app.include_router(recordings.router)
 
     frontend_dist = settings.spa_dist or (settings.repo_root / "webconsole" / "frontend" / "dist")
     if frontend_dist.is_dir():
