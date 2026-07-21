@@ -2,7 +2,7 @@ import type {
   CameraPreset, CompareResult, Composition, DatasetEntry, DetectionsPage, EvalResult, Experiment,
   ExperimentAlert, ExperimentManifestSummary, ExperimentReport, ExperimentRunState, FieldError,
   IngestPlugin, PlatformInstance, PreviewStartBody, PreviewStatus, PromptSet, PromptSetDetail,
-  PromptSetSummary, RunDetail, RunRow, TargetStatus, TracePage,
+  PromptSetSummary, RecordingStatus, RunDetail, RunRow, StartRecordingBody, TargetStatus, TracePage,
 } from './types'
 
 export class ApiError extends Error {
@@ -165,3 +165,13 @@ export function previewStreamUrl(): string {
   const proto = window.location.protocol === 'https:' ? 'wss' : 'ws'
   return `${proto}://${window.location.host}/api/preview/stream`
 }
+
+export const nextTake = (scenario: string, variant: string) =>
+  request<{ basename: string }>(
+    `/api/recordings/next?scenario=${encodeURIComponent(scenario)}&variant=${encodeURIComponent(variant)}`,
+  )
+export const getRecording = () => request<RecordingStatus>('/api/recordings')
+export const startRecording = (body: StartRecordingBody) =>
+  request<RecordingStatus>('/api/recordings', { method: 'POST', body: JSON.stringify(body) })
+export const stopRecording = () =>
+  request<RecordingStatus>('/api/recordings', { method: 'DELETE' })

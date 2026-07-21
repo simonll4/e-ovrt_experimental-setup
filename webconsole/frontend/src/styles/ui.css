@@ -370,3 +370,19 @@
   font-size: var(--text-sm);
   pointer-events: none;
 }
+
+/* RecordPanel — la marca de los 30 s no es decorativa: es la regla de oro 3 del
+   guion de rodaje (se filma 30-35 s aunque el clip final sea de 20 s). */
+.rec-corta {
+  color: var(--status-warn);
+  font-weight: 600;
+}
+
+.rec-ok {
+  color: var(--status-ok);
+  font-weight: 600;
+}
+
+.record-error {
+  color: var(--status-error);
+}

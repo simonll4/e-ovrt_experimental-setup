@@ -279,3 +279,23 @@ export interface PreviewStartBody {
   prompts?: { set_inline: Record<string, unknown>; active_ids?: string[] }
   params?: { score_threshold?: number | null }
 }
+
+export interface RecordingStatus {
+  state: 'idle' | 'recording' | 'finished' | 'error'
+  basename?: string | null
+  elapsed_ms?: number
+  size_bytes?: number
+  duration_ms?: number
+  fps?: number | null
+  resolution?: string | null
+  truncated?: boolean
+  suspected_substream?: boolean
+  error?: string | null
+}
+
+export interface StartRecordingBody {
+  camera_id: string
+  scenario: string
+  variant: string
+  max_duration_s?: number
+}

@@ -5,6 +5,7 @@ import {
 import CameraPresetForm from '../components/CameraPresetForm'
 import LiveViewer from '../components/LiveViewer'
 import LivePromptPanel from '../components/LivePromptPanel'
+import RecordPanel from '../components/RecordPanel'
 import { Badge, Card, DetChip, EmptyState, ErrorBanner } from '../components/ui'
 import { usePreviewStream } from '../preview'
 import { useTargetModelRef } from '../useTarget'
@@ -40,6 +41,13 @@ export default function CamerasPage() {
   const [presets, setPresets] = useState<CameraPreset[]>([])
   const [editing, setEditing] = useState<CameraPreset | null | 'new'>(null)
   const [connected, setConnected] = useState<CameraPreset | null>(null)
+  // Última cámara elegida por el operador (conectada o simplemente seleccionada
+  // para grabar). A diferencia de `connected`, NO se limpia al desconectar el
+  // preview: el guion de rodaje es conectar → verificar encuadre → cortar
+  // preview → recién ahí grabar (grabar y previsualizar son excluyentes, el
+  // backend devuelve 409 si hay un preview activo), así que el panel de
+  // grabación necesita seguir sabiendo qué cámara usar después de desconectar.
+  const [lastChosen, setLastChosen] = useState<CameraPreset | null>(null)
   const [mode, setMode] = useState<'raw' | 'detect'>('raw')
   const [threshold, setThreshold] = useState<number | null>(0.3)
   const [promptDraft, setPromptDraft] = useState<PromptSetDetail | null>(null)
@@ -93,6 +101,7 @@ export default function CamerasPage() {
       setStreaming(false)
       await startPreview(body)
       setConnected(preset)
+      setLastChosen(preset)
       setResumable(false)
       setStreaming(true)
     } catch (e) {
@@ -177,6 +186,8 @@ export default function CamerasPage() {
         )}
       </Card>
 
+      <RecordPanel cameraId={lastChosen?.id ?? null} />
+
       <div
         style={{
           display: 'grid',
@@ -227,7 +238,13 @@ export default function CamerasPage() {
                         className="eo-btn--danger"
                         onClick={() => {
                           if (!window.confirm(`¿Borrar el preset ${p.id}?`)) return
-                          void deleteCamera(p.id).then(refreshPresets)
+                          void deleteCamera(p.id).then(() => {
+                            // Sin esto queda una cámara fantasma en el panel de
+                            // grabación: el botón sigue habilitado sobre un
+                            // preset que ya no existe y falla recién al grabar.
+                            setLastChosen((prev) => (prev?.id === p.id ? null : prev))
+                            return refreshPresets()
+                          })
                         }}
                       >
                         Eliminar
