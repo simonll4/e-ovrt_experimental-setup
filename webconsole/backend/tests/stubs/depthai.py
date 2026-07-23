@@ -1,6 +1,8 @@
 """Stub mínimo de DepthAI para testear record_oakd.py sin hardware ni SDK real."""
 
 import base64
+import os
+import time
 
 # Flujo H.264 Annex-B mínimo pero DECODABLE (SPS+PPS+IDR, 5 frames a 64x64/10fps,
 # generado una vez con `ffmpeg -f lavfi -i testsrc=... -c:v libx264 -f h264`).
@@ -36,6 +38,13 @@ _STUB_H264_B64 = (
 )
 _STUB_H264 = base64.b64decode(_STUB_H264_B64)
 
+# Frames "de calentamiento" simulados (dry-run 2026-07-22: el sensor real tarda
+# ~9 de 60 frames en converger exposición/balance de blancos; acá 3 paquetes
+# con bytes reconocibles -- NUNCA deben llegar al archivo final si el
+# descarte de record_oakd.py funciona -- antes del stream real y decodable.
+_WARMUP_PACKETS = 3
+_WARMUP_PAYLOAD = b"\xaa" * 8
+
 
 class _Node:
     def __init__(self):
@@ -57,10 +66,16 @@ class _Queue:
         self._emitted = 0
 
     def get(self):
-        # El stream Annex-B válido completo va en el primer paquete; después no
-        # se agrega nada más, para no corromper el archivo con relleno.
+        # _WARMUP_PACKETS paquetes de calentamiento, después el stream Annex-B
+        # válido completo en un solo paquete, después nada más (para no
+        # corromper el archivo con relleno).
         self._emitted += 1
-        payload = _STUB_H264 if self._emitted == 1 else b""
+        if self._emitted <= _WARMUP_PACKETS:
+            payload = _WARMUP_PAYLOAD
+        elif self._emitted == _WARMUP_PACKETS + 1:
+            payload = _STUB_H264
+        else:
+            payload = b""
         return _Packet(payload)
 
     def tryGet(self):
@@ -77,6 +92,13 @@ class _Packet:
 
 class Device:
     def __init__(self, pipeline, device_info=None, *args, **kwargs):
+        # La OAK-D PoE real tarda ~9 s en conectar antes de entregar el primer
+        # frame (medido en el dry-run 2026-07-22). EOVRT_STUB_OAKD_INIT_S deja
+        # simular esa demora en los tests que verifican el estado "starting";
+        # 0 por defecto para no frenar al resto de la suite.
+        demora = float(os.environ.get("EOVRT_STUB_OAKD_INIT_S", "0"))
+        if demora > 0:
+            time.sleep(demora)
         self.pipeline = pipeline
 
     def __enter__(self):

@@ -51,11 +51,22 @@ def _parse_args(argv):
     parser.add_argument("--resolution", choices=sorted(RESOLUTIONS), default="1080p")
     parser.add_argument("--bitrate", type=int, default=25_000_000)
     parser.add_argument("--keyframe-hz", type=float, default=1.0, dest="keyframe_hz")
+    parser.add_argument(
+        "--warmup-ms", type=int, default=300, dest="warmup_ms",
+        help=(
+            "Frames descartados al arrancar el pipeline mientras el sensor "
+            "converge exposicion/balance de blancos (verificado en el "
+            "dry-run 2026-07-22: 9 de 60 frames, ~150 ms, salen "
+            "subexpuestos si se escriben tal cual). 0 desactiva el descarte."
+        ),
+    )
     args = parser.parse_args(argv)
     if args.fps <= 0:
         parser.error("--fps debe ser > 0")
     if args.bitrate <= 0:
         parser.error("--bitrate debe ser > 0")
+    if args.warmup_ms < 0:
+        parser.error("--warmup-ms no puede ser negativo")
     return args
 
 
@@ -95,6 +106,13 @@ def main(argv=None) -> int:
     signal.signal(signal.SIGINT, _handle_stop)
 
     written = 0
+    discarded = 0
+    seen = 0
+    # Descarte por CANTIDAD de frames, no por reloj de pared: la convergencia
+    # de exposicion/balance de blancos es un fenomeno del sensor que corre en
+    # tiempo real, pero contar frames es lo que hace determinista el descarte
+    # (y lo que permite testearlo con el stub sin simular latencia real).
+    warmup_frames = round(args.fps * args.warmup_ms / 1000)
     try:
         pipeline = _build_pipeline(dai, args)
         device_info = dai.DeviceInfo(args.device)
@@ -107,6 +125,12 @@ def main(argv=None) -> int:
                     if packet is None:
                         continue
                     data = packet.getData()
+                    seen += 1
+                    if seen <= warmup_frames:
+                        # El sensor todavia converge exposicion/balance de
+                        # blancos: se descarta sin escribir (ver --warmup-ms).
+                        discarded += len(data)
+                        continue
                     handle.write(data)
                     written += len(data)
                 handle.flush()
@@ -114,7 +138,23 @@ def main(argv=None) -> int:
         _emit(event="error", reason=str(exc), bytes_written=written)
         return 4
 
-    _emit(event="finished", bytes_written=written)
+    if written == 0:
+        # La toma no sobrevivio ni al calentamiento (corte casi inmediato):
+        # salir "finished" con un archivo vacio seria la misma falla
+        # silenciosa que un master corrupto marcado sano.
+        _emit(
+            event="error",
+            reason=(
+                f"toma descartada entera: se vieron {seen} frames y "
+                f"warmup_frames={warmup_frames} -- no llego a grabar ni un "
+                "frame util"
+            ),
+            bytes_written=0,
+            discarded_bytes=discarded,
+        )
+        return 5
+
+    _emit(event="finished", bytes_written=written, discarded_bytes=discarded)
     return 0
 
 

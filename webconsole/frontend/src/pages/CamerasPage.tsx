@@ -186,7 +186,7 @@ export default function CamerasPage() {
         )}
       </Card>
 
-      <RecordPanel cameraId={lastChosen?.id ?? null} />
+      <RecordPanel cameras={presets} connectedId={lastChosen?.id ?? null} />
 
       <div
         style={{

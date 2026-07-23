@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+import json
 import logging
 import signal
 import subprocess
+import threading
 import time
 from pathlib import Path
 
@@ -65,6 +67,34 @@ class OakDSubprocessRecorder:
         self._started_ms: int = 0
         self._started_monotonic: float = 0.0
         self._stderr: str = ""
+        # Momento en que el subproceso avisó que la cámara EMPEZÓ A CAPTURAR
+        # (evento "started"), que es hasta 9 s después del Popen en la OAK-D
+        # PoE. None mientras el device inicializa.
+        self._capture_monotonic: float | None = None
+        self._watcher: threading.Thread | None = None
+
+    def _vigilar_arranque(self) -> None:
+        """Espera el evento "started" en stdout del subproceso.
+
+        Corre en un hilo daemon porque leer stdout bloquea: el device puede
+        tardar ~9 s en conectar y `poll()` tiene que seguir respondiendo
+        (la UI lo consulta cada segundo). El SDK DepthAI ensucia stdout con
+        warnings, así que las líneas que no son JSON se ignoran.
+        """
+        proc = self._proc
+        if proc is None or proc.stdout is None:
+            return
+        try:
+            for linea in proc.stdout:
+                try:
+                    evento = json.loads(linea)
+                except (json.JSONDecodeError, ValueError):
+                    continue
+                if evento.get("event") == "started":
+                    self._capture_monotonic = time.monotonic()
+                    return
+        except (ValueError, OSError):
+            return
 
     def start(self) -> None:
         capture = self._spec.capture
@@ -83,16 +113,21 @@ class OakDSubprocessRecorder:
         self._proc = subprocess.Popen(
             args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
         )
-        logger.info("Grabación OAK-D arrancada -> %s", self._path.name)
+        self._watcher = threading.Thread(target=self._vigilar_arranque, daemon=True)
+        self._watcher.start()
+        logger.info("Grabación OAK-D lanzada -> %s (esperando al device)", self._path.name)
 
     def poll(self) -> RecordingStatus:
         if self._proc is None:
             return RecordingStatus("error", 0, 0, "grabación sin arrancar")
-        elapsed = int((time.monotonic() - self._started_monotonic) * 1000)
+        capture = self._capture_monotonic
+        # El cronómetro mide CAPTURA, no el init del device: con 40 s en
+        # pantalla salían 28 s de video (F-DR6).
+        elapsed = int((time.monotonic() - capture) * 1000) if capture is not None else 0
         size = self._raw.stat().st_size if self._raw.exists() else 0
         rc = self._proc.poll()
         if rc is None:
-            return RecordingStatus("recording", elapsed, size)
+            return RecordingStatus("recording" if capture is not None else "starting", elapsed, size)
         if rc == 0:
             return RecordingStatus("finished", elapsed, size)
         return RecordingStatus("error", elapsed, size, self._read_stderr() or f"record_oakd rc={rc}")
@@ -124,10 +159,13 @@ class OakDSubprocessRecorder:
                 truncated = True
                 error = error or mux_error
 
+        # Duración de CAPTURA (no del subproceso): el init del device no es
+        # video. Es el fallback del sidecar cuando ffprobe no puede medir.
+        referencia = self._capture_monotonic or self._started_monotonic
         return RecordingResult(
             path=self._path,
             started_wallclock_ms=self._started_ms,
-            duration_ms=int((time.monotonic() - self._started_monotonic) * 1000),
+            duration_ms=int((time.monotonic() - referencia) * 1000),
             size_bytes=self._path.stat().st_size if self._path.exists() else 0,
             truncated=truncated,
             error=error,

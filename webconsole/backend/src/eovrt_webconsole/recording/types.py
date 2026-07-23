@@ -86,7 +86,10 @@ class RecordingResult:
 
 @dataclass(frozen=True)
 class RecordingStatus:
-    state: Literal["recording", "finished", "error"]
+    # "starting": el subproceso arrancó pero la cámara TODAVÍA NO captura (la
+    # OAK-D PoE tarda ~9 s en conectar). Decirle "REC" al operador en ese lapso
+    # le hace actuar la infracción antes de que haya video (F-DR6).
+    state: Literal["starting", "recording", "finished", "error"]
     elapsed_ms: int
     size_bytes: int
     error: str | None = None

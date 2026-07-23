@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 
 import { ApiError, getRecording, nextTake, startRecording, stopRecording } from '../api'
-import type { RecordingStatus } from '../types'
+import type { CameraPreset, RecordingStatus } from '../types'
 
 const SCENARIOS = ['P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7', 'P8', 'P9']
 const VARIANTS = ['a', 'b', 'c']
@@ -35,13 +35,37 @@ function mensajeDeError(e: unknown): string {
   return e instanceof Error ? e.message : String(e)
 }
 
-export default function RecordPanel({ cameraId }: { cameraId: string | null }) {
+/** `connectedId` es la cámara conectada en el preview: solo PRE-SELECCIONA el
+ * selector (el guion es conectar → verificar encuadre → desconectar → grabar).
+ * Quien manda al grabar es siempre lo elegido acá — antes la única forma de
+ * elegir fuente era conectar su preview, y el operador se encontraba con el
+ * botón Grabar en gris sin ninguna pista (F-DR5, dry-run 2026-07-22). */
+export default function RecordPanel({
+  cameras,
+  connectedId,
+}: {
+  cameras: CameraPreset[]
+  connectedId: string | null
+}) {
   const [scenario, setScenario] = useState('P1')
   const [variant, setVariant] = useState('a')
+  const [cameraId, setCameraId] = useState<string>(connectedId ?? '')
   const [basename, setBasename] = useState<string | null>(null)
   const [status, setStatus] = useState<RecordingStatus>({ state: 'idle' })
   const [error, setError] = useState<string | null>(null)
   const [last, setLast] = useState<RecordingStatus | null>(null)
+
+  // Conectar el preview de una cámara la propone como fuente, pero sin pisar
+  // una elección explícita distinta que el operador ya haya hecho acá.
+  useEffect(() => {
+    if (connectedId) setCameraId((prev) => (prev === '' ? connectedId : prev))
+  }, [connectedId])
+
+  // Si la cámara elegida desaparece (preset borrado), se limpia la elección:
+  // dejarla apuntando a un id inexistente falla recién al grabar.
+  useEffect(() => {
+    if (cameraId && !cameras.some((c) => c.id === cameraId)) setCameraId('')
+  }, [cameras, cameraId])
 
   useEffect(() => {
     nextTake(scenario, variant)
@@ -62,7 +86,9 @@ export default function RecordPanel({ cameraId }: { cameraId: string | null }) {
   // nunca de un reloj propio (que ademas queda en un numero absurdo si se
   // recarga la pagina con una toma en curso).
   useEffect(() => {
-    if (status.state !== 'recording') return
+    // También se pollea en 'starting': es lo único que detecta la transición a
+    // 'recording' cuando el device termina de conectar (F-DR6).
+    if (status.state !== 'recording' && status.state !== 'starting') return
     const id = window.setInterval(() => {
       getRecording()
         .then((r) => {
@@ -82,7 +108,15 @@ export default function RecordPanel({ cameraId }: { cameraId: string | null }) {
       setStatus(await startRecording({ camera_id: cameraId, scenario, variant }))
     } catch (e) {
       setError(mensajeDeError(e))
-      setStatus({ state: 'idle' })
+      // No asumir 'idle': si el backend rechazó porque YA hay una toma activa
+      // (409), forzarlo deja la UI mintiendo Y sin polling, así que no se
+      // recupera sola -- hay que recargar la página para enterarse de que la
+      // cámara está grabando (F-DR8). Se re-sincroniza con el backend.
+      try {
+        setStatus(await getRecording())
+      } catch {
+        setStatus({ state: 'idle' })
+      }
     }
   }, [cameraId, scenario, variant])
 
@@ -100,6 +134,10 @@ export default function RecordPanel({ cameraId }: { cameraId: string | null }) {
   }, [scenario, variant])
 
   const recording = status.state === 'recording'
+  const starting = status.state === 'starting'
+  // La toma está en curso (no se puede cambiar cámara/escenario, y se puede
+  // cortar) tanto mientras el device inicializa como mientras graba.
+  const enCurso = recording || starting
   const elapsed = status.elapsed_ms ?? 0
   const seconds = Math.floor(elapsed / 1000)
 
@@ -107,11 +145,24 @@ export default function RecordPanel({ cameraId }: { cameraId: string | null }) {
     <section className="record-panel">
       <h3>Grabar toma</h3>
 
+      <label htmlFor="rec-camera">Cámara</label>
+      <select
+        id="rec-camera"
+        value={cameraId}
+        disabled={enCurso}
+        onChange={(e) => setCameraId(e.target.value)}
+      >
+        <option value="">— elegir cámara —</option>
+        {cameras.map((c) => (
+          <option key={c.id} value={c.id}>{c.name} ({c.plugin})</option>
+        ))}
+      </select>
+
       <label htmlFor="rec-scenario">Escenario</label>
       <select
         id="rec-scenario"
         value={scenario}
-        disabled={recording}
+        disabled={enCurso}
         onChange={(e) => setScenario(e.target.value)}
       >
         {SCENARIOS.map((s) => (
@@ -123,7 +174,7 @@ export default function RecordPanel({ cameraId }: { cameraId: string | null }) {
       <select
         id="rec-variant"
         value={variant}
-        disabled={recording}
+        disabled={enCurso}
         onChange={(e) => setVariant(e.target.value)}
       >
         {VARIANTS.map((v) => (
@@ -133,18 +184,30 @@ export default function RecordPanel({ cameraId }: { cameraId: string | null }) {
 
       <p className="record-basename">Próxima toma: <strong>{basename ?? '—'}</strong></p>
 
-      {recording ? (
+      {enCurso ? (
         <>
-          <p className={elapsed >= MIN_TAKE_MS ? 'rec-ok' : 'rec-corta'}>
-            ● REC {seconds}s, {formatBytes(status.size_bytes ?? 0)}{' '}
-            {elapsed >= MIN_TAKE_MS ? '' : '(no cortar antes de 30 s)'}
-          </p>
+          {starting ? (
+            <p className="rec-corta">
+              ⏳ Conectando la cámara… <strong>no actúes todavía</strong>: la
+              OAK-D tarda unos segundos en empezar a capturar.
+            </p>
+          ) : (
+            <p className={elapsed >= MIN_TAKE_MS ? 'rec-ok' : 'rec-corta'}>
+              ● REC {seconds}s, {formatBytes(status.size_bytes ?? 0)}{' '}
+              {elapsed >= MIN_TAKE_MS ? '' : '(no cortar antes de 30 s)'}
+            </p>
+          )}
           <button type="button" onClick={onStop}>Detener</button>
         </>
       ) : (
-        <button type="button" onClick={onStart} disabled={!cameraId}>
-          Grabar
-        </button>
+        <>
+          <button type="button" onClick={onStart} disabled={!cameraId}>
+            Grabar
+          </button>
+          {!cameraId && (
+            <p className="eo-note">Elegí una cámara para poder grabar.</p>
+          )}
+        </>
       )}
 
       {status.state === 'error' && (

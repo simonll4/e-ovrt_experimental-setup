@@ -62,6 +62,32 @@ def test_args_fuerzan_tcp_y_copy():
     assert args[-1] == "/tmp/x.mp4"
 
 
+def test_args_descartan_el_audio():
+    """El banco es puramente visual y grabar audio en obra tiene implicancias de
+    consentimiento: ninguna toma debe llevar pista de sonido (decisión del
+    usuario, 2026-07-22). Sin `-an`, `-c copy` arrastra el audio de cualquier
+    cámara que lo emita -- la EZVIZ actual manda solo video, así que la
+    ausencia de audio hoy es suerte, no diseño.
+    """
+    args = build_ffmpeg_args("rtsp://cam/live", "/tmp/x.mp4")
+    assert "-an" in args
+    # Después del input: -an es opción de salida (antes de -i no aplica).
+    assert args.index("-an") > args.index("-i")
+
+
+def test_args_estampan_wallclock_antes_del_input():
+    """Verificado contra el DVR real (dry-run 2026-07-22): sus timestamps RTP no
+    avanzan a 90 kHz — con `-c copy` a secas el master queda con los 568 frames
+    aplastados en ~73 ms de PTS (video congelado, incortable). El flag estampa
+    cada paquete con el reloj de llegada del host y tiene que ir ANTES de -i
+    (es opción del demuxer de entrada; después del input no hace nada)."""
+    args = build_ffmpeg_args("rtsp://cam/live", "/tmp/x.mp4")
+    assert "-use_wallclock_as_timestamps" in args
+    idx = args.index("-use_wallclock_as_timestamps")
+    assert args[idx + 1] == "1"
+    assert idx < args.index("-i")
+
+
 def test_args_fuerzan_tcp_tambien_en_rtsps():
     """RTSP sobre TLS: mismo bug de esquema que translation.py ya tuvo que cubrir
     (ver _RTSP_USERINFO ahí). Sin esto, una cámara rtsps:// pierde el forzado a TCP

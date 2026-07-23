@@ -22,11 +22,24 @@ def build_ffmpeg_args(url: str, out_path: Path) -> list[str]:
     # Incondicional para cualquier URL (rtsp:// o rtsps://, RTSP sobre TLS):
     # esta función solo se llama para plugin=="rtsp" (ver RecordingSpec), nunca
     # con un input file:// real en producción.
+    # -use_wallclock_as_timestamps 1: el DVR real (dry-run 2026-07-22) emite
+    # timestamps RTP que no avanzan a 90 kHz (~1 tick por frame) y -c copy los
+    # muxea tal cual: el master queda con todos los frames aplastados en ~73 ms
+    # de PTS — video congelado, imposible de marcar o recortar. Con el flag,
+    # cada paquete se estampa con el reloj de llegada del host (verificado:
+    # 151 frames / 10.005 s ≈ 15 fps coherentes contra el mismo DVR). Va ANTES
+    # de -i porque es opción del demuxer de entrada.
     return [
         "ffmpeg", "-nostdin", "-hide_banner", "-loglevel", "error",
         "-rtsp_transport", "tcp",
+        "-use_wallclock_as_timestamps", "1",
         "-i", str(url),
         "-c", "copy",
+        # -an: el banco es puramente visual y grabar audio en obra tiene
+        # implicancias de consentimiento. Sin esto, `-c copy` arrastra la pista
+        # de sonido de cualquier cámara que la emita (la EZVIZ actual manda
+        # solo video, pero eso es del modelo, no una garantía del sistema).
+        "-an",
         "-movflags", "+faststart",
         "-y",
         str(out_path),
