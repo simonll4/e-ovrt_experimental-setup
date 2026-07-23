@@ -6,7 +6,11 @@ prompt_set:
     de v1 ("safety helmet", "high visibility safety vest").
     Derivado del diagnóstico P-E1 sobre dataset_v1 (2026-06-10).
   language: en
-  status: exploratory
+  # CONGELADO 2026-07-23 por pedido explícito del usuario (acta: docs/operacion/67 G1 del
+  # repo docs): set oficial de las corridas del rodaje (tomas A DBE y B live) y de toda
+  # evaluación de bench de imágenes (precondición anti-fuga del plan de ampliación, doc 66).
+  status: frozen
+  frozen_sha256: df81fd48b6daf8924b5fb66aa1ce4acc0c880ac6ed8cd1245c6aca1babdb309a
   track: core
   classes:
     - id: person
