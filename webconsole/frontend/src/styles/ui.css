@@ -386,3 +386,108 @@
 .record-error {
   color: var(--status-error);
 }
+
+/* Reproductores de video (clips, recorte, corrida). A tamaño intrínseco un clip
+   1080p ocupa toda la columna y empuja los controles fuera de vista: se acota. */
+.eo-video {
+  display: block;
+  width: 100%;
+  max-width: 560px;
+  max-height: 42vh;
+  border-radius: var(--radius);
+  background: #000;
+}
+
+/* Filas seleccionables de una lista-biblioteca (masters, clips). Reemplazan a
+   <ul> con viñetas: nombre + metadatos a la izquierda, acción a la derecha. */
+.eo-rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.eo-rows--scroll {
+  max-height: 34vh;
+  overflow-y: auto;
+  /* El scrollbar no debe pisar el borde de selección de la fila. */
+  padding-right: var(--space-1);
+}
+.eo-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+}
+.eo-row + .eo-row { border-top-color: var(--border); }
+.eo-row:hover { background: var(--surface-raised); }
+.eo-row--active {
+  background: var(--surface-raised);
+  border-color: var(--accent);
+}
+.eo-row__main,
+.eo-row__pick {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+/* La fila entera es el target de click cuando no hay botón de acción aparte. */
+.eo-row__pick {
+  background: none;
+  border: none;
+  padding: 0;
+  text-align: left;
+  color: inherit;
+  cursor: pointer;
+}
+.eo-row__pick:hover:not(:disabled) { border-color: transparent; }
+.eo-row__name {
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+.eo-row .eo-note { display: block; }
+
+/* Página de clips: biblioteca a la izquierda (con scroll propio) y área de
+   trabajo pegada a la derecha, para no scrollear la página entera al recortar. */
+.eo-clips__head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+.eo-clips__filter { flex: 1; max-width: 320px; }
+.eo-clips__grid {
+  display: grid;
+  grid-template-columns: minmax(300px, 380px) minmax(0, 1fr);
+  gap: var(--space-4);
+  align-items: start;
+}
+.eo-clips__work {
+  position: sticky;
+  top: var(--space-4);
+}
+.eo-clips__rail > .eo-card:last-child { margin-bottom: 0; }
+@media (max-width: 1100px) {
+  .eo-clips__grid { grid-template-columns: 1fr; }
+  .eo-clips__work { position: static; }
+}
+
+/* Recorte: marcas y acciones en filas compactas, no una pila de bloques. */
+.eo-trim__marks {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  margin-top: var(--space-3);
+}
+.eo-trim__fields {
+  display: flex;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  margin-top: var(--space-3);
+}
+.eo-trim__fields .eo-field { margin-bottom: 0; }
+.eo-trim__warn { color: var(--status-warn); font-size: var(--text-sm); }
+.eo-trim__result { color: var(--status-ok); }

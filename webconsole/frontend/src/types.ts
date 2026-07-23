@@ -281,7 +281,9 @@ export interface PreviewStartBody {
 }
 
 export interface RecordingStatus {
-  state: 'idle' | 'recording' | 'finished' | 'error'
+  // 'starting': el subproceso arrancó pero la cámara todavía no captura (la
+  // OAK-D PoE tarda ~9 s en conectar). No se debe actuar la escena todavía.
+  state: 'idle' | 'starting' | 'recording' | 'finished' | 'error'
   basename?: string | null
   elapsed_ms?: number
   size_bytes?: number
@@ -298,4 +300,40 @@ export interface StartRecordingBody {
   scenario: string
   variant: string
   max_duration_s?: number
+}
+
+export interface MasterEntry {
+  name: string
+  scenario: string | null
+  size_bytes: number
+  duration_ms: number | null
+  readable: boolean
+  clips: string[]
+}
+
+export interface ClipEntry {
+  clip_id: string
+  fps: number | null
+  duration_ms: number | null
+  n_frames: number | null
+  resolution: string | null
+  has_yaml: boolean
+  master: string | null
+  warnings: string[]
+}
+
+export interface GenerateClipBody {
+  master: string
+  t_event_s: number
+  t_end_s: number
+  scenario?: string
+  clip_id?: string
+}
+
+export interface GenerateClipResult {
+  clip_id: string
+  info: { fps: number; duration_ms: number; n_frames: number; resolution: string }
+  warnings: string[]
+  regenerated: boolean
+  invalidated: string[]
 }

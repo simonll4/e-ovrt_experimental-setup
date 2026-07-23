@@ -1,8 +1,9 @@
 import type {
-  CameraPreset, CompareResult, Composition, DatasetEntry, DetectionsPage, EvalResult, Experiment,
-  ExperimentAlert, ExperimentManifestSummary, ExperimentReport, ExperimentRunState, FieldError,
-  IngestPlugin, PlatformInstance, PreviewStartBody, PreviewStatus, PromptSet, PromptSetDetail,
-  PromptSetSummary, RecordingStatus, RunDetail, RunRow, StartRecordingBody, TargetStatus, TracePage,
+  CameraPreset, ClipEntry, CompareResult, Composition, DatasetEntry, DetectionsPage, EvalResult,
+  Experiment, ExperimentAlert, ExperimentManifestSummary, ExperimentReport, ExperimentRunState,
+  FieldError, GenerateClipBody, GenerateClipResult, IngestPlugin, MasterEntry, PlatformInstance,
+  PreviewStartBody, PreviewStatus, PromptSet, PromptSetDetail, PromptSetSummary, RecordingStatus,
+  RunDetail, RunRow, StartRecordingBody, TargetStatus, TracePage,
 } from './types'
 
 export class ApiError extends Error {
@@ -175,3 +176,12 @@ export const startRecording = (body: StartRecordingBody) =>
   request<RecordingStatus>('/api/recordings', { method: 'POST', body: JSON.stringify(body) })
 export const stopRecording = () =>
   request<RecordingStatus>('/api/recordings', { method: 'DELETE' })
+
+export const getMasters = () => request<{ masters: MasterEntry[] }>('/api/clips/masters')
+export const getClips = () => request<{ clips: ClipEntry[] }>('/api/clips')
+export const generateClip = (body: GenerateClipBody) =>
+  request<GenerateClipResult>('/api/clips', { method: 'POST', body: JSON.stringify(body) })
+export const masterMediaUrl = (name: string) =>
+  `/api/clips/media/master/${encodeURIComponent(name)}`
+export const clipMediaUrl = (clipId: string) =>
+  `/api/clips/media/clip/${encodeURIComponent(clipId)}`

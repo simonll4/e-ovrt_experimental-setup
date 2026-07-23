@@ -191,7 +191,7 @@ export default function RunDetailPage() {
       )}
       {!running && run.summary && hasVideo && (
         <Card title="Artefactos">
-          <video controls width={640} src={artifactUrl(id, 'annotated.mp4')} />
+          <video controls className="eo-video" src={artifactUrl(id, 'annotated.mp4')} />
         </Card>
       )}
       {/* key={id}: remonta la sección al navegar run→run — sin esto el `page`

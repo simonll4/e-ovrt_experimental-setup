@@ -22,6 +22,7 @@ export const NAV_GROUPS: NavGroup[] = [
     items: [
       { to: '/platform', label: 'Plataforma' },
       { to: '/cameras', label: 'Cámaras' },
+      { to: '/clips', label: 'Clips' },
     ],
   },
 ]

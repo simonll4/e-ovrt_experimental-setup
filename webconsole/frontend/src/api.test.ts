@@ -1,5 +1,5 @@
-import { describe, test, expect, vi } from 'vitest'
-import { deleteRun } from './api'
+import { describe, test, it, expect, vi } from 'vitest'
+import { deleteRun, getMasters, generateClip, masterMediaUrl, clipMediaUrl } from './api'
 
 describe('deleteRun', () => {
   test('deleteRun hace DELETE al endpoint del run', async () => {
@@ -13,5 +13,35 @@ describe('deleteRun', () => {
     )
     expect(result).toBeUndefined()
     spy.mockRestore()
+  })
+})
+
+describe('clips api', () => {
+  it('getMasters pega al endpoint correcto', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ masters: [] }),
+    })
+    vi.stubGlobal('fetch', fetchMock)
+    await getMasters()
+    expect(fetchMock.mock.calls[0][0]).toBe('/api/clips/masters')
+  })
+
+  it('generateClip postea las marcas', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ clip_id: 'a_p1_c01', warnings: [] }),
+    })
+    vi.stubGlobal('fetch', fetchMock)
+    await generateClip({ master: 'P1-a-take1.mp4', t_event_s: 6, t_end_s: 12 })
+    const [url, init] = fetchMock.mock.calls[0]
+    expect(url).toBe('/api/clips')
+    expect(init.method).toBe('POST')
+    expect(JSON.parse(init.body).t_event_s).toBe(6)
+  })
+
+  it('media urls escapan el nombre', () => {
+    expect(masterMediaUrl('P1-a-take1.mp4')).toBe('/api/clips/media/master/P1-a-take1.mp4')
+    expect(clipMediaUrl('a_p1_c01')).toBe('/api/clips/media/clip/a_p1_c01')
   })
 })

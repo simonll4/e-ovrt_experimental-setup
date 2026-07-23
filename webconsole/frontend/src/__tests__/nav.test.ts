@@ -6,9 +6,11 @@ describe('NAV_GROUPS', () => {
     expect(NAV_GROUPS.map((g) => g.title)).toEqual(['Trabajo', 'Definiciones', 'Sistema'])
   })
 
-  it('cubre los 7 destinos y NO incluye /compose (es acción, no destino)', () => {
+  it('cubre los 8 destinos y NO incluye /compose (es acción, no destino)', () => {
     const tos = NAV_GROUPS.flatMap((g) => g.items.map((i) => i.to))
-    expect(tos).toEqual(['/', '/experiments', '/compare', '/prompts', '/catalog', '/platform', '/cameras'])
+    expect(tos).toEqual([
+      '/', '/experiments', '/compare', '/prompts', '/catalog', '/platform', '/cameras', '/clips',
+    ])
     expect(tos).not.toContain('/compose')
   })
 
