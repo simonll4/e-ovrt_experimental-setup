@@ -64,3 +64,29 @@ def test_spa_dist_override(tmp_path):
     assert ConsoleSettings.from_env(base).spa_dist is None
     s = ConsoleSettings.from_env({**base, "EOVRT_CONSOLE_SPA_DIST": "/app/spa-dist"})
     assert s.spa_dist == Path("/app/spa-dist")
+
+
+def test_videos_dir_default_apunta_al_repo_hermano(tmp_path):
+    repo = _repo(tmp_path)
+    settings = ConsoleSettings.from_env({"EOVRT_CONSOLE_REPO_ROOT": str(repo)})
+    esperado = tmp_path.parent / "e-ovrt_datasets" / "datasets-videos"
+    assert settings.videos_dir == esperado
+    assert settings.clips_dir == esperado / "clips"
+    assert settings.preann_dir == esperado / "preann"
+    assert settings.prepare_clip_script == (
+        tmp_path.parent / "e-ovrt_datasets" / "datasets" / "scripts" / "videogt" / "prepare_clip.sh"
+    )
+
+
+def test_videos_dir_por_env(tmp_path, monkeypatch):
+    _repo(tmp_path)
+    dv = tmp_path / "dv"
+    env = {
+        "EOVRT_CONSOLE_REPO_ROOT": str(tmp_path),
+        "EOVRT_CONSOLE_DATASETS_VIDEOS_DIR": str(dv),
+    }
+    settings = ConsoleSettings.from_env(env)
+    assert settings.videos_dir == dv
+    assert settings.clips_dir == dv / "clips"
+    # El script se resuelve contra el padre de datasets-videos (la raíz del repo datasets)
+    assert settings.prepare_clip_script == dv.parent / "datasets" / "scripts" / "videogt" / "prepare_clip.sh"

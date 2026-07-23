@@ -16,6 +16,7 @@ from eovrt_webconsole.recording.oakd_recorder import InterpreterUnavailable, che
 from eovrt_webconsole.routers import (
     cameras,
     catalog,
+    clips,
     compare,
     compose,
     experiments,
@@ -102,6 +103,7 @@ def create_app(
     app.include_router(platform.router)
     app.include_router(prompts.router)
     app.include_router(cameras.router)
+    app.include_router(clips.router)
     app.include_router(preview.router)
     app.include_router(recordings.router)
 

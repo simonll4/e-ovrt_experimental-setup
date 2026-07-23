@@ -53,6 +53,10 @@ class ConsoleSettings:
     # Intérprete con el SDK DepthAI para la rama OAK-D (el backend corre 3.14 y
     # depthai no tiene wheels para 3.14). None = venv del media-plane.
     oakd_python: Path | None = None
+    # Raíz de datasets-videos del repo hermano e-ovrt_datasets (masters, clips,
+    # preann y los .clip.yaml). None = repo hermano. La generación de clips
+    # (spec 2026-07-21) resuelve todo contra esta ruta.
+    datasets_videos_dir: Path | None = None
 
     @property
     def prompts_dir(self) -> Path:
@@ -71,6 +75,27 @@ class ConsoleSettings:
         if self.recordings_dir is not None:
             return self.recordings_dir
         return self.repo_root.parent / "e-ovrt_datasets" / "datasets-videos" / "raw"
+
+    @property
+    def videos_dir(self) -> Path:
+        if self.datasets_videos_dir is not None:
+            return self.datasets_videos_dir
+        return self.repo_root.parent / "e-ovrt_datasets" / "datasets-videos"
+
+    @property
+    def clips_dir(self) -> Path:
+        return self.videos_dir / "clips"
+
+    @property
+    def preann_dir(self) -> Path:
+        return self.videos_dir / "preann"
+
+    @property
+    def prepare_clip_script(self) -> Path:
+        # El script calcula su repo root desde su propia ubicación y escribe
+        # SIEMPRE en <su repo>/datasets-videos/clips: por eso se resuelve
+        # contra el padre de videos_dir y no contra una ruta independiente.
+        return self.videos_dir.parent / "datasets" / "scripts" / "videogt" / "prepare_clip.sh"
 
     @property
     def oakd_interpreter(self) -> Path:
@@ -122,6 +147,11 @@ class ConsoleSettings:
             oakd_python=(
                 Path(env["EOVRT_CONSOLE_OAKD_PYTHON"])
                 if env.get("EOVRT_CONSOLE_OAKD_PYTHON")
+                else None
+            ),
+            datasets_videos_dir=(
+                Path(env["EOVRT_CONSOLE_DATASETS_VIDEOS_DIR"])
+                if env.get("EOVRT_CONSOLE_DATASETS_VIDEOS_DIR")
                 else None
             ),
         )
