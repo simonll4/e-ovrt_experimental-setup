@@ -13,6 +13,7 @@ vi.mock('../api', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../api')>()),
   getExperimentManifests: vi.fn(),
   getCurrentExperiment: vi.fn(),
+  getPreflight: vi.fn(),
   runExperiment: vi.fn(),
   getExperiment: vi.fn(),
   getExperimentAlerts: vi.fn(),
@@ -38,6 +39,12 @@ describe('spec44c gate: flujo de experimentos por la UI', () => {
       { slug: 'gate-slug', experiment_id: null } as any,
     ])
     vi.mocked(api.getCurrentExperiment).mockResolvedValue(null)
+    vi.mocked(api.getPreflight).mockResolvedValue({
+      ready: true,
+      blockers: [],
+      media: { service_url: 'http://m', healthy: true, ready: true, model: null },
+      control: { service_url: 'http://c', healthy: true, ready: true },
+    })
     vi.mocked(api.runExperiment).mockResolvedValue({ experiment_id: 'exp_g' })
 
     render(
@@ -49,7 +56,10 @@ describe('spec44c gate: flujo de experimentos por la UI', () => {
     // Esperar a que el manifiesto liste y el <select> quede pre-cargado con el slug.
     await waitFor(() => expect(screen.getAllByText('gate-slug').length).toBeGreaterThan(0))
 
-    fireEvent.click(screen.getByRole('button', { name: /ejecutar experimento/i }))
+    // El botón se habilita recién cuando el preflight de servicios da verde.
+    const launch = screen.getByRole('button', { name: /lanzar experimento/i }) as HTMLButtonElement
+    await waitFor(() => expect(launch.disabled).toBe(false))
+    fireEvent.click(launch)
 
     await waitFor(() => expect(vi.mocked(api.runExperiment)).toHaveBeenCalled())
     expect(vi.mocked(api.runExperiment)).toHaveBeenCalledWith({ slug: 'gate-slug' })

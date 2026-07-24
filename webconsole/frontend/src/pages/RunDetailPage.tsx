@@ -93,11 +93,15 @@ export default function RunDetailPage() {
   if (!run) return <p className="eo-empty">Cargando run {id}…</p>
   const summary = run.summary
   const topology = topologyBadge(summary)
+  // "name" viaja top-level mientras el run está vivo (RunManager.get() lee la
+  // config en memoria) y dentro de summary una vez terminado (persistido).
+  const runName = run.name || (summary?.name as string | undefined)
   return (
     <div style={{ display: 'grid', gap: 'var(--space-5)' }}>
       {deleteError && <ErrorBanner>{deleteError}</ErrorBanner>}
       <h2 className="eo-inline">
-        <span>{run.run_id}</span>
+        <span title={run.run_id}>{runName || run.run_id}</span>
+        {runName && <small>{run.run_id}</small>}
         <Badge tone={runStatusTone(run)}>{runStatusLabel(run)}</Badge>
         {topology && <Badge tone="neutral">{topology}</Badge>}
         {streamable && (

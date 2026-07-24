@@ -4,6 +4,18 @@ export interface TargetStatus {
   ready: boolean
   model: ModelInfo | null
 }
+export interface PlaneStatus {
+  service_url: string
+  healthy: boolean
+  ready: boolean
+  model?: ModelInfo | null
+}
+export interface PreflightStatus {
+  ready: boolean
+  blockers: string[]
+  media: PlaneStatus
+  control: PlaneStatus
+}
 export interface ModelInfo {
   ref: string
   name: string | null
@@ -96,6 +108,7 @@ export interface FieldError {
 }
 export interface RunRow {
   run_id: string
+  name?: string | null
   status: string
   model?: string | null
   source_type?: string | null
@@ -111,6 +124,7 @@ export interface RunRow {
 }
 export interface RunDetail {
   run_id: string
+  name?: string | null
   status: string
   started_at?: string
   model?: string

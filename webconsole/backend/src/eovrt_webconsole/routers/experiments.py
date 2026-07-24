@@ -18,6 +18,7 @@ from pydantic import ValidationError
 from eovrt_webconsole.experiment.control_backend import ServiceUnavailable, UnknownRun
 from eovrt_webconsole.experiment.manifest import ExperimentManifest, load_manifest
 from eovrt_webconsole.experiment.run_manager import ExperimentBusy
+from eovrt_webconsole.preflight import platform_preflight
 from eovrt_webconsole.manifest_writer import (
     ManifestExistsError,
     ProtectedManifestError,
@@ -123,6 +124,22 @@ async def run_experiment_route(body: dict, request: Request) -> dict:
     manager = request.app.state.experiment_manager
 
     manifest = _resolve_manifest_from_body(body, settings.experiments_dir)
+
+    # Gate de preflight (sincrónico, antes del task 202): todo experimento usa
+    # ambos planos — live los necesita a la vez (control se suscribe al bus
+    # ANTES de disparar media), y replay los encadena. Si algo falta, el
+    # operador se entera ACA con un 503 explicable, no polleando un
+    # experimento que nació muerto dentro del runner en background.
+    status = await platform_preflight(request.app)
+    if not status["ready"]:
+        return JSONResponse(
+            status_code=503,
+            content={
+                "detail": "Plataforma no lista: " + "; ".join(status["blockers"]),
+                "preflight": status,
+            },
+        )
+
     try:
         experiment_id = manager.start(
             manifest,

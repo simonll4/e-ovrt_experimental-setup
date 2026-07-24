@@ -66,6 +66,7 @@ async def test_status_activo_y_terminado(backend, state):
     state.active_run_id = "run_active_1"
     active = await backend.status("run_active_1")
     assert active == {"run_id": "run_active_1", "status": "running", "live": True,
+                      "name": "corrida activa demo",
                       "started_at": "2026-07-03T12:00:00+00:00", "model": "mock"}
     done = await backend.status("run_done_1")
     assert done["summary"]["fps_effective"] == 12.5

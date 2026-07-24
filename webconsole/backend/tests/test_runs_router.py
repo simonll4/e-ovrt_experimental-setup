@@ -1,5 +1,6 @@
 from eovrt_webconsole.routers.runs import _row
 from eovrt_webconsole.run_backend import ServiceUnavailable
+from tests.fake_service import make_fake_service
 
 
 def _body(**overrides) -> dict:
@@ -70,11 +71,40 @@ def test_listado_hidratado(client, fake_state):
     rows = {r["run_id"]: r for r in client.get("/api/runs").json()}
     assert rows["run_active_1"]["status"] == "running"
     assert rows["run_active_1"]["model"] == "mock"
+    assert rows["run_active_1"]["name"] == "corrida activa demo"
     done = rows["run_done_1"]
     assert done["fps_effective"] == 12.5
     assert done["total_detections"] == 7
     assert done["source_type"] == "image_folder"
     assert done["prompt_set_id"] == "demo_set"
+    assert done["name"] == "corrida terminada demo"
+
+
+def test_row_name_ausente_en_ambos_da_none():
+    # Run sin nombre puesto por el operador (ni en el status top-level ni en el
+    # summary): degrada a None, nunca KeyError.
+    assert _row({"run_id": "r1", "status": "running"})["name"] is None
+    assert _row({"run_id": "r1", "status": "succeeded", "summary": {}})["name"] is None
+
+
+def test_listado_cola_no_hidratada_propaga_name(settings, fake_state):
+    # Con hydration_limit=0 TODAS las filas caen a la cola liviana (sin llamar a
+    # status()): el nombre debe venir del item liviano de list_runs, no perderse.
+    import dataclasses
+
+    import httpx
+    from fastapi.testclient import TestClient
+
+    from eovrt_webconsole.app import create_app
+
+    settings = dataclasses.replace(settings, hydration_limit=0)
+    fake_state.active_run_id = "run_active_1"
+    transport = httpx.ASGITransport(app=make_fake_service(fake_state))
+    app = create_app(settings, service_transport=transport)
+    with TestClient(app) as c:
+        rows = {r["run_id"]: r for r in c.get("/api/runs").json()}
+    assert rows["run_active_1"]["name"] == "corrida activa demo"
+    assert rows["run_done_1"]["name"] == "corrida terminada demo"
 
 
 def test_get_run_pass_through_y_404(client):

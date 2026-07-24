@@ -4,6 +4,8 @@ from __future__ import annotations
 import httpx
 from fastapi import APIRouter, Request
 
+from eovrt_webconsole.preflight import platform_preflight
+
 router = APIRouter(prefix="/api")
 
 
@@ -26,3 +28,9 @@ async def target(request: Request) -> dict:
     except httpx.HTTPError:
         pass  # servicio caído: healthy/ready quedan en False
     return out
+
+
+@router.get("/preflight")
+async def preflight(request: Request) -> dict:
+    """Estado agregado de AMBOS planos (media + control) para gatear runs live."""
+    return await platform_preflight(request.app)

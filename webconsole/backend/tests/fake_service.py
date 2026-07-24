@@ -36,6 +36,7 @@ DATASETS = [
 SUMMARY_FINISHED = {
     "schema_version": "media.summary.v2",
     "run_id": "run_done_1",
+    "name": "corrida terminada demo",
     "status": "succeeded",
     "model_name": "mock",
     "prompt_set_id": "demo_set",
@@ -178,11 +179,13 @@ def make_fake_service(state: FakeState) -> FastAPI:
             return JSONResponse(status_code=503, content={"detail": "Servicio no listo (modelo no cargado)"})
         runs = []
         if state.active_run_id:
-            runs.append({"run_id": state.active_run_id, "status": "running", "live": True})
+            runs.append({"run_id": state.active_run_id, "name": "corrida activa demo",
+                         "status": "running", "live": True})
         if "run_done_1" not in state.deleted:
             runs.append(
                 {
                     "run_id": "run_done_1",
+                    "name": "corrida terminada demo",
                     "status": "succeeded",
                     "bench_split": "bench_v2_test",
                     "evaluated": "run_done_1" in state.eval_results,
@@ -197,6 +200,7 @@ def make_fake_service(state: FakeState) -> FastAPI:
             return JSONResponse(status_code=503, content={"detail": "Servicio no listo (modelo no cargado)"})
         if run_id == state.active_run_id:
             return {"run_id": run_id, "status": "running", "live": True,
+                    "name": "corrida activa demo",
                     "started_at": "2026-07-03T12:00:00+00:00", "model": MODEL["ref"]}
         if run_id == "run_done_1" and run_id not in state.deleted:
             return {

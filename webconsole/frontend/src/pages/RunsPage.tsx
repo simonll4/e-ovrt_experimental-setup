@@ -75,7 +75,10 @@ export default function RunsPage() {
         <tbody>
           {rows.map((r) => (
             <tr key={r.run_id}>
-              <td><Link to={`/runs/${r.run_id}`}>{r.run_id}</Link></td>
+              <td>
+                <Link to={`/runs/${r.run_id}`} title={r.run_id}>{r.name || r.run_id}</Link>
+                {r.name && <><br /><small>{r.run_id}</small></>}
+              </td>
               <td>
                 <Badge tone={runStatusTone(r)}>{runStatusLabel(r)}</Badge>
                 {r.topology === 'two_node' ? <small> two-node</small> : null}

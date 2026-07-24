@@ -2,8 +2,8 @@ import type {
   CameraPreset, ClipEntry, CompareResult, Composition, DatasetEntry, DetectionsPage, EvalResult,
   Experiment, ExperimentAlert, ExperimentManifestSummary, ExperimentReport, ExperimentRunState,
   FieldError, GenerateClipBody, GenerateClipResult, IngestPlugin, MasterEntry, PlatformInstance,
-  PreviewStartBody, PreviewStatus, PromptSet, PromptSetDetail, PromptSetSummary, RecordingStatus,
-  RunDetail, RunRow, StartRecordingBody, TargetStatus, TracePage,
+  PreflightStatus, PreviewStartBody, PreviewStatus, PromptSet, PromptSetDetail, PromptSetSummary,
+  RecordingStatus, RunDetail, RunRow, StartRecordingBody, TargetStatus, TracePage,
 } from './types'
 
 export class ApiError extends Error {
@@ -34,6 +34,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export const getTarget = () => request<TargetStatus>('/api/target')
+export const getPreflight = () => request<PreflightStatus>('/api/preflight')
 export const getPromptSets = () => request<PromptSet[]>('/api/catalog/prompt-sets')
 export const getExperiments = () => request<Experiment[]>('/api/catalog/experiments')
 export const getIngestPlugins = () => request<IngestPlugin[]>('/api/catalog/ingest-plugins')

@@ -57,6 +57,30 @@ describe('RunDetailPage', () => {
     await waitFor(() => expect(screen.getByText('OK').className).toContain('eo-badge--ok'))
   })
 
+  it('muestra el nombre del run (top-level, run vivo) con el id como subtítulo', async () => {
+    vi.mocked(api.getRun).mockResolvedValue({
+      run_id: 'r_1', name: 'mi corrida en vivo', status: 'running', live: true,
+    } as any)
+    renderPage()
+    await waitFor(() => expect(screen.getByText('mi corrida en vivo')).toBeTruthy())
+    expect(screen.getByText('r_1')).toBeTruthy()
+  })
+
+  it('muestra el nombre desde summary (run terminado) cuando no viene top-level', async () => {
+    vi.mocked(api.getRun).mockResolvedValue({
+      run_id: 'r_1', status: 'succeeded', live: false,
+      summary: { name: 'corrida ya terminada' },
+    } as any)
+    renderPage()
+    await waitFor(() => expect(screen.getByText('corrida ya terminada')).toBeTruthy())
+  })
+
+  it('sin nombre, muestra solo el run_id (sin duplicar)', async () => {
+    vi.mocked(api.getRun).mockResolvedValue({ run_id: 'r_1', status: 'succeeded', live: false } as any)
+    renderPage()
+    await waitFor(() => expect(screen.getAllByText('r_1')).toHaveLength(1))
+  })
+
   it('muestra tiles de métricas cuando hay summary', async () => {
     vi.mocked(api.getRun).mockResolvedValue({
       run_id: 'r_1',

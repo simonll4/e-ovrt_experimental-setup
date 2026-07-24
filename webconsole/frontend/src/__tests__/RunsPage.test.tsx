@@ -27,6 +27,17 @@ describe('RunsPage', () => {
     expect(screen.getByText('OK').className).toContain('eo-badge--ok')
   })
 
+  it('muestra el nombre en vez del run_id cuando está presente, con el id como subtítulo', async () => {
+    vi.mocked(api.listRuns).mockResolvedValue([
+      { run_id: 'r_named', name: 'mi corrida', status: 'succeeded', model: 'gdino' } as any,
+      { run_id: 'r_sin_nombre', status: 'succeeded', model: 'gdino' } as any,
+    ])
+    renderPage()
+    await waitFor(() => expect(screen.getByText('mi corrida')).toBeTruthy())
+    expect(screen.getByText('r_named')).toBeTruthy() // subtítulo con el id real
+    expect(screen.getByText('r_sin_nombre')).toBeTruthy() // sin nombre: se ve el id, sin duplicar
+  })
+
   it('estado vacío cuando no hay corridas', async () => {
     vi.mocked(api.listRuns).mockResolvedValue([])
     renderPage()

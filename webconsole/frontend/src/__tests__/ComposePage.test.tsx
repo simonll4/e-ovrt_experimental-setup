@@ -57,6 +57,13 @@ vi.mock('../api', () => ({
       },
     },
   ]),
+  listCameras: vi.fn(async () => []),
+  getPreflight: vi.fn(async () => ({
+    ready: true,
+    blockers: [],
+    media: { service_url: 'http://m', healthy: true, ready: true, model: null },
+    control: { service_url: 'http://c', healthy: true, ready: true },
+  })),
   launchRun: vi.fn(),
   saveManifest: vi.fn(),
 }))
@@ -97,7 +104,11 @@ describe('ComposePage prefill de source.type video', () => {
     const personCheckbox = await screen.findByLabelText<HTMLInputElement>(/^person$/)
     await waitFor(() => expect(personCheckbox.checked).toBe(true))
 
-    fireEvent.click(screen.getByText('Lanzar'))
+    // El botón arranca deshabilitado hasta que el poll del target confirma que
+    // el media-plane está listo (gate de lanzamiento).
+    const launch = screen.getByText('Lanzar') as HTMLButtonElement
+    await waitFor(() => expect(launch.disabled).toBe(false))
+    fireEvent.click(launch)
 
     await waitFor(() => expect(api.launchRun).toHaveBeenCalled())
     const comp = vi.mocked(api.launchRun).mock.calls[0][0]
@@ -226,6 +237,72 @@ describe('ComposePage prefill survives catalog re-fetch (no clobber)', () => {
   })
 })
 
+// El botón Lanzar ahora exige el form mínimo completo (fuente + prompt set):
+// completa dataset demo_v2 y set demo_set con el mismo patrón label-vecino que
+// usa el describe de RTSP (los <label> no están asociados por htmlFor).
+async function completeMinimalForm() {
+  const datasetSelect = await waitFor(() => {
+    const label = screen.getByText(/Dataset del catálogo/i)
+    const select = label.closest('div')!.querySelector('select') as HTMLSelectElement
+    expect(select.querySelector('option[value="demo_v2"]')).toBeTruthy()
+    return select
+  })
+  fireEvent.change(datasetSelect, { target: { value: 'demo_v2' } })
+  const setSelect = await waitFor(() => {
+    const label = screen.getByText(/^Prompt set$/i)
+    const select = label.closest('div')!.querySelector('select') as HTMLSelectElement
+    expect(select.querySelector('option[value="demo_set"]')).toBeTruthy()
+    return select
+  })
+  fireEvent.change(setSelect, { target: { value: 'demo_set' } })
+}
+
+describe('ComposePage nombre opcional del run', () => {
+  beforeEach(() => cleanup())
+  afterEach(() => vi.mocked(api.launchRun).mockReset())
+
+  it('manda run.name cuando se completa, null cuando se deja vacío', async () => {
+    vi.mocked(api.launchRun).mockResolvedValue({ run_id: 'r1' })
+    render(
+      <MemoryRouter initialEntries={['/compose']}>
+        <Routes>
+          <Route path="/compose" element={<ComposePage />} />
+        </Routes>
+      </MemoryRouter>,
+    )
+    await completeMinimalForm()
+
+    const nameInput = screen.getByPlaceholderText(/prueba OAK-D laboratorio/i)
+    fireEvent.change(nameInput, { target: { value: 'mi corrida de prueba' } })
+
+    const launch = screen.getByText('Lanzar') as HTMLButtonElement
+    await waitFor(() => expect(launch.disabled).toBe(false))
+    fireEvent.click(launch)
+
+    await waitFor(() => expect(api.launchRun).toHaveBeenCalled())
+    expect(vi.mocked(api.launchRun).mock.calls[0][0].run.name).toBe('mi corrida de prueba')
+  })
+
+  it('deja run.name en null si el campo queda vacío (usa el id autogenerado)', async () => {
+    vi.mocked(api.launchRun).mockResolvedValue({ run_id: 'r2' })
+    render(
+      <MemoryRouter initialEntries={['/compose']}>
+        <Routes>
+          <Route path="/compose" element={<ComposePage />} />
+        </Routes>
+      </MemoryRouter>,
+    )
+    await completeMinimalForm()
+
+    const launch = screen.getByText('Lanzar') as HTMLButtonElement
+    await waitFor(() => expect(launch.disabled).toBe(false))
+    fireEvent.click(launch)
+
+    await waitFor(() => expect(api.launchRun).toHaveBeenCalled())
+    expect(vi.mocked(api.launchRun).mock.calls[0][0].run.name).toBeNull()
+  })
+})
+
 describe('ComposePage aviso de 409 al lanzar', () => {
   beforeEach(() => cleanup())
   afterEach(() => vi.mocked(api.launchRun).mockReset())
@@ -242,7 +319,10 @@ describe('ComposePage aviso de 409 al lanzar', () => {
       </MemoryRouter>,
     )
 
-    fireEvent.click(screen.getByText('Lanzar'))
+    await completeMinimalForm()
+    const launch = screen.getByText('Lanzar') as HTMLButtonElement
+    await waitFor(() => expect(launch.disabled).toBe(false))
+    fireEvent.click(launch)
 
     expect(await screen.findByText(/prueba de cámara activa/i)).toBeTruthy()
   })
@@ -259,15 +339,76 @@ describe('ComposePage aviso de 409 al lanzar', () => {
       </MemoryRouter>,
     )
 
-    fireEvent.click(screen.getByText('Lanzar'))
+    await completeMinimalForm()
+    const launch = screen.getByText('Lanzar') as HTMLButtonElement
+    await waitFor(() => expect(launch.disabled).toBe(false))
+    fireEvent.click(launch)
 
     expect(await screen.findByText(/ya hay un run activo/i)).toBeTruthy()
+  })
+})
+
+describe('ComposePage gate de media-plane', () => {
+  beforeEach(() => cleanup())
+
+  it('bloquea Lanzar con el motivo cuando el media-plane no está listo', async () => {
+    // mockResolvedValueOnce: solo el tick inicial del poll (el test dura menos
+    // que el intervalo de 5s) y sin contaminar los describes siguientes.
+    vi.mocked(api.getTarget).mockResolvedValueOnce({
+      service_url: 'http://x', healthy: true, ready: false, model: null,
+    } as any)
+    render(
+      <MemoryRouter initialEntries={['/compose']}>
+        <Routes>
+          <Route path="/compose" element={<ComposePage />} />
+        </Routes>
+      </MemoryRouter>,
+    )
+    await waitFor(() =>
+      expect(screen.getByText(/no terminó de cargar el modelo/i)).toBeTruthy(),
+    )
+    const launch = screen.getByText('Lanzar') as HTMLButtonElement
+    expect(launch.disabled).toBe(true)
+    expect(vi.mocked(api.launchRun)).not.toHaveBeenCalled()
   })
 })
 
 describe('ComposePage fuente RTSP', () => {
   beforeEach(() => cleanup())
   afterEach(() => vi.mocked(api.launchRun).mockReset())
+
+  it('bloquea Lanzar si la URL RTSP trae credenciales censuradas (***)', async () => {
+    render(
+      <MemoryRouter initialEntries={['/compose']}>
+        <Routes>
+          <Route path="/compose" element={<ComposePage />} />
+        </Routes>
+      </MemoryRouter>,
+    )
+    const pluginSelect = await waitFor(() => {
+      const label = screen.getByText(/Tipo de fuente/i)
+      const select = label.closest('div')!.querySelector('select') as HTMLSelectElement
+      expect(select.querySelector('option[value="rtsp"]')).toBeTruthy()
+      return select
+    })
+    fireEvent.change(pluginSelect, { target: { value: 'rtsp' } })
+    const urlInput = await screen.findByPlaceholderText<HTMLInputElement>(/^rtsp:\/\//)
+    fireEvent.change(urlInput, { target: { value: 'rtsp://user:***@10.0.0.5:554/s' } })
+    const setSelect = await waitFor(() => {
+      const label = screen.getByText(/^Prompt set$/i)
+      const select = label.closest('div')!.querySelector('select') as HTMLSelectElement
+      expect(select.querySelector('option[value="demo_set"]')).toBeTruthy()
+      return select
+    })
+    fireEvent.change(setSelect, { target: { value: 'demo_set' } })
+
+    await waitFor(() =>
+      expect(screen.getByText(/recompletá las credenciales de la URL RTSP/i)).toBeTruthy(),
+    )
+    const launch = screen.getByText('Lanzar') as HTMLButtonElement
+    expect(launch.disabled).toBe(true)
+    expect(vi.mocked(api.launchRun)).not.toHaveBeenCalled()
+  })
 
   it('al elegir rtsp muestra el campo URL y arma config { url }', async () => {
     vi.mocked(api.launchRun).mockResolvedValue({ run_id: 'r1' })
@@ -287,7 +428,7 @@ describe('ComposePage fuente RTSP', () => {
     // "rtsp" esté poblada (carga async de getIngestPlugins) antes de disparar el
     // change, porque jsdom no aplica un value sin una <option> que lo respalde.
     const pluginSelect = await waitFor(() => {
-      const label = screen.getByText(/Plugin de ingesta/i)
+      const label = screen.getByText(/Tipo de fuente/i)
       const select = label.closest('div')!.querySelector('select') as HTMLSelectElement
       expect(select.querySelector('option[value="rtsp"]')).toBeTruthy()
       return select
@@ -306,11 +447,74 @@ describe('ComposePage fuente RTSP', () => {
     })
     fireEvent.change(setSelect, { target: { value: 'demo_set' } })
 
-    fireEvent.click(screen.getByText('Lanzar'))
+    // El botón arranca deshabilitado hasta que el poll del target confirma que
+    // el media-plane está listo (gate de lanzamiento).
+    const launch = screen.getByText('Lanzar') as HTMLButtonElement
+    await waitFor(() => expect(launch.disabled).toBe(false))
+    fireEvent.click(launch)
 
     await waitFor(() => expect(api.launchRun).toHaveBeenCalled())
     const comp = vi.mocked(api.launchRun).mock.calls[0][0]
     expect(comp.ingest.plugin).toBe('rtsp')
     expect(comp.ingest.config).toEqual({ url: 'rtsp://u:p@10.0.0.5:554/s' })
+  })
+})
+
+describe('ComposePage cámara guardada (oak_d)', () => {
+  beforeEach(() => cleanup())
+  afterEach(() => vi.mocked(api.launchRun).mockReset())
+
+  it('lanza con la config del preset de cámara elegido', async () => {
+    // mockResolvedValue persistente (no Once): el efecto de catálogos corre dos
+    // veces (modelRef undefined -> 'mock') y la segunda llamada pisaría la lista.
+    // Es el último describe del archivo, no contamina a nadie.
+    vi.mocked(api.getIngestPlugins).mockResolvedValue([
+      { id: 'image_folder', kind: 'bounded', available: true, description: '', enabled: true },
+      { id: 'oak_d', kind: 'live', available: true, description: '', enabled: true },
+    ] as any)
+    vi.mocked(api.listCameras).mockResolvedValue([
+      { id: 'oak_lab', name: 'OAK-D Lab', plugin: 'oak_d', config: { url: '192.168.1.50', fps: 30 } },
+    ] as any)
+    vi.mocked(api.launchRun).mockResolvedValue({ run_id: 'r1' })
+    render(
+      <MemoryRouter initialEntries={['/compose']}>
+        <Routes>
+          <Route path="/compose" element={<ComposePage />} />
+        </Routes>
+      </MemoryRouter>,
+    )
+
+    const pluginSelect = await waitFor(() => {
+      const label = screen.getByText(/Tipo de fuente/i)
+      const select = label.closest('div')!.querySelector('select') as HTMLSelectElement
+      expect(select.querySelector('option[value="oak_d"]')).toBeTruthy()
+      return select
+    })
+    fireEvent.change(pluginSelect, { target: { value: 'oak_d' } })
+
+    const camSelect = await waitFor(() => {
+      const label = screen.getByText(/^Cámara guardada$/)
+      const select = label.closest('div')!.querySelector('select') as HTMLSelectElement
+      expect(select.querySelector('option[value="oak_lab"]')).toBeTruthy()
+      return select
+    })
+    fireEvent.change(camSelect, { target: { value: 'oak_lab' } })
+
+    const setSelect = await waitFor(() => {
+      const label = screen.getByText(/^Prompt set$/i)
+      const select = label.closest('div')!.querySelector('select') as HTMLSelectElement
+      expect(select.querySelector('option[value="demo_set"]')).toBeTruthy()
+      return select
+    })
+    fireEvent.change(setSelect, { target: { value: 'demo_set' } })
+
+    const launch = screen.getByText('Lanzar') as HTMLButtonElement
+    await waitFor(() => expect(launch.disabled).toBe(false))
+    fireEvent.click(launch)
+
+    await waitFor(() => expect(api.launchRun).toHaveBeenCalled())
+    const comp = vi.mocked(api.launchRun).mock.calls[0][0]
+    expect(comp.ingest.plugin).toBe('oak_d')
+    expect(comp.ingest.config).toEqual({ url: '192.168.1.50', fps: 30 })
   })
 })

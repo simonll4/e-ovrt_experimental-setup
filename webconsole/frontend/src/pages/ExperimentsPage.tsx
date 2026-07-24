@@ -3,7 +3,9 @@ import { Link, useNavigate } from 'react-router-dom'
 import { ApiError, getCurrentExperiment, getExperimentManifests, runExperiment } from '../api'
 import type { ExperimentManifestSummary, ExperimentRunState } from '../types'
 import { experimentStatusLabel, experimentStatusTone } from '../experimentview'
-import { Badge, ErrorBanner, EmptyState } from '../components/ui'
+import { usePreflight } from '../usePreflight'
+import PlatformStatus from '../components/PlatformStatus'
+import { Badge, Card, ErrorBanner, EmptyState } from '../components/ui'
 
 function errorMessage(e: unknown): string {
   if (e instanceof ApiError) {
@@ -13,12 +15,14 @@ function errorMessage(e: unknown): string {
     }
     if (e.status === 422) return 'Manifiesto invalido'
     if (e.status === 502) return 'Servicio no disponible'
+    if (e.status === 503) return payload.detail ?? 'Plataforma no lista'
   }
   return String(e)
 }
 
 export default function ExperimentsPage() {
   const navigate = useNavigate()
+  const preflight = usePreflight()
   const [rows, setRows] = useState<ExperimentManifestSummary[] | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [current, setCurrent] = useState<ExperimentRunState | null>(null)
@@ -76,6 +80,16 @@ export default function ExperimentsPage() {
     }
   }
 
+  // Gate de lanzamiento: sin preflight verde no se lanza (el BFF igualmente lo
+  // rechaza con 503; acá se corta antes y con el motivo a la vista).
+  const experimentRunning = current?.status === 'running'
+  const blocked = !preflight?.ready || experimentRunning
+  const blockedReason = experimentRunning
+    ? 'hay un experimento en curso'
+    : preflight === null
+      ? 'verificando servicios…'
+      : preflight.blockers[0]
+
   if (error) return <ErrorBanner>Error listando experimentos: {error}</ErrorBanner>
   if (!rows) return <p className="eo-empty">Cargando…</p>
   return (
@@ -87,17 +101,23 @@ export default function ExperimentsPage() {
           {' — '}<Badge tone={experimentStatusTone(current)}>{experimentStatusLabel(current)}</Badge>
         </p>
       )}
-      <div style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'center' }}>
-        <select value={slug} onChange={(e) => setSlug(e.target.value)}>
-          {rows.map((r) => (
-            <option key={r.slug} value={r.slug}>{r.slug}</option>
-          ))}
-        </select>
-        <button onClick={trigger} disabled={busy || !slug}>
-          {busy ? 'Ejecutando…' : 'Ejecutar experimento'}
-        </button>
-      </div>
-      {runError && <ErrorBanner>{runError}</ErrorBanner>}
+      <Card title="Lanzar">
+        <div style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'center', flexWrap: 'wrap' }}>
+          <PlatformStatus status={preflight} />
+          <select value={slug} onChange={(e) => setSlug(e.target.value)}>
+            {rows.map((r) => (
+              <option key={r.slug} value={r.slug}>{r.slug}</option>
+            ))}
+          </select>
+          <button onClick={trigger} disabled={busy || !slug || blocked}>
+            {busy ? 'Lanzando…' : 'Lanzar experimento'}
+          </button>
+        </div>
+        {blocked && !busy && (
+          <p className="eo-note eo-note--warn">No se puede lanzar: {blockedReason}.</p>
+        )}
+        {runError && <ErrorBanner>{runError}</ErrorBanner>}
+      </Card>
       {rows.length === 0 ? (
         <EmptyState>Sin manifiestos todavía.</EmptyState>
       ) : (

@@ -30,6 +30,7 @@ def _row(info: dict) -> dict:
     summary = info.get("summary") or {}
     return {
         "run_id": info.get("run_id"),
+        "name": info.get("name") or summary.get("name"),
         "status": info.get("status", "unknown"),
         "model": info.get("model") or summary.get("model_name"),
         "source_type": summary.get("source_type"),
@@ -95,6 +96,7 @@ async def list_runs(request: Request) -> list[dict]:
             rows.append(
                 {
                     "run_id": item["run_id"],
+                    "name": item.get("name"),
                     "status": item["status"],
                     "bench_split": item.get("bench_split"),
                     "evaluated": item.get("evaluated"),
@@ -104,6 +106,7 @@ async def list_runs(request: Request) -> list[dict]:
     rows.extend(
         {
             "run_id": item["run_id"],
+            "name": item.get("name"),
             "status": item["status"],
             "bench_split": item.get("bench_split"),
             "evaluated": item.get("evaluated"),

@@ -2,12 +2,14 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import {
   ApiError, getDatasets, getExperiments, getIngestPlugins, getPromptSets,
-  launchRun, saveManifest,
+  launchRun, listCameras, saveManifest,
 } from '../api'
 import type {
-  Composition, DatasetEntry, Experiment, FieldError, IngestPlugin, PromptSet,
+  CameraPreset, Composition, DatasetEntry, Experiment, FieldError, IngestPlugin, PromptSet,
 } from '../types'
-import { useTargetModelRef } from '../useTarget'
+import { useTarget } from '../useTarget'
+import { usePreflight } from '../usePreflight'
+import PlatformStatus from '../components/PlatformStatus'
 import { Card, ErrorBanner, Field } from '../components/ui'
 
 export default function ComposePage() {
@@ -15,18 +17,28 @@ export default function ComposePage() {
   const [params] = useSearchParams()
   const [plugins, setPlugins] = useState<IngestPlugin[]>([])
   const [datasets, setDatasets] = useState<DatasetEntry[]>([])
+  const [cameras, setCameras] = useState<CameraPreset[]>([])
   const [sets, setSets] = useState<PromptSet[]>([])
   const [experiments, setExperiments] = useState<Experiment[]>([])
   const [plugin, setPlugin] = useState('image_folder')
   const [dataset, setDataset] = useState('')
   const [path, setPath] = useState('')
+  const [cameraId, setCameraId] = useState('')
   const [rtspUrl, setRtspUrl] = useState('')
+  // Frames a descartar al arrancar una fuente en vivo (asentamiento de
+  // exposición/enfoque): solo válido en rtsp/oak_d, el media-plane lo rechaza
+  // (422) en fuentes acotadas. Vacío = no enviar el campo (default 0 del lado
+  // del servicio, comportamiento previo).
+  const [warmupFrames, setWarmupFrames] = useState('')
   // `source.type` original del manifiesto prefilleado (video/video_frame/…): se
   // conserva para que guardar no lo colapse a video_file. null cuando la fuente
   // se arma desde cero o por dataset ref.
   const [sourceType, setSourceType] = useState<string | null>(null)
   const [setId, setSetId] = useState('')
   const [activeIds, setActiveIds] = useState<string[]>([])
+  // Nombre opcional del run: si queda vacío, el servicio usa el run_id
+  // autogenerado como siempre — esto es puramente para identificarlo mejor.
+  const [runName, setRunName] = useState('')
   const [stride, setStride] = useState('')
   const [maxUnits, setMaxUnits] = useState('')
   const [annotated, setAnnotated] = useState(false)
@@ -44,20 +56,34 @@ export default function ComposePage() {
   }
 
   // Si el servicio se reinicia con otro EOVRT_MODEL_REF, `modelRef` cambia (poll de
-  // useTargetModelRef) y re-fetcheamos los catálogos para no quedar con datos stale.
-  const modelRef = useTargetModelRef()
+  // useTarget) y re-fetcheamos los catálogos para no quedar con datos stale. El
+  // target completo además gatea el botón Lanzar: sin media-plane listo no se lanza.
+  const target = useTarget()
+  const modelRef = target?.model?.ref
+  const preflight = usePreflight()
   useEffect(() => {
     let alive = true
     getIngestPlugins().then((v) => alive && setPlugins(v)).catch(() => alive && setPlugins([]))
     getDatasets().then((v) => alive && setDatasets(v)).catch(() => alive && setDatasets([]))
     getPromptSets().then((v) => alive && setSets(v)).catch(() => alive && setSets([]))
     getExperiments().then((v) => alive && setExperiments(v)).catch(() => alive && setExperiments([]))
+    listCameras().then((v) => alive && setCameras(v)).catch(() => alive && setCameras([]))
     return () => {
       alive = false
     }
   }, [modelRef])
 
   const selectedSet = useMemo(() => sets.find((s) => s.id === setId), [sets, setId])
+  // Fuente en vivo (cámara) vs acotada (dataset/archivo): decide qué campos mostrar.
+  const isLive = plugins.find((p) => p.id === plugin)?.kind === 'live'
+  const pluginCameras = useMemo(
+    () => cameras.filter((c) => c.plugin === plugin),
+    [cameras, plugin],
+  )
+  const selectedCamera = useMemo(
+    () => pluginCameras.find((c) => c.id === cameraId),
+    [pluginCameras, cameraId],
+  )
 
   // Prefill desde manifiesto (?from=<experiment_id>) — la traducción canónica vive en el
   // BFF; acá solo mapeamos el manifiesto crudo a los campos del form (mismo mapeo §5.4).
@@ -91,26 +117,40 @@ export default function ComposePage() {
       setRtspUrl(source.type === 'rtsp' ? (source.url ?? '') : '')
       setSourceType(source.type) // preserva el string exacto para el round-trip
     }
+    if (source.warmup_frames != null) setWarmupFrames(String(source.warmup_frames))
     if (m.prompts?.ref) setSetId(m.prompts.ref)
     if (m.prompts?.active_ids) setActiveIds(m.prompts.active_ids)
+    if (m.run?.name) setRunName(m.run.name)
     if (m.rate_control?.stride != null) setStride(String(m.rate_control.stride))
     if (m.run?.max_units != null) setMaxUnits(String(m.run.max_units))
     if (m.outputs?.save_annotated_video) setAnnotated(true)
     if (m.model?.ref) setManifestModelRef(m.model.ref)
   }, [params, experiments])
 
+  const ingestConfig = (): Record<string, unknown> => {
+    if (isLive) {
+      // Cámara guardada primero; URL manual solo como fallback de rtsp. El preset
+      // no trae warmup_frames (es un ajuste por-run, no de la cámara) — se agrega
+      // acá como override si el operador lo completó.
+      const base: Record<string, unknown> = selectedCamera
+        ? { ...selectedCamera.config }
+        : (plugin === 'rtsp' && rtspUrl ? { url: rtspUrl } : {})
+      if (warmupFrames) base.warmup_frames = Number(warmupFrames)
+      return base
+    }
+    return dataset ? { dataset } : path ? { path } : {}
+  }
+
   const composition = (): Composition => ({
     ingest: {
       plugin,
-      config:
-        plugin === 'rtsp'
-          ? (rtspUrl ? { url: rtspUrl } : {})
-          : dataset ? { dataset } : path ? { path } : {},
+      config: ingestConfig(),
       // Solo relevante para fuentes por `path` (video); rtsp deriva el type en el BFF.
-      source_type: plugin === 'rtsp' ? null : dataset ? null : sourceType,
+      source_type: isLive ? null : dataset ? null : sourceType,
     },
     prompts: { set_id: setId, active_ids: activeIds },
     run: {
+      name: runName || null,
       stride: stride ? Number(stride) : null,
       max_units: maxUnits ? Number(maxUnits) : null,
       save_annotated_video: annotated,
@@ -159,26 +199,49 @@ export default function ComposePage() {
 
   const modelError = errors.some((e) => e.field === 'model')
   const generalError = fieldError('_target') ?? fieldError('_service')
+
+  // Checklist de lanzamiento: una sola razón a la vez, en orden de arreglo.
+  // El botón queda deshabilitado hasta que no falte nada — así el 422 del
+  // servicio queda solo para casos que el form no puede anticipar.
+  const missingReason = ((): string | null => {
+    if (!target) return 'verificando el media-plane…'
+    if (!target.healthy) return 'el media-plane no responde'
+    if (!target.ready) return 'el media-plane no terminó de cargar el modelo'
+    if (isLive) {
+      if (!selectedCamera && !(plugin === 'rtsp' && rtspUrl)) {
+        return plugin === 'rtsp'
+          ? 'elegí una cámara guardada o ingresá la URL RTSP (paso 1)'
+          : 'elegí una cámara guardada (paso 1) — se crean en Cámaras'
+      }
+      // Los manifiestos guardados censuran la credencial RTSP como "***": esa
+      // URL pasa la validación de shape pero muere adentro del run. Bloquear acá.
+      if (!selectedCamera && plugin === 'rtsp' && rtspUrl.includes('***')) {
+        return 'recompletá las credenciales de la URL RTSP (paso 1)'
+      }
+    } else if (!dataset && !path) {
+      return 'elegí un dataset o ingresá una ruta (paso 1)'
+    }
+    if (!setId) return 'elegí un prompt set (paso 2)'
+    if (activeIds.length === 0) return 'activá al menos una clase del prompt set (paso 2)'
+    return null
+  })()
+
   return (
     <div>
-      <h2>Nueva corrida</h2>
-      <div>
-        <Field label="Partir de un manifiesto">
-          <select
-            value={params.get('from') ?? ''}
-            onChange={(e) => navigate(`/compose?from=${encodeURIComponent(e.target.value)}`)}
-          >
-            <option value="">— desde cero —</option>
-            {experiments.map((x) => (
-              <option key={x.id} value={x.id}>{x.group ? `[${x.group}] ` : ''}{x.id}</option>
-            ))}
-          </select>
-        </Field>
+      <div style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'center', flexWrap: 'wrap' }}>
+        <h2>Nueva corrida</h2>
+        <PlatformStatus status={preflight} />
       </div>
-      <Card title="Ingesta">
+      <Card title="1 · Fuente">
         <div>
-          <Field label="Plugin de ingesta" error={fieldError('ingest.plugin')}>
-            <select value={plugin} onChange={(e) => setPlugin(e.target.value)}>
+          <Field label="Tipo de fuente" error={fieldError('ingest.plugin')}>
+            <select
+              value={plugin}
+              onChange={(e) => {
+                setPlugin(e.target.value)
+                setCameraId('')
+              }}
+            >
               {plugins.map((p) => (
                 <option key={p.id} value={p.id} disabled={!p.enabled}>
                   {p.id}{!p.enabled ? ' (no soportado)' : ''}
@@ -187,15 +250,42 @@ export default function ComposePage() {
             </select>
           </Field>
         </div>
-        {plugin === 'rtsp' ? (
+        {isLive ? (
           <div>
-            <Field label="URL RTSP de la cámara" error={fieldError('ingest.config.url')}>
-              <input placeholder="rtsp://usuario:clave@192.168.1.50:554/stream1" value={rtspUrl}
-                     onChange={(e) => setRtspUrl(e.target.value)} />
+            <Field label="Cámara guardada" error={fieldError('ingest.config.url')}>
+              <select value={cameraId} onChange={(e) => setCameraId(e.target.value)}>
+                <option value="">
+                  {plugin === 'rtsp' ? '— URL manual —' : '— elegir cámara —'}
+                </option>
+                {pluginCameras.map((c) => (
+                  <option key={c.id} value={c.id}>{c.name || c.id}</option>
+                ))}
+              </select>
             </Field>
-            {rtspUrl.includes('***') && (
-              <small className="eo-note eo-note--warn">Recompletá las credenciales antes de lanzar.</small>
+            {pluginCameras.length === 0 && (
+              <small className="eo-note">
+                No hay cámaras {plugin} guardadas — se crean (y se prueban) en{' '}
+                <a href="#/cameras">Cámaras</a>.
+              </small>
             )}
+            {plugin === 'rtsp' && !selectedCamera && (
+              <>
+                <Field label="URL RTSP de la cámara">
+                  <input placeholder="rtsp://usuario:clave@192.168.1.50:554/stream1" value={rtspUrl}
+                         onChange={(e) => setRtspUrl(e.target.value)} />
+                </Field>
+                {rtspUrl.includes('***') && (
+                  <small className="eo-note eo-note--warn">Recompletá las credenciales antes de lanzar.</small>
+                )}
+              </>
+            )}
+            <Field
+              label="Descartar frames iniciales (opcional)"
+              hint="La cámara tarda en asentar exposición/enfoque al arrancar — los primeros frames salen mal. ~20 a 10 fps ≈ 2 s."
+            >
+              <input placeholder="ej. 20" value={warmupFrames}
+                     onChange={(e) => setWarmupFrames(e.target.value)} />
+            </Field>
           </div>
         ) : (
           <div>
@@ -218,7 +308,7 @@ export default function ComposePage() {
           </div>
         )}
       </Card>
-      <Card title="Prompts">
+      <Card title="2 · Prompts">
         <div>
           <Field label="Prompt set" error={fieldError('prompts.set_id')}>
             <select
@@ -259,54 +349,79 @@ export default function ComposePage() {
           )}
         </div>
       </Card>
-      <Card title="Parámetros">
-        <p className="eo-note">Overrides (thresholds: read-only del modelo, ver Catálogos)</p>
-        <div>
-          <Field label="stride (opcional)" error={fieldError('run.stride')}>
-            <input value={stride} onChange={(e) => setStride(e.target.value)} />
-          </Field>
+      <Card title="3 · Lanzar">
+        <Field label="Nombre del run (opcional)" hint="Si lo dejás vacío se usa el id autogenerado.">
+          <input placeholder="ej. prueba OAK-D laboratorio" value={runName}
+                 onChange={(e) => setRunName(e.target.value)} />
+        </Field>
+        {manifestModelRef && (
+          <div>
+            <small className="eo-note">El manifiesto declara modelo <b>{manifestModelRef}</b>.</small>
+            {modelError && (
+              <label className="eo-note eo-note--error">
+                <input type="checkbox" checked={confirmModel}
+                       onChange={(e) => setConfirmModel(e.target.checked)} />{' '}
+                Usar el modelo del target de todas formas
+              </label>
+            )}
+            {fieldError('model') && <small className="eo-field__error">{fieldError('model')}</small>}
+          </div>
+        )}
+        {generalError && <ErrorBanner>{generalError}</ErrorBanner>}
+        {busyRunId && (
+          <p className="eo-note eo-note--warn">
+            Ya hay un run activo: <a href={`#/runs/${busyRunId}`}>{busyRunId}</a>
+          </p>
+        )}
+        {previewBusy && (
+          <p className="eo-note eo-note--warn">
+            Hay una prueba de cámara activa. Cerrala en <a href="#/cameras">Cámaras</a> para lanzar el run.
+          </p>
+        )}
+        {missingReason && (
+          <p className="eo-note eo-note--warn">Para lanzar: {missingReason}.</p>
+        )}
+        <div style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'center' }}>
+          <button onClick={submit} disabled={missingReason !== null}>Lanzar</button>
         </div>
-        <div>
-          <Field label="max_units (opcional)" error={fieldError('run.max_units')}>
-            <input value={maxUnits} onChange={(e) => setMaxUnits(e.target.value)} />
-          </Field>
-        </div>
-        <label>
-          <input type="checkbox" checked={annotated} onChange={(e) => setAnnotated(e.target.checked)} />{' '}
-          save_annotated_video
-        </label>
+        <details>
+          <summary>Opciones avanzadas</summary>
+          <p className="eo-note">Overrides (thresholds: read-only del modelo, ver Catálogos)</p>
+          <div>
+            <Field label="Partir de un manifiesto">
+              <select
+                value={params.get('from') ?? ''}
+                onChange={(e) => navigate(`/compose?from=${encodeURIComponent(e.target.value)}`)}
+              >
+                <option value="">— desde cero —</option>
+                {experiments.map((x) => (
+                  <option key={x.id} value={x.id}>{x.group ? `[${x.group}] ` : ''}{x.id}</option>
+                ))}
+              </select>
+            </Field>
+          </div>
+          <div>
+            <Field label="stride (opcional)" error={fieldError('run.stride')}>
+              <input value={stride} onChange={(e) => setStride(e.target.value)} />
+            </Field>
+          </div>
+          <div>
+            <Field label="max_units (opcional)" error={fieldError('run.max_units')}>
+              <input value={maxUnits} onChange={(e) => setMaxUnits(e.target.value)} />
+            </Field>
+          </div>
+          <label>
+            <input type="checkbox" checked={annotated} onChange={(e) => setAnnotated(e.target.checked)} />{' '}
+            save_annotated_video
+          </label>
+          <div style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'center' }}>
+            <input placeholder="nombre_manifiesto" value={saveName}
+                   onChange={(e) => setSaveName(e.target.value)} />
+            <button onClick={save} disabled={!saveName}>Guardar como manifiesto</button>
+          </div>
+          {saveMsg && <p><small>{saveMsg}</small></p>}
+        </details>
       </Card>
-      {manifestModelRef && (
-        <div>
-          <small className="eo-note">El manifiesto declara modelo <b>{manifestModelRef}</b>.</small>
-          {modelError && (
-            <label className="eo-note eo-note--error">
-              <input type="checkbox" checked={confirmModel}
-                     onChange={(e) => setConfirmModel(e.target.checked)} />{' '}
-              Usar el modelo del target de todas formas
-            </label>
-          )}
-          {fieldError('model') && <small className="eo-field__error">{fieldError('model')}</small>}
-        </div>
-      )}
-      {generalError && <ErrorBanner>{generalError}</ErrorBanner>}
-      {busyRunId && (
-        <p className="eo-note eo-note--warn">
-          Ya hay un run activo: <a href={`#/runs/${busyRunId}`}>{busyRunId}</a>
-        </p>
-      )}
-      {previewBusy && (
-        <p className="eo-note eo-note--warn">
-          Hay una prueba de cámara activa. Cerrala en <a href="#/cameras">Cámaras</a> para lanzar el run.
-        </p>
-      )}
-      <div style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'center' }}>
-        <button onClick={submit}>Lanzar</button>
-        <input placeholder="nombre_manifiesto" value={saveName}
-               onChange={(e) => setSaveName(e.target.value)} />
-        <button onClick={save} disabled={!saveName}>Guardar como manifiesto</button>
-      </div>
-      {saveMsg && <p><small>{saveMsg}</small></p>}
     </div>
   )
 }
