@@ -23,12 +23,18 @@ const FROZEN_DETAIL = {
 }
 
 describe('PromptSetsPage', () => {
-  it('lista los sets con badge de estado', async () => {
+  it('lista los sets con badge de estado, traducido por el glosario', async () => {
     vi.mocked(api.listPromptSets).mockResolvedValue(SUMMARIES)
     render(<PromptSetsPage />)
     await waitFor(() => expect(screen.getByText('eind_v1')).toBeTruthy())
-    expect(screen.getByText('frozen_pending_review')).toBeTruthy()
-    expect(screen.getByText('frozen')).toBeTruthy()
+    expect(screen.getByText('congelado, pendiente de revisión')).toBeTruthy()
+    expect(screen.getByText('congelado')).toBeTruthy()
+  })
+
+  it('el botón "Nuevo set" es el primitivo Button', async () => {
+    vi.mocked(api.listPromptSets).mockResolvedValue([])
+    render(<PromptSetsPage />)
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Nuevo set' }).className).toContain('eo-btn'))
   })
 
   it('un set frozen se muestra read-only con acción Derivar', async () => {

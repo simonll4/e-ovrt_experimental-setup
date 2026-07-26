@@ -5,12 +5,12 @@ import {
 import type { PromptSetDetail, PromptSetSummary } from '../types'
 import { promptStatusTone } from '../promptview'
 import PromptSetEditor from '../components/PromptSetEditor'
-import { Badge, EmptyState, ErrorBanner } from '../components/ui'
+import { Badge, Button, EmptyState, ErrorBanner, Table } from '../components/ui'
 
 const STATUS_LABEL: Record<string, string> = {
-  exploratory: 'exploratory',
-  frozen_pending_review: 'frozen_pending_review',
-  frozen: 'frozen',
+  exploratory: 'exploratorio',
+  frozen_pending_review: 'congelado, pendiente de revisión',
+  frozen: 'congelado',
 }
 
 const EMPTY_NEW_SET: PromptSetDetail = { id: '', status: 'exploratory', classes: [] }
@@ -68,8 +68,8 @@ export default function PromptSetsPage() {
     <div>
       <h2>Prompt sets</h2>
       {error && <ErrorBanner>{error}</ErrorBanner>}
-      <button type="button" onClick={() => setCreating(true)}>Nuevo set</button>
-      <table className="eo-table">
+      <Button variant="primary" onClick={() => setCreating(true)}>Nuevo set</Button>
+      <Table>
         <thead>
           <tr><th>id</th><th>estado</th><th>track</th><th>clases</th><th>frases</th><th>deriva de</th></tr>
         </thead>
@@ -92,7 +92,7 @@ export default function PromptSetsPage() {
             <tr><td colSpan={6}><EmptyState>Sin prompt sets todavía.</EmptyState></td></tr>
           )}
         </tbody>
-      </table>
+      </Table>
     </div>
   )
 }
