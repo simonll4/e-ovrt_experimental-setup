@@ -6,7 +6,7 @@ import * as api from '../api'
 
 vi.mock('../api', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../api')>()),
-  getTarget: vi.fn().mockResolvedValue(null),
+  getTarget: vi.fn().mockResolvedValue({ service_url: 'x', healthy: true, ready: true, model: null }),
   getPreflight: vi.fn().mockResolvedValue({
     ready: true,
     blockers: [],

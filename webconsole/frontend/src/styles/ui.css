@@ -381,7 +381,7 @@
   z-index: 50;
   transition: width 0.16s ease;
 }
-.eo-sidebar--collapsed { width: var(--sidebar-width-collapsed); }
+.eo-sidebar--collapsed { width: var(--sidebar-width-collapsed); overflow: visible; }
 
 .eo-sidebar__brand { display: flex; align-items: center; gap: 8px; padding: 0 4px; width: 100%; }
 .eo-sidebar__brand b { font-weight: 500; font-size: 14px; letter-spacing: -0.01em; }

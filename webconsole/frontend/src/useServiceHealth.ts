@@ -18,8 +18,8 @@ export function useServiceHealth(): ServiceHealth {
 
     const poll = () => {
       getTarget()
-        .then(() => {
-          if (alive) setHealth((h) => ({ ...h, media: 'ok' }))
+        .then((t) => {
+          if (alive) setHealth((h) => ({ ...h, media: t?.healthy ? 'ok' : 'down' }))
         })
         .catch(() => {
           if (alive) setHealth((h) => ({ ...h, media: 'down' }))

@@ -5,7 +5,7 @@ import Breadcrumbs from './Breadcrumbs'
 import LiveRunPill from './LiveRunPill'
 import TargetBadge from './TargetBadge'
 import { useSidebarCounts } from '../useSidebarCounts'
-import { useServiceHealth } from '../useServiceHealth'
+import { useServiceHealth, type ServiceStatus } from '../useServiceHealth'
 
 const COLLAPSE_KEY = 'eovrt-sidebar-collapsed'
 
@@ -35,6 +35,11 @@ export default function Shell({ children }: { children: ReactNode }) {
     return v === null || v === 0 ? null : v
   }
 
+  const statusText = (s: ServiceStatus) =>
+    s === 'ok' ? 'operativo' : s === 'down' ? 'sin respuesta' : 'verificando…'
+  const mediaTip = `Motor de detección — ${statusText(health.media)}`
+  const controlTip = `Motor de reglas — ${statusText(health.control)}`
+
   const sidebarClass = [
     'eo-sidebar',
     open ? 'eo-sidebar--open' : '',
@@ -62,11 +67,11 @@ export default function Shell({ children }: { children: ReactNode }) {
             </svg>
           </button>
         </div>
-        <Link to="/compose" className="eo-sidebar__action" onClick={close}>
+        <Link to="/compose" className="eo-sidebar__action" title="Nueva corrida" onClick={close}>
           <span>+ Nueva corrida</span>
           <span className="eo-tip" aria-hidden="true" data-tip="Nueva corrida" />
         </Link>
-        <Link to="/experiments/new" className="eo-sidebar__action" onClick={close}>
+        <Link to="/experiments/new" className="eo-sidebar__action" title="Nuevo experimento" onClick={close}>
           <span>+ Nuevo experimento</span>
           <span className="eo-tip" aria-hidden="true" data-tip="Nuevo experimento" />
         </Link>
@@ -82,6 +87,7 @@ export default function Shell({ children }: { children: ReactNode }) {
                     key={item.to}
                     to={item.to}
                     end={item.to === '/'}
+                    title={item.label}
                     onClick={close}
                     className={({ isActive }) =>
                       isActive ? 'eo-sidebar__link eo-sidebar__link--active' : 'eo-sidebar__link'
@@ -98,8 +104,8 @@ export default function Shell({ children }: { children: ReactNode }) {
           ))}
         </nav>
         <LiveRunPill />
-        <div className="eo-sidebar__services" aria-label="Estado de los servicios">
-          <div className="eo-service">
+        <div className="eo-sidebar__services" role="group" aria-label="Estado de los servicios">
+          <div className="eo-service" title={mediaTip}>
             <span
               className="eo-service__dot"
               style={{
@@ -109,13 +115,9 @@ export default function Shell({ children }: { children: ReactNode }) {
             />
             <span className="eo-service__label">Motor de detección</span>
             <code>:8080</code>
-            <span
-              className="eo-tip"
-              aria-hidden="true"
-              data-tip={`Motor de detección — ${health.media === 'ok' ? 'operativo' : health.media === 'down' ? 'sin respuesta' : 'verificando…'}`}
-            />
+            <span className="eo-tip" aria-hidden="true" data-tip={mediaTip} />
           </div>
-          <div className="eo-service">
+          <div className="eo-service" title={controlTip}>
             <span
               className="eo-service__dot"
               style={{
@@ -125,11 +127,7 @@ export default function Shell({ children }: { children: ReactNode }) {
             />
             <span className="eo-service__label">Motor de reglas</span>
             <code>:8081</code>
-            <span
-              className="eo-tip"
-              aria-hidden="true"
-              data-tip={`Motor de reglas — ${health.control === 'ok' ? 'operativo' : health.control === 'down' ? 'sin respuesta' : 'verificando…'}`}
-            />
+            <span className="eo-tip" aria-hidden="true" data-tip={controlTip} />
           </div>
         </div>
       </aside>

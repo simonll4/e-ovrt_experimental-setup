@@ -73,4 +73,21 @@ describe('useServiceHealth', () => {
     const { result } = renderHook(() => useServiceHealth())
     await waitFor(() => expect(result.current.media).toBe('down'))
   })
+
+  it('el motor de deteccion cae cuando target resuelve con healthy:false (BFF responde 200 pero el servicio no)', async () => {
+    vi.mocked(api.getTarget).mockResolvedValue({
+      service_url: 'x',
+      healthy: false,
+      ready: false,
+      model: null,
+    } as any)
+    vi.mocked(api.getPreflight).mockResolvedValue({
+      ready: true,
+      blockers: [],
+      media: { service_url: 'x', healthy: true, ready: true },
+      control: { service_url: 'y', healthy: true, ready: true },
+    } as any)
+    const { result } = renderHook(() => useServiceHealth())
+    await waitFor(() => expect(result.current.media).toBe('down'))
+  })
 })
