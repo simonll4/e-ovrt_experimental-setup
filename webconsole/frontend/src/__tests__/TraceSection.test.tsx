@@ -142,7 +142,6 @@ describe('TraceSection', () => {
     })
     vi.mocked(api.getTrace).mockResolvedValue(page)
     render(<TraceSection runId="r_1" />)
-    // F2: la celda de frame siempre muestra "#frame_index" + unit_id (eo-framecell__id).
     await waitFor(() => expect(screen.getByText('#3 · u3')).toBeTruthy())
     const checkbox = screen.getByRole('checkbox')
     fireEvent.click(checkbox)
@@ -174,14 +173,6 @@ describe('TraceSection', () => {
     expect(fills.length).toBe(2)
     expect((fills[0] as HTMLElement).className).not.toContain('--alert')
     expect((fills[1] as HTMLElement).className).toContain('--alert')
-  })
-
-  it('el botón siguiente dispara getTrace con la página siguiente', async () => {
-    vi.mocked(api.getTrace).mockResolvedValue(basePage({ total: 120 }))
-    render(<TraceSection runId="r_1" />)
-    await waitFor(() => expect(screen.getByText('ctrl_1')).toBeTruthy())
-    fireEvent.click(screen.getByText('siguiente'))
-    await waitFor(() => expect(api.getTrace).toHaveBeenCalledWith('r_1', 2, 50))
   })
 
   it('un frame sin alerta/progreso propios pero con active_patterns muestra "activo" (el bug real: frame_000456)', async () => {
@@ -223,5 +214,51 @@ describe('TraceSection', () => {
     // frame 0: alert=[] -> sin clase; frame 2: alert=[CR-02] -> con clase
     expect(rows[0].className).not.toContain('eo-row--alert')
     expect(rows[2].className).toContain('eo-row--alert')
+  })
+
+  it('trae todas las páginas y acumula los frames de cada una', async () => {
+    const page1 = basePage({
+      total: 4,
+      page: 1,
+      page_size: 2,
+      frames: [
+        { frame_index: 0, unit_id: 'u0', timestamp_ms: 0, detections: [], control: 'received', progress: [], alert: [] },
+        { frame_index: 1, unit_id: 'u1', timestamp_ms: 100, detections: [], control: 'received', progress: [], alert: [] },
+      ],
+    })
+    const page2 = basePage({
+      total: 4,
+      page: 2,
+      page_size: 2,
+      frames: [
+        { frame_index: 2, unit_id: 'u2', timestamp_ms: 200, detections: [], control: 'received', progress: [], alert: [] },
+        { frame_index: 3, unit_id: 'u3', timestamp_ms: 300, detections: [], control: 'received', progress: [], alert: [] },
+      ],
+    })
+    vi.mocked(api.getTrace).mockResolvedValueOnce(page1).mockResolvedValueOnce(page2)
+    render(<TraceSection runId="r_1" />)
+    await waitFor(() => expect(screen.getByText('#3 · u3')).toBeTruthy())
+    expect(api.getTrace).toHaveBeenNthCalledWith(1, 'r_1', 1, 50)
+    expect(api.getTrace).toHaveBeenNthCalledWith(2, 'r_1', 2, 2)
+    expect(screen.getByText('#0 · u0')).toBeTruthy()
+    expect(screen.getByText('#1 · u1')).toBeTruthy()
+    expect(screen.getByText('#2 · u2')).toBeTruthy()
+  })
+
+  it('si falla una página intermedia, muestra banner de traza incompleta pero mantiene lo ya cargado', async () => {
+    const page1 = basePage({
+      total: 4,
+      page: 1,
+      page_size: 2,
+      frames: [
+        { frame_index: 0, unit_id: 'u0', timestamp_ms: 0, detections: [], control: 'received', progress: [], alert: [] },
+        { frame_index: 1, unit_id: 'u1', timestamp_ms: 100, detections: [], control: 'received', progress: [], alert: [] },
+      ],
+    })
+    vi.mocked(api.getTrace).mockResolvedValueOnce(page1).mockRejectedValueOnce(new Error('timeout'))
+    render(<TraceSection runId="r_1" />)
+    await waitFor(() => expect(screen.getByText('#1 · u1')).toBeTruthy())
+    await waitFor(() => expect(screen.getByText(/línea de tiempo incompleta/)).toBeTruthy())
+    expect(screen.getByText('#0 · u0')).toBeTruthy()
   })
 })

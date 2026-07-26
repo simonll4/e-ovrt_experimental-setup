@@ -6,49 +6,83 @@ import { alertSeverityTone } from '../experimentview'
 import PreviewWithBoxes from './PreviewWithBoxes'
 import type { TraceFrame, TracePage } from '../types'
 
+type TraceMeta = Omit<TracePage, 'frames'>
+
 export default function TraceSection({ runId }: { runId: string }) {
-  const [trace, setTrace] = useState<TracePage | null>(null)
-  const [page, setPage] = useState(1)
+  const [meta, setMeta] = useState<TraceMeta | null>(null)
+  const [frames, setFrames] = useState<TraceFrame[] | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [partialError, setPartialError] = useState<string | null>(null)
   const [soloActividad, setSoloActividad] = useState(false)
 
   useEffect(() => {
     let alive = true
-    getTrace(runId, page, 50)
-      .then((t) => {
-        if (alive) setTrace(t)
-      })
-      .catch((e) => {
+    setMeta(null)
+    setFrames(null)
+    setError(null)
+    setPartialError(null)
+
+    async function loadAll() {
+      let first: TracePage
+      try {
+        first = await getTrace(runId, 1, 50)
+      } catch (e) {
         if (alive) setError(String(e))
-      })
+        return
+      }
+      if (!alive) return
+      const { frames: firstFrames, ...firstMeta } = first
+      setMeta(firstMeta)
+      let acc = firstFrames
+      setFrames(acc)
+      const totalPages = Math.max(1, Math.ceil(first.total / first.page_size))
+      for (let p = 2; p <= totalPages; p++) {
+        if (!alive) return
+        try {
+          const next = await getTrace(runId, p, first.page_size)
+          if (!alive) return
+          acc = acc.concat(next.frames)
+          setFrames(acc)
+        } catch (e) {
+          if (alive) {
+            setPartialError(
+              `línea de tiempo incompleta: no se pudieron cargar todos los cuadros (${String(e)})`,
+            )
+          }
+          return
+        }
+      }
+    }
+
+    loadAll()
     return () => {
       alive = false
     }
-  }, [runId, page])
+  }, [runId])
 
   if (error) return <ErrorBanner>Error cargando la traza: {error}</ErrorBanner>
-  if (!trace) return <p>Cargando traza…</p>
+  if (!meta || !frames) return <p>Cargando traza…</p>
 
-  const { totals } = trace
-  const frames = soloActividad ? trace.frames.filter(frameHasActivity) : trace.frames
-  const totalPages = Math.max(1, Math.ceil(trace.total / trace.page_size))
-  const hasControl = trace.control_run_id !== null || !!trace.control_error
+  const { totals } = meta
+  const visibleFrames = soloActividad ? frames.filter(frameHasActivity) : frames
+  const hasControl = meta.control_run_id !== null || !!meta.control_error
 
   return (
     <Card title="Evaluación del control-plane">
+      {partialError && <ErrorBanner>{partialError}</ErrorBanner>}
       <div className="eo-stats-row">
-        <StatTile label="run de control" value={trace.control_run_id ?? '—'} />
+        <StatTile label="run de control" value={meta.control_run_id ?? '—'} />
         <StatTile label="alertas" value={totals.alerts} />
         {Object.entries(totals.dropped_by_reason).map(([reason, count]) => (
           <StatTile key={reason} label={controlLabel(`dropped:${reason}`)} value={count} />
         ))}
         {totals.not_received !== null && <StatTile label="no recibidos" value={totals.not_received} />}
       </div>
-      {trace.topology === 'two_node' && <small>descartes internos n/d en two-node</small>}
-      {trace.control_error && (
-        <ErrorBanner>control-plane no disponible: {trace.control_error}</ErrorBanner>
+      {meta.topology === 'two_node' && <small>descartes internos n/d en two-node</small>}
+      {meta.control_error && (
+        <ErrorBanner>control-plane no disponible: {meta.control_error}</ErrorBanner>
       )}
-      {trace.control_run_id === null && !trace.control_error && (
+      {meta.control_run_id === null && !meta.control_error && (
         <EmptyState>no evaluado por el control-plane</EmptyState>
       )}
       <label>
@@ -69,7 +103,7 @@ export default function TraceSection({ runId }: { runId: string }) {
           </tr>
         </thead>
         <tbody>
-          {frames.map((f: TraceFrame) => (
+          {visibleFrames.map((f: TraceFrame) => (
             <tr key={f.unit_id ?? f.frame_index} className={f.alert.length > 0 ? 'eo-row--alert' : undefined}>
               <td>
                 <div className="eo-framecell">
@@ -134,15 +168,6 @@ export default function TraceSection({ runId }: { runId: string }) {
           ))}
         </tbody>
       </table>
-      <p>
-        pág. {trace.page} de {totalPages}{' '}
-        <button disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
-          anterior
-        </button>{' '}
-        <button disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)}>
-          siguiente
-        </button>
-      </p>
     </Card>
   )
 }
