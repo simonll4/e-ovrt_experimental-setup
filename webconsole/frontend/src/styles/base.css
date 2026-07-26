@@ -2,7 +2,7 @@
 
 body {
   margin: 0;
-  background: var(--surface-sunken);
+  background: var(--bg);
   color: var(--text);
   font-family: var(--font);
   font-size: var(--text-md);
