@@ -7,9 +7,9 @@ import type { EvalResult } from '../types'
 function errorMessage(e: unknown): string {
   if (e instanceof ApiError) {
     if (e.status === 422)
-      return 'El run no es evaluable (no fue sobre un split del BENCH o falta el GT en disco).'
-    if (e.status === 409) return 'El run sigue en curso: esperá a que termine.'
-    if (e.status === 502) return 'Servicio media-plane inaccesible.'
+      return 'La corrida no es evaluable (no fue sobre un conjunto de evaluación, o falta la referencia en disco).'
+    if (e.status === 409) return 'La corrida sigue en curso: esperá a que termine.'
+    if (e.status === 502) return 'Motor de detección inaccesible.'
   }
   return String(e)
 }
@@ -46,24 +46,25 @@ export default function EvalSection({ runId, benchSplit, evaluated }: {
   }
 
   return (
-    <Card title={`Evaluación BENCH (${benchSplit})`}>
+    <Card title={<>Evaluación contra el conjunto <span className="eo-mono">{benchSplit}</span></>}>
       {!result && loading && <p>Cargando…</p>}
       {!result && !loading && (
         <Button variant="primary" onClick={evaluate} disabled={busy}>
-          {busy ? 'Evaluando…' : 'Evaluar contra BENCH'}
+          {busy ? 'Evaluando…' : 'Evaluar contra el conjunto de evaluación'}
         </Button>
       )}
       {error && <ErrorBanner>{error}</ErrorBanner>}
       {result && (
         <>
           <p>
-            <b>mAP@0.5: {fmt(result.mAP50)}</b> · {conditionLabel('CR-01')} (exhaustividad: {fmt(result.cr01_detection_recall)})
+            <b>Precisión media (mAP@0.5): {fmt(result.mAP50)}</b> · {conditionLabel('CR-01')}
+            {' '}(exhaustividad (recall): {fmt(result.cr01_detection_recall)})
             {' '}· IoU ≥ {result.iou_threshold}
           </p>
           <Table>
             <thead>
               <tr>
-                {['clase', 'AP@0.5', 'n_gt', 'n_det'].map((h) => (
+                {['clase', 'Precisión (AP@0.5)', 'referencia', 'detectadas'].map((h) => (
                   <th key={h}>{h}</th>
                 ))}
               </tr>
@@ -71,7 +72,8 @@ export default function EvalSection({ runId, benchSplit, evaluated }: {
             <tbody>
               {result.per_class.map((c) => (
                 <tr key={c.class_name}>
-                  <td>{c.class_name}</td>
+                  {/* nombre de clase: dato del vocabulario canónico, nunca se traduce */}
+                  <td className="eo-mono">{c.class_name}</td>
                   <td className="eo-num">{fmt(c.AP50)}</td>
                   <td className="eo-num">{c.n_gt}</td>
                   <td className="eo-num">{c.n_det}</td>

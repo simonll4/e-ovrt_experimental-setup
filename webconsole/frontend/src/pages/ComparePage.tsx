@@ -66,9 +66,12 @@ export default function ComparePage() {
     : []
   return (
     <div style={{ display: 'grid', gap: 'var(--space-4)' }}>
-      <h2>Comparar runs (BENCH)</h2>
+      <h2>Comparar corridas evaluadas</h2>
       {evaluables.length === 0 && (
-        <EmptyState>No hay runs evaluados todavía. Evaluá un run BENCH desde su detalle.</EmptyState>
+        <EmptyState>
+          No hay corridas evaluadas todavía. Evaluá una corrida sobre un conjunto de evaluación
+          desde su detalle.
+        </EmptyState>
       )}
       <div style={{ display: 'grid', gap: 'var(--space-1)' }}>
         {evaluables.map((r) => (
@@ -82,7 +85,7 @@ export default function ComparePage() {
           </label>
         ))}
       </div>
-      {evaluables.length > 0 && selected.length < 2 && <p>Seleccioná al menos 2 runs.</p>}
+      {evaluables.length > 0 && selected.length < 2 && <p>Seleccioná al menos 2 corridas.</p>}
       {error && rows && <ErrorBanner>{error}</ErrorBanner>}
       {result && (
         <>
@@ -116,13 +119,20 @@ export default function ComparePage() {
             </thead>
             <tbody>
               {result.classes.map((cls) => (
-                <MetricRow key={cls} name={`AP@0.5 ${cls}`} values={result.ap_by_class[cls] ?? []} />
+                <MetricRow
+                  key={cls}
+                  name={`Precisión (AP@0.5) — ${cls}`}
+                  values={result.ap_by_class[cls] ?? []}
+                />
               ))}
               <MetricRow
-                name={`${conditionLabel('CR-01')} (exhaustividad)`}
+                name={`${conditionLabel('CR-01')} (exhaustividad (recall))`}
                 values={result.runs.map((r) => r.cr01_detection_recall)}
               />
-              <MetricRow name="mAP@0.5" values={result.runs.map((r) => r.mAP50)} />
+              <MetricRow
+                name="Precisión media (mAP@0.5)"
+                values={result.runs.map((r) => r.mAP50)}
+              />
             </tbody>
           </Table>
           <GroupedBars

@@ -51,7 +51,7 @@ describe('ComparePage', () => {
       expect(screen.getAllByText('gdino · bench_v2_test').length).toBeGreaterThan(0),
     )
     expect(getCompare).toHaveBeenCalledWith(['run_a', 'run_b'])
-    expect(screen.getByText(/AP@0\.5 person/)).toBeTruthy()
+    expect(screen.getByText(/Precisión \(AP@0\.5\) — person/)).toBeTruthy()
     expect(screen.getByText(/omitidos/i)).toBeTruthy() // aviso de skipped
   })
 

@@ -16,7 +16,7 @@ export default function TargetBadge() {
       clearInterval(timer)
     }
   }, [])
-  if (!target) return <Badge tone="error">BFF inaccesible</Badge>
+  if (!target) return <Badge tone="error">consola sin conexión</Badge>
   if (!target.healthy) return <Badge tone="error">servicio caído</Badge>
   if (!target.ready) return <Badge tone="warn">cargando modelo…</Badge>
   return (

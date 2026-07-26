@@ -13,7 +13,7 @@ export const NAV_GROUPS: NavGroup[] = [
   {
     title: 'Definiciones',
     items: [
-      { to: '/prompts', label: 'Prompt sets' },
+      { to: '/prompts', label: 'Conjuntos de prompts' },
       { to: '/catalog', label: 'Catálogos' },
     ],
   },

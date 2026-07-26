@@ -46,6 +46,24 @@ describe('RunsPage', () => {
     expect(screen.queryByText('r_failed')).toBeNull()
   })
 
+  // `stopped` es ~21% del corpus real: sin la opción de filtro esas corridas
+  // solo se podían ver mezcladas en "Todas".
+  it('el filtro ofrece Detenidas y aísla las corridas stopped', async () => {
+    vi.mocked(api.listRuns).mockResolvedValue([
+      { run_id: 'r_stopped', status: 'stopped', model: 'gdino' } as any,
+      { run_id: 'r_ok', status: 'succeeded', model: 'gdino' } as any,
+    ])
+    renderPage()
+    await waitFor(() => expect(screen.getByText('r_stopped')).toBeTruthy())
+    expect(screen.getByText('detenida').className).toContain('eo-badge--neutral')
+
+    fireEvent.click(screen.getByRole('button', { name: 'Todas' }))
+    fireEvent.click(screen.getByRole('option', { name: 'Detenidas' }))
+
+    expect(screen.getByText('r_stopped')).toBeTruthy()
+    expect(screen.queryByText('r_ok')).toBeNull()
+  })
+
   it('muestra el nombre en vez del run_id cuando está presente, con el id como subtítulo', async () => {
     vi.mocked(api.listRuns).mockResolvedValue([
       { run_id: 'r_named', name: 'mi corrida', status: 'succeeded', model: 'gdino' } as any,

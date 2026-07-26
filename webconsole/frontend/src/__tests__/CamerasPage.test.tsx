@@ -65,7 +65,7 @@ describe('CamerasPage', () => {
     renderPage()
     const conectar = await screen.findByRole('button', { name: /conectar/i })
     conectar.click()
-    expect(await screen.findByText(/run en ejecución/i)).toBeTruthy()
+    expect(await screen.findByText(/corrida en ejecución/i)).toBeTruthy()
     expect(screen.getByText(/run_7/)).toBeTruthy()
   })
 
@@ -77,7 +77,7 @@ describe('CamerasPage', () => {
     renderPage()
     const conectar = await screen.findByRole('button', { name: /conectar/i })
     fireEvent.click(conectar)
-    expect(await screen.findByText(/ya hay una sesión de preview activa/i)).toBeTruthy()
+    expect(await screen.findByText(/ya hay una prueba de cámara activa/i)).toBeTruthy()
   })
 
   it('muestra un banner de error cuando la fuente falla (finalState del WS)', async () => {
@@ -105,7 +105,7 @@ describe('CamerasPage', () => {
     })
     renderPage()
     fireEvent.click(await screen.findByLabelText(/detección \(desmarcado/i))
-    const select = await screen.findByRole('combobox', { name: /prompt set/i })
+    const select = await screen.findByRole('combobox', { name: /conjunto de prompts/i })
     fireEvent.change(select, { target: { value: 'cr01_cr02_v2_short' } })
     const personCheckbox = await screen.findByRole('checkbox', { name: /person/i })
     const helmetCheckbox = await screen.findByRole('checkbox', { name: /helmet/i })

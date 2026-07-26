@@ -6,11 +6,30 @@ import { Badge, Button, ErrorBanner, Table } from '../components/ui'
 function errorMessage(e: unknown): string {
   if (e instanceof ApiError) {
     const payload = (e.payload ?? {}) as { detail?: string; step?: string; run_id?: string }
-    if (e.status === 409) return `Hay un run activo (${payload.run_id ?? '?'}): esperá a que termine o detenelo.`
-    if (e.status === 504) return `La instancia no llegó a ready: ${payload.detail ?? 'timeout'}`
+    if (e.status === 409) return `Hay una corrida activa (${payload.run_id ?? '?'}): esperá a que termine o detenela.`
+    if (e.status === 504) return `La instancia no llegó a estar operativa: ${payload.detail ?? 'timeout'}`
     if (e.status === 502) return `Docker falló${payload.step ? ` (${payload.step})` : ''}: ${payload.detail ?? ''}`
   }
   return String(e)
+}
+
+// `state` viene de Docker en inglés (running/exited/created/…) y se filtraba
+// crudo a la columna "estado". El código crudo queda como fallback: un estado
+// nuevo del orquestador no debe desaparecer de la pantalla.
+const STATE_LABEL: Record<string, string> = {
+  running: 'en curso',
+  restarting: 'reiniciando',
+  created: 'creada',
+  paused: 'en pausa',
+  exited: 'apagada',
+  dead: 'caída',
+  removing: 'eliminándose',
+  absent: 'ausente',
+  stopped: 'detenida',
+}
+
+function stateLabel(state: string): string {
+  return STATE_LABEL[state] ?? state
 }
 
 export default function PlatformPage() {
@@ -65,7 +84,7 @@ export default function PlatformPage() {
   if (notEnabled)
     return (
       <p>
-        Orquestación no habilitada: la consola corre en modo target fijo. Desplegá la
+        Orquestación no habilitada: la consola corre con una instancia activa fija. Desplegá la
         plataforma con <code>infra/platform/</code> (define <code>EOVRT_CONSOLE_COMPOSE_DIR</code>).
       </p>
     )
@@ -96,8 +115,8 @@ export default function PlatformPage() {
               <td>{r.model_ref}</td>
               <td>
                 <span className="eo-inline">
-                  {busy === r.name ? 'activando…' : r.state}
-                  {r.is_target && <Badge tone="ok">TARGET</Badge>}
+                  {busy === r.name ? 'activando…' : stateLabel(r.state)}
+                  {r.is_target && <Badge tone="ok">instancia activa</Badge>}
                 </span>
               </td>
               <td>{r.ready ? '✓' : '—'}</td>

@@ -36,7 +36,7 @@ describe('PlatformPage', () => {
     fireEvent.click(screen.getAllByText('Activar')[0])
 
     await waitFor(() => expect(activateInstance).toHaveBeenCalledWith('mp-mock'))
-    await waitFor(() => expect(screen.getByText('TARGET')).toBeTruthy())
+    await waitFor(() => expect(screen.getByText('instancia activa')).toBeTruthy())
   })
 
   it('409 muestra el mensaje de run activo', async () => {
@@ -48,7 +48,7 @@ describe('PlatformPage', () => {
     render(<PlatformPage />)
     await waitFor(() => expect(screen.getByText('mp-mock')).toBeTruthy())
     fireEvent.click(screen.getAllByText('Activar')[0])
-    await waitFor(() => expect(screen.getByText(/run activo/i)).toBeTruthy())
+    await waitFor(() => expect(screen.getByText(/corrida activa/i)).toBeTruthy())
   })
 
   it('501 muestra el hint de orquestación no habilitada', async () => {

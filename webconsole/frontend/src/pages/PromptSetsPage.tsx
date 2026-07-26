@@ -25,7 +25,7 @@ export default function PromptSetsPage() {
     try {
       setSets(await listPromptSets())
     } catch {
-      setError('No se pudieron cargar los prompt sets')
+      setError('No se pudieron cargar los conjuntos de prompts')
     }
   }, [])
 
@@ -40,7 +40,7 @@ export default function PromptSetsPage() {
       <div>
         <button type="button" className="eo-linklike"
           onClick={() => { setSelected(null); setCreating(false) }}>
-          ← Prompt sets
+          ← Conjuntos de prompts
         </button>
         {error && <ErrorBanner>{error}</ErrorBanner>}
         {selected && (
@@ -66,12 +66,12 @@ export default function PromptSetsPage() {
 
   return (
     <div>
-      <h2>Prompt sets</h2>
+      <h2>Conjuntos de prompts</h2>
       {error && <ErrorBanner>{error}</ErrorBanner>}
-      <Button variant="primary" onClick={() => setCreating(true)}>Nuevo set</Button>
+      <Button variant="primary" onClick={() => setCreating(true)}>Nuevo conjunto</Button>
       <Table>
         <thead>
-          <tr><th>id</th><th>estado</th><th>track</th><th>clases</th><th>frases</th><th>deriva de</th></tr>
+          <tr><th>id</th><th>estado</th><th>vía</th><th>clases</th><th>frases</th><th>deriva de</th></tr>
         </thead>
         <tbody>
           {sets.map((s) => (
@@ -89,7 +89,7 @@ export default function PromptSetsPage() {
             </tr>
           ))}
           {sets.length === 0 && (
-            <tr><td colSpan={6}><EmptyState>Sin prompt sets todavía.</EmptyState></td></tr>
+            <tr><td colSpan={6}><EmptyState>Sin conjuntos de prompts todavía.</EmptyState></td></tr>
           )}
         </tbody>
       </Table>

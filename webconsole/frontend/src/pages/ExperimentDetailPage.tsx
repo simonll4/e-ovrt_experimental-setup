@@ -14,6 +14,18 @@ import { Badge, Card, ConditionName, EmptyState, ErrorBanner, MonoCell, Table } 
 
 const CONTROL_CURRENT_POLL_MS = 2000
 
+// La severidad viaja en inglés desde el control-plane (high/medium/low) y se
+// filtraba como prosa a la pantalla. El código crudo sigue siendo el fallback.
+const SEVERITY_LABEL: Record<string, string> = {
+  high: 'alta',
+  medium: 'media',
+  low: 'baja',
+}
+
+function severityLabel(severity: string): string {
+  return SEVERITY_LABEL[severity] ?? severity
+}
+
 function RiskActiveBanner({ patterns }: { patterns: ActiveRiskPattern[] }) {
   if (patterns.length === 0) return null
   return (
@@ -98,7 +110,7 @@ export default function ExperimentDetailPage() {
       .catch((e) => {
         if (!alive) return
         if (e instanceof ApiError && e.status === 404) {
-          setReportError('Reporte no disponible todavia.')
+          setReportError('Reporte no disponible todavía.')
         } else {
           setReportError(errorMessage(e))
         }
@@ -153,8 +165,10 @@ export default function ExperimentDetailPage() {
         — <Badge tone={experimentStatusTone(experiment)}>{experimentStatusLabel(experiment)}</Badge>
       </h2>
       <p>
-        media run: <span className="eo-mono">{experiment.media_run_id ?? '—'}</span>
-        {' '}· control run: <span className="eo-mono">{experiment.control_run_id ?? '—'}</span>
+        corrida del motor de detección:{' '}
+        <span className="eo-mono">{experiment.media_run_id ?? '—'}</span>
+        {' '}· corrida del motor de reglas:{' '}
+        <span className="eo-mono">{experiment.control_run_id ?? '—'}</span>
       </p>
       <Card title="Alertas">
         {alertsError && <ErrorBanner>{alertsError}</ErrorBanner>}
@@ -163,7 +177,7 @@ export default function ExperimentDetailPage() {
           <Table>
             <thead>
               <tr>
-                {['alerta', 'condicion', 'severidad', 'ts (ms)'].map((h) => (
+                {['alerta', 'condición', 'severidad', 'instante (ms)'].map((h) => (
                   <th key={h}>{h}</th>
                 ))}
               </tr>
@@ -174,7 +188,7 @@ export default function ExperimentDetailPage() {
                   <MonoCell>{a.alert_id}</MonoCell>
                   <td><ConditionName code={a.condition_id} /></td>
                   <td>
-                    <Badge tone={alertSeverityTone(a.severity)}>{a.severity}</Badge>
+                    <Badge tone={alertSeverityTone(a.severity)}>{severityLabel(a.severity)}</Badge>
                   </td>
                   <td className="eo-num">{a.timestamp_ms ?? '—'}</td>
                 </tr>
@@ -190,14 +204,14 @@ export default function ExperimentDetailPage() {
             {nonTemporal && (
               <p>
                 <Badge tone="neutral">no-temporal</Badge>
-                {' '}— metricas temporales no disponibles (N/A).
+                {' '}— métricas temporales no disponibles (sin dato).
               </p>
             )}
             {Array.isArray(report.resultados) && report.resultados.length > 0 && (
               <Table>
                 <thead>
                   <tr>
-                    {['metrica', 'status', 'causa'].map((h) => (
+                    {['métrica', 'estado', 'causa'].map((h) => (
                       <th key={h}>{h}</th>
                     ))}
                   </tr>
@@ -217,7 +231,7 @@ export default function ExperimentDetailPage() {
               </Table>
             )}
             {(!Array.isArray(report.resultados) || report.resultados.length === 0) && (
-              <EmptyState>Sin resultados todavia.</EmptyState>
+              <EmptyState>Sin resultados todavía.</EmptyState>
             )}
           </>
         )}

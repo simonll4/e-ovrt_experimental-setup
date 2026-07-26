@@ -157,7 +157,7 @@ export default function ClipsPage() {
               <video controls className="eo-video" src={clipMediaUrl(panel.clipId)} />
               <p className="eo-note">
                 {segundos(clipActivo?.duration_ms)} · {clipActivo?.resolution ?? '—'} ·{' '}
-                {clipActivo?.fps ?? '—'} fps · master {clipActivo?.master ?? '—'}
+                {clipActivo?.fps ?? '—'} cuadros por segundo · master {clipActivo?.master ?? '—'}
               </p>
               <div className="eo-actions">
                 <Button variant="secondary" onClick={() => setPanel(null)}>

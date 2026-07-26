@@ -15,11 +15,11 @@ describe('isLive', () => {
 })
 
 describe('topologyBadge', () => {
-  it('two_node → two-node', () => {
-    expect(topologyBadge({ run_descriptor: { topology: 'two_node' } })).toBe('two-node')
+  it('two_node → dos equipos (glosario)', () => {
+    expect(topologyBadge({ run_descriptor: { topology: 'two_node' } })).toBe('dos equipos')
   })
-  it('single_host → single-host', () => {
-    expect(topologyBadge({ run_descriptor: { topology: 'single_host' } })).toBe('single-host')
+  it('single_host → un solo equipo (glosario)', () => {
+    expect(topologyBadge({ run_descriptor: { topology: 'single_host' } })).toBe('un solo equipo')
   })
   it('sin descriptor → null', () => {
     expect(topologyBadge({})).toBeNull()
@@ -54,6 +54,16 @@ describe('runStatusTone / runStatusLabel', () => {
   it('failed es error', () => {
     expect(runStatusTone({ status: 'failed' })).toBe('error')
     expect(runStatusLabel({ status: 'failed' })).toBe('fallida')
+  })
+  // TERMINAL_STATUSES del backend (runner.py) incluye error y stopped: sin
+  // estas dos entradas el 21% del corpus real mostraba "stopped" en inglés.
+  it('stopped es una parada deliberada: neutral, no error', () => {
+    expect(runStatusTone({ status: 'stopped' })).toBe('neutral')
+    expect(runStatusLabel({ status: 'stopped' })).toBe('detenida')
+  })
+  it('error es error', () => {
+    expect(runStatusTone({ status: 'error' })).toBe('error')
+    expect(runStatusLabel({ status: 'error' })).toBe('con error')
   })
   it('desconocido cae a neutral y muestra el status crudo', () => {
     expect(runStatusTone({ status: 'weird' })).toBe('neutral')

@@ -73,12 +73,12 @@ export default function LivePromptPanel({
           checked={mode === 'detect'}
           onChange={(e) => onModeChange(e.target.checked ? 'detect' : 'raw')}
         />{' '}
-        Detección (desmarcado = solo video)
+        Detección (desmarcado = solo video, sin analizar)
       </label>
       {mode === 'detect' && (
         <>
           {error && <ErrorBanner>{error}</ErrorBanner>}
-          <Field label="Prompt set">
+          <Field label="Conjunto de prompts">
             <select value={setId} onChange={(e) => void pickSet(e.target.value)}>
               <option value="">— elegir —</option>
               {sets.map((s) => (
@@ -139,12 +139,12 @@ export default function LivePromptPanel({
               Aplicar
             </button>
             <input
-              placeholder="id del set nuevo"
+              placeholder="id del conjunto nuevo"
               value={newId}
               onChange={(e) => setNewId(e.target.value)}
             />
             <button type="button" disabled={!draft || !newId} onClick={() => void saveAsNew()}>
-              Guardar como set nuevo
+              Guardar como conjunto nuevo
             </button>
           </div>
           {saveMsg && <small className="eo-note">{saveMsg}</small>}

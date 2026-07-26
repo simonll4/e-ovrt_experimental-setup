@@ -15,6 +15,8 @@ export function experimentStatusLabel(state: ExperimentRunState | null): string 
   if (state.status === 'running') return 'en curso'
   if (state.status === 'succeeded' || state.ok === true) return 'completada'
   if (state.status === 'failed') return 'fallida'
+  if (state.status === 'error') return 'con error'
+  if (state.status === 'stopped') return 'detenida'
   return state.status
 }
 
@@ -23,6 +25,8 @@ export function experimentStatusTone(state: ExperimentRunState | null): BadgeTon
   if (state.status === 'running') return 'live'
   if (state.status === 'succeeded' || state.ok === true) return 'ok'
   if (state.status === 'failed') return 'error'
+  if (state.status === 'error') return 'error'
+  if (state.status === 'stopped') return 'neutral'
   return 'neutral'
 }
 

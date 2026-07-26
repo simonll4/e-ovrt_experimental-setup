@@ -6,13 +6,17 @@ import { Badge, Button, EmptyState, ErrorBanner, Select, Table, MonoCell, NumCel
 import type { SelectOption } from '../components/ui'
 import { isRunning, runStatusTone, runStatusLabel } from '../runview'
 
-const HEADERS = ['corrida', 'estado', 'modelo', 'fuente', 'prompts', 'FPS', 'dets', 'dur (s)', '']
+const HEADERS = [
+  'corrida', 'estado', 'modelo', 'fuente', 'prompts',
+  'cuadros por segundo', 'detecciones', 'duración (s)', '',
+]
 
 const STATUS_OPTIONS: SelectOption[] = [
   { value: 'all', label: 'Todas' },
   { value: 'running', label: 'En curso' },
   { value: 'succeeded', label: 'Completadas' },
   { value: 'failed', label: 'Fallidas' },
+  { value: 'stopped', label: 'Detenidas' },
 ]
 
 export default function RunsPage() {
@@ -50,7 +54,7 @@ export default function RunsPage() {
   }, [])
 
   const handleDelete = async (row: RunRow) => {
-    if (!window.confirm(`¿Borrar el run ${row.run_id}? No se puede deshacer.`)) return
+    if (!window.confirm(`¿Borrar la corrida ${row.run_id}? No se puede deshacer.`)) return
     setDeletingId(row.run_id)
     setDeleteError(null)
     try {
@@ -99,7 +103,7 @@ export default function RunsPage() {
               </MonoCell>
               <td>
                 <Badge tone={runStatusTone(r)}>{runStatusLabel(r)}</Badge>
-                {r.topology === 'two_node' ? <small> two-node</small> : null}
+                {r.topology === 'two_node' ? <small> dos equipos</small> : null}
               </td>
               <td>{r.model ?? '—'}</td>
               <td>{r.source_type ?? '—'}</td>

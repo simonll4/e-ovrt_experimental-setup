@@ -10,8 +10,8 @@ export function isLive(run: { status: string; live?: boolean }): boolean {
 export function topologyBadge(summary: Record<string, unknown> | undefined): string | null {
   const desc = summary?.run_descriptor as Record<string, unknown> | undefined
   const topo = desc?.topology
-  if (topo === 'two_node') return 'two-node'
-  if (topo === 'single_host') return 'single-host'
+  if (topo === 'two_node') return 'dos equipos'
+  if (topo === 'single_host') return 'un solo equipo'
   return null
 }
 
@@ -22,10 +22,15 @@ export function isRunning(run: { status: string }): boolean {
   return run.status === 'running'
 }
 
+// Vocabulario terminal del backend (runner.py: TERMINAL_STATUSES):
+// succeeded / failed / error / stopped. `stopped` es una parada deliberada del
+// operador, NO un fallo — por eso tono neutral y no error.
 export function runStatusTone(run: { status: string; live?: boolean }): BadgeTone {
   if (isRunning(run)) return 'live'
   if (run.status === 'succeeded') return 'ok'
   if (run.status === 'failed') return 'error'
+  if (run.status === 'error') return 'error'
+  if (run.status === 'stopped') return 'neutral'
   return 'neutral'
 }
 
@@ -33,5 +38,7 @@ export function runStatusLabel(run: { status: string; live?: boolean }): string 
   if (isRunning(run)) return 'en curso'
   if (run.status === 'succeeded') return 'completada'
   if (run.status === 'failed') return 'fallida'
+  if (run.status === 'error') return 'con error'
+  if (run.status === 'stopped') return 'detenida'
   return run.status
 }

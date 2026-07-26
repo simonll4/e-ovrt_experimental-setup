@@ -145,23 +145,23 @@ export default function CamerasPage() {
         <ErrorBanner>
           {busy.reason === 'run_active' ? (
             <>
-              Hay un run en ejecución: {busy.runId}. Detenelo para usar la prueba de cámaras.{' '}
-              {busy.runId && <a href={`#/runs/${busy.runId}`}>ver run</a>}
+              Hay una corrida en ejecución: {busy.runId}. Detenela para usar la prueba de cámaras.{' '}
+              {busy.runId && <a href={`#/runs/${busy.runId}`}>ver la corrida</a>}
             </>
           ) : (
-            <>Ya hay una sesión de preview activa.</>
+            <>Ya hay una prueba de cámara activa.</>
           )}{' '}
           <Button variant="secondary" onClick={recheck}>Reintentar</Button>
         </ErrorBanner>
       )}
       {resumable && !streaming && (
         <p className="eo-note eo-note--warn">
-          Hay un stream de preview en curso.{' '}
-          <Button variant="secondary" onClick={resume}>Retomar stream</Button>{' '}
+          Hay una prueba de cámara en curso.{' '}
+          <Button variant="secondary" onClick={resume}>Retomar</Button>{' '}
           <Button variant="secondary" onClick={() => void disconnect()}>Detener</Button>
         </p>
       )}
-      <Card title="Viewer">
+      <Card title="Vista de cámara">
         {live.finalState?.status === 'error' && (
           <ErrorBanner>{live.finalState.error}</ErrorBanner>
         )}
@@ -217,13 +217,16 @@ export default function CamerasPage() {
               <Button variant="primary" onClick={() => setEditing('new')}>Nuevo preset</Button>
               {needsPromptSet && (
                 <p className="eo-note eo-note--warn">
-                  Elegí un prompt set en el panel de Detección para poder conectar.
+                  Elegí un conjunto de prompts en el panel de Detección para poder conectar.
                 </p>
               )}
-              <ul className="eo-list">
+              <ul className="eo-rows">
                 {presets.map((p) => (
-                  <li key={p.id}>
-                    <span>{p.name}</span> <small className="eo-note">({p.plugin})</small>
+                  <li key={p.id} className="eo-row">
+                    <div className="eo-row__main">
+                      <span className="eo-row__name">{p.name}</span>
+                      <small className="eo-note">({p.plugin})</small>
+                    </div>
                     <div className="eo-actions">
                       <Button
                         variant="primary"

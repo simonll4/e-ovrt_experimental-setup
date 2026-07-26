@@ -37,7 +37,7 @@ describe('EvalSection', () => {
   it('evalúa al click y muestra la tabla con mAP', async () => {
     vi.mocked(evaluateRun).mockResolvedValue(EVAL)
     render(<EvalSection runId="r1" benchSplit="bench_v2_test" evaluated={false} />)
-    fireEvent.click(screen.getByText('Evaluar contra BENCH'))
+    fireEvent.click(screen.getByText('Evaluar contra el conjunto de evaluación'))
     await waitFor(() => expect(screen.getByText(/mAP@0\.5/)).toBeTruthy())
     expect(screen.getByText('person')).toBeTruthy()
     expect(screen.getAllByText('—').length).toBeGreaterThan(0) // AP50 null → —
@@ -49,13 +49,13 @@ describe('EvalSection', () => {
     render(<EvalSection runId="r1" benchSplit="bench_v2_test" evaluated={true} />)
     await waitFor(() => expect(screen.getByText(/mAP@0\.5/)).toBeTruthy())
     expect(getEvaluation).toHaveBeenCalledWith('r1')
-    expect(screen.queryByText('Evaluar contra BENCH')).toBeNull()
+    expect(screen.queryByText('Evaluar contra el conjunto de evaluación')).toBeNull()
   })
 
   it('422 muestra "no evaluable"', async () => {
     vi.mocked(evaluateRun).mockRejectedValue(new ApiError(422, { errors: [] }))
     render(<EvalSection runId="r1" benchSplit="bench_v2_test" evaluated={false} />)
-    fireEvent.click(screen.getByText('Evaluar contra BENCH'))
+    fireEvent.click(screen.getByText('Evaluar contra el conjunto de evaluación'))
     await waitFor(() => expect(screen.getByText(/no es evaluable/)).toBeTruthy())
   })
 })

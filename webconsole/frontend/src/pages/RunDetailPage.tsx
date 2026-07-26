@@ -40,7 +40,7 @@ export default function RunDetailPage() {
   const [deleteError, setDeleteError] = useState<string | null>(null)
 
   const handleDelete = async () => {
-    if (!window.confirm(`¿Borrar el run ${id}? No se puede deshacer.`)) return
+    if (!window.confirm(`¿Borrar la corrida ${id}? No se puede deshacer.`)) return
     setDeleting(true)
     setDeleteError(null)
     try {
@@ -89,8 +89,8 @@ export default function RunDetailPage() {
     }
   }, [run?.status])
 
-  if (error) return <ErrorBanner>Error cargando el run {id}: {error}</ErrorBanner>
-  if (!run) return <p className="eo-empty">Cargando run {id}…</p>
+  if (error) return <ErrorBanner>Error cargando la corrida {id}: {error}</ErrorBanner>
+  if (!run) return <p className="eo-empty">Cargando la corrida {id}…</p>
   const summary = run.summary
   const topology = topologyBadge(summary)
   // "name" viaja top-level mientras el run está vivo (RunManager.get() lee la
@@ -123,14 +123,14 @@ export default function RunDetailPage() {
       {streamable && (
         <section>
           <div className="eo-stats-row">
-            <StatTile label="FPS" value={live.lastMetric?.fps ?? '—'} />
+            <StatTile label="Cuadros por segundo" value={live.lastMetric?.fps ?? '—'} />
             <StatTile label="Latencia/unidad" value={live.lastMetric?.latency_total_ms ?? '—'} unit="ms" />
-            <StatTile label="VRAM" value={live.lastMetric?.gpu_memory_mb ?? '—'} unit="MB" />
+            <StatTile label="Memoria de GPU" value={live.lastMetric?.gpu_memory_mb ?? '—'} unit="MB" />
             <StatTile label="Detecciones" value={live.detectionsTotal} />
           </div>
           <div style={{ display: 'flex', gap: 'var(--space-6)', flexWrap: 'wrap' }}>
             <div>
-              <b>FPS</b>
+              <b>Cuadros por segundo</b>
               <Sparkline values={live.fpsHistory} />
             </div>
             <div>
@@ -147,14 +147,16 @@ export default function RunDetailPage() {
           ) : (
             <EmptyState>sin errores</EmptyState>
           )}
-          <small>p95 y detecciones-por-label se calculan al terminar (summary).</small>
+          <small>
+            La latencia (percentil 95) y las detecciones por clase se calculan al terminar la corrida.
+          </small>
         </section>
       )}
       {!running && run.summary && (
-        <Card title="Summary">
+        <Card title="Resumen">
           <div className="eo-stats-row">
-            <StatTile label="FPS" value={num(summary, 'fps_effective') ?? '—'} />
-            <StatTile label="Latencia p50" value={num(summary, 'p50_latency_ms') ?? '—'} unit="ms" />
+            <StatTile label="Cuadros por segundo" value={num(summary, 'fps_effective') ?? '—'} />
+            <StatTile label="Latencia (mediana)" value={num(summary, 'p50_latency_ms') ?? '—'} unit="ms" />
             <StatTile label="Detecciones" value={num(summary, 'total_detections') ?? '—'} />
             <StatTile label="Duración" value={num(summary, 'duration_seconds') ?? '—'} unit="s" />
           </div>
@@ -174,11 +176,11 @@ export default function RunDetailPage() {
               <dd>{num(summary, 'units_processed') ?? '—'}</dd>
             </div>
             <div>
-              <dt>p95</dt>
+              <dt>latencia (percentil 95)</dt>
               <dd>{num(summary, 'p95_latency_ms') ?? '—'} ms</dd>
             </div>
             <div>
-              <dt>por label</dt>
+              <dt>por clase</dt>
               <dd>
                 {labelCounts(summary).length > 0 ? (
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-1)' }}>
@@ -195,7 +197,7 @@ export default function RunDetailPage() {
         </Card>
       )}
       {!running && run.summary && hasVideo && (
-        <Card title="Artefactos">
+        <Card title="Archivos generados">
           <video controls className="eo-video" src={artifactUrl(id, 'annotated.mp4')} />
         </Card>
       )}

@@ -19,9 +19,9 @@ function errorMessage(e: unknown): string {
     if (e.status === 409) {
       return `Ya hay un experimento activo: ${payload.active_experiment_id ?? '?'}`
     }
-    if (e.status === 422) return 'Manifiesto invalido'
+    if (e.status === 422) return 'Manifiesto inválido'
     if (e.status === 502) return 'Servicio no disponible'
-    if (e.status === 503) return payload.detail ?? 'Plataforma no lista'
+    if (e.status === 503) return payload.detail ?? 'Plataforma no operativa'
   }
   return String(e)
 }

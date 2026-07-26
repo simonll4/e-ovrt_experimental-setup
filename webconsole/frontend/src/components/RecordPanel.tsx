@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 
 import { ApiError, getRecording, nextTake, startRecording, stopRecording } from '../api'
 import type { CameraPreset, RecordingStatus } from '../types'
+import { Card } from './ui'
 
 const SCENARIOS = ['P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7', 'P8', 'P9']
 const VARIANTS = ['a', 'b', 'c']
@@ -142,9 +143,7 @@ export default function RecordPanel({
   const seconds = Math.floor(elapsed / 1000)
 
   return (
-    <section className="record-panel">
-      <h3>Grabar toma</h3>
-
+    <Card title="Grabar toma">
       <label htmlFor="rec-camera">Cámara</label>
       <select
         id="rec-camera"
@@ -182,7 +181,7 @@ export default function RecordPanel({
         ))}
       </select>
 
-      <p className="record-basename">Próxima toma: <strong>{basename ?? '—'}</strong></p>
+      <p>Próxima toma: <strong className="eo-mono">{basename ?? '—'}</strong></p>
 
       {enCurso ? (
         <>
@@ -219,10 +218,13 @@ export default function RecordPanel({
       {error && <p className="record-error">{error}</p>}
 
       {last && (
-        <div className="record-summary">
+        <div className="eo-note">
           <p>
-            {last.basename}: {Math.round((last.duration_ms ?? 0) / 1000)}s, {last.resolution ?? '?'},{' '}
-            {last.fps ? `${last.fps.toFixed(2)} fps` : 'fps desconocido'}
+            <span className="eo-mono">{last.basename}</span>: {Math.round((last.duration_ms ?? 0) / 1000)}s,{' '}
+            {last.resolution ?? '?'},{' '}
+            {last.fps
+              ? `${last.fps.toFixed(2)} cuadros por segundo`
+              : 'cuadros por segundo desconocidos'}
           </p>
           {(last.duration_ms ?? 0) < MIN_TAKE_MS && (
             <p className="rec-corta">Toma de menos de 30 s: revisá si sirve (regla de oro 3).</p>
@@ -235,6 +237,6 @@ export default function RecordPanel({
           )}
         </div>
       )}
-    </section>
+    </Card>
   )
 }

@@ -49,7 +49,7 @@ describe('ExperimentDetailPage', () => {
     vi.mocked(api.getExperimentAlerts).mockResolvedValue([])
     vi.mocked(api.getExperimentReport).mockRejectedValue(new api.ApiError(404, { detail: 'no encontrado' }))
     renderPage('exp_3')
-    await waitFor(() => expect(screen.getByText('Reporte no disponible todavia.')).toBeTruthy())
+    await waitFor(() => expect(screen.getByText('Reporte no disponible todavía.')).toBeTruthy())
   })
 
   it('muestra el nombre de la metrica (campo "name" del backend) en la tabla de resultados', async () => {

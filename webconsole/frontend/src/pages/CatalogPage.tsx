@@ -23,11 +23,11 @@ export default function CatalogPage() {
   }, [modelRef])
   return (
     <div style={{ display: 'grid', gap: 'var(--space-1)' }}>
-      <Card title="Modelo del target (read-only)">
+      <Card title="Modelo de la instancia activa (solo lectura)">
         {target?.model ? (
           <Table>
             <thead>
-              <tr><th>ref</th><th>adapter</th><th>device</th><th>thresholds</th></tr>
+              <tr><th>ref</th><th>adaptador</th><th>dispositivo</th><th>umbrales</th></tr>
             </thead>
             <tbody>
               <tr>
@@ -44,7 +44,7 @@ export default function CatalogPage() {
             </tbody>
           </Table>
         ) : (
-          <EmptyState>Servicio no listo.</EmptyState>
+          <EmptyState>Servicio no operativo.</EmptyState>
         )}
         {target?.model && <small>(fijos por instancia; cambiar de modelo = otra instancia)</small>}
       </Card>
@@ -54,7 +54,7 @@ export default function CatalogPage() {
         ) : (
           <Table>
             <thead>
-              <tr><th>id</th><th>kind</th><th>descripción</th><th>estado</th></tr>
+              <tr><th>id</th><th>tipo</th><th>descripción</th><th>estado</th></tr>
             </thead>
             <tbody>
               {plugins.map((p) => (
@@ -93,9 +93,9 @@ export default function CatalogPage() {
           </Table>
         )}
       </Card>
-      <Card title="Prompt sets (in-repo)">
+      <Card title="Conjuntos de prompts (del repositorio)">
         {sets.length === 0 ? (
-          <EmptyState>Sin prompt sets.</EmptyState>
+          <EmptyState>Sin conjuntos de prompts.</EmptyState>
         ) : (
           <Table>
             <thead>

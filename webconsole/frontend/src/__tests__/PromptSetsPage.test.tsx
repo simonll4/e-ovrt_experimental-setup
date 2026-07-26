@@ -34,7 +34,7 @@ describe('PromptSetsPage', () => {
   it('el botón "Nuevo set" es el primitivo Button', async () => {
     vi.mocked(api.listPromptSets).mockResolvedValue([])
     render(<PromptSetsPage />)
-    await waitFor(() => expect(screen.getByRole('button', { name: 'Nuevo set' }).className).toContain('eo-btn'))
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Nuevo conjunto' }).className).toContain('eo-btn'))
   })
 
   it('un set frozen se muestra read-only con acción Derivar', async () => {

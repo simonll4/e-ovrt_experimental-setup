@@ -204,9 +204,9 @@ export default function ComposePage() {
   // El botón queda deshabilitado hasta que no falte nada — así el 422 del
   // servicio queda solo para casos que el form no puede anticipar.
   const missingReason = ((): string | null => {
-    if (!target) return 'verificando el media-plane…'
-    if (!target.healthy) return 'el media-plane no responde'
-    if (!target.ready) return 'el media-plane no terminó de cargar el modelo'
+    if (!target) return 'verificando el motor de detección…'
+    if (!target.healthy) return 'el motor de detección no responde'
+    if (!target.ready) return 'el motor de detección no terminó de cargar el modelo'
     if (isLive) {
       if (!selectedCamera && !(plugin === 'rtsp' && rtspUrl)) {
         return plugin === 'rtsp'
@@ -221,8 +221,8 @@ export default function ComposePage() {
     } else if (!dataset && !path) {
       return 'elegí un dataset o ingresá una ruta (paso 1)'
     }
-    if (!setId) return 'elegí un prompt set (paso 2)'
-    if (activeIds.length === 0) return 'activá al menos una clase del prompt set (paso 2)'
+    if (!setId) return 'elegí un conjunto de prompts (paso 2)'
+    if (activeIds.length === 0) return 'activá al menos una clase del conjunto de prompts (paso 2)'
     return null
   })()
 
@@ -264,7 +264,7 @@ export default function ComposePage() {
             </Field>
             {pluginCameras.length === 0 && (
               <small className="eo-note">
-                No hay cámaras {plugin} guardadas — se crean (y se prueban) en{' '}
+                No hay cámaras de tipo {plugin} guardadas — se crean (y se prueban) en{' '}
                 <a href="#/cameras">Cámaras</a>.
               </small>
             )}
@@ -280,8 +280,8 @@ export default function ComposePage() {
               </>
             )}
             <Field
-              label="Descartar frames iniciales (opcional)"
-              hint="La cámara tarda en asentar exposición/enfoque al arrancar — los primeros frames salen mal. ~20 a 10 fps ≈ 2 s."
+              label="Descartar cuadros iniciales (opcional)"
+              hint="La cámara tarda en asentar exposición/enfoque al arrancar — los primeros cuadros salen mal. ~20 a 10 cuadros por segundo ≈ 2 s."
             >
               <input placeholder="ej. 20" value={warmupFrames}
                      onChange={(e) => setWarmupFrames(e.target.value)} />
@@ -310,7 +310,7 @@ export default function ComposePage() {
       </Card>
       <Card title="2 · Prompts">
         <div>
-          <Field label="Prompt set" error={fieldError('prompts.set_id')}>
+          <Field label="Conjunto de prompts" error={fieldError('prompts.set_id')}>
             <select
               value={setId}
               onChange={(e) => {
@@ -350,7 +350,7 @@ export default function ComposePage() {
         </div>
       </Card>
       <Card title="3 · Lanzar">
-        <Field label="Nombre del run (opcional)" hint="Si lo dejás vacío se usa el id autogenerado.">
+        <Field label="Nombre de la corrida (opcional)" hint="Si lo dejás vacío se usa el id autogenerado.">
           <input placeholder="ej. prueba OAK-D laboratorio" value={runName}
                  onChange={(e) => setRunName(e.target.value)} />
         </Field>
@@ -361,7 +361,7 @@ export default function ComposePage() {
               <label className="eo-note eo-note--error">
                 <input type="checkbox" checked={confirmModel}
                        onChange={(e) => setConfirmModel(e.target.checked)} />{' '}
-                Usar el modelo del target de todas formas
+                Usar el modelo de la instancia activa de todas formas
               </label>
             )}
             {fieldError('model') && <small className="eo-field__error">{fieldError('model')}</small>}
@@ -370,12 +370,12 @@ export default function ComposePage() {
         {generalError && <ErrorBanner>{generalError}</ErrorBanner>}
         {busyRunId && (
           <p className="eo-note eo-note--warn">
-            Ya hay un run activo: <a href={`#/runs/${busyRunId}`}>{busyRunId}</a>
+            Ya hay una corrida activa: <a href={`#/runs/${busyRunId}`}>{busyRunId}</a>
           </p>
         )}
         {previewBusy && (
           <p className="eo-note eo-note--warn">
-            Hay una prueba de cámara activa. Cerrala en <a href="#/cameras">Cámaras</a> para lanzar el run.
+            Hay una prueba de cámara activa. Cerrala en <a href="#/cameras">Cámaras</a> para lanzar la corrida.
           </p>
         )}
         {missingReason && (
@@ -386,7 +386,7 @@ export default function ComposePage() {
         </div>
         <details>
           <summary>Opciones avanzadas</summary>
-          <p className="eo-note">Overrides (thresholds: read-only del modelo, ver Catálogos)</p>
+          <p className="eo-note">Ajustes. Los umbrales del modelo son de solo lectura: se ven en Catálogos.</p>
           <div>
             <Field label="Partir de un manifiesto">
               <select

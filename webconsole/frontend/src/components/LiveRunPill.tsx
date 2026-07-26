@@ -9,7 +9,7 @@ export default function LiveRunPill() {
       <span className="eo-livepill__dot" aria-hidden="true">●</span>
       <span className="eo-livepill__id">{run.run_id}</span>
       <span className="eo-livepill__meta">
-        {run.fps_effective != null ? `${run.fps_effective} fps` : 'corriendo'}
+        {run.fps_effective != null ? `${run.fps_effective} cuadros/s` : 'en curso'}
       </span>
     </Link>
   )

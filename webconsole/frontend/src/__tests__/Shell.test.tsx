@@ -28,7 +28,7 @@ describe('Shell', () => {
 
   it('renderiza los 6 destinos', () => {
     renderShell()
-    for (const label of ['Corridas', 'Experimentos', 'Comparar', 'Prompt sets', 'Catálogos', 'Plataforma']) {
+    for (const label of ['Corridas', 'Experimentos', 'Comparar', 'Conjuntos de prompts', 'Catálogos', 'Plataforma']) {
       expect(screen.getAllByText(label).length).toBeGreaterThan(0)
     }
   })
@@ -49,7 +49,7 @@ describe('Shell', () => {
 
   it('marca el destino activo', () => {
     renderShell('/prompts')
-    const active = screen.getByRole('link', { name: 'Prompt sets' })
+    const active = screen.getByRole('link', { name: 'Conjuntos de prompts' })
     expect(active.className).toContain('eo-sidebar__link--active')
   })
 
