@@ -93,6 +93,9 @@ class ControlPlaneBackend:
     async def pattern_progress(self, control_run_id: str) -> list[dict]:
         return await self._get_json(f"/api/runs/{control_run_id}/pattern-progress")
 
+    async def pattern_events(self, control_run_id: str) -> list[dict]:
+        return await self._get_json(f"/api/runs/{control_run_id}/pattern-events")
+
     async def received_units(self, control_run_id: str) -> list[dict]:
         return await self._get_json(f"/api/runs/{control_run_id}/received-units")
 

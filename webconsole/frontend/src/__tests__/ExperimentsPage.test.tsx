@@ -12,6 +12,13 @@ vi.mock('../api', async (importOriginal) => ({
   getPreflight: vi.fn(),
   runExperiment: vi.fn(),
 }))
+// El formulario de derivación se stubea: acá interesa sólo el orden de
+// recarga/selección que hace la página cuando el derive termina.
+vi.mock('../components/DeriveExperimentForm', () => ({
+  DeriveExperimentForm: ({ onDone }: { onDone: (slug: string) => void }) => (
+    <button onClick={() => onDone('nuevo')}>fake-derive-done</button>
+  ),
+}))
 beforeEach(() => vi.clearAllMocks())
 afterEach(() => cleanup())
 
@@ -70,6 +77,43 @@ describe('ExperimentsPage', () => {
     await waitFor(() => expect(button.disabled).toBe(false))
     fireEvent.click(button)
     await waitFor(() => expect(screen.getByText(/Plataforma no lista/)).toBeTruthy())
+  })
+
+  it('espera la recarga de manifiestos antes de seleccionar el slug derivado', async () => {
+    // Sin esperar la recarga, el <select> queda por un instante con un value sin
+    // <option> que lo matchee y el browser muestra la primera opción — justo
+    // cuando el operador quiere confirmar qué va a lanzar.
+    let resolveReload: (rows: any[]) => void = () => {}
+    vi.mocked(api.getExperimentManifests)
+      .mockResolvedValueOnce([{ slug: 'd1', experiment_id: null } as any])
+      .mockReturnValueOnce(new Promise((res) => { resolveReload = res as any }) as any)
+    vi.mocked(api.getCurrentExperiment).mockResolvedValue(null)
+    vi.mocked(api.getPreflight).mockResolvedValue(PREFLIGHT_OK)
+    vi.mocked(api.runExperiment).mockResolvedValue({ experiment_id: 'exp_9' })
+    render(<MemoryRouter><ExperimentsPage /></MemoryRouter>)
+
+    await waitFor(() => expect(screen.getAllByText('d1').length).toBeGreaterThan(0))
+    fireEvent.click(screen.getByRole('button', { name: 'Derivar' }))
+    fireEvent.click(screen.getByText('fake-derive-done'))
+
+    const select = () => screen.getByRole('combobox') as HTMLSelectElement
+    await waitFor(() => expect(vi.mocked(api.getExperimentManifests)).toHaveBeenCalledTimes(2))
+
+    // Mientras la recarga está en vuelo no existe la <option> del slug nuevo, así
+    // que el select MUESTRA 'd1' (el browser cae en la primera opción). Lo que se
+    // lanza tiene que ser eso mismo: si el estado ya fuera 'nuevo', el operador
+    // vería una cosa y lanzaría otra.
+    expect(screen.queryByRole('option', { name: 'nuevo' })).toBeNull()
+    expect(select().value).toBe('d1')
+    fireEvent.click(screen.getByRole('button', { name: /lanzar/i }))
+    await waitFor(() => expect(vi.mocked(api.runExperiment)).toHaveBeenCalled())
+    expect(vi.mocked(api.runExperiment)).toHaveBeenCalledWith({ slug: select().value })
+
+    resolveReload([
+      { slug: 'd1', experiment_id: null } as any,
+      { slug: 'nuevo', experiment_id: null } as any,
+    ])
+    await waitFor(() => expect(select().value).toBe('nuevo'))
   })
 
   it('muestra 409 con el experimento activo', async () => {

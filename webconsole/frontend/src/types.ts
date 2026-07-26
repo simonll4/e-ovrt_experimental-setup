@@ -68,6 +68,18 @@ export interface PromptSetDetail {
   frozen_sha256?: string | null
   classes: PromptClassSpec[]
 }
+/** GET /api/experiments/manifests/{slug}/derive-defaults: 1:1 con las claves de
+ *  `overrides`. Sin `url` de cámara a propósito (credenciales en claro). */
+export interface DeriveDefaults {
+  warmup_frames: number | null
+  fps: number | null
+  camera_id: string | null
+  prompt_set_id: string | null
+  stride: number | null
+  max_units: number | null
+  pattern_set_file: string | null
+  pattern_active_ids: string[] | null
+}
 export interface Experiment {
   id: string
   group: string
@@ -212,6 +224,31 @@ export interface ExperimentReport {
   resultados?: unknown[]
   identificacion?: Record<string, unknown>
 }
+/** Un patron de riesgo actualmente confirmed/sustained en el motor del
+ *  control-plane (GET /api/runs/current -> bloque `patterns`). */
+export interface ActiveRiskPattern {
+  pattern_id: string
+  condition_id: string
+  severity: string
+  subject_key?: string
+  state: string
+  /** Tiempo de FUENTE/frame (puede ser relativo al archivo en video_file).
+   *  Sirve para correlacionar con detections.jsonl, no para "hace cuanto". */
+  since_timestamp_ms?: number | null
+  /** Ms transcurridos reales, medidos por el control-plane con su reloj
+   *  monotonico. Usar ESTE campo para mostrar "hace Ns" en la UI. */
+  active_ms?: number | null
+  subjects_in_evidence?: number
+}
+/** Snapshot del estado vivo del control-plane (GET /api/control/current,
+ *  passthrough de GET /api/runs/current del control-plane). No modelamos el
+ *  resto del payload (progress, etc.) porque la consola solo consume
+ *  `patterns` por ahora. */
+export interface ControlCurrentSnapshot {
+  control_run_id: string
+  status: string
+  patterns: ActiveRiskPattern[]
+}
 
 /** Vocabulario de estado de la UI. Vive acá —y no en Badge.tsx— porque lo consumen
  *  runview.ts y experimentview.ts, que son lógica pura y no deben importar de un .tsx. */
@@ -233,6 +270,16 @@ export interface TraceAlert {
   condition_id: string
   severity: string
 }
+/** Un patron confirmed/sustained cuyo episodio sigue abierto en este frame
+ *  (reconstruido de pattern_events.jsonl -- ver TraceSection). Persiste desde
+ *  el frame de confirmacion hasta el de resolved, aunque frames intermedios
+ *  no tengan su propia fila de progreso ni alerta. */
+export interface TraceActivePattern {
+  pattern_id: string
+  condition_id: string
+  severity: string
+  subject_key: string
+}
 export interface TraceFrame {
   frame_index: number | null
   unit_id: string | null
@@ -241,6 +288,9 @@ export interface TraceFrame {
   control: string
   progress: TraceProgress[]
   alert: TraceAlert[]
+  /** Opcional para no romper fixtures de test viejos; el backend siempre lo
+   *  manda (posiblemente []), tratar ausencia igual que []. */
+  active_patterns?: TraceActivePattern[]
 }
 export interface TraceTotals {
   frames: number

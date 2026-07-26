@@ -23,6 +23,10 @@ export default function App() {
         <Route path="/runs/:id" element={<RunDetailPage />} />
         <Route path="/platform" element={<PlatformPage />} />
         <Route path="/experiments" element={<ExperimentsPage />} />
+        {/* Declarada ANTES de /experiments/:id: si no, "new" matchea como :id y
+            se ve el detalle buscando un experimento llamado "new" (ver test en
+            App.test.tsx que fija este orden). */}
+        <Route path="/experiments/new" element={<ExperimentsPage />} />
         <Route path="/experiments/:id" element={<ExperimentDetailPage />} />
         <Route path="/prompts" element={<PromptSetsPage />} />
         <Route path="/cameras" element={<CamerasPage />} />

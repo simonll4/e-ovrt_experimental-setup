@@ -40,6 +40,13 @@ describe('Shell', () => {
     expect(link.className).toContain('eo-sidebar__action')
   })
 
+  it('"Nuevo experimento" es acción primaria y apunta a /experiments/new', () => {
+    renderShell()
+    const link = screen.getByRole('link', { name: /nuevo experimento/i })
+    expect(link.getAttribute('href')).toContain('/experiments/new')
+    expect(link.className).toContain('eo-sidebar__action')
+  })
+
   it('marca el destino activo', () => {
     renderShell('/prompts')
     const active = screen.getByRole('link', { name: 'Prompt sets' })

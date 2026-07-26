@@ -28,9 +28,13 @@ export const NAV_GROUPS: NavGroup[] = [
 ]
 
 // Rutas que no viven en la nav pero necesitan crumb propio.
-const STANDALONE: Record<string, string> = { '/compose': 'Nueva corrida' }
+const STANDALONE: Record<string, string> = {
+  '/compose': 'Nueva corrida',
+  '/experiments/new': 'Nuevo experimento',
+}
 
 export function crumbsFor(pathname: string): NavItem[] {
+  if (STANDALONE[pathname]) return [{ to: pathname, label: STANDALONE[pathname] }]
   const runMatch = pathname.match(/^\/runs\/(.+)$/)
   if (runMatch) {
     return [
@@ -45,7 +49,6 @@ export function crumbsFor(pathname: string): NavItem[] {
       { to: pathname, label: expMatch[1] },
     ]
   }
-  if (STANDALONE[pathname]) return [{ to: pathname, label: STANDALONE[pathname] }]
   for (const group of NAV_GROUPS) {
     const item = group.items.find((i) => i.to === pathname)
     if (item) return [item]

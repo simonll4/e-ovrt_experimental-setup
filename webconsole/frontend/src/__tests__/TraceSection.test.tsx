@@ -184,6 +184,37 @@ describe('TraceSection', () => {
     await waitFor(() => expect(api.getTrace).toHaveBeenCalledWith('r_1', 2, 50))
   })
 
+  it('un frame sin alerta/progreso propios pero con active_patterns muestra "activo" (el bug real: frame_000456)', async () => {
+    vi.mocked(api.getTrace).mockResolvedValue(
+      basePage({
+        frames: [
+          {
+            frame_index: 456,
+            unit_id: 'u456',
+            timestamp_ms: 15400,
+            detections: [{ label: 'person', confidence: 0.9 }],
+            control: 'received',
+            progress: [],
+            alert: [],
+            active_patterns: [
+              { pattern_id: 'CR-01', condition_id: 'CR-01', severity: 'high', subject_key: 'k1' },
+            ],
+          },
+        ],
+      }),
+    )
+    render(<TraceSection runId="r_1" />)
+    await waitFor(() => expect(screen.getByText(/activo/i)).toBeTruthy())
+    expect(screen.getByText('CR-01', { selector: '.eo-badge' })).toBeTruthy()
+  })
+
+  it('un frame sin active_patterns no muestra "activo"', async () => {
+    vi.mocked(api.getTrace).mockResolvedValue(basePage())
+    render(<TraceSection runId="r_1" />)
+    await waitFor(() => expect(screen.getByText('ctrl_1')).toBeTruthy())
+    expect(screen.queryByText(/riesgo activo/i)).toBeNull()
+  })
+
   it('la fila con alerta lleva eo-row--alert, la fila sin alerta no', async () => {
     vi.mocked(api.getTrace).mockResolvedValue(basePage())
     render(<TraceSection runId="r_1" />)

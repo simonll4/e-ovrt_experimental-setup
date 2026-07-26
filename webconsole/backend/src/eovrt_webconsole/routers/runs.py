@@ -328,7 +328,7 @@ async def trace(
     # Lado control: best-effort (degradacion del spec §6). ControlUnknownRun en
     # el lookup o en las lecturas se trata como "sin control run" (no 404 del
     # trace); ControlServiceUnavailable puebla control_error y deja todo en n/d.
-    progress, alerts, received, control_error = [], [], None, None
+    progress, alerts, pattern_events, received, control_error = [], [], [], None, None
     try:
         if control_run_id is None:
             candidates = await control.list_runs(media_run_id=run_id)
@@ -336,16 +336,18 @@ async def trace(
         if control_run_id is not None:
             progress = await control.pattern_progress(control_run_id)
             alerts = await control.alerts(control_run_id)
+            pattern_events = await control.pattern_events(control_run_id)
             received = {u["unit_id"] for u in await control.received_units(control_run_id)}
     except ControlServiceUnavailable as exc:
         logger.warning("trace(%s): servicio control inaccesible: %s", run_id, exc)
         control_error = str(exc)
-        control_run_id, progress, alerts, received = None, [], [], None
+        control_run_id, progress, alerts, pattern_events, received = None, [], [], [], None
     except ControlUnknownRun:
-        control_run_id, progress, alerts, received = None, [], [], None
+        control_run_id, progress, alerts, pattern_events, received = None, [], [], [], None
     topology = ((summary.get("summary") or {}).get("run_descriptor") or {}).get("topology")
     composed = compose_trace(
         detections=detections_rows, dropped=dropped_rows, progress=progress, alerts=alerts,
+        pattern_events=pattern_events,
         received_unit_ids=received, control_run_id=control_run_id,
         topology=topology,
     )

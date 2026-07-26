@@ -46,9 +46,11 @@ def compose_trace(
     received_unit_ids: set[str] | None,
     control_run_id: str | None,
     topology: str | None,
+    pattern_events: list[dict] = (),
 ) -> dict[str, Any]:
     progress_by_unit = _index_by_unit(progress)
     alerts_by_unit = _index_by_unit(alerts)
+    pattern_events_by_unit = _index_by_unit(list(pattern_events))
 
     rows: dict[str, dict] = {}
     dropped_by_reason: Counter[str] = Counter()
@@ -98,10 +100,33 @@ def compose_trace(
             "control": f"dropped:{reason}",
         }
 
+    # active_patterns: reconstruye el intervalo confirmed/sustained->resolved
+    # que ni alerts.jsonl (solo el flanco de subida) ni pattern_progress.jsonl
+    # (solo "candidate") pueden mostrar -- pattern_events.jsonl es la unica
+    # fuente con el ciclo completo. Se plegua hacia adelante sobre el eje de
+    # frames YA ordenado: por (pattern_id, subject_key), confirmed/sustained
+    # abre el episodio (incluido el propio frame del evento), resolved lo
+    # cierra (el propio frame del resolved YA no cuenta como activo).
+    # candidate se ignora -- todavia no es un riesgo confirmado (mismo
+    # criterio que PatternEngine.snapshot_active() del motor en vivo).
+    open_episodes: dict[tuple[str, str], dict] = {}
     frames = []
     for row in sorted(rows.values(), key=_sort_key):
         row["progress"] = progress_by_unit.get(row["unit_id"], [])
         row["alert"] = alerts_by_unit.get(row["unit_id"], [])
+        for ev in pattern_events_by_unit.get(row["unit_id"], []):
+            key = (ev.get("pattern_id"), ev.get("subject_key"))
+            state = ev.get("state")
+            if state in ("confirmed", "sustained"):
+                open_episodes[key] = {
+                    "pattern_id": ev.get("pattern_id"),
+                    "condition_id": ev.get("condition_id"),
+                    "severity": ev.get("severity"),
+                    "subject_key": ev.get("subject_key"),
+                }
+            elif state == "resolved":
+                open_episodes.pop(key, None)
+        row["active_patterns"] = list(open_episodes.values())
         frames.append(row)
 
     totals = {

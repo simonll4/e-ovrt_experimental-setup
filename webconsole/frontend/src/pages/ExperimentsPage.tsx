@@ -1,11 +1,17 @@
 import { useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { ApiError, getCurrentExperiment, getExperimentManifests, runExperiment } from '../api'
 import type { ExperimentManifestSummary, ExperimentRunState } from '../types'
 import { experimentStatusLabel, experimentStatusTone } from '../experimentview'
 import { usePreflight } from '../usePreflight'
 import PlatformStatus from '../components/PlatformStatus'
-import { Badge, Card, ErrorBanner, EmptyState } from '../components/ui'
+import { DeriveExperimentForm } from '../components/DeriveExperimentForm'
+import { Badge, Card, ErrorBanner, EmptyState, Field } from '../components/ui'
+
+// Formulario abierto: `selectable` distingue el "Derivar" de una fila (fuente
+// fija, como siempre) del formulario de /experiments/new (fuente elegible via
+// el selector "basado en").
+type FormMode = { source: string; selectable: boolean } | null
 
 function errorMessage(e: unknown): string {
   if (e instanceof ApiError) {
@@ -22,6 +28,8 @@ function errorMessage(e: unknown): string {
 
 export default function ExperimentsPage() {
   const navigate = useNavigate()
+  const location = useLocation()
+  const isNewRoute = location.pathname === '/experiments/new'
   const preflight = usePreflight()
   const [rows, setRows] = useState<ExperimentManifestSummary[] | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -29,22 +37,48 @@ export default function ExperimentsPage() {
   const [slug, setSlug] = useState('')
   const [busy, setBusy] = useState(false)
   const [runError, setRunError] = useState<string | null>(null)
+  const [formMode, setFormMode] = useState<FormMode>(null)
+
+  // Cierra el formulario. /experiments/new es una ruta dedicada: al salir del
+  // formulario ahí, se navega de vuelta a /experiments — si no, la ruta sigue
+  // siendo /experiments/new con formMode en null y el efecto de abajo lo
+  // reabriría solo, con el primer manifiesto de nuevo (perdiendo lo elegido).
+  const closeForm = () => {
+    setFormMode(null)
+    if (isNewRoute) navigate('/experiments')
+  }
+
+  const reloadManifests = () =>
+    getExperimentManifests()
+      .then((r) => {
+        setRows(r)
+        setError(null)
+        return r
+      })
+      .catch((e) => {
+        setError(String(e))
+        return null
+      })
 
   useEffect(() => {
     let alive = true
-    getExperimentManifests()
-      .then((r) => {
-        if (!alive) return
-        setRows(r)
-        setError(null)
-        if (r.length > 0 && !slug) setSlug(r[0].slug)
-      })
-      .catch((e) => alive && setError(String(e)))
+    reloadManifests().then((r) => {
+      if (alive && r && r.length > 0 && !slug) setSlug(r[0].slug)
+    })
     return () => {
       alive = false
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  // /experiments/new abre el formulario apenas hay manifiestos para elegir
+  // "basado en" (precargado con el primero, como pide el spec).
+  useEffect(() => {
+    if (isNewRoute && rows && rows.length > 0 && !formMode) {
+      setFormMode({ source: rows[0].slug, selectable: true })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isNewRoute, rows])
 
   useEffect(() => {
     let alive = true
@@ -118,13 +152,49 @@ export default function ExperimentsPage() {
         )}
         {runError && <ErrorBanner>{runError}</ErrorBanner>}
       </Card>
+      {formMode && (
+        <>
+          {formMode.selectable && (
+            <Field label="basado en">
+              <select
+                value={formMode.source}
+                onChange={(e) => setFormMode({ ...formMode, source: e.target.value })}
+              >
+                {(rows ?? []).map((r) => (
+                  <option key={r.slug} value={r.slug}>{r.slug}</option>
+                ))}
+              </select>
+            </Field>
+          )}
+          <DeriveExperimentForm
+            // key: al cambiar la fuente en el selector de arriba, remonta el
+            // formulario entero — mismo mecanismo de precarga que al abrirlo
+            // por primera vez, sin duplicar esa lógica ni arrastrar campos
+            // "tocados" de la fuente anterior.
+            key={formMode.source}
+            source={formMode.source}
+            mode={formMode.selectable ? 'create' : 'derive'}
+            onCancel={closeForm}
+            onDone={async (newSlug) => {
+              // Se espera la recarga ANTES de seleccionar: si no, el <select> queda
+              // por un instante con un value sin <option> que lo matchee y el
+              // browser muestra la primera opción — el operador vería un slug y
+              // lanzaría otro, justo en el momento en que quiere confirmar qué va
+              // a correr.
+              await reloadManifests()
+              setSlug(newSlug)
+              closeForm()
+            }}
+          />
+        </>
+      )}
       {rows.length === 0 ? (
         <EmptyState>Sin manifiestos todavía.</EmptyState>
       ) : (
         <table className="eo-table">
           <thead>
             <tr>
-              {['slug', 'experimento'].map((h) => (
+              {['slug', 'experimento', ''].map((h) => (
                 <th key={h}>{h}</th>
               ))}
             </tr>
@@ -137,6 +207,11 @@ export default function ExperimentsPage() {
                   {r.experiment_id ? (
                     <Link to={`/experiments/${r.experiment_id}`}>{r.experiment_id}</Link>
                   ) : '—'}
+                </td>
+                <td>
+                  <button onClick={() => setFormMode({ source: r.slug, selectable: false })}>
+                    Derivar
+                  </button>
                 </td>
               </tr>
             ))}

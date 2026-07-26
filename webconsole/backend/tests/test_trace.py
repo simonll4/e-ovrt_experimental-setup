@@ -138,6 +138,98 @@ def test_frame_without_progress_or_alert_defaults_to_empty_lists():
     assert out["frames"][0]["alert"] == []
 
 
+# --- active_patterns: reconstruccion del intervalo confirmed->resolved -----
+#
+# El bug real que motiva esto: alerts.jsonl solo tiene el flanco de subida
+# (confirmed) y pattern_progress.jsonl solo tiene "candidate" -- ningun frame
+# INTERMEDIO entre la confirmacion y la resolucion tenia ninguna senal en la
+# traza, aunque el riesgo siguiera objetivamente activo (frame_000456 de una
+# corrida real: CR-01 ya estaba "sustained" y la UI no mostraba nada).
+# pattern_events.jsonl es la unica fuente con el ciclo completo
+# candidate->confirmed->sustained->resolved; compose_trace lo pliega hacia
+# adelante en el eje de frames ya ordenado.
+
+def _pe(uid, pattern_id, state, subject_key="k1", condition_id=None, severity="high"):
+    return {
+        "unit_id": uid, "pattern_id": pattern_id, "state": state,
+        "subject_key": subject_key, "condition_id": condition_id or pattern_id,
+        "severity": severity,
+    }
+
+
+def test_active_patterns_persists_through_intervening_frames_until_resolved():
+    out = compose_trace(
+        detections=[_det(i, f"u{i}", ["person"]) for i in range(5)],
+        dropped=[], progress=[], alerts=[],
+        pattern_events=[
+            _pe("u1", "CR-01", "confirmed"),
+            _pe("u2", "CR-01", "sustained"),
+            # u3: sin evento propio -- el riesgo sigue activo igual (era el bug)
+            _pe("u4", "CR-01", "resolved"),
+        ],
+        received_unit_ids={f"u{i}" for i in range(5)},
+        control_run_id="ctrl-a", topology="single_host",
+    )
+    frames = out["frames"]
+    assert frames[0]["active_patterns"] == []  # antes de confirmar
+    assert frames[1]["active_patterns"][0]["condition_id"] == "CR-01"  # el propio frame de confirmacion ya cuenta
+    assert frames[2]["active_patterns"][0]["condition_id"] == "CR-01"
+    assert frames[3]["active_patterns"][0]["condition_id"] == "CR-01"  # <- el frame sin evento propio: el gap del bug
+    assert frames[4]["active_patterns"] == []  # el frame de resolved ya no esta activo
+
+
+def test_active_patterns_tracks_independent_subjects_separately():
+    out = compose_trace(
+        detections=[_det(i, f"u{i}", ["person"]) for i in range(3)],
+        dropped=[], progress=[], alerts=[],
+        pattern_events=[
+            _pe("u0", "CR-01", "confirmed", subject_key="personA"),
+            _pe("u1", "CR-02", "confirmed", subject_key="personB", severity="medium"),
+        ],
+        received_unit_ids={f"u{i}" for i in range(3)},
+        control_run_id="ctrl-a", topology="single_host",
+    )
+    frames = out["frames"]
+    assert {p["subject_key"] for p in frames[2]["active_patterns"]} == {"personA", "personB"}
+
+
+def test_active_patterns_defaults_to_empty_without_pattern_events():
+    """Compatibilidad: los llamadores existentes (endpoint HTTP con control
+    caido, tests viejos) no pasan pattern_events -- no debe romper ni requerir
+    el kwarg."""
+    out = compose_trace(
+        detections=[_det(0, "u0", ["person"])], dropped=[], progress=[], alerts=[],
+        received_unit_ids={"u0"}, control_run_id="ctrl-a", topology="single_host",
+    )
+    assert out["frames"][0]["active_patterns"] == []
+
+
+def test_active_patterns_never_resolved_stays_active_through_last_frame():
+    """Corrida cortada con el riesgo todavia activo (sin evento resolved):
+    el ultimo frame de la traza tiene que seguir mostrando el patron activo."""
+    out = compose_trace(
+        detections=[_det(i, f"u{i}", ["person"]) for i in range(3)],
+        dropped=[], progress=[], alerts=[],
+        pattern_events=[_pe("u0", "CR-01", "confirmed")],
+        received_unit_ids={f"u{i}" for i in range(3)},
+        control_run_id="ctrl-a", topology="single_host",
+    )
+    assert out["frames"][-1]["active_patterns"][0]["condition_id"] == "CR-01"
+
+
+def test_active_patterns_ignores_candidate_state():
+    """candidate NO es riesgo confirmado todavia -- no debe aparecer como activo
+    (mismo criterio que snapshot_active() del motor: solo confirmed/sustained)."""
+    out = compose_trace(
+        detections=[_det(0, "u0", ["person"])],
+        dropped=[], progress=[], alerts=[],
+        pattern_events=[_pe("u0", "CR-01", "candidate")],
+        received_unit_ids={"u0"},
+        control_run_id="ctrl-a", topology="single_host",
+    )
+    assert out["frames"][0]["active_patterns"] == []
+
+
 # --- Nivel endpoint (two_plane_client) --------------------------------------
 
 
@@ -263,3 +355,29 @@ def test_trace_endpoint_unknown_control_run_id_degrades_not_404(
 def test_trace_endpoint_unknown_media_run_404(two_plane_client):
     r = two_plane_client.get("/api/runs/nope/trace")
     assert r.status_code == 404
+
+
+def test_trace_endpoint_active_patterns_via_http(two_plane_client, control_state, fake_state):
+    """Ejercita active_patterns a traves del endpoint HTTP real: el fake sirve
+    pattern-events, el router lo pasa a compose_trace."""
+    client = two_plane_client
+    fake_state.dropped["run_done_1"] = []
+    control_state.runs_index = [
+        {"control_run_id": "control_run_x", "media_run_id": "run_done_1", "status": "succeeded"}
+    ]
+    control_state.pattern_progress["control_run_x"] = []
+    control_state.alerts["control_run_x"] = [
+        {"frame_index": 1, "unit_id": "u1", "condition_id": "CR-01", "severity": "high"}
+    ]
+    control_state.pattern_events["control_run_x"] = [
+        {"unit_id": "u1", "pattern_id": "CR-01", "condition_id": "CR-01",
+         "severity": "high", "subject_key": "k1", "state": "confirmed"},
+    ]
+    control_state.received_units["control_run_x"] = [{"unit_id": f"u{i}"} for i in range(5)]
+
+    r = client.get("/api/runs/run_done_1/trace", params={"page_size": 100})
+    assert r.status_code == 200
+    frames = r.json()["frames"]
+    # u1 confirma; u2..u4 no tienen evento propio pero el riesgo sigue activo
+    assert frames[1]["active_patterns"][0]["condition_id"] == "CR-01"
+    assert frames[3]["active_patterns"][0]["condition_id"] == "CR-01"

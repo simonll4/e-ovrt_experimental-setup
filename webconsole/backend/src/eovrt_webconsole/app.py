@@ -19,6 +19,7 @@ from eovrt_webconsole.routers import (
     clips,
     compare,
     compose,
+    control,
     experiments,
     manifests,
     meta,
@@ -100,6 +101,7 @@ def create_app(
     app.include_router(stream.router)
     app.include_router(manifests.router)
     app.include_router(experiments.router)
+    app.include_router(control.router)
     app.include_router(platform.router)
     app.include_router(prompts.router)
     app.include_router(cameras.router)

@@ -13,6 +13,7 @@ export default function Shell({ children }: { children: ReactNode }) {
           <h1>E-OVRT</h1>
         </div>
         <Link to="/compose" className="eo-sidebar__action">+ Nueva corrida</Link>
+        <Link to="/experiments/new" className="eo-sidebar__action">+ Nuevo experimento</Link>
         <nav className="eo-sidebar__nav">
           {NAV_GROUPS.map((group) => (
             <div key={group.title} className="eo-sidebar__group">

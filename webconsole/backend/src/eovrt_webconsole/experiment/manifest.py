@@ -43,6 +43,11 @@ class ExperimentManifest(BaseModel):
     # al cwd del proceso del runner (no hay resolucion propia aca), o absoluto.
     clip_id: str | None = None
     ground_truth: str | None = None
+    # Procedencia de la derivación (espejo de prompt_store.derive_set): de qué
+    # manifiesto salió este y por qué. Opcionales — los manifiestos escritos a
+    # mano no los declaran.
+    derives_from: str | None = None
+    changes: str | None = None
 
 
 def generate_experiment_id(slug: str, now: datetime) -> str:

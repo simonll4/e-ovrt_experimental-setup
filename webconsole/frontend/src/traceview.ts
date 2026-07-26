@@ -29,6 +29,7 @@ export function frameHasActivity(f: TraceFrame): boolean {
     f.control.startsWith('dropped:') ||
     f.control === 'not_received' ||
     f.progress.length > 0 ||
-    f.alert.length > 0
+    f.alert.length > 0 ||
+    (f.active_patterns?.length ?? 0) > 0
   )
 }

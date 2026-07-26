@@ -4,6 +4,7 @@ import {
   alertSeverityTone,
   experimentStatusLabel,
   experimentStatusTone,
+  patternActiveSeconds,
 } from '../experimentview'
 
 describe('isNonTemporal', () => {
@@ -45,5 +46,27 @@ describe('experimentStatusTone', () => {
   })
   it('estado desconocido cae en el default neutral', () => {
     expect(experimentStatusTone({ status: 'queued' } as any)).toBe('neutral')
+  })
+})
+describe('patternActiveSeconds', () => {
+  // active_ms lo calcula el control-plane con su propio reloj monotonico
+  // (mismo que alert_registered_ms), NO con since_timestamp_ms contra el
+  // reloj del cliente: since_timestamp_ms es tiempo de FUENTE/frame y en
+  // corridas video_file puede ser relativo al archivo (0.0 en la primera
+  // unidad) -- usarlo con Date.now() del cliente producia "hace
+  // 1785005982s" en un humo real (control-plane doc
+  // .superpowers-report-patterns-live.md). active_ms ya viene en ms
+  // transcurridos reales; esta funcion solo lo redondea a segundos.
+  it('convierte active_ms a segundos enteros', () => {
+    expect(patternActiveSeconds(12_345)).toBe(12)
+  })
+  it('null cuando active_ms viene null (sin first_evidence_monotonic_ms)', () => {
+    expect(patternActiveSeconds(null)).toBeNull()
+  })
+  it('null cuando active_ms viene undefined', () => {
+    expect(patternActiveSeconds(undefined)).toBeNull()
+  })
+  it('nunca negativo: el motor ya clampea, pero el cliente no confia ciegamente', () => {
+    expect(patternActiveSeconds(-5)).toBe(0)
   })
 })

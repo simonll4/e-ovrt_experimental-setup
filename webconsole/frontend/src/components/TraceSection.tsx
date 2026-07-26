@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { artifactUrl, getTrace } from '../api'
 import { Badge, Card, DetChip, EmptyState, ErrorBanner, StatTile } from './ui'
 import { controlLabel, controlTone, frameHasActivity } from '../traceview'
+import { alertSeverityTone } from '../experimentview'
 import PreviewWithBoxes from './PreviewWithBoxes'
 import type { TraceFrame, TracePage } from '../types'
 
@@ -120,6 +121,12 @@ export default function TraceSection({ runId }: { runId: string }) {
                     <Badge key={i} tone="error">
                       ALERTA {a.condition_id}
                     </Badge>
+                  ))}
+                  {(f.active_patterns ?? []).map((p, i) => (
+                    <div className="eo-patternrow" key={`active-${i}`}>
+                      <Badge tone={alertSeverityTone(p.severity)}>{p.condition_id}</Badge>
+                      <span>riesgo activo</span>
+                    </div>
                   ))}
                 </td>
               )}

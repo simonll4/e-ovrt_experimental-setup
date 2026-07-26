@@ -23,7 +23,11 @@ from eovrt_webconsole.manifest_writer import (
     ManifestExistsError,
     ProtectedManifestError,
     write_manifest,
+    write_manifest_dir,
 )
+from eovrt_webconsole.experiment_deriver import DeriveError, derive_payloads
+from eovrt_webconsole.repo_catalog import get_prompt_set
+from eovrt_webconsole import camera_store as cs
 
 logger = logging.getLogger(__name__)
 
@@ -93,6 +97,170 @@ async def get_manifest(slug: str, request: Request) -> dict:
         if manifest.slug == slug:
             return manifest.model_dump(mode="json")
     raise HTTPException(status_code=404, detail=f"Manifiesto paraguas desconocido: {slug}")
+
+
+def _load_source_payloads(slug: str, settings) -> tuple[ExperimentManifest, dict, dict]:
+    """Resuelve el manifiesto paraguas `slug` y lee sus payloads media/control.
+
+    Compartido por `derive` y `derive-defaults`: los dos parten exactamente del
+    mismo estado del fuente, así que el formulario precarga lo que el derive va
+    a leer — no dos lecturas que puedan desincronizarse.
+    """
+    source = None
+    for manifest in _iter_umbrella_manifests(settings.experiments_dir):
+        if manifest.slug == slug:
+            source = manifest
+            break
+    if source is None:
+        raise HTTPException(status_code=404, detail=f"Manifiesto paraguas desconocido: {slug}")
+
+    for plane in ("media", "control"):
+        if plane not in source.runs:
+            raise HTTPException(
+                status_code=422, detail=f"El manifiesto {slug!r} no declara runs.{plane}"
+            )
+
+    try:
+        source_media = yaml.safe_load(Path(source.runs["media"].config).read_text(encoding="utf-8"))
+        source_control = yaml.safe_load(
+            Path(source.runs["control"].config).read_text(encoding="utf-8")
+        )
+    except OSError as exc:
+        raise HTTPException(
+            status_code=422, detail=f"No se pudieron leer los payloads de {slug!r}: {exc}"
+        ) from exc
+    return source, source_media or {}, source_control or {}
+
+
+@router.get("/manifests/{slug}/derive-defaults")
+async def get_derive_defaults(slug: str, request: Request) -> dict:
+    """Valores del manifiesto fuente para precargar el formulario de derivación.
+
+    Devuelve exactamente las claves que el formulario ofrece como `overrides`
+    (mapeo 1:1, sin traducción que se pueda desincronizar con el endpoint de
+    derive).
+
+    NUNCA devuelve la url de la fuente: este payload va al browser y los presets
+    RTSP llevan credenciales en claro (`cameras/` está gitignoreado justamente
+    por eso). `camera_id` se resuelve matcheando plugin+url contra el catálogo de
+    /api/cameras y, si no matchea, sale `null` — la url cruda no se expone en
+    ningún caso.
+    """
+    settings = request.app.state.settings
+    _, media, control = _load_source_payloads(slug, settings)
+
+    ingest = media.get("ingest") or {}
+    config = ingest.get("config") or {}
+    run = media.get("run") or {}
+    patterns = control.get("patterns") or {}
+
+    camera_id = None
+    for camera in cs.list_cameras(settings.cameras_dir):
+        if camera.get("plugin") == ingest.get("plugin") and (
+            (camera.get("config") or {}).get("url") == config.get("url")
+        ):
+            camera_id = camera.get("id")
+            break
+
+    return {
+        "warmup_frames": config.get("warmup_frames"),
+        "fps": config.get("fps"),
+        "camera_id": camera_id,
+        "prompt_set_id": ((media.get("prompts") or {}).get("set_inline") or {}).get("id"),
+        "stride": run.get("stride"),
+        "max_units": run.get("max_units"),
+        "pattern_set_file": patterns.get("file"),
+        "pattern_active_ids": patterns.get("active_ids"),
+    }
+
+
+@router.post("/manifests/{slug}/derive", status_code=201)
+async def derive_manifest(slug: str, body: dict, request: Request) -> dict:
+    """Crea un manifiesto paraguas nuevo a partir de otro, con overrides.
+
+    El manifiesto fuente no se toca: el slug sigue siendo la unidad reproducible
+    (spec 2026-07-25 §Decisión de fondo).
+    """
+    settings = request.app.state.settings
+    source, source_media, source_control = _load_source_payloads(slug, settings)
+
+    new_slug = (body.get("new_slug") or "").strip()
+    overrides = body.get("overrides") or {}
+    changes = body.get("changes")
+
+    camera = None
+    if "camera_id" in overrides:
+        try:
+            camera = cs.get_camera(settings.cameras_dir, overrides["camera_id"])
+        except cs.CameraStoreError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    prompt_set = None
+    if "prompt_set_id" in overrides:
+        prompt_set = get_prompt_set(settings.prompts_dir, overrides["prompt_set_id"])
+        if prompt_set is None:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Prompt set desconocido: {overrides['prompt_set_id']!r}",
+            )
+
+    pattern_file = overrides.get("pattern_set_file")
+    if pattern_file:
+        # Absoluta ANTES que existente (spec §Validación 6, ADR-009): una ruta
+        # relativa que existe respecto del cwd del BFF pasaría el is_file() y se
+        # escribiría relativa en control.yaml, pero la resuelve el CONTROL-PLANE
+        # contra su propio cwd — otro proceso, otro directorio de trabajo:
+        # termina cargando otro pattern set o fallando al lanzar.
+        if not Path(pattern_file).is_absolute():
+            raise HTTPException(
+                status_code=400,
+                detail=f"pattern_set_file debe ser una ruta absoluta (ADR-009): {pattern_file}",
+            )
+        if not Path(pattern_file).is_file():
+            raise HTTPException(
+                status_code=400, detail=f"pattern_set_file no existe: {pattern_file}"
+            )
+
+    try:
+        manifest_doc, media_doc, control_doc = derive_payloads(
+            source_manifest=source.model_dump(mode="json"),
+            source_media=source_media,
+            source_control=source_control,
+            new_slug=new_slug,
+            changes=changes,
+            overrides=overrides,
+            target_dir=settings.experiments_dir / new_slug,
+            camera=camera,
+            prompt_set=prompt_set,
+        )
+    except DeriveError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    try:
+        ExperimentManifest.model_validate(manifest_doc)
+    except ValidationError as exc:
+        raise HTTPException(status_code=422, detail=exc.errors()) from exc
+
+    try:
+        write_manifest_dir(
+            settings.experiments_dir,
+            new_slug,
+            {
+                "manifest.yaml": manifest_doc,
+                "media.yaml": media_doc,
+                "control.yaml": control_doc,
+            },
+            protected_groups=settings.protected_groups,
+        )
+    except ProtectedManifestError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    except ManifestExistsError as exc:
+        raise HTTPException(status_code=409, detail=f"Ya existe: {exc}") from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    logger.info("derive_manifest: %s -> %s (overrides=%s)", slug, new_slug, sorted(overrides))
+    return {"slug": new_slug}
 
 
 def _resolve_manifest_from_body(body: dict, experiments_dir: Path) -> ExperimentManifest:

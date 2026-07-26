@@ -22,13 +22,21 @@ describe('controlLabel', () => {
 })
 
 describe('frameHasActivity', () => {
-  const base = { frame_index: 0, unit_id: 'u0', timestamp_ms: null, detections: [], control: 'received', progress: [], alert: [] }
+  const base = { frame_index: 0, unit_id: 'u0', timestamp_ms: null, detections: [], control: 'received', progress: [], alert: [], active_patterns: [] }
   it('sin nada es inactivo', () => expect(frameHasActivity(base as any)).toBe(false))
   it('deteccion, descarte, progreso o alerta activan', () => {
     expect(frameHasActivity({ ...base, detections: [{ label: 'p', confidence: 1 }] } as any)).toBe(true)
     expect(frameHasActivity({ ...base, control: 'dropped:rate_gate' } as any)).toBe(true)
     expect(frameHasActivity({ ...base, progress: [{ condition_id: 'CR-01', progress: 0.1 }] } as any)).toBe(true)
     expect(frameHasActivity({ ...base, alert: [{ condition_id: 'CR-01', severity: 'high' }] } as any)).toBe(true)
+  })
+  it('un frame intermedio (sin alert/progress propios) con active_patterns tambien activa', () => {
+    // Es exactamente el caso del bug: frame_000456, sin evento propio, pero
+    // con el riesgo confirmado y todavia abierto.
+    expect(frameHasActivity({
+      ...base,
+      active_patterns: [{ pattern_id: 'CR-01', condition_id: 'CR-01', severity: 'high', subject_key: 'k1' }],
+    } as any)).toBe(true)
   })
 })
 

@@ -48,6 +48,12 @@ describe('crumbsFor', () => {
     expect(crumbsFor('/compose')).toEqual([{ to: '/compose', label: 'Nueva corrida' }])
   })
 
+  it('/experiments/new tiene crumb propio, NO se confunde con el detalle de un experimento llamado "new"', () => {
+    expect(crumbsFor('/experiments/new')).toEqual([
+      { to: '/experiments/new', label: 'Nuevo experimento' },
+    ])
+  })
+
   it('ruta desconocida no rompe', () => {
     expect(crumbsFor('/nope')).toEqual([])
   })

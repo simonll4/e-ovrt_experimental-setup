@@ -1,9 +1,39 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { ApiError, getExperiment, getExperimentAlerts, getExperimentReport } from '../api'
-import { alertSeverityTone, experimentStatusLabel, experimentStatusTone, isNonTemporal } from '../experimentview'
-import type { ExperimentAlert, ExperimentReport, ExperimentRunState } from '../types'
+import { ApiError, getControlCurrent, getExperiment, getExperimentAlerts, getExperimentReport } from '../api'
+import {
+  alertSeverityTone,
+  experimentStatusLabel,
+  experimentStatusTone,
+  isNonTemporal,
+  patternActiveSeconds,
+} from '../experimentview'
+import type { ActiveRiskPattern, ExperimentAlert, ExperimentReport, ExperimentRunState } from '../types'
 import { Badge, Card, EmptyState, ErrorBanner } from '../components/ui'
+
+const CONTROL_CURRENT_POLL_MS = 2000
+
+function RiskActiveBanner({ patterns }: { patterns: ActiveRiskPattern[] }) {
+  if (patterns.length === 0) return null
+  return (
+    <div className="eo-risk-banner" role="alert">
+      {patterns.map((p) => {
+        const seconds = patternActiveSeconds(p.active_ms)
+        return (
+          <div
+            key={p.subject_key ?? p.pattern_id}
+            className={`eo-risk-banner__item eo-risk-banner__item--${p.severity}`}
+          >
+            <Badge tone={alertSeverityTone(p.severity)}>{p.condition_id}</Badge>
+            <span>
+              riesgo activo{seconds !== null ? ` — hace ${seconds}s` : ''}
+            </span>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
 
 function errorMessage(e: unknown): string {
   if (e instanceof ApiError) return `error ${e.status}`
@@ -18,6 +48,7 @@ export default function ExperimentDetailPage() {
   const [alertsError, setAlertsError] = useState<string | null>(null)
   const [report, setReport] = useState<ExperimentReport | null>(null)
   const [reportError, setReportError] = useState<string | null>(null)
+  const [activePatterns, setActivePatterns] = useState<ActiveRiskPattern[]>([])
   const running = experiment?.status === 'running'
 
   const refresh = () =>
@@ -76,6 +107,38 @@ export default function ExperimentDetailPage() {
     }
   }, [id])
 
+  // Poll independiente (2s) del estado vivo del control-plane, solo mientras
+  // el experimento esta running: es lo que mantiene el banner de riesgo
+  // activo al dia entre confirmacion y resolucion del patron (motor
+  // buffereado + card "Alertas" que solo carga una vez, spec del banner).
+  // 404 (sin corrida activa) resuelve a null via getControlCurrent — no
+  // banner, sin ensuciar la pagina; un error transitorio de red se traga acá
+  // (no debe romper la pagina ni el badge de estado) y deja el ultimo estado
+  // conocido tal cual, a la espera del proximo poll.
+  useEffect(() => {
+    if (!running) {
+      setActivePatterns([])
+      return
+    }
+    let alive = true
+    const poll = () =>
+      getControlCurrent()
+        .then((snapshot) => {
+          if (!alive) return
+          setActivePatterns(snapshot?.patterns ?? [])
+        })
+        .catch(() => {
+          /* error transitorio: no tocar la pagina, se reintenta en el proximo poll */
+        })
+    poll()
+    const timer = setInterval(poll, CONTROL_CURRENT_POLL_MS)
+    return () => {
+      alive = false
+      clearInterval(timer)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [running, id])
+
   if (error) return <ErrorBanner>Error cargando el experimento {id}: {error}</ErrorBanner>
   if (!experiment) return <p className="eo-empty">Cargando experimento {id}…</p>
 
@@ -83,6 +146,7 @@ export default function ExperimentDetailPage() {
 
   return (
     <div style={{ display: 'grid', gap: 'var(--space-5)' }}>
+      <RiskActiveBanner patterns={activePatterns} />
       <h2>
         {experiment.experiment_id} — <Badge tone={experimentStatusTone(experiment)}>{experimentStatusLabel(experiment)}</Badge>
       </h2>

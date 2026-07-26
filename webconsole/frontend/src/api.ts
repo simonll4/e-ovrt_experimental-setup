@@ -1,5 +1,6 @@
 import type {
-  CameraPreset, ClipEntry, CompareResult, Composition, DatasetEntry, DetectionsPage, EvalResult,
+  CameraPreset, ClipEntry, CompareResult, ControlCurrentSnapshot, Composition, DatasetEntry,
+  DeriveDefaults, DetectionsPage, EvalResult,
   Experiment, ExperimentAlert, ExperimentManifestSummary, ExperimentReport, ExperimentRunState,
   FieldError, GenerateClipBody, GenerateClipResult, IngestPlugin, MasterEntry, PlatformInstance,
   PreflightStatus, PreviewStartBody, PreviewStatus, PromptSet, PromptSetDetail, PromptSetSummary,
@@ -102,6 +103,21 @@ export const runExperiment = (body: { slug: string }) =>
     method: 'POST',
     body: JSON.stringify(body),
   })
+export const deriveExperimentManifest = (
+  slug: string,
+  body: { new_slug: string; changes?: string; overrides: Record<string, unknown> },
+) =>
+  request<{ slug: string }>(`/api/experiments/manifests/${encodeURIComponent(slug)}/derive`, {
+    method: 'POST',
+    body: JSON.stringify(body),
+  })
+/** Valores del manifiesto fuente para precargar el formulario de derivación.
+ *  Nunca trae la url de la cámara (los presets RTSP llevan credenciales): el
+ *  BFF resuelve `camera_id` contra el catálogo, o manda `null`. */
+export const getDeriveDefaults = (slug: string) =>
+  request<DeriveDefaults>(
+    `/api/experiments/manifests/${encodeURIComponent(slug)}/derive-defaults`,
+  )
 export const getCurrentExperiment = async (): Promise<ExperimentRunState | null> => {
   try {
     return await request<ExperimentRunState>('/api/experiments/current')
@@ -116,6 +132,14 @@ export const getExperimentAlerts = (id: string) =>
   request<ExperimentAlert[]>(`/api/experiments/${encodeURIComponent(id)}/alerts`)
 export const getExperimentReport = (id: string) =>
   request<ExperimentReport>(`/api/experiments/${encodeURIComponent(id)}/report`)
+export const getControlCurrent = async (): Promise<ControlCurrentSnapshot | null> => {
+  try {
+    return await request<ControlCurrentSnapshot>('/api/control/current')
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) return null
+    throw error
+  }
+}
 
 export const listPromptSets = () => request<PromptSetSummary[]>('/api/prompt-sets')
 export const getPromptSetDetail = (id: string) =>

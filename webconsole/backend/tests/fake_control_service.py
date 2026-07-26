@@ -43,8 +43,13 @@ class FakeControlState:
         # media_run_id}. Los tests la siembran directo; no se llena desde launch().
         self.runs_index: list[dict] = []
         self.pattern_progress: dict[str, list[dict]] = {}
+        self.pattern_events: dict[str, list[dict]] = {}
         self.received_units: dict[str, list[dict]] = {}
         self.deleted: list[str] = []
+        # Patrones actualmente confirmed/sustained del run activo (riesgo en
+        # vivo): sembrable directo por los tests, reflejado tal cual en
+        # GET /api/runs/current (mismo shape que el control-plane real).
+        self.patterns: list[dict] = []
 
 
 def make_fake_control_service(state: FakeControlState) -> FastAPI:
@@ -97,6 +102,7 @@ def make_fake_control_service(state: FakeControlState) -> FastAPI:
                 "alerts_count": 0,
                 "bus_dropped_events": 0,
             },
+            "patterns": state.patterns,
         }
 
     @app.get("/api/runs/{run_id}")
@@ -156,6 +162,7 @@ def make_fake_control_service(state: FakeControlState) -> FastAPI:
         return (
             run_id in state.alerts
             or run_id in state.pattern_progress
+            or run_id in state.pattern_events
             or run_id in state.received_units
             or any(r.get("control_run_id") == run_id for r in state.runs_index)
         )
@@ -178,6 +185,7 @@ def make_fake_control_service(state: FakeControlState) -> FastAPI:
         state.deleted.append(run_id)
         state.alerts.pop(run_id, None)
         state.pattern_progress.pop(run_id, None)
+        state.pattern_events.pop(run_id, None)
         state.received_units.pop(run_id, None)
         state.runs_index = [r for r in state.runs_index if r.get("control_run_id") != run_id]
         if run_id == state.active_run_id:
@@ -190,6 +198,15 @@ def make_fake_control_service(state: FakeControlState) -> FastAPI:
         if not _known_run(run_id):
             return JSONResponse(status_code=404, content={"detail": f"Run desconocido: {run_id}"})
         rows = state.pattern_progress.get(run_id, [])
+        if limit is not None:
+            rows = rows[: max(limit, 0)]
+        return rows
+
+    @app.get("/api/runs/{run_id}/pattern-events")
+    def get_pattern_events(run_id: str, limit: int | None = Query(default=None, ge=0)):
+        if not _known_run(run_id):
+            return JSONResponse(status_code=404, content={"detail": f"Run desconocido: {run_id}"})
+        rows = state.pattern_events.get(run_id, [])
         if limit is not None:
             rows = rows[: max(limit, 0)]
         return rows

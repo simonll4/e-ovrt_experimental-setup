@@ -22,3 +22,13 @@ def redact_rtsp_credentials(text: str) -> str:
     otro texto libre que pueda contener una URL embebida.
     """
     return _RTSP_USERINFO.sub(r"\1***:***@", text)
+
+
+def has_rtsp_credentials(text: str) -> bool:
+    """True si `text` contiene una URL rtsp(s):// con userinfo (user[:pass]@).
+
+    Mismo regex que la redacción a propósito: quien necesita *decidir* si hay
+    credenciales (p. ej. rechazar escribirlas a un directorio versionado) usa la
+    misma definición que quien las borra, así no pueden divergir.
+    """
+    return bool(_RTSP_USERINFO.search(text or ""))
