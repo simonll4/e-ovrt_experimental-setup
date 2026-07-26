@@ -6,7 +6,7 @@ import { experimentStatusLabel, experimentStatusTone } from '../experimentview'
 import { usePreflight } from '../usePreflight'
 import PlatformStatus from '../components/PlatformStatus'
 import { DeriveExperimentForm } from '../components/DeriveExperimentForm'
-import { Badge, Card, ErrorBanner, EmptyState, Field } from '../components/ui'
+import { Badge, Button, Card, ErrorBanner, EmptyState, Field, MonoCell, Table } from '../components/ui'
 
 // Formulario abierto: `selectable` distingue el "Derivar" de una fila (fuente
 // fija, como siempre) del formulario de /experiments/new (fuente elegible via
@@ -143,9 +143,9 @@ export default function ExperimentsPage() {
               <option key={r.slug} value={r.slug}>{r.slug}</option>
             ))}
           </select>
-          <button onClick={trigger} disabled={busy || !slug || blocked}>
+          <Button variant="primary" onClick={trigger} disabled={busy || !slug || blocked}>
             {busy ? 'Lanzando…' : 'Lanzar experimento'}
-          </button>
+          </Button>
         </div>
         {blocked && !busy && (
           <p className="eo-note eo-note--warn">No se puede lanzar: {blockedReason}.</p>
@@ -191,10 +191,10 @@ export default function ExperimentsPage() {
       {rows.length === 0 ? (
         <EmptyState>Sin manifiestos todavía.</EmptyState>
       ) : (
-        <table className="eo-table">
+        <Table>
           <thead>
             <tr>
-              {['slug', 'experimento', ''].map((h) => (
+              {['slug', 'grupo', 'descripción', 'experimento', ''].map((h) => (
                 <th key={h}>{h}</th>
               ))}
             </tr>
@@ -202,21 +202,25 @@ export default function ExperimentsPage() {
           <tbody>
             {rows.map((r) => (
               <tr key={r.slug}>
-                <td>{r.slug}</td>
+                <MonoCell>{r.slug}</MonoCell>
+                <td>{r.group ?? '—'}</td>
+                <td>{r.description ?? '—'}</td>
                 <td>
                   {r.experiment_id ? (
-                    <Link to={`/experiments/${r.experiment_id}`}>{r.experiment_id}</Link>
+                    <Link to={`/experiments/${r.experiment_id}`}>
+                      <span className="eo-mono">{r.experiment_id}</span>
+                    </Link>
                   ) : '—'}
                 </td>
                 <td>
-                  <button onClick={() => setFormMode({ source: r.slug, selectable: false })}>
+                  <Button variant="secondary" onClick={() => setFormMode({ source: r.slug, selectable: false })}>
                     Derivar
-                  </button>
+                  </Button>
                 </td>
               </tr>
             ))}
           </tbody>
-        </table>
+        </Table>
       )}
     </div>
   )
