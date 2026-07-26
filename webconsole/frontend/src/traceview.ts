@@ -19,6 +19,12 @@ export function controlLabel(control: string): string {
   return control
 }
 
+export function controlLabelIsRaw(control: string): boolean {
+  if (!control.startsWith('dropped:')) return false
+  const reason = control.slice('dropped:'.length)
+  return !(reason in CONTROL_DROP_REASONS)
+}
+
 export function labelColor(label: string): string {
   let hash = 0
   for (let i = 0; i < label.length; i++) {

@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { artifactUrl, getTrace } from '../api'
 import { Badge, Card, DetChip, EmptyState, ErrorBanner, StatTile } from './ui'
-import { controlLabel, controlTone, frameHasActivity } from '../traceview'
+import { controlLabel, controlLabelIsRaw, controlTone, frameHasActivity } from '../traceview'
+import { conditionLabel } from '../labels'
 import { alertSeverityTone } from '../experimentview'
 import PreviewWithBoxes from './PreviewWithBoxes'
 import TraceTimeline from './TraceTimeline'
@@ -140,14 +141,18 @@ export default function TraceSection({ runId }: { runId: string }) {
               </td>
               {hasControl && (
                 <td>
-                  <Badge tone={controlTone(f.control)}>{controlLabel(f.control)}</Badge>
+                  <Badge tone={controlTone(f.control)}>
+                    <span className={controlLabelIsRaw(f.control) ? 'eo-mono' : undefined}>
+                      {controlLabel(f.control)}
+                    </span>
+                  </Badge>
                 </td>
               )}
               {hasControl && (
                 <td>
                   {f.progress.map((p, i) => (
                     <div className="eo-patternrow" key={i}>
-                      <span className="eo-patternrow__id">{p.condition_id}</span>
+                      <span className="eo-patternrow__id">{conditionLabel(p.condition_id)}</span>
                       <div className="eo-progressbar">
                         <div
                           className={`eo-progressbar__fill${f.alert.some((a) => a.condition_id === p.condition_id) ? ' eo-progressbar__fill--alert' : ''}`}
@@ -158,13 +163,13 @@ export default function TraceSection({ runId }: { runId: string }) {
                     </div>
                   ))}
                   {f.alert.map((a, i) => (
-                    <Badge key={i} tone="error">
-                      ALERTA {a.condition_id}
+                    <Badge key={i} tone="alert">
+                      ALERTA {conditionLabel(a.condition_id)}
                     </Badge>
                   ))}
                   {(f.active_patterns ?? []).map((p, i) => (
                     <div className="eo-patternrow" key={`active-${i}`}>
-                      <Badge tone={alertSeverityTone(p.severity)}>{p.condition_id}</Badge>
+                      <Badge tone={alertSeverityTone(p.severity)}>{conditionLabel(p.condition_id)}</Badge>
                       <span>riesgo activo</span>
                     </div>
                   ))}

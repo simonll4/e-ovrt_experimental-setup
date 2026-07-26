@@ -68,8 +68,12 @@ describe('TraceSection', () => {
     render(<TraceSection runId="r_1" />)
     await waitFor(() => expect(screen.getByText('ctrl_1')).toBeTruthy())
     expect(screen.getAllByText('1', { selector: '.eo-stat__value' }).length).toBe(2)
-    expect(screen.getAllByText('recibido')[0].className).toContain('eo-badge--ok')
-    expect(screen.getByText('límite de tasa', { selector: '.eo-badge' }).className).toContain('eo-badge--warn')
+    expect(screen.getAllByText('recibido')[0].closest('.eo-badge')?.className).toContain('eo-badge--ok')
+    const rateGateBadge = screen
+      .getAllByText('límite de tasa')
+      .map((el) => el.closest('.eo-badge'))
+      .find((el) => el !== null)
+    expect(rateGateBadge?.className).toContain('eo-badge--warn')
     const fill = document.querySelector('.eo-progressbar__fill') as HTMLElement
     expect(fill.style.width).toBe('50%')
   })
@@ -196,7 +200,7 @@ describe('TraceSection', () => {
     )
     render(<TraceSection runId="r_1" />)
     await waitFor(() => expect(screen.getByText(/activo/i)).toBeTruthy())
-    expect(screen.getByText('CR-01', { selector: '.eo-badge' })).toBeTruthy()
+    expect(screen.getByText('CR-01 — Presencia de persona sin casco', { selector: '.eo-badge' })).toBeTruthy()
   })
 
   it('un frame sin active_patterns no muestra "activo"', async () => {
@@ -250,6 +254,34 @@ describe('TraceSection', () => {
     expect(screen.getByText('#0 · u0')).toBeTruthy()
     expect(screen.getByText('#1 · u1')).toBeTruthy()
     expect(screen.getByText('#2 · u2')).toBeTruthy()
+  })
+
+  it('un motivo de descarte no reconocido se muestra crudo y en monoespaciada', async () => {
+    vi.mocked(api.getTrace).mockResolvedValue(
+      basePage({
+        frames: [
+          {
+            frame_index: 0,
+            unit_id: 'u0',
+            timestamp_ms: 0,
+            detections: [],
+            control: 'dropped:queue_full',
+            progress: [],
+            alert: [],
+          },
+        ],
+      }),
+    )
+    render(<TraceSection runId="r_1" />)
+    await waitFor(() => expect(screen.getByText('queue_full')).toBeTruthy())
+    expect(screen.getByText('queue_full').className).toContain('eo-mono')
+  })
+
+  it('la fila con alerta confirmada usa el tono alert, no error', async () => {
+    vi.mocked(api.getTrace).mockResolvedValue(basePage())
+    render(<TraceSection runId="r_1" />)
+    await waitFor(() => expect(screen.getByText(/ALERTA/)).toBeTruthy())
+    expect(screen.getByText(/ALERTA/).closest('.eo-badge')?.className).toContain('eo-badge--alert')
   })
 
   it('si falla una página intermedia, muestra banner de traza incompleta pero mantiene lo ya cargado', async () => {

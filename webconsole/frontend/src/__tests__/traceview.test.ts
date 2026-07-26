@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { controlTone, controlLabel, frameHasActivity, labelColor } from '../traceview'
+import { controlTone, controlLabel, controlLabelIsRaw, frameHasActivity, labelColor } from '../traceview'
 import { SERIES_COLORS } from '../components/GroupedBars'
 
 describe('controlTone', () => {
@@ -26,6 +26,21 @@ describe('controlLabel', () => {
     expect(controlLabel('received')).toBe('recibido')
     expect(controlLabel('not_received')).toBe('no recibido')
     expect(controlLabel('n/d')).toBe('n/d')
+  })
+})
+
+describe('controlLabelIsRaw', () => {
+  it('es true para un motivo de descarte no reconocido', () => {
+    expect(controlLabelIsRaw('dropped:queue_full')).toBe(true)
+  })
+  it('es false para un motivo de descarte conocido', () => {
+    expect(controlLabelIsRaw('dropped:rate_gate')).toBe(false)
+    expect(controlLabelIsRaw('dropped:overload')).toBe(false)
+  })
+  it('es false para recibido/no recibido/n-d (no son "dropped")', () => {
+    expect(controlLabelIsRaw('received')).toBe(false)
+    expect(controlLabelIsRaw('not_received')).toBe(false)
+    expect(controlLabelIsRaw('n/d')).toBe(false)
   })
 })
 

@@ -239,7 +239,7 @@
   max-width: 140px;
 }
 .eo-progressbar__fill { height: 100%; background: var(--status-warn); }
-.eo-progressbar__fill--alert { background: var(--status-error); }
+.eo-progressbar__fill--alert { background: var(--status-alert); }
 .eo-best { font-weight: 700; color: var(--status-ok); }
 
 /* Fila de progreso de patrón — condition_id + barra + % en una línea alineada */
@@ -415,7 +415,7 @@
 .eo-preview__box { position: absolute; border: 1.5px solid; pointer-events: none; border-radius: 1px; }
 .eo-preview:hover { transform: scale(1.6); transform-origin: left center; z-index: 10; }
 /* Fila con alerta */
-.eo-row--alert > td { background: color-mix(in srgb, var(--status-error) 8%, transparent); }
+.eo-row--alert > td { background: color-mix(in srgb, var(--status-alert) 15%, transparent); }
 
 /* Recuadro de clase del editor de prompt sets: acotado al contenido (no full-width)
    y con atenuación visible cuando el set no es editable (frozen / pending review). */

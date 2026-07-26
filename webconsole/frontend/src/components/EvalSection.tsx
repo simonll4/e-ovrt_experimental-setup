@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { ApiError, evaluateRun, getEvaluation } from '../api'
 import { Card, ErrorBanner } from './ui'
+import { conditionLabel } from '../labels'
 import type { EvalResult } from '../types'
 
 function errorMessage(e: unknown): string {
@@ -56,7 +57,7 @@ export default function EvalSection({ runId, benchSplit, evaluated }: {
       {result && (
         <>
           <p>
-            <b>mAP@0.5: {fmt(result.mAP50)}</b> · CR-01 recall: {fmt(result.cr01_detection_recall)}
+            <b>mAP@0.5: {fmt(result.mAP50)}</b> · {conditionLabel('CR-01')} (exhaustividad: {fmt(result.cr01_detection_recall)})
             {' '}· IoU ≥ {result.iou_threshold}
           </p>
           <table className="eo-table">

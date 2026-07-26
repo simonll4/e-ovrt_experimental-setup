@@ -4,7 +4,7 @@ import { artifactUrl, deleteRun, getRun, stopRun } from '../api'
 import EvalSection from '../components/EvalSection'
 import Sparkline from '../components/Sparkline'
 import TraceSection from '../components/TraceSection'
-import { Badge, Card, DetChip, EmptyState, ErrorBanner, StatTile } from '../components/ui'
+import { Badge, Button, Card, DetChip, EmptyState, ErrorBanner, StatTile } from '../components/ui'
 import { isLive, runStatusLabel, runStatusTone, topologyBadge } from '../runview'
 import { useRunStream } from '../stream'
 import type { RunDetail } from '../types'
@@ -100,23 +100,24 @@ export default function RunDetailPage() {
     <div style={{ display: 'grid', gap: 'var(--space-5)' }}>
       {deleteError && <ErrorBanner>{deleteError}</ErrorBanner>}
       <h2 className="eo-inline">
-        <span title={run.run_id}>{runName || run.run_id}</span>
+        <span className="eo-mono" title={run.run_id}>{runName || run.run_id}</span>
         {runName && <small>{run.run_id}</small>}
         <Badge tone={runStatusTone(run)}>{runStatusLabel(run)}</Badge>
         {topology && <Badge tone="neutral">{topology}</Badge>}
         {streamable && (
-          <button
+          <Button
+            variant="secondary"
             onClick={() => {
               stopRun(id).catch((e) => setError(`No se pudo detener: ${String(e)}`))
             }}
           >
             ■ Detener
-          </button>
+          </Button>
         )}
         {!running && (
-          <button type="button" disabled={deleting} onClick={() => void handleDelete()}>
+          <Button variant="danger" disabled={deleting} onClick={() => void handleDelete()}>
             Borrar
-          </button>
+          </Button>
         )}
       </h2>
       {streamable && (
