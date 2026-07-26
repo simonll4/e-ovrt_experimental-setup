@@ -204,6 +204,30 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Línea de tiempo — franja compacta de actividad de toda la corrida, clickeable. */
+.eo-timeline {
+  display: flex;
+  gap: 1px;
+  overflow-x: auto;
+  padding: var(--space-2);
+  background: var(--surface-sunken);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: var(--space-3);
+}
+.eo-timeline__tick {
+  flex: 0 0 4px;
+  height: 24px;
+  border: none;
+  border-radius: 1px;
+  cursor: pointer;
+  padding: 0;
+}
+.eo-timeline__tick--alert {
+  outline: 2px solid var(--status-alert);
+  outline-offset: -1px;
+}
+
 /* Progress bar — traza correlacionada por frame */
 .eo-progressbar {
   height: 6px;

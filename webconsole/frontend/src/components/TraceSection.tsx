@@ -4,6 +4,7 @@ import { Badge, Card, DetChip, EmptyState, ErrorBanner, StatTile } from './ui'
 import { controlLabel, controlTone, frameHasActivity } from '../traceview'
 import { alertSeverityTone } from '../experimentview'
 import PreviewWithBoxes from './PreviewWithBoxes'
+import TraceTimeline from './TraceTimeline'
 import type { TraceFrame, TracePage } from '../types'
 
 type TraceMeta = Omit<TracePage, 'frames'>
@@ -93,6 +94,7 @@ export default function TraceSection({ runId }: { runId: string }) {
         />{' '}
         solo frames con actividad
       </label>
+      <TraceTimeline frames={frames} />
       <table className="eo-table">
         <thead>
           <tr>
@@ -104,7 +106,11 @@ export default function TraceSection({ runId }: { runId: string }) {
         </thead>
         <tbody>
           {visibleFrames.map((f: TraceFrame) => (
-            <tr key={f.unit_id ?? f.frame_index} className={f.alert.length > 0 ? 'eo-row--alert' : undefined}>
+            <tr
+              key={f.unit_id ?? f.frame_index}
+              id={`frame-${f.unit_id ?? f.frame_index}`}
+              className={f.alert.length > 0 ? 'eo-row--alert' : undefined}
+            >
               <td>
                 <div className="eo-framecell">
                   {f.unit_id !== null && (

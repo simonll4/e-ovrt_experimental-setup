@@ -216,6 +216,13 @@ describe('TraceSection', () => {
     expect(rows[2].className).toContain('eo-row--alert')
   })
 
+  it('muestra la línea de tiempo con un tick por frame', async () => {
+    vi.mocked(api.getTrace).mockResolvedValue(basePage())
+    render(<TraceSection runId="r_1" />)
+    await waitFor(() => expect(screen.getByText('ctrl_1')).toBeTruthy())
+    expect(document.querySelectorAll('.eo-timeline__tick').length).toBe(3)
+  })
+
   it('trae todas las páginas y acumula los frames de cada una', async () => {
     const page1 = basePage({
       total: 4,
