@@ -30,8 +30,8 @@ export function runStatusTone(run: { status: string; live?: boolean }): BadgeTon
 }
 
 export function runStatusLabel(run: { status: string; live?: boolean }): string {
-  if (isRunning(run)) return 'vivo'
-  if (run.status === 'succeeded') return 'OK'
-  if (run.status === 'failed') return 'fallo'
+  if (isRunning(run)) return 'en curso'
+  if (run.status === 'succeeded') return 'completada'
+  if (run.status === 'failed') return 'fallida'
   return run.status
 }

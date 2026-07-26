@@ -1,17 +1,26 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { deleteRun, listRuns } from '../api'
 import type { RunRow } from '../types'
-import { Badge, EmptyState, ErrorBanner } from '../components/ui'
+import { Badge, Button, EmptyState, ErrorBanner, Select, Table, MonoCell, NumCell } from '../components/ui'
+import type { SelectOption } from '../components/ui'
 import { isRunning, runStatusTone, runStatusLabel } from '../runview'
 
-const HEADERS = ['run', 'estado', 'modelo', 'fuente', 'prompts', 'FPS', 'dets', 'dur (s)', '']
+const HEADERS = ['corrida', 'estado', 'modelo', 'fuente', 'prompts', 'FPS', 'dets', 'dur (s)', '']
+
+const STATUS_OPTIONS: SelectOption[] = [
+  { value: 'all', label: 'Todas' },
+  { value: 'running', label: 'En curso' },
+  { value: 'succeeded', label: 'Completadas' },
+  { value: 'failed', label: 'Fallidas' },
+]
 
 export default function RunsPage() {
   const [rows, setRows] = useState<RunRow[] | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [deleteError, setDeleteError] = useState<string | null>(null)
+  const [statusFilter, setStatusFilter] = useState('all')
 
   const refresh = () =>
     listRuns()
@@ -63,22 +72,31 @@ export default function RunsPage() {
     }
   }
 
+  const visibleRows = useMemo(() => {
+    if (!rows) return rows
+    if (statusFilter === 'all') return rows
+    return rows.filter((r) => r.status === statusFilter)
+  }, [rows, statusFilter])
+
   if (error) return <ErrorBanner>{error}</ErrorBanner>
   if (!rows) return <p className="eo-empty">Cargando…</p>
   return (
     <div>
       {deleteError && <ErrorBanner>{deleteError}</ErrorBanner>}
-      <table className="eo-table">
+      <div className="eo-clips__head">
+        <Select value={statusFilter} options={STATUS_OPTIONS} onChange={setStatusFilter} />
+      </div>
+      <Table>
         <thead>
           <tr>{HEADERS.map((h) => <th key={h}>{h}</th>)}</tr>
         </thead>
         <tbody>
-          {rows.map((r) => (
+          {visibleRows!.map((r) => (
             <tr key={r.run_id}>
-              <td>
-                <Link to={`/runs/${r.run_id}`} title={r.run_id}>{r.name || r.run_id}</Link>
+              <MonoCell title={r.run_id}>
+                <Link to={`/runs/${r.run_id}`}>{r.name || r.run_id}</Link>
                 {r.name && <><br /><small>{r.run_id}</small></>}
-              </td>
+              </MonoCell>
               <td>
                 <Badge tone={runStatusTone(r)}>{runStatusLabel(r)}</Badge>
                 {r.topology === 'two_node' ? <small> two-node</small> : null}
@@ -86,27 +104,27 @@ export default function RunsPage() {
               <td>{r.model ?? '—'}</td>
               <td>{r.source_type ?? '—'}</td>
               <td>{r.prompt_set_id ?? '—'}</td>
-              <td className="eo-num">{r.fps_effective ?? '—'}</td>
-              <td className="eo-num">{r.total_detections ?? '—'}</td>
-              <td className="eo-num">{r.duration_seconds ?? '—'}</td>
+              <NumCell>{r.fps_effective ?? '—'}</NumCell>
+              <NumCell>{r.total_detections ?? '—'}</NumCell>
+              <NumCell>{r.duration_seconds ?? '—'}</NumCell>
               <td>
                 {!isRunning(r) && (
-                  <button
-                    type="button"
+                  <Button
+                    variant="danger"
                     disabled={deletingId === r.run_id}
                     onClick={() => void handleDelete(r)}
                   >
                     Borrar
-                  </button>
+                  </Button>
                 )}
               </td>
             </tr>
           ))}
-          {rows.length === 0 && (
+          {visibleRows!.length === 0 && (
             <tr><td colSpan={9}><EmptyState>Sin corridas todavía.</EmptyState></td></tr>
           )}
         </tbody>
-      </table>
+      </Table>
     </div>
   )
 }

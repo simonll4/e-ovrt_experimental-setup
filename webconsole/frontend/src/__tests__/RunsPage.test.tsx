@@ -23,8 +23,27 @@ describe('RunsPage', () => {
     ])
     renderPage()
     await waitFor(() => expect(screen.getByText('r_1')).toBeTruthy())
-    expect(screen.getByText('vivo').className).toContain('eo-badge--live')
-    expect(screen.getByText('OK').className).toContain('eo-badge--ok')
+    expect(screen.getByText('en curso').className).toContain('eo-badge--live')
+    expect(screen.getByText('completada').className).toContain('eo-badge--ok')
+  })
+
+  it('el filtro de estado por defecto muestra todas, y filtra al elegir un estado', async () => {
+    vi.mocked(api.listRuns).mockResolvedValue([
+      { run_id: 'r_running', status: 'running', model: 'gdino', live: true } as any,
+      { run_id: 'r_ok', status: 'succeeded', model: 'gdino' } as any,
+      { run_id: 'r_failed', status: 'failed', model: 'gdino' } as any,
+    ])
+    renderPage()
+    await waitFor(() => expect(screen.getByText('r_running')).toBeTruthy())
+    expect(screen.getByText('r_ok')).toBeTruthy()
+    expect(screen.getByText('r_failed')).toBeTruthy()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Todas' }))
+    fireEvent.click(screen.getByRole('option', { name: 'En curso' }))
+
+    expect(screen.getByText('r_running')).toBeTruthy()
+    expect(screen.queryByText('r_ok')).toBeNull()
+    expect(screen.queryByText('r_failed')).toBeNull()
   })
 
   it('muestra el nombre en vez del run_id cuando está presente, con el id como subtítulo', async () => {

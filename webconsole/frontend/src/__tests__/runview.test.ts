@@ -45,15 +45,15 @@ describe('isRunning', () => {
 describe('runStatusTone / runStatusLabel', () => {
   it('running es live', () => {
     expect(runStatusTone({ status: 'running' })).toBe('live')
-    expect(runStatusLabel({ status: 'running' })).toBe('vivo')
+    expect(runStatusLabel({ status: 'running' })).toBe('en curso')
   })
   it('succeeded es ok', () => {
     expect(runStatusTone({ status: 'succeeded' })).toBe('ok')
-    expect(runStatusLabel({ status: 'succeeded' })).toBe('OK')
+    expect(runStatusLabel({ status: 'succeeded' })).toBe('completada')
   })
   it('failed es error', () => {
     expect(runStatusTone({ status: 'failed' })).toBe('error')
-    expect(runStatusLabel({ status: 'failed' })).toBe('fallo')
+    expect(runStatusLabel({ status: 'failed' })).toBe('fallida')
   })
   it('desconocido cae a neutral y muestra el status crudo', () => {
     expect(runStatusTone({ status: 'weird' })).toBe('neutral')

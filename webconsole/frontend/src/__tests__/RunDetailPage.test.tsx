@@ -54,7 +54,7 @@ describe('RunDetailPage', () => {
   it('muestra el estado del run como badge', async () => {
     vi.mocked(api.getRun).mockResolvedValue({ run_id: 'r_1', status: 'succeeded', live: false } as any)
     renderPage()
-    await waitFor(() => expect(screen.getByText('OK').className).toContain('eo-badge--ok'))
+    await waitFor(() => expect(screen.getByText('completada').className).toContain('eo-badge--ok'))
   })
 
   it('muestra el nombre del run (top-level, run vivo) con el id como subtítulo', async () => {
