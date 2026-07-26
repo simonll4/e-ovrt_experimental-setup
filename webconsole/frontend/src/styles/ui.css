@@ -25,7 +25,7 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--status-live);
+  background: var(--live);
   display: inline-block;
   animation: eo-pulse 2s ease-in-out infinite;
 }
@@ -48,14 +48,14 @@
   border: 1px solid;
   margin: 0 20px 12px;
 }
-.eo-banner--warn { background: color-mix(in srgb, var(--status-warn) 12%, transparent); border-color: var(--status-warn); }
-.eo-banner--error { background: color-mix(in srgb, var(--status-error) 12%, transparent); border-color: var(--status-error); }
-.eo-banner--live { background: color-mix(in srgb, var(--status-live) 12%, transparent); border-color: var(--status-live); }
-.eo-banner__icon { flex: none; margin-top: 1px; color: var(--status-warn); display: flex; }
-.eo-banner--error .eo-banner__icon { color: var(--status-error); }
+.eo-banner--warn { background: color-mix(in srgb, var(--wn) 12%, transparent); border-color: var(--wn); }
+.eo-banner--error { background: color-mix(in srgb, var(--er) 12%, transparent); border-color: var(--er); }
+.eo-banner--live { background: color-mix(in srgb, var(--live) 12%, transparent); border-color: var(--live); }
+.eo-banner__icon { flex: none; margin-top: 1px; color: var(--wn); display: flex; }
+.eo-banner--error .eo-banner__icon { color: var(--er); }
 .eo-banner--live .eo-banner__icon { padding-top: 4px; }
-.eo-banner__body { flex: 1; color: var(--text); }
-.eo-banner__body b { color: var(--text); font-weight: 500; }
+.eo-banner__body { flex: 1; color: var(--tx); }
+.eo-banner__body b { color: var(--tx); font-weight: 500; }
 
 /* Inline group — texto + badge (o similares) con separación consistente */
 .eo-inline { display: inline-flex; align-items: center; gap: var(--space-2); }
