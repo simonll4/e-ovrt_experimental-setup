@@ -8,6 +8,7 @@ import {
   isNonTemporal,
   patternActiveSeconds,
 } from '../experimentview'
+import { conditionLabel } from '../labels'
 import type { ActiveRiskPattern, ExperimentAlert, ExperimentReport, ExperimentRunState } from '../types'
 import { Badge, Card, EmptyState, ErrorBanner } from '../components/ui'
 
@@ -24,7 +25,7 @@ function RiskActiveBanner({ patterns }: { patterns: ActiveRiskPattern[] }) {
             key={p.subject_key ?? p.pattern_id}
             className={`eo-risk-banner__item eo-risk-banner__item--${p.severity}`}
           >
-            <Badge tone={alertSeverityTone(p.severity)}>{p.condition_id}</Badge>
+            <Badge tone={alertSeverityTone(p.severity)}>{conditionLabel(p.condition_id)}</Badge>
             <span>
               riesgo activo{seconds !== null ? ` — hace ${seconds}s` : ''}
             </span>
@@ -169,7 +170,7 @@ export default function ExperimentDetailPage() {
               {alerts.map((a) => (
                 <tr key={a.alert_id}>
                   <td>{a.alert_id}</td>
-                  <td>{a.condition_id}</td>
+                  <td>{conditionLabel(a.condition_id)}</td>
                   <td>
                     <Badge tone={alertSeverityTone(a.severity)}>{a.severity}</Badge>
                   </td>

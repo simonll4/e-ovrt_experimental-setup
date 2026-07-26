@@ -9,6 +9,7 @@ vi.mock('../api', async (importOriginal) => ({
   getExperiment: vi.fn(),
   getExperimentAlerts: vi.fn(),
   getExperimentReport: vi.fn(),
+  getControlCurrent: vi.fn(),
 }))
 
 function renderPage(id = 'exp_1') {
@@ -62,5 +63,26 @@ describe('ExperimentDetailPage', () => {
     await waitFor(() => expect(screen.getByText(/t_capture->alert/)).toBeTruthy())
     expect(screen.getByText('not_applicable')).toBeTruthy()
     expect(screen.getByText('no_ground_truth')).toBeTruthy()
+  })
+
+  it('la condición de una alerta muestra el nombre legible del glosario', async () => {
+    vi.mocked(api.getExperiment).mockResolvedValue({ experiment_id: 'exp_5', status: 'succeeded', ok: true } as any)
+    vi.mocked(api.getExperimentAlerts).mockResolvedValue([
+      { alert_id: 'al5', condition_id: 'CR-02', severity: 'high' } as any,
+    ])
+    vi.mocked(api.getExperimentReport).mockResolvedValue({ non_temporal: false, resultados: [] } as any)
+    renderPage('exp_5')
+    await waitFor(() => expect(screen.getByText(/CR-02 — Presencia de persona sin chaleco/)).toBeTruthy())
+  })
+
+  it('un patrón de riesgo activo muestra el nombre legible de la condición', async () => {
+    vi.mocked(api.getExperiment).mockResolvedValue({ experiment_id: 'exp_6', status: 'running' } as any)
+    vi.mocked(api.getExperimentAlerts).mockResolvedValue([])
+    vi.mocked(api.getExperimentReport).mockRejectedValue(new api.ApiError(404, {}))
+    vi.mocked(api.getControlCurrent).mockResolvedValue({
+      patterns: [{ pattern_id: 'CR-01', condition_id: 'CR-01', severity: 'high', state: 'confirmed', active_ms: 5000 }],
+    } as any)
+    renderPage('exp_6')
+    await waitFor(() => expect(screen.getByText(/CR-01 — Presencia de persona sin casco/)).toBeTruthy())
   })
 })

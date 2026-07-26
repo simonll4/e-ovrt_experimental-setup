@@ -73,7 +73,7 @@ describe('ExperimentDetailPage — banner de riesgo activo', () => {
     renderPage()
     await flush()
 
-    expect(screen.getByText('CR-01')).toBeTruthy()
+    expect(screen.getByText(/CR-01 — Presencia de persona sin casco/)).toBeTruthy()
   })
 
   it('el banner desaparece cuando el patron ya no esta en la respuesta (el motor lo resolvio)', async () => {
@@ -84,14 +84,14 @@ describe('ExperimentDetailPage — banner de riesgo activo', () => {
 
     renderPage()
     await flush()
-    expect(screen.getByText('CR-01')).toBeTruthy()
+    expect(screen.getByText(/CR-01 — Presencia de persona sin casco/)).toBeTruthy()
 
     await act(async () => {
       await vi.advanceTimersByTimeAsync(2000)
     })
     await flush()
 
-    expect(screen.queryByText('CR-01')).toBeNull()
+    expect(screen.queryByText(/CR-01 — Presencia de persona sin casco/)).toBeNull()
   })
 
   it('un 404 de /api/control/current (sin corrida activa) no muestra banner ni rompe la pagina', async () => {
@@ -103,7 +103,7 @@ describe('ExperimentDetailPage — banner de riesgo activo', () => {
 
     // La pagina sigue mostrando el badge de estado, no un error.
     expect(screen.getByText(/en curso/i)).toBeTruthy()
-    expect(screen.queryByText('CR-01')).toBeNull()
+    expect(screen.queryByText(/CR-01 — Presencia de persona sin casco/)).toBeNull()
   })
 
   it('un error transitorio de red no rompe la pagina ni borra el badge de estado', async () => {
@@ -114,7 +114,7 @@ describe('ExperimentDetailPage — banner de riesgo activo', () => {
     await flush()
 
     expect(screen.getByText(/en curso/i)).toBeTruthy()
-    expect(screen.queryByText('CR-01')).toBeNull()
+    expect(screen.queryByText(/CR-01 — Presencia de persona sin casco/)).toBeNull()
   })
 
   it('no poll y sin banner cuando el experimento no esta running', async () => {
