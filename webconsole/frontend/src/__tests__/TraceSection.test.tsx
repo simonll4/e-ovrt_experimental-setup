@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
-import TraceSection from '../components/TraceSection'
+import TraceSection, { MAX_FILAS } from '../components/TraceSection'
 import * as api from '../api'
 import type { TracePage } from '../types'
 
@@ -9,7 +9,10 @@ vi.mock('../api', async (importOriginal) => ({
   getTrace: vi.fn(),
 }))
 
-beforeEach(() => vi.clearAllMocks())
+beforeEach(() => {
+  vi.clearAllMocks()
+  Element.prototype.scrollIntoView = vi.fn()
+})
 afterEach(() => cleanup())
 
 function basePage(overrides: Partial<TracePage> = {}): TracePage {
@@ -60,6 +63,25 @@ function basePage(overrides: Partial<TracePage> = {}): TracePage {
     ],
     ...overrides,
   }
+}
+
+// Corrida sintética de n cuadros, todos con detección (el caso denso real: filtrar por
+// actividad no acota nada).
+function bigPage(n: number): TracePage {
+  return basePage({
+    total: n,
+    page: 1,
+    page_size: 1000,
+    frames: Array.from({ length: n }, (_, i) => ({
+      frame_index: i,
+      unit_id: `u${i}`,
+      timestamp_ms: i * 10,
+      detections: [{ label: 'person', confidence: 0.9 }],
+      control: 'received',
+      progress: [],
+      alert: [],
+    })),
+  })
 }
 
 describe('TraceSection', () => {
@@ -358,39 +380,60 @@ describe('TraceSection', () => {
     expect(document.body.textContent).not.toContain('two-node')
   })
 
-  it('una corrida extensa arranca filtrada a los cuadros con actividad y lo explica', async () => {
-    // 501 cuadros (> AUTO_FILTER_THRESHOLD=500), uno solo con actividad.
-    const frames = Array.from({ length: 501 }, (_, i) => ({
-      frame_index: i,
-      unit_id: `u${i}`,
-      timestamp_ms: i * 10,
-      detections: i === 7 ? [{ label: 'person', confidence: 0.9 }] : [],
-      control: 'received',
-      progress: [],
-      alert: [],
-    }))
-    vi.mocked(api.getTrace).mockResolvedValue(basePage({ total: 501, page_size: 1000, frames }))
+  it('una corrida extensa corta las filas en el tope y lo avisa', async () => {
+    vi.mocked(api.getTrace).mockResolvedValue(bigPage(1000))
     render(<TraceSection runId="r_1" />)
-    await waitFor(() => expect(screen.getByText(/corrida extensa/)).toBeTruthy())
-    const checkbox = screen.getByRole('checkbox') as HTMLInputElement
-    expect(checkbox.checked).toBe(true)
-    expect(document.querySelectorAll('.eo-table tbody tr').length).toBe(1)
+    await waitFor(() => expect(screen.getByText('ctrl_1')).toBeTruthy())
+    expect(document.querySelectorAll('.eo-table tbody tr').length).toBe(MAX_FILAS)
+    expect(screen.getByText(new RegExp(`mostrando ${MAX_FILAS} de 1000 cuadros`))).toBeTruthy()
+    expect(screen.getByRole('button', { name: 'Mostrar más' })).toBeTruthy()
+    // el filtro arranca siempre destildado (ya no hay auto-filtro)
+    expect((screen.getByRole('checkbox') as HTMLInputElement).checked).toBe(false)
+  })
 
-    // No es un límite duro: destildando se ven todos y la nota desaparece.
-    fireEvent.click(checkbox)
-    await waitFor(() => expect(document.querySelectorAll('.eo-table tbody tr').length).toBe(501), {
-      timeout: 15000,
-    })
-    expect(screen.queryByText(/corrida extensa/)).toBeNull()
-  }, 30000)
+  it('"Mostrar más" amplía el tope de filas', async () => {
+    vi.mocked(api.getTrace).mockResolvedValue(bigPage(1000))
+    render(<TraceSection runId="r_1" />)
+    await waitFor(() => expect(screen.getByText('ctrl_1')).toBeTruthy())
+    fireEvent.click(screen.getByRole('button', { name: 'Mostrar más' }))
+    await waitFor(() =>
+      expect(document.querySelectorAll('.eo-table tbody tr').length).toBe(MAX_FILAS * 2),
+    )
+    expect(screen.getByText(new RegExp(`mostrando ${MAX_FILAS * 2} de 1000 cuadros`))).toBeTruthy()
+  })
 
-  it('una corrida chica no se filtra sola ni muestra la nota', async () => {
+  it('cuando ya se muestran todas las filas no hay aviso ni botón', async () => {
+    // 350 cuadros: alcanza con un "Mostrar más" para llegar al total.
+    vi.mocked(api.getTrace).mockResolvedValue(bigPage(350))
+    render(<TraceSection runId="r_1" />)
+    await waitFor(() => expect(screen.getByText('ctrl_1')).toBeTruthy())
+    fireEvent.click(screen.getByRole('button', { name: 'Mostrar más' }))
+    await waitFor(() => expect(document.querySelectorAll('.eo-table tbody tr').length).toBe(350))
+    expect(screen.queryByText(/mostrando/)).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Mostrar más' })).toBeNull()
+  })
+
+  it('una corrida chica no muestra aviso de tope ni botón "Mostrar más"', async () => {
     vi.mocked(api.getTrace).mockResolvedValue(basePage())
     render(<TraceSection runId="r_1" />)
     await waitFor(() => expect(screen.getByText('ctrl_1')).toBeTruthy())
     expect((screen.getByRole('checkbox') as HTMLInputElement).checked).toBe(false)
-    expect(screen.queryByText(/corrida extensa/)).toBeNull()
+    expect(screen.queryByText(/mostrando/)).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Mostrar más' })).toBeNull()
     expect(document.querySelectorAll('.eo-table tbody tr').length).toBe(3)
+  })
+
+  it('clickear un tick agrupado que cae fuera del tope amplía las filas hasta incluirlo', async () => {
+    vi.mocked(api.getTrace).mockResolvedValue(bigPage(1000))
+    render(<TraceSection runId="r_1" />)
+    await waitFor(() => expect(screen.getByText('ctrl_1')).toBeTruthy())
+    // 1000 cuadros / 400 ticks -> tramos de 3; el último tick arranca en el cuadro 999.
+    const ticks = screen.getAllByRole('button').filter((b) => b.className.includes('eo-timeline__tick'))
+    fireEvent.click(ticks[ticks.length - 1])
+    await waitFor(() =>
+      expect(document.querySelectorAll('.eo-table tbody tr').length).toBe(1000),
+    )
+    expect(Element.prototype.scrollIntoView).toHaveBeenCalled()
   })
 
   it('si falla una página intermedia, muestra banner de traza incompleta pero mantiene lo ya cargado', async () => {

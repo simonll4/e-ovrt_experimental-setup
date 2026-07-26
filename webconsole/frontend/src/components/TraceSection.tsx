@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { artifactUrl, getTrace } from '../api'
-import { Badge, Card, ConditionName, DetChip, EmptyState, ErrorBanner, StatTile, Table } from './ui'
+import { Badge, Button, Card, ConditionName, DetChip, EmptyState, ErrorBanner, StatTile, Table } from './ui'
 import { controlLabel, controlLabelIsRaw, controlTone, frameHasActivity } from '../traceview'
 import { alertSeverityTone } from '../experimentview'
 import PreviewWithBoxes from './PreviewWithBoxes'
@@ -11,10 +11,11 @@ type TraceMeta = Omit<TracePage, 'frames'>
 
 const MAX_PAGES = 20
 
-// A partir de esta cantidad de cuadros, la traza arranca filtrada a los cuadros con
-// actividad: una corrida de 5000 cuadros renderizada entera congela la pestaña. No es
-// un límite duro — el usuario destilda y ve todo.
-const AUTO_FILTER_THRESHOLD = 500
+// Tope de filas renderizadas. Se cargan todos los cuadros (la línea de tiempo los
+// necesita), pero una corrida de 5000 cuadros con una <tr> por cuadro produce ~9,5 MB
+// de DOM y decenas de segundos de render. El tope es ampliable a pedido.
+export const MAX_FILAS = 300
+const TRAMO_FILAS = 300
 
 export default function TraceSection({ runId }: { runId: string }) {
   const [meta, setMeta] = useState<TraceMeta | null>(null)
@@ -22,8 +23,8 @@ export default function TraceSection({ runId }: { runId: string }) {
   const [error, setError] = useState<string | null>(null)
   const [partialError, setPartialError] = useState<string | null>(null)
   const [soloActividad, setSoloActividad] = useState(false)
-  const [filtroTocado, setFiltroTocado] = useState(false)
-  const [autoFiltrado, setAutoFiltrado] = useState(false)
+  const [topeFilas, setTopeFilas] = useState(MAX_FILAS)
+  const [pendingScroll, setPendingScroll] = useState<string | null>(null)
 
   useEffect(() => {
     let alive = true
@@ -32,8 +33,8 @@ export default function TraceSection({ runId }: { runId: string }) {
     setError(null)
     setPartialError(null)
     setSoloActividad(false)
-    setFiltroTocado(false)
-    setAutoFiltrado(false)
+    setTopeFilas(MAX_FILAS)
+    setPendingScroll(null)
 
     async function loadAll() {
       let first: TracePage
@@ -79,22 +80,33 @@ export default function TraceSection({ runId }: { runId: string }) {
     }
   }, [runId])
 
-  // Default sensato para corridas extensas: si el usuario todavía no tocó el filtro y
-  // la traza cargada supera el umbral, se activa solo-actividad y se explica por qué.
+  // El scroll a una fila se difiere: si el tick apuntaba a un cuadro fuera del tope,
+  // primero hay que ampliarlo y recién después existe el elemento destino.
   useEffect(() => {
-    if (filtroTocado) return
-    if (frames && frames.length > AUTO_FILTER_THRESHOLD) {
-      setSoloActividad(true)
-      setAutoFiltrado(true)
-    }
-  }, [frames, filtroTocado])
+    if (pendingScroll === null) return
+    document
+      .getElementById(`frame-${pendingScroll}`)
+      ?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    setPendingScroll(null)
+  }, [pendingScroll, topeFilas])
 
   if (error) return <ErrorBanner>Error cargando la traza: {error}</ErrorBanner>
   if (!meta || !frames) return <p>Cargando traza…</p>
 
   const { totals } = meta
   const visibleFrames = soloActividad ? frames.filter(frameHasActivity) : frames
+  const filasVisibles = visibleFrames.slice(0, topeFilas)
+  const hayMasFilas = visibleFrames.length > filasVisibles.length
   const hasControl = meta.control_run_id !== null || !!meta.control_error
+
+  // Un tick agrupado apunta al primer cuadro de su tramo: si ese cuadro cayó fuera del
+  // tope de filas, se amplía el tope hasta incluirlo antes de scrollear.
+  function handleTickClick(startIndex: number, frameKey: string) {
+    setTopeFilas((t) =>
+      startIndex < t ? t : Math.ceil((startIndex + 1) / TRAMO_FILAS) * TRAMO_FILAS,
+    )
+    setPendingScroll(frameKey)
+  }
 
   return (
     <Card title="Evaluación del motor de reglas">
@@ -120,20 +132,11 @@ export default function TraceSection({ runId }: { runId: string }) {
         <input
           type="checkbox"
           checked={soloActividad}
-          onChange={(e) => {
-            setFiltroTocado(true)
-            setSoloActividad(e.target.checked)
-          }}
+          onChange={(e) => setSoloActividad(e.target.checked)}
         />{' '}
         solo cuadros con actividad
       </label>
-      {autoFiltrado && !filtroTocado && (
-        <small className="eo-note">
-          corrida extensa ({frames.length} cuadros): se muestran solo los cuadros con
-          actividad; destildá para ver todos
-        </small>
-      )}
-      <TraceTimeline frames={visibleFrames} />
+      <TraceTimeline frames={visibleFrames} onTickClick={handleTickClick} />
       <Table>
         <thead>
           <tr>
@@ -144,7 +147,7 @@ export default function TraceSection({ runId }: { runId: string }) {
           </tr>
         </thead>
         <tbody>
-          {visibleFrames.map((f: TraceFrame) => (
+          {filasVisibles.map((f: TraceFrame) => (
             <tr
               key={f.unit_id ?? f.frame_index}
               id={`frame-${f.unit_id ?? f.frame_index}`}
@@ -217,6 +220,14 @@ export default function TraceSection({ runId }: { runId: string }) {
           ))}
         </tbody>
       </Table>
+      {hayMasFilas && (
+        <div className="eo-note">
+          mostrando {filasVisibles.length} de {visibleFrames.length} cuadros{' '}
+          <Button variant="secondary" onClick={() => setTopeFilas((t) => t + TRAMO_FILAS)}>
+            Mostrar más
+          </Button>
+        </div>
+      )}
     </Card>
   )
 }
