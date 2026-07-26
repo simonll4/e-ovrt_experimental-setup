@@ -77,7 +77,7 @@ def test_lista_de_masters(clips_client, master):
 def test_generar_clip_de_punta_a_punta(clips_client, master):
     creado = clips_client.post(
         "/api/clips",
-        json={"master": "P1-a-take1.mp4", "t_event_s": 6.0, "t_end_s": 12.0},
+        json={"master": "P1-a-take1.mp4", "marks": [6.0, 12.0]},
     )
     assert creado.status_code == 201, creado.text
     body = creado.json()
@@ -88,7 +88,7 @@ def test_generar_clip_de_punta_a_punta(clips_client, master):
     assert any("20" in w for w in body["warnings"])
     assert (clips_client.dv / "clips" / "a_p1_c01.mp4").exists()
     data = yaml.safe_load((clips_client.dv / "a_p1_c01.clip.yaml").read_text())
-    assert data["episode_draft"]["onset_ms"] == 3500
+    assert data["episode_draft"][0]["onset_ms"] == 3500
     # y ahora el master figura recortado y el clip listado:
     [m] = clips_client.get("/api/clips/masters").json()["masters"]
     assert m["clips"] == ["a_p1_c01"]
@@ -99,7 +99,7 @@ def test_generar_clip_de_punta_a_punta(clips_client, master):
 def test_fin_antes_del_evento_da_422(clips_client, master):
     r = clips_client.post(
         "/api/clips",
-        json={"master": "P1-a-take1.mp4", "t_event_s": 12.0, "t_end_s": 6.0},
+        json={"master": "P1-a-take1.mp4", "marks": [12.0, 6.0]},
     )
     assert r.status_code == 422
     assert "posterior" in r.json()["detail"]
@@ -109,7 +109,7 @@ def test_master_ilegible_da_422_con_motivo(clips_client, dv):
     (dv / "raw" / "P2-a-take1.mp4").write_bytes(b"esto no es un mp4")
     r = clips_client.post(
         "/api/clips",
-        json={"master": "P2-a-take1.mp4", "t_event_s": 5.0, "t_end_s": 8.0},
+        json={"master": "P2-a-take1.mp4", "marks": [5.0, 8.0]},
     )
     assert r.status_code == 422
 
@@ -126,7 +126,7 @@ def test_media_master_soporta_range(clips_client, master):
 def test_media_clip_tras_generar(clips_client, master):
     clips_client.post(
         "/api/clips",
-        json={"master": "P1-a-take1.mp4", "t_event_s": 6.0, "t_end_s": 12.0},
+        json={"master": "P1-a-take1.mp4", "marks": [6.0, 12.0]},
     )
     r = clips_client.get("/api/clips/media/clip/a_p1_c01")
     assert r.status_code == 200
@@ -143,4 +143,12 @@ def test_media_inexistente_y_traversal_dan_404(clips_client):
 
 def test_payload_invalido_da_422(clips_client, master):
     r = clips_client.post("/api/clips", json={"master": "P1-a-take1.mp4"})
+    assert r.status_code == 422
+
+
+def test_marcas_con_longitud_invalida_da_422(clips_client, master):
+    r = clips_client.post(
+        "/api/clips",
+        json={"master": "P1-a-take1.mp4", "marks": [6.0, 12.0, 20.0]},
+    )
     assert r.status_code == 422

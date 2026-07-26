@@ -21,8 +21,7 @@ router = APIRouter(prefix="/api/clips")
 
 class GenerateClipBody(BaseModel):
     master: str
-    t_event_s: float
-    t_end_s: float
+    marks: list[float]
     scenario: str | None = None
     clip_id: str | None = None
 
@@ -51,8 +50,7 @@ def create_clip(request: Request, body: GenerateClipBody) -> dict:
             videos_dir=settings.videos_dir,
             script=settings.prepare_clip_script,
             master_name=body.master,
-            t_event=body.t_event_s,
-            t_end=body.t_end_s,
+            marks=body.marks,
             scenario=body.scenario,
             clip_id=body.clip_id,
         )

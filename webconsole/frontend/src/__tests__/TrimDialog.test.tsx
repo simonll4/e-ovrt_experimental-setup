@@ -27,9 +27,9 @@ afterEach(() => {
 
 function marcar(video: HTMLVideoElement, evento: number, fin: number) {
   Object.defineProperty(video, 'currentTime', { value: evento, writable: true })
-  fireEvent.click(screen.getByText('Marcar evento'))
+  fireEvent.click(screen.getByText('casco_fuera'))
   video.currentTime = fin
-  fireEvent.click(screen.getByText('Marcar fin'))
+  fireEvent.click(screen.getByText('casco_puesto'))
 }
 
 describe('TrimDialog', () => {
@@ -55,8 +55,7 @@ describe('TrimDialog', () => {
     await waitFor(() => expect(onGenerated).toHaveBeenCalled())
     expect(vi.mocked(generateClip).mock.calls[0][0]).toEqual({
       master: 'P1-a-take1.mp4',
-      t_event_s: 10.5,
-      t_end_s: 24.5,
+      marks: [10.5, 24.5],
     })
     expect(screen.getByText(/a_p1_c01/)).toBeTruthy()
   })
@@ -112,5 +111,54 @@ describe('TrimDialog', () => {
     const select = screen.getByLabelText('Regenerar') as HTMLSelectElement
     fireEvent.change(select, { target: { value: 'a_p1_c01' } })
     expect(screen.getByText(/invalida la pre-anotación/)).toBeTruthy()
+  })
+
+  it('P6 pide cuatro marcas y las postea en orden', async () => {
+    vi.mocked(generateClip).mockResolvedValue({
+      clip_id: 'a_p6_c01',
+      info: { fps: 30, duration_ms: 42500, n_frames: 1275, resolution: '1920x1080' },
+      warnings: [],
+      regenerated: false,
+      invalidated: [],
+    })
+    render(
+      <TrimDialog
+        master={{ ...MASTER, name: 'P6-a-take2.mp4', scenario: 'P6' }}
+        onClose={() => {}}
+        onGenerated={() => {}}
+      />,
+    )
+    const video = screen.getByTestId('trim-video') as HTMLVideoElement
+    const boton = screen.getByText('Generar clip') as HTMLButtonElement
+    expect(boton.disabled).toBe(true)
+    for (const [label, t] of [
+      ['casco_fuera', 10], ['chaleco_fuera', 13], ['chaleco_puesto', 23], ['casco_puesto', 33],
+    ] as const) {
+      Object.defineProperty(video, 'currentTime', { value: t, writable: true })
+      fireEvent.click(screen.getByText(label))
+    }
+    expect(boton.disabled).toBe(false)
+    fireEvent.click(boton)
+    await waitFor(() => expect(generateClip).toHaveBeenCalled())
+    expect(vi.mocked(generateClip).mock.calls[0][0]).toEqual({
+      master: 'P6-a-take2.mp4',
+      marks: [10, 13, 23, 33],
+    })
+  })
+
+  it('P6: el segundo boton esta deshabilitado hasta marcar el primero', () => {
+    render(
+      <TrimDialog
+        master={{ ...MASTER, name: 'P6-a-take2.mp4', scenario: 'P6' }}
+        onClose={() => {}}
+        onGenerated={() => {}}
+      />,
+    )
+    const segundo = screen.getByText('chaleco_fuera') as HTMLButtonElement
+    expect(segundo.disabled).toBe(true)
+    const video = screen.getByTestId('trim-video') as HTMLVideoElement
+    Object.defineProperty(video, 'currentTime', { value: 10, writable: true })
+    fireEvent.click(screen.getByText('casco_fuera'))
+    expect(segundo.disabled).toBe(false)
   })
 })

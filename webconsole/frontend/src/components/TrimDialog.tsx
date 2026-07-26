@@ -8,6 +8,21 @@ import Field from './ui/Field'
 
 const SCENARIOS = ['P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7', 'P8', 'P9']
 
+// Labels de cada marca por escenario, en orden cronológico (doc operacion/72
+// §4 y §5.3). 2 marcas para los escenarios de 1 episodio, 4 para P6/P8.
+const MARK_LABELS: Record<string, string[]> = {
+  P1: ['casco_fuera', 'casco_puesto'],
+  P2: ['chaleco_fuera', 'chaleco_puesto'],
+  P3: ['casco_fuera', 'casco_puesto'],
+  P4: ['casco_fuera', 'casco_puesto'],
+  P5: ['tramo_inicio', 'tramo_fin'],
+  P6: ['casco_fuera', 'chaleco_fuera', 'chaleco_puesto', 'casco_puesto'],
+  P7: ['casco_fuera', 'casco_puesto'],
+  P8: ['casco_fuera', 'sale_de_cuadro', 'vuelve_a_entrar', 'casco_puesto'],
+  P9: ['entra_en_cuadro', 'sale_o_termina'],
+}
+const DEFAULT_LABELS = ['Marcar evento', 'Marcar fin']
+
 /** Mismo patrón que RecordPanel: el motivo real del backend viaja en
  * payload.detail (p. ej. la salida completa de prepare_clip.sh). */
 function mensajeDeError(e: unknown): string {
@@ -30,26 +45,30 @@ export default function TrimDialog({
   onGenerated: () => void
 }) {
   const videoRef = useRef<HTMLVideoElement>(null)
-  const [tEvent, setTEvent] = useState<number | null>(null)
-  const [tEnd, setTEnd] = useState<number | null>(null)
+  const labels = MARK_LABELS[master.scenario ?? ''] ?? DEFAULT_LABELS
+  const [marks, setMarks] = useState<(number | null)[]>(labels.map(() => null))
   const [scenario, setScenario] = useState(master.scenario ?? '')
   const [regenerate, setRegenerate] = useState('')
   const [busy, setBusy] = useState(false)
   const [result, setResult] = useState<GenerateClipResult | null>(null)
   const [error, setError] = useState<string | null>(null)
 
-  const listo = tEvent != null && tEnd != null && scenario !== '' && !busy
+  const marcar = (i: number) => {
+    const t = videoRef.current?.currentTime ?? 0
+    setMarks((prev) => prev.map((v, idx) => (idx === i ? t : v)))
+  }
+
+  const listo = marks.every((m) => m != null) && scenario !== '' && !busy
 
   const generar = async () => {
-    if (tEvent == null || tEnd == null) return
+    if (!marks.every((m): m is number => m != null)) return
     setBusy(true)
     setError(null)
     setResult(null)
     try {
       const body = {
         master: master.name,
-        t_event_s: tEvent,
-        t_end_s: tEnd,
+        marks,
         ...(master.scenario == null ? { scenario } : {}),
         ...(regenerate !== '' ? { clip_id: regenerate } : {}),
       }
@@ -74,14 +93,18 @@ export default function TrimDialog({
       />
 
       <div className="eo-trim__marks">
-        <button type="button" onClick={() => setTEvent(videoRef.current?.currentTime ?? 0)}>
-          Marcar evento
-        </button>
-        <span>{tEvent != null ? `${tEvent.toFixed(1)} s` : 'sin marcar'}</span>
-        <button type="button" onClick={() => setTEnd(videoRef.current?.currentTime ?? 0)}>
-          Marcar fin
-        </button>
-        <span>{tEnd != null ? `${tEnd.toFixed(1)} s` : 'sin marcar'}</span>
+        {labels.map((label, i) => (
+          <span key={label}>
+            <button
+              type="button"
+              disabled={i > 0 && marks[i - 1] == null}
+              onClick={() => marcar(i)}
+            >
+              {label}
+            </button>
+            <span>{marks[i] != null ? `${marks[i]!.toFixed(1)} s` : 'sin marcar'}</span>
+          </span>
+        ))}
       </div>
 
       <div className="eo-trim__fields">

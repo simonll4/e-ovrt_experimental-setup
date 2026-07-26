@@ -388,8 +388,7 @@ export interface ClipEntry {
 
 export interface GenerateClipBody {
   master: string
-  t_event_s: number
-  t_end_s: number
+  marks: number[]
   scenario?: string
   clip_id?: string
 }

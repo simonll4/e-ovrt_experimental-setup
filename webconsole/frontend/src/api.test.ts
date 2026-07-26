@@ -33,11 +33,11 @@ describe('clips api', () => {
       json: () => Promise.resolve({ clip_id: 'a_p1_c01', warnings: [] }),
     })
     vi.stubGlobal('fetch', fetchMock)
-    await generateClip({ master: 'P1-a-take1.mp4', t_event_s: 6, t_end_s: 12 })
+    await generateClip({ master: 'P1-a-take1.mp4', marks: [6, 12] })
     const [url, init] = fetchMock.mock.calls[0]
     expect(url).toBe('/api/clips')
     expect(init.method).toBe('POST')
-    expect(JSON.parse(init.body).t_event_s).toBe(6)
+    expect(JSON.parse(init.body).marks).toEqual([6, 12])
   })
 
   it('media urls escapan el nombre', () => {
