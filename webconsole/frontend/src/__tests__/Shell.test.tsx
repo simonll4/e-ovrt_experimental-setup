@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { cleanup, render, screen } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import Shell from '../components/Shell'
 
@@ -56,5 +56,24 @@ describe('Shell', () => {
   it('renderiza el contenido hijo', () => {
     renderShell()
     expect(screen.getByText('contenido')).toBeTruthy()
+  })
+
+  it('la barra lateral empieza cerrada (modo pantalla chica)', () => {
+    renderShell()
+    const aside = screen.getByRole('complementary')
+    expect(aside.className).not.toContain('eo-sidebar--open')
+  })
+
+  it('el botón de menú abre la barra lateral', () => {
+    renderShell()
+    fireEvent.click(screen.getByRole('button', { name: /navegación/i }))
+    expect(screen.getByRole('complementary').className).toContain('eo-sidebar--open')
+  })
+
+  it('elegir un destino de la nav cierra la barra lateral', () => {
+    renderShell()
+    fireEvent.click(screen.getByRole('button', { name: /navegación/i }))
+    fireEvent.click(screen.getByRole('link', { name: 'Experimentos' }))
+    expect(screen.getByRole('complementary').className).not.toContain('eo-sidebar--open')
   })
 })
