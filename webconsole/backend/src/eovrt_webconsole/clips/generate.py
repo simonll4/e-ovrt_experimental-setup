@@ -13,7 +13,12 @@ from __future__ import annotations
 from pathlib import Path
 
 from eovrt_webconsole.clips.clip_yaml import write_clip_yaml
-from eovrt_webconsole.clips.naming import next_clip_id, scenario_from_master
+from eovrt_webconsole.clips.naming import (
+    SCENARIO_RE,
+    InvalidScenario,
+    next_clip_id,
+    scenario_from_master,
+)
 from eovrt_webconsole.clips.trim import run_prepare_clip
 from eovrt_webconsole.clips.window import compute_window, compute_window_multi
 from eovrt_webconsole.recording.probe import measure
@@ -55,6 +60,12 @@ def generate_clip(
             f"{master_name} no sigue el patrón de toma (P1-a-take2.mp4): "
             "indicá el escenario a mano"
         )
+    # Validación incondicional: next_clip_id ya valida esto, pero solo corre
+    # cuando se asigna un clip_id nuevo. En regeneración (clip_id explícito)
+    # esa validación se salteaba y un escenario inválido se colaba tal cual
+    # al .clip.yaml.
+    if not SCENARIO_RE.match(scenario):
+        raise InvalidScenario(f"escenario inválido: {scenario!r} (esperado P1..P9)")
 
     measured = measure(master)  # ProbeError si el master no es video legible
     master_duration_s = measured.duration_ms / 1000.0

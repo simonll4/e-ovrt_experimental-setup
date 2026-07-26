@@ -1,6 +1,6 @@
 import pytest
 
-from eovrt_webconsole.clips.window import InvalidMarks, compute_window
+from eovrt_webconsole.clips.window import InvalidMarks, compute_window, compute_window_multi
 
 
 def test_caso_nominal_p1():
@@ -118,7 +118,11 @@ def test_episodes_de_un_escenario_sin_condicion_llevan_none():
     assert w.episodes[0].condition is None
 
 
-from eovrt_webconsole.clips.window import compute_window_multi
+def test_p6_p8_con_dos_marcas_se_rechazan():
+    with pytest.raises(InvalidMarks):
+        compute_window(10.0, 20.0, 90.0, "P6")
+    with pytest.raises(InvalidMarks):
+        compute_window(10.0, 20.0, 90.0, "P8")
 
 
 def test_p6_nominal_con_los_tiempos_guionados():

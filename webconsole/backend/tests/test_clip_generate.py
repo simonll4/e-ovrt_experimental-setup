@@ -1,6 +1,7 @@
 import pytest
 
 from eovrt_webconsole.clips.generate import InvalidRequest, generate_clip
+from eovrt_webconsole.clips.naming import InvalidScenario
 from eovrt_webconsole.clips.window import InvalidMarks
 from eovrt_webconsole.recording.probe import Measured, ProbeError
 
@@ -167,4 +168,17 @@ def test_numero_de_marcas_invalido_se_rechaza(dv, stubs, tmp_path):
         generate_clip(
             raw_dir=dv / "raw", videos_dir=dv, script=tmp_path / "s.sh",
             master_name="P1-a-take1.mp4", marks=[10.0, 20.0, 30.0],
+        )
+
+
+def test_regeneracion_con_escenario_invalido_se_rechaza(dv, stubs, tmp_path):
+    # clip_id explícito (regeneración) saltea next_clip_id, que es donde
+    # normalmente se valida el escenario contra SCENARIO_RE — sin guard
+    # propio en generate_clip, un escenario como "PX" se colaría tal cual
+    # al .clip.yaml.
+    with pytest.raises(InvalidScenario):
+        generate_clip(
+            raw_dir=dv / "raw", videos_dir=dv, script=tmp_path / "s.sh",
+            master_name="P1-a-take1.mp4", marks=[11.0, 25.0],
+            scenario="PX", clip_id="a_p1_c01",
         )

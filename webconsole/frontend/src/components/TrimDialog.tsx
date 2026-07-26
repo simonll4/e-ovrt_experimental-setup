@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { ApiError, generateClip, masterMediaUrl } from '../api'
 import type { GenerateClipResult, MasterEntry } from '../types'
@@ -45,13 +45,23 @@ export default function TrimDialog({
   onGenerated: () => void
 }) {
   const videoRef = useRef<HTMLVideoElement>(null)
-  const labels = MARK_LABELS[master.scenario ?? ''] ?? DEFAULT_LABELS
-  const [marks, setMarks] = useState<(number | null)[]>(labels.map(() => null))
   const [scenario, setScenario] = useState(master.scenario ?? '')
+  // Deriva de `scenario` (el estado, editable vía el <select> para material
+  // sin escenario heredado) y no de `master.scenario` — si no, elegir P6/P8
+  // en el dropdown no expandía el diálogo a 4 marcas (quedaba en el
+  // DEFAULT_LABELS de 2 marcas).
+  const labels = MARK_LABELS[scenario] ?? DEFAULT_LABELS
+  const [marks, setMarks] = useState<(number | null)[]>(labels.map(() => null))
   const [regenerate, setRegenerate] = useState('')
   const [busy, setBusy] = useState(false)
   const [result, setResult] = useState<GenerateClipResult | null>(null)
   const [error, setError] = useState<string | null>(null)
+
+  // Al cambiar de escenario (dropdown), reiniciar las marcas: la cantidad de
+  // botones puede cambiar (2 <-> 4) y las marcas viejas ya no corresponden.
+  useEffect(() => {
+    setMarks(labels.map(() => null))
+  }, [scenario])
 
   const marcar = (i: number) => {
     const t = videoRef.current?.currentTime ?? 0

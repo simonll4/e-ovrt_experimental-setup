@@ -58,6 +58,28 @@ SCENARIO_TARGET_S = {
 }
 
 
+# Condición de cada episodio, en orden, para los escenarios de 2 episodios.
+# Dato del guion (doc operacion/72 §4.6/§4.8), no derivable de las marcas.
+# Definido acá arriba (y no junto a compute_window_multi) porque
+# compute_window también lo necesita, para rechazar P6/P8 con solo 2 marcas.
+MULTI_EPISODE_CONDITIONS: dict[str, list[str]] = {
+    "P6": ["CR-01", "CR-02"],
+    "P8": ["CR-01", "CR-01"],
+}
+
+# Qué par de marcas (índices 0-based en `marks`) delimita cada episodio.
+# P6 ANIDA el episodio de chaleco (CR-02) dentro del de casco (CR-01):
+# episodio 0 = [t1,t4] (casco fuera -> puesto), episodio 1 = [t2,t3]
+# (chaleco fuera -> puesto), con t1<t2<t3<t4. P8 son dos tramos SECUENCIALES
+# separados por una ausencia de cuadro: episodio 0 = [t1,t2] (casco fuera ->
+# sale de cuadro), episodio 1 = [t3,t4] (vuelve a entrar -> casco puesto).
+# Doc operacion/72 §4.6 (P6) / §4.8 (P8).
+MULTI_EPISODE_MARK_INDICES: dict[str, list[tuple[int, int]]] = {
+    "P6": [(0, 3), (1, 2)],
+    "P8": [(0, 1), (2, 3)],
+}
+
+
 @dataclass(frozen=True)
 class EpisodeDraft:
     """Un episodio (onset, fin, condición) dentro del clip recortado."""
@@ -123,8 +145,17 @@ def compute_window(
         TrimWindow con ss, duration, episodes, warnings
 
     Raises:
-        InvalidMarks: si fin <= evento, o marcas fuera del master
+        InvalidMarks: si fin <= evento, o marcas fuera del master, o el
+            escenario es P6/P8 (esos requieren 4 marcas, ver
+            compute_window_multi)
     """
+
+    # Validación: P6/P8 son de 2 episodios y necesitan 4 marcas — con solo 2
+    # marcas acá, SCENARIO_CONDITION no tiene entrada para ellos y piso_s()
+    # devolvería None, indistinguible del "sin episodio" legítimo de P3/P5.
+    # Hay que cortar esto ANTES de cualquier otra validación.
+    if scenario in MULTI_EPISODE_CONDITIONS:
+        raise InvalidMarks(f"{scenario} requiere 4 marcas (2 episodios), recibidas 2")
 
     # Validación: fin tiene que ser posterior al evento
     if t_end <= t_event:
@@ -193,26 +224,6 @@ def compute_window(
         ],
         warnings=warnings,
     )
-
-
-# Condición de cada episodio, en orden, para los escenarios de 2 episodios.
-# Dato del guion (doc operacion/72 §4.6/§4.8), no derivable de las marcas.
-MULTI_EPISODE_CONDITIONS: dict[str, list[str]] = {
-    "P6": ["CR-01", "CR-02"],
-    "P8": ["CR-01", "CR-01"],
-}
-
-# Qué par de marcas (índices 0-based en `marks`) delimita cada episodio.
-# P6 ANIDA el episodio de chaleco (CR-02) dentro del de casco (CR-01):
-# episodio 0 = [t1,t4] (casco fuera -> puesto), episodio 1 = [t2,t3]
-# (chaleco fuera -> puesto), con t1<t2<t3<t4. P8 son dos tramos SECUENCIALES
-# separados por una ausencia de cuadro: episodio 0 = [t1,t2] (casco fuera ->
-# sale de cuadro), episodio 1 = [t3,t4] (vuelve a entrar -> casco puesto).
-# Doc operacion/72 §4.6 (P6) / §4.8 (P8).
-MULTI_EPISODE_MARK_INDICES: dict[str, list[tuple[int, int]]] = {
-    "P6": [(0, 3), (1, 2)],
-    "P8": [(0, 1), (2, 3)],
-}
 
 
 def compute_window_multi(

@@ -89,6 +89,27 @@ describe('TrimDialog', () => {
     )
   })
 
+  it('material sin escenario: elegir P6 en el select expande a cuatro marcas', () => {
+    render(
+      <TrimDialog
+        master={{ ...MASTER, name: '4.1.mp4', scenario: null }}
+        onClose={() => {}}
+        onGenerated={() => {}}
+      />,
+    )
+    // Sin escenario elegido todavía, cae al fallback de 2 marcas.
+    expect(screen.getByText('Marcar evento')).toBeTruthy()
+    expect(screen.getByText('Marcar fin')).toBeTruthy()
+
+    fireEvent.change(screen.getByLabelText('Escenario'), { target: { value: 'P6' } })
+
+    expect(screen.getByText('casco_fuera')).toBeTruthy()
+    expect(screen.getByText('chaleco_fuera')).toBeTruthy()
+    expect(screen.getByText('chaleco_puesto')).toBeTruthy()
+    expect(screen.getByText('casco_puesto')).toBeTruthy()
+    expect(screen.queryByText('Marcar evento')).toBeNull()
+  })
+
   it('material ajeno exige elegir escenario', () => {
     render(
       <TrimDialog
