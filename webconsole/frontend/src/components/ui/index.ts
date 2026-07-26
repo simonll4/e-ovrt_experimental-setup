@@ -1,5 +1,8 @@
 export { default as Badge } from './Badge'
 export { default as Banner } from './Banner'
+export { default as SearchInput } from './SearchInput'
+export { default as SegmentedControl } from './SegmentedControl'
+export type { SegmentedOption } from './SegmentedControl'
 export { default as Button } from './Button'
 export { default as Card } from './Card'
 export { default as ErrorBanner } from './ErrorBanner'

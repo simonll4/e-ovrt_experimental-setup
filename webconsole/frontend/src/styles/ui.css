@@ -702,3 +702,55 @@
 .eo-select__option--disabled { color: var(--text-muted); cursor: not-allowed; }
 .eo-select__option--disabled:hover { background: transparent; }
 .eo-select__reason { font-size: var(--text-xs); color: var(--text-muted); }
+
+/* Buscador */
+.eo-search { position: relative; flex: 1; min-width: 180px; max-width: 300px; }
+.eo-search__input {
+  width: 100%;
+  height: 30px;
+  background: var(--s2);
+  border: 1px solid var(--bd);
+  border-radius: var(--r);
+  color: var(--tx);
+  padding: 0 9px 0 30px;
+  font-size: 12px;
+  font-family: inherit;
+}
+.eo-search__input::placeholder { color: var(--tx4); }
+.eo-search__icon {
+  position: absolute;
+  left: 9px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--tx3);
+  display: flex;
+}
+
+/* Segmentado de filtro */
+.eo-segmented {
+  display: inline-flex;
+  background: var(--s2);
+  border: 1px solid var(--bd);
+  border-radius: var(--r);
+  padding: 2px;
+}
+.eo-segmented button {
+  padding: 3px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  color: var(--tx3);
+  border: none;
+  background: none;
+}
+.eo-segmented button:hover { color: var(--tx2); }
+.eo-segmented button[aria-pressed="true"] { background: var(--s3); color: var(--tx); }
+
+/* Barra de herramientas: buscador + segmentado + contador */
+.eo-toolbar2 {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex-wrap: wrap;
+  padding: 13px 20px 0;
+}
+.eo-toolbar2__count { margin-left: auto; font-size: 11px; color: var(--tx4); font-family: var(--fm); }
