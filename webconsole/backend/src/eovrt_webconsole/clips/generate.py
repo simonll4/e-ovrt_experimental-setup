@@ -15,7 +15,7 @@ from pathlib import Path
 from eovrt_webconsole.clips.clip_yaml import write_clip_yaml
 from eovrt_webconsole.clips.naming import next_clip_id, scenario_from_master
 from eovrt_webconsole.clips.trim import run_prepare_clip
-from eovrt_webconsole.clips.window import compute_window
+from eovrt_webconsole.clips.window import compute_window, compute_window_multi
 from eovrt_webconsole.recording.probe import measure
 
 
@@ -39,8 +39,7 @@ def generate_clip(
     videos_dir: Path,
     script: Path,
     master_name: str,
-    t_event: float,
-    t_end: float,
+    marks: list[float],
     scenario: str | None = None,
     clip_id: str | None = None,
 ) -> dict:
@@ -58,7 +57,13 @@ def generate_clip(
         )
 
     measured = measure(master)  # ProbeError si el master no es video legible
-    window = compute_window(t_event, t_end, measured.duration_ms / 1000.0, scenario)
+    master_duration_s = measured.duration_ms / 1000.0
+    if len(marks) == 2:
+        window = compute_window(marks[0], marks[1], master_duration_s, scenario)
+    elif len(marks) == 4:
+        window = compute_window_multi(marks, master_duration_s, scenario)
+    else:
+        raise InvalidRequest(f"se esperan 2 o 4 marcas, recibidas {len(marks)}")
 
     regenerated = clip_id is not None
     if clip_id is None:

@@ -193,3 +193,100 @@ def compute_window(
         ],
         warnings=warnings,
     )
+
+
+# Condición de cada episodio, en orden, para los escenarios de 2 episodios.
+# Dato del guion (doc operacion/72 §4.6/§4.8), no derivable de las marcas.
+MULTI_EPISODE_CONDITIONS: dict[str, list[str]] = {
+    "P6": ["CR-01", "CR-02"],
+    "P8": ["CR-01", "CR-01"],
+}
+
+# Qué par de marcas (índices 0-based en `marks`) delimita cada episodio.
+# P6 ANIDA el episodio de chaleco (CR-02) dentro del de casco (CR-01):
+# episodio 0 = [t1,t4] (casco fuera -> puesto), episodio 1 = [t2,t3]
+# (chaleco fuera -> puesto), con t1<t2<t3<t4. P8 son dos tramos SECUENCIALES
+# separados por una ausencia de cuadro: episodio 0 = [t1,t2] (casco fuera ->
+# sale de cuadro), episodio 1 = [t3,t4] (vuelve a entrar -> casco puesto).
+# Doc operacion/72 §4.6 (P6) / §4.8 (P8).
+MULTI_EPISODE_MARK_INDICES: dict[str, list[tuple[int, int]]] = {
+    "P6": [(0, 3), (1, 2)],
+    "P8": [(0, 1), (2, 3)],
+}
+
+
+def compute_window_multi(
+    marks: list[float], master_duration: float, scenario: str
+) -> TrimWindow:
+    """Convierte 4 marcas (2 episodios) en ventana de recorte, para P6/P8.
+
+    marks: [t1, t2, t3, t4] en segundos sobre el master, estrictamente
+    crecientes. Ver doc operacion/72 §4.6 (P6) / §4.8 (P8) para el
+    significado de cada marca — P6 anida sus dos episodios, P8 los separa
+    en dos tramos secuenciales (ver `MULTI_EPISODE_MARK_INDICES`).
+
+    Raises:
+        InvalidMarks: si no son 4, no son estrictamente crecientes, quedan
+            fuera del master, o el escenario no es de 2 episodios.
+    """
+    if len(marks) != 4:
+        raise InvalidMarks(f"P6/P8 requieren 4 marcas, recibidas {len(marks)}")
+    if list(marks) != sorted(marks) or len(set(marks)) != 4:
+        raise InvalidMarks(f"las marcas tienen que ser estrictamente crecientes: {marks}")
+    conditions = MULTI_EPISODE_CONDITIONS.get(scenario)
+    mark_indices = MULTI_EPISODE_MARK_INDICES.get(scenario)
+    if conditions is None or mark_indices is None:
+        raise InvalidMarks(f"{scenario} no es un escenario de 2 episodios (P6/P8)")
+    t1, t4 = marks[0], marks[-1]
+    if t1 < 0 or t4 > master_duration:
+        raise InvalidMarks(
+            f"marcas fuera del master (primera={t1:.1f} s, última={t4:.1f} s, "
+            f"master de {master_duration:.1f} s)"
+        )
+
+    warnings: list[str] = []
+
+    start = t1 - PRE_ROLL_S
+    if start < 0:
+        warnings.append(
+            f"solo {t1:.1f} s de pre-roll, se necesitan {PRE_ROLL_S} — "
+            "el TTFD va a salir degradado"
+        )
+        start = 0.0
+
+    # onset/end relativos a `start` (ya clampeado a 0 si hizo falta), no
+    # asumiendo PRE_ROLL_S exacto — así el piso sigue siendo correcto incluso
+    # con pre-roll degradado.
+    onset_rel = [marks[i] - start for i, _ in mark_indices]
+    end_rel = [marks[j] - start for _, j in mark_indices]
+
+    cobertura = (t4 - start) + DEFAULT_TAIL_S
+    floors = [
+        onset_rel[i]
+        + DIMENSIONING_MS[conditions[i]]["t_alert_upper_ms"] / 1000
+        + DIMENSIONING_MS[conditions[i]]["resolve_ms"] / 1000
+        + DIMENSIONING_TAIL_S
+        + 1.0  # margen explícito (doc operacion/72 §4.6/§4.8)
+        for i in range(2)
+    ]
+    duration = max(cobertura, *floors)
+
+    if duration > master_duration - start:
+        warnings.append(
+            f"el master no tiene los {duration:.1f} s que pide el piso/cobertura "
+            f"(quedan {master_duration - start:.1f} s) — clip corto, revisar toma"
+        )
+        duration = master_duration - start
+
+    episodes = [
+        EpisodeDraft(
+            onset_ms=round(onset_rel[i] * 1000),
+            end_ms=round(end_rel[i] * 1000),
+            condition=conditions[i],
+        )
+        for i in range(2)
+    ]
+    return TrimWindow(
+        ss=round(start, 3), duration=round(duration, 3),
+        episodes=episodes, warnings=warnings,
+    )

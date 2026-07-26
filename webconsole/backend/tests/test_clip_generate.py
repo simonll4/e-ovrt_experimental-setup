@@ -47,7 +47,7 @@ def stubs(monkeypatch):
 def test_flujo_nominal(dv, stubs, tmp_path):
     result = generate_clip(
         raw_dir=dv / "raw", videos_dir=dv, script=tmp_path / "s.sh",
-        master_name="P1-a-take1.mp4", t_event=10.5, t_end=24.5,
+        master_name="P1-a-take1.mp4", marks=[10.5, 24.5],
     )
     assert result["clip_id"] == "a_p1_c01"
     assert result["regenerated"] is False
@@ -65,7 +65,7 @@ def test_autoincremento_si_ya_hay_clips(dv, stubs, tmp_path):
     (dv / "a_p1_c01.clip.yaml").write_text("clip_id: a_p1_c01\nmaster: raw/x.mp4\n")
     result = generate_clip(
         raw_dir=dv / "raw", videos_dir=dv, script=tmp_path / "s.sh",
-        master_name="P1-a-take1.mp4", t_event=10.5, t_end=24.5,
+        master_name="P1-a-take1.mp4", marks=[10.5, 24.5],
     )
     assert result["clip_id"] == "a_p1_c02"
 
@@ -75,7 +75,7 @@ def test_regenerar_invalida_la_preann_vieja(dv, stubs, tmp_path):
     (dv / "preann" / "a_p1_c01.preview.mp4").write_bytes(b"v")
     result = generate_clip(
         raw_dir=dv / "raw", videos_dir=dv, script=tmp_path / "s.sh",
-        master_name="P1-a-take1.mp4", t_event=11.0, t_end=25.0,
+        master_name="P1-a-take1.mp4", marks=[11.0, 25.0],
         clip_id="a_p1_c01",
     )
     assert result["regenerated"] is True
@@ -92,7 +92,7 @@ def test_regenerar_dos_veces_pisa_el_stale(dv, stubs, tmp_path):
     (dv / "preann" / "a_p1_c01.xml.stale").write_text("v0")
     generate_clip(
         raw_dir=dv / "raw", videos_dir=dv, script=tmp_path / "s.sh",
-        master_name="P1-a-take1.mp4", t_event=11.0, t_end=25.0,
+        master_name="P1-a-take1.mp4", marks=[11.0, 25.0],
         clip_id="a_p1_c01",
     )
     assert (dv / "preann" / "a_p1_c01.xml.stale").read_text() == "v1"
@@ -103,11 +103,11 @@ def test_material_ajeno_requiere_escenario(dv, stubs, tmp_path):
     with pytest.raises(InvalidRequest):
         generate_clip(
             raw_dir=dv / "raw", videos_dir=dv, script=tmp_path / "s.sh",
-            master_name="4.1.mp4", t_event=5.0, t_end=10.0,
+            master_name="4.1.mp4", marks=[5.0, 10.0],
         )
     result = generate_clip(
         raw_dir=dv / "raw", videos_dir=dv, script=tmp_path / "s.sh",
-        master_name="4.1.mp4", t_event=5.0, t_end=10.0, scenario="P2",
+        master_name="4.1.mp4", marks=[5.0, 10.0], scenario="P2",
     )
     assert result["clip_id"] == "a_p2_c01"
 
@@ -116,7 +116,7 @@ def test_master_inexistente(dv, stubs, tmp_path):
     with pytest.raises(InvalidRequest):
         generate_clip(
             raw_dir=dv / "raw", videos_dir=dv, script=tmp_path / "s.sh",
-            master_name="no-esta.mp4", t_event=5.0, t_end=10.0,
+            master_name="no-esta.mp4", marks=[5.0, 10.0],
         )
 
 
@@ -124,7 +124,7 @@ def test_path_traversal_rechazado(dv, stubs, tmp_path):
     with pytest.raises(InvalidRequest):
         generate_clip(
             raw_dir=dv / "raw", videos_dir=dv, script=tmp_path / "s.sh",
-            master_name="../../../etc/passwd", t_event=5.0, t_end=10.0,
+            master_name="../../../etc/passwd", marks=[5.0, 10.0],
         )
 
 
@@ -138,7 +138,7 @@ def test_master_ilegible_propaga_probe_error(dv, stubs, monkeypatch, tmp_path):
     with pytest.raises(ProbeError):
         generate_clip(
             raw_dir=dv / "raw", videos_dir=dv, script=tmp_path / "s.sh",
-            master_name="P1-a-take1.mp4", t_event=5.0, t_end=10.0,
+            master_name="P1-a-take1.mp4", marks=[5.0, 10.0],
         )
 
 
@@ -146,5 +146,25 @@ def test_marcas_invalidas_propagan(dv, stubs, tmp_path):
     with pytest.raises(InvalidMarks):
         generate_clip(
             raw_dir=dv / "raw", videos_dir=dv, script=tmp_path / "s.sh",
-            master_name="P1-a-take1.mp4", t_event=20.0, t_end=10.0,
+            master_name="P1-a-take1.mp4", marks=[20.0, 10.0],
+        )
+
+
+def test_flujo_con_cuatro_marcas_usa_compute_window_multi(dv, stubs, tmp_path):
+    (dv / "raw" / "P6-a-take2.mp4").write_bytes(b"master")
+    result = generate_clip(
+        raw_dir=dv / "raw", videos_dir=dv, script=tmp_path / "s.sh",
+        master_name="P6-a-take2.mp4", marks=[10.0, 13.0, 23.0, 33.0],
+    )
+    assert result["clip_id"] == "a_p6_c01"
+    import yaml
+    data = yaml.safe_load((dv / "a_p6_c01.clip.yaml").read_text())
+    assert len(data["episode_draft"]) == 2
+
+
+def test_numero_de_marcas_invalido_se_rechaza(dv, stubs, tmp_path):
+    with pytest.raises(InvalidRequest):
+        generate_clip(
+            raw_dir=dv / "raw", videos_dir=dv, script=tmp_path / "s.sh",
+            master_name="P1-a-take1.mp4", marks=[10.0, 20.0, 30.0],
         )

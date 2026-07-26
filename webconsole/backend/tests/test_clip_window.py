@@ -116,3 +116,67 @@ def test_p7_y_p9_tambien_avisan_censura_sin_objetivo_cargado():
 def test_episodes_de_un_escenario_sin_condicion_llevan_none():
     w = compute_window(5.0, 6.0, 60.0, "P3")
     assert w.episodes[0].condition is None
+
+
+from eovrt_webconsole.clips.window import compute_window_multi
+
+
+def test_p6_nominal_con_los_tiempos_guionados():
+    # t1=10 (casco fuera), t2=13 (chaleco fuera, +3), t3=23 (chaleco puesto),
+    # t4=33 (casco puesto). El episodio CR-02 (chaleco) queda ANIDADO dentro
+    # del CR-01 (casco): [t1,t4] vs [t2,t3] — doc operacion/72 §4.6.
+    w = compute_window_multi([10.0, 13.0, 23.0, 33.0], master_duration=90.0, scenario="P6")
+    assert w.ss == 6.5   # 10.0 - 3.5
+    assert len(w.episodes) == 2
+    assert w.episodes[0].condition == "CR-01"
+    assert w.episodes[0].onset_ms == 3500        # t1 - ss = 3.5s
+    assert w.episodes[0].end_ms == 26500         # t4 - ss = 26.5s
+    assert w.episodes[1].condition == "CR-02"
+    assert w.episodes[1].onset_ms == 6500        # t2 - ss = 6.5s
+    assert w.episodes[1].end_ms == 16500         # t3 - ss = 16.5s
+    # cobertura = (33-10) + 6.5 = 29.5 ; piso CR-02 = 6.5 + 25 + 1 = 32.5 ; D = 32.5
+    assert w.duration == pytest.approx(32.5)
+
+
+def test_p8_nominal_con_los_tiempos_guionados():
+    # t1=10 (casco fuera), t2=15 (sale de cuadro), t3=23 (vuelve, t3-t1=13),
+    # t4=31 (casco puesto, t4-t1=21).
+    w = compute_window_multi([10.0, 15.0, 23.0, 31.0], master_duration=90.0, scenario="P8")
+    assert w.ss == 6.5
+    assert w.episodes[0].condition == "CR-01"
+    assert w.episodes[1].condition == "CR-01"
+    assert w.episodes[1].onset_ms == 16500   # 3.5 + (23-10)
+    # cobertura = (31-10)+6.5 = 27.5 ; piso ep2 = 16.5+14+1 = 31.5 ; D = 31.5
+    assert w.duration == pytest.approx(31.5)
+
+
+def test_multi_requiere_exactamente_cuatro_marcas():
+    with pytest.raises(InvalidMarks):
+        compute_window_multi([10.0, 20.0, 30.0], master_duration=90.0, scenario="P6")
+
+
+def test_multi_rechaza_marcas_no_crecientes():
+    with pytest.raises(InvalidMarks):
+        compute_window_multi([10.0, 9.0, 20.0, 30.0], master_duration=90.0, scenario="P6")
+
+
+def test_multi_rechaza_marcas_repetidas():
+    with pytest.raises(InvalidMarks):
+        compute_window_multi([10.0, 10.0, 20.0, 30.0], master_duration=90.0, scenario="P6")
+
+
+def test_multi_rechaza_escenario_de_un_episodio():
+    with pytest.raises(InvalidMarks):
+        compute_window_multi([10.0, 13.0, 23.0, 33.0], master_duration=90.0, scenario="P1")
+
+
+def test_multi_marcas_fuera_del_master_se_rechazan():
+    with pytest.raises(InvalidMarks):
+        compute_window_multi([10.0, 13.0, 23.0, 100.0], master_duration=90.0, scenario="P6")
+
+
+def test_multi_clampea_si_el_master_no_alcanza_y_avisa():
+    # El piso pide 32.5 s de duración, pero el master solo tiene 28.5 s desde ss.
+    w = compute_window_multi([10.0, 13.0, 23.0, 33.0], master_duration=35.0, scenario="P6")
+    assert w.duration == pytest.approx(28.5)   # 35.0 - 6.5
+    assert any("no tiene" in msg for msg in w.warnings)
