@@ -16,4 +16,9 @@ describe('Badge', () => {
     expect(el.className).toContain('eo-badge')
     expect(el.className).toContain('eo-badge--ok')
   })
+
+  it('soporta el tono alert (alerta confirmada, distinto de warn)', () => {
+    render(<Badge tone="alert">alerta</Badge>)
+    expect(screen.getByText('alerta').className).toContain('eo-badge--alert')
+  })
 })

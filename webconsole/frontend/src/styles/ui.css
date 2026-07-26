@@ -16,6 +16,7 @@
 .eo-badge--live { color: var(--status-live); }
 .eo-badge--ok { color: var(--status-ok); }
 .eo-badge--warn { color: var(--status-warn); }
+.eo-badge--alert { color: var(--status-alert); }
 .eo-badge--error { color: var(--status-error); }
 .eo-badge--neutral { color: var(--status-neutral); }
 
