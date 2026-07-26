@@ -1,0 +1,37 @@
+# DIAGNÓSTICO. Pattern set oficial v2 (4000/7000). El runner inyecta input.type=bus.
+run:
+  id: null
+  scenario: EBE
+  name: control_diag_riesgo_activo
+  description: "Diagnóstico del indicador de riesgo activo — clip P1 por el bus."
+
+input:
+  bus:
+    endpoint: tcp://127.0.0.1:5557
+    topics:
+      - media.detection.v1.
+      - run.lifecycle.v1.
+    hwm: 1000
+    recv_timeout_ms: 1000
+    idle_timeout_s: 300
+    finish:
+      signal: run_lifecycle
+      poll_url: null
+      poll_interval_s: 5
+
+patterns:
+  file: /home/simonll4/projects/e-ovrt_control-plane/configs/patterns/cr01_cr02_v2.yaml
+  active_ids:
+    - CR-01
+    - CR-02
+
+outputs:
+  base_dir: /home/simonll4/projects/e-ovrt_control-plane/runs
+  save_pattern_events_jsonl: true
+  save_alerts_jsonl: true
+  save_metrics_jsonl: true
+  save_errors_jsonl: true
+  save_summary_json: true
+
+logging:
+  level: INFO

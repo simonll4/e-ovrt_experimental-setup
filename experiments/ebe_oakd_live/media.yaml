@@ -1,0 +1,30 @@
+# Payload media-plane (POST /api/runs) para el experimento EBE live con OAK-D.
+# El runner inyecta `bus: {enabled: true}` — no declararlo aca.
+# Camara: cameras/oak_d_lab.yaml (169.254.31.137, fps 30 -> ~13 fps reales,
+# techo por exposicion del laboratorio, doc 61).
+# Prompt set = espejo inline de prompts/cr01_cr02_v2_short.yaml (congelado).
+ingest:
+  plugin: oak_d
+  config:
+    url: 169.254.31.137
+    fps: 30
+    # Warm-up de lente: descarta los primeros N frames sin procesarlos, hasta que
+    # la exposicion se estabiliza (oak_d_source.py:417). Es por-run, default 0
+    # (schemas.py:218) y NO viene del preset de camara: si no se declara aca, no
+    # se descarta nada. 20 = valor del guion de campo (doc 69); el benchmark
+    # dedicado (doc 61) uso 30 para la OAK-D.
+    warmup_frames: 20
+prompts:
+  set_inline:
+    id: cr01_cr02_v2_short
+    classes:
+      - id: person
+        phrasings: { default: ["person"] }
+      - id: helmet
+        phrasings: { default: ["helmet"] }
+      - id: vest
+        phrasings: { default: ["vest"] }
+  active_ids: [person, helmet, vest]
+run:
+  name: ebe_oakd_live
+  save_previews: true

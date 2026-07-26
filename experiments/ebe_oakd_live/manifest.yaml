@@ -1,0 +1,24 @@
+# Manifiesto paraguas EBE (experiment.manifest.v1, ADR-004 / spec 44 §2) —
+# corrida LIVE 1:1 con la OAK-D: el control-plane consume el bus ZeroMQ del
+# media-plane (ADR-003, spec 41 §4).
+#
+# `sequencing: control_first` NO es opcional: PUB/SUB pierde todo lo publicado
+# antes de la suscripcion, asi que el runner hace POST al control-plane
+# (mode: live) y recien tras confirmar `subscribed=True` dispara el media con
+# bus.enabled=true (runner.py:_run_live, spec 40 §3.2 regla 1).
+# El runner inyecta solo: control.input={type: bus} y media.bus={enabled: true}
+# — no declararlos en los payloads.
+schema_version: experiment.manifest.v1
+slug: ebe_oakd_live
+runs:
+  media:
+    service: media-plane
+    config: /home/simonll4/projects/e-ovrt_experimental-setup/experiments/ebe_oakd_live/media.yaml
+    mode: run
+  control:
+    service: control-plane
+    config: /home/simonll4/projects/e-ovrt_experimental-setup/experiments/ebe_oakd_live/control.yaml
+    mode: live
+sequencing: control_first
+report: {}
+frozen: {}

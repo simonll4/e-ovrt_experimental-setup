@@ -1,0 +1,20 @@
+# DIAGNÓSTICO. Fuente = clip P1 ya grabado (persona sin casco), para no depender
+# de la cámara ni de un actor. El runner inyecta bus.enabled=true.
+ingest:
+  plugin: video_file
+  config:
+    path: /home/simonll4/projects/e-ovrt_datasets/datasets-videos/clips/a_p1_c01.mp4
+prompts:
+  set_inline:
+    id: cr01_cr02_v2_short
+    classes:
+      - id: person
+        phrasings: { default: ["person"] }
+      - id: helmet
+        phrasings: { default: ["helmet"] }
+      - id: vest
+        phrasings: { default: ["vest"] }
+  active_ids: [person, helmet, vest]
+run:
+  name: diag_riesgo_activo
+  save_previews: false

@@ -1,0 +1,19 @@
+schema_version: experiment.manifest.v1
+slug: ebe_p3_live
+experiment_id: null
+runs:
+  media:
+    service: media-plane
+    config: /home/simonll4/projects/e-ovrt_experimental-setup/experiments/ebe_p3_live/media.yaml
+    mode: run
+  control:
+    service: control-plane
+    config: /home/simonll4/projects/e-ovrt_experimental-setup/experiments/ebe_p3_live/control.yaml
+    mode: live
+sequencing: control_first
+report: {}
+frozen: {}
+clip_id: null
+ground_truth: null
+derives_from: ebe_oakd_live
+changes: P3 toma B live — transitorio 2 s, NO debe alertar

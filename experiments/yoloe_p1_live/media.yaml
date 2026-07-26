@@ -1,0 +1,29 @@
+ingest:
+  plugin: oak_d
+  config:
+    url: 169.254.31.137
+    fps: 30
+    warmup_frames: 20
+prompts:
+  set_inline:
+    id: cr01_cr02_v2_short
+    classes:
+    - id: person
+      phrasings:
+        default:
+        - person
+    - id: helmet
+      phrasings:
+        default:
+        - helmet
+    - id: vest
+      phrasings:
+        default:
+        - vest
+  active_ids:
+  - person
+  - helmet
+  - vest
+run:
+  name: yoloe_p1_live
+  save_previews: true

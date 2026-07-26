@@ -1,0 +1,44 @@
+# Payload control-plane (POST /api/runs, mode: live) para el experimento EBE
+# con OAK-D. El runner inyecta `input.type: bus` (fusionandolo con lo de abajo),
+# pero el endpoint y los topics se declaran ACA: `BusInputSection.endpoint` no
+# tiene default y sin el la config no valida.
+# ADR-009: el payload exige paths ABSOLUTOS en patterns.file / outputs.base_dir.
+run:
+  id: null
+  scenario: EBE
+  name: control_ebe_oakd_live
+  description: "Corrida live 1:1 sobre el bus ZeroMQ del media-plane (OAK-D), pattern set oficial v2."
+
+input:
+  bus:
+    endpoint: tcp://127.0.0.1:5557
+    topics:
+      - media.detection.v1.
+      - run.lifecycle.v1.
+    hwm: 1000
+    recv_timeout_ms: 1000
+    # Corte de seguridad si el publicador muere sin `run_finished`.
+    idle_timeout_s: 300
+    finish:
+      signal: run_lifecycle
+      poll_url: null
+      poll_interval_s: 5
+
+patterns:
+  # v2, NO v1 (doc 59 §7): v2 es el pattern set OFICIAL de la Tabla 24/D.4 —
+  # CR-01 high confirm_after_ms=4000, CR-02 medium confirm_after_ms=7000.
+  file: /home/simonll4/projects/e-ovrt_control-plane/configs/patterns/cr01_cr02_v2.yaml
+  active_ids:
+    - CR-01
+    - CR-02
+
+outputs:
+  base_dir: /home/simonll4/projects/e-ovrt_control-plane/runs
+  save_pattern_events_jsonl: true
+  save_alerts_jsonl: true
+  save_metrics_jsonl: true
+  save_errors_jsonl: true
+  save_summary_json: true
+
+logging:
+  level: INFO

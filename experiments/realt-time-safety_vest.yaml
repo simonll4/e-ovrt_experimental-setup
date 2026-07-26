@@ -1,0 +1,16 @@
+run:
+  scenario: DBE
+  name: rt1
+source:
+  type: oak_d
+  url: 169.254.31.137
+  fps: 30
+  warmup_frames: 15
+model:
+  ref: grounding-dino/gdino-tiny-560
+prompts:
+  ref: cr01_cr02_v2_safety_vest
+  active_ids:
+  - person
+  - helmet
+  - vest

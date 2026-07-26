@@ -1,0 +1,19 @@
+schema_version: experiment.manifest.v1
+slug: yoloe_p2_live
+experiment_id: null
+runs:
+  media:
+    service: media-plane
+    config: /home/simonll4/projects/e-ovrt_experimental-setup/experiments/yoloe_p2_live/media.yaml
+    mode: run
+  control:
+    service: control-plane
+    config: /home/simonll4/projects/e-ovrt_experimental-setup/experiments/yoloe_p2_live/control.yaml
+    mode: live
+sequencing: control_first
+report: {}
+frozen: {}
+clip_id: null
+ground_truth: null
+derives_from: ebe_p2_live
+changes: P2 toma B live con yoloe-26x (comparacion vs gdino-tiny-560)

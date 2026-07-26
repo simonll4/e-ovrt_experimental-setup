@@ -1,0 +1,18 @@
+# DIAGNÓSTICO — no es material de tesis. Pasa el clip P1 ya grabado (a_p1_c01.mp4)
+# por los dos planos en EBE, para verificar de punta a punta el bloque `patterns`
+# de /api/runs/current (indicador "riesgo activo" de la consola).
+# Borrable sin consecuencias.
+schema_version: experiment.manifest.v1
+slug: diag_riesgo_activo
+runs:
+  media:
+    service: media-plane
+    config: /home/simonll4/projects/e-ovrt_experimental-setup/experiments/diag_riesgo_activo/media.yaml
+    mode: run
+  control:
+    service: control-plane
+    config: /home/simonll4/projects/e-ovrt_experimental-setup/experiments/diag_riesgo_activo/control.yaml
+    mode: live
+sequencing: control_first
+report: {}
+frozen: {}

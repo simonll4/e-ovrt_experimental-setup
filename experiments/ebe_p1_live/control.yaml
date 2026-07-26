@@ -1,0 +1,33 @@
+run:
+  id: null
+  scenario: EBE
+  name: control_ebe_p1_live
+  description: Corrida live 1:1 sobre el bus ZeroMQ del media-plane (OAK-D), pattern
+    set oficial v2.
+input:
+  bus:
+    endpoint: tcp://127.0.0.1:5557
+    topics:
+    - media.detection.v1.
+    - run.lifecycle.v1.
+    hwm: 1000
+    recv_timeout_ms: 1000
+    idle_timeout_s: 300
+    finish:
+      signal: run_lifecycle
+      poll_url: null
+      poll_interval_s: 5
+patterns:
+  file: /home/simonll4/projects/e-ovrt_control-plane/configs/patterns/cr01_cr02_v2.yaml
+  active_ids:
+  - CR-01
+  - CR-02
+outputs:
+  base_dir: /home/simonll4/projects/e-ovrt_control-plane/runs
+  save_pattern_events_jsonl: true
+  save_alerts_jsonl: true
+  save_metrics_jsonl: true
+  save_errors_jsonl: true
+  save_summary_json: true
+logging:
+  level: INFO
