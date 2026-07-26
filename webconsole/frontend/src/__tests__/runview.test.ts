@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { isLive, isRunning, runStatusLabel, runStatusTone, topologyBadge } from '../runview'
+import { isLive, isRunning, runStatusLabel, runStatusTone, sourceLabel, topologyBadge } from '../runview'
 
 describe('isLive', () => {
   it('true solo cuando running y live', () => {
@@ -68,5 +68,16 @@ describe('runStatusTone / runStatusLabel', () => {
   it('desconocido cae a neutral y muestra el status crudo', () => {
     expect(runStatusTone({ status: 'weird' })).toBe('neutral')
     expect(runStatusLabel({ status: 'weird' })).toBe('weird')
+  })
+})
+
+describe('sourceLabel', () => {
+  it('traduce los tipos de fuente conocidos', () => {
+    expect(sourceLabel('oak_d')).toBe('Cámara OAK-D Pro')
+    expect(sourceLabel('rtsp')).toBe('Cámara RTSP')
+  })
+  it('sin dato muestra guion, tipo desconocido cae al codigo crudo', () => {
+    expect(sourceLabel(null)).toBe('—')
+    expect(sourceLabel('algo_nuevo')).toBe('algo_nuevo')
   })
 })

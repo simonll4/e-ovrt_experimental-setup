@@ -1,30 +1,49 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { deleteRun, listRuns } from '../api'
+import { deleteRun, getTrace, listRuns } from '../api'
 import type { RunRow } from '../types'
-import { Badge, Button, EmptyState, ErrorBanner, Select, Table, MonoCell, NumCell } from '../components/ui'
-import type { SelectOption } from '../components/ui'
-import { isRunning, runStatusTone, runStatusLabel } from '../runview'
+import {
+  Badge, Banner, Button, EmptyState, ErrorBanner, InlineDeleteConfirm,
+  PageHeader, RowNameCell, SearchInput, SegmentedControl, SortableHeader,
+  Table, NumCell,
+} from '../components/ui'
+import type { SortState } from '../components/ui'
+import { isRunning, runStatusTone, runStatusLabel, sourceLabel } from '../runview'
 
-const HEADERS = [
-  'corrida', 'estado', 'modelo', 'fuente', 'prompts',
-  'cuadros por segundo', 'detecciones', 'duración (s)', '',
-]
-
-const STATUS_OPTIONS: SelectOption[] = [
+const SEGMENTS = [
   { value: 'all', label: 'Todas' },
   { value: 'running', label: 'En curso' },
   { value: 'succeeded', label: 'Completadas' },
-  { value: 'failed', label: 'Fallidas' },
   { value: 'stopped', label: 'Detenidas' },
-]
+  { value: 'failed', label: 'Fallidas' },
+] as const
+type Segment = (typeof SEGMENTS)[number]['value']
+
+// hace(): antigüedad legible cuando la fila no tiene nombre.
+function hace(startedAt: string | null | undefined): string {
+  if (!startedAt) return '—'
+  const min = Math.floor((Date.now() - new Date(startedAt).getTime()) / 60000)
+  if (min < 1) return 'recién'
+  if (min < 60) return `hace ${min} min`
+  const h = Math.floor(min / 60)
+  if (h < 24) return `hace ${h} h`
+  return `hace ${Math.floor(h / 24)} d`
+}
+
+function numOrNull(v: number | null | undefined): number {
+  return v == null ? -Infinity : v
+}
 
 export default function RunsPage() {
   const [rows, setRows] = useState<RunRow[] | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [confirmId, setConfirmId] = useState<string | null>(null)
   const [deleteError, setDeleteError] = useState<string | null>(null)
-  const [statusFilter, setStatusFilter] = useState('all')
+  const [query, setQuery] = useState('')
+  const [segment, setSegment] = useState<Segment>('all')
+  const [sort, setSort] = useState<SortState | null>(null)
+  const [liveAlerts, setLiveAlerts] = useState<number | null>(null)
 
   const refresh = () =>
     listRuns()
@@ -53,8 +72,30 @@ export default function RunsPage() {
     }
   }, [])
 
+  const liveRun = rows?.find((r) => r.status === 'running') ?? null
+
+  // Resumen de la corrida en vivo: totals.alerts de la traza, un pedido liviano
+  // (page_size=1) — se omite si control_run_id es null (no evaluada por el motor de reglas).
+  useEffect(() => {
+    if (!liveRun) {
+      setLiveAlerts(null)
+      return
+    }
+    let alive = true
+    getTrace(liveRun.run_id, 1, 1)
+      .then((t) => {
+        if (alive) setLiveAlerts(t.control_run_id ? t.totals.alerts : null)
+      })
+      .catch(() => {
+        if (alive) setLiveAlerts(null)
+      })
+    return () => {
+      alive = false
+    }
+  }, [liveRun?.run_id])
+
   const handleDelete = async (row: RunRow) => {
-    if (!window.confirm(`¿Borrar la corrida ${row.run_id}? No se puede deshacer.`)) return
+    setConfirmId(null)
     setDeletingId(row.run_id)
     setDeleteError(null)
     try {
@@ -76,56 +117,151 @@ export default function RunsPage() {
     }
   }
 
-  const visibleRows = useMemo(() => {
-    if (!rows) return rows
-    if (statusFilter === 'all') return rows
-    return rows.filter((r) => r.status === statusFilter)
-  }, [rows, statusFilter])
+  const filtered = useMemo(() => {
+    if (!rows) return null
+    const q = query.trim().toLowerCase()
+    return rows.filter((r) => {
+      if (segment !== 'all') {
+        if (segment === 'failed' ? !['failed', 'error'].includes(r.status) : r.status !== segment) return false
+      }
+      if (q && !`${r.name ?? ''} ${r.run_id}`.toLowerCase().includes(q)) return false
+      return true
+    })
+  }, [rows, query, segment])
+
+  const sorted = useMemo(() => {
+    if (!filtered) return filtered
+    if (!sort) return filtered
+    const dir = sort.dir === 'asc' ? 1 : -1
+    const key = sort.key as keyof RunRow
+    return [...filtered].sort((a, b) => {
+      const av = a[key]
+      const bv = b[key]
+      if (typeof av === 'number' || typeof bv === 'number') {
+        return (numOrNull(av as number) - numOrNull(bv as number)) * dir
+      }
+      return String(av ?? '').localeCompare(String(bv ?? '')) * dir
+    })
+  }, [filtered, sort])
+
+  const onSort = (key: string) => {
+    setSort((s) => (s?.key === key ? { key, dir: s.dir === 'asc' ? 'desc' : 'asc' } : { key, dir: 'asc' }))
+  }
 
   if (error) return <ErrorBanner>{error}</ErrorBanner>
   if (!rows) return <p className="eo-empty">Cargando…</p>
+
+  const runningCount = rows.filter((r) => r.status === 'running').length
+
   return (
     <div>
+      <PageHeader
+        title="Corridas"
+        meta={
+          <>
+            <span>{rows.length} en total</span>
+            {runningCount > 0 && (
+              <>
+                <span className="eo-sep">·</span>
+                <span style={{ color: 'var(--live)' }}>{runningCount} en curso</span>
+              </>
+            )}
+          </>
+        }
+        actions={
+          <Link to="/compose" className="eo-btn eo-btn--primary">
+            ▶ Nueva corrida
+          </Link>
+        }
+      />
+      {liveRun && (
+        <Banner
+          tone="live"
+          action={
+            <Link to={`/runs/${liveRun.run_id}`} className="eo-btn eo-btn--secondary">
+              Ver en vivo
+            </Link>
+          }
+        >
+          <b>{liveRun.name || liveRun.run_id}</b> está procesando ahora
+          {liveAlerts !== null ? ` — ${liveAlerts} alertas confirmadas.` : '.'}
+        </Banner>
+      )}
       {deleteError && <ErrorBanner>{deleteError}</ErrorBanner>}
-      <div className="eo-toolbar">
-        <Select value={statusFilter} options={STATUS_OPTIONS} onChange={setStatusFilter} />
+      <div className="eo-toolbar2">
+        <SearchInput
+          value={query}
+          onChange={setQuery}
+          placeholder="Buscar por nombre o identificador"
+          ariaLabel="Buscar corridas"
+        />
+        <SegmentedControl value={segment} options={[...SEGMENTS]} onChange={setSegment} />
+        <span className="eo-toolbar2__count">{sorted!.length} de {rows.length}</span>
       </div>
       <Table>
         <thead>
-          <tr>{HEADERS.map((h) => <th key={h}>{h}</th>)}</tr>
+          <tr>
+            <SortableHeader label="Corrida" sortKey="name" sortState={sort} onSort={onSort} />
+            <SortableHeader label="Estado" sortKey="status" sortState={sort} onSort={onSort} />
+            <th>Modelo</th>
+            <th>Fuente</th>
+            <th>Conjunto de prompts</th>
+            <SortableHeader label="Cuadros/s" sortKey="fps_effective" sortState={sort} onSort={onSort} numeric />
+            <SortableHeader label="Detecciones" sortKey="total_detections" sortState={sort} onSort={onSort} numeric />
+            <SortableHeader label="Duración" sortKey="duration_seconds" sortState={sort} onSort={onSort} numeric />
+            <th></th>
+          </tr>
         </thead>
         <tbody>
-          {visibleRows!.map((r) => (
-            <tr key={r.run_id}>
-              <MonoCell title={r.run_id}>
-                <Link to={`/runs/${r.run_id}`}>{r.name || r.run_id}</Link>
-                {r.name && <><br /><small>{r.run_id}</small></>}
-              </MonoCell>
+          {sorted!.map((r) => (
+            <tr key={r.run_id} className="eo-row--clickable">
+              <RowNameCell
+                title={<Link to={`/runs/${r.run_id}`}>{r.name || r.run_id}</Link>}
+                subtitle={r.name ? r.run_id : hace(r.started_at)}
+              />
               <td>
-                <Badge tone={runStatusTone(r)}>{runStatusLabel(r)}</Badge>
-                {r.topology === 'two_node' ? <small> dos equipos</small> : null}
+                <Badge tone={runStatusTone(r)} pulse={isRunning(r)}>{runStatusLabel(r)}</Badge>
               </td>
-              <td>{r.model ?? '—'}</td>
-              <td>{r.source_type ?? '—'}</td>
-              <td>{r.prompt_set_id ?? '—'}</td>
+              <td className={r.model ? 'eo-mono' : undefined}>{r.model ?? '—'}</td>
+              <td>{sourceLabel(r.source_type)}</td>
+              <td className={r.prompt_set_id ? 'eo-mono' : undefined}>{r.prompt_set_id ?? '—'}</td>
               <NumCell>{r.fps_effective ?? '—'}</NumCell>
               <NumCell>{r.total_detections ?? '—'}</NumCell>
-              <NumCell>{r.duration_seconds ?? '—'}</NumCell>
-              <td>
-                {!isRunning(r) && (
-                  <Button
-                    variant="danger"
-                    disabled={deletingId === r.run_id}
-                    onClick={() => void handleDelete(r)}
-                  >
-                    Borrar
-                  </Button>
+              <NumCell>{r.duration_seconds != null ? `${r.duration_seconds} s` : '—'}</NumCell>
+              <td className="eo-cell--actions">
+                {confirmId === r.run_id ? (
+                  <InlineDeleteConfirm
+                    onConfirm={() => void handleDelete(r)}
+                    onCancel={() => setConfirmId(null)}
+                  />
+                ) : (
+                  !isRunning(r) && (
+                    <Button
+                      variant="ghost"
+                      disabled={deletingId === r.run_id}
+                      onClick={() => setConfirmId(r.run_id)}
+                    >
+                      Borrar
+                    </Button>
+                  )
                 )}
               </td>
             </tr>
           ))}
-          {visibleRows!.length === 0 && (
-            <tr><td colSpan={9}><EmptyState>Sin corridas todavía.</EmptyState></td></tr>
+          {sorted!.length === 0 && (
+            <tr>
+              <td colSpan={9}>
+                {query || segment !== 'all' ? (
+                  <EmptyState hint="Probá con otro texto o volvé a «Todas».">
+                    Ninguna corrida coincide con el filtro.
+                  </EmptyState>
+                ) : (
+                  <EmptyState hint="Empezá por elegir una fuente y un conjunto de prompts.">
+                    Todavía no lanzaste ninguna corrida.
+                  </EmptyState>
+                )}
+              </td>
+            </tr>
           )}
         </tbody>
       </Table>

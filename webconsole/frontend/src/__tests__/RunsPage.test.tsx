@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import RunsPage from '../pages/RunsPage'
 import * as api from '../api'
@@ -22,7 +22,8 @@ describe('RunsPage', () => {
       { run_id: 'r_2', status: 'succeeded', model: 'gdino' } as any,
     ])
     renderPage()
-    await waitFor(() => expect(screen.getByText('r_1')).toBeTruthy())
+    const table = await screen.findByRole('table')
+    await waitFor(() => expect(within(table).getByText('r_1')).toBeTruthy())
     expect(screen.getByText('en curso').className).toContain('eo-badge--live')
     expect(screen.getByText('completada').className).toContain('eo-badge--ok')
   })
@@ -34,16 +35,16 @@ describe('RunsPage', () => {
       { run_id: 'r_failed', status: 'failed', model: 'gdino' } as any,
     ])
     renderPage()
-    await waitFor(() => expect(screen.getByText('r_running')).toBeTruthy())
-    expect(screen.getByText('r_ok')).toBeTruthy()
-    expect(screen.getByText('r_failed')).toBeTruthy()
+    const table = await screen.findByRole('table')
+    await waitFor(() => expect(within(table).getByText('r_running')).toBeTruthy())
+    expect(within(table).getByText('r_ok')).toBeTruthy()
+    expect(within(table).getByText('r_failed')).toBeTruthy()
 
-    fireEvent.click(screen.getByRole('button', { name: 'Todas' }))
-    fireEvent.click(screen.getByRole('option', { name: 'En curso' }))
+    fireEvent.click(screen.getByRole('button', { name: 'En curso' }))
 
-    expect(screen.getByText('r_running')).toBeTruthy()
-    expect(screen.queryByText('r_ok')).toBeNull()
-    expect(screen.queryByText('r_failed')).toBeNull()
+    expect(within(table).getByText('r_running')).toBeTruthy()
+    expect(within(table).queryByText('r_ok')).toBeNull()
+    expect(within(table).queryByText('r_failed')).toBeNull()
   })
 
   // `stopped` es ~21% del corpus real: sin la opción de filtro esas corridas
@@ -57,8 +58,7 @@ describe('RunsPage', () => {
     await waitFor(() => expect(screen.getByText('r_stopped')).toBeTruthy())
     expect(screen.getByText('detenida').className).toContain('eo-badge--neutral')
 
-    fireEvent.click(screen.getByRole('button', { name: 'Todas' }))
-    fireEvent.click(screen.getByRole('option', { name: 'Detenidas' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Detenidas' }))
 
     expect(screen.getByText('r_stopped')).toBeTruthy()
     expect(screen.queryByText('r_ok')).toBeNull()
@@ -78,7 +78,7 @@ describe('RunsPage', () => {
   it('estado vacío cuando no hay corridas', async () => {
     vi.mocked(api.listRuns).mockResolvedValue([])
     renderPage()
-    await waitFor(() => expect(screen.getByText('Sin corridas todavía.')).toBeTruthy())
+    await waitFor(() => expect(screen.getByText(/todavía no lanzaste ninguna corrida/i)).toBeTruthy())
   })
 
   it('muestra el error con role alert', async () => {
@@ -93,7 +93,8 @@ describe('RunsPage', () => {
       { run_id: 'r_2', status: 'succeeded', model: 'gdino' } as any,
     ])
     renderPage()
-    await waitFor(() => expect(screen.getByText('r_1')).toBeTruthy())
+    const table = await screen.findByRole('table')
+    await waitFor(() => expect(within(table).getByText('r_1')).toBeTruthy())
     expect(screen.queryAllByRole('button', { name: 'Borrar' })).toHaveLength(1)
   })
 
@@ -101,10 +102,12 @@ describe('RunsPage', () => {
     vi.mocked(api.listRuns).mockResolvedValue([
       { run_id: 'r_2', status: 'succeeded', model: 'gdino' } as any,
     ])
-    vi.spyOn(window, 'confirm').mockReturnValue(false)
     renderPage()
     await waitFor(() => expect(screen.getByText('r_2')).toBeTruthy())
     fireEvent.click(screen.getByRole('button', { name: 'Borrar' }))
+    expect(screen.getByText('¿Borrar?')).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: 'No' }))
+    expect(screen.queryByText('¿Borrar?')).toBeNull()
     expect(api.deleteRun).not.toHaveBeenCalled()
   })
 
@@ -113,12 +116,12 @@ describe('RunsPage', () => {
       .mockResolvedValueOnce([{ run_id: 'r_2', status: 'succeeded', model: 'gdino' } as any])
       .mockResolvedValueOnce([])
     vi.mocked(api.deleteRun).mockResolvedValue(undefined)
-    vi.spyOn(window, 'confirm').mockReturnValue(true)
     renderPage()
     await waitFor(() => expect(screen.getByText('r_2')).toBeTruthy())
     fireEvent.click(screen.getByRole('button', { name: 'Borrar' }))
+    fireEvent.click(screen.getByRole('button', { name: /sí, borrar/i }))
     await waitFor(() => expect(api.deleteRun).toHaveBeenCalledWith('r_2'))
-    await waitFor(() => expect(screen.getByText('Sin corridas todavía.')).toBeTruthy())
+    await waitFor(() => expect(screen.getByText(/todavía no lanzaste ninguna corrida/i)).toBeTruthy())
   })
 
   it('borrado parcial muestra el detalle de los planos que fallaron, y persiste tras el refresh de la lista', async () => {
@@ -129,10 +132,10 @@ describe('RunsPage', () => {
       detail: 'partial',
       errors: { control: 'no encontrado' },
     })
-    vi.spyOn(window, 'confirm').mockReturnValue(true)
     renderPage()
     await waitFor(() => expect(screen.getByText('r_2')).toBeTruthy())
     fireEvent.click(screen.getByRole('button', { name: 'Borrar' }))
+    fireEvent.click(screen.getByRole('button', { name: /sí, borrar/i }))
     await waitFor(() => expect(screen.getByRole('alert').textContent).toContain('control'))
 
     // El `finally` de handleDelete dispara un refresh() de la lista (listRuns) que
@@ -141,5 +144,85 @@ describe('RunsPage', () => {
     // alert sigue presente (regresión del bug: refresh() pisaba `error` con `null`).
     await waitFor(() => expect(vi.mocked(api.listRuns).mock.calls.length).toBeGreaterThanOrEqual(2))
     await waitFor(() => expect(screen.getByRole('alert').textContent).toContain('control'))
+  })
+
+  it('el encabezado muestra el total y, si hay alguna en curso, el conteo en vivo', async () => {
+    vi.mocked(api.listRuns).mockResolvedValue([
+      { run_id: 'r1', status: 'running', model: 'gdino' } as any,
+      { run_id: 'r2', status: 'succeeded', model: 'gdino' } as any,
+    ])
+    renderPage()
+    await waitFor(() => expect(screen.getByText('2 en total')).toBeTruthy())
+    expect(screen.getByText('1 en curso')).toBeTruthy()
+  })
+
+  it('sin corridas en curso, no muestra el fragmento "en curso"', async () => {
+    vi.mocked(api.listRuns).mockResolvedValue([{ run_id: 'r1', status: 'succeeded', model: 'gdino' } as any])
+    renderPage()
+    await waitFor(() => expect(screen.getByText('1 en total')).toBeTruthy())
+    expect(screen.queryByText(/en curso/)).toBeNull()
+  })
+
+  it('la busqueda filtra por nombre e identificador', async () => {
+    vi.mocked(api.listRuns).mockResolvedValue([
+      { run_id: 'run_a', name: 'Ronda nocturna', status: 'succeeded', model: 'gdino' } as any,
+      { run_id: 'run_b', name: 'Barrido diurno', status: 'succeeded', model: 'gdino' } as any,
+    ])
+    renderPage()
+    await waitFor(() => expect(screen.getByText('Ronda nocturna')).toBeTruthy())
+    fireEvent.change(screen.getByLabelText('Buscar corridas'), { target: { value: 'nocturna' } })
+    expect(screen.queryByText('Barrido diurno')).toBeNull()
+    expect(screen.getByText('Ronda nocturna')).toBeTruthy()
+  })
+
+  it('el segmentado filtra por estado y el contador N de M se actualiza', async () => {
+    vi.mocked(api.listRuns).mockResolvedValue([
+      { run_id: 'run_a', status: 'running', model: 'gdino' } as any,
+      { run_id: 'run_b', status: 'succeeded', model: 'gdino' } as any,
+    ])
+    renderPage()
+    await waitFor(() => expect(screen.getByText('2 de 2')).toBeTruthy())
+    fireEvent.click(screen.getByRole('button', { name: 'En curso' }))
+    expect(screen.getByText('1 de 2')).toBeTruthy()
+  })
+
+  it('clic en el encabezado de una columna numerica ordena, segundo clic invierte', async () => {
+    vi.mocked(api.listRuns).mockResolvedValue([
+      { run_id: 'run_a', status: 'succeeded', model: 'gdino', fps_effective: 1.5 } as any,
+      { run_id: 'run_b', status: 'succeeded', model: 'gdino', fps_effective: 5.5 } as any,
+    ])
+    renderPage()
+    await waitFor(() => expect(screen.getByText('run_a')).toBeTruthy())
+    fireEvent.click(screen.getByRole('columnheader', { name: /cuadros\/s/i }))
+    let rows = screen.getAllByRole('row').slice(1)
+    expect(rows[0].textContent).toContain('run_a') // ascendente: menor primero
+    fireEvent.click(screen.getByRole('columnheader', { name: /cuadros\/s/i }))
+    rows = screen.getAllByRole('row').slice(1)
+    expect(rows[0].textContent).toContain('run_b') // descendente: mayor primero
+  })
+
+  it('la fuente se muestra traducida', async () => {
+    vi.mocked(api.listRuns).mockResolvedValue([
+      { run_id: 'run_a', status: 'succeeded', model: 'gdino', source_type: 'oak_d' } as any,
+    ])
+    renderPage()
+    await waitFor(() => expect(screen.getByText('Cámara OAK-D Pro')).toBeTruthy())
+  })
+
+  it('borrar pide confirmacion en linea antes de llamar a la API', async () => {
+    vi.mocked(api.listRuns).mockResolvedValue([{ run_id: 'run_a', status: 'succeeded', model: 'gdino' } as any])
+    renderPage()
+    await waitFor(() => expect(screen.getByText('run_a')).toBeTruthy())
+    fireEvent.click(screen.getByRole('button', { name: 'Borrar' }))
+    expect(screen.getByText('¿Borrar?')).toBeTruthy()
+    expect(api.deleteRun).not.toHaveBeenCalled()
+    fireEvent.click(screen.getByRole('button', { name: /sí, borrar/i }))
+    await waitFor(() => expect(api.deleteRun).toHaveBeenCalledWith('run_a'))
+  })
+
+  it('lista vacia por falta de datos muestra un texto distinto que vacia por filtro', async () => {
+    vi.mocked(api.listRuns).mockResolvedValue([])
+    renderPage()
+    await waitFor(() => expect(screen.getByText(/todavía no lanzaste ninguna corrida/i)).toBeTruthy())
   })
 })

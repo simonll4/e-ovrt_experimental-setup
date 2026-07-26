@@ -42,3 +42,18 @@ export function runStatusLabel(run: { status: string; live?: boolean }): string 
   if (run.status === 'stopped') return 'detenida'
   return run.status
 }
+
+// Traduce `row.source_type` a la etiqueta legible del prototipo. Vocabulario real
+// medido en proto-ref-02 §0.1: image_folder, video_file, rtsp, oak_d. Un tipo
+// desconocido cae al código crudo en vez de ocultar el dato (ver §1.2, columna Fuente).
+const SOURCE_LABELS: Record<string, string> = {
+  image_folder: 'Carpeta de imágenes',
+  video_file: 'Archivo de video',
+  rtsp: 'Cámara RTSP',
+  oak_d: 'Cámara OAK-D Pro',
+}
+
+export function sourceLabel(sourceType: string | null | undefined): string {
+  if (!sourceType) return '—'
+  return SOURCE_LABELS[sourceType] ?? sourceType
+}
