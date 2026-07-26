@@ -8,6 +8,11 @@ vi.mock('../api', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../api')>()),
   listRuns: vi.fn(),
   deleteRun: vi.fn(),
+  getTrace: vi.fn().mockResolvedValue({
+    media_run_id: 'r_1', control_run_id: null, topology: null, control_error: null,
+    totals: { frames: 0, detections: 0, dropped_by_reason: {}, alerts: 0, received: null, not_received: null },
+    page: 1, page_size: 1, total: 0, frames: [],
+  }),
 }))
 
 beforeEach(() => vi.clearAllMocks())
@@ -224,5 +229,73 @@ describe('RunsPage', () => {
     vi.mocked(api.listRuns).mockResolvedValue([])
     renderPage()
     await waitFor(() => expect(screen.getByText(/todavía no lanzaste ninguna corrida/i)).toBeTruthy())
+  })
+
+  it('las corridas sin metricas (no hidratadas) quedan siempre al final al ordenar, en ambas direcciones', async () => {
+    vi.mocked(api.listRuns).mockResolvedValue([
+      { run_id: 'run_sin_metricas', status: 'succeeded' } as any, // sin fps_effective: no hidratada
+      { run_id: 'run_baja', status: 'succeeded', model: 'gdino', fps_effective: 1.5 } as any,
+      { run_id: 'run_alta', status: 'succeeded', model: 'gdino', fps_effective: 5.5 } as any,
+    ])
+    renderPage()
+    await waitFor(() => expect(screen.getByText('run_baja')).toBeTruthy())
+
+    fireEvent.click(screen.getByRole('columnheader', { name: /cuadros\/s/i }))
+    let rows = screen.getAllByRole('row').slice(1)
+    expect(rows[rows.length - 1].textContent).toContain('run_sin_metricas') // ascendente: al final
+
+    fireEvent.click(screen.getByRole('columnheader', { name: /cuadros\/s/i }))
+    rows = screen.getAllByRole('row').slice(1)
+    expect(rows[rows.length - 1].textContent).toContain('run_sin_metricas') // descendente: tambien al final
+  })
+
+  it('nota al pie "N corridas sin metricas cargadas" solo aparece si alguna fila visible no esta hidratada', async () => {
+    vi.mocked(api.listRuns).mockResolvedValue([
+      { run_id: 'run_a', status: 'succeeded' } as any,
+      { run_id: 'run_b', status: 'succeeded', model: 'gdino', fps_effective: 2 } as any,
+    ])
+    renderPage()
+    await waitFor(() => expect(screen.getByText('1 corrida sin métricas cargadas.')).toBeTruthy())
+  })
+
+  it('sin filas sin hidratar, no muestra la nota al pie', async () => {
+    vi.mocked(api.listRuns).mockResolvedValue([
+      { run_id: 'run_a', status: 'succeeded', model: 'gdino', fps_effective: 2 } as any,
+    ])
+    renderPage()
+    await waitFor(() => expect(screen.getByText('run_a')).toBeTruthy())
+    expect(screen.queryByText(/sin métricas cargadas/)).toBeNull()
+  })
+
+  it('sin nombre ni started_at, la fecha se deriva del run_id', async () => {
+    vi.mocked(api.listRuns).mockResolvedValue([
+      { run_id: 'run_20260723_143012_dbe_grounding_dino_abc123', status: 'succeeded' } as any,
+    ])
+    renderPage()
+    await waitFor(() => expect(screen.getByText(/hace \d+ [dh]|recién/)).toBeTruthy())
+  })
+
+  it('confirmar borrado y despues buscar, cierra la confirmacion pendiente', async () => {
+    vi.mocked(api.listRuns).mockResolvedValue([
+      { run_id: 'run_a', status: 'succeeded', model: 'gdino' } as any,
+    ])
+    renderPage()
+    await waitFor(() => expect(screen.getByText('run_a')).toBeTruthy())
+    fireEvent.click(screen.getByRole('button', { name: 'Borrar' }))
+    expect(screen.getByText('¿Borrar?')).toBeTruthy()
+    fireEvent.change(screen.getByLabelText('Buscar corridas'), { target: { value: 'x' } })
+    expect(screen.queryByText('¿Borrar?')).toBeNull()
+  })
+
+  it('confirmar borrado y despues cambiar el segmentado, cierra la confirmacion pendiente', async () => {
+    vi.mocked(api.listRuns).mockResolvedValue([
+      { run_id: 'run_a', status: 'succeeded', model: 'gdino' } as any,
+    ])
+    renderPage()
+    await waitFor(() => expect(screen.getByText('run_a')).toBeTruthy())
+    fireEvent.click(screen.getByRole('button', { name: 'Borrar' }))
+    expect(screen.getByText('¿Borrar?')).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: 'Todas' }))
+    expect(screen.queryByText('¿Borrar?')).toBeNull()
   })
 })

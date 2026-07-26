@@ -19,19 +19,25 @@ const SEGMENTS = [
 ] as const
 type Segment = (typeof SEGMENTS)[number]['value']
 
+// Degradación de fecha de creación cuando la fila no vino hidratada (started_at
+// ausente): el run_id es determinista (run_YYYYMMDD_HHMMSS_...) y se puede parsear.
+function parseRunIdDate(runId: string): Date | null {
+  const m = runId.match(/^run_(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})(\d{2})/)
+  if (!m) return null
+  const [, y, mo, d, h, mi, s] = m
+  return new Date(Date.UTC(+y, +mo - 1, +d, +h, +mi, +s))
+}
+
 // hace(): antigüedad legible cuando la fila no tiene nombre.
-function hace(startedAt: string | null | undefined): string {
-  if (!startedAt) return '—'
-  const min = Math.floor((Date.now() - new Date(startedAt).getTime()) / 60000)
+function hace(startedAt: string | null | undefined, runId: string): string {
+  const date = startedAt ? new Date(startedAt) : parseRunIdDate(runId)
+  if (!date) return '—'
+  const min = Math.floor((Date.now() - date.getTime()) / 60000)
   if (min < 1) return 'recién'
   if (min < 60) return `hace ${min} min`
   const h = Math.floor(min / 60)
   if (h < 24) return `hace ${h} h`
   return `hace ${Math.floor(h / 24)} d`
-}
-
-function numOrNull(v: number | null | undefined): number {
-  return v == null ? -Infinity : v
 }
 
 export default function RunsPage() {
@@ -137,10 +143,16 @@ export default function RunsPage() {
     return [...filtered].sort((a, b) => {
       const av = a[key]
       const bv = b[key]
+      // Los valores ausentes (filas no hidratadas) van siempre al final,
+      // independiente de la dirección de orden — no negociable (proto-ref-02 §1.2).
+      const aMissing = av == null
+      const bMissing = bv == null
+      if (aMissing !== bMissing) return aMissing ? 1 : -1
+      if (aMissing && bMissing) return 0
       if (typeof av === 'number' || typeof bv === 'number') {
-        return (numOrNull(av as number) - numOrNull(bv as number)) * dir
+        return ((av as number) - (bv as number)) * dir
       }
-      return String(av ?? '').localeCompare(String(bv ?? '')) * dir
+      return String(av).localeCompare(String(bv)) * dir
     })
   }, [filtered, sort])
 
@@ -191,11 +203,15 @@ export default function RunsPage() {
       <div className="eo-toolbar2">
         <SearchInput
           value={query}
-          onChange={setQuery}
+          onChange={(v) => { setQuery(v); setConfirmId(null) }}
           placeholder="Buscar por nombre o identificador"
           ariaLabel="Buscar corridas"
         />
-        <SegmentedControl value={segment} options={[...SEGMENTS]} onChange={setSegment} />
+        <SegmentedControl
+          value={segment}
+          options={[...SEGMENTS]}
+          onChange={(v) => { setSegment(v); setConfirmId(null) }}
+        />
         <span className="eo-toolbar2__count">{sorted!.length} de {rows.length}</span>
       </div>
       <Table>
@@ -217,7 +233,7 @@ export default function RunsPage() {
             <tr key={r.run_id} className="eo-row--clickable">
               <RowNameCell
                 title={<Link to={`/runs/${r.run_id}`}>{r.name || r.run_id}</Link>}
-                subtitle={r.name ? r.run_id : hace(r.started_at)}
+                subtitle={r.name ? r.run_id : hace(r.started_at, r.run_id)}
               />
               <td>
                 <Badge tone={runStatusTone(r)} pulse={isRunning(r)}>{runStatusLabel(r)}</Badge>
@@ -225,9 +241,11 @@ export default function RunsPage() {
               <td className={r.model ? 'eo-mono' : undefined}>{r.model ?? '—'}</td>
               <td>{sourceLabel(r.source_type)}</td>
               <td className={r.prompt_set_id ? 'eo-mono' : undefined}>{r.prompt_set_id ?? '—'}</td>
-              <NumCell>{r.fps_effective ?? '—'}</NumCell>
-              <NumCell>{r.total_detections ?? '—'}</NumCell>
-              <NumCell>{r.duration_seconds != null ? `${r.duration_seconds} s` : '—'}</NumCell>
+              <NumCell>{r.fps_effective ?? <span style={{ color: 'var(--tx4)' }}>—</span>}</NumCell>
+              <NumCell>{r.total_detections ?? <span style={{ color: 'var(--tx4)' }}>—</span>}</NumCell>
+              <NumCell>
+                {r.duration_seconds != null ? `${r.duration_seconds} s` : <span style={{ color: 'var(--tx4)' }}>—</span>}
+              </NumCell>
               <td className="eo-cell--actions">
                 {confirmId === r.run_id ? (
                   <InlineDeleteConfirm
@@ -265,6 +283,14 @@ export default function RunsPage() {
           )}
         </tbody>
       </Table>
+      {(() => {
+        const sinMetricas = sorted!.filter((r) => r.fps_effective == null).length
+        return sinMetricas > 0 ? (
+          <p className="eo-note" style={{ padding: '8px 20px', color: 'var(--tx4)' }}>
+            {sinMetricas} corrida{sinMetricas === 1 ? '' : 's'} sin métricas cargadas.
+          </p>
+        ) : null
+      })()}
     </div>
   )
 }
