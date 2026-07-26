@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { getCompare, listRuns } from '../api'
 import GroupedBars from '../components/GroupedBars'
-import { Badge, EmptyState, ErrorBanner } from '../components/ui'
+import { Badge, EmptyState, ErrorBanner, MonoCell, Table } from '../components/ui'
 import { conditionLabel } from '../labels'
 import type { CompareResult, RunRow } from '../types'
 
@@ -78,7 +78,7 @@ export default function ComparePage() {
               checked={selected.includes(r.run_id)}
               onChange={() => toggle(r.run_id)}
             />{' '}
-            {r.run_id} — {r.model ?? '—'} · {r.bench_split ?? '—'}
+            <span className="eo-mono">{r.run_id}</span> — {r.model ?? '—'} · {r.bench_split ?? '—'}
           </label>
         ))}
       </div>
@@ -91,7 +91,7 @@ export default function ComparePage() {
               Sin evaluación (omitidos):{' '}
               {result.skipped.map((id) => (
                 <Badge key={id} tone="warn">
-                  {id}
+                  <span className="eo-mono">{id}</span>
                 </Badge>
               ))}
             </p>
@@ -101,13 +101,13 @@ export default function ComparePage() {
               result.runs.map((r) => r.bench_split).filter((b): b is string => b !== null),
             )
             return splits.size > 1 ? (
-              <p className="eo-note--warn">
+              <p className="eo-note eo-note--warn">
                 ⚠ Estás comparando corridas sobre conjuntos de evaluación distintos (
                 {result.runs.map((r) => r.bench_split ?? 'sin dato').join(' vs. ')}).
               </p>
             ) : null
           })()}
-          <table className="eo-table">
+          <Table>
             <thead>
               <tr>
                 <th>métrica</th>
@@ -126,7 +126,7 @@ export default function ComparePage() {
               />
               <MetricRow name="mAP@0.5" values={result.runs.map((r) => r.mAP50)} />
             </tbody>
-          </table>
+          </Table>
           <GroupedBars
             groups={result.classes}
             series={series}

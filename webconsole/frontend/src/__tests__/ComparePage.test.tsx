@@ -94,4 +94,10 @@ describe('ComparePage', () => {
     fireEvent.click(checkboxes[1])
     await waitFor(() => expect(screen.getByText(/CR-01 — Presencia de persona sin casco/)).toBeTruthy())
   })
+
+  it('el id de una corrida en el selector se muestra en monoespaciada', async () => {
+    vi.mocked(listRuns).mockResolvedValue(ROWS)
+    render(<ComparePage />)
+    await waitFor(() => expect(screen.getByText('run_a').className).toContain('eo-mono'))
+  })
 })
