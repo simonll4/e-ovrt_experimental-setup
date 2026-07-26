@@ -8,10 +8,10 @@ vi.mock('../api', async (importOriginal) => ({
   getDatasets: vi.fn(),
   getIngestPlugins: vi.fn(),
   getPromptSets: vi.fn(),
-}))
-
-vi.mock('../useTarget', () => ({
-  useTarget: () => null,
+  getTarget: vi.fn(async () => ({
+    service_url: 'http://x', healthy: true, ready: true,
+    model: { ref: 'mock', name: null, adapter: null, device: null, thresholds: {}, runtime: {} },
+  })),
 }))
 
 beforeEach(() => vi.clearAllMocks())
