@@ -189,6 +189,21 @@
 .eo-table tbody tr:hover { background: var(--surface-raised); }
 .eo-table td.eo-num { text-align: right; font-variant-numeric: tabular-nums; }
 
+/* Densidad de consola: filas de 32px, no tarjeta por fila. */
+.eo-table--dense th,
+.eo-table--dense td {
+  height: 32px;
+  padding: 0 var(--space-3);
+}
+
+/* Monoespaciada para identificadores literales (run_id, unit_id, rutas, métricas). */
+.eo-mono {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
 /* Progress bar — traza correlacionada por frame */
 .eo-progressbar {
   height: 6px;
