@@ -2,6 +2,7 @@
 
 import base64
 import os
+import sys
 import time
 
 # Flujo H.264 Annex-B mínimo pero DECODABLE (SPS+PPS+IDR, 5 frames a 64x64/10fps,
@@ -69,6 +70,13 @@ class _Queue:
         # _WARMUP_PACKETS paquetes de calentamiento, después el stream Annex-B
         # válido completo en un solo paquete, después nada más (para no
         # corromper el archivo con relleno).
+        if self._emitted == 0:
+            # El SDK real sigue escribiendo en stdout DESPUÉS del "started".
+            # Si nadie drena ese pipe, el subproceso se cuelga al llenarse el
+            # buffer del kernel: EOVRT_STUB_OAKD_RUIDO_STDOUT_KB lo reproduce.
+            ruido_kb = int(os.environ.get("EOVRT_STUB_OAKD_RUIDO_STDOUT_KB", "0"))
+            for _ in range(ruido_kb):
+                print("[depthai] [warning] " + "x" * 1000, flush=True)
         self._emitted += 1
         if self._emitted <= _WARMUP_PACKETS:
             payload = _WARMUP_PAYLOAD
@@ -92,6 +100,13 @@ class _Packet:
 
 class Device:
     def __init__(self, pipeline, device_info=None, *args, **kwargs):
+        # El SDK real ensucia stderr en TODAS las corridas, salgan bien o mal
+        # (DeprecationWarning de record_oakd.py:119). Se reproduce acá porque es
+        # justo lo que enmascaraba la causa real de un fallo (rodaje 2026-07-25).
+        print(
+            "record_oakd.py:119: DeprecationWarning: Use constructor taking 'UsbSpeed' instead",
+            file=sys.stderr,
+        )
         # La OAK-D PoE real tarda ~9 s en conectar antes de entregar el primer
         # frame (medido en el dry-run 2026-07-22). EOVRT_STUB_OAKD_INIT_S deja
         # simular esa demora en los tests que verifican el estado "starting";
@@ -99,6 +114,11 @@ class Device:
         demora = float(os.environ.get("EOVRT_STUB_OAKD_INIT_S", "0"))
         if demora > 0:
             time.sleep(demora)
+        # Simula un fallo del device (cámara ocupada, red caída): el SDK real
+        # levanta y record_oakd.py lo convierte en un evento JSON en stdout.
+        falla = os.environ.get("EOVRT_STUB_OAKD_FALLA")
+        if falla:
+            raise RuntimeError(falla)
         self.pipeline = pipeline
 
     def __enter__(self):

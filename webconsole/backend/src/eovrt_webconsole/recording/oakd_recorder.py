@@ -72,14 +72,27 @@ class OakDSubprocessRecorder:
         # PoE. None mientras el device inicializa.
         self._capture_monotonic: float | None = None
         self._watcher: threading.Thread | None = None
+        # Motivo real de un fallo, tal como lo emite record_oakd.py en stdout
+        # (`{"event": "error", "reason": ...}`). Ver `_motivo()`.
+        self._error_evento: str | None = None
 
-    def _vigilar_arranque(self) -> None:
-        """Espera el evento "started" en stdout del subproceso.
+    def _vigilar_stdout(self) -> None:
+        """Drena stdout del subproceso de punta a punta y va anotando eventos.
 
         Corre en un hilo daemon porque leer stdout bloquea: el device puede
         tardar ~9 s en conectar y `poll()` tiene que seguir respondiendo
         (la UI lo consulta cada segundo). El SDK DepthAI ensucia stdout con
         warnings, así que las líneas que no son JSON se ignoran.
+
+        Lee hasta EOF, no hasta el "started". Dos razones, las dos costaron
+        material de rodaje:
+
+        1. stdout es un PIPE. Si nadie lo drena y el SDK sigue escribiendo
+           (lo hace), el subproceso se bloquea en write() al llenarse el buffer
+           del kernel (64 KB) y la toma se congela a mitad de camino.
+        2. El fallo puede llegar DESPUÉS del "started" -- el caso "se vieron 0
+           frames": el device conecta y nunca entrega imagen. Cortar la lectura
+           en el "started" tiraba justamente ese motivo.
         """
         proc = self._proc
         if proc is None or proc.stdout is None:
@@ -89,12 +102,29 @@ class OakDSubprocessRecorder:
                 try:
                     evento = json.loads(linea)
                 except (json.JSONDecodeError, ValueError):
-                    continue
+                    continue  # ruido del SDK: se descarta, pero se sigue leyendo
                 if evento.get("event") == "started":
                     self._capture_monotonic = time.monotonic()
-                    return
+                elif evento.get("event") == "error":
+                    self._error_evento = str(evento.get("reason") or "").strip() or None
         except (ValueError, OSError):
             return
+
+    def _motivo(self, fallback: str) -> str:
+        """Motivo del fallo, priorizando el evento JSON sobre stderr.
+
+        El SDK DepthAI escupe warnings en stderr en TODAS las corridas, salgan
+        bien o mal (`DeprecationWarning: Use constructor taking 'UsbSpeed'`).
+        Reportar stderr le mostraba al operador ese warning inocuo como si fuera
+        la causa de la toma perdida, mientras el motivo real -- que record_oakd.py
+        sí emite -- se descartaba (rodaje 2026-07-25).
+        """
+        # El vigía puede estar parseando la última línea justo ahora: se le da
+        # un instante para terminar antes de dar por perdido el motivo real.
+        watcher = self._watcher
+        if watcher is not None and watcher.is_alive():
+            watcher.join(timeout=2.0)
+        return self._error_evento or self._read_stderr() or fallback
 
     def start(self) -> None:
         capture = self._spec.capture
@@ -113,7 +143,7 @@ class OakDSubprocessRecorder:
         self._proc = subprocess.Popen(
             args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
         )
-        self._watcher = threading.Thread(target=self._vigilar_arranque, daemon=True)
+        self._watcher = threading.Thread(target=self._vigilar_stdout, daemon=True)
         self._watcher.start()
         logger.info("Grabación OAK-D lanzada -> %s (esperando al device)", self._path.name)
 
@@ -130,7 +160,7 @@ class OakDSubprocessRecorder:
             return RecordingStatus("recording" if capture is not None else "starting", elapsed, size)
         if rc == 0:
             return RecordingStatus("finished", elapsed, size)
-        return RecordingStatus("error", elapsed, size, self._read_stderr() or f"record_oakd rc={rc}")
+        return RecordingStatus("error", elapsed, size, self._motivo(f"record_oakd rc={rc}"))
 
     def stop(self) -> RecordingResult:
         if self._proc is None:
@@ -149,7 +179,7 @@ class OakDSubprocessRecorder:
 
         error = None
         if murio_solo or rc != 0:
-            error = self._read_stderr() or f"record_oakd terminó con rc={rc}"
+            error = self._motivo(f"record_oakd terminó con rc={rc}")
         truncated = murio_solo or rc != 0
 
         if self._raw.exists() and self._raw.stat().st_size > 0:

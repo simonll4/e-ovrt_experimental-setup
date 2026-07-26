@@ -194,6 +194,78 @@ def test_script_inexistente_deja_la_toma_en_error(tmp_path, nuevo_recorder):
     assert result.error is not None
 
 
+def test_el_motivo_del_fallo_sale_del_evento_json_no_de_stderr(
+    tmp_path, monkeypatch, nuevo_recorder
+):
+    """Rodaje 2026-07-25: la consola mostró "DeprecationWarning: Use constructor
+    taking 'UsbSpeed'" como si fuera la causa de una toma perdida. No lo era: el
+    SDK DepthAI escupe ese warning en stderr en TODAS las corridas, incluso las
+    que terminan perfectas.
+
+    La razón real la emite record_oakd.py como evento JSON en stdout
+    (`{"event": "error", "reason": ...}`), y el vigía la descartaba por no ser
+    "started". El operador quedaba sin saber qué pasó con material irrepetible.
+    """
+    monkeypatch.setenv("PYTHONPATH", str(STUBS))
+    monkeypatch.setenv("EOVRT_STUB_OAKD_FALLA", "device 169.254.31.137 ocupado por otro proceso")
+
+    destino = tmp_path / "P1-a-take1.mp4"
+    recorder = nuevo_recorder(
+        _spec(), destino, interpreter=Path(sys.executable), script=SCRIPT_REAL
+    )
+    recorder.start()
+
+    deadline = time.monotonic() + 10
+    while recorder.poll().state in {"starting", "recording"} and time.monotonic() < deadline:
+        time.sleep(0.1)
+
+    estado = recorder.poll()
+    assert estado.state == "error"
+    assert "ocupado por otro proceso" in (estado.error or ""), (
+        f"poll() reportó {estado.error!r} en vez del motivo real del subproceso"
+    )
+    assert "DeprecationWarning" not in (estado.error or "")
+
+    result = recorder.stop()
+    assert result.truncated is True
+    assert "ocupado por otro proceso" in (result.error or ""), (
+        f"stop() reportó {result.error!r} en vez del motivo real del subproceso"
+    )
+
+
+def test_el_vigia_sigue_drenando_stdout_despues_de_started(
+    tmp_path, monkeypatch, nuevo_recorder
+):
+    """El vigía cortaba la lectura de stdout apenas veía "started". Como stdout
+    es un PIPE, si el SDK sigue escribiendo (lo hace: warnings del device) nadie
+    lo vacía y el subproceso se bloquea al llenarse el buffer del kernel (64 KB),
+    congelando la grabación a mitad de toma.
+
+    Además, un `error` posterior a `started` -- el caso "se vieron 0 frames" --
+    quedaba invisible por la misma razón.
+    """
+    monkeypatch.setenv("PYTHONPATH", str(STUBS))
+    monkeypatch.setenv("EOVRT_STUB_OAKD_RUIDO_STDOUT_KB", "256")
+
+    destino = tmp_path / "P1-a-take1.mp4"
+    recorder = nuevo_recorder(
+        _spec(), destino, interpreter=Path(sys.executable), script=SCRIPT_REAL
+    )
+    recorder.start()
+
+    deadline = time.monotonic() + 15
+    while recorder.poll().state == "starting" and time.monotonic() < deadline:
+        time.sleep(0.1)
+    assert recorder.poll().state == "recording"
+
+    # Con 256 KB de ruido en stdout y nadie drenando, el subproceso queda
+    # bloqueado en write() y no escribe un solo byte de video.
+    time.sleep(2.0)
+    result = recorder.stop()
+    assert result.size_bytes > 0, "el subproceso se bloqueó escribiendo en stdout"
+    assert result.truncated is False
+
+
 def test_stop_sin_start_es_error_explicito(tmp_path, nuevo_recorder):
     recorder = nuevo_recorder(
         _spec(), tmp_path / "P1-a-take1.mp4", interpreter=Path(sys.executable), script=SCRIPT_REAL
