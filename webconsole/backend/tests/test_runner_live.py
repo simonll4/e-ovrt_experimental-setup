@@ -20,7 +20,13 @@ from tests.fake_service import FakeState, make_fake_service
 NOW = datetime(2026, 7, 12, 14, 0, 0, tzinfo=timezone.utc)
 
 MEDIA_CONFIG = {"ingest": {"type": "rtsp", "path": "camera1"}, "prompts": {"ref": "eind_v1"}}
-CONTROL_CONFIG = {"pattern_set": "cr01_cr02_v2"}
+CONTROL_CONFIG = {
+    "pattern_set": "cr01_cr02_v2",
+    # El payload declara el bus (endpoint y demas parametros de transporte):
+    # `InputSection` del control-plane exige `input.bus` cuando type='bus', y
+    # `BusInputSection.endpoint` no tiene default.
+    "input": {"bus": {"endpoint": "tcp://127.0.0.1:5557"}},
+}
 
 
 def _load_config(path: str) -> dict:
@@ -88,8 +94,10 @@ class RecordingControlBackend:
     def __init__(self, backend: ControlPlaneBackend, events: list) -> None:
         self._backend = backend
         self._events = events
+        self.launched_configs: list[dict] = []
 
     async def launch(self, config: dict, mode: str, experiment_id: str | None) -> str:
+        self.launched_configs.append(config)
         run_id = await self._backend.launch(config, mode=mode, experiment_id=experiment_id)
         self._events.append(("control_launch", mode))
         return run_id
@@ -160,6 +168,42 @@ async def test_live_control_subscribed_before_media_launch(media_backend, contro
 
     # bus habilitado en el payload del media (spec 44 SS3 / doc 50 SS5.1)
     assert media_state.launched[0]["bus"]["enabled"] is True
+
+
+async def test_live_preserves_bus_section_from_control_config(media_backend, control_backend):
+    """La inyeccion de `input.type='bus'` no debe pisar el `input.bus` del payload.
+
+    El control-plane valida `input` con `InputSection` (config.py:47-53): con
+    type='bus' exige `input.bus`, y `BusInputSection.endpoint` es obligatorio
+    (sin default). Si el runner reemplaza el dict `input` entero por
+    `{"type": "bus"}` en vez de fusionarlo, el POST al control-plane real
+    revienta con "input.type='bus' requiere input.bus" y el experimento muere
+    antes de lanzar nada -- que es exactamente lo que paso en
+    exp_20260725T135049Z_ebe_oakd_live.
+
+    Los fakes no validan el schema del control-plane, asi que este es el unico
+    guard que cubre la costura: sin el, la rama live pasa toda la suite en
+    verde y falla contra el servicio real.
+    """
+    real_media, _media_state = media_backend
+    real_control, control_state = control_backend
+    control_state.finish_status = "succeeded"
+
+    events: list = []
+    media = RecordingMediaBackend(real_media, events)
+    control = RecordingControlBackend(real_control, events)
+
+    await run_experiment(
+        _build_manifest(),
+        media_backend=media,
+        control_backend=control,
+        now=NOW,
+        load_config=_load_config,
+    )
+
+    sent = control.launched_configs[0]["input"]
+    assert sent["type"] == "bus"
+    assert sent["bus"]["endpoint"] == "tcp://127.0.0.1:5557"
 
 
 async def test_live_sequencing_mismatch_is_rejected():
@@ -268,3 +312,41 @@ async def test_live_timeout_raises_when_control_never_terminal(media_backend, co
             timeout_s=-1.0,
             load_config=_load_config,
         )
+
+
+async def test_live_media_stopped_is_terminal_not_stuck_until_timeout(
+    media_backend, control_backend
+):
+    """Bug real (2026-07-25): el operador para la corrida con el boton
+    'Detener' de la consola -> el media-plane reporta status='stopped' (valor
+    real y distinto de 'failed'/'succeeded', ver run_manager.py del
+    media-plane: 'stopped' es el resultado de un stop manual explicito, NO un
+    fallo). Pero TERMINAL_STATUSES = {'succeeded','failed','error'} no
+    incluia 'stopped', asi que `_poll_until_terminal` nunca lo reconocia como
+    terminal y seguia poleando hasta agotar el timeout de 300s por default --
+    el experimento quedaba 'running' en el tracker del BFF minutos despues de
+    que el operador ya habia parado todo, bloqueando 'Lanzar experimento'
+    ('hay un experimento en curso') sin ninguna corrida real activa en
+    ninguno de los dos planos.
+
+    timeout_s chico (igual que el test de arriba) prueba que esto NO cuelga:
+    si 'stopped' no fuera terminal, este test fallaria por ExperimentTimeout
+    en vez de completar."""
+    real_media, media_state = media_backend
+    real_control, control_state = control_backend
+    control_state.finish_status = "succeeded"
+
+    media = RecordingMediaBackend(real_media, [], terminal_status="stopped")
+    control = RecordingControlBackend(real_control, [])
+
+    result = await run_experiment(
+        _build_manifest(),
+        media_backend=media,
+        control_backend=control,
+        now=NOW,
+        poll_interval_s=0.0,
+        timeout_s=0.05,
+        load_config=_load_config,
+    )
+
+    assert result.media_status == "stopped"

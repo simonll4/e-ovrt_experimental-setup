@@ -31,8 +31,15 @@ from eovrt_webconsole.experiment.report import write_report
 
 logger = logging.getLogger(__name__)
 
-# Estados terminales de un run en cualquiera de los dos planos.
-TERMINAL_STATUSES = frozenset({"succeeded", "failed", "error"})
+# Estados terminales de un run en cualquiera de los dos planos. "stopped" es
+# el resultado real y distinto de un stop manual explicito (boton "Detener"
+# de la consola) -- ver eovrt_media/service/run_manager.py: solo degrada a
+# "failed" si el stop_cause fue "stalled". Sin "stopped" aca, un experimento
+# detenido a mano queda "running" en el tracker del BFF hasta que expira el
+# timeout_s (300s por default) aunque ningun plano tenga una corrida activa
+# -- bug real, bloqueaba "Lanzar experimento" con "hay un experimento en
+# curso" (2026-07-25).
+TERMINAL_STATUSES = frozenset({"succeeded", "failed", "error", "stopped"})
 
 # Evalua alertas del control-plane contra un ground truth temporal (spec 43
 # SS6). Firma: (alerts_path, ground_truth_path, output_path, detections_path,
@@ -568,7 +575,12 @@ async def _run_live(
 
     control_config = dict(loader(control_run.config))
     control_config["experiment_id"] = experiment_id
-    control_config["input"] = {"type": "bus"}
+    # Fusion, NO reemplazo: el runner impone el transporte (`type='bus'`) pero
+    # el payload conserva sus parametros de bus (endpoint, topics, timeouts).
+    # `InputSection` del control-plane exige `input.bus` cuando type='bus' y
+    # `endpoint` no tiene default, asi que pisar el dict entero deja un payload
+    # invalido y el 422 mata el experimento antes de lanzar nada.
+    control_config["input"] = {**dict(control_config.get("input") or {}), "type": "bus"}
 
     control_run_id = await control_backend.launch(
         control_config, mode="live", experiment_id=experiment_id
