@@ -85,4 +85,15 @@ describe('ExperimentDetailPage', () => {
     renderPage('exp_6')
     await waitFor(() => expect(screen.getByText(/CR-01 — Presencia de persona sin casco/)).toBeTruthy())
   })
+
+  it('el experiment_id del encabezado y el alert_id de la tabla se muestran en monoespaciada', async () => {
+    vi.mocked(api.getExperiment).mockResolvedValue({ experiment_id: 'exp_7', status: 'succeeded', ok: true } as any)
+    vi.mocked(api.getExperimentAlerts).mockResolvedValue([
+      { alert_id: 'al7', condition_id: 'CR-01', severity: 'high' } as any,
+    ])
+    vi.mocked(api.getExperimentReport).mockResolvedValue({ non_temporal: false, resultados: [] } as any)
+    renderPage('exp_7')
+    await waitFor(() => expect(screen.getByText('exp_7').className).toContain('eo-mono'))
+    expect(screen.getByText('al7').className).toContain('eo-mono')
+  })
 })

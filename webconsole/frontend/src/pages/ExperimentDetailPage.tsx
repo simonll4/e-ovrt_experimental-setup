@@ -10,7 +10,7 @@ import {
 } from '../experimentview'
 import { conditionLabel } from '../labels'
 import type { ActiveRiskPattern, ExperimentAlert, ExperimentReport, ExperimentRunState } from '../types'
-import { Badge, Card, EmptyState, ErrorBanner } from '../components/ui'
+import { Badge, Card, EmptyState, ErrorBanner, MonoCell, Table } from '../components/ui'
 
 const CONTROL_CURRENT_POLL_MS = 2000
 
@@ -149,16 +149,18 @@ export default function ExperimentDetailPage() {
     <div style={{ display: 'grid', gap: 'var(--space-5)' }}>
       <RiskActiveBanner patterns={activePatterns} />
       <h2>
-        {experiment.experiment_id} — <Badge tone={experimentStatusTone(experiment)}>{experimentStatusLabel(experiment)}</Badge>
+        <span className="eo-mono">{experiment.experiment_id}</span>{' '}
+        — <Badge tone={experimentStatusTone(experiment)}>{experimentStatusLabel(experiment)}</Badge>
       </h2>
       <p>
-        media run: {experiment.media_run_id ?? '—'} · control run: {experiment.control_run_id ?? '—'}
+        media run: <span className="eo-mono">{experiment.media_run_id ?? '—'}</span>
+        {' '}· control run: <span className="eo-mono">{experiment.control_run_id ?? '—'}</span>
       </p>
       <Card title="Alertas">
         {alertsError && <ErrorBanner>{alertsError}</ErrorBanner>}
         {!alertsError && alerts && alerts.length === 0 && <EmptyState>Sin alertas.</EmptyState>}
         {!alertsError && alerts && alerts.length > 0 && (
-          <table className="eo-table">
+          <Table>
             <thead>
               <tr>
                 {['alerta', 'condicion', 'severidad', 'ts (ms)'].map((h) => (
@@ -169,7 +171,7 @@ export default function ExperimentDetailPage() {
             <tbody>
               {alerts.map((a) => (
                 <tr key={a.alert_id}>
-                  <td>{a.alert_id}</td>
+                  <MonoCell>{a.alert_id}</MonoCell>
                   <td>{conditionLabel(a.condition_id)}</td>
                   <td>
                     <Badge tone={alertSeverityTone(a.severity)}>{a.severity}</Badge>
@@ -178,7 +180,7 @@ export default function ExperimentDetailPage() {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </Table>
         )}
       </Card>
       <Card title="Reporte">
@@ -192,7 +194,7 @@ export default function ExperimentDetailPage() {
               </p>
             )}
             {Array.isArray(report.resultados) && report.resultados.length > 0 && (
-              <table className="eo-table">
+              <Table>
                 <thead>
                   <tr>
                     {['metrica', 'status', 'causa'].map((h) => (
@@ -212,7 +214,7 @@ export default function ExperimentDetailPage() {
                     )
                   })}
                 </tbody>
-              </table>
+              </Table>
             )}
             {(!Array.isArray(report.resultados) || report.resultados.length === 0) && (
               <EmptyState>Sin resultados todavia.</EmptyState>
