@@ -10,3 +10,10 @@ export { default as Select } from './Select'
 export type { SelectOption } from './Select'
 export { Table, MonoCell, NumCell } from './Table'
 export { default as ConditionName } from './ConditionName'
+
+export {
+  IconStop, IconPlay, IconWarn, IconCheck, IconDownload, IconClose, IconInfo,
+  IconChevron, IconSearch, IconCircle, IconNavRuns, IconNavExperiments,
+  IconNavCompare, IconNavPrompts, IconNavCatalog, IconNavPlatform,
+  IconNavCameras, IconNavClips,
+} from './icons'
