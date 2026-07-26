@@ -16,7 +16,37 @@ class InvalidMarks(ValueError):
 
 # Constantes del guion de rodaje (segundos)
 PRE_ROLL_S = 3.5
-TAIL_S = 3.0
+
+# Cola por escenario (segundos). Default 3,0; los que necesitan cola larga
+# están acá (doc operacion/72 §4.2 P2, §4.4 P4).
+SCENARIO_TAIL_S: dict[str, float] = {
+    "P2": 5.0,
+    "P4": 10.0,
+}
+DEFAULT_TAIL_S = 3.0
+
+# Condición de cada escenario de 1 episodio, o None si no hay episodio
+# (P3 = transitorio sub-umbral, P5 = negativo). Usado para calcular el piso
+# de censura (doc operacion/72 §1).
+SCENARIO_CONDITION: dict[str, str | None] = {
+    "P1": "CR-01",
+    "P2": "CR-02",
+    "P3": None,
+    "P4": "CR-01",
+    "P5": None,
+    "P7": "CR-01",
+    "P9": "CR-01",
+}
+
+# Espejo de DIMENSIONING_MS en
+# e-ovrt_datasets/datasets/scripts/videogt/derive_clip_gt.py (verificado
+# 2026-07-26). Si esos valores cambian ahí, tienen que cambiar acá — no hay
+# import cross-repo posible entre los dos servicios en runtime.
+DIMENSIONING_MS = {
+    "CR-01": {"t_alert_upper_ms": 10000, "resolve_ms": 2000},
+    "CR-02": {"t_alert_upper_ms": 20000, "resolve_ms": 3000},
+}
+DIMENSIONING_TAIL_S = 2.0
 
 # Duraciones objetivo por escenario (segundos), o None si no está cuantificado
 SCENARIO_TARGET_S = {
@@ -45,6 +75,26 @@ class TrimWindow:
     onset_ms: int
     end_ms: int
     warnings: list[str]
+
+
+def piso_s(scenario: str) -> float | None:
+    """Piso A1 (segundos de duración mínima) para un escenario de 1 episodio.
+
+    None si el escenario no tiene episodio (P3, P5) — no hay piso que censurar.
+    Asume onset_rel == PRE_ROLL_S, válido para los 7 escenarios de 1 episodio
+    (ss siempre se calcula como marca_evento - PRE_ROLL_S, salvo pre-roll
+    degradado, que ya de por sí hace el clip más corto que el piso nominal).
+    """
+    condition = SCENARIO_CONDITION.get(scenario)
+    if condition is None:
+        return None
+    dim = DIMENSIONING_MS[condition]
+    return (
+        PRE_ROLL_S
+        + dim["t_alert_upper_ms"] / 1000
+        + dim["resolve_ms"] / 1000
+        + DIMENSIONING_TAIL_S
+    )
 
 
 def compute_window(
@@ -94,11 +144,12 @@ def compute_window(
         )
         start = 0.0
 
-    # Cálculo del fin: end más tail
-    end_clip = t_end + TAIL_S
+    # Cálculo del fin: end más cola (por escenario, default 3,0 s)
+    tail = SCENARIO_TAIL_S.get(scenario, DEFAULT_TAIL_S)
+    end_clip = t_end + tail
     if end_clip > master_duration:
         cola = max(master_duration - t_end, 0.0)
-        warnings.append(f"solo {cola:.1f} s de cola, se necesitan {TAIL_S:g}")
+        warnings.append(f"solo {cola:.1f} s de cola, se necesitan {tail:g}")
         end_clip = master_duration
 
     # Duración total del clip
@@ -109,6 +160,16 @@ def compute_window(
     if target is not None and duration < target:
         warnings.append(
             f"clip de {duration:.1f} s, el guion pide ~{target:g} s para este escenario"
+        )
+
+    # Piso de censura (gate A1): universal para todo escenario con condición,
+    # no solo los 5 que tenían objetivo de guion cargado.
+    floor = piso_s(scenario)
+    if floor is not None and duration < floor:
+        warnings.append(
+            f"clip de {duration:.1f} s, el piso de censura pide {floor:g} s "
+            f"para este episodio — por debajo, t_alert-system/recall quedan "
+            f"censurados (doc 57 §6.7)"
         )
 
     # Retorna la ventana con redondeo a 3 decimales
