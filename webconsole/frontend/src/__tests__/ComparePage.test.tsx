@@ -1,5 +1,5 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import ComparePage, { bestPerRow } from '../pages/ComparePage'
 import { getCompare, listRuns } from '../api'
 import type { CompareResult, RunRow } from '../types'
@@ -27,6 +27,7 @@ const COMPARE: CompareResult = {
 }
 
 beforeEach(() => vi.clearAllMocks())
+afterEach(() => cleanup())
 
 describe('bestPerRow', () => {
   it('devuelve el índice del máximo no-nulo', () => {
@@ -52,5 +53,45 @@ describe('ComparePage', () => {
     expect(getCompare).toHaveBeenCalledWith(['run_a', 'run_b'])
     expect(screen.getByText(/AP@0\.5 person/)).toBeTruthy()
     expect(screen.getByText(/omitidos/i)).toBeTruthy() // aviso de skipped
+  })
+
+  it('corridas con distinto bench_split muestran aviso', async () => {
+    vi.mocked(listRuns).mockResolvedValue(ROWS)
+    vi.mocked(getCompare).mockResolvedValue({
+      ...COMPARE,
+      runs: [
+        { ...COMPARE.runs[0], bench_split: 'bench_v2_test' },
+        { ...COMPARE.runs[1], bench_split: 'bench_v3' },
+      ],
+    })
+    render(<ComparePage />)
+    await waitFor(() => expect(screen.getAllByRole('checkbox')).toHaveLength(2))
+    const checkboxes = screen.getAllByRole('checkbox')
+    fireEvent.click(checkboxes[0])
+    fireEvent.click(checkboxes[1])
+    await waitFor(() => expect(screen.getByText(/conjuntos de evaluación distintos/i)).toBeTruthy())
+  })
+
+  it('corridas con el mismo bench_split no muestran aviso', async () => {
+    vi.mocked(listRuns).mockResolvedValue(ROWS)
+    vi.mocked(getCompare).mockResolvedValue(COMPARE)
+    render(<ComparePage />)
+    await waitFor(() => expect(screen.getAllByRole('checkbox')).toHaveLength(2))
+    const checkboxes = screen.getAllByRole('checkbox')
+    fireEvent.click(checkboxes[0])
+    fireEvent.click(checkboxes[1])
+    await waitFor(() => expect(screen.getAllByText('gdino · bench_v2_test').length).toBeGreaterThan(0))
+    expect(screen.queryByText(/conjuntos de evaluación distintos/i)).toBeNull()
+  })
+
+  it('la fila de CR-01 usa el nombre legible del glosario', async () => {
+    vi.mocked(listRuns).mockResolvedValue(ROWS)
+    vi.mocked(getCompare).mockResolvedValue(COMPARE)
+    render(<ComparePage />)
+    await waitFor(() => expect(screen.getAllByRole('checkbox')).toHaveLength(2))
+    const checkboxes = screen.getAllByRole('checkbox')
+    fireEvent.click(checkboxes[0])
+    fireEvent.click(checkboxes[1])
+    await waitFor(() => expect(screen.getByText(/CR-01 — Presencia de persona sin casco/)).toBeTruthy())
   })
 })

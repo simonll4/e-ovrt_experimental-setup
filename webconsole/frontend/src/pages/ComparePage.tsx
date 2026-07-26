@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { getCompare, listRuns } from '../api'
 import GroupedBars from '../components/GroupedBars'
 import { Badge, EmptyState, ErrorBanner } from '../components/ui'
+import { conditionLabel } from '../labels'
 import type { CompareResult, RunRow } from '../types'
 
 // Índice del mejor valor no-nulo de la fila (−1 si no hay ninguno).
@@ -95,6 +96,17 @@ export default function ComparePage() {
               ))}
             </p>
           )}
+          {(() => {
+            const splits = new Set(
+              result.runs.map((r) => r.bench_split).filter((b): b is string => b !== null),
+            )
+            return splits.size > 1 ? (
+              <p className="eo-note--warn">
+                ⚠ Estás comparando corridas sobre conjuntos de evaluación distintos (
+                {result.runs.map((r) => r.bench_split ?? 'sin dato').join(' vs. ')}).
+              </p>
+            ) : null
+          })()}
           <table className="eo-table">
             <thead>
               <tr>
@@ -109,7 +121,7 @@ export default function ComparePage() {
                 <MetricRow key={cls} name={`AP@0.5 ${cls}`} values={result.ap_by_class[cls] ?? []} />
               ))}
               <MetricRow
-                name="CR-01 recall"
+                name={`${conditionLabel('CR-01')} (exhaustividad)`}
                 values={result.runs.map((r) => r.cr01_detection_recall)}
               />
               <MetricRow name="mAP@0.5" values={result.runs.map((r) => r.mAP50)} />
