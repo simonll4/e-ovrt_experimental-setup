@@ -12,9 +12,9 @@ export function alertSeverityTone(severity: string): BadgeTone {
 
 export function experimentStatusLabel(state: ExperimentRunState | null): string {
   if (state === null) return '—'
-  if (state.status === 'running') return 'corriendo'
-  if (state.status === 'succeeded' || state.ok === true) return 'OK'
-  if (state.status === 'failed') return 'fallo'
+  if (state.status === 'running') return 'en curso'
+  if (state.status === 'succeeded' || state.ok === true) return 'completada'
+  if (state.status === 'failed') return 'fallida'
   return state.status
 }
 

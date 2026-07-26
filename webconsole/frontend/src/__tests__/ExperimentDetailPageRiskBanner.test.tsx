@@ -102,7 +102,7 @@ describe('ExperimentDetailPage — banner de riesgo activo', () => {
     await flush()
 
     // La pagina sigue mostrando el badge de estado, no un error.
-    expect(screen.getByText(/corriendo/i)).toBeTruthy()
+    expect(screen.getByText(/en curso/i)).toBeTruthy()
     expect(screen.queryByText('CR-01')).toBeNull()
   })
 
@@ -113,7 +113,7 @@ describe('ExperimentDetailPage — banner de riesgo activo', () => {
     renderPage()
     await flush()
 
-    expect(screen.getByText(/corriendo/i)).toBeTruthy()
+    expect(screen.getByText(/en curso/i)).toBeTruthy()
     expect(screen.queryByText('CR-01')).toBeNull()
   })
 

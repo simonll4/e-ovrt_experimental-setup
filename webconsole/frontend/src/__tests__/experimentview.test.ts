@@ -23,8 +23,9 @@ describe('alertSeverityTone', () => {
 })
 describe('experimentStatusLabel', () => {
   it('mapea estados', () => {
-    expect(experimentStatusLabel({ status: 'running' } as any)).toBe('corriendo')
-    expect(experimentStatusLabel({ status: 'failed' } as any)).toBe('fallo')
+    expect(experimentStatusLabel({ status: 'running' } as any)).toBe('en curso')
+    expect(experimentStatusLabel({ status: 'succeeded' } as any)).toBe('completada')
+    expect(experimentStatusLabel({ status: 'failed' } as any)).toBe('fallida')
     expect(experimentStatusLabel(null)).toBe('—')
   })
 })
