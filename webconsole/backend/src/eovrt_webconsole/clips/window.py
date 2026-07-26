@@ -120,7 +120,7 @@ def compute_window(
         scenario: identificador del escenario (ej: "P1", "P2", ...)
 
     Returns:
-        TrimWindow con ss, duration, onset_ms, end_ms, warnings
+        TrimWindow con ss, duration, episodes, warnings
 
     Raises:
         InvalidMarks: si fin <= evento, o marcas fuera del master

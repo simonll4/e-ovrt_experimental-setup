@@ -97,8 +97,8 @@ def test_list_clips(tmp_path):
     (dv / "clips" / "a_p1_c01.mp4").write_bytes(b"x")
     (dv / "a_p1_c01.clip.yaml").write_text(
         "clip_id: a_p1_c01\nblock: A\nscenario: P1\nmaster: raw/P1-a-take1.mp4\n"
-        "episode_draft:\n  onset_ms: 3500\n  end_ms: 17500\n  marked_by: consola\n"
-        "  warnings: ['solo 2.0 s de cola, se necesitan 3']\n"
+        "episode_draft:\n  - onset_ms: 3500\n    end_ms: 17500\n    condition: CR-01\n"
+        "warnings: ['solo 2.0 s de cola, se necesitan 3']\n"
     )
     [c] = list_clips(dv)
     assert c["clip_id"] == "a_p1_c01"
@@ -106,6 +106,32 @@ def test_list_clips(tmp_path):
     assert c["has_yaml"] is True
     assert c["master"] == "raw/P1-a-take1.mp4"
     assert c["warnings"] == ["solo 2.0 s de cola, se necesitan 3"]
+
+
+def test_list_clips_lee_warnings_de_un_yaml_real_generado_por_write_clip_yaml(tmp_path):
+    """warnings viene del episode_draft-como-lista real que produce write_clip_yaml."""
+    from eovrt_webconsole.clips.clip_yaml import write_clip_yaml
+    from eovrt_webconsole.clips.window import EpisodeDraft, TrimWindow
+
+    dv = _dv(tmp_path)
+    info = {
+        "clip_id": "a_p1_c02", "file": "clips/a_p1_c02.mp4", "fps": 30,
+        "duration_ms": 18000, "n_frames": 540, "resolution": "1920x1080",
+        "sha256": "0" * 64,
+    }
+    (dv / "clips" / "a_p1_c02.info.json").write_text(json.dumps(info))
+    (dv / "clips" / "a_p1_c02.mp4").write_bytes(b"x")
+    ventana = TrimWindow(
+        ss=0.0, duration=18.0,
+        episodes=[EpisodeDraft(onset_ms=2000, end_ms=15000, condition="CR-01")],
+        warnings=["solo 2.0 s de pre-roll, se necesitan 3.5 — el TTFD va a salir degradado"],
+    )
+    write_clip_yaml(dv, "a_p1_c02", "P1", "P1-a-take3.mp4", ventana)
+    [c] = list_clips(dv)
+    assert c["clip_id"] == "a_p1_c02"
+    assert c["warnings"] == [
+        "solo 2.0 s de pre-roll, se necesitan 3.5 — el TTFD va a salir degradado"
+    ]
 
 
 def test_clip_ajeno_sin_yaml(tmp_path):

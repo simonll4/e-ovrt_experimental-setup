@@ -103,9 +103,7 @@ def list_clips(videos_dir: Path) -> list[dict]:
             except yaml.YAMLError:
                 meta = {}
             master = meta.get("master")
-            draft = meta.get("episode_draft") or {}
-            if isinstance(draft, dict):
-                warnings = draft.get("warnings") or []
+            warnings = meta.get("warnings") or []
         clips.append(
             {
                 "clip_id": clip_id,
