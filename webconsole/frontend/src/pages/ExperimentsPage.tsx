@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { ApiError, getCurrentExperiment, getExperimentManifests, runExperiment } from '../api'
 import type { ExperimentManifestSummary, ExperimentRunState } from '../types'
 import { experimentStatusLabel, experimentStatusTone } from '../experimentview'
+import { applyPlaneGlossary } from '../labels'
 import { usePreflight } from '../usePreflight'
 import PlatformStatus from '../components/PlatformStatus'
 import { DeriveExperimentForm } from '../components/DeriveExperimentForm'
@@ -21,7 +22,9 @@ function errorMessage(e: unknown): string {
     }
     if (e.status === 422) return 'Manifiesto inválido'
     if (e.status === 502) return 'Servicio no disponible'
-    if (e.status === 503) return payload.detail ?? 'Plataforma no operativa'
+    // El detail del 503 concatena los blockers del preflight, que nombran los planos
+    // por su nombre de código — mismo glosario que el aviso de bloqueo de abajo.
+    if (e.status === 503) return applyPlaneGlossary(payload.detail ?? 'Plataforma no operativa')
   }
   return String(e)
 }
@@ -118,11 +121,15 @@ export default function ExperimentsPage() {
   // rechaza con 503; acá se corta antes y con el motivo a la vista).
   const experimentRunning = current?.status === 'running'
   const blocked = !preflight?.ready || experimentRunning
+  // Con preflight verde, `blockers` viene vacío y `blockers[0]` es undefined: se
+  // conserva ese undefined (no se traduce nada) igual que antes — `blockedReason`
+  // solo se renderiza cuando `blocked` es true.
+  const firstBlocker = preflight?.blockers[0]
   const blockedReason = experimentRunning
     ? 'hay un experimento en curso'
     : preflight === null
       ? 'verificando servicios…'
-      : preflight.blockers[0]
+      : firstBlocker && applyPlaneGlossary(firstBlocker)
 
   if (error) return <ErrorBanner>Error listando experimentos: {error}</ErrorBanner>
   if (!rows) return <p className="eo-empty">Cargando…</p>

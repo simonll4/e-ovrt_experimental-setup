@@ -58,7 +58,7 @@ describe('ExperimentsPage', () => {
     render(<MemoryRouter><ExperimentsPage /></MemoryRouter>)
     await waitFor(() => expect(screen.getAllByText('d1').length).toBeGreaterThan(0))
     await waitFor(() =>
-      expect(screen.getByText(/el control-plane no responde/)).toBeTruthy(),
+      expect(screen.getByText(/el motor de reglas no responde/)).toBeTruthy(),
     )
     const button = screen.getByRole('button', { name: /lanzar/i }) as HTMLButtonElement
     expect(button.disabled).toBe(true)
@@ -76,7 +76,7 @@ describe('ExperimentsPage', () => {
     const button = screen.getByRole('button', { name: /lanzar/i }) as HTMLButtonElement
     await waitFor(() => expect(button.disabled).toBe(false))
     fireEvent.click(button)
-    await waitFor(() => expect(screen.getByText(/Plataforma no lista/)).toBeTruthy())
+    await waitFor(() => expect(screen.getByText(/Plataforma no lista: el motor de reglas no responde/)).toBeTruthy())
   })
 
   it('espera la recarga de manifiestos antes de seleccionar el slug derivado', async () => {

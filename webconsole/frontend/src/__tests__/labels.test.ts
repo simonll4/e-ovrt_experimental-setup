@@ -3,6 +3,7 @@ import {
   applicabilityLabel,
   APPLICABILITY_CAUSE,
   APPLICABILITY_STATUS,
+  applyPlaneGlossary,
   conditionLabel,
   CONDITION_NAMES,
   CONTROL_DROP_REASONS,
@@ -54,5 +55,28 @@ describe('applicabilityLabel', () => {
 
   it('cae al código crudo si no hay traducción mapeada', () => {
     expect(applicabilityLabel('algo_desconocido', APPLICABILITY_STATUS)).toBe('algo_desconocido')
+  })
+})
+
+describe('applyPlaneGlossary', () => {
+  // Las 4 frases son las que emite webconsole/backend/src/eovrt_webconsole/preflight.py.
+  it('traduce los nombres de plano a los del glosario', () => {
+    expect(applyPlaneGlossary('el media-plane no responde')).toBe('el motor de detección no responde')
+    expect(applyPlaneGlossary('el media-plane no terminó de cargar el modelo')).toBe(
+      'el motor de detección no terminó de cargar el modelo',
+    )
+    expect(applyPlaneGlossary('el control-plane no responde')).toBe('el motor de reglas no responde')
+    expect(applyPlaneGlossary('el control-plane no está listo')).toBe('el motor de reglas no está listo')
+  })
+
+  it('tambien traduce dentro de una frase compuesta (el detail del 503)', () => {
+    expect(applyPlaneGlossary('Plataforma no lista: el control-plane no responde')).toBe(
+      'Plataforma no lista: el motor de reglas no responde',
+    )
+  })
+
+  it('un texto sin nombres de plano vuelve intacto, nunca en blanco', () => {
+    expect(applyPlaneGlossary('motivo nuevo del backend')).toBe('motivo nuevo del backend')
+    expect(applyPlaneGlossary('')).toBe('')
   })
 })

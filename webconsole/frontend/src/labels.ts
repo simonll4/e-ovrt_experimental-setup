@@ -51,3 +51,22 @@ export const APPLICABILITY_CAUSE: Record<string, string> = {
 export function applicabilityLabel(code: string, dict: Record<string, string>): string {
   return dict[code] ?? code
 }
+
+// El BFF redacta algunos mensajes de operador nombrando los planos por su nombre de
+// código: los `blockers` del preflight
+// (webconsole/backend/src/eovrt_webconsole/preflight.py) y el `detail` del 503 al
+// lanzar, que concatena esos mismos blockers. Se traducen acá, en la capa de
+// presentación, porque el rediseño no toca el backend.
+//
+// Es reemplazo de término y no un mapa de frases exactas a propósito: el 503 llega
+// como "Plataforma no lista: el control-plane no responde" —frase compuesta, no una
+// clave— y así cualquier redacción nueva del backend queda cubierta sin tocar esto.
+// Un texto sin nombres de plano vuelve intacto.
+//
+// Es el único texto de interfaz que puede decir "media-plane"/"control-plane", y
+// aparece justo cuando algo se cayó: el peor momento para mostrarle jerga al operador.
+export function applyPlaneGlossary(text: string): string {
+  return text
+    .replace(/media-plane/g, 'motor de detección')
+    .replace(/control-plane/g, 'motor de reglas')
+}
