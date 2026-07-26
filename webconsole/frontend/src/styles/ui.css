@@ -207,6 +207,7 @@
 /* Línea de tiempo — franja compacta de actividad de toda la corrida, clickeable. */
 .eo-timeline {
   display: flex;
+  align-items: flex-end;
   gap: 1px;
   overflow-x: auto;
   padding: var(--space-2);
@@ -224,6 +225,7 @@
   padding: 0;
 }
 .eo-timeline__tick--alert {
+  height: 32px;
   outline: 2px solid var(--status-alert);
   outline-offset: -1px;
 }

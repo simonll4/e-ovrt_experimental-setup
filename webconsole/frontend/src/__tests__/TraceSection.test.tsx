@@ -249,11 +249,50 @@ describe('TraceSection', () => {
     vi.mocked(api.getTrace).mockResolvedValueOnce(page1).mockResolvedValueOnce(page2)
     render(<TraceSection runId="r_1" />)
     await waitFor(() => expect(screen.getByText('#3 · u3')).toBeTruthy())
-    expect(api.getTrace).toHaveBeenNthCalledWith(1, 'r_1', 1, 50)
+    expect(api.getTrace).toHaveBeenNthCalledWith(1, 'r_1', 1, 1000)
     expect(api.getTrace).toHaveBeenNthCalledWith(2, 'r_1', 2, 2)
     expect(screen.getByText('#0 · u0')).toBeTruthy()
     expect(screen.getByText('#1 · u1')).toBeTruthy()
     expect(screen.getByText('#2 · u2')).toBeTruthy()
+  })
+
+  it('si hay más páginas de las que se pueden cargar de una vez, corta en el tope y avisa', async () => {
+    const page1 = basePage({
+      total: 100,
+      page: 1,
+      page_size: 2,
+      frames: [
+        { frame_index: 0, unit_id: 'u0', timestamp_ms: 0, detections: [], control: 'received', progress: [], alert: [] },
+        { frame_index: 1, unit_id: 'u1', timestamp_ms: 100, detections: [], control: 'received', progress: [], alert: [] },
+      ],
+    })
+    vi.mocked(api.getTrace).mockResolvedValue(page1)
+    render(<TraceSection runId="r_1" />)
+    await waitFor(() =>
+      expect(screen.getByText(/línea de tiempo incompleta: la corrida tiene más cuadros/)).toBeTruthy(),
+    )
+    expect(screen.getByText('#0 · u0')).toBeTruthy()
+    expect(api.getTrace).toHaveBeenCalledTimes(1)
+  })
+
+  it('con el filtro "solo frames con actividad" activo, la línea de tiempo muestra solo los ticks visibles', async () => {
+    const page = basePage()
+    page.frames.push({
+      frame_index: 3,
+      unit_id: 'u3',
+      timestamp_ms: 300,
+      detections: [],
+      control: 'received',
+      progress: [],
+      alert: [],
+    })
+    vi.mocked(api.getTrace).mockResolvedValue(page)
+    render(<TraceSection runId="r_1" />)
+    await waitFor(() => expect(screen.getByText('ctrl_1')).toBeTruthy())
+    expect(document.querySelectorAll('.eo-timeline__tick').length).toBe(4)
+    const checkbox = screen.getByRole('checkbox')
+    fireEvent.click(checkbox)
+    await waitFor(() => expect(document.querySelectorAll('.eo-timeline__tick').length).toBe(3))
   })
 
   it('un motivo de descarte no reconocido se muestra crudo y en monoespaciada', async () => {

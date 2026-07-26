@@ -5,7 +5,7 @@ export function isNonTemporal(report: ExperimentReport | null): boolean {
 }
 
 export function alertSeverityTone(severity: string): BadgeTone {
-  if (severity === 'high') return 'error'
+  if (severity === 'high') return 'alert'
   if (severity === 'medium') return 'warn'
   return 'ok'
 }

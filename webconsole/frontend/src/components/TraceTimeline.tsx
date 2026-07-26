@@ -24,19 +24,20 @@ export default function TraceTimeline({ frames }: { frames: TraceFrame[] }) {
   if (frames.length === 0) return null
 
   return (
-    <div className="eo-timeline" role="list" aria-label="línea de tiempo de la corrida">
+    <div className="eo-timeline" role="group" aria-label="línea de tiempo de la corrida">
       {frames.map((f) => {
         const key = frameKey(f)
         const hasAlert = f.alert.length > 0
         const tone = hasAlert ? 'alert' : controlTone(f.control)
+        const label = frameLabel(f)
         return (
           <button
             key={key}
             type="button"
-            role="listitem"
             className={`eo-timeline__tick${hasAlert ? ' eo-timeline__tick--alert' : ''}`}
             style={{ background: TONE_VAR[tone] }}
-            title={frameLabel(f)}
+            title={label}
+            aria-label={label}
             onClick={() => document.getElementById(`frame-${key}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
           />
         )

@@ -55,8 +55,19 @@ describe('TraceTimeline', () => {
     const target = document.createElement('tr')
     target.id = 'frame-u5'
     document.body.appendChild(target)
-    fireEvent.click(screen.getByRole('listitem'))
+    fireEvent.click(screen.getByRole('button', { name: '#5 · u5' }))
     expect(target.scrollIntoView).toHaveBeenCalled()
     document.body.removeChild(target)
+  })
+
+  it('cada tick tiene un aria-label no vacío', () => {
+    render(
+      <TraceTimeline
+        frames={[frame({ frame_index: 0, unit_id: 'u0' }), frame({ frame_index: 1, unit_id: 'u1' })]}
+      />,
+    )
+    const ticks = screen.getAllByRole('button')
+    expect(ticks.length).toBe(2)
+    ticks.forEach((t) => expect(t.getAttribute('aria-label')).toBeTruthy())
   })
 })

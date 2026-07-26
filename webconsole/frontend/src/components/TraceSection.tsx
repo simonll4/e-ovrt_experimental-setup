@@ -10,6 +10,8 @@ import type { TraceFrame, TracePage } from '../types'
 
 type TraceMeta = Omit<TracePage, 'frames'>
 
+const MAX_PAGES = 20
+
 export default function TraceSection({ runId }: { runId: string }) {
   const [meta, setMeta] = useState<TraceMeta | null>(null)
   const [frames, setFrames] = useState<TraceFrame[] | null>(null)
@@ -27,7 +29,7 @@ export default function TraceSection({ runId }: { runId: string }) {
     async function loadAll() {
       let first: TracePage
       try {
-        first = await getTrace(runId, 1, 50)
+        first = await getTrace(runId, 1, 1000)
       } catch (e) {
         if (alive) setError(String(e))
         return
@@ -38,6 +40,12 @@ export default function TraceSection({ runId }: { runId: string }) {
       let acc = firstFrames
       setFrames(acc)
       const totalPages = Math.max(1, Math.ceil(first.total / first.page_size))
+      if (totalPages > MAX_PAGES) {
+        setPartialError(
+          'línea de tiempo incompleta: la corrida tiene más cuadros de los que se pueden cargar de una vez',
+        )
+        return
+      }
       for (let p = 2; p <= totalPages; p++) {
         if (!alive) return
         try {
@@ -95,7 +103,7 @@ export default function TraceSection({ runId }: { runId: string }) {
         />{' '}
         solo frames con actividad
       </label>
-      <TraceTimeline frames={frames} />
+      <TraceTimeline frames={visibleFrames} />
       <table className="eo-table">
         <thead>
           <tr>

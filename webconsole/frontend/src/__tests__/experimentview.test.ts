@@ -15,8 +15,8 @@ describe('isNonTemporal', () => {
   })
 })
 describe('alertSeverityTone', () => {
-  it('high error, medium warn, otro ok', () => {
-    expect(alertSeverityTone('high')).toBe('error')
+  it('high alert, medium warn, otro ok', () => {
+    expect(alertSeverityTone('high')).toBe('alert')
     expect(alertSeverityTone('medium')).toBe('warn')
     expect(alertSeverityTone('low')).toBe('ok')
   })
