@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { getDatasets, getIngestPlugins, getPromptSets } from '../api'
-import { Card, EmptyState } from '../components/ui'
+import { Card, EmptyState, Table } from '../components/ui'
 import type { DatasetEntry, IngestPlugin, PromptSet } from '../types'
 import { useTarget } from '../useTarget'
 
@@ -25,7 +25,7 @@ export default function CatalogPage() {
     <div style={{ display: 'grid', gap: 'var(--space-1)' }}>
       <Card title="Modelo del target (read-only)">
         {target?.model ? (
-          <table className="eo-table">
+          <Table>
             <thead>
               <tr><th>ref</th><th>adapter</th><th>device</th><th>thresholds</th></tr>
             </thead>
@@ -42,7 +42,7 @@ export default function CatalogPage() {
                 </td>
               </tr>
             </tbody>
-          </table>
+          </Table>
         ) : (
           <EmptyState>Servicio no listo.</EmptyState>
         )}
@@ -52,7 +52,7 @@ export default function CatalogPage() {
         {plugins.length === 0 ? (
           <EmptyState>Sin plugins de ingesta.</EmptyState>
         ) : (
-          <table className="eo-table">
+          <Table>
             <thead>
               <tr><th>id</th><th>kind</th><th>descripción</th><th>estado</th></tr>
             </thead>
@@ -70,14 +70,14 @@ export default function CatalogPage() {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </Table>
         )}
       </Card>
       <Card title="Datasets">
         {datasets.length === 0 ? (
           <EmptyState>Sin datasets disponibles.</EmptyState>
         ) : (
-          <table className="eo-table">
+          <Table>
             <thead>
               <tr><th>id</th><th>descripción</th><th>estado</th></tr>
             </thead>
@@ -90,14 +90,14 @@ export default function CatalogPage() {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </Table>
         )}
       </Card>
       <Card title="Prompt sets (in-repo)">
         {sets.length === 0 ? (
           <EmptyState>Sin prompt sets.</EmptyState>
         ) : (
-          <table className="eo-table">
+          <Table>
             <thead>
               <tr><th>id</th><th>estado</th><th>clases</th></tr>
             </thead>
@@ -110,7 +110,7 @@ export default function CatalogPage() {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </Table>
         )}
       </Card>
     </div>
