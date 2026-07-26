@@ -8,5 +8,5 @@ export default function Button({
   ...rest
 }: { variant?: ButtonVariant } & ButtonHTMLAttributes<HTMLButtonElement>) {
   const cls = ['eo-btn', `eo-btn--${variant}`, className].filter(Boolean).join(' ')
-  return <button className={cls} {...rest} />
+  return <button type="button" className={cls} {...rest} />
 }

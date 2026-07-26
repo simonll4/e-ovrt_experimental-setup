@@ -10,7 +10,7 @@ import type {
 import { useTarget } from '../useTarget'
 import { usePreflight } from '../usePreflight'
 import PlatformStatus from '../components/PlatformStatus'
-import { Card, ErrorBanner, Field } from '../components/ui'
+import { Button, Card, ErrorBanner, Field } from '../components/ui'
 
 export default function ComposePage() {
   const navigate = useNavigate()
@@ -382,7 +382,7 @@ export default function ComposePage() {
           <p className="eo-note eo-note--warn">Para lanzar: {missingReason}.</p>
         )}
         <div style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'center' }}>
-          <button onClick={submit} disabled={missingReason !== null}>Lanzar</button>
+          <Button variant="primary" onClick={submit} disabled={missingReason !== null}>Lanzar</Button>
         </div>
         <details>
           <summary>Opciones avanzadas</summary>
@@ -417,7 +417,7 @@ export default function ComposePage() {
           <div style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'center' }}>
             <input placeholder="nombre_manifiesto" value={saveName}
                    onChange={(e) => setSaveName(e.target.value)} />
-            <button onClick={save} disabled={!saveName}>Guardar como manifiesto</button>
+            <Button variant="secondary" onClick={save} disabled={!saveName}>Guardar como manifiesto</Button>
           </div>
           {saveMsg && <p><small>{saveMsg}</small></p>}
         </details>

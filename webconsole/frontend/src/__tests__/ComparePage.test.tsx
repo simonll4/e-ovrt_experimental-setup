@@ -72,6 +72,23 @@ describe('ComparePage', () => {
     await waitFor(() => expect(screen.getByText(/conjuntos de evaluación distintos/i)).toBeTruthy())
   })
 
+  it('corridas con bench_split real vs null muestran aviso', async () => {
+    vi.mocked(listRuns).mockResolvedValue(ROWS)
+    vi.mocked(getCompare).mockResolvedValue({
+      ...COMPARE,
+      runs: [
+        { ...COMPARE.runs[0], bench_split: 'bench_v3' },
+        { ...COMPARE.runs[1], bench_split: null },
+      ],
+    })
+    render(<ComparePage />)
+    await waitFor(() => expect(screen.getAllByRole('checkbox')).toHaveLength(2))
+    const checkboxes = screen.getAllByRole('checkbox')
+    fireEvent.click(checkboxes[0])
+    fireEvent.click(checkboxes[1])
+    await waitFor(() => expect(screen.getByText(/conjuntos de evaluación distintos/i)).toBeTruthy())
+  })
+
   it('corridas con el mismo bench_split no muestran aviso', async () => {
     vi.mocked(listRuns).mockResolvedValue(ROWS)
     vi.mocked(getCompare).mockResolvedValue(COMPARE)

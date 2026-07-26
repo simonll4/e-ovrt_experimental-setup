@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { artifactUrl, getTrace } from '../api'
-import { Badge, Card, ConditionName, DetChip, EmptyState, ErrorBanner, StatTile } from './ui'
+import { Badge, Card, ConditionName, DetChip, EmptyState, ErrorBanner, StatTile, Table } from './ui'
 import { controlLabel, controlLabelIsRaw, controlTone, frameHasActivity } from '../traceview'
 import { alertSeverityTone } from '../experimentview'
 import PreviewWithBoxes from './PreviewWithBoxes'
@@ -103,7 +103,7 @@ export default function TraceSection({ runId }: { runId: string }) {
         solo frames con actividad
       </label>
       <TraceTimeline frames={visibleFrames} />
-      <table className="eo-table">
+      <Table>
         <thead>
           <tr>
             <th>frame</th>
@@ -185,7 +185,7 @@ export default function TraceSection({ runId }: { runId: string }) {
             </tr>
           ))}
         </tbody>
-      </table>
+      </Table>
     </Card>
   )
 }

@@ -97,9 +97,7 @@ export default function ComparePage() {
             </p>
           )}
           {(() => {
-            const splits = new Set(
-              result.runs.map((r) => r.bench_split).filter((b): b is string => b !== null),
-            )
+            const splits = new Set(result.runs.map((r) => r.bench_split ?? '(sin dato)'))
             return splits.size > 1 ? (
               <p className="eo-note eo-note--warn">
                 ⚠ Estás comparando corridas sobre conjuntos de evaluación distintos (
