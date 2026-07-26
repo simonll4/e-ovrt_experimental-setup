@@ -529,3 +529,52 @@
 .eo-trim__fields .eo-field { margin-bottom: 0; }
 .eo-trim__warn { color: var(--status-warn); font-size: var(--text-sm); }
 .eo-trim__result { color: var(--status-ok); }
+
+/* Select — desplegable propio: el <select> nativo rompe el lenguaje visual. */
+.eo-select { position: relative; display: inline-block; min-width: 160px; }
+.eo-select__control {
+  width: 100%;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: 0 var(--space-3);
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: var(--text-sm);
+  cursor: pointer;
+}
+.eo-select__control:hover { background: var(--surface-emergent); }
+.eo-select__caret { color: var(--text-muted); font-size: 0.8em; }
+.eo-select__list {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: var(--space-1) 0;
+  list-style: none;
+  background: var(--surface-emergent);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  max-height: 240px;
+  overflow-y: auto;
+}
+.eo-select__option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-sm);
+  cursor: pointer;
+}
+.eo-select__option:hover { background: var(--surface-raised); }
+.eo-select__option--selected { color: var(--accent); font-weight: 600; }
+.eo-select__option--disabled { color: var(--text-muted); cursor: not-allowed; }
+.eo-select__option--disabled:hover { background: transparent; }
+.eo-select__reason { font-size: var(--text-xs); color: var(--text-muted); }
