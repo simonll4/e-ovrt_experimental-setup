@@ -59,21 +59,29 @@ SCENARIO_TARGET_S = {
 
 
 @dataclass(frozen=True)
+class EpisodeDraft:
+    """Un episodio (onset, fin, condición) dentro del clip recortado."""
+
+    onset_ms: int
+    end_ms: int
+    condition: str | None
+
+
+@dataclass(frozen=True)
 class TrimWindow:
     """Resultado de la computación de ventana de recorte.
 
     Attributes:
         ss: inicio del corte en el master (segundos)
         duration: duración del recorte (lo que se pasa como --to a prepare_clip.sh)
-        onset_ms: evento relativo al clip (milisegundos)
-        end_ms: fin relativo al clip (milisegundos)
+        episodes: episodios dentro del clip (1 para compute_window, 2 para
+            compute_window_multi)
         warnings: lista de advertencias del guion de rodaje
     """
 
     ss: float
     duration: float
-    onset_ms: int
-    end_ms: int
+    episodes: list[EpisodeDraft]
     warnings: list[str]
 
 
@@ -176,7 +184,12 @@ def compute_window(
     return TrimWindow(
         ss=round(start, 3),
         duration=round(duration, 3),
-        onset_ms=round((t_event - start) * 1000),
-        end_ms=round((t_end - start) * 1000),
+        episodes=[
+            EpisodeDraft(
+                onset_ms=round((t_event - start) * 1000),
+                end_ms=round((t_end - start) * 1000),
+                condition=SCENARIO_CONDITION.get(scenario),
+            )
+        ],
         warnings=warnings,
     )

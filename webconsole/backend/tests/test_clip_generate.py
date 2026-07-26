@@ -58,7 +58,7 @@ def test_flujo_nominal(dv, stubs, tmp_path):
     # El yaml quedó escrito con el borrador del episodio:
     import yaml
     data = yaml.safe_load((dv / "a_p1_c01.clip.yaml").read_text())
-    assert data["episode_draft"]["onset_ms"] == 3500
+    assert data["episode_draft"][0]["onset_ms"] == 3500
 
 
 def test_autoincremento_si_ya_hay_clips(dv, stubs, tmp_path):

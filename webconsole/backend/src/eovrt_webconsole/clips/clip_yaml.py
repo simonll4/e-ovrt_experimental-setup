@@ -29,7 +29,7 @@ def write_clip_yaml(
         clip_id: identificador del clip
         scenario: escenario (ej: "P1", "P2", ...)
         master_name: nombre del archivo master (ej: "P1-a-take2.mp4")
-        window: TrimWindow con onset_ms, end_ms, warnings
+        window: TrimWindow con episodes, warnings
 
     Returns:
         Path al archivo .clip.yaml creado
@@ -45,12 +45,11 @@ def write_clip_yaml(
         # Clave extra tolerada: mapea el clip a su master para el inventario
         # de la consola y para rehacer el corte sin volver a filmar (D8).
         "master": f"raw/{master_name}",
-        "episode_draft": {
-            "onset_ms": window.onset_ms,
-            "end_ms": window.end_ms,
-            "marked_by": "consola",
-            "warnings": list(window.warnings),
-        },
+        "episode_draft": [
+            {"onset_ms": ep.onset_ms, "end_ms": ep.end_ms, "condition": ep.condition}
+            for ep in window.episodes
+        ],
+        "warnings": list(window.warnings),
     }
     path = videos_dir / f"{clip_id}.clip.yaml"
     path.write_text(
