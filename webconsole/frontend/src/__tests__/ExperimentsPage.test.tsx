@@ -116,26 +116,6 @@ describe('ExperimentsPage', () => {
     await waitFor(() => expect(select().value).toBe('nuevo'))
   })
 
-  it('muestra grupo y descripción del manifiesto cuando vienen', async () => {
-    vi.mocked(api.getExperimentManifests).mockResolvedValue([
-      { slug: 'd1', experiment_id: null, group: 'S1', description: 'set inicial' } as any,
-    ])
-    vi.mocked(api.getCurrentExperiment).mockResolvedValue(null)
-    vi.mocked(api.getPreflight).mockResolvedValue(PREFLIGHT_OK)
-    render(<MemoryRouter><ExperimentsPage /></MemoryRouter>)
-    await waitFor(() => expect(screen.getByText('S1')).toBeTruthy())
-    expect(screen.getByText('set inicial')).toBeTruthy()
-  })
-
-  it('sin grupo/descripción muestra guion en esas columnas', async () => {
-    vi.mocked(api.getExperimentManifests).mockResolvedValue([{ slug: 'd2', experiment_id: null } as any])
-    vi.mocked(api.getCurrentExperiment).mockResolvedValue(null)
-    vi.mocked(api.getPreflight).mockResolvedValue(PREFLIGHT_OK)
-    render(<MemoryRouter><ExperimentsPage /></MemoryRouter>)
-    await waitFor(() => expect(screen.getAllByText('d2').length).toBeGreaterThan(0))
-    expect(screen.getAllByText('—').length).toBeGreaterThanOrEqual(2)
-  })
-
   it('el slug de un manifiesto en la tabla se muestra en monoespaciada', async () => {
     vi.mocked(api.getExperimentManifests).mockResolvedValue([{ slug: 'd1', experiment_id: null } as any])
     vi.mocked(api.getCurrentExperiment).mockResolvedValue(null)

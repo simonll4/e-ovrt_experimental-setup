@@ -61,8 +61,8 @@ describe('ExperimentDetailPage', () => {
     } as any)
     renderPage('exp_4')
     await waitFor(() => expect(screen.getByText(/t_capture->alert/)).toBeTruthy())
-    expect(screen.getByText('not_applicable')).toBeTruthy()
-    expect(screen.getByText('no_ground_truth')).toBeTruthy()
+    expect(screen.getByText('no aplicable')).toBeTruthy()
+    expect(screen.getByText('sin ground truth')).toBeTruthy()
   })
 
   it('la condición de una alerta muestra el nombre legible del glosario', async () => {
@@ -72,7 +72,11 @@ describe('ExperimentDetailPage', () => {
     ])
     vi.mocked(api.getExperimentReport).mockResolvedValue({ non_temporal: false, resultados: [] } as any)
     renderPage('exp_5')
-    await waitFor(() => expect(screen.getByText(/CR-02 — Presencia de persona sin chaleco/)).toBeTruthy())
+    await waitFor(() => {
+      const code = screen.getByText('CR-02')
+      expect(code.className).toContain('eo-mono')
+    })
+    expect(screen.getByText(/Presencia de persona sin chaleco/)).toBeTruthy()
   })
 
   it('un patrón de riesgo activo muestra el nombre legible de la condición', async () => {
@@ -83,7 +87,11 @@ describe('ExperimentDetailPage', () => {
       patterns: [{ pattern_id: 'CR-01', condition_id: 'CR-01', severity: 'high', state: 'confirmed', active_ms: 5000 }],
     } as any)
     renderPage('exp_6')
-    await waitFor(() => expect(screen.getByText(/CR-01 — Presencia de persona sin casco/)).toBeTruthy())
+    await waitFor(() => {
+      const code = screen.getByText('CR-01')
+      expect(code.className).toContain('eo-mono')
+    })
+    expect(screen.getByText(/Presencia de persona sin casco/)).toBeTruthy()
   })
 
   it('el experiment_id del encabezado y el alert_id de la tabla se muestran en monoespaciada', async () => {

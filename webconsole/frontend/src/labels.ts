@@ -20,3 +20,28 @@ export const CONTROL_DROP_REASONS: Record<string, string> = {
   rate_gate: 'límite de tasa',
   overload: 'sobrecarga',
 }
+
+// Estados/causas de aplicabilidad de metricas del reporte (ADR-006), ver
+// webconsole/backend/src/eovrt_webconsole/experiment/applicability.py
+// (estados) y experiment/report.py (causas — vocabulario cerrado ahi mismo,
+// aunque algunas metricas copian su causa verbatim de otro sumario y pueden
+// no pertenecer a este set; applicabilityLabel cae al codigo crudo en ese caso).
+export const APPLICABILITY_STATUS: Record<string, string> = {
+  not_applicable: 'no aplicable',
+  not_interpretable: 'no interpretable',
+  applicable_not_computed: 'aplicable, no calculada',
+  computed: 'calculada',
+}
+
+export const APPLICABILITY_CAUSE: Record<string, string> = {
+  non_temporal_source: 'fuente no temporal',
+  dbe_media_time: 'reloj de medios DBE',
+  clock_skew: 'desfasaje de reloj',
+  missing_join_key: 'falta clave de cruce',
+  no_ground_truth: 'sin ground truth',
+  no_distribution: 'sin distribución',
+}
+
+export function applicabilityLabel(code: string, dict: Record<string, string>): string {
+  return dict[code] ?? code
+}

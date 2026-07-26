@@ -200,7 +200,9 @@ describe('TraceSection', () => {
     )
     render(<TraceSection runId="r_1" />)
     await waitFor(() => expect(screen.getByText(/activo/i)).toBeTruthy())
-    expect(screen.getByText('CR-01 — Presencia de persona sin casco', { selector: '.eo-badge' })).toBeTruthy()
+    const code = screen.getByText('CR-01', { selector: '.eo-badge .eo-mono' })
+    expect(code).toBeTruthy()
+    expect(screen.getByText(/Presencia de persona sin casco/)).toBeTruthy()
   })
 
   it('un frame sin active_patterns no muestra "activo"', async () => {

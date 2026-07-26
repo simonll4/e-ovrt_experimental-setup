@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest'
-import { conditionLabel, CONDITION_NAMES, CONTROL_DROP_REASONS } from '../labels'
+import {
+  applicabilityLabel,
+  APPLICABILITY_CAUSE,
+  APPLICABILITY_STATUS,
+  conditionLabel,
+  CONDITION_NAMES,
+  CONTROL_DROP_REASONS,
+} from '../labels'
 
 describe('conditionLabel', () => {
   it('agrega el nombre legible a un código de condición conocido', () => {
@@ -20,5 +27,16 @@ describe('CONDITION_NAMES / CONTROL_DROP_REASONS', () => {
   it('trae traducciones para los motivos de descarte conocidos', () => {
     expect(CONTROL_DROP_REASONS.rate_gate).toBe('límite de tasa')
     expect(CONTROL_DROP_REASONS.overload).toBe('sobrecarga')
+  })
+})
+
+describe('applicabilityLabel', () => {
+  it('traduce un código conocido usando el diccionario dado', () => {
+    expect(applicabilityLabel('not_applicable', APPLICABILITY_STATUS)).toBe('no aplicable')
+    expect(applicabilityLabel('non_temporal_source', APPLICABILITY_CAUSE)).toBe('fuente no temporal')
+  })
+
+  it('cae al código crudo si no hay traducción mapeada', () => {
+    expect(applicabilityLabel('algo_desconocido', APPLICABILITY_STATUS)).toBe('algo_desconocido')
   })
 })

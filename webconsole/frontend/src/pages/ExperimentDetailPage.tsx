@@ -8,9 +8,9 @@ import {
   isNonTemporal,
   patternActiveSeconds,
 } from '../experimentview'
-import { conditionLabel } from '../labels'
+import { applicabilityLabel, APPLICABILITY_STATUS, APPLICABILITY_CAUSE } from '../labels'
 import type { ActiveRiskPattern, ExperimentAlert, ExperimentReport, ExperimentRunState } from '../types'
-import { Badge, Card, EmptyState, ErrorBanner, MonoCell, Table } from '../components/ui'
+import { Badge, Card, ConditionName, EmptyState, ErrorBanner, MonoCell, Table } from '../components/ui'
 
 const CONTROL_CURRENT_POLL_MS = 2000
 
@@ -25,7 +25,7 @@ function RiskActiveBanner({ patterns }: { patterns: ActiveRiskPattern[] }) {
             key={p.subject_key ?? p.pattern_id}
             className={`eo-risk-banner__item eo-risk-banner__item--${p.severity}`}
           >
-            <Badge tone={alertSeverityTone(p.severity)}>{conditionLabel(p.condition_id)}</Badge>
+            <Badge tone={alertSeverityTone(p.severity)}><ConditionName code={p.condition_id} /></Badge>
             <span>
               riesgo activo{seconds !== null ? ` — hace ${seconds}s` : ''}
             </span>
@@ -172,7 +172,7 @@ export default function ExperimentDetailPage() {
               {alerts.map((a) => (
                 <tr key={a.alert_id}>
                   <MonoCell>{a.alert_id}</MonoCell>
-                  <td>{conditionLabel(a.condition_id)}</td>
+                  <td><ConditionName code={a.condition_id} /></td>
                   <td>
                     <Badge tone={alertSeverityTone(a.severity)}>{a.severity}</Badge>
                   </td>
@@ -208,8 +208,8 @@ export default function ExperimentDetailPage() {
                     return (
                       <tr key={i}>
                         <td>{String(row.name ?? row.metrica ?? row.metric ?? '—')}</td>
-                        <td>{String(row.status ?? '—')}</td>
-                        <td>{String(row.cause ?? row.causa ?? '—')}</td>
+                        <td>{row.status ? applicabilityLabel(String(row.status), APPLICABILITY_STATUS) : '—'}</td>
+                        <td>{row.cause ?? row.causa ? applicabilityLabel(String(row.cause ?? row.causa), APPLICABILITY_CAUSE) : '—'}</td>
                       </tr>
                     )
                   })}

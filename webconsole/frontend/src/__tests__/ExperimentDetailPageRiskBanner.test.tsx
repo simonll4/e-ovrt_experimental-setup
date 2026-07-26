@@ -73,7 +73,8 @@ describe('ExperimentDetailPage — banner de riesgo activo', () => {
     renderPage()
     await flush()
 
-    expect(screen.getByText(/CR-01 — Presencia de persona sin casco/)).toBeTruthy()
+    expect(screen.getByText('CR-01', { selector: '.eo-mono' })).toBeTruthy()
+    expect(screen.getByText(/Presencia de persona sin casco/)).toBeTruthy()
   })
 
   it('el banner desaparece cuando el patron ya no esta en la respuesta (el motor lo resolvio)', async () => {
@@ -84,7 +85,8 @@ describe('ExperimentDetailPage — banner de riesgo activo', () => {
 
     renderPage()
     await flush()
-    expect(screen.getByText(/CR-01 — Presencia de persona sin casco/)).toBeTruthy()
+    expect(screen.getByText('CR-01', { selector: '.eo-mono' })).toBeTruthy()
+    expect(screen.getByText(/Presencia de persona sin casco/)).toBeTruthy()
 
     await act(async () => {
       await vi.advanceTimersByTimeAsync(2000)

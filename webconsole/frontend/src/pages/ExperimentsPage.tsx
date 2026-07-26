@@ -194,7 +194,7 @@ export default function ExperimentsPage() {
         <Table>
           <thead>
             <tr>
-              {['slug', 'grupo', 'descripción', 'experimento', ''].map((h) => (
+              {['slug', 'experimento', ''].map((h) => (
                 <th key={h}>{h}</th>
               ))}
             </tr>
@@ -203,8 +203,6 @@ export default function ExperimentsPage() {
             {rows.map((r) => (
               <tr key={r.slug}>
                 <MonoCell>{r.slug}</MonoCell>
-                <td>{r.group ?? '—'}</td>
-                <td>{r.description ?? '—'}</td>
                 <td>
                   {r.experiment_id ? (
                     <Link to={`/experiments/${r.experiment_id}`}>
