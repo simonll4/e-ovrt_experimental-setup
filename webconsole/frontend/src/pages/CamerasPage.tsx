@@ -6,7 +6,7 @@ import CameraPresetForm from '../components/CameraPresetForm'
 import LiveViewer from '../components/LiveViewer'
 import LivePromptPanel from '../components/LivePromptPanel'
 import RecordPanel from '../components/RecordPanel'
-import { Badge, Card, DetChip, EmptyState, ErrorBanner } from '../components/ui'
+import { Badge, Button, Card, DetChip, EmptyState, ErrorBanner } from '../components/ui'
 import { usePreviewStream } from '../preview'
 import { useTargetModelRef } from '../useTarget'
 import type {
@@ -151,14 +151,14 @@ export default function CamerasPage() {
           ) : (
             <>Ya hay una sesión de preview activa.</>
           )}{' '}
-          <button type="button" onClick={recheck}>Reintentar</button>
+          <Button variant="secondary" onClick={recheck}>Reintentar</Button>
         </ErrorBanner>
       )}
       {resumable && !streaming && (
         <p className="eo-note eo-note--warn">
           Hay un stream de preview en curso.{' '}
-          <button type="button" onClick={resume}>Retomar stream</button>{' '}
-          <button type="button" onClick={() => void disconnect()}>Detener</button>
+          <Button variant="secondary" onClick={resume}>Retomar stream</Button>{' '}
+          <Button variant="secondary" onClick={() => void disconnect()}>Detener</Button>
         </p>
       )}
       <Card title="Viewer">
@@ -175,7 +175,7 @@ export default function CamerasPage() {
         {live.frameUrl && (
           <div style={{ display: 'grid', gap: 'var(--space-3)', marginTop: 'var(--space-3)' }}>
             <div className="eo-stats-row">
-              <button type="button" onClick={() => void disconnect()}>Desconectar</button>
+              <Button variant="secondary" onClick={() => void disconnect()}>Desconectar</Button>
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-1)' }}>
               {totalsByLabel.map(([label, count]) => (
@@ -214,7 +214,7 @@ export default function CamerasPage() {
           )}
           {!editing && (
             <>
-              <button type="button" onClick={() => setEditing('new')}>Nuevo preset</button>
+              <Button variant="primary" onClick={() => setEditing('new')}>Nuevo preset</Button>
               {needsPromptSet && (
                 <p className="eo-note eo-note--warn">
                   Elegí un prompt set en el panel de Detección para poder conectar.
@@ -225,17 +225,16 @@ export default function CamerasPage() {
                   <li key={p.id}>
                     <span>{p.name}</span> <small className="eo-note">({p.plugin})</small>
                     <div className="eo-actions">
-                      <button
-                        type="button"
+                      <Button
+                        variant="primary"
                         disabled={Boolean(busy) || needsPromptSet}
                         onClick={() => void connect(p)}
                       >
                         Conectar
-                      </button>
-                      <button type="button" onClick={() => setEditing(p)}>Editar</button>
-                      <button
-                        type="button"
-                        className="eo-btn--danger"
+                      </Button>
+                      <Button variant="secondary" onClick={() => setEditing(p)}>Editar</Button>
+                      <Button
+                        variant="danger"
                         onClick={() => {
                           if (!window.confirm(`¿Borrar el preset ${p.id}?`)) return
                           void deleteCamera(p.id).then(() => {
@@ -248,7 +247,7 @@ export default function CamerasPage() {
                         }}
                       >
                         Eliminar
-                      </button>
+                      </Button>
                     </div>
                   </li>
                 ))}

@@ -119,4 +119,9 @@ describe('CamerasPage', () => {
     const conectar = await screen.findByRole('button', { name: /conectar/i })
     expect((conectar as HTMLButtonElement).disabled).toBeTruthy()
   })
+
+  it('"Nuevo preset" es el primitivo Button', async () => {
+    renderPage()
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Nuevo preset' }).className).toContain('eo-btn'))
+  })
 })
