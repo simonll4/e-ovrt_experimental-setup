@@ -74,4 +74,13 @@ describe('ClipsPage', () => {
     render(<ClipsPage />)
     await waitFor(() => expect(getMasters).toHaveBeenCalled())
   })
+
+  it('"Recortar" es el primitivo Button', async () => {
+    vi.mocked(getMasters).mockResolvedValue({ masters: MASTERS })
+    vi.mocked(getClips).mockResolvedValue({ clips: [] })
+    render(<ClipsPage />)
+    await waitFor(() => expect(screen.getByText('P1-a-take1.mp4')).toBeTruthy())
+    const boton = screen.getAllByText('Recortar')[0].closest('button') as HTMLButtonElement
+    expect(boton.className).toContain('eo-btn')
+  })
 })

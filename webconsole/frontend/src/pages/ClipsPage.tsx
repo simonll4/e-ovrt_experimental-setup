@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { clipMediaUrl, getClips, getMasters } from '../api'
 import TrimDialog from '../components/TrimDialog'
-import { Card, EmptyState, ErrorBanner } from '../components/ui'
+import { Button, Card, EmptyState, ErrorBanner } from '../components/ui'
 import type { ClipEntry, MasterEntry } from '../types'
 
 /** Panel derecho: o se recorta un master, o se reproduce un clip, nunca las dos.
@@ -97,13 +97,13 @@ export default function ClipsPage() {
                           )}
                         </small>
                       </div>
-                      <button
-                        type="button"
+                      <Button
+                        variant="secondary"
                         disabled={!m.readable}
                         onClick={() => setPanel({ kind: 'trim', master: m })}
                       >
                         Recortar
-                      </button>
+                      </Button>
                     </li>
                   )
                 })}
@@ -160,9 +160,9 @@ export default function ClipsPage() {
                 {clipActivo?.fps ?? '—'} fps · master {clipActivo?.master ?? '—'}
               </p>
               <div className="eo-actions">
-                <button type="button" onClick={() => setPanel(null)}>
+                <Button variant="secondary" onClick={() => setPanel(null)}>
                   Cerrar
-                </button>
+                </Button>
               </div>
             </Card>
           )}
