@@ -1,28 +1,39 @@
-export type NavItem = { to: string; label: string }
+import type { ComponentType } from 'react'
+import {
+  IconNavRuns, IconNavExperiments, IconNavCompare, IconNavPrompts,
+  IconNavCatalog, IconNavPlatform, IconNavCameras, IconNavClips,
+} from './components/ui/icons'
+
+export type NavItem = {
+  to: string
+  label: string
+  icon?: ComponentType
+  countKey?: 'runs' | 'experiments' | 'promptSets'
+}
 export type NavGroup = { title: string; items: NavItem[] }
 
 export const NAV_GROUPS: NavGroup[] = [
   {
     title: 'Trabajo',
     items: [
-      { to: '/', label: 'Corridas' },
-      { to: '/experiments', label: 'Experimentos' },
-      { to: '/compare', label: 'Comparar' },
+      { to: '/', label: 'Corridas', icon: IconNavRuns, countKey: 'runs' },
+      { to: '/experiments', label: 'Experimentos', icon: IconNavExperiments, countKey: 'experiments' },
+      { to: '/compare', label: 'Comparar', icon: IconNavCompare },
     ],
   },
   {
     title: 'Definiciones',
     items: [
-      { to: '/prompts', label: 'Conjuntos de prompts' },
-      { to: '/catalog', label: 'Catálogos' },
+      { to: '/prompts', label: 'Conjuntos de prompts', icon: IconNavPrompts, countKey: 'promptSets' },
+      { to: '/catalog', label: 'Catálogos', icon: IconNavCatalog },
     ],
   },
   {
     title: 'Sistema',
     items: [
-      { to: '/platform', label: 'Plataforma' },
-      { to: '/cameras', label: 'Cámaras' },
-      { to: '/clips', label: 'Clips' },
+      { to: '/platform', label: 'Plataforma', icon: IconNavPlatform },
+      { to: '/cameras', label: 'Cámaras', icon: IconNavCameras },
+      { to: '/clips', label: 'Clips', icon: IconNavClips },
     ],
   },
 ]
@@ -51,7 +62,7 @@ export function crumbsFor(pathname: string): NavItem[] {
   }
   for (const group of NAV_GROUPS) {
     const item = group.items.find((i) => i.to === pathname)
-    if (item) return [item]
+    if (item) return [{ to: item.to, label: item.label }]
   }
   return []
 }

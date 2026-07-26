@@ -1,12 +1,21 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import Shell from '../components/Shell'
+import * as api from '../api'
 
 vi.mock('../api', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../api')>()),
   getTarget: vi.fn().mockResolvedValue(null),
+  getPreflight: vi.fn().mockResolvedValue({
+    ready: true,
+    blockers: [],
+    media: { service_url: 'x', healthy: true, ready: true },
+    control: { service_url: 'y', healthy: true, ready: true },
+  }),
   listRuns: vi.fn().mockResolvedValue([]),
+  getExperimentManifests: vi.fn().mockResolvedValue([]),
+  listPromptSets: vi.fn().mockResolvedValue([]),
 }))
 
 afterEach(() => cleanup())
@@ -100,5 +109,52 @@ describe('Shell', () => {
     expect(menuButton.getAttribute('aria-label')).toBe('Abrir navegación')
     fireEvent.click(menuButton)
     expect(menuButton.getAttribute('aria-label')).toBe('Cerrar navegación')
+  })
+
+  it('no muestra un contador cuando el conteo es 0 o todavia no cargo', () => {
+    renderShell()
+    const runsLink = screen.getByRole('link', { name: 'Corridas' })
+    expect(runsLink.querySelector('.eo-sidebar__count')).toBeNull()
+  })
+
+  it('muestra el contador de corridas en curso cuando es mayor a 0', async () => {
+    vi.mocked(api.listRuns).mockResolvedValue([
+      { run_id: 'r1', status: 'running' } as any,
+      { run_id: 'r2', status: 'succeeded' } as any,
+    ])
+    renderShell()
+    const runsLink = screen.getByRole('link', { name: 'Corridas' })
+    await waitFor(() => expect(runsLink.querySelector('.eo-sidebar__count')?.textContent).toBe('1'))
+  })
+
+  it('muestra el estado de los motores segun la salud reportada', async () => {
+    vi.mocked(api.getPreflight).mockResolvedValue({
+      ready: false,
+      blockers: ['control down'],
+      media: { service_url: 'x', healthy: true, ready: true },
+      control: { service_url: 'y', healthy: false, ready: false },
+    } as any)
+    const { container } = renderShell()
+    const services = container.querySelectorAll('.eo-service')
+    const [mediaService, controlService] = Array.from(services)
+    await waitFor(() =>
+      expect(controlService.querySelector('.eo-tip')?.getAttribute('data-tip')).toMatch(
+        /Motor de reglas — sin respuesta/i,
+      ),
+    )
+    expect(mediaService.querySelector('.eo-tip')?.getAttribute('data-tip')).toMatch(
+      /Motor de detección — operativo/i,
+    )
+    expect(controlService.querySelector('.eo-service__dot')?.getAttribute('style')).toContain('--er')
+    expect(mediaService.querySelector('.eo-service__dot')?.getAttribute('style')).toContain('--ok')
+  })
+
+  it('el colapso manual de la barra lateral persiste via localStorage', () => {
+    localStorage.removeItem('eovrt-sidebar-collapsed')
+    renderShell()
+    const collapseButton = screen.getByRole('button', { name: /colapsar barra lateral/i })
+    fireEvent.click(collapseButton)
+    expect(screen.getByRole('complementary').className).toContain('eo-sidebar--collapsed')
+    expect(localStorage.getItem('eovrt-sidebar-collapsed')).toBe('1')
   })
 })

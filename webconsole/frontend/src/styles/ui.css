@@ -367,59 +367,160 @@
 .eo-sidebar {
   width: var(--sidebar-width);
   flex-shrink: 0;
-  background: var(--surface);
-  border-right: 1px solid var(--border);
-  padding: var(--space-4) var(--space-3);
+  background: var(--s1);
+  border-right: 1px solid var(--bd);
+  padding: 12px 9px;
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: 14px;
   position: sticky;
   top: 0;
   height: 100vh;
+  overflow-y: auto;
+  overflow-x: visible;
+  z-index: 50;
+  transition: width 0.16s ease;
 }
-.eo-sidebar__brand h1 { font-size: var(--text-lg); letter-spacing: 0.02em; }
+.eo-sidebar--collapsed { width: var(--sidebar-width-collapsed); }
+
+.eo-sidebar__brand { display: flex; align-items: center; gap: 8px; padding: 0 4px; width: 100%; }
+.eo-sidebar__brand b { font-weight: 500; font-size: 14px; letter-spacing: -0.01em; }
+.eo-sidebar__brand-sub { font-size: 10px; color: var(--tx3); font-family: var(--fm); }
+.eo-sidebar__collapse {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: var(--tx3);
+  padding: 3px;
+  border-radius: 4px;
+  display: flex;
+  flex: none;
+  cursor: pointer;
+}
+.eo-sidebar__collapse:hover { background: var(--s2); color: var(--tx); }
+.eo-sidebar--collapsed .eo-sidebar__brand b,
+.eo-sidebar--collapsed .eo-sidebar__brand-sub { display: none; }
+.eo-sidebar--collapsed .eo-sidebar__collapse { margin: 0 auto; }
 
 .eo-sidebar__action {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  height: 31px;
+  border: none;
+  border-radius: var(--r);
+  background: var(--ac);
+  color: var(--ac-text-on);
+  font-weight: 500;
+  font-size: 12.5px;
+  flex: none;
+  position: relative;
   text-align: center;
-  background: var(--accent);
-  color: var(--text);
-  border-radius: var(--radius);
-  padding: var(--space-2) var(--space-3);
-  font-weight: 600;
-  font-size: var(--text-md);
 }
-.eo-sidebar__action:hover { background: var(--accent-hover); color: var(--text); text-decoration: none; }
+.eo-sidebar__action:hover { background: var(--ac-hover); color: var(--ac-text-on); text-decoration: none; }
+.eo-sidebar--collapsed .eo-sidebar__action { width: 38px; padding: 0; }
+.eo-sidebar--collapsed .eo-sidebar__action > span:not(.eo-tip) { display: none; }
 
-.eo-sidebar__nav { display: flex; flex-direction: column; gap: var(--space-4); }
-.eo-sidebar__group { display: flex; flex-direction: column; gap: 2px; }
+.eo-sidebar__nav { display: flex; flex-direction: column; gap: 14px; }
+.eo-sidebar__group { display: flex; flex-direction: column; gap: 1px; width: 100%; }
 .eo-sidebar__group-title {
-  font-size: var(--text-xs);
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin-bottom: var(--space-1);
+  font-size: 10.5px;
+  font-weight: 400;
+  color: var(--tx4);
+  text-transform: none;
+  letter-spacing: 0.02em;
+  margin: 0 0 4px;
+  padding: 0 8px;
 }
+.eo-sidebar--collapsed .eo-sidebar__group-title { display: none; }
+.eo-sidebar--collapsed .eo-sidebar__group {
+  align-items: center;
+  padding-top: 8px;
+  border-top: 1px solid var(--bd);
+}
+.eo-sidebar--collapsed .eo-sidebar__group:first-of-type { border-top: none; padding-top: 0; }
+
 .eo-sidebar__link {
-  color: var(--text-secondary);
-  padding: var(--space-1) var(--space-2);
-  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 6px 8px;
+  border-radius: 5px;
+  color: var(--tx2);
+  font-size: 12.5px;
+  position: relative;
   border-left: 2px solid transparent;
 }
-.eo-sidebar__link:hover { background: var(--surface-raised); color: var(--text); text-decoration: none; }
+.eo-sidebar__link svg { flex: none; opacity: 0.85; }
+.eo-sidebar__link:hover { background: var(--s2); color: var(--tx); text-decoration: none; }
+.eo-sidebar__link:hover svg { opacity: 1; }
 .eo-sidebar__link--active {
-  background: var(--surface-raised);
-  color: var(--text);
-  border-left-color: var(--accent);
+  background: var(--ac-bg);
+  color: var(--ac-tx);
+  border-left-color: var(--ac);
   font-weight: 600;
 }
+.eo-sidebar__link--active svg { opacity: 1; }
+.eo-sidebar__link-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.eo-sidebar__count { margin-left: auto; font-family: var(--fm); font-size: 10.5px; color: var(--tx3); }
+.eo-sidebar__link--active .eo-sidebar__count { color: var(--ac-tx); }
+.eo-sidebar--collapsed .eo-sidebar__link { width: 38px; justify-content: center; padding: 7px 0; }
+.eo-sidebar--collapsed .eo-sidebar__link-label,
+.eo-sidebar--collapsed .eo-sidebar__count { display: none; }
+
+/* Tooltip de colapsado — solo visible con la barra lateral colapsada.
+   El texto viene de data-tip vía ::before (no duplica texto en el DOM: evita
+   colisiones con getByText en las páginas que también muestran la misma etiqueta). */
+.eo-tip {
+  display: none;
+  position: absolute;
+  left: calc(100% + 9px);
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 40;
+  pointer-events: none;
+}
+.eo-tip::before {
+  content: attr(data-tip);
+  display: block;
+  background: var(--s3);
+  border: 1px solid var(--bds);
+  color: var(--tx);
+  font-size: 11.5px;
+  padding: 3px 8px;
+  border-radius: 5px;
+  white-space: nowrap;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+}
+.eo-sidebar--collapsed .eo-sidebar__link:hover .eo-tip,
+.eo-sidebar--collapsed .eo-sidebar__action:hover .eo-tip,
+.eo-sidebar--collapsed .eo-service:hover .eo-tip { display: block; }
+
+/* Estado de los motores al pie */
+.eo-sidebar__services {
+  margin-top: auto;
+  border-top: 1px solid var(--bd);
+  padding-top: 9px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 100%;
+}
+.eo-service { display: flex; align-items: center; gap: 7px; padding: 0 8px; font-size: 11px; color: var(--tx3); position: relative; }
+.eo-service__dot { width: 6px; height: 6px; border-radius: 50%; flex: none; }
+.eo-service code { font-size: 10px; margin-left: auto; color: var(--tx4); }
+.eo-sidebar--collapsed .eo-service { justify-content: center; padding: 2px 0; }
+.eo-sidebar--collapsed .eo-service__label,
+.eo-sidebar--collapsed .eo-service code { display: none; }
 
 .eo-topbar__menu {
   display: none;
   background: none;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  color: var(--text);
+  border: 1px solid var(--bd);
+  border-radius: var(--r);
+  color: var(--tx);
   width: 30px;
   height: 30px;
   cursor: pointer;
@@ -483,8 +584,8 @@
   align-items: center;
   gap: var(--space-4);
   padding: var(--space-3) var(--space-5);
-  border-bottom: 1px solid var(--border);
-  background: var(--surface);
+  border-bottom: 1px solid var(--bd);
+  background: var(--s1);
 }
 .eo-topbar__right { margin-left: auto; }
 .eo-content { padding: var(--space-5); max-width: var(--content-max); width: 100%; }
