@@ -216,15 +216,24 @@
   border-radius: var(--radius);
   margin-bottom: var(--space-3);
 }
+/* Los ticks se comprimen para que toda la corrida entre en el ancho disponible:
+   con `flex: 0 0 4px` una corrida de 5000 cuadros medía ~25000px y había que
+   scrollear para encontrar una alerta. Tope de 4px para que una corrida corta no
+   quede con ticks gigantes. */
 .eo-timeline__tick {
-  flex: 0 0 4px;
+  flex: 1 1 0;
+  min-width: 1px;
+  max-width: 4px;
   height: 24px;
   border: none;
   border-radius: 1px;
   cursor: pointer;
   padding: 0;
 }
+/* El tick con alerta se reserva un ancho mínimo mayor: a 1px el outline no se
+   distingue y la alerta —lo único que hay que encontrar de un vistazo— desaparece. */
 .eo-timeline__tick--alert {
+  min-width: 3px;
   height: 32px;
   outline: 2px solid var(--status-alert);
   outline-offset: -1px;

@@ -27,7 +27,9 @@ export default function PreviewWithBoxes({
 
   return (
     <span className="eo-preview">
-      <img src={src} alt={alt} width={width} onError={() => setHidden(true)} />
+      {/* loading="lazy": una traza puede tener miles de filas; sin esto el navegador
+          encola miles de pedidos de imagen al montar y congela la pestaña. */}
+      <img src={src} alt={alt} width={width} loading="lazy" onError={() => setHidden(true)} />
       {detections.map((d, i) => {
         const box = d.bbox_norm_xyxy
         if (!box || box.length !== 4) return null

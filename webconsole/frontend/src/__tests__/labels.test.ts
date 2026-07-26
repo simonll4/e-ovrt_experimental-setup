@@ -24,9 +24,25 @@ describe('CONDITION_NAMES / CONTROL_DROP_REASONS', () => {
     expect(Object.keys(CONDITION_NAMES).sort()).toEqual(['CR-01', 'CR-02'])
   })
 
-  it('trae traducciones para los motivos de descarte conocidos', () => {
+  it('trae exactamente el vocabulario real de DropReason del media-plane', () => {
+    // contracts/dropped_unit.py: Literal["rate_gate","queue_full","staleness_timeout","channel_closed"]
+    expect(Object.keys(CONTROL_DROP_REASONS).sort()).toEqual([
+      'channel_closed',
+      'queue_full',
+      'rate_gate',
+      'staleness_timeout',
+    ])
+  })
+
+  it('trae traducciones al castellano para los cuatro motivos', () => {
     expect(CONTROL_DROP_REASONS.rate_gate).toBe('límite de tasa')
-    expect(CONTROL_DROP_REASONS.overload).toBe('sobrecarga')
+    expect(CONTROL_DROP_REASONS.queue_full).toBe('cola llena')
+    expect(CONTROL_DROP_REASONS.staleness_timeout).toBe('cuadro vencido')
+    expect(CONTROL_DROP_REASONS.channel_closed).toBe('canal cerrado')
+  })
+
+  it('no inventa motivos que no existen en el sistema', () => {
+    expect(CONTROL_DROP_REASONS.overload).toBeUndefined()
   })
 })
 

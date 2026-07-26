@@ -117,7 +117,7 @@ describe('TraceSection', () => {
       }),
     )
     render(<TraceSection runId="r_1" />)
-    await waitFor(() => expect(screen.getByText('no evaluado por el control-plane')).toBeTruthy())
+    await waitFor(() => expect(screen.getByText('no evaluado por el motor de reglas')).toBeTruthy())
     expect(screen.queryByText('control')).toBeNull()
     expect(screen.queryByText('patrón')).toBeNull()
   })
@@ -128,7 +128,7 @@ describe('TraceSection', () => {
     )
     render(<TraceSection runId="r_1" />)
     await waitFor(() =>
-      expect(screen.getByText(/control-plane no disponible/)).toBeTruthy(),
+      expect(screen.getByText(/motor de reglas no disponible/)).toBeTruthy(),
     )
     expect(document.querySelector('.eo-table')).toBeTruthy()
   })
@@ -306,6 +306,27 @@ describe('TraceSection', () => {
             unit_id: 'u0',
             timestamp_ms: 0,
             detections: [],
+            control: 'dropped:algo_raro',
+            progress: [],
+            alert: [],
+          },
+        ],
+      }),
+    )
+    render(<TraceSection runId="r_1" />)
+    await waitFor(() => expect(screen.getByText('algo_raro')).toBeTruthy())
+    expect(screen.getByText('algo_raro').className).toContain('eo-mono')
+  })
+
+  it('un motivo de descarte del vocabulario real se traduce (no queda crudo)', async () => {
+    vi.mocked(api.getTrace).mockResolvedValue(
+      basePage({
+        frames: [
+          {
+            frame_index: 0,
+            unit_id: 'u0',
+            timestamp_ms: 0,
+            detections: [],
             control: 'dropped:queue_full',
             progress: [],
             alert: [],
@@ -314,8 +335,8 @@ describe('TraceSection', () => {
       }),
     )
     render(<TraceSection runId="r_1" />)
-    await waitFor(() => expect(screen.getByText('queue_full')).toBeTruthy())
-    expect(screen.getByText('queue_full').className).toContain('eo-mono')
+    await waitFor(() => expect(screen.getAllByText('cola llena').length).toBeGreaterThan(0))
+    expect(screen.queryByText('queue_full')).toBeNull()
   })
 
   it('la fila con alerta confirmada usa el tono alert, no error', async () => {
@@ -323,6 +344,53 @@ describe('TraceSection', () => {
     render(<TraceSection runId="r_1" />)
     await waitFor(() => expect(screen.getByText(/ALERTA/)).toBeTruthy())
     expect(screen.getByText(/ALERTA/).closest('.eo-badge')?.className).toContain('eo-badge--alert')
+  })
+
+  it('usa el glosario del proyecto en el texto de interfaz (motor de reglas, cuadro, corrida)', async () => {
+    vi.mocked(api.getTrace).mockResolvedValue(basePage())
+    render(<TraceSection runId="r_1" />)
+    await waitFor(() => expect(screen.getByText('ctrl_1')).toBeTruthy())
+    expect(screen.getByText('Evaluación del motor de reglas')).toBeTruthy()
+    expect(screen.getByText('corrida de control')).toBeTruthy()
+    expect(screen.getByText('cuadro', { selector: 'th' })).toBeTruthy()
+    expect(screen.getByText(/solo cuadros con actividad/)).toBeTruthy()
+    expect(document.body.textContent).not.toContain('control-plane')
+    expect(document.body.textContent).not.toContain('two-node')
+  })
+
+  it('una corrida extensa arranca filtrada a los cuadros con actividad y lo explica', async () => {
+    // 501 cuadros (> AUTO_FILTER_THRESHOLD=500), uno solo con actividad.
+    const frames = Array.from({ length: 501 }, (_, i) => ({
+      frame_index: i,
+      unit_id: `u${i}`,
+      timestamp_ms: i * 10,
+      detections: i === 7 ? [{ label: 'person', confidence: 0.9 }] : [],
+      control: 'received',
+      progress: [],
+      alert: [],
+    }))
+    vi.mocked(api.getTrace).mockResolvedValue(basePage({ total: 501, page_size: 1000, frames }))
+    render(<TraceSection runId="r_1" />)
+    await waitFor(() => expect(screen.getByText(/corrida extensa/)).toBeTruthy())
+    const checkbox = screen.getByRole('checkbox') as HTMLInputElement
+    expect(checkbox.checked).toBe(true)
+    expect(document.querySelectorAll('.eo-table tbody tr').length).toBe(1)
+
+    // No es un límite duro: destildando se ven todos y la nota desaparece.
+    fireEvent.click(checkbox)
+    await waitFor(() => expect(document.querySelectorAll('.eo-table tbody tr').length).toBe(501), {
+      timeout: 15000,
+    })
+    expect(screen.queryByText(/corrida extensa/)).toBeNull()
+  }, 30000)
+
+  it('una corrida chica no se filtra sola ni muestra la nota', async () => {
+    vi.mocked(api.getTrace).mockResolvedValue(basePage())
+    render(<TraceSection runId="r_1" />)
+    await waitFor(() => expect(screen.getByText('ctrl_1')).toBeTruthy())
+    expect((screen.getByRole('checkbox') as HTMLInputElement).checked).toBe(false)
+    expect(screen.queryByText(/corrida extensa/)).toBeNull()
+    expect(document.querySelectorAll('.eo-table tbody tr').length).toBe(3)
   })
 
   it('si falla una página intermedia, muestra banner de traza incompleta pero mantiene lo ya cargado', async () => {

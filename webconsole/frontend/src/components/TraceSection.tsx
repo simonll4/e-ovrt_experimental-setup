@@ -11,12 +11,19 @@ type TraceMeta = Omit<TracePage, 'frames'>
 
 const MAX_PAGES = 20
 
+// A partir de esta cantidad de cuadros, la traza arranca filtrada a los cuadros con
+// actividad: una corrida de 5000 cuadros renderizada entera congela la pestaña. No es
+// un límite duro — el usuario destilda y ve todo.
+const AUTO_FILTER_THRESHOLD = 500
+
 export default function TraceSection({ runId }: { runId: string }) {
   const [meta, setMeta] = useState<TraceMeta | null>(null)
   const [frames, setFrames] = useState<TraceFrame[] | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [partialError, setPartialError] = useState<string | null>(null)
   const [soloActividad, setSoloActividad] = useState(false)
+  const [filtroTocado, setFiltroTocado] = useState(false)
+  const [autoFiltrado, setAutoFiltrado] = useState(false)
 
   useEffect(() => {
     let alive = true
@@ -24,6 +31,9 @@ export default function TraceSection({ runId }: { runId: string }) {
     setFrames(null)
     setError(null)
     setPartialError(null)
+    setSoloActividad(false)
+    setFiltroTocado(false)
+    setAutoFiltrado(false)
 
     async function loadAll() {
       let first: TracePage
@@ -69,6 +79,16 @@ export default function TraceSection({ runId }: { runId: string }) {
     }
   }, [runId])
 
+  // Default sensato para corridas extensas: si el usuario todavía no tocó el filtro y
+  // la traza cargada supera el umbral, se activa solo-actividad y se explica por qué.
+  useEffect(() => {
+    if (filtroTocado) return
+    if (frames && frames.length > AUTO_FILTER_THRESHOLD) {
+      setSoloActividad(true)
+      setAutoFiltrado(true)
+    }
+  }, [frames, filtroTocado])
+
   if (error) return <ErrorBanner>Error cargando la traza: {error}</ErrorBanner>
   if (!meta || !frames) return <p>Cargando traza…</p>
 
@@ -77,36 +97,47 @@ export default function TraceSection({ runId }: { runId: string }) {
   const hasControl = meta.control_run_id !== null || !!meta.control_error
 
   return (
-    <Card title="Evaluación del control-plane">
+    <Card title="Evaluación del motor de reglas">
       {partialError && <ErrorBanner>{partialError}</ErrorBanner>}
       <div className="eo-stats-row">
-        <StatTile label="run de control" value={meta.control_run_id ?? '—'} />
+        <StatTile label="corrida de control" value={meta.control_run_id ?? '—'} />
         <StatTile label="alertas" value={totals.alerts} />
         {Object.entries(totals.dropped_by_reason).map(([reason, count]) => (
           <StatTile key={reason} label={controlLabel(`dropped:${reason}`)} value={count} />
         ))}
         {totals.not_received !== null && <StatTile label="no recibidos" value={totals.not_received} />}
       </div>
-      {meta.topology === 'two_node' && <small>descartes internos n/d en two-node</small>}
+      {meta.topology === 'two_node' && (
+        <small>descartes internos sin dato en despliegue de dos equipos</small>
+      )}
       {meta.control_error && (
-        <ErrorBanner>control-plane no disponible: {meta.control_error}</ErrorBanner>
+        <ErrorBanner>motor de reglas no disponible: {meta.control_error}</ErrorBanner>
       )}
       {meta.control_run_id === null && !meta.control_error && (
-        <EmptyState>no evaluado por el control-plane</EmptyState>
+        <EmptyState>no evaluado por el motor de reglas</EmptyState>
       )}
       <label>
         <input
           type="checkbox"
           checked={soloActividad}
-          onChange={(e) => setSoloActividad(e.target.checked)}
+          onChange={(e) => {
+            setFiltroTocado(true)
+            setSoloActividad(e.target.checked)
+          }}
         />{' '}
-        solo frames con actividad
+        solo cuadros con actividad
       </label>
+      {autoFiltrado && !filtroTocado && (
+        <small className="eo-note">
+          corrida extensa ({frames.length} cuadros): se muestran solo los cuadros con
+          actividad; destildá para ver todos
+        </small>
+      )}
       <TraceTimeline frames={visibleFrames} />
       <Table>
         <thead>
           <tr>
-            <th>frame</th>
+            <th>cuadro</th>
             <th>detecciones</th>
             {hasControl && <th>control</th>}
             {hasControl && <th>patrón</th>}

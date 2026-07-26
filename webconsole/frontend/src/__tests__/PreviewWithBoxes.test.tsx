@@ -21,6 +21,12 @@ describe('PreviewWithBoxes', () => {
     expect(Number(img.getAttribute('width'))).toBeGreaterThanOrEqual(200)
   })
 
+  it('carga la imagen en diferido (loading="lazy") — una traza tiene miles de previews', () => {
+    const { container } = render(<PreviewWithBoxes src="x.jpg" alt="u0" detections={[]} />)
+    const img = container.querySelector('img') as HTMLImageElement
+    expect(img.getAttribute('loading')).toBe('lazy')
+  })
+
   it('respeta un width explícito', () => {
     const { container } = render(
       <PreviewWithBoxes src="x.jpg" alt="u0" detections={[]} width={120} />,

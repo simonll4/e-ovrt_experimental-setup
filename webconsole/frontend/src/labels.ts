@@ -13,12 +13,18 @@ export function conditionLabel(code: string): string {
   return name ? `${code} — ${name}` : code
 }
 
-// El backend no garantiza un vocabulario cerrado para los motivos de "dropped:*".
-// Un código no reconocido acá cae a mostrarse crudo (ver traceview.ts#controlLabel) —
-// nunca en blanco, nunca una cadena en inglés suelta.
+// Vocabulario real y cerrado de motivos de descarte del media-plane, declarado en
+// e-ovrt_media-plane/src/eovrt_media/contracts/dropped_unit.py:
+//   DropReason = Literal["rate_gate", "queue_full", "staleness_timeout", "channel_closed"]
+// `rate_gate` es el descarte intencional (compuerta de tasa); los otros tres son por
+// sobrecarga/corte del transporte. Un código fuera de este set cae a mostrarse crudo y
+// en monoespaciada (ver traceview.ts#controlLabel / #controlLabelIsRaw) — nunca en
+// blanco, nunca una cadena en inglés suelta.
 export const CONTROL_DROP_REASONS: Record<string, string> = {
   rate_gate: 'límite de tasa',
-  overload: 'sobrecarga',
+  queue_full: 'cola llena',
+  staleness_timeout: 'cuadro vencido',
+  channel_closed: 'canal cerrado',
 }
 
 // Estados/causas de aplicabilidad de metricas del reporte (ADR-006), ver

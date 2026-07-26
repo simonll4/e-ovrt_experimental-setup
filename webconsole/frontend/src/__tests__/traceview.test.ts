@@ -13,13 +13,15 @@ describe('controlTone', () => {
 })
 
 describe('controlLabel', () => {
-  it('traduce un motivo de descarte conocido', () => {
+  it('traduce los cuatro motivos de descarte reales (DropReason del media-plane)', () => {
     expect(controlLabel('dropped:rate_gate')).toBe('límite de tasa')
-    expect(controlLabel('dropped:overload')).toBe('sobrecarga')
+    expect(controlLabel('dropped:queue_full')).toBe('cola llena')
+    expect(controlLabel('dropped:staleness_timeout')).toBe('cuadro vencido')
+    expect(controlLabel('dropped:channel_closed')).toBe('canal cerrado')
   })
 
-  it('cae al código crudo para un motivo de descarte no reconocido (sin vocabulario cerrado del backend)', () => {
-    expect(controlLabel('dropped:queue_full')).toBe('queue_full')
+  it('cae al código crudo para un motivo de descarte fuera del vocabulario conocido', () => {
+    expect(controlLabel('dropped:algo_raro')).toBe('algo_raro')
   })
 
   it('recibido / no recibido / sin dato', () => {
@@ -31,11 +33,13 @@ describe('controlLabel', () => {
 
 describe('controlLabelIsRaw', () => {
   it('es true para un motivo de descarte no reconocido', () => {
-    expect(controlLabelIsRaw('dropped:queue_full')).toBe(true)
+    expect(controlLabelIsRaw('dropped:algo_raro')).toBe(true)
   })
-  it('es false para un motivo de descarte conocido', () => {
+  it('es false para los motivos de descarte del vocabulario real', () => {
     expect(controlLabelIsRaw('dropped:rate_gate')).toBe(false)
-    expect(controlLabelIsRaw('dropped:overload')).toBe(false)
+    expect(controlLabelIsRaw('dropped:queue_full')).toBe(false)
+    expect(controlLabelIsRaw('dropped:staleness_timeout')).toBe(false)
+    expect(controlLabelIsRaw('dropped:channel_closed')).toBe(false)
   })
   it('es false para recibido/no recibido/n-d (no son "dropped")', () => {
     expect(controlLabelIsRaw('received')).toBe(false)
