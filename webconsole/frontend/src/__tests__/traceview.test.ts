@@ -13,8 +13,16 @@ describe('controlTone', () => {
 })
 
 describe('controlLabel', () => {
-  it('extrae el reason del dropped', () => {
-    expect(controlLabel('dropped:rate_gate')).toBe('rate_gate')
+  it('traduce un motivo de descarte conocido', () => {
+    expect(controlLabel('dropped:rate_gate')).toBe('límite de tasa')
+    expect(controlLabel('dropped:overload')).toBe('sobrecarga')
+  })
+
+  it('cae al código crudo para un motivo de descarte no reconocido (sin vocabulario cerrado del backend)', () => {
+    expect(controlLabel('dropped:queue_full')).toBe('queue_full')
+  })
+
+  it('recibido / no recibido / sin dato', () => {
     expect(controlLabel('received')).toBe('recibido')
     expect(controlLabel('not_received')).toBe('no recibido')
     expect(controlLabel('n/d')).toBe('n/d')

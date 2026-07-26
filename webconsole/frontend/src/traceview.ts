@@ -1,5 +1,6 @@
 import type { BadgeTone, TraceFrame } from './types'
 import { SERIES_COLORS } from './components/GroupedBars'
+import { CONTROL_DROP_REASONS } from './labels'
 
 export function controlTone(control: string): BadgeTone {
   if (control === 'received') return 'ok'
@@ -9,7 +10,10 @@ export function controlTone(control: string): BadgeTone {
 }
 
 export function controlLabel(control: string): string {
-  if (control.startsWith('dropped:')) return control.slice('dropped:'.length)
+  if (control.startsWith('dropped:')) {
+    const reason = control.slice('dropped:'.length)
+    return CONTROL_DROP_REASONS[reason] ?? reason
+  }
   if (control === 'received') return 'recibido'
   if (control === 'not_received') return 'no recibido'
   return control

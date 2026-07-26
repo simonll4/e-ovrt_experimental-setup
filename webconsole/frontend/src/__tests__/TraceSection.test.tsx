@@ -69,7 +69,7 @@ describe('TraceSection', () => {
     await waitFor(() => expect(screen.getByText('ctrl_1')).toBeTruthy())
     expect(screen.getAllByText('1', { selector: '.eo-stat__value' }).length).toBe(2)
     expect(screen.getAllByText('recibido')[0].className).toContain('eo-badge--ok')
-    expect(screen.getByText('rate_gate', { selector: '.eo-badge' }).className).toContain('eo-badge--warn')
+    expect(screen.getByText('límite de tasa', { selector: '.eo-badge' }).className).toContain('eo-badge--warn')
     const fill = document.querySelector('.eo-progressbar__fill') as HTMLElement
     expect(fill.style.width).toBe('50%')
   })
