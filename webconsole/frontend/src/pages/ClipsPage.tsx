@@ -57,7 +57,7 @@ export default function ClipsPage() {
 
   return (
     <div className="eo-clips">
-      <div className="eo-clips__head">
+      <div className="eo-toolbar">
         <h2>Clips</h2>
         <input
           type="search"

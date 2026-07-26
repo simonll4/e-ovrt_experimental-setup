@@ -83,7 +83,7 @@ export default function RunsPage() {
   return (
     <div>
       {deleteError && <ErrorBanner>{deleteError}</ErrorBanner>}
-      <div className="eo-clips__head">
+      <div className="eo-toolbar">
         <Select value={statusFilter} options={STATUS_OPTIONS} onChange={setStatusFilter} />
       </div>
       <Table>

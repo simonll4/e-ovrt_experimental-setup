@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import { NAV_GROUPS } from '../nav'
 import Breadcrumbs from './Breadcrumbs'
@@ -9,8 +9,18 @@ export default function Shell({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false)
   const close = () => setOpen(false)
 
+  useEffect(() => {
+    if (!open) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') close()
+    }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [open])
+
   return (
     <div className="eo-shell">
+      {open && <div className="eo-sidebar__scrim" onClick={close} />}
       <aside className={open ? 'eo-sidebar eo-sidebar--open' : 'eo-sidebar'}>
         <div className="eo-sidebar__brand">
           <h1>E-OVRT</h1>
@@ -44,7 +54,7 @@ export default function Shell({ children }: { children: ReactNode }) {
           <button
             type="button"
             className="eo-topbar__menu"
-            aria-label="Abrir navegación"
+            aria-label={open ? 'Cerrar navegación' : 'Abrir navegación'}
             aria-expanded={open}
             onClick={() => setOpen((o) => !o)}
           >

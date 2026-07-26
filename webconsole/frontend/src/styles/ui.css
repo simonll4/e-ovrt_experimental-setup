@@ -132,7 +132,7 @@
   flex-wrap: wrap;
   align-items: center;
 }
-.eo-btn {
+.eo-btn, .eo-btn--primary, .eo-btn--danger {
   display: inline-flex;
   align-items: center;
   gap: var(--space-1);
@@ -160,8 +160,8 @@
 .eo-btn--danger {
   color: var(--status-error);
   border-color: var(--status-error);
-  margin-left: auto;
 }
+.eo-actions .eo-btn--danger { margin-left: auto; }
 
 /* Table */
 .eo-table {
@@ -322,6 +322,10 @@
   font-size: var(--text-md);
 }
 
+.eo-sidebar__scrim {
+  display: none;
+}
+
 @media (max-width: 900px) {
   .eo-topbar__menu { display: inline-flex; align-items: center; justify-content: center; }
   .eo-sidebar {
@@ -334,6 +338,13 @@
     box-shadow: 4px 0 16px rgba(0, 0, 0, 0.4);
   }
   .eo-sidebar--open { transform: translateX(0); }
+  .eo-sidebar__scrim {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+    background: rgba(0, 0, 0, 0.4);
+  }
 }
 
 /* Live run pill */
@@ -530,7 +541,7 @@
 
 /* Página de clips: biblioteca a la izquierda (con scroll propio) y área de
    trabajo pegada a la derecha, para no scrollear la página entera al recortar. */
-.eo-clips__head {
+.eo-toolbar {
   display: flex;
   align-items: center;
   gap: var(--space-3);

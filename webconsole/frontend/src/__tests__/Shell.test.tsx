@@ -76,4 +76,29 @@ describe('Shell', () => {
     fireEvent.click(screen.getByRole('link', { name: 'Experimentos' }))
     expect(screen.getByRole('complementary').className).not.toContain('eo-sidebar--open')
   })
+
+  it('Escape cierra la barra lateral abierta', () => {
+    renderShell()
+    fireEvent.click(screen.getByRole('button', { name: /navegación/i }))
+    expect(screen.getByRole('complementary').className).toContain('eo-sidebar--open')
+    fireEvent.keyDown(document, { key: 'Escape' })
+    expect(screen.getByRole('complementary').className).not.toContain('eo-sidebar--open')
+  })
+
+  it('hacer click en el scrim cierra la barra lateral', () => {
+    const { container } = renderShell()
+    fireEvent.click(screen.getByRole('button', { name: /navegación/i }))
+    const scrim = container.querySelector('.eo-sidebar__scrim')
+    expect(scrim).toBeTruthy()
+    fireEvent.click(scrim as Element)
+    expect(screen.getByRole('complementary').className).not.toContain('eo-sidebar--open')
+  })
+
+  it('el botón de menú cambia su etiqueta accesible según el estado', () => {
+    renderShell()
+    const menuButton = screen.getByRole('button', { name: /navegación/i })
+    expect(menuButton.getAttribute('aria-label')).toBe('Abrir navegación')
+    fireEvent.click(menuButton)
+    expect(menuButton.getAttribute('aria-label')).toBe('Cerrar navegación')
+  })
 })
