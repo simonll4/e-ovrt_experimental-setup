@@ -20,6 +20,43 @@
 .eo-badge--error { color: var(--status-error); }
 .eo-badge--neutral { color: var(--status-neutral); }
 
+/* Punto que late — único elemento animado del sistema. */
+.eo-badge__pulse {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--status-live);
+  display: inline-block;
+  animation: eo-pulse 2s ease-in-out infinite;
+}
+@keyframes eo-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .35; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .eo-badge__pulse { animation: none; }
+}
+
+/* Banner — aviso de bloque ancho completo. */
+.eo-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  border-radius: 8px;
+  padding: 8px 11px;
+  font-size: 12px;
+  border: 1px solid;
+  margin: 0 20px 12px;
+}
+.eo-banner--warn { background: color-mix(in srgb, var(--status-warn) 12%, transparent); border-color: var(--status-warn); }
+.eo-banner--error { background: color-mix(in srgb, var(--status-error) 12%, transparent); border-color: var(--status-error); }
+.eo-banner--live { background: color-mix(in srgb, var(--status-live) 12%, transparent); border-color: var(--status-live); }
+.eo-banner__icon { flex: none; margin-top: 1px; color: var(--status-warn); display: flex; }
+.eo-banner--error .eo-banner__icon { color: var(--status-error); }
+.eo-banner--live .eo-banner__icon { padding-top: 4px; }
+.eo-banner__body { flex: 1; color: var(--text); }
+.eo-banner__body b { color: var(--text); font-weight: 500; }
+
 /* Inline group — texto + badge (o similares) con separación consistente */
 .eo-inline { display: inline-flex; align-items: center; gap: var(--space-2); }
 
