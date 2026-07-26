@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { ApiError, activateInstance, getInstances, stopPlatform } from '../api'
 import type { PlatformInstance } from '../types'
-import { Badge, ErrorBanner } from '../components/ui'
+import { Badge, Button, ErrorBanner, Table } from '../components/ui'
 
 function errorMessage(e: unknown): string {
   if (e instanceof ApiError) {
@@ -81,10 +81,10 @@ export default function PlatformPage() {
         </small>
       </p>
       {error && <ErrorBanner>{error}</ErrorBanner>}
-      <table className="eo-table" style={{ maxWidth: 760 }}>
+      <Table style={{ maxWidth: 760 }}>
         <thead>
           <tr>
-            {['instancia', 'modelo', 'estado', 'ready', '', ''].map((h, i) => (
+            {['instancia', 'modelo', 'estado', 'operativa', '', ''].map((h, i) => (
               <th key={i}>{h}</th>
             ))}
           </tr>
@@ -103,20 +103,20 @@ export default function PlatformPage() {
               <td>{r.ready ? '✓' : '—'}</td>
               <td>
                 {!r.is_target && (
-                  <button onClick={() => activate(r.name)} disabled={busy !== null}>
+                  <Button variant="primary" onClick={() => activate(r.name)} disabled={busy !== null}>
                     {busy === r.name ? 'Activando…' : 'Activar'}
-                  </button>
+                  </Button>
                 )}
               </td>
               <td>
                 {r.is_target && (
-                  <button onClick={stop} disabled={busy !== null}>Apagar</button>
+                  <Button variant="danger" onClick={stop} disabled={busy !== null}>Apagar</Button>
                 )}
               </td>
             </tr>
           ))}
         </tbody>
-      </table>
+      </Table>
     </div>
   )
 }

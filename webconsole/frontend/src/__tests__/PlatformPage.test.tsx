@@ -57,4 +57,25 @@ describe('PlatformPage', () => {
     render(<PlatformPage />)
     await waitFor(() => expect(screen.getByText(/no habilitada/i)).toBeTruthy())
   })
+
+  it('la columna se llama "operativa", no "ready"', async () => {
+    vi.mocked(getInstances).mockResolvedValue([
+      { name: 'inst_1', model_ref: 'gdino', state: 'ready', ready: true, is_target: true } as any,
+    ])
+    const { container } = render(<PlatformPage />)
+    await waitFor(() => {
+      const headers = container.querySelectorAll('th')
+      const texts = Array.from(headers).map(h => h.textContent)
+      expect(texts).toContain('operativa')
+      expect(texts).not.toContain('ready')
+    })
+  })
+
+  it('"Apagar" es el primitivo Button', async () => {
+    vi.mocked(getInstances).mockResolvedValue([
+      { name: 'inst_1', model_ref: 'gdino', state: 'ready', ready: true, is_target: true } as any,
+    ])
+    render(<PlatformPage />)
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Apagar' }).className).toContain('eo-btn'))
+  })
 })
