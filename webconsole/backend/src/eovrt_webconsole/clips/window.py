@@ -1,8 +1,12 @@
 """
 Lógica de generación de ventanas de recorte desde marcas del operador.
 
-Convierte dos marcas (evento y fin) en una ventana de recorte con validación
-y advertencias del guion de rodaje.
+El escenario decide el contrato de marcado (doc operacion/72 §4): los siete
+escenarios de un episodio se recortan con `compute_window` a partir de dos
+marcas (evento y fin); P6 y P8, que tienen dos episodios, con
+`compute_window_multi` a partir de cuatro. Ambos aplican pre-roll, cola por
+escenario y las advertencias del guion — incluido el piso de censura del
+gate A1, por debajo del cual el episodio no aporta métrica.
 """
 
 from dataclasses import dataclass
