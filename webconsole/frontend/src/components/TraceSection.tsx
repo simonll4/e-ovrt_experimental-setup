@@ -1,148 +1,163 @@
-import { useEffect, useState } from 'react'
-import { artifactUrl, getTrace } from '../api'
-import { Badge, Card, DetChip, EmptyState, ErrorBanner, StatTile } from './ui'
-import { controlLabel, controlTone, frameHasActivity } from '../traceview'
-import { alertSeverityTone } from '../experimentview'
-import PreviewWithBoxes from './PreviewWithBoxes'
-import type { TraceFrame, TracePage } from '../types'
+import { useMemo, useState } from 'react'
+import FrameInspector from './FrameInspector'
+import { Badge, Button, Card, EmptyState } from './ui'
+import { controlTone, frameHasActivity } from '../traceview'
+import type { BadgeTone, TraceFrame, TraceTotals } from '../types'
 
-export default function TraceSection({ runId }: { runId: string }) {
-  const [trace, setTrace] = useState<TracePage | null>(null)
-  const [page, setPage] = useState(1)
-  const [error, setError] = useState<string | null>(null)
-  const [soloActividad, setSoloActividad] = useState(false)
+/** Cuántos cuadros se renderizan a la vez. Una traza de 1468 cuadros no puede
+ *  volcarse entera: ese scroll infinito es justo lo que este panel reemplaza. */
+const WINDOW = 200
 
-  useEffect(() => {
-    let alive = true
-    getTrace(runId, page, 50)
-      .then((t) => {
-        if (alive) setTrace(t)
-      })
-      .catch((e) => {
-        if (alive) setError(String(e))
-      })
-    return () => {
-      alive = false
-    }
-  }, [runId, page])
+const DOT_VAR: Record<BadgeTone, string> = {
+  ok: '--ok',
+  warn: '--wn',
+  error: '--er',
+  live: '--live',
+  alert: '--sr',
+  neutral: '--nt',
+}
 
-  if (error) return <ErrorBanner>Error cargando la traza: {error}</ErrorBanner>
-  if (!trace) return <p>Cargando traza…</p>
+/**
+ * Panel de traza en maestro-detalle: la lista de cuadros a la izquierda, el
+ * cuadro elegido completo a la derecha.
+ *
+ * Recibe los cuadros por props en vez de pedirlos: la línea de tiempo y esta
+ * lista comparten el mismo índice, que trae `useFullTrace` una sola vez en la
+ * página. Pedirlo dos veces sería traer miles de cuadros dos veces.
+ */
+export default function TraceSection({
+  runId,
+  frames,
+  totals,
+  selected,
+  onSelect,
+}: {
+  runId: string
+  frames: TraceFrame[]
+  totals: TraceTotals | null
+  /** Posición seleccionada dentro de los cuadros visibles. Controlada desde la
+   *  página para que la línea de tiempo y la lista se muevan juntas. */
+  selected?: number | null
+  onSelect?: (position: number) => void
+}) {
+  const [onlyActivity, setOnlyActivity] = useState(false)
+  const [onlyAlerts, setOnlyAlerts] = useState(false)
+  const [innerPos, setInnerPos] = useState(0)
+  const [anchor, setAnchor] = useState(0)
 
-  const { totals } = trace
-  const frames = soloActividad ? trace.frames.filter(frameHasActivity) : trace.frames
-  const totalPages = Math.max(1, Math.ceil(trace.total / trace.page_size))
-  const hasControl = trace.control_run_id !== null || !!trace.control_error
+  const visible = useMemo(
+    () =>
+      frames.filter(
+        (f) => (!onlyActivity || frameHasActivity(f)) && (!onlyAlerts || (f.alert?.length ?? 0) > 0),
+      ),
+    [frames, onlyActivity, onlyAlerts],
+  )
+
+  const clamp = (p: number) => Math.min(Math.max(0, p), Math.max(0, visible.length - 1))
+  const pos = clamp(selected ?? innerPos)
+
+  const setPos = (p: number) => {
+    const c = clamp(p)
+    setInnerPos(c)
+    onSelect?.(c)
+  }
+
+  const from = Math.max(0, Math.min(anchor, Math.max(0, visible.length - WINDOW)))
+  const slice = visible.slice(from, from + WINDOW)
+
+  const applyFilter = (fn: () => void) => {
+    fn()
+    setAnchor(0)
+    setPos(0)
+  }
+
+  if (!frames.length) {
+    return (
+      <EmptyState hint="Sin traza no se puede inspeccionar cuadro a cuadro.">
+        Esta corrida no tiene traza
+      </EmptyState>
+    )
+  }
 
   return (
-    <Card title="Evaluación del control-plane">
-      <div className="eo-stats-row">
-        <StatTile label="run de control" value={trace.control_run_id ?? '—'} />
-        <StatTile label="alertas" value={totals.alerts} />
-        {Object.entries(totals.dropped_by_reason).map(([reason, count]) => (
-          <StatTile key={reason} label={controlLabel(`dropped:${reason}`)} value={count} />
-        ))}
-        {totals.not_received !== null && <StatTile label="no recibidos" value={totals.not_received} />}
-      </div>
-      {trace.topology === 'two_node' && <small>descartes internos n/d en two-node</small>}
-      {trace.control_error && (
-        <ErrorBanner>control-plane no disponible: {trace.control_error}</ErrorBanner>
-      )}
-      {trace.control_run_id === null && !trace.control_error && (
-        <EmptyState>no evaluado por el control-plane</EmptyState>
-      )}
-      <label>
-        <input
-          type="checkbox"
-          checked={soloActividad}
-          onChange={(e) => setSoloActividad(e.target.checked)}
-        />{' '}
-        solo frames con actividad
-      </label>
-      <table className="eo-table">
-        <thead>
-          <tr>
-            <th>frame</th>
-            <th>detecciones</th>
-            {hasControl && <th>control</th>}
-            {hasControl && <th>patrón</th>}
-          </tr>
-        </thead>
-        <tbody>
-          {frames.map((f: TraceFrame) => (
-            <tr key={f.unit_id ?? f.frame_index} className={f.alert.length > 0 ? 'eo-row--alert' : undefined}>
-              <td>
-                <div className="eo-framecell">
-                  {f.unit_id !== null && (
-                    <PreviewWithBoxes
-                      src={artifactUrl(runId, `previews/${f.unit_id}.preview.jpg`)}
-                      alt={f.unit_id}
-                      detections={f.detections ?? []}
-                    />
-                  )}
-                  <span className="eo-framecell__id">
-                    {[f.frame_index !== null ? `#${f.frame_index}` : null, f.unit_id]
-                      .filter((x) => x !== null && x !== '')
-                      .join(' · ')}
-                  </span>
-                </div>
-              </td>
-              <td>
-                {f.detections === null || f.detections.length === 0 ? (
-                  '—'
+    <div className="eo-trace">
+      <Card className="eo-trace__master" flush>
+        <div className="eo-trace__filters">
+          <label>
+            <input
+              type="checkbox"
+              checked={onlyActivity}
+              onChange={(e) => applyFilter(() => setOnlyActivity(e.target.checked))}
+            />{' '}
+            Solo con actividad
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              checked={onlyAlerts}
+              onChange={(e) => applyFilter(() => setOnlyAlerts(e.target.checked))}
+            />{' '}
+            Solo alertas
+          </label>
+          <span className="eo-mono">
+            {visible.length} de {totals?.frames ?? frames.length}
+          </span>
+        </div>
+
+        {from > 0 && (
+          <div className="eo-trace__more">
+            <Button onClick={() => setAnchor(Math.max(0, from - WINDOW))}>Cuadros anteriores</Button>
+          </div>
+        )}
+
+        <ul className="eo-trace__list" role="listbox" aria-label="Cuadros de la traza">
+          {slice.map((f, i) => {
+            const idx = from + i
+            return (
+              <li
+                key={f.unit_id ?? idx}
+                role="option"
+                aria-selected={idx === pos}
+                className={idx === pos ? 'is-selected' : undefined}
+                onClick={() => setPos(idx)}
+              >
+                <span className="eo-trace__idx eo-mono">{f.frame_index ?? idx}</span>
+                <span className="eo-trace__unit eo-mono">{f.unit_id}</span>
+                <span className="eo-trace__dets">{f.detections?.length || '—'}</span>
+                {(f.alert?.length ?? 0) > 0 ? (
+                  <Badge tone="alert">Alerta</Badge>
                 ) : (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', alignItems: 'flex-start' }}>
-                    {f.detections.map((d, i) => (
-                      <DetChip key={i} label={d.label} confidence={d.confidence} />
-                    ))}
-                  </div>
+                  <i
+                    className="eo-trace__dot"
+                    title={f.control}
+                    style={{ background: `var(${DOT_VAR[controlTone(f.control)]})` }}
+                  />
                 )}
-              </td>
-              {hasControl && (
-                <td>
-                  <Badge tone={controlTone(f.control)}>{controlLabel(f.control)}</Badge>
-                </td>
-              )}
-              {hasControl && (
-                <td>
-                  {f.progress.map((p, i) => (
-                    <div className="eo-patternrow" key={i}>
-                      <span className="eo-patternrow__id">{p.condition_id}</span>
-                      <div className="eo-progressbar">
-                        <div
-                          className={`eo-progressbar__fill${f.alert.some((a) => a.condition_id === p.condition_id) ? ' eo-progressbar__fill--alert' : ''}`}
-                          style={{ width: `${p.progress * 100}%` }}
-                        />
-                      </div>
-                      <span className="eo-patternrow__pct">{Math.round(p.progress * 100)}%</span>
-                    </div>
-                  ))}
-                  {f.alert.map((a, i) => (
-                    <Badge key={i} tone="error">
-                      ALERTA {a.condition_id}
-                    </Badge>
-                  ))}
-                  {(f.active_patterns ?? []).map((p, i) => (
-                    <div className="eo-patternrow" key={`active-${i}`}>
-                      <Badge tone={alertSeverityTone(p.severity)}>{p.condition_id}</Badge>
-                      <span>riesgo activo</span>
-                    </div>
-                  ))}
-                </td>
-              )}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <p>
-        pág. {trace.page} de {totalPages}{' '}
-        <button disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
-          anterior
-        </button>{' '}
-        <button disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)}>
-          siguiente
-        </button>
-      </p>
-    </Card>
+              </li>
+            )
+          })}
+        </ul>
+
+        {from + WINDOW < visible.length && (
+          <div className="eo-trace__more">
+            <Button onClick={() => setAnchor(from + WINDOW)}>Cuadros siguientes</Button>
+          </div>
+        )}
+
+        {visible.length === 0 && (
+          <EmptyState hint="Sacá alguno de los dos filtros.">Ningún cuadro pasa el filtro</EmptyState>
+        )}
+      </Card>
+
+      <div className="eo-trace__detail">
+        <FrameInspector
+          frame={visible[pos] ?? null}
+          runId={runId}
+          position={pos}
+          total={visible.length}
+          onStep={(d) => setPos(pos + d)}
+        />
+      </div>
+    </div>
   )
 }

@@ -50,11 +50,18 @@ const renderPage = (id = 'r_1') =>
     </MemoryRouter>,
   )
 
+/** Borra por el camino nuevo: abrir la confirmación en línea y aceptar. */
+const deleteRun = async () => {
+  fireEvent.click(screen.getByRole('button', { name: 'Borrar' }))
+  fireEvent.click(await screen.findByRole('button', { name: 'Sí, borrar' }))
+}
+
 describe('RunDetailPage', () => {
-  it('muestra el estado del run como badge', async () => {
+  it('muestra el estado de la corrida con el glosario, no con el código crudo', async () => {
     vi.mocked(api.getRun).mockResolvedValue({ run_id: 'r_1', status: 'succeeded', live: false } as any)
     renderPage()
-    await waitFor(() => expect(screen.getByText('OK').className).toContain('eo-badge--ok'))
+    await waitFor(() => expect(screen.getByText('Completada').className).toContain('eo-badge--ok'))
+    expect(screen.queryByText('succeeded')).toBeNull()
   })
 
   it('muestra el nombre del run (top-level, run vivo) con el id como subtítulo', async () => {
@@ -81,7 +88,7 @@ describe('RunDetailPage', () => {
     await waitFor(() => expect(screen.getAllByText('r_1')).toHaveLength(1))
   })
 
-  it('muestra tiles de métricas cuando hay summary', async () => {
+  it('muestra la tira de indicadores con los rótulos del glosario', async () => {
     vi.mocked(api.getRun).mockResolvedValue({
       run_id: 'r_1',
       status: 'succeeded',
@@ -89,8 +96,24 @@ describe('RunDetailPage', () => {
       summary: { fps_effective: 24, total_detections: 100, duration_seconds: 5 },
     } as any)
     renderPage()
-    await waitFor(() => expect(screen.getByText('24')).toBeTruthy())
+    await waitFor(() => expect(screen.getByText('Cuadros por segundo')).toBeTruthy())
+    expect(screen.getByText('24,00')).toBeTruthy()
     expect(screen.getByText('100')).toBeTruthy()
+    expect(screen.getByText('Latencia (mediana)')).toBeTruthy()
+  })
+
+  it('las pestañas separan traza, resumen, evaluación y archivos', async () => {
+    vi.mocked(api.getRun).mockResolvedValue({
+      run_id: 'r_1',
+      status: 'succeeded',
+      live: false,
+      summary: { model_name: 'gdino', prompt_set_id: 'ps_v1' },
+    } as any)
+    renderPage()
+    await waitFor(() => expect(screen.getByRole('tab', { name: /Traza/ })).toBeTruthy())
+    fireEvent.click(screen.getByRole('tab', { name: 'Resumen' }))
+    expect(screen.getByText('Conjunto de prompts')).toBeTruthy()
+    expect(screen.getByText('ps_v1')).toBeTruthy()
   })
 
   it('no muestra el botón de borrado mientras el run está corriendo', async () => {
@@ -100,23 +123,25 @@ describe('RunDetailPage', () => {
     expect(screen.queryByRole('button', { name: 'Borrar' })).toBeNull()
   })
 
-  it('cancelar el confirm no borra nada', async () => {
+  it('cancelar la confirmación no borra nada', async () => {
     vi.mocked(api.getRun).mockResolvedValue({ run_id: 'r_1', status: 'succeeded', live: false } as any)
-    vi.spyOn(window, 'confirm').mockReturnValue(false)
+    const confirmSpy = vi.spyOn(window, 'confirm')
     renderPage()
     await waitFor(() => expect(screen.getByRole('button', { name: 'Borrar' })).toBeTruthy())
     fireEvent.click(screen.getByRole('button', { name: 'Borrar' }))
+    fireEvent.click(await screen.findByRole('button', { name: 'No' }))
     expect(api.deleteRun).not.toHaveBeenCalled()
     expect(navigateMock).not.toHaveBeenCalled()
+    // La confirmación es en línea: no se usa el diálogo del navegador.
+    expect(confirmSpy).not.toHaveBeenCalled()
   })
 
-  it('confirmar borra el run y navega a /runs', async () => {
+  it('confirmar borra la corrida y navega a /runs', async () => {
     vi.mocked(api.getRun).mockResolvedValue({ run_id: 'r_1', status: 'succeeded', live: false } as any)
     vi.mocked(api.deleteRun).mockResolvedValue(undefined)
-    vi.spyOn(window, 'confirm').mockReturnValue(true)
     renderPage()
     await waitFor(() => expect(screen.getByRole('button', { name: 'Borrar' })).toBeTruthy())
-    fireEvent.click(screen.getByRole('button', { name: 'Borrar' }))
+    await deleteRun()
     await waitFor(() => expect(api.deleteRun).toHaveBeenCalledWith('r_1'))
     await waitFor(() => expect(navigateMock).toHaveBeenCalledWith('/runs'))
   })
@@ -127,10 +152,9 @@ describe('RunDetailPage', () => {
       detail: 'partial',
       errors: { control: 'no encontrado' },
     })
-    vi.spyOn(window, 'confirm').mockReturnValue(true)
     renderPage()
     await waitFor(() => expect(screen.getByRole('button', { name: 'Borrar' })).toBeTruthy())
-    fireEvent.click(screen.getByRole('button', { name: 'Borrar' }))
+    await deleteRun()
     await waitFor(() => expect(screen.getByRole('alert').textContent).toContain('control'))
     expect(navigateMock).not.toHaveBeenCalled()
 
