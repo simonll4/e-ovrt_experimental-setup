@@ -65,7 +65,7 @@ describe('spec44c gate: flujo de experimentos por la UI', () => {
     expect(vi.mocked(api.runExperiment)).toHaveBeenCalledWith({ slug: 'gate-slug' })
   })
 
-  it('ExperimentDetailPage: reporte non_temporal:true muestra alertas y el badge no-temporal', async () => {
+  it('ExperimentDetailPage: reporte non_temporal:true muestra alertas y avisa que el conjunto no es temporal', async () => {
     vi.mocked(api.getExperiment).mockResolvedValue({
       experiment_id: 'exp_g',
       status: 'succeeded',
@@ -82,10 +82,10 @@ describe('spec44c gate: flujo de experimentos por la UI', () => {
     renderDetail()
 
     await waitFor(() => expect(screen.getByText('alert_g1')).toBeTruthy())
-    expect(screen.getByText(/no.?temporal/i)).toBeTruthy()
+    expect(screen.getByText(/no es temporal/i)).toBeTruthy()
   })
 
-  it('ExperimentDetailPage: reporte non_temporal:false NO muestra el badge no-temporal', async () => {
+  it('ExperimentDetailPage: reporte non_temporal:false NO avisa de no-temporal', async () => {
     vi.mocked(api.getExperiment).mockResolvedValue({
       experiment_id: 'exp_g',
       status: 'succeeded',
@@ -99,7 +99,7 @@ describe('spec44c gate: flujo de experimentos por la UI', () => {
 
     renderDetail()
 
-    await waitFor(() => expect(screen.getByText('Sin alertas.')).toBeTruthy())
-    expect(screen.queryByText(/no.?temporal/i)).toBeNull()
+    await waitFor(() => expect(screen.getByText('Sin alertas')).toBeTruthy())
+    expect(screen.queryByText(/no es temporal/i)).toBeNull()
   })
 })

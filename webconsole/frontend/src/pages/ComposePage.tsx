@@ -10,7 +10,7 @@ import type {
 import { useTarget } from '../useTarget'
 import { usePreflight } from '../usePreflight'
 import PlatformStatus from '../components/PlatformStatus'
-import { Card, ErrorBanner, Field } from '../components/ui'
+import { Card, ErrorBanner, Field, PageHeader } from '../components/ui'
 
 export default function ComposePage() {
   const navigate = useNavigate()
@@ -228,10 +228,7 @@ export default function ComposePage() {
 
   return (
     <div>
-      <div style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'center', flexWrap: 'wrap' }}>
-        <h2>Nueva corrida</h2>
-        <PlatformStatus status={preflight} />
-      </div>
+      <PageHeader title="Nueva corrida" meta={<PlatformStatus status={preflight} />} />
       <Card title="1 · Fuente">
         <div>
           <Field label="Tipo de fuente" error={fieldError('ingest.plugin')}>
@@ -310,7 +307,7 @@ export default function ComposePage() {
       </Card>
       <Card title="2 · Prompts">
         <div>
-          <Field label="Prompt set" error={fieldError('prompts.set_id')}>
+          <Field label="Conjunto de prompts" error={fieldError('prompts.set_id')}>
             <select
               value={setId}
               onChange={(e) => {
@@ -350,7 +347,7 @@ export default function ComposePage() {
         </div>
       </Card>
       <Card title="3 · Lanzar">
-        <Field label="Nombre del run (opcional)" hint="Si lo dejás vacío se usa el id autogenerado.">
+        <Field label="Nombre de la corrida (opcional)" hint="Si lo dejás vacío se usa el id autogenerado.">
           <input placeholder="ej. prueba OAK-D laboratorio" value={runName}
                  onChange={(e) => setRunName(e.target.value)} />
         </Field>

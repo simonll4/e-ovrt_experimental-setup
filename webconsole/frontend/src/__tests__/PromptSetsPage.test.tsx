@@ -27,8 +27,11 @@ describe('PromptSetsPage', () => {
     vi.mocked(api.listPromptSets).mockResolvedValue(SUMMARIES)
     render(<PromptSetsPage />)
     await waitFor(() => expect(screen.getByText('eind_v1')).toBeTruthy())
-    expect(screen.getByText('frozen_pending_review')).toBeTruthy()
-    expect(screen.getByText('frozen')).toBeTruthy()
+    // El estado se muestra con nombre legible; el código crudo no llega a la pantalla.
+    expect(screen.getByText('Congelado, a revisar')).toBeTruthy()
+    expect(screen.queryByText('frozen_pending_review')).toBeNull()
+    expect(screen.getByText('Congelado')).toBeTruthy()
+    expect(screen.queryByText('frozen')).toBeNull()
   })
 
   it('un set frozen se muestra read-only con acción Derivar', async () => {

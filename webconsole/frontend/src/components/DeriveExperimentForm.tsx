@@ -181,7 +181,7 @@ export function DeriveExperimentForm({
           ))}
         </select>
       </Field>
-      <Field label="prompt set">
+      <Field label="Conjunto de prompts">
         <select
           value={values.prompt_set_id}
           onChange={(e) => setField('prompt_set_id', e.target.value)}

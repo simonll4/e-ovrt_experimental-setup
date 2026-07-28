@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { getDatasets, getIngestPlugins, getPromptSets } from '../api'
-import { Card, EmptyState } from '../components/ui'
+import { Badge, Card, EmptyState, MonoCell, PageHeader, Table } from '../components/ui'
 import type { DatasetEntry, IngestPlugin, PromptSet } from '../types'
 import { useTarget } from '../useTarget'
 
@@ -22,97 +22,142 @@ export default function CatalogPage() {
     }
   }, [modelRef])
   return (
-    <div style={{ display: 'grid', gap: 'var(--space-1)' }}>
-      <Card title="Modelo del target (read-only)">
+    <>
+      <PageHeader
+        title="Catálogos"
+        meta="Lo que la instancia activa ofrece hoy — solo lectura"
+      />
+
+      <Card title="Modelo de la instancia activa" meta="No se puede cambiar acá" flush>
         {target?.model ? (
-          <table className="eo-table">
-            <thead>
-              <tr><th>ref</th><th>adapter</th><th>device</th><th>thresholds</th></tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>{target.model.ref}</td>
-                <td>{target.model.adapter}</td>
-                <td>{target.model.device}</td>
-                <td>
-                  {Object.entries(target.model.thresholds)
-                    .filter(([, v]) => v != null)
-                    .map(([k, v]) => `${k}=${v}`)
-                    .join(', ') || '—'}
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          <>
+            <Table>
+              <thead>
+                <tr>
+                  <th>Modelo</th>
+                  <th>Adaptador</th>
+                  <th>Dispositivo</th>
+                  <th>Umbrales</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <MonoCell>{target.model.ref}</MonoCell>
+                  <MonoCell>{target.model.adapter}</MonoCell>
+                  <MonoCell>{target.model.device}</MonoCell>
+                  <MonoCell>
+                    {Object.entries(target.model.thresholds)
+                      .filter(([, v]) => v != null)
+                      .map(([k, v]) => `${k}=${v}`)
+                      .join(', ') || '—'}
+                  </MonoCell>
+                </tr>
+              </tbody>
+            </Table>
+            <p className="eo-cap eo-cap--inset">
+              Son fijos por instancia: cambiar de modelo significa activar otra instancia
+              desde Plataforma.
+            </p>
+          </>
         ) : (
-          <EmptyState>Servicio no listo.</EmptyState>
+          <EmptyState hint="El motor de detección todavía no respondió.">
+            Servicio no listo
+          </EmptyState>
         )}
-        {target?.model && <small>(fijos por instancia; cambiar de modelo = otra instancia)</small>}
       </Card>
-      <Card title="Plugins de ingesta">
+
+      <Card title="Fuentes de ingesta" meta={`${plugins.length}`} flush>
         {plugins.length === 0 ? (
-          <EmptyState>Sin plugins de ingesta.</EmptyState>
+          <EmptyState>Sin fuentes de ingesta</EmptyState>
         ) : (
-          <table className="eo-table">
+          <Table>
             <thead>
-              <tr><th>id</th><th>kind</th><th>descripción</th><th>estado</th></tr>
+              <tr>
+                <th>Fuente</th>
+                <th>Tipo</th>
+                <th>Descripción</th>
+                <th>Estado</th>
+              </tr>
             </thead>
             <tbody>
               {plugins.map((p) => (
                 <tr key={p.id}>
-                  <td>{p.id}</td>
-                  <td>{p.kind}</td>
+                  <MonoCell>{p.id}</MonoCell>
+                  <MonoCell>{p.kind}</MonoCell>
                   <td>{p.description}</td>
                   <td>
-                    {!p.available && <em>no disponible</em>}
-                    {p.available && !p.enabled && <em>no soportado</em>}
-                    {p.available && p.enabled && '—'}
+                    {!p.available ? (
+                      <Badge tone="neutral">No disponible</Badge>
+                    ) : !p.enabled ? (
+                      <Badge tone="warn">No habilitada</Badge>
+                    ) : (
+                      <Badge tone="ok">Disponible</Badge>
+                    )}
                   </td>
                 </tr>
               ))}
             </tbody>
-          </table>
+          </Table>
         )}
       </Card>
-      <Card title="Datasets">
+
+      <Card title="Datasets" meta={`${datasets.length}`} flush>
         {datasets.length === 0 ? (
-          <EmptyState>Sin datasets disponibles.</EmptyState>
+          <EmptyState>Sin datasets disponibles</EmptyState>
         ) : (
-          <table className="eo-table">
+          <Table>
             <thead>
-              <tr><th>id</th><th>descripción</th><th>estado</th></tr>
+              <tr>
+                <th>Dataset</th>
+                <th>Descripción</th>
+                <th>Estado</th>
+              </tr>
             </thead>
             <tbody>
               {datasets.map((d) => (
                 <tr key={d.id}>
-                  <td>{d.id}</td>
+                  <MonoCell>{d.id}</MonoCell>
                   <td>{d.description}</td>
-                  <td>{!d.available ? <em>no montado</em> : '—'}</td>
+                  <td>
+                    {d.available ? (
+                      <Badge tone="ok">Montado</Badge>
+                    ) : (
+                      <Badge tone="neutral">No montado</Badge>
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>
-          </table>
+          </Table>
         )}
       </Card>
-      <Card title="Prompt sets (in-repo)">
+
+      <Card title="Conjuntos de prompts del repositorio" meta={`${sets.length}`} flush>
         {sets.length === 0 ? (
-          <EmptyState>Sin prompt sets.</EmptyState>
+          <EmptyState>Sin conjuntos de prompts</EmptyState>
         ) : (
-          <table className="eo-table">
+          <Table>
             <thead>
-              <tr><th>id</th><th>estado</th><th>clases</th></tr>
+              <tr>
+                <th>Conjunto</th>
+                <th>Estado</th>
+                <th>Clases</th>
+              </tr>
             </thead>
             <tbody>
               {sets.map((s) => (
                 <tr key={s.id}>
-                  <td>{s.id}</td>
-                  <td>{s.frozen ? <em>congelado</em> : '—'}</td>
-                  <td>{s.classes.map((c) => c.id).join(', ')}</td>
+                  <MonoCell>{s.id}</MonoCell>
+                  <td>
+                    {s.frozen ? <Badge tone="ok">Congelado</Badge> : <Badge tone="neutral">Abierto</Badge>}
+                  </td>
+                  <MonoCell>{s.classes.map((c) => c.id).join(', ')}</MonoCell>
                 </tr>
               ))}
             </tbody>
-          </table>
+          </Table>
         )}
       </Card>
-    </div>
+    </>
   )
 }

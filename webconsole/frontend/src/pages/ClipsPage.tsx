@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { clipMediaUrl, getClips, getMasters } from '../api'
 import TrimDialog from '../components/TrimDialog'
-import { Card, EmptyState, ErrorBanner } from '../components/ui'
+import { Card, EmptyState, ErrorBanner, PageHeader, SearchInput } from '../components/ui'
 import type { ClipEntry, MasterEntry } from '../types'
 
 /** Panel derecho: o se recorta un master, o se reproduce un clip, nunca las dos.
@@ -57,17 +57,18 @@ export default function ClipsPage() {
 
   return (
     <div className="eo-clips">
-      <div className="eo-clips__head">
-        <h2>Clips</h2>
-        <input
-          type="search"
-          className="eo-clips__filter"
-          placeholder="Filtrar masters y clips…"
-          aria-label="Filtrar"
-          value={filtro}
-          onChange={(e) => setFiltro(e.target.value)}
-        />
-      </div>
+      <PageHeader
+        title="Clips"
+        meta={`${masters.length} masters · ${clips.length} clips generados`}
+        actions={
+          <SearchInput
+            value={filtro}
+            onChange={setFiltro}
+            placeholder="Filtrar masters y clips…"
+            ariaLabel="Filtrar masters y clips"
+          />
+        }
+      />
       {error && <ErrorBanner>{error}</ErrorBanner>}
 
       <div className="eo-clips__grid">

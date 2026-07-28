@@ -78,7 +78,7 @@ export default function LivePromptPanel({
       {mode === 'detect' && (
         <>
           {error && <ErrorBanner>{error}</ErrorBanner>}
-          <Field label="Prompt set">
+          <Field label="Conjunto de prompts">
             <select value={setId} onChange={(e) => void pickSet(e.target.value)}>
               <option value="">— elegir —</option>
               {sets.map((s) => (

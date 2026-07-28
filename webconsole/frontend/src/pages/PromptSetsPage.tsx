@@ -5,12 +5,24 @@ import {
 import type { PromptSetDetail, PromptSetSummary } from '../types'
 import { promptStatusTone } from '../promptview'
 import PromptSetEditor from '../components/PromptSetEditor'
-import { Badge, EmptyState, ErrorBanner } from '../components/ui'
+import {
+  Badge,
+  Button,
+  Card,
+  EmptyState,
+  ErrorBanner,
+  MonoCell,
+  NumCell,
+  PageHeader,
+  Table,
+} from '../components/ui'
 
+// Los estados son códigos del backend; acá se les pone nombre legible. Un estado
+// desconocido cae al código crudo en vez de quedar en blanco.
 const STATUS_LABEL: Record<string, string> = {
-  exploratory: 'exploratory',
-  frozen_pending_review: 'frozen_pending_review',
-  frozen: 'frozen',
+  exploratory: 'Exploratorio',
+  frozen_pending_review: 'Congelado, a revisar',
+  frozen: 'Congelado',
 }
 
 const EMPTY_NEW_SET: PromptSetDetail = { id: '', status: 'exploratory', classes: [] }
@@ -65,34 +77,56 @@ export default function PromptSetsPage() {
   }
 
   return (
-    <div>
-      <h2>Prompt sets</h2>
+    <>
+      <PageHeader
+        title="Conjuntos de prompts"
+        meta={`${sets.length} conjuntos`}
+        actions={
+          <Button variant="primary" onClick={() => setCreating(true)}>
+            Nuevo conjunto
+          </Button>
+        }
+      />
       {error && <ErrorBanner>{error}</ErrorBanner>}
-      <button type="button" onClick={() => setCreating(true)}>Nuevo set</button>
-      <table className="eo-table">
-        <thead>
-          <tr><th>id</th><th>estado</th><th>track</th><th>clases</th><th>frases</th><th>deriva de</th></tr>
-        </thead>
-        <tbody>
-          {sets.map((s) => (
-            <tr key={s.id} onClick={() => void open(s.id)} style={{ cursor: 'pointer' }}>
-              <td>
-                <button type="button" className="eo-linklike" onClick={() => void open(s.id)}>
-                  {s.id}
-                </button>
-              </td>
-              <td><Badge tone={promptStatusTone(s.status)}>{STATUS_LABEL[s.status] ?? s.status}</Badge></td>
-              <td>{s.track ?? ''}</td>
-              <td>{s.n_classes}</td>
-              <td>{s.n_phrases}</td>
-              <td>{s.derives_from ?? ''}</td>
+      <Card flush>
+        <Table>
+          <thead>
+            <tr>
+              <th>Conjunto</th>
+              <th>Estado</th>
+              <th>Track</th>
+              <th className="eo-num">Clases</th>
+              <th className="eo-num">Frases</th>
+              <th>Deriva de</th>
             </tr>
-          ))}
-          {sets.length === 0 && (
-            <tr><td colSpan={6}><EmptyState>Sin prompt sets todavía.</EmptyState></td></tr>
-          )}
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody>
+            {sets.map((s) => (
+              <tr key={s.id} onClick={() => void open(s.id)} style={{ cursor: 'pointer' }}>
+                <MonoCell>
+                  <button type="button" className="eo-linklike" onClick={() => void open(s.id)}>
+                    {s.id}
+                  </button>
+                </MonoCell>
+                <td>
+                  <Badge tone={promptStatusTone(s.status)}>
+                    {STATUS_LABEL[s.status] ?? s.status}
+                  </Badge>
+                </td>
+                <MonoCell>{s.track ?? '—'}</MonoCell>
+                <NumCell>{s.n_classes}</NumCell>
+                <NumCell>{s.n_phrases}</NumCell>
+                <MonoCell>{s.derives_from ?? '—'}</MonoCell>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+        {sets.length === 0 && (
+          <EmptyState hint="Los conjuntos viven en prompts/ del repositorio.">
+            Sin conjuntos de prompts todavía
+          </EmptyState>
+        )}
+      </Card>
+    </>
   )
 }

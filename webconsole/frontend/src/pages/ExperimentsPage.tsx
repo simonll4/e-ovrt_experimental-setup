@@ -6,7 +6,21 @@ import { experimentStatusLabel, experimentStatusTone } from '../experimentview'
 import { usePreflight } from '../usePreflight'
 import PlatformStatus from '../components/PlatformStatus'
 import { DeriveExperimentForm } from '../components/DeriveExperimentForm'
-import { Badge, Card, ErrorBanner, EmptyState, Field } from '../components/ui'
+import {
+  Badge,
+  Banner,
+  Button,
+  Card,
+  EmptyState,
+  ErrorBanner,
+  Field,
+  MonoCell,
+  PageHeader,
+  RowNameCell,
+  Select,
+  Table,
+} from '../components/ui'
+import { applyPlaneGlossary } from '../labels'
 
 // Formulario abierto: `selectable` distingue el "Derivar" de una fila (fuente
 // fija, como siempre) del formulario de /experiments/new (fuente elegible via
@@ -126,44 +140,52 @@ export default function ExperimentsPage() {
 
   if (error) return <ErrorBanner>Error listando experimentos: {error}</ErrorBanner>
   if (!rows) return <p className="eo-empty">Cargando…</p>
+
+  const options = rows.map((r) => ({ value: r.slug, label: r.slug }))
+
   return (
-    <div style={{ display: 'grid', gap: 'var(--space-4)' }}>
-      <h2>Experimentos</h2>
+    <>
+      {/* Sin acción propia en el encabezado: "+ Nuevo experimento" ya vive en la
+          barra lateral, y repetirlo acá chocaba con el título de la tarjeta del
+          formulario, que también dice "Nuevo experimento". */}
+      <PageHeader title="Experimentos" meta={`${rows.length} manifiestos`} />
+
       {current && (
-        <p>
-          Experimento activo: <Link to={`/experiments/${current.experiment_id}`}>{current.experiment_id}</Link>
-          {' — '}<Badge tone={experimentStatusTone(current)}>{experimentStatusLabel(current)}</Badge>
-        </p>
+        <Banner tone={current.status === 'running' ? 'live' : 'warn'}>
+          Experimento activo{' '}
+          <Link to={`/experiments/${current.experiment_id}`}>
+            <span className="eo-mono">{current.experiment_id}</span>
+          </Link>{' '}
+          — <Badge tone={experimentStatusTone(current)}>{experimentStatusLabel(current)}</Badge>
+        </Banner>
       )}
-      <Card title="Lanzar">
-        <div style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'center', flexWrap: 'wrap' }}>
+
+      <Card title="Lanzar un experimento">
+        <div className="eo-launchbar">
           <PlatformStatus status={preflight} />
-          <select value={slug} onChange={(e) => setSlug(e.target.value)}>
-            {rows.map((r) => (
-              <option key={r.slug} value={r.slug}>{r.slug}</option>
-            ))}
-          </select>
-          <button onClick={trigger} disabled={busy || !slug || blocked}>
+          <Select value={slug} options={options} onChange={setSlug} placeholder="Elegí un manifiesto" />
+          <Button variant="primary" onClick={trigger} disabled={busy || !slug || blocked}>
             {busy ? 'Lanzando…' : 'Lanzar experimento'}
-          </button>
+          </Button>
         </div>
         {blocked && !busy && (
-          <p className="eo-note eo-note--warn">No se puede lanzar: {blockedReason}.</p>
+          <p className="eo-note eo-note--warn">
+            No se puede lanzar: {applyPlaneGlossary(String(blockedReason ?? 'servicios no listos'))}.
+          </p>
         )}
-        {runError && <ErrorBanner>{runError}</ErrorBanner>}
+        {runError && <ErrorBanner>{applyPlaneGlossary(runError)}</ErrorBanner>}
       </Card>
+
       {formMode && (
         <>
           {formMode.selectable && (
-            <Field label="basado en">
-              <select
+            <Field label="Basado en">
+              <Select
                 value={formMode.source}
-                onChange={(e) => setFormMode({ ...formMode, source: e.target.value })}
-              >
-                {(rows ?? []).map((r) => (
-                  <option key={r.slug} value={r.slug}>{r.slug}</option>
-                ))}
-              </select>
+                options={options}
+                ariaLabel="Basado en"
+                onChange={(v) => setFormMode({ ...formMode, source: v })}
+              />
             </Field>
           )}
           <DeriveExperimentForm
@@ -176,11 +198,10 @@ export default function ExperimentsPage() {
             mode={formMode.selectable ? 'create' : 'derive'}
             onCancel={closeForm}
             onDone={async (newSlug) => {
-              // Se espera la recarga ANTES de seleccionar: si no, el <select> queda
-              // por un instante con un value sin <option> que lo matchee y el
-              // browser muestra la primera opción — el operador vería un slug y
-              // lanzaría otro, justo en el momento en que quiere confirmar qué va
-              // a correr.
+              // Se espera la recarga ANTES de seleccionar: si no, el desplegable
+              // queda por un instante con un valor que no tiene opción, y muestra
+              // el placeholder — el operador vería una cosa y lanzaría otra, justo
+              // en el momento en que quiere confirmar qué va a correr.
               await reloadManifests()
               setSlug(newSlug)
               closeForm()
@@ -189,35 +210,43 @@ export default function ExperimentsPage() {
         </>
       )}
       {rows.length === 0 ? (
-        <EmptyState>Sin manifiestos todavía.</EmptyState>
+        <EmptyState hint="Los manifiestos viven en experiments/ del repositorio.">
+          Sin manifiestos todavía
+        </EmptyState>
       ) : (
-        <table className="eo-table">
-          <thead>
-            <tr>
-              {['slug', 'experimento', ''].map((h) => (
-                <th key={h}>{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((r) => (
-              <tr key={r.slug}>
-                <td>{r.slug}</td>
-                <td>
-                  {r.experiment_id ? (
-                    <Link to={`/experiments/${r.experiment_id}`}>{r.experiment_id}</Link>
-                  ) : '—'}
-                </td>
-                <td>
-                  <button onClick={() => setFormMode({ source: r.slug, selectable: false })}>
-                    Derivar
-                  </button>
-                </td>
+        <Card title="Manifiestos" meta={`${rows.length}`} flush>
+          <Table>
+            <thead>
+              <tr>
+                <th>Manifiesto</th>
+                <th>Grupo</th>
+                <th>Última ejecución</th>
+                <th aria-label="Acciones" />
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {rows.map((r) => (
+                <tr key={r.slug}>
+                  <RowNameCell title={<span className="eo-mono">{r.slug}</span>} subtitle={r.description ?? undefined} />
+                  <td>{r.group ?? '—'}</td>
+                  <MonoCell>
+                    {r.experiment_id ? (
+                      <Link to={`/experiments/${r.experiment_id}`}>{r.experiment_id}</Link>
+                    ) : (
+                      '—'
+                    )}
+                  </MonoCell>
+                  <td className="eo-cell--actions">
+                    <Button onClick={() => setFormMode({ source: r.slug, selectable: false })}>
+                      Derivar
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        </Card>
       )}
-    </div>
+    </>
   )
 }

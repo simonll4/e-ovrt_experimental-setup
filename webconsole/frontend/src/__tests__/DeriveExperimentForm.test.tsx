@@ -50,7 +50,7 @@ describe('DeriveExperimentForm', () => {
     expect(deriveDefaults).toHaveBeenCalledWith('base')
     expect((screen.getByLabelText('fps') as HTMLInputElement).value).toBe('')
     expect((screen.getByLabelText('cámara') as HTMLSelectElement).value).toBe('oak_d_lab')
-    expect((screen.getByLabelText('prompt set') as HTMLSelectElement).value).toBe(
+    expect((screen.getByLabelText('Conjunto de prompts') as HTMLSelectElement).value).toBe(
       'cr01_cr02_v2_short',
     )
     expect((screen.getByLabelText('stride') as HTMLInputElement).value).toBe('2')

@@ -1,7 +1,16 @@
 import { useEffect, useState } from 'react'
 import { ApiError, activateInstance, getInstances, stopPlatform } from '../api'
 import type { PlatformInstance } from '../types'
-import { Badge, ErrorBanner } from '../components/ui'
+import {
+  Badge,
+  Button,
+  Card,
+  EmptyState,
+  ErrorBanner,
+  MonoCell,
+  PageHeader,
+  Table,
+} from '../components/ui'
 
 function errorMessage(e: unknown): string {
   if (e instanceof ApiError) {
@@ -64,59 +73,76 @@ export default function PlatformPage() {
 
   if (notEnabled)
     return (
-      <p>
-        Orquestación no habilitada: la consola corre en modo target fijo. Desplegá la
-        plataforma con <code>infra/platform/</code> (define <code>EOVRT_CONSOLE_COMPOSE_DIR</code>).
-      </p>
+      <>
+        <PageHeader title="Plataforma" />
+        <EmptyState
+          hint={
+            <>
+              Desplegá la plataforma con <span className="eo-mono">infra/platform/</span> y
+              definí <span className="eo-mono">EOVRT_CONSOLE_COMPOSE_DIR</span>.
+            </>
+          }
+        >
+          La orquestación no está habilitada: la consola apunta a una instancia fija
+        </EmptyState>
+      </>
     )
   if (error && !rows) return <ErrorBanner>Error: {error}</ErrorBanner>
   if (!rows) return <p className="eo-empty">Cargando…</p>
+
   return (
-    <div style={{ display: 'grid', gap: 'var(--space-4)' }}>
-      <h2>Plataforma — instancias del servicio</h2>
-      <p>
-        <small>
-          Una instancia activa a la vez: activar otra apaga la actual y espera a que el
-          modelo cargue (puede tardar minutos).
-        </small>
-      </p>
+    <>
+      <PageHeader title="Plataforma" meta={`${rows.length} instancias del servicio`} />
       {error && <ErrorBanner>{error}</ErrorBanner>}
-      <table className="eo-table" style={{ maxWidth: 760 }}>
-        <thead>
-          <tr>
-            {['instancia', 'modelo', 'estado', 'ready', '', ''].map((h, i) => (
-              <th key={i}>{h}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((r) => (
-            <tr key={r.name}>
-              <td>{r.name}</td>
-              <td>{r.model_ref}</td>
-              <td>
-                <span className="eo-inline">
-                  {busy === r.name ? 'activando…' : r.state}
-                  {r.is_target && <Badge tone="ok">TARGET</Badge>}
-                </span>
-              </td>
-              <td>{r.ready ? '✓' : '—'}</td>
-              <td>
-                {!r.is_target && (
-                  <button onClick={() => activate(r.name)} disabled={busy !== null}>
-                    {busy === r.name ? 'Activando…' : 'Activar'}
-                  </button>
-                )}
-              </td>
-              <td>
-                {r.is_target && (
-                  <button onClick={stop} disabled={busy !== null}>Apagar</button>
-                )}
-              </td>
+      <Card title="Instancias del servicio" meta="Solo una puede estar activa" flush>
+        <Table>
+          <thead>
+            <tr>
+              <th>Instancia</th>
+              <th>Modelo</th>
+              <th>Estado</th>
+              <th aria-label="Acciones" />
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody>
+            {rows.map((r) => (
+              <tr key={r.name}>
+                <MonoCell>{r.name}</MonoCell>
+                <MonoCell>{r.model_ref}</MonoCell>
+                <td>
+                  <span className="eo-inline">
+                    {busy === r.name ? (
+                      <Badge tone="warn">Activando…</Badge>
+                    ) : r.is_target && r.ready ? (
+                      <Badge tone="ok">Operativa</Badge>
+                    ) : r.is_target ? (
+                      <Badge tone="warn">Cargando el modelo</Badge>
+                    ) : (
+                      <Badge tone="neutral">Detenida</Badge>
+                    )}
+                  </span>
+                </td>
+                <td className="eo-cell--actions">
+                  {r.is_target ? (
+                    <Button onClick={stop} disabled={busy !== null}>
+                      Apagar
+                    </Button>
+                  ) : (
+                    <Button onClick={() => activate(r.name)} disabled={busy !== null}>
+                      Activar
+                    </Button>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      </Card>
+      <p className="eo-cap">
+        Activar otra instancia apaga la actual y espera a que el modelo cargue, lo que puede
+        tardar varios minutos. No se puede cambiar de instancia mientras haya una corrida en
+        curso.
+      </p>
+    </>
   )
 }

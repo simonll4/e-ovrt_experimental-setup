@@ -36,7 +36,8 @@ describe('PlatformPage', () => {
     fireEvent.click(screen.getAllByText('Activar')[0])
 
     await waitFor(() => expect(activateInstance).toHaveBeenCalledWith('mp-mock'))
-    await waitFor(() => expect(screen.getByText('TARGET')).toBeTruthy())
+    // "TARGET" era jerga: la instancia activa y lista se llama "Operativa".
+    await waitFor(() => expect(screen.getByText('Operativa')).toBeTruthy())
   })
 
   it('409 muestra el mensaje de run activo', async () => {
@@ -55,6 +56,6 @@ describe('PlatformPage', () => {
     const { ApiError } = await import('../api')
     vi.mocked(getInstances).mockRejectedValue(new ApiError(501, { detail: 'x' }))
     render(<PlatformPage />)
-    await waitFor(() => expect(screen.getByText(/no habilitada/i)).toBeTruthy())
+    await waitFor(() => expect(screen.getByText(/orquestación no está habilitada/i)).toBeTruthy())
   })
 })

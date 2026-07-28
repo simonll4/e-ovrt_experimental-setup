@@ -6,7 +6,7 @@ import CameraPresetForm from '../components/CameraPresetForm'
 import LiveViewer from '../components/LiveViewer'
 import LivePromptPanel from '../components/LivePromptPanel'
 import RecordPanel from '../components/RecordPanel'
-import { Badge, Card, DetChip, EmptyState, ErrorBanner } from '../components/ui'
+import { Badge, Card, DetChip, EmptyState, ErrorBanner, PageHeader } from '../components/ui'
 import { usePreviewStream } from '../preview'
 import { useTargetModelRef } from '../useTarget'
 import type {
@@ -136,10 +136,10 @@ export default function CamerasPage() {
 
   return (
     <div>
-      <h2 className="eo-inline">
-        <span>Cámaras</span>
-        {modelRef && <Badge tone="neutral">modelo: {modelRef}</Badge>}
-      </h2>
+      <PageHeader
+        title="Cámaras"
+        meta={modelRef ? <Badge tone="neutral">modelo: {modelRef}</Badge> : undefined}
+      />
       {error && <ErrorBanner>{error}</ErrorBanner>}
       {busy && (
         <ErrorBanner>

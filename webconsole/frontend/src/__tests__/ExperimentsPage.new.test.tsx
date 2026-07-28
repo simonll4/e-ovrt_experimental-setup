@@ -52,9 +52,10 @@ describe('ExperimentsPage - crear nuevo experimento (/experiments/new)', () => {
       </MemoryRouter>,
     )
 
-    await waitFor(() => expect(screen.getByLabelText('basado en')).toBeTruthy())
-    const sourceSelect = screen.getByLabelText('basado en') as HTMLSelectElement
-    expect(sourceSelect.value).toBe('d1')
+    // El desplegable es propio: se lo encuentra por su nombre accesible y lo
+    // elegido se lee del texto del control.
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Basado en' })).toBeTruthy())
+    expect(screen.getByRole('button', { name: 'Basado en' }).textContent).toContain('d1')
     await waitFor(() => expect(api.getDeriveDefaults).toHaveBeenCalledWith('d1'))
   })
 
@@ -76,7 +77,9 @@ describe('ExperimentsPage - crear nuevo experimento (/experiments/new)', () => {
       expect((screen.getByLabelText('warmup_frames') as HTMLInputElement).value).toBe('10'),
     )
 
-    fireEvent.change(screen.getByLabelText('basado en'), { target: { value: 'd2' } })
+    // Abrir el desplegable y elegir d2 (dos clics, como haría el operador).
+    fireEvent.click(screen.getByRole('button', { name: 'Basado en' }))
+    fireEvent.click(screen.getByRole('option', { name: 'd2' }))
 
     await waitFor(() => expect(api.getDeriveDefaults).toHaveBeenCalledWith('d2'))
     await waitFor(() =>
@@ -96,7 +99,7 @@ describe('ExperimentsPage - crear nuevo experimento (/experiments/new)', () => {
       </MemoryRouter>,
     )
 
-    await waitFor(() => expect(screen.getByLabelText('basado en')).toBeTruthy())
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Basado en' })).toBeTruthy())
     // Título de la card del formulario: nada de "Derivar de <source>".
     expect(screen.getByText('Nuevo experimento')).toBeTruthy()
     expect(screen.queryByText(/^Derivar de/)).toBeNull()
@@ -121,7 +124,7 @@ describe('ExperimentsPage - crear nuevo experimento (/experiments/new)', () => {
     fireEvent.click(screen.getAllByRole('button', { name: 'Derivar' })[0])
 
     await waitFor(() => expect(screen.getByText('Derivar de d1')).toBeTruthy())
-    expect(screen.queryByLabelText('basado en')).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Basado en' })).toBeNull()
     // El modo "derivar" no cambia: sigue habiendo botones "Derivar" (uno por
     // fila + el de submit del formulario) y ninguno "Crear".
     expect(screen.getAllByRole('button', { name: 'Derivar' }).length).toBeGreaterThan(0)

@@ -249,7 +249,7 @@ async function completeMinimalForm() {
   })
   fireEvent.change(datasetSelect, { target: { value: 'demo_v2' } })
   const setSelect = await waitFor(() => {
-    const label = screen.getByText(/^Prompt set$/i)
+    const label = screen.getByText(/^Conjunto de prompts$/i)
     const select = label.closest('div')!.querySelector('select') as HTMLSelectElement
     expect(select.querySelector('option[value="demo_set"]')).toBeTruthy()
     return select
@@ -395,7 +395,7 @@ describe('ComposePage fuente RTSP', () => {
     const urlInput = await screen.findByPlaceholderText<HTMLInputElement>(/^rtsp:\/\//)
     fireEvent.change(urlInput, { target: { value: 'rtsp://user:***@10.0.0.5:554/s' } })
     const setSelect = await waitFor(() => {
-      const label = screen.getByText(/^Prompt set$/i)
+      const label = screen.getByText(/^Conjunto de prompts$/i)
       const select = label.closest('div')!.querySelector('select') as HTMLSelectElement
       expect(select.querySelector('option[value="demo_set"]')).toBeTruthy()
       return select
@@ -440,7 +440,7 @@ describe('ComposePage fuente RTSP', () => {
 
     // Elegir prompt set para no bloquear el lanzamiento por campos ajenos.
     const setSelect = await waitFor(() => {
-      const label = screen.getByText(/^Prompt set$/i)
+      const label = screen.getByText(/^Conjunto de prompts$/i)
       const select = label.closest('div')!.querySelector('select') as HTMLSelectElement
       expect(select.querySelector('option[value="demo_set"]')).toBeTruthy()
       return select
@@ -501,7 +501,7 @@ describe('ComposePage cámara guardada (oak_d)', () => {
     fireEvent.change(camSelect, { target: { value: 'oak_lab' } })
 
     const setSelect = await waitFor(() => {
-      const label = screen.getByText(/^Prompt set$/i)
+      const label = screen.getByText(/^Conjunto de prompts$/i)
       const select = label.closest('div')!.querySelector('select') as HTMLSelectElement
       expect(select.querySelector('option[value="demo_set"]')).toBeTruthy()
       return select

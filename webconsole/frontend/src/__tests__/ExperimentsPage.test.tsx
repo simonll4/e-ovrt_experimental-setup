@@ -58,7 +58,9 @@ describe('ExperimentsPage', () => {
     render(<MemoryRouter><ExperimentsPage /></MemoryRouter>)
     await waitFor(() => expect(screen.getAllByText('d1').length).toBeGreaterThan(0))
     await waitFor(() =>
-      expect(screen.getByText(/el control-plane no responde/)).toBeTruthy(),
+      // El glosario traduce los nombres de plano: el operador nunca lee
+      // "control-plane" en pantalla, y menos cuando algo se cayó.
+      expect(screen.getByText(/el motor de reglas no responde/)).toBeTruthy(),
     )
     const button = screen.getByRole('button', { name: /lanzar/i }) as HTMLButtonElement
     expect(button.disabled).toBe(true)
@@ -96,24 +98,26 @@ describe('ExperimentsPage', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Derivar' }))
     fireEvent.click(screen.getByText('fake-derive-done'))
 
-    const select = () => screen.getByRole('combobox') as HTMLSelectElement
+    // El desplegable es propio (no <select> nativo): lo elegido se lee del texto
+    // del control, que es justamente lo que ve el operador.
+    const shown = () =>
+      (document.querySelector('.eo-select__control span') as HTMLElement).textContent?.trim()
     await waitFor(() => expect(vi.mocked(api.getExperimentManifests)).toHaveBeenCalledTimes(2))
 
-    // Mientras la recarga está en vuelo no existe la <option> del slug nuevo, así
-    // que el select MUESTRA 'd1' (el browser cae en la primera opción). Lo que se
-    // lanza tiene que ser eso mismo: si el estado ya fuera 'nuevo', el operador
-    // vería una cosa y lanzaría otra.
+    // Mientras la recarga está en vuelo, el slug nuevo todavía no es una opción, así
+    // que el desplegable MUESTRA 'd1'. Lo que se lanza tiene que ser eso mismo: si el
+    // estado ya fuera 'nuevo', el operador vería una cosa y lanzaría otra.
     expect(screen.queryByRole('option', { name: 'nuevo' })).toBeNull()
-    expect(select().value).toBe('d1')
-    fireEvent.click(screen.getByRole('button', { name: /lanzar/i }))
+    expect(shown()).toBe('d1')
+    fireEvent.click(screen.getByRole('button', { name: /lanzar experimento/i }))
     await waitFor(() => expect(vi.mocked(api.runExperiment)).toHaveBeenCalled())
-    expect(vi.mocked(api.runExperiment)).toHaveBeenCalledWith({ slug: select().value })
+    expect(vi.mocked(api.runExperiment)).toHaveBeenCalledWith({ slug: shown() })
 
     resolveReload([
       { slug: 'd1', experiment_id: null } as any,
       { slug: 'nuevo', experiment_id: null } as any,
     ])
-    await waitFor(() => expect(select().value).toBe('nuevo'))
+    await waitFor(() => expect(shown()).toBe('nuevo'))
   })
 
   it('muestra 409 con el experimento activo', async () => {
