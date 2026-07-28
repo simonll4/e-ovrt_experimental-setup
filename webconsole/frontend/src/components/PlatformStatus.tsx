@@ -7,8 +7,8 @@ function planeTone(p: PlaneStatus): 'ok' | 'warn' | 'error' {
 }
 
 function planeLabel(p: PlaneStatus): string {
-  if (!p.healthy) return 'caído'
-  return p.ready ? 'listo' : 'no listo'
+  if (!p.healthy) return 'sin respuesta'
+  return p.ready ? 'operativo' : 'no listo'
 }
 
 /**
@@ -22,8 +22,10 @@ export default function PlatformStatus({ status }: { status: PreflightStatus | n
   }
   return (
     <span style={{ display: 'inline-flex', gap: 'var(--space-2)', alignItems: 'center' }}>
-      <Badge tone={planeTone(status.media)}>media {planeLabel(status.media)}</Badge>
-      <Badge tone={planeTone(status.control)}>control {planeLabel(status.control)}</Badge>
+      {/* Los planos se nombran por lo que hacen, no por su nombre de código:
+          "media"/"control" son jerga del repositorio, no de la interfaz. */}
+      <Badge tone={planeTone(status.media)}>Motor de detección {planeLabel(status.media)}</Badge>
+      <Badge tone={planeTone(status.control)}>Motor de reglas {planeLabel(status.control)}</Badge>
     </span>
   )
 }

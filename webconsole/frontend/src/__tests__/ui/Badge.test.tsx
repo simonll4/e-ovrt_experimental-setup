@@ -16,4 +16,14 @@ describe('Badge', () => {
     expect(el.className).toContain('eo-badge')
     expect(el.className).toContain('eo-badge--ok')
   })
+
+  it('soporta el tono alert (alerta confirmada, distinto de warn)', () => {
+    render(<Badge tone="alert">alerta</Badge>)
+    expect(screen.getByText('alerta').className).toContain('eo-badge--alert')
+  })
+
+  it('con pulse=true en tono live, muestra el punto latiente en vez del icono', () => {
+    render(<Badge tone="live" pulse>En curso</Badge>)
+    expect(document.querySelector('.eo-badge__pulse')).toBeTruthy()
+  })
 })

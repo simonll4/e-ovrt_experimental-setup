@@ -15,16 +15,19 @@ describe('isNonTemporal', () => {
   })
 })
 describe('alertSeverityTone', () => {
-  it('high error, medium warn, otro ok', () => {
-    expect(alertSeverityTone('high')).toBe('error')
+  it('high alert, medium warn, otro ok', () => {
+    expect(alertSeverityTone('high')).toBe('alert')
     expect(alertSeverityTone('medium')).toBe('warn')
     expect(alertSeverityTone('low')).toBe('ok')
   })
 })
 describe('experimentStatusLabel', () => {
   it('mapea estados', () => {
-    expect(experimentStatusLabel({ status: 'running' } as any)).toBe('corriendo')
-    expect(experimentStatusLabel({ status: 'failed' } as any)).toBe('fallo')
+    expect(experimentStatusLabel({ status: 'running' } as any)).toBe('en curso')
+    expect(experimentStatusLabel({ status: 'succeeded' } as any)).toBe('completada')
+    expect(experimentStatusLabel({ status: 'failed' } as any)).toBe('fallida')
+    expect(experimentStatusLabel({ status: 'error' } as any)).toBe('con error')
+    expect(experimentStatusLabel({ status: 'stopped' } as any)).toBe('detenida')
     expect(experimentStatusLabel(null)).toBe('—')
   })
 })
@@ -43,6 +46,12 @@ describe('experimentStatusTone', () => {
   })
   it('failed es error', () => {
     expect(experimentStatusTone({ status: 'failed' } as any)).toBe('error')
+  })
+  it('error es error', () => {
+    expect(experimentStatusTone({ status: 'error' } as any)).toBe('error')
+  })
+  it('stopped (parada deliberada) es neutral, no error', () => {
+    expect(experimentStatusTone({ status: 'stopped' } as any)).toBe('neutral')
   })
   it('estado desconocido cae en el default neutral', () => {
     expect(experimentStatusTone({ status: 'queued' } as any)).toBe('neutral')

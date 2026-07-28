@@ -13,38 +13,398 @@
   border: 1px solid currentColor;
 }
 .eo-badge::before { content: '●'; font-size: 0.7em; }
-.eo-badge--live { color: var(--status-live); }
-.eo-badge--ok { color: var(--status-ok); }
-.eo-badge--warn { color: var(--status-warn); }
-.eo-badge--error { color: var(--status-error); }
-.eo-badge--neutral { color: var(--status-neutral); }
+.eo-badge--live { color: var(--live); }
+.eo-badge--ok { color: var(--ok); }
+.eo-badge--warn { color: var(--wn); }
+.eo-badge--alert { color: var(--sr); }
+.eo-badge--error { color: var(--er); }
+.eo-badge--neutral { color: var(--nt); }
+
+/* Punto que late — único elemento animado del sistema. */
+.eo-badge__pulse {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--live);
+  display: inline-block;
+  animation: eo-pulse 2s ease-in-out infinite;
+}
+@keyframes eo-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .35; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .eo-badge__pulse { animation: none; }
+}
+
+/* Banner — aviso de bloque ancho completo. */
+.eo-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  border-radius: 8px;
+  padding: 8px 11px;
+  font-size: 12px;
+  border: 1px solid;
+  margin: 0 20px 12px;
+}
+.eo-banner--warn { background: color-mix(in srgb, var(--wn) 12%, transparent); border-color: var(--wn); }
+.eo-banner--error { background: color-mix(in srgb, var(--er) 12%, transparent); border-color: var(--er); }
+.eo-banner--live { background: color-mix(in srgb, var(--live) 12%, transparent); border-color: var(--live); }
+.eo-banner__icon { flex: none; margin-top: 1px; color: var(--wn); display: flex; }
+.eo-banner--error .eo-banner__icon { color: var(--er); }
+.eo-banner--live .eo-banner__icon { padding-top: 4px; }
+.eo-banner__body { flex: 1; color: var(--tx); }
+.eo-banner__body b { color: var(--tx); font-weight: 500; }
 
 /* Inline group — texto + badge (o similares) con separación consistente */
 .eo-inline { display: inline-flex; align-items: center; gap: var(--space-2); }
 
-/* Card */
+/* Línea de tiempo de actividad. Las claves de la leyenda tienen FORMA distinta a
+   propósito: barra alta = área, barra baja = descarte, barra angosta = no
+   recibido, triángulo = alerta. El color solo no distingue --sr de --er. */
+.eo-timeline { display: block; }
+.eo-timeline__svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: var(--r);
+  cursor: crosshair;
+}
+.eo-timeline__axis {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10.5px;
+  color: var(--tx4);
+  padding: 4px 2px 0;
+}
+.eo-timeline__legend {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  font-size: 11px;
+  color: var(--tx3);
+}
+.eo-timeline__legend li { display: inline-flex; align-items: center; gap: 6px; }
+.eo-timeline__key { display: inline-block; flex: none; }
+.eo-timeline__key--area { width: 10px; height: 10px; border-radius: 2px; background: var(--live); opacity: .55; }
+.eo-timeline__key--dropped { width: 12px; height: 4px; border-radius: 2px; background: var(--wn); }
+.eo-timeline__key--notrecv { width: 4px; height: 10px; border-radius: 2px; background: var(--er); }
+.eo-timeline__key--alert {
+  width: 0; height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 9px solid var(--sr);
+}
+.eo-timeline__hint { margin: 6px 0 0; font-size: 11px; color: var(--tx4); min-height: 1.4em; }
+
+/* Tira de indicadores del detalle de corrida. */
+.eo-kpis-wrap { padding: 12px 0 0; }
+.eo-kpis__note { margin: 0 0 7px; font-size: 11px; color: var(--tx4); }
+.eo-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 9px;
+  margin-bottom: 12px;
+}
+.eo-kpi {
+  background: var(--s1);
+  border: 1px solid var(--bd);
+  border-radius: var(--rc);
+  padding: 11px 13px 12px;
+  display: flex;
+  flex-direction: column;
+}
+.eo-kpi__label {
+  font-size: 10.5px;
+  color: var(--tx3);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  line-height: 1.3;
+}
+.eo-kpi__dot { width: 6px; height: 6px; border-radius: 2px; flex: none; display: block; }
+.eo-kpi__value {
+  font-size: 24px;
+  font-weight: 500;
+  letter-spacing: -.025em;
+  font-family: var(--fm);
+  line-height: 1.1;
+  margin-top: 2px;
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+.eo-kpi__value small { font-size: 11px; color: var(--tx3); font-weight: 400; letter-spacing: 0; }
+.eo-kpi__delta { font-size: 10.5px; font-family: var(--fm); color: var(--tx3); }
+.eo-kpi__foot { margin-top: auto; padding-top: 11px; display: grid; gap: 5px; }
+.eo-kpi__sub { font-size: 10.5px; color: var(--tx4); line-height: 1.4; }
+
+/* Encabezado del detalle de corrida. */
+.eo-runhead {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 0 12px;
+  border-bottom: 1px solid var(--bd);
+  flex-wrap: wrap;
+}
+.eo-runhead h1 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: -.015em;
+  line-height: 1.2;
+}
+.eo-runhead__meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 5px;
+  flex-wrap: wrap;
+  font-size: 11.5px;
+  color: var(--tx3);
+  width: 100%;
+}
+.eo-runhead__acts { margin-left: auto; display: flex; gap: 7px; align-items: center; }
+.eo-timeline__body { padding: 10px 12px 12px; }
+
+/* Pestañas subrayadas del detalle de corrida. */
+.eo-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--bd); margin: 4px 0 12px; }
+.eo-tabs button {
+  background: none;
+  border: none;
+  padding: 8px 12px;
+  color: var(--tx3);
+  font-size: 13px;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  cursor: pointer;
+}
+.eo-tabs button:hover { color: var(--tx2); }
+.eo-tabs button[aria-selected='true'] { color: var(--tx); border-bottom-color: var(--ac); }
+.eo-tabs__count { font-size: 10.5px; color: var(--tx4); margin-left: 5px; }
+
+/* Traza en maestro-detalle. Es lo que reemplaza el volcado vertical de cuadros:
+   la lista scrollea sola, con alto fijo, y no crece con la corrida. */
+.eo-trace { display: grid; grid-template-columns: 340px 1fr; gap: 12px; align-items: start; }
+@media (max-width: 980px) { .eo-trace { grid-template-columns: 1fr; } }
+.eo-trace__filters {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 12px;
+  font-size: 11.5px;
+  color: var(--tx2);
+  border-bottom: 1px solid var(--bd);
+  flex-wrap: wrap;
+}
+.eo-trace__filters label { display: inline-flex; align-items: center; gap: 5px; cursor: pointer; }
+.eo-trace__filters input { accent-color: var(--ac); width: 13px; height: 13px; margin: 0; }
+.eo-trace__filters .eo-mono { margin-left: auto; color: var(--tx4); font-size: 10.5px; }
+.eo-trace__more { padding: 8px 12px; border-bottom: 1px solid var(--bd); }
+.eo-trace__list { list-style: none; margin: 0; padding: 0; max-height: 560px; overflow-y: auto; }
+.eo-trace__list li {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  height: var(--row);
+  padding: 0 12px;
+  border-bottom: 1px solid var(--bd);
+  font-size: 11.5px;
+  cursor: pointer;
+}
+.eo-trace__list li:hover { background: var(--s2); }
+.eo-trace__list li.is-selected {
+  background: var(--ac-bg);
+  color: var(--ac-tx);
+  box-shadow: inset 2px 0 0 var(--ac);
+}
+.eo-trace__idx { color: var(--tx4); min-width: 34px; }
+.eo-trace__unit { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.eo-trace__dets { margin-left: auto; color: var(--tx3); font-family: var(--fm); }
+.eo-trace__dot { width: 6px; height: 6px; border-radius: 50%; flex: none; display: block; }
+
+.eo-inspector { display: flex; flex-direction: column; gap: 12px; }
+.eo-inspector__viewer { padding: 12px; display: flex; justify-content: center; }
+.eo-inspector__split { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 980px) { .eo-inspector__split { grid-template-columns: 1fr; } }
+.eo-detlist { list-style: none; margin: 0; padding: 0; }
+.eo-detlist li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: var(--row);
+  padding: 0 12px;
+  border-bottom: 1px solid var(--bd);
+  font-size: 12px;
+}
+.eo-detlist li:last-child { border-bottom: none; }
+.eo-detlist__score { margin-left: auto; color: var(--tx3); }
+.eo-condprog { list-style: none; margin: 0; padding: 8px 12px 12px; }
+.eo-condprog li {
+  display: grid;
+  grid-template-columns: 1fr 90px 48px;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  font-size: 12px;
+}
+.eo-condprog__name { color: var(--tx2); }
+.eo-condprog__pct { text-align: right; color: var(--tx3); font-size: 11px; }
+/* La tarjeta maestra no lleva margen inferior: la grilla ya separa las columnas,
+   y el margen la desalineaba respecto del panel de detalle. */
+.eo-trace__master { margin-bottom: 0; align-self: stretch; }
+.eo-trace__detail { min-width: 0; }
+.eo-bars { display: block; }
+.eo-cap--inset { padding: 0 12px 12px; }
+.eo-detchips { display: flex; flex-wrap: wrap; gap: var(--space-1); }
+
+/* Barra de lanzamiento: estado de servicios + selector + acción. */
+.eo-launchbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+/* Comparar: panel de selección a la izquierda, métricas y gráfico a la derecha. */
+.eo-compare { display: grid; grid-template-columns: 340px 1fr; gap: 12px; align-items: start; }
+@media (max-width: 1040px) { .eo-compare { grid-template-columns: 1fr; } }
+.eo-compare__right { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+/* Scroll propio: con 28 corridas evaluadas la lista estiraba la columna a 1900px
+   y el panel de métricas quedaba perdido arriba a la derecha. */
+.eo-picklist { list-style: none; margin: 0; padding: 0; max-height: 520px; overflow-y: auto; }
+.eo-picklist li { border-bottom: 1px solid var(--bd); }
+.eo-picklist label {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 3px 9px;
+  padding: 9px 12px;
+  cursor: pointer;
+  align-items: center;
+}
+.eo-picklist label:hover { background: var(--s2); }
+.eo-picklist input { accent-color: var(--ac); width: 13px; height: 13px; margin: 0; }
+.eo-picklist__name {
+  font-size: 12.5px;
+  color: var(--tx);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+.eo-picklist__meta {
+  grid-column: 2;
+  font-size: 10.5px;
+  color: var(--tx3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+/* Verde solo para el mejor valor de la fila, acompañado del texto del número:
+   no es un estado, es un realce de lectura. */
+.eo-best { color: var(--ok); }
+
+/* Barra de herramientas de listado: buscador + segmentado + contador. */
+.eo-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 0 10px;
+  flex-wrap: wrap;
+}
+.eo-toolbar__count { margin-left: auto; font-size: 11px; color: var(--tx3); }
+
+.eo-pager {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: flex-end;
+  padding: 4px 0 0;
+  font-size: 11.5px;
+  color: var(--tx3);
+}
+
+/* Banda izquierda azul en la fila de la corrida en curso: el estado se lee de un
+   vistazo sin buscar el chip. Va con el chip, no en lugar del chip. */
+.eo-row--live > td:first-child { box-shadow: inset 2px 0 0 var(--live); }
+.eo-cell--muted { color: var(--tx4); font-size: 11px; white-space: nowrap; }
+.eo-cell--actions { text-align: right; width: 1%; white-space: nowrap; }
+
+/* Caption — nota al pie de una tarjeta o un gráfico. */
+.eo-cap { margin: 8px 0 0; font-size: 11px; color: var(--tx4); line-height: 1.5; }
+
+/* Barras agrupadas. El texto lleva tokens de TEXTO, nunca el color de la serie:
+   el color vive en la marca, la identidad la nombra la leyenda. */
+.eo-bars__tick { font-size: 10.5px; fill: var(--tx4); font-family: var(--fm); }
+.eo-bars__value { font-size: 11px; fill: var(--tx2); font-family: var(--fm); }
+.eo-bars__group { font-size: 12px; fill: var(--tx2); font-family: var(--fm); }
+.eo-bars__legend {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  font-size: 11.5px;
+  color: var(--tx2);
+}
+.eo-bars__legend li { display: inline-flex; align-items: center; gap: 6px; }
+.eo-bars__key { width: 10px; height: 10px; border-radius: 2px; flex: none; }
+
+/* Sparkline — serie de un tile KPI: sin ejes ni leyenda. */
+.eo-spark { display: block; }
+.eo-spark--empty { display: block; border-bottom: 1px dashed var(--bd); }
+
+/* Meter — barra segmentada. El gap de 2px es el espaciador de superficie entre
+   segmentos que pide la guía de marcas, no decoración. */
+.eo-meter {
+  border-radius: 2px;
+  background: var(--sunken);
+  overflow: hidden;
+  display: flex;
+  gap: 2px;
+  width: 100%;
+}
+.eo-meter__seg { display: block; height: 100%; border-radius: 2px; }
+
+/* Card — el título es una banda con borde inferior (prototipo §9); el padding
+   vive en __body, que Card envuelve solo cuando NO es `flush`. */
 .eo-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: var(--space-4);
-  margin-bottom: var(--space-4);
+  background: var(--s1);
+  border: 1px solid var(--bd);
+  border-radius: var(--rc);
+  padding: 0;
+  margin-bottom: var(--space-3);
 }
 .eo-card__title {
-  margin-bottom: var(--space-3);
-  color: var(--text-secondary);
-  font-size: var(--text-sm);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  margin: 0;
+  padding: 9px 12px;
+  color: var(--tx2);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0;
+  border-bottom: 1px solid var(--bd);
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
+.eo-card__meta {
+  margin-left: auto;
+  font-weight: 400;
+  color: var(--tx3);
+  font-size: 11px;
+}
+.eo-card__body { padding: var(--space-3); }
 
 /* ErrorBanner */
 .eo-error {
-  border: 1px solid var(--status-error);
+  border: 1px solid var(--er);
   border-left-width: 3px;
-  border-radius: var(--radius);
-  background: color-mix(in srgb, var(--status-error) 12%, transparent);
-  color: var(--text);
+  border-radius: var(--r);
+  background: color-mix(in srgb, var(--er) 12%, transparent);
+  color: var(--tx);
   padding: var(--space-2) var(--space-3);
   margin-bottom: var(--space-3);
 }
@@ -55,23 +415,55 @@
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  border: 1px solid var(--status-warn);
+  border: 1px solid var(--wn);
   border-left-width: 4px;
-  border-radius: var(--radius);
+  border-radius: var(--r);
   padding: var(--space-2) var(--space-3);
-  background: color-mix(in srgb, var(--status-warn) 14%, transparent);
+  background: color-mix(in srgb, var(--wn) 14%, transparent);
   font-weight: 600;
 }
 .eo-risk-banner__item--high {
-  border-color: var(--status-error);
-  background: color-mix(in srgb, var(--status-error) 18%, transparent);
+  border-color: var(--er);
+  background: color-mix(in srgb, var(--er) 18%, transparent);
 }
 
 /* EmptyState */
 .eo-empty {
-  color: var(--text-muted);
+  color: var(--tx3);
   padding: var(--space-5);
   text-align: center;
+}
+.eo-empty__hint { color: var(--tx4); }
+
+/* PageHeader */
+.eo-pageheader {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 20px 12px;
+  border-bottom: 1px solid var(--bd);
+  flex-wrap: wrap;
+}
+.eo-pageheader h1 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: -.015em;
+  line-height: 1.2;
+}
+.eo-pageheader__meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 5px;
+  flex-wrap: wrap;
+  font-size: 11.5px;
+  color: var(--tx3);
+}
+.eo-pageheader__meta .eo-sep { color: var(--tx4); }
+.eo-pageheader__actions { margin-left: auto; display: flex; gap: 7px; align-items: center; }
+@media (max-width: 760px) {
+  .eo-pageheader__actions { margin-left: 0; width: 100%; }
 }
 
 /* StatTile */
@@ -79,49 +471,47 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
-  background: var(--surface-raised);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+  background: var(--s2);
+  border: 1px solid var(--bd);
+  border-radius: var(--r);
   padding: var(--space-2) var(--space-3);
   min-width: 96px;
 }
 .eo-stat__label {
-  font-size: var(--text-xs);
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  font-size: 10.5px;
+  color: var(--tx3);
 }
 .eo-stat__value { font-size: var(--text-lg); font-weight: 600; }
 .eo-stat__unit {
   font-size: var(--text-sm);
   font-weight: 400;
-  color: var(--text-muted);
+  color: var(--tx3);
   margin-left: var(--space-1);
 }
 .eo-stats-row { display: flex; gap: var(--space-2); flex-wrap: wrap; margin-bottom: var(--space-4); }
 
 /* Field */
 .eo-field { display: grid; gap: var(--space-1); margin-bottom: var(--space-3); max-width: 560px; }
-.eo-field__label { font-size: var(--text-sm); color: var(--text-secondary); }
-.eo-field__hint { font-size: var(--text-sm); color: var(--text-muted); }
-.eo-field__error { font-size: var(--text-sm); color: var(--status-error); }
+.eo-field__label { font-size: var(--text-sm); color: var(--tx2); }
+.eo-field__hint { font-size: var(--text-sm); color: var(--tx3); }
+.eo-field__error { font-size: var(--text-sm); color: var(--er); }
 
 /* Inline note — texto chico fuera de un Field (avisos, asides mudos) */
-.eo-note { font-size: var(--text-sm); color: var(--text-muted); }
-.eo-note--warn { color: var(--status-warn); }
-.eo-note--error { color: var(--status-error); }
+.eo-note { font-size: var(--text-sm); color: var(--tx3); }
+.eo-note--warn { color: var(--wn); }
+.eo-note--error { color: var(--er); }
 
 /* Link-like button — affordance de apertura sin ser un <a> */
 .eo-linklike {
   background: none;
   border: none;
   padding: 0;
-  color: var(--accent);
+  color: var(--ac);
   cursor: pointer;
   font-size: inherit;
   font-family: inherit;
 }
-.eo-linklike:hover { color: var(--accent-hover); text-decoration: underline; }
+.eo-linklike:hover { color: var(--ac-hover); text-decoration: underline; }
 
 /* Fila de acciones al pie de un editor — jerarquía primario/normal/peligroso */
 .eo-actions {
@@ -131,17 +521,38 @@
   flex-wrap: wrap;
   align-items: center;
 }
+.eo-btn, .eo-btn--primary, .eo-btn--danger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  height: 30px;
+  padding: 0 var(--space-3);
+  border-radius: var(--r);
+  border: 1px solid var(--bd);
+  background: var(--s2);
+  color: var(--tx);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  cursor: pointer;
+}
+.eo-btn:hover:not(:disabled) { background: var(--s3); }
+.eo-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.eo-btn--secondary { background: var(--s2); }
+.eo-btn--ghost { background: transparent; border-color: transparent; }
+.eo-btn--ghost:hover:not(:disabled) { background: var(--s2); }
+/* Texto oscuro sobre el violeta: #f2f1ed sobre #7d6ef2 no llega a 3:1 y el botón
+   primario queda lavado. El token existe justo para esto. */
 .eo-btn--primary {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: var(--text);
+  background: var(--ac);
+  border-color: var(--ac);
+  color: var(--ac-text-on);
 }
-.eo-btn--primary:hover:not(:disabled) { background: var(--accent-hover); }
+.eo-btn--primary:hover:not(:disabled) { background: var(--ac-hover); }
 .eo-btn--danger {
-  color: var(--status-error);
-  border-color: var(--status-error);
-  margin-left: auto;
+  color: var(--er);
+  border-color: var(--er);
 }
+.eo-actions .eo-btn--danger { margin-left: auto; }
 
 /* Table */
 .eo-table {
@@ -152,51 +563,49 @@
 .eo-table th,
 .eo-table td {
   padding: var(--space-2) var(--space-3);
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--bd);
   text-align: left;
   vertical-align: top;
 }
 .eo-table th {
-  background: var(--surface-raised);
-  color: var(--text-secondary);
-  font-size: var(--text-xs);
-  font-weight: 600;
-  text-transform: uppercase;
+  background: var(--s2);
+  color: var(--tx3);
+  font-size: 11px;
+  font-weight: 400;
   letter-spacing: 0.05em;
   position: sticky;
   top: 0;
 }
-.eo-table tbody tr:hover { background: var(--surface-raised); }
+.eo-table tbody tr:hover { background: var(--s2); }
 .eo-table td.eo-num { text-align: right; font-variant-numeric: tabular-nums; }
 
-/* Progress bar — traza correlacionada por frame */
-.eo-progressbar {
-  height: 6px;
-  background: var(--surface-sunken);
-  border-radius: 999px;
-  overflow: hidden;
-  flex: 1 1 auto;
-  min-width: 60px;
-  max-width: 140px;
+/* Densidad de consola: filas de 32px, no tarjeta por fila. */
+.eo-table--dense th,
+.eo-table--dense td {
+  height: 32px;
+  padding: 0 var(--space-3);
 }
-.eo-progressbar__fill { height: 100%; background: var(--status-warn); }
-.eo-progressbar__fill--alert { background: var(--status-error); }
-.eo-best { font-weight: 700; color: var(--status-ok); }
+
+/* Monoespaciada para identificadores literales (run_id, unit_id, rutas, métricas). */
+.eo-mono {
+  font-family: var(--fm);
+  font-size: var(--text-sm);
+  color: var(--tx);
+  font-variant-numeric: tabular-nums;
+}
+
+/* (Acá vivían `.eo-timeline { display:flex }` y `.eo-timeline__tick`, de la franja
+   de ticks del TraceTimeline de la rama anterior. Ese componente no existe más: lo
+   reemplazó charts/ActivityTimeline, que usa `.eo-timeline` como bloque contenedor.
+   La regla flex sobreviviente apilaba el eje, la leyenda y la ayuda en una fila al
+   costado del SVG. Se elimina en vez de sobrescribirla.) */
+
+/* Progress bar — traza correlacionada por frame */
+.eo-best { font-weight: 700; color: var(--ok); }
 
 /* Fila de progreso de patrón — condition_id + barra + % en una línea alineada */
-.eo-patternrow { display: flex; align-items: center; gap: var(--space-2); }
-.eo-patternrow__id { font-size: var(--text-xs); color: var(--text-secondary); min-width: 44px; }
-.eo-patternrow__pct {
-  font-size: var(--text-xs);
-  color: var(--text-muted);
-  font-variant-numeric: tabular-nums;
-  min-width: 32px;
-  text-align: right;
-}
 
 /* Celda de frame — preview arriba, identificador siempre debajo (evita zigzag) */
-.eo-framecell { display: flex; flex-direction: column; gap: var(--space-1); align-items: flex-start; }
-.eo-framecell__id { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--text-muted); }
 
 /* Chip de detección — label + confianza/conteo, punto de color = labelColor */
 .eo-chip {
@@ -204,23 +613,23 @@
   align-items: center;
   gap: var(--space-1);
   font-size: var(--text-sm);
-  background: var(--surface-raised);
-  border: 1px solid var(--border);
+  background: var(--s2);
+  border: 1px solid var(--bd);
   border-radius: 999px;
   padding: 0 var(--space-2);
 }
 .eo-chip__dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-.eo-chip__conf { color: var(--text-muted); font-variant-numeric: tabular-nums; }
+.eo-chip__conf { color: var(--tx3); font-variant-numeric: tabular-nums; }
 
 /* Definition list — summary de run (modelo/prompts/unidades/por label) */
 .eo-deflist { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-5); margin: var(--space-3) 0 0; }
-.eo-deflist dt { font-size: var(--text-xs); color: var(--text-muted); text-transform: uppercase; letter-spacing: .05em; }
+.eo-deflist dt { font-size: 10.5px; color: var(--tx3); }
 .eo-deflist dd { margin: 0; font-size: var(--text-md); }
 
 /* Breadcrumbs */
-.eo-crumbs { font-size: var(--text-md); color: var(--text-muted); }
-.eo-crumbs__sep { color: var(--border-strong); }
-.eo-crumbs__current { color: var(--text); font-weight: 600; }
+.eo-crumbs { font-size: var(--text-md); color: var(--tx3); }
+.eo-crumbs__sep { color: var(--bds); }
+.eo-crumbs__current { color: var(--tx); font-weight: 600; }
 
 /* Shell */
 .eo-shell { display: flex; min-height: 100vh; }
@@ -228,51 +637,189 @@
 .eo-sidebar {
   width: var(--sidebar-width);
   flex-shrink: 0;
-  background: var(--surface);
-  border-right: 1px solid var(--border);
-  padding: var(--space-4) var(--space-3);
+  background: var(--s1);
+  border-right: 1px solid var(--bd);
+  padding: 12px 9px;
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: 14px;
   position: sticky;
   top: 0;
   height: 100vh;
+  overflow-y: auto;
+  overflow-x: visible;
+  z-index: 50;
+  transition: width 0.16s ease;
 }
-.eo-sidebar__brand h1 { font-size: var(--text-lg); letter-spacing: 0.02em; }
+.eo-sidebar--collapsed { width: var(--sidebar-width-collapsed); overflow: visible; }
+
+.eo-sidebar__brand { display: flex; align-items: center; gap: 8px; padding: 0 4px; width: 100%; }
+.eo-sidebar__brand b { font-weight: 500; font-size: 14px; letter-spacing: -0.01em; }
+.eo-sidebar__brand-sub { font-size: 10px; color: var(--tx3); font-family: var(--fm); }
+.eo-sidebar__collapse {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: var(--tx3);
+  padding: 3px;
+  border-radius: 4px;
+  display: flex;
+  flex: none;
+  cursor: pointer;
+}
+.eo-sidebar__collapse:hover { background: var(--s2); color: var(--tx); }
+.eo-sidebar--collapsed .eo-sidebar__brand b,
+.eo-sidebar--collapsed .eo-sidebar__brand-sub { display: none; }
+.eo-sidebar--collapsed .eo-sidebar__collapse { margin: 0 auto; }
 
 .eo-sidebar__action {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  height: 31px;
+  border: none;
+  border-radius: var(--r);
+  background: var(--ac);
+  color: var(--ac-text-on);
+  font-weight: 500;
+  font-size: 12.5px;
+  flex: none;
+  position: relative;
   text-align: center;
-  background: var(--accent);
-  color: var(--text);
-  border-radius: var(--radius);
-  padding: var(--space-2) var(--space-3);
-  font-weight: 600;
-  font-size: var(--text-md);
 }
-.eo-sidebar__action:hover { background: var(--accent-hover); color: var(--text); text-decoration: none; }
+.eo-sidebar__action:hover { background: var(--ac-hover); color: var(--ac-text-on); text-decoration: none; }
+.eo-sidebar--collapsed .eo-sidebar__action { width: 38px; padding: 0; }
+.eo-sidebar--collapsed .eo-sidebar__action > span:not(.eo-tip) { display: none; }
 
-.eo-sidebar__nav { display: flex; flex-direction: column; gap: var(--space-4); }
-.eo-sidebar__group { display: flex; flex-direction: column; gap: 2px; }
+.eo-sidebar__nav { display: flex; flex-direction: column; gap: 14px; }
+.eo-sidebar__group { display: flex; flex-direction: column; gap: 1px; width: 100%; }
 .eo-sidebar__group-title {
-  font-size: var(--text-xs);
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin-bottom: var(--space-1);
+  font-size: 10.5px;
+  font-weight: 400;
+  color: var(--tx4);
+  text-transform: none;
+  letter-spacing: 0.02em;
+  margin: 0 0 4px;
+  padding: 0 8px;
 }
+.eo-sidebar--collapsed .eo-sidebar__group-title { display: none; }
+.eo-sidebar--collapsed .eo-sidebar__group {
+  align-items: center;
+  padding-top: 8px;
+  border-top: 1px solid var(--bd);
+}
+.eo-sidebar--collapsed .eo-sidebar__group:first-of-type { border-top: none; padding-top: 0; }
+
 .eo-sidebar__link {
-  color: var(--text-secondary);
-  padding: var(--space-1) var(--space-2);
-  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 6px 8px;
+  border-radius: 5px;
+  color: var(--tx2);
+  font-size: 12.5px;
+  position: relative;
   border-left: 2px solid transparent;
 }
-.eo-sidebar__link:hover { background: var(--surface-raised); color: var(--text); text-decoration: none; }
+.eo-sidebar__link svg { flex: none; opacity: 0.85; }
+.eo-sidebar__link:hover { background: var(--s2); color: var(--tx); text-decoration: none; }
+.eo-sidebar__link:hover svg { opacity: 1; }
 .eo-sidebar__link--active {
-  background: var(--surface-raised);
-  color: var(--text);
-  border-left-color: var(--accent);
+  background: var(--ac-bg);
+  color: var(--ac-tx);
+  border-left-color: var(--ac);
   font-weight: 600;
+}
+.eo-sidebar__link--active svg { opacity: 1; }
+.eo-sidebar__link-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.eo-sidebar__count { margin-left: auto; font-family: var(--fm); font-size: 10.5px; color: var(--tx3); }
+.eo-sidebar__link--active .eo-sidebar__count { color: var(--ac-tx); }
+.eo-sidebar--collapsed .eo-sidebar__link { width: 38px; justify-content: center; padding: 7px 0; }
+.eo-sidebar--collapsed .eo-sidebar__link-label,
+.eo-sidebar--collapsed .eo-sidebar__count { display: none; }
+
+/* Tooltip de colapsado — solo visible con la barra lateral colapsada.
+   El texto viene de data-tip vía ::before (no duplica texto en el DOM: evita
+   colisiones con getByText en las páginas que también muestran la misma etiqueta). */
+.eo-tip {
+  display: none;
+  position: absolute;
+  left: calc(100% + 9px);
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 40;
+  pointer-events: none;
+}
+.eo-tip::before {
+  content: attr(data-tip);
+  display: block;
+  background: var(--s3);
+  border: 1px solid var(--bds);
+  color: var(--tx);
+  font-size: 11.5px;
+  padding: 3px 8px;
+  border-radius: 5px;
+  white-space: nowrap;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+}
+.eo-sidebar--collapsed .eo-sidebar__link:hover .eo-tip,
+.eo-sidebar--collapsed .eo-sidebar__action:hover .eo-tip,
+.eo-sidebar--collapsed .eo-service:hover .eo-tip { display: block; }
+
+/* Estado de los motores al pie */
+.eo-sidebar__services {
+  margin-top: auto;
+  border-top: 1px solid var(--bd);
+  padding-top: 9px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 100%;
+}
+.eo-service { display: flex; align-items: center; gap: 7px; padding: 0 8px; font-size: 11px; color: var(--tx3); position: relative; }
+.eo-service__dot { width: 6px; height: 6px; border-radius: 50%; flex: none; }
+.eo-service code { font-size: 10px; margin-left: auto; color: var(--tx4); }
+.eo-sidebar--collapsed .eo-service { justify-content: center; padding: 2px 0; }
+.eo-sidebar--collapsed .eo-service__label,
+.eo-sidebar--collapsed .eo-service code { display: none; }
+
+.eo-topbar__menu {
+  display: none;
+  background: none;
+  border: 1px solid var(--bd);
+  border-radius: var(--r);
+  color: var(--tx);
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  font-size: var(--text-md);
+}
+
+.eo-sidebar__scrim {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .eo-topbar__menu { display: inline-flex; align-items: center; justify-content: center; }
+  .eo-sidebar {
+    position: fixed;
+    z-index: 30;
+    left: 0;
+    top: 0;
+    transform: translateX(-100%);
+    transition: transform 0.15s ease;
+    box-shadow: 4px 0 16px rgba(0, 0, 0, 0.4);
+  }
+  .eo-sidebar--open { transform: translateX(0); }
+  .eo-sidebar__scrim {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+    background: rgba(0, 0, 0, 0.4);
+  }
 }
 
 /* Live run pill */
@@ -281,17 +828,17 @@
   display: grid;
   gap: 2px;
   padding: var(--space-2) var(--space-3);
-  border: 1px solid var(--status-live);
-  border-radius: var(--radius);
-  background: color-mix(in srgb, var(--status-live) 12%, transparent);
-  color: var(--text);
+  border: 1px solid var(--live);
+  border-radius: var(--r);
+  background: color-mix(in srgb, var(--live) 12%, transparent);
+  color: var(--tx);
   min-width: 0;
   max-width: 100%;
 }
-.eo-livepill:hover { text-decoration: none; background: color-mix(in srgb, var(--status-live) 20%, transparent); }
-.eo-livepill__dot { color: var(--status-live); font-size: 0.7em; }
+.eo-livepill:hover { text-decoration: none; background: color-mix(in srgb, var(--live) 20%, transparent); }
+.eo-livepill__dot { color: var(--live); font-size: 0.7em; }
 .eo-livepill__id {
-  font-family: var(--font-mono);
+  font-family: var(--fm);
   font-size: var(--text-sm);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -299,7 +846,7 @@
   max-width: 100%;
   display: block;
 }
-.eo-livepill__meta { font-size: var(--text-xs); color: var(--text-muted); }
+.eo-livepill__meta { font-size: var(--text-xs); color: var(--tx3); }
 
 .eo-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 .eo-topbar {
@@ -307,8 +854,8 @@
   align-items: center;
   gap: var(--space-4);
   padding: var(--space-3) var(--space-5);
-  border-bottom: 1px solid var(--border);
-  background: var(--surface);
+  border-bottom: 1px solid var(--bd);
+  background: var(--s1);
 }
 .eo-topbar__right { margin-left: auto; }
 .eo-content { padding: var(--space-5); max-width: var(--content-max); width: 100%; }
@@ -319,14 +866,13 @@
 .eo-preview__box { position: absolute; border: 1.5px solid; pointer-events: none; border-radius: 1px; }
 .eo-preview:hover { transform: scale(1.6); transform-origin: left center; z-index: 10; }
 /* Fila con alerta */
-.eo-row--alert > td { background: color-mix(in srgb, var(--status-error) 8%, transparent); }
 
 /* Recuadro de clase del editor de prompt sets: acotado al contenido (no full-width)
    y con atenuación visible cuando el set no es editable (frozen / pending review). */
 .eo-classbox {
   max-width: 640px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border: 1px solid var(--bd);
+  border-radius: var(--r);
   padding: var(--space-3) var(--space-4);
   margin: 0 0 var(--space-3);
 }
@@ -341,11 +887,11 @@
   align-items: center;
   justify-content: center;
   aspect-ratio: 4 / 3;
-  border: 1px dashed var(--border-strong);
-  border-radius: var(--radius);
-  color: var(--text-muted);
+  border: 1px dashed var(--bds);
+  border-radius: var(--r);
+  color: var(--tx3);
   font-size: var(--text-xs);
-  background: var(--surface-sunken);
+  background: var(--sunken);
 }
 
 /* Viewer en vivo (ventana Cámaras): canvas responsive, tamaño derivado del
@@ -355,9 +901,9 @@
   width: 100%;
   max-width: 1400px;
   margin: 0 auto;
-  background: var(--surface-sunken);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+  background: var(--sunken);
+  border: 1px solid var(--bd);
+  border-radius: var(--r);
   overflow: hidden;
 }
 .eo-live-viewer__canvas {
@@ -371,7 +917,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-muted);
+  color: var(--tx3);
   font-size: var(--text-sm);
 }
 .eo-live-viewer__overlay {
@@ -384,7 +930,7 @@
   gap: var(--space-3);
   padding: var(--space-2) var(--space-3);
   background: linear-gradient(to bottom, rgba(13, 13, 13, 0.75), transparent);
-  color: var(--text);
+  color: var(--tx);
   font-size: var(--text-sm);
   pointer-events: none;
 }
@@ -392,17 +938,17 @@
 /* RecordPanel — la marca de los 30 s no es decorativa: es la regla de oro 3 del
    guion de rodaje (se filma 30-35 s aunque el clip final sea de 20 s). */
 .rec-corta {
-  color: var(--status-warn);
+  color: var(--wn);
   font-weight: 600;
 }
 
 .rec-ok {
-  color: var(--status-ok);
+  color: var(--ok);
   font-weight: 600;
 }
 
 .record-error {
-  color: var(--status-error);
+  color: var(--er);
 }
 
 /* Reproductores de video (clips, recorte, corrida). A tamaño intrínseco un clip
@@ -412,7 +958,7 @@
   width: 100%;
   max-width: 560px;
   max-height: 42vh;
-  border-radius: var(--radius);
+  border-radius: var(--r);
   background: #000;
 }
 
@@ -435,13 +981,13 @@
   gap: var(--space-2);
   padding: var(--space-2);
   border: 1px solid transparent;
-  border-radius: var(--radius);
+  border-radius: var(--r);
 }
-.eo-row + .eo-row { border-top-color: var(--border); }
-.eo-row:hover { background: var(--surface-raised); }
+.eo-row + .eo-row { border-top-color: var(--bd); }
+.eo-row:hover { background: var(--s2); }
 .eo-row--active {
-  background: var(--surface-raised);
-  border-color: var(--accent);
+  background: var(--s2);
+  border-color: var(--ac);
 }
 .eo-row__main,
 .eo-row__pick {
@@ -469,13 +1015,12 @@
 
 /* Página de clips: biblioteca a la izquierda (con scroll propio) y área de
    trabajo pegada a la derecha, para no scrollear la página entera al recortar. */
-.eo-clips__head {
+.eo-toolbar {
   display: flex;
   align-items: center;
   gap: var(--space-3);
   margin-bottom: var(--space-4);
 }
-.eo-clips__filter { flex: 1; max-width: 320px; }
 .eo-clips__grid {
   display: grid;
   grid-template-columns: minmax(300px, 380px) minmax(0, 1fr);
@@ -507,5 +1052,123 @@
   margin-top: var(--space-3);
 }
 .eo-trim__fields .eo-field { margin-bottom: 0; }
-.eo-trim__warn { color: var(--status-warn); font-size: var(--text-sm); }
-.eo-trim__result { color: var(--status-ok); }
+.eo-trim__warn { color: var(--wn); font-size: var(--text-sm); }
+.eo-trim__result { color: var(--ok); }
+
+/* Select — desplegable propio: el <select> nativo rompe el lenguaje visual. */
+.eo-select { position: relative; display: inline-block; min-width: 160px; }
+.eo-select__control {
+  width: 100%;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: 0 var(--space-3);
+  background: var(--s2);
+  border: 1px solid var(--bd);
+  border-radius: var(--r);
+  color: var(--tx);
+  font-size: var(--text-sm);
+  cursor: pointer;
+}
+.eo-select__control:hover { background: var(--s3); }
+.eo-select__caret { color: var(--tx3); font-size: 0.8em; }
+.eo-select__list {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: var(--space-1) 0;
+  list-style: none;
+  background: var(--s3);
+  border: 1px solid var(--bds);
+  border-radius: var(--r);
+  max-height: 240px;
+  overflow-y: auto;
+}
+.eo-select__option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-sm);
+  cursor: pointer;
+}
+.eo-select__option:hover { background: var(--s2); }
+.eo-select__option--selected { color: var(--ac); font-weight: 600; }
+.eo-select__option--disabled { color: var(--tx3); cursor: not-allowed; }
+.eo-select__option--disabled:hover { background: transparent; }
+.eo-select__reason { font-size: var(--text-xs); color: var(--tx3); }
+
+/* Buscador */
+.eo-search { position: relative; flex: 1; min-width: 180px; max-width: 300px; }
+.eo-search__input {
+  width: 100%;
+  height: 30px;
+  background: var(--s2);
+  border: 1px solid var(--bd);
+  border-radius: var(--r);
+  color: var(--tx);
+  padding: 0 9px 0 30px;
+  font-size: 12px;
+  font-family: inherit;
+}
+.eo-search__input::placeholder { color: var(--tx4); }
+.eo-search__icon {
+  position: absolute;
+  left: 9px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--tx3);
+  display: flex;
+}
+
+/* Segmentado de filtro */
+.eo-segmented {
+  display: inline-flex;
+  background: var(--s2);
+  border: 1px solid var(--bd);
+  border-radius: var(--r);
+  padding: 2px;
+}
+.eo-segmented button {
+  padding: 3px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  color: var(--tx3);
+  border: none;
+  background: none;
+}
+.eo-segmented button:hover { color: var(--tx2); }
+.eo-segmented button[aria-pressed="true"] { background: var(--s3); color: var(--tx); }
+
+/* Barra de herramientas: buscador + segmentado + contador */
+
+/* Encabezado ordenable + celda de nombre en dos lineas + confirmacion en linea */
+th.eo-th--sortable { cursor: pointer; user-select: none; }
+th.eo-th--sortable:hover { color: var(--tx2); }
+th.eo-th--numeric { text-align: right; }
+.eo-th__arrow { margin-left: 4px; color: var(--ac-tx); }
+
+.eo-rowname { display: flex; flex-direction: column; gap: 1px; min-width: 0; padding: 5px 0; }
+.eo-rowname b {
+  font-weight: 400;
+  color: var(--tx);
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.eo-delete-confirm {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  color: var(--tx2);
+  white-space: nowrap;
+}

@@ -252,7 +252,7 @@ export interface ControlCurrentSnapshot {
 
 /** Vocabulario de estado de la UI. Vive acá —y no en Badge.tsx— porque lo consumen
  *  runview.ts y experimentview.ts, que son lógica pura y no deben importar de un .tsx. */
-export type BadgeTone = 'live' | 'ok' | 'warn' | 'error' | 'neutral'
+export type BadgeTone = 'live' | 'ok' | 'warn' | 'alert' | 'error' | 'neutral'
 
 export interface TraceDetection {
   label: string

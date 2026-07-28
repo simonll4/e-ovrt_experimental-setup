@@ -59,13 +59,28 @@ describe('PreviewWithBoxes', () => {
     expect(box.getAttribute('title')).toBe('vest 0.88')
   })
 
-  it('si la imagen no carga muestra el placeholder "sin preview" (no un hueco)', () => {
+  it('si la imagen no carga muestra un texto explícito, no un hueco', () => {
     const { container, getByText } = render(
       <PreviewWithBoxes src="no-existe.jpg" alt="u0" detections={[]} />,
     )
     fireEvent.error(container.querySelector('img') as HTMLImageElement)
-    expect(getByText('sin preview')).toBeTruthy()
+    expect(getByText('sin vista previa')).toBeTruthy()
     expect(container.querySelector('.eo-preview--empty')).toBeTruthy()
     expect(container.querySelector('img')).toBeNull()
+  })
+
+  // El visor grande del detalle de corrida explica POR QUÉ no hay imagen; la
+  // miniatura de una lista no tiene lugar para esa frase. De ahí la prop.
+  it('el mensaje de vacío es configurable', () => {
+    const { container, getByText } = render(
+      <PreviewWithBoxes
+        src="no-existe.jpg"
+        alt="u0"
+        detections={[]}
+        emptyMessage="Esta corrida se grabó sin vistas previas de cuadro."
+      />,
+    )
+    fireEvent.error(container.querySelector('img') as HTMLImageElement)
+    expect(getByText('Esta corrida se grabó sin vistas previas de cuadro.')).toBeTruthy()
   })
 })

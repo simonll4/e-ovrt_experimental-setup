@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { controlTone, controlLabel, frameHasActivity, labelColor } from '../traceview'
-import { SERIES_COLORS } from '../components/GroupedBars'
+import { controlTone, controlLabel, controlLabelIsRaw, frameHasActivity, labelColor } from '../traceview'
+import { SERIES_COLORS } from '../components/charts/GroupedBars'
 
 describe('controlTone', () => {
   it('received ok, dropped warn, not_received error, n/d neutral', () => {
@@ -13,11 +13,38 @@ describe('controlTone', () => {
 })
 
 describe('controlLabel', () => {
-  it('extrae el reason del dropped', () => {
-    expect(controlLabel('dropped:rate_gate')).toBe('rate_gate')
+  it('traduce los cuatro motivos de descarte reales (DropReason del media-plane)', () => {
+    expect(controlLabel('dropped:rate_gate')).toBe('límite de tasa')
+    expect(controlLabel('dropped:queue_full')).toBe('cola llena')
+    expect(controlLabel('dropped:staleness_timeout')).toBe('cuadro vencido')
+    expect(controlLabel('dropped:channel_closed')).toBe('canal cerrado')
+  })
+
+  it('cae al código crudo para un motivo de descarte fuera del vocabulario conocido', () => {
+    expect(controlLabel('dropped:algo_raro')).toBe('algo_raro')
+  })
+
+  it('recibido / no recibido / sin dato', () => {
     expect(controlLabel('received')).toBe('recibido')
     expect(controlLabel('not_received')).toBe('no recibido')
     expect(controlLabel('n/d')).toBe('n/d')
+  })
+})
+
+describe('controlLabelIsRaw', () => {
+  it('es true para un motivo de descarte no reconocido', () => {
+    expect(controlLabelIsRaw('dropped:algo_raro')).toBe(true)
+  })
+  it('es false para los motivos de descarte del vocabulario real', () => {
+    expect(controlLabelIsRaw('dropped:rate_gate')).toBe(false)
+    expect(controlLabelIsRaw('dropped:queue_full')).toBe(false)
+    expect(controlLabelIsRaw('dropped:staleness_timeout')).toBe(false)
+    expect(controlLabelIsRaw('dropped:channel_closed')).toBe(false)
+  })
+  it('es false para recibido/no recibido/n-d (no son "dropped")', () => {
+    expect(controlLabelIsRaw('received')).toBe(false)
+    expect(controlLabelIsRaw('not_received')).toBe(false)
+    expect(controlLabelIsRaw('n/d')).toBe(false)
   })
 })
 

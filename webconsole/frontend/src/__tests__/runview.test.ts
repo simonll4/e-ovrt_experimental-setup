@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { isLive, isRunning, runStatusLabel, runStatusTone, topologyBadge } from '../runview'
+import { isLive, isRunning, runStatusLabel, runStatusTone, sourceLabel, topologyBadge } from '../runview'
 
 describe('isLive', () => {
   it('true solo cuando running y live', () => {
@@ -15,11 +15,11 @@ describe('isLive', () => {
 })
 
 describe('topologyBadge', () => {
-  it('two_node → two-node', () => {
-    expect(topologyBadge({ run_descriptor: { topology: 'two_node' } })).toBe('two-node')
+  it('two_node → dos equipos (glosario)', () => {
+    expect(topologyBadge({ run_descriptor: { topology: 'two_node' } })).toBe('dos equipos')
   })
-  it('single_host → single-host', () => {
-    expect(topologyBadge({ run_descriptor: { topology: 'single_host' } })).toBe('single-host')
+  it('single_host → un solo equipo (glosario)', () => {
+    expect(topologyBadge({ run_descriptor: { topology: 'single_host' } })).toBe('un solo equipo')
   })
   it('sin descriptor → null', () => {
     expect(topologyBadge({})).toBeNull()
@@ -45,18 +45,39 @@ describe('isRunning', () => {
 describe('runStatusTone / runStatusLabel', () => {
   it('running es live', () => {
     expect(runStatusTone({ status: 'running' })).toBe('live')
-    expect(runStatusLabel({ status: 'running' })).toBe('vivo')
+    expect(runStatusLabel({ status: 'running' })).toBe('En curso')
   })
   it('succeeded es ok', () => {
     expect(runStatusTone({ status: 'succeeded' })).toBe('ok')
-    expect(runStatusLabel({ status: 'succeeded' })).toBe('OK')
+    expect(runStatusLabel({ status: 'succeeded' })).toBe('Completada')
   })
   it('failed es error', () => {
     expect(runStatusTone({ status: 'failed' })).toBe('error')
-    expect(runStatusLabel({ status: 'failed' })).toBe('fallo')
+    expect(runStatusLabel({ status: 'failed' })).toBe('Fallida')
+  })
+  // TERMINAL_STATUSES del backend (runner.py) incluye error y stopped: sin
+  // estas dos entradas el 21% del corpus real mostraba "stopped" en inglés.
+  it('stopped es una parada deliberada: neutral, no error', () => {
+    expect(runStatusTone({ status: 'stopped' })).toBe('neutral')
+    expect(runStatusLabel({ status: 'stopped' })).toBe('Detenida')
+  })
+  it('error es error', () => {
+    expect(runStatusTone({ status: 'error' })).toBe('error')
+    expect(runStatusLabel({ status: 'error' })).toBe('Con error')
   })
   it('desconocido cae a neutral y muestra el status crudo', () => {
     expect(runStatusTone({ status: 'weird' })).toBe('neutral')
     expect(runStatusLabel({ status: 'weird' })).toBe('weird')
+  })
+})
+
+describe('sourceLabel', () => {
+  it('traduce los tipos de fuente conocidos', () => {
+    expect(sourceLabel('oak_d')).toBe('Cámara OAK-D Pro')
+    expect(sourceLabel('rtsp')).toBe('Cámara RTSP')
+  })
+  it('sin dato muestra guion, tipo desconocido cae al codigo crudo', () => {
+    expect(sourceLabel(null)).toBe('—')
+    expect(sourceLabel('algo_nuevo')).toBe('algo_nuevo')
   })
 })

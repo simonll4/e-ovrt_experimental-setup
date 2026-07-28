@@ -28,6 +28,11 @@ describe('EmptyState', () => {
     render(<EmptyState>Sin corridas todavía.</EmptyState>)
     expect(screen.getByText('Sin corridas todavía.')).toBeTruthy()
   })
+  it('con hint, muestra una segunda linea atenuada', () => {
+    render(<EmptyState hint="Probá con otro texto.">Ninguna corrida coincide.</EmptyState>)
+    expect(screen.getByText('Ninguna corrida coincide.')).toBeTruthy()
+    expect(screen.getByText('Probá con otro texto.').className).toContain('eo-empty__hint')
+  })
 })
 
 describe('StatTile', () => {
