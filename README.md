@@ -117,15 +117,19 @@ Las salidas (`detections.jsonl`, `summary.json`, `metrics.jsonl`, previews) se e
 
 ## 5. Qué hay desarrollado actualmente
 
-**Prompt sets — catálogo activo (3)** — metodología, taxonomía de ejes y ciclo de vida en
+**Prompt sets — catálogo activo (5)** — metodología, taxonomía de ejes y ciclo de vida en
 [`docs/prompt-strategy.md`](docs/prompt-strategy.md); formato y detalle de cada set en
-[`docs/prompt-sets.md`](docs/prompt-sets.md) §4:
-- `cr01_cr02_v2_short` y `cr01_cr02_bench_v2`: `exploratory`, etiquetas cortas para canonical_v2,
-  citados por los 19 manifiestos de experimento; pendientes de pedir congelamiento.
-- `eind_v1`: `frozen_pending_review` (carril 1 del núcleo, vocabulario positivo canónico).
+[`docs/prompt-sets.md`](docs/prompt-sets.md) §4 (actualizado 2026-07-29):
+- **`cr01_cr02_v2_short`: `frozen`** (set del rodaje y del bench, `frozen_sha256` en el YAML).
+- **`eind_v1` y `edir_v1`: `frozen`** desde 2026-07-29 por acta (`docs/operacion/76` del repo
+  docs) — carril E-IND del núcleo y carril comparativo E-DIR (8 formulaciones por eje).
+- `cr01_cr02_bench_v2` (evaluación BENCH) y `cr01_cr02_v2_safety_vest` (A/B del phrasing de
+  vest, F-G2.1): `exploratory`.
 
-4 sets exploratorios del carril 2 (E-DIR) sin manifiesto activo están archivados en
-`prompts/_archive/` (ver su README) — fuera del catálogo hasta que se retomen.
+4 candidatos exploratorios previos a `edir_v1` están archivados en `prompts/_archive/`
+(ver su README) — fuera del catálogo. Los manifiestos de experimento viven en
+`experiments/` (definiciones sueltas legacy + matriz `bench_v2/` + tripletas
+`experiment.manifest.v1`; el conteo exacto lo da el catálogo de la consola).
 
 **Experimentos** — ver [`docs/experiments.md`](docs/experiments.md) para la lista completa y
 actualizada; resumen:

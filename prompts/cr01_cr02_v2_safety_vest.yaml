@@ -12,7 +12,7 @@ prompt_set:
     aísle el efecto del phrasing de vest.
   language: en
   derives_from: cr01_cr02_v2_short
-  status: draft
+  status: exploratory
   track: core
   classes:
     - id: person

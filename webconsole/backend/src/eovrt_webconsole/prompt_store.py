@@ -80,7 +80,7 @@ class PromptSetModel(BaseModel):
     description: str | None = None
     language: str | None = None
     status: Status = "exploratory"
-    track: Literal["core", "demo"] | None = None
+    track: Literal["core", "demo", "comparative"] | None = None
     derives_from: str | None = None
     changes: str | None = None
     frozen_sha256: str | None = None

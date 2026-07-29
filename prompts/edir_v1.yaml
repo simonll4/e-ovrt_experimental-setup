@@ -8,10 +8,11 @@ prompt_set:
     (diagnóstico). Cada formulación es un prompt_id propio: nada se reformula
     después de congelar — una frase mal elegida es un resultado, no un bug.
   language: en
-  # PENDIENTE DE ACTA (doc 12 §2.2 regla 3): revisión del usuario antes de
-  # congelar, mitigación del sesgo del auditor (doc 07 D1.6). Al aprobar:
-  # status: frozen + frozen_sha256, junto con eind_v1 (misma acta).
-  status: frozen_pending_review
+  # CONGELADO 2026-07-29 — acta: docs/operacion/76 del repo docs (revisión del
+  # usuario doc 07 D1.6 + revisión técnica contra la arquitectura de backends;
+  # misma acta que eind_v1). Nada se reformula después de congelar.
+  status: frozen
+  frozen_sha256: a1278d0c34cd13beb759a1fe10b13c7096f147f7be23154f28a79454b5643703
   track: comparative
   derives_from: null
   changes: >
@@ -21,12 +22,12 @@ prompt_set:
     # --- CR-01 (sin casco) ---
     - id: cr01_neg
       role: condition_evidence
-      strategy: direct_absence
+      strategy: syntactic_negation
       condition_id: CR-01
       phrasings: { default: ["person without hard hat"] }
     - id: cr01_spec
       role: condition_evidence
-      strategy: direct_absence
+      strategy: specificity
       condition_id: CR-01
       phrasings: { default: ["construction worker without safety helmet"] }
     - id: cr01_obs
@@ -46,12 +47,12 @@ prompt_set:
     # --- CR-02 (sin chaleco) ---
     - id: cr02_neg
       role: condition_evidence
-      strategy: direct_absence
+      strategy: syntactic_negation
       condition_id: CR-02
       phrasings: { default: ["person without safety vest"] }
     - id: cr02_spec
       role: condition_evidence
-      strategy: direct_absence
+      strategy: specificity
       condition_id: CR-02
       phrasings: { default: ["construction worker without reflective vest"] }
     - id: cr02_obs

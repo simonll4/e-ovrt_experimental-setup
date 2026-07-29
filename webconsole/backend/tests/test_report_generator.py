@@ -350,6 +350,252 @@ def test_sdr_ttfd_computed_desde_temporal_evaluation_json(tmp_path):
     assert ttfd["value"] == 1.2  # avg_ttfd_ms/1000, NO la latencia de alerta (2.5)
 
 
+def _write_temporal_eval_v2(consolidated_dir, **overrides):
+    """Evaluacion temporal v2 con los campos A2/A3 (doc 57): FAR/hora + censura."""
+    data = {
+        "schema_version": "control.eval.temporal.v1",
+        "scenario_id": "clip_0007",
+        "recall": 1.0,
+        "precision": 0.5,
+        "f1": 0.66,
+        "unexpected_alerts_count": 1,
+        # Campos NATIVOS de _evaluate_v2 (deuda docs 51/58, doc 75 SS1.6):
+        # far_per_hour = unexpected / (observed_duration_ms / 3.6e6);
+        # observed_duration_ms se propaga ademas del cociente porque la
+        # agregacion entre clips soak es Sigma FP / Sigma duracion.
+        "observed_duration_ms": 600000.0,
+        "far_per_hour": 6.0,
+        "censored_episodes_count": 1,
+        "censored_episodes": [
+            {
+                "episode_id": "e2",
+                "condition_id": "CR-01",
+                "cause": "clip_too_short_for_t_alert_window",
+                "duration_ms": 12000.0,
+                "required_ms": 23000.0,
+            }
+        ],
+    }
+    data.update(overrides)
+    _write_json(consolidated_dir / "control" / "temporal_evaluation.json", data)
+    return data
+
+
+def test_far_y_censura_computed_desde_temporal_evaluation_v2(tmp_path):
+    """far_per_hour / observed_duration_ms / censored_episodes salen de los
+    campos v2 NATIVOS de evaluate-alerts (item 6 de doc 75 SS1): passthrough,
+    sin recalcular (ADR-006)."""
+    consolidated_dir = _build_video_experiment(tmp_path)
+    eval_data = _write_temporal_eval_v2(consolidated_dir)
+
+    report = generate_report(consolidated_dir)
+    resultados_by_name = {m["name"]: m for m in report["resultados"]}
+
+    far = resultados_by_name["far_per_hour"]
+    assert far["status"] == "computed"
+    assert far["value"] == 6.0
+    assert far["unit"] == "alerts/hour"
+
+    duration = resultados_by_name["observed_duration_ms"]
+    assert duration["status"] == "computed"
+    assert duration["value"] == 600000.0
+    assert duration["unit"] == "ms"
+
+    censored = resultados_by_name["censored_episodes"]
+    assert censored["status"] == "computed"
+    assert censored["value"] == 1.0
+    assert censored["unit"] == "count"
+
+    # Detalle de censurados (A2): verbatim de la evaluacion, para auditar el
+    # margen faltante (duration_ms vs required_ms) sin abrir el JSON crudo.
+    assert report["censored_episodes"] == eval_data["censored_episodes"]
+
+
+def test_far_per_hour_cero_y_censura_cero_son_computed(tmp_path):
+    """0.0 FP/hora (clip soak negativo limpio, Fase P) y 0 censurados son
+    valores REALES, no ausencia: computed, no applicable_not_computed."""
+    consolidated_dir = _build_video_experiment(tmp_path)
+    _write_temporal_eval_v2(
+        consolidated_dir,
+        unexpected_alerts_count=0,
+        far_per_hour=0.0,
+        censored_episodes_count=0,
+        censored_episodes=[],
+    )
+
+    report = generate_report(consolidated_dir)
+    resultados_by_name = {m["name"]: m for m in report["resultados"]}
+
+    assert resultados_by_name["far_per_hour"]["status"] == "computed"
+    assert resultados_by_name["far_per_hour"]["value"] == 0.0
+    assert resultados_by_name["censored_episodes"]["status"] == "computed"
+    assert resultados_by_name["censored_episodes"]["value"] == 0.0
+    assert report["censored_episodes"] == []
+
+
+def test_far_y_censura_figuran_not_applicable_sin_ground_truth(tmp_path):
+    """Sin evaluacion temporal, las metricas nuevas figuran igual (ADR-006:
+    'figuran, no se omiten') como not_applicable/no_ground_truth."""
+    consolidated_dir = _build_video_experiment(tmp_path)
+
+    report = generate_report(consolidated_dir)
+    resultados_by_name = {m["name"]: m for m in report["resultados"]}
+
+    for name in ("far_per_hour", "observed_duration_ms", "censored_episodes"):
+        assert name in resultados_by_name, f"{name} debe figurar en resultados"
+        assert resultados_by_name[name]["status"] == "not_applicable"
+        assert resultados_by_name[name]["cause"] == "no_ground_truth"
+        assert resultados_by_name[name]["value"] is None
+    assert report["censored_episodes"] == []
+
+
+def test_far_y_censura_evaluacion_vieja_sin_campos_no_inventa_valores(tmp_path):
+    """Evaluacion persistida por una version vieja de evaluate-alerts (o path
+    v1, sin ms): los campos no estan -> applicable_not_computed con causa
+    explicita, jamas un valor inventado (ADR-006)."""
+    consolidated_dir = _build_video_experiment(tmp_path)
+    _write_json(
+        consolidated_dir / "control" / "temporal_evaluation.json",
+        {
+            "schema_version": "control.eval.temporal.v1",
+            "scenario_id": "clip_0007",
+            "recall": 0.75,
+            "precision": 0.9,
+            "f1": 0.81,
+        },
+    )
+
+    report = generate_report(consolidated_dir)
+    resultados_by_name = {m["name"]: m for m in report["resultados"]}
+
+    for name in ("far_per_hour", "observed_duration_ms", "censored_episodes"):
+        assert resultados_by_name[name]["status"] == "applicable_not_computed"
+        assert resultados_by_name[name]["value"] is None
+        assert resultados_by_name[name]["cause"] == "evaluation_without_v2_fields"
+    assert report["censored_episodes"] == []
+
+
+def test_far_y_censura_evaluacion_v1_real_no_confunde_defaults_con_ceros(tmp_path):
+    """Evaluacion v1 REAL de hoy (H1): el control-plane serializa con
+    `model_dump_json` SIN excludes, asi que el path `_evaluate_v1` emite los
+    DEFAULTS de Pydantic: `censored_episodes_count: 0` y `censored_episodes: []`
+    PRESENTES junto a `far_per_hour: null` / `observed_duration_ms: null`.
+    Ese 0 no es un 0 medido (la censura A2 se define contra `duration_ms`, que
+    el GT v1 por frames no tiene): las TRES metricas deben salir coherentes
+    como applicable_not_computed/evaluation_without_v2_fields, jamas un
+    `computed = 0` que conflada "no se evaluo censura" con "se evaluo y no
+    hubo" (docstring del modulo: path v1 -> applicable_not_computed).
+
+    Shape verificado ejecutando `evaluate_temporal_alerts` contra un GT v1
+    (frame-based) sin --detections: notese `ttfd_sdr_applicability =
+    not_applicable:no_detections_provided` (NO `non_v2_ground_truth`, que solo
+    aparece si se pasaron detecciones) — por eso el discriminador es
+    `observed_duration_ms`, no ese campo."""
+    consolidated_dir = _build_video_experiment(tmp_path)
+    _write_json(
+        consolidated_dir / "control" / "temporal_evaluation.json",
+        {
+            "schema_version": "control.eval.temporal.v1",
+            "scenario_id": "esc_v1",
+            "alerts_path": "runs/control-run-1/alerts.jsonl",
+            "ground_truth_path": "gt/esc_v1.json",
+            "expected_alerts_count": 1,
+            "observed_alerts_count": 0,
+            "matched_alerts_count": 0,
+            "missed_alerts_count": 1,
+            "unexpected_alerts_count": 0,
+            "duplicate_alerts_count": 0,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "avg_latency_frames_from_first_evidence": None,
+            "avg_latency_ms_from_first_evidence": None,
+            "re_alerts_count": 0,
+            "sub_threshold_count": 0,
+            "censored_episodes_count": 0,
+            "observed_duration_ms": None,
+            "far_per_hour": None,
+            "applicability_state": "computed",
+            "applicability_cause": None,
+            "avg_latency_ms_from_episode_start": None,
+            "effective_matching_windows": {},
+            "warnings": [],
+            "matches": [],
+            "missed_alerts": [
+                {
+                    "expected_id": "e1",
+                    "condition_id": "CR-01",
+                    "subject_key": None,
+                    "source_id": "cam0",
+                    "expected_alert_frame_index": 20,
+                    "max_alert_frame_index": None,
+                }
+            ],
+            "unexpected_alerts": [],
+            "censored_episodes": [],
+            "avg_ttfd_ms": None,
+            "avg_sdr": None,
+            "ttfd_by_episode": [],
+            "sdr_by_episode": [],
+            "ttfd_sdr_applicability": "not_applicable:no_detections_provided",
+            "positive_criterion": None,
+            "detections_path": None,
+        },
+    )
+
+    report = generate_report(consolidated_dir)
+    resultados_by_name = {m["name"]: m for m in report["resultados"]}
+
+    for name in ("far_per_hour", "observed_duration_ms", "censored_episodes"):
+        assert resultados_by_name[name]["status"] == "applicable_not_computed", (
+            f"{name}: una evaluacion v1 no computa campos v2 (estado coherente entre las tres)"
+        )
+        assert resultados_by_name[name]["cause"] == "evaluation_without_v2_fields"
+        assert resultados_by_name[name]["value"] is None
+    assert report["censored_episodes"] == []
+
+
+def test_render_markdown_muestra_far_y_detalle_de_censurados(tmp_path):
+    consolidated_dir = _build_video_experiment(tmp_path)
+    _write_temporal_eval_v2(consolidated_dir)
+
+    report = generate_report(consolidated_dir)
+    markdown = render_markdown(report)
+
+    # Las tres metricas nuevas aparecen en la tabla de Resultados.
+    for name in ("far_per_hour", "observed_duration_ms", "censored_episodes"):
+        assert name in markdown
+    # Y el detalle de censurados tiene su seccion propia, auditable.
+    assert "Episodios censurados" in markdown
+    assert "e2" in markdown
+    assert "clip_too_short_for_t_alert_window" in markdown
+
+
+def test_render_markdown_sin_censurados_omite_la_seccion_de_detalle(tmp_path):
+    consolidated_dir = _build_video_experiment(tmp_path)
+
+    report = generate_report(consolidated_dir)
+    markdown = render_markdown(report)
+
+    # Sin detalle no hay seccion (la METRICA censored_episodes figura igual
+    # en Resultados, con su estado ADR-006).
+    assert "Episodios censurados" not in markdown
+    assert "censored_episodes" in markdown
+
+
+def test_render_markdown_tolera_report_viejo_sin_clave_censored(tmp_path):
+    """Un report.json persistido antes de este cableado no tiene la clave
+    `censored_episodes`: re-renderizarlo no debe explotar."""
+    consolidated_dir = _build_video_experiment(tmp_path)
+    report = generate_report(consolidated_dir)
+    report.pop("censored_episodes", None)
+
+    markdown = render_markdown(report)
+
+    assert markdown.strip() != ""
+    assert "Episodios censurados" not in markdown
+
+
 def test_identificacion_liga_clip_id_y_ground_truth_path(tmp_path):
     consolidated_dir = _build_video_experiment(tmp_path)
     manifest_path = consolidated_dir / "manifest.effective.yaml"

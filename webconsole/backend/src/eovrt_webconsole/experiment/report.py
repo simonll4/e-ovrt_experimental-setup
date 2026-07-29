@@ -36,6 +36,10 @@ CLOCK_SKEW = "clock_skew"
 NON_TEMPORAL_SOURCE = "non_temporal_source"
 MISSING_JOIN_KEY = "missing_join_key"
 NO_DISTRIBUTION = "no_distribution"
+# Evaluacion temporal presente pero SIN los campos v2 A2/A3 (FAR/censura):
+# JSON persistido por una version vieja de evaluate-alerts, o path v1 (el GT
+# por frame no tiene ms). No se inventa un valor: applicable_not_computed.
+EVAL_WITHOUT_V2_FIELDS = "evaluation_without_v2_fields"
 
 
 # ---------------------------------------------------------------------------
@@ -287,6 +291,71 @@ def _ttfd_metric(temporal_eval: dict | None) -> MetricResult:
                         status="computed", cause=None)
 
 
+def _censura_evaluada(temporal_eval: dict) -> bool:
+    """Discriminador del path v2 para la censura A2 (finding H1): el control-plane
+    serializa con `model_dump_json` SIN excludes, asi que el path `_evaluate_v1`
+    emite los DEFAULTS de Pydantic (`censored_episodes_count: 0`,
+    `censored_episodes: []`) aunque JAMAS evaluo censura — ese 0 no es un 0
+    medido. La senal es `observed_duration_ms`: `_evaluate_v1` nunca lo setea
+    (queda null), `_evaluate_v2` lo setea en sus DOS retornos, y ademas es la
+    precondicion literal de la metrica (`_episode_metric_censored` devuelve None
+    si `duration_ms is None`: sin duracion observada no hay censura evaluable).
+
+    Se descartaron dos candidatos: `ttfd_sdr_applicability ==
+    "not_applicable:non_v2_ground_truth"` solo aparece si se pasaron
+    detecciones — un v1 sin --detections (el caso comun del runner) emite
+    `no_detections_provided`, indistinguible de un v2 sin detecciones — y
+    `effective_matching_windows` queda `{}` en clips v2 negativos (sin
+    episodios), justo el escenario soak/FAR donde el 0 censurados es real."""
+    return temporal_eval.get("observed_duration_ms") is not None
+
+
+def _temporal_eval_v2_metrics(temporal_eval: dict | None) -> list[MetricResult]:
+    """FAR/hora + censura (doc 57 A2/A3; deuda docs 51/58, doc 75 SS1.6):
+    passthrough de los campos v2 NATIVOS de evaluate-alerts (`far_per_hour`,
+    `observed_duration_ms`, `censored_episodes_count`). `observed_duration_ms`
+    se expone ademas del cociente por clip porque la agregacion entre clips
+    soak es Sigma FP / Sigma duracion, NO promedio de tasas (comentario A3 del
+    control-plane). Sin evaluacion -> not_applicable/no_ground_truth; con
+    evaluacion pero sin los campos (JSON viejo) o por el path v1 (defaults
+    serializados, ver `_censura_evaluada`) -> applicable_not_computed, jamas un
+    valor inventado (ADR-006). 0.0 y 0 son valores reales (soak negativo
+    limpio / sin censura), pero SOLO en el path v2: computed."""
+    specs = (
+        ("far_per_hour", "alerts/hour", "far_per_hour"),
+        ("observed_duration_ms", "ms", "observed_duration_ms"),
+        ("censored_episodes", "count", "censored_episodes_count"),
+    )
+    metrics: list[MetricResult] = []
+    for name, unit, field in specs:
+        if temporal_eval is None:
+            metrics.append(MetricResult(name=name, unit=unit,
+                                        status="not_applicable", cause=NO_GROUND_TRUTH))
+            continue
+        value = temporal_eval.get(field)
+        if field == "censored_episodes_count" and not _censura_evaluada(temporal_eval):
+            # El 0 default del path v1 no es un 0 medido: mismo estado que
+            # far_per_hour/observed_duration_ms (coherencia entre las tres).
+            value = None
+        if value is None:
+            metrics.append(MetricResult(name=name, unit=unit,
+                                        status="applicable_not_computed",
+                                        cause=EVAL_WITHOUT_V2_FIELDS))
+        else:
+            metrics.append(MetricResult(name=name, value=float(value), unit=unit,
+                                        status="computed", cause=None))
+    return metrics
+
+
+def _censored_episodes_detail(temporal_eval: dict | None) -> list[dict]:
+    """Detalle de episodios censurados (A2), verbatim de la evaluacion:
+    episode_id/condition_id/cause + duration_ms/required_ms para auditar el
+    margen faltante sin abrir el JSON crudo. [] si no hay evaluacion o campos."""
+    if not temporal_eval:
+        return []
+    return list(temporal_eval.get("censored_episodes") or [])
+
+
 def _perception_metrics(
     consolidated_dir: Path, media_summary: dict, control_summary: dict, source_clock: str
 ) -> list[MetricResult]:
@@ -350,6 +419,7 @@ def _build_resultados(
                      status="not_applicable", cause=NO_DISTRIBUTION),
         _ttfd_metric(temporal_eval),
         _sdr_metric(temporal_eval),
+        *_temporal_eval_v2_metrics(temporal_eval),
         _ttfa_interna_metric(control_summary, source_clock),
         MetricResult(name="ΔFP_tracker", unit="count",
                      status="not_applicable", cause=None),
@@ -537,6 +607,9 @@ def generate_report(consolidated_dir: str | Path) -> dict:
         "temporalidad": temporalidad,
         "eventos": eventos,
         "resultados": [m.model_dump() for m in resultados],
+        # Detalle A2 (aditivo): la METRICA censored_episodes figura arriba con
+        # su estado ADR-006; esto es el rastro auditable por episodio.
+        "censored_episodes": _censored_episodes_detail(temporal_eval),
         "anti_drift": anti_drift,
         "observaciones": _observaciones(source_clock, anti_drift),
     }
@@ -564,6 +637,24 @@ def _render_resultados_section(resultados: list[dict]) -> str:
         lines.append(
             f"| {metric['name']} | {metric['value']} | {metric['unit']} | "
             f"{metric['status']} | {metric['cause']} |"
+        )
+    lines.append("")
+    return "\n".join(lines)
+
+
+def _render_censored_section(censored: list[dict]) -> str:
+    """Detalle de episodios censurados (A2). Solo se emite si hay alguno: la
+    metrica `censored_episodes` figura siempre en Resultados igualmente."""
+    if not censored:
+        return ""
+    lines = ["## Episodios censurados", "",
+             "| Episodio | Condicion | Causa | duration_ms | required_ms |",
+             "|---|---|---|---|---|"]
+    for episode in censored:
+        lines.append(
+            f"| {episode.get('episode_id')} | {episode.get('condition_id')} | "
+            f"{episode.get('cause')} | {episode.get('duration_ms')} | "
+            f"{episode.get('required_ms')} |"
         )
     lines.append("")
     return "\n".join(lines)
@@ -599,6 +690,12 @@ def render_markdown(report: dict) -> str:
         _render_dict_section("Temporalidad", report["temporalidad"]),
         _render_dict_section("Eventos", report["eventos"]),
         _render_resultados_section(report["resultados"]),
+    ]
+    # `.get`: un report.json persistido antes de este cableado no trae la clave.
+    censored_section = _render_censored_section(report.get("censored_episodes") or [])
+    if censored_section:
+        parts.append(censored_section)
+    parts += [
         _render_anti_drift_section(report["anti_drift"]),
         "## Observaciones",
         "",

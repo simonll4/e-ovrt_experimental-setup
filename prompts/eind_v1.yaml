@@ -6,7 +6,9 @@ prompt_set:
     ambos backends (pista doble GDINO-tiny/YOLOE-26s, enmienda doc 12 §3).
     La Fase 1 de E-IND se puntúa sin re-inferir (reusa Sprint 2).
   language: en
-  status: frozen_pending_review
+  # CONGELADO 2026-07-29 — acta: docs/operacion/76 del repo docs (junto con edir_v1).
+  status: frozen
+  frozen_sha256: 7a0126f45eb1362a2cfcc67458caa307357dc3f7684188fae6486486cd5ed770
   track: core
   derives_from: cr01_cr02_v2_short
   changes: >

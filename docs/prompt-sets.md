@@ -94,14 +94,19 @@ referenciar por `ref`:
 
 | Set | Estado | Clases | Notas |
 |---|---|---|---|
-| `cr01_cr02_v2_short` | `exploratory` | person, helmet, vest | Etiquetas cortas v2 (mejor activación de YOLOE/CLIP que las frases compuestas de v1). Solo `phrasings.default`. Recreado 2026-07-18 con `strategy` por clase; pendiente de pedir congelamiento. |
+| `cr01_cr02_v2_short` | **`frozen`** | person, helmet, vest | Etiquetas cortas v2 (mejor activación de YOLOE/CLIP que las frases compuestas de v1). Solo `phrasings.default`. `frozen_sha256: df81fd48…`. Set del rodaje y del bench. |
 | `cr01_cr02_bench_v2` | `exploratory` | person, helmet, vest, **bare_head** | Set de evaluación BENCH v2. `bare_head` (`role: visual_risk_indicator`) para cabeza sin casco. Recreado 2026-07-18 con `strategy` por clase; pendiente de pedir congelamiento. |
-| `eind_v1` | `frozen_pending_review` | person, helmet, vest | Carril 1 (núcleo): vocabulario positivo canónico, `canonical_positive`, phrasings idénticos ambos backends. Deriva de `cr01_cr02_v2_short`. Espera acta para congelarse. |
+| `eind_v1` | **`frozen`** | person, helmet, vest | Carril 1 (núcleo E-IND): vocabulario positivo canónico, `canonical_positive`, phrasings idénticos ambos backends. Deriva de `cr01_cr02_v2_short`. Congelado 2026-07-29 por acta (`docs/operacion/76` del repo docs); `frozen_sha256: 7a0126f4…`. |
+| `edir_v1` | **`frozen`** | 8 formulaciones (4 por condición) | Carril E-DIR (`track: comparative`): un prompt por eje pre-registrado (negación sintáctica, especificidad, estado observable, template diagnóstico `enabled_by_default: false`) para CR-01 y CR-02, literal de doc 12 §2.2. Congelado 2026-07-29 por la misma acta (doc 76); `frozen_sha256: a1278d0c…`. Nada se reformula post-freeze. |
+| `cr01_cr02_v2_safety_vest` | `exploratory` | person, helmet, vest | A/B del phrasing de `vest` → "safety vest" (hipótesis anti sobre-marca F-G2.1, docs/operacion/67). Deriva de `cr01_cr02_v2_short`; solo cambia vest. |
 
-**Archivados** (2026-07-18, `prompts/_archive/`) — sets exploratorios del Carril 2 (E-DIR)
-que ningún manifiesto corre todavía; fuera del catálogo activo hasta que se retomen (ver
+**Archivados** (2026-07-18, `prompts/_archive/`) — candidatos exploratorios del Carril 2
+(E-DIR) previos al set congelado `edir_v1`; fuera del catálogo activo (ver
 `prompts/_archive/README.md`): `ppe_v2_descriptive`, `edir_exp_cr01_candidates`,
 `edir_exp_cr02_candidates`, `edir_exp_weak_classes`.
+
+> Tabla actualizada 2026-07-29 (acta de congelamiento `edir_v1`+`eind_v1`, doc 76 del
+> repo docs). Fuente de verdad siempre: `prompts/*.yaml`.
 
 ### Congelado vs experimental
 
