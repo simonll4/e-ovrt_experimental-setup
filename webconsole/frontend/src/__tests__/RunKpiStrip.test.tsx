@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from '@testing-library/react'
+import { cleanup, render, screen } from '../test-utils'
 import { afterEach, describe, expect, it } from 'vitest'
 import RunKpiStrip from '../components/RunKpiStrip'
 import type { RunSeries } from '../runseries'

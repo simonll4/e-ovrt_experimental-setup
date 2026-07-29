@@ -1,34 +1,43 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { ApiError, launchRun, saveManifest } from '../api'
+import type { Composition, FieldError } from '../types'
+import { usePreflight, useTarget } from '../api/queries/platform'
 import {
-  ApiError, getDatasets, getExperiments, getIngestPlugins, getPromptSets,
-  launchRun, listCameras, saveManifest,
-} from '../api'
-import type {
-  CameraPreset, Composition, DatasetEntry, Experiment, FieldError, IngestPlugin, PromptSet,
-} from '../types'
-import { useTarget } from '../useTarget'
-import { usePreflight } from '../usePreflight'
+  useCatalogExperiments, useCatalogPromptSets, useDatasets, useIngestPlugins,
+} from '../api/queries/catalog'
+import { useCameras } from '../api/queries/cameras'
 import PlatformStatus from '../components/PlatformStatus'
-import { Card, ErrorBanner, Field, PageHeader } from '../components/ui'
+import {
+  Badge, Button, Card, ErrorBanner, Field, IconCheck, IconCircle, IconInfo, IconPlay,
+  PageHeader, Select,
+} from '../components/ui'
+import { sourceLabel } from '../runview'
+
+/** Un requisito del panel *Antes de lanzar*: si está cumplido, y por qué. */
+interface Paso {
+  ok: boolean
+  label: string
+  sub: string
+}
+
+/** Círculo numerado del encabezado del paso; violeta cuando el paso se completó. */
+function NumeroDePaso({ n, ok }: { n: number; ok?: boolean }) {
+  return <span className={ok ? 'eo-step__num eo-step__num--on' : 'eo-step__num'}>{n}</span>
+}
 
 export default function ComposePage() {
   const navigate = useNavigate()
   const [params] = useSearchParams()
-  const [plugins, setPlugins] = useState<IngestPlugin[]>([])
-  const [datasets, setDatasets] = useState<DatasetEntry[]>([])
-  const [cameras, setCameras] = useState<CameraPreset[]>([])
-  const [sets, setSets] = useState<PromptSet[]>([])
-  const [experiments, setExperiments] = useState<Experiment[]>([])
   const [plugin, setPlugin] = useState('image_folder')
   const [dataset, setDataset] = useState('')
   const [path, setPath] = useState('')
   const [cameraId, setCameraId] = useState('')
   const [rtspUrl, setRtspUrl] = useState('')
-  // Frames a descartar al arrancar una fuente en vivo (asentamiento de
-  // exposición/enfoque): solo válido en rtsp/oak_d, el media-plane lo rechaza
-  // (422) en fuentes acotadas. Vacío = no enviar el campo (default 0 del lado
-  // del servicio, comportamiento previo).
+  // Cuadros a descartar al arrancar una fuente en vivo (asentamiento de
+  // exposición/enfoque): solo válido en rtsp/oak_d, el motor de detección lo
+  // rechaza (422) en fuentes acotadas. Vacío = no enviar el campo (default 0 del
+  // lado del servicio, comportamiento previo).
   const [warmupFrames, setWarmupFrames] = useState('')
   // `source.type` original del manifiesto prefilleado (video/video_frame/…): se
   // conserva para que guardar no lo colapse a video_file. null cuando la fuente
@@ -36,8 +45,8 @@ export default function ComposePage() {
   const [sourceType, setSourceType] = useState<string | null>(null)
   const [setId, setSetId] = useState('')
   const [activeIds, setActiveIds] = useState<string[]>([])
-  // Nombre opcional del run: si queda vacío, el servicio usa el run_id
-  // autogenerado como siempre — esto es puramente para identificarlo mejor.
+  // Nombre opcional de la corrida: si queda vacío, el servicio usa el
+  // identificador autogenerado como siempre — esto es solo para reconocerla.
   const [runName, setRunName] = useState('')
   const [stride, setStride] = useState('')
   const [maxUnits, setMaxUnits] = useState('')
@@ -55,26 +64,22 @@ export default function ComposePage() {
     return msg || undefined
   }
 
-  // Si el servicio se reinicia con otro EOVRT_MODEL_REF, `modelRef` cambia (poll de
-  // useTarget) y re-fetcheamos los catálogos para no quedar con datos stale. El
-  // target completo además gatea el botón Lanzar: sin media-plane listo no se lanza.
+  // La instancia activa gatea el botón de lanzar: sin motor de detección listo
+  // no se lanza.
+  //
+  // Los catálogos ya no se piden con un efecto keyado en `modelRef`: las queries
+  // llevan la referencia del modelo en su clave, así que si el servicio reinicia
+  // con otro modelo se recargan solas. Ver `api/queries/catalog.ts`.
   const target = useTarget()
-  const modelRef = target?.model?.ref
   const preflight = usePreflight()
-  useEffect(() => {
-    let alive = true
-    getIngestPlugins().then((v) => alive && setPlugins(v)).catch(() => alive && setPlugins([]))
-    getDatasets().then((v) => alive && setDatasets(v)).catch(() => alive && setDatasets([]))
-    getPromptSets().then((v) => alive && setSets(v)).catch(() => alive && setSets([]))
-    getExperiments().then((v) => alive && setExperiments(v)).catch(() => alive && setExperiments([]))
-    listCameras().then((v) => alive && setCameras(v)).catch(() => alive && setCameras([]))
-    return () => {
-      alive = false
-    }
-  }, [modelRef])
+  const plugins = useIngestPlugins().data ?? []
+  const datasets = useDatasets().data ?? []
+  const sets = useCatalogPromptSets().data ?? []
+  const experiments = useCatalogExperiments().data ?? []
+  const cameras = useCameras().data ?? []
 
   const selectedSet = useMemo(() => sets.find((s) => s.id === setId), [sets, setId])
-  // Fuente en vivo (cámara) vs acotada (dataset/archivo): decide qué campos mostrar.
+  // Fuente en vivo (cámara) vs acotada (conjunto/archivo): decide qué campos mostrar.
   const isLive = plugins.find((p) => p.id === plugin)?.kind === 'live'
   const pluginCameras = useMemo(
     () => cameras.filter((c) => c.plugin === plugin),
@@ -129,9 +134,9 @@ export default function ComposePage() {
 
   const ingestConfig = (): Record<string, unknown> => {
     if (isLive) {
-      // Cámara guardada primero; URL manual solo como fallback de rtsp. El preset
-      // no trae warmup_frames (es un ajuste por-run, no de la cámara) — se agrega
-      // acá como override si el operador lo completó.
+      // Cámara guardada primero; URL manual solo como fallback de rtsp. La cámara
+      // guardada no trae warmup_frames (es un ajuste por corrida, no de la
+      // cámara) — se agrega acá como override si el operador lo completó.
       const base: Record<string, unknown> = selectedCamera
         ? { ...selectedCamera.config }
         : (plugin === 'rtsp' && rtspUrl ? { url: rtspUrl } : {})
@@ -204,221 +209,421 @@ export default function ComposePage() {
   // El botón queda deshabilitado hasta que no falte nada — así el 422 del
   // servicio queda solo para casos que el form no puede anticipar.
   const missingReason = ((): string | null => {
-    if (!target) return 'verificando el media-plane…'
-    if (!target.healthy) return 'el media-plane no responde'
-    if (!target.ready) return 'el media-plane no terminó de cargar el modelo'
+    if (!target) return 'verificando el motor de detección…'
+    if (!target.healthy) return 'el motor de detección no responde'
+    if (!target.ready) return 'el motor de detección no terminó de cargar el modelo'
     if (isLive) {
       if (!selectedCamera && !(plugin === 'rtsp' && rtspUrl)) {
         return plugin === 'rtsp'
-          ? 'elegí una cámara guardada o ingresá la URL RTSP (paso 1)'
+          ? 'elegí una cámara guardada o escribí la dirección RTSP (paso 1)'
           : 'elegí una cámara guardada (paso 1) — se crean en Cámaras'
       }
       // Los manifiestos guardados censuran la credencial RTSP como "***": esa
-      // URL pasa la validación de shape pero muere adentro del run. Bloquear acá.
+      // URL pasa la validación de shape pero muere adentro de la corrida.
       if (!selectedCamera && plugin === 'rtsp' && rtspUrl.includes('***')) {
-        return 'recompletá las credenciales de la URL RTSP (paso 1)'
+        return 'recompletá las credenciales de la dirección RTSP (paso 1)'
       }
     } else if (!dataset && !path) {
-      return 'elegí un dataset o ingresá una ruta (paso 1)'
+      return 'elegí un conjunto del catálogo o escribí una ruta (paso 1)'
     }
-    if (!setId) return 'elegí un prompt set (paso 2)'
-    if (activeIds.length === 0) return 'activá al menos una clase del prompt set (paso 2)'
+    if (!setId) return 'elegí un conjunto de prompts (paso 2)'
+    if (activeIds.length === 0) return 'activá al menos una clase del conjunto (paso 2)'
     return null
   })()
 
+  // Los cuatro requisitos del panel lateral. Es la misma verdad que
+  // `missingReason` pero desplegada: aquél dice qué arreglar primero, éste
+  // muestra los cuatro a la vez para saber cuánto falta.
+  const origen: Paso = isLive
+    ? {
+        ok: Boolean(selectedCamera || (plugin === 'rtsp' && rtspUrl && !rtspUrl.includes('***'))),
+        label: 'Elegiste una cámara',
+        sub: selectedCamera
+          ? `Cámara guardada ${selectedCamera.name || selectedCamera.id}`
+          : rtspUrl.includes('***')
+            ? 'Recompletá el usuario y la clave de la dirección'
+            : rtspUrl
+              ? 'Dirección cargada a mano'
+              : pluginCameras.length === 0
+                ? 'No hay cámaras guardadas para esta fuente'
+                : 'Sin elegir',
+      }
+    : {
+        ok: Boolean(dataset || path),
+        label: 'Elegiste un origen',
+        sub: dataset
+          ? `Conjunto ${dataset}`
+          : path
+            ? 'Ruta manual'
+            : 'Ni conjunto del catálogo ni ruta',
+      }
+
+  const pasos: Paso[] = [
+    {
+      ok: Boolean(target?.healthy && target?.ready),
+      label: 'El motor de detección está listo',
+      sub: !target
+        ? 'Verificando…'
+        : !target.healthy
+          ? 'No responde'
+          : !target.ready
+            ? 'Todavía está cargando el modelo'
+            : `${target.model?.ref ?? 'modelo'} · modelo cargado`,
+    },
+    origen,
+    {
+      ok: Boolean(setId),
+      label: 'Elegiste un conjunto de prompts',
+      sub: selectedSet
+        ? selectedSet.frozen
+          ? 'Congelado, no se puede editar'
+          : 'Editable'
+        : 'Sin elegir',
+    },
+    {
+      ok: activeIds.length > 0,
+      label: 'Activaste al menos una clase',
+      sub: activeIds.length
+        ? `${activeIds.length} de ${selectedSet?.classes.length ?? 0} activas`
+        : 'Ninguna activa',
+    },
+  ]
+
+  const toggleClase = (id: string) =>
+    setActiveIds((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]))
+
   return (
-    <div>
-      <PageHeader title="Nueva corrida" meta={<PlatformStatus status={preflight} />} />
-      <Card title="1 · Fuente">
-        <div>
-          <Field label="Tipo de fuente" error={fieldError('ingest.plugin')}>
-            <select
-              value={plugin}
-              onChange={(e) => {
-                setPlugin(e.target.value)
-                setCameraId('')
-              }}
-            >
+    <>
+      <PageHeader
+        title="Nueva corrida"
+        meta="Elegí de dónde salen las imágenes y qué se busca en ellas"
+      />
+
+      <div className="eo-compose">
+        <div className="eo-steps">
+          <Card title={<><NumeroDePaso n={1} ok={origen.ok} />Fuente</>}>
+            {/* Botones-tarjeta y no un desplegable: son cuatro opciones fijas y
+                el motivo de una deshabilitada tiene que verse sin abrir nada. */}
+            <div className="eo-srcgrid">
               {plugins.map((p) => (
-                <option key={p.id} value={p.id} disabled={!p.enabled}>
-                  {p.id}{!p.enabled ? ' (no soportado)' : ''}
-                </option>
+                <button
+                  key={p.id}
+                  type="button"
+                  className="eo-src"
+                  aria-pressed={plugin === p.id}
+                  disabled={!p.enabled}
+                  onClick={() => {
+                    setPlugin(p.id)
+                    setCameraId('')
+                  }}
+                >
+                  <b>{sourceLabel(p.id)}</b>
+                  <span>
+                    {p.enabled
+                      ? p.description
+                      : p.disabled_reason ?? 'No disponible en esta instancia'}
+                  </span>
+                </button>
               ))}
-            </select>
-          </Field>
-        </div>
-        {isLive ? (
-          <div>
-            <Field label="Cámara guardada" error={fieldError('ingest.config.url')}>
-              <select value={cameraId} onChange={(e) => setCameraId(e.target.value)}>
-                <option value="">
-                  {plugin === 'rtsp' ? '— URL manual —' : '— elegir cámara —'}
-                </option>
-                {pluginCameras.map((c) => (
-                  <option key={c.id} value={c.id}>{c.name || c.id}</option>
-                ))}
-              </select>
-            </Field>
-            {pluginCameras.length === 0 && (
-              <small className="eo-note">
-                No hay cámaras {plugin} guardadas — se crean (y se prueban) en{' '}
-                <a href="#/cameras">Cámaras</a>.
-              </small>
+            </div>
+            {fieldError('ingest.plugin') && (
+              <p className="eo-field__error">{fieldError('ingest.plugin')}</p>
             )}
-            {plugin === 'rtsp' && !selectedCamera && (
+
+            {isLive ? (
               <>
-                <Field label="URL RTSP de la cámara">
-                  <input placeholder="rtsp://usuario:clave@192.168.1.50:554/stream1" value={rtspUrl}
-                         onChange={(e) => setRtspUrl(e.target.value)} />
+                <Field label="Cámara" error={fieldError('ingest.config.url')}>
+                  <Select
+                    ariaLabel="Cámara"
+                    value={cameraId}
+                    placeholder={plugin === 'rtsp' ? 'Escribir la dirección a mano' : 'Elegir una cámara'}
+                    options={[
+                      {
+                        value: '',
+                        label: plugin === 'rtsp' ? 'Escribir la dirección a mano' : 'Elegir una cámara',
+                      },
+                      ...pluginCameras.map((c) => ({ value: c.id, label: c.name || c.id })),
+                    ]}
+                    onChange={setCameraId}
+                  />
                 </Field>
-                {rtspUrl.includes('***') && (
-                  <small className="eo-note eo-note--warn">Recompletá las credenciales antes de lanzar.</small>
+                {pluginCameras.length === 0 && (
+                  <p className="eo-note">
+                    No hay cámaras guardadas para esta fuente — se crean (y se prueban) en{' '}
+                    <Link to="/cameras">Cámaras</Link>.
+                  </p>
+                )}
+                {plugin === 'rtsp' && !selectedCamera && (
+                  <>
+                    <Field label="Dirección de la cámara">
+                      <input
+                       
+                        placeholder="rtsp://usuario:clave@192.168.1.50:554/stream1"
+                        value={rtspUrl}
+                        onChange={(e) => setRtspUrl(e.target.value)}
+                      />
+                    </Field>
+                    {rtspUrl.includes('***') && (
+                      <p className="eo-note eo-note--warn">
+                        Los manifiestos guardados ocultan la contraseña. Recompletala antes de lanzar.
+                      </p>
+                    )}
+                  </>
+                )}
+                <Field
+                  label="Descartar los primeros cuadros (opcional)"
+                  hint="La cámara tarda en asentar exposición y enfoque. A 10 cuadros por segundo, 20 son unos 2 s."
+                >
+                  <input
+                   
+                    placeholder="20"
+                    value={warmupFrames}
+                    onChange={(e) => setWarmupFrames(e.target.value)}
+                  />
+                </Field>
+              </>
+            ) : (
+              <>
+                <Field label="Conjunto del catálogo" error={fieldError('ingest.config.dataset')}>
+                  <Select
+                    ariaLabel="Conjunto del catálogo"
+                    value={dataset}
+                    placeholder="Indicar una ruta a mano"
+                    options={[
+                      { value: '', label: 'Indicar una ruta a mano' },
+                      ...datasets.map((d) => ({
+                        value: d.id,
+                        label: d.id,
+                        disabled: !d.available,
+                        disabledReason: d.available ? undefined : 'No montado',
+                      })),
+                    ]}
+                    onChange={setDataset}
+                  />
+                </Field>
+                {!dataset && (
+                  <Field
+                    label="Ruta en el disco"
+                    hint="Una carpeta de imágenes o un archivo de video accesible desde el motor de detección."
+                    error={fieldError('ingest.config.path')}
+                  >
+                    <input
+                     
+                      placeholder="/ruta/a/las/imagenes"
+                      value={path}
+                      onChange={(e) => setPath(e.target.value)}
+                    />
+                  </Field>
                 )}
               </>
             )}
-            <Field
-              label="Descartar frames iniciales (opcional)"
-              hint="La cámara tarda en asentar exposición/enfoque al arrancar — los primeros frames salen mal. ~20 a 10 fps ≈ 2 s."
-            >
-              <input placeholder="ej. 20" value={warmupFrames}
-                     onChange={(e) => setWarmupFrames(e.target.value)} />
+          </Card>
+
+          <Card
+            title={<><NumeroDePaso n={2} ok={Boolean(setId) && activeIds.length > 0} />Qué buscar</>}
+            meta={
+              selectedSet ? (
+                <Badge tone="neutral">{selectedSet.frozen ? 'Congelado' : 'Editable'}</Badge>
+              ) : undefined
+            }
+          >
+            <Field label="Conjunto de prompts" error={fieldError('prompts.set_id')}>
+              <Select
+                ariaLabel="Conjunto de prompts"
+                value={setId}
+                placeholder="Elegir un conjunto"
+                options={sets.map((s) => ({
+                  value: s.id,
+                  label: s.frozen ? `${s.id} — congelado` : s.id,
+                }))}
+                onChange={(nextId) => {
+                  setSetId(nextId)
+                  const found = sets.find((s) => s.id === nextId)
+                  setActiveIds(
+                    found
+                      ? found.classes.filter((c) => c.enabled_by_default !== false).map((c) => c.id)
+                      : [],
+                  )
+                }}
+              />
             </Field>
-          </div>
-        ) : (
-          <div>
-            <Field label="Dataset del catálogo (o dejar vacío y dar un path)" error={fieldError('ingest.config.dataset')}>
-              <select value={dataset} onChange={(e) => setDataset(e.target.value)}>
-                <option value="">— path manual —</option>
-                {datasets.map((d) => (
-                  <option key={d.id} value={d.id} disabled={!d.available}>
-                    {d.id}{!d.available ? ' (no montado)' : ''}
-                  </option>
-                ))}
-              </select>
-            </Field>
-            {!dataset && (
-              <Field label="Ruta manual" hint="/ruta/a/imagenes o /ruta/video.mp4" error={fieldError('ingest.config.path')}>
-                <input placeholder="/ruta/a/imagenes o /ruta/video.mp4" value={path}
-                       onChange={(e) => setPath(e.target.value)} />
-              </Field>
+            {selectedSet ? (
+              <>
+                <div className="eo-clsw">
+                  {selectedSet.classes.map((c) => (
+                    <button
+                      key={c.id}
+                      type="button"
+                      className="eo-cls"
+                      aria-pressed={activeIds.includes(c.id)}
+                      onClick={() => toggleClase(c.id)}
+                    >
+                      {c.id}
+                    </button>
+                  ))}
+                </div>
+                <p className="eo-cap">
+                  Las clases desactivadas no se buscan en las imágenes. Los nombres vienen del
+                  archivo del conjunto.
+                </p>
+              </>
+            ) : (
+              <p className="eo-empty">Elegí un conjunto para ver sus clases.</p>
             )}
-          </div>
-        )}
-      </Card>
-      <Card title="2 · Prompts">
-        <div>
-          <Field label="Conjunto de prompts" error={fieldError('prompts.set_id')}>
-            <select
-              value={setId}
-              onChange={(e) => {
-                const nextId = e.target.value
-                setSetId(nextId)
-                const found = sets.find((s) => s.id === nextId)
-                setActiveIds(found ? found.classes.filter((c) => c.enabled_by_default !== false).map((c) => c.id) : [])
-              }}
+            {fieldError('prompts.active_ids') && (
+              <p className="eo-field__error">{fieldError('prompts.active_ids')}</p>
+            )}
+          </Card>
+
+          <Card title={<><NumeroDePaso n={3} />Identificación</>}>
+            <Field
+              label="Nombre de la corrida (opcional)"
+              hint="Si lo dejás vacío se usa el identificador generado automáticamente."
             >
-              <option value="">— elegir —</option>
-              {sets.map((s) => (
-                <option key={s.id} value={s.id}>{s.id}{s.frozen ? ' ❄' : ''}</option>
-              ))}
-            </select>
-          </Field>
-          {selectedSet && (
-            <div style={{ display: 'flex', gap: 'var(--space-3)', flexWrap: 'wrap' }}>
-              {selectedSet.classes.map((c) => (
-                <label key={c.id}>
+              <input
+               
+                placeholder="prueba OAK-D laboratorio"
+                value={runName}
+                onChange={(e) => setRunName(e.target.value)}
+              />
+            </Field>
+
+            {manifestModelRef && (
+              <>
+                <p className="eo-note">
+                  El manifiesto declara el modelo <b className="eo-mono">{manifestModelRef}</b>.
+                </p>
+                {modelError && (
+                  <label className="eo-note eo-note--error">
+                    <input
+                      type="checkbox"
+                      checked={confirmModel}
+                      onChange={(e) => setConfirmModel(e.target.checked)}
+                    />{' '}
+                    Usar el modelo de la instancia activa de todas formas
+                  </label>
+                )}
+                {fieldError('model') && (
+                  <p className="eo-field__error">{fieldError('model')}</p>
+                )}
+              </>
+            )}
+
+            <details className="eo-adv">
+              <summary>Opciones avanzadas</summary>
+              <div className="eo-adv__body">
+                <p className="eo-note">
+                  Los umbrales son fijos por instancia: se ven en Catálogos.
+                </p>
+                <Field label="Partir de un manifiesto">
+                  <Select
+                    ariaLabel="Partir de un manifiesto"
+                    value={params.get('from') ?? ''}
+                    placeholder="Desde cero"
+                    options={[
+                      { value: '', label: 'Desde cero' },
+                      ...experiments.map((x) => ({
+                        value: x.id,
+                        label: x.group ? `[${x.group}] ${x.id}` : x.id,
+                      })),
+                    ]}
+                    onChange={(v) =>
+                      navigate(v ? `/compose?from=${encodeURIComponent(v)}` : '/compose')
+                    }
+                  />
+                </Field>
+                <Field label="Procesar uno de cada N cuadros" error={fieldError('run.stride')}>
+                  <input
+                   
+                    placeholder="1"
+                    value={stride}
+                    onChange={(e) => setStride(e.target.value)}
+                  />
+                </Field>
+                <Field label="Máximo de unidades a procesar" error={fieldError('run.max_units')}>
+                  <input
+                   
+                    placeholder="Sin límite"
+                    value={maxUnits}
+                    onChange={(e) => setMaxUnits(e.target.value)}
+                  />
+                </Field>
+                <label>
                   <input
                     type="checkbox"
-                    checked={activeIds.includes(c.id)}
-                    onChange={(e) =>
-                      setActiveIds((prev) =>
-                        e.target.checked ? [...prev, c.id] : prev.filter((i) => i !== c.id),
-                      )
-                    }
+                    checked={annotated}
+                    onChange={(e) => setAnnotated(e.target.checked)}
                   />{' '}
-                  {c.id}
+                  Guardar el video con las detecciones dibujadas
                 </label>
-              ))}
+                <Field label="Guardar esta configuración como manifiesto">
+                  <span className="eo-inputrow">
+                    <input
+                     
+                      placeholder="perimetro_nocturno"
+                      value={saveName}
+                      onChange={(e) => setSaveName(e.target.value)}
+                    />
+                    <Button onClick={save} disabled={!saveName}>
+                      Guardar
+                    </Button>
+                  </span>
+                </Field>
+                {saveMsg && <p className="eo-note">{saveMsg}</p>}
+              </div>
+            </details>
+          </Card>
+        </div>
+
+        <aside className="eo-rail">
+          <Card title="Antes de lanzar" flush>
+            {pasos.map((p) => (
+              <div key={p.label} className={p.ok ? 'eo-chk' : 'eo-chk eo-chk--no'}>
+                <span className="eo-chk__mark">{p.ok ? <IconCheck /> : <IconCircle />}</span>
+                <span className="eo-chk__text">
+                  <b>{p.label}</b>
+                  <span>{p.sub}</span>
+                </span>
+              </div>
+            ))}
+            <div className="eo-launch">
+              <Button variant="primary" onClick={submit} disabled={missingReason !== null}>
+                <IconPlay />
+                Lanzar corrida
+              </Button>
+              <span className="eo-launch__why">
+                {missingReason
+                  ? `Falta: ${missingReason}`
+                  : 'Todo listo. La corrida arranca en cuanto confirmes.'}
+              </span>
             </div>
+          </Card>
+
+          {generalError && <ErrorBanner>{generalError}</ErrorBanner>}
+
+          {busyRunId && (
+            <p className="eo-note eo-note--warn">
+              Ya hay una corrida activa: <Link to={`/runs/${busyRunId}`}>{busyRunId}</Link>
+            </p>
           )}
-          {fieldError('prompts.active_ids') && (
-            <small className="eo-field__error">{fieldError('prompts.active_ids')}</small>
+          {previewBusy && (
+            <p className="eo-note eo-note--warn">
+              Hay una prueba de cámara activa. Cerrala en <Link to="/cameras">Cámaras</Link> para
+              lanzar la corrida.
+            </p>
           )}
-        </div>
-      </Card>
-      <Card title="3 · Lanzar">
-        <Field label="Nombre de la corrida (opcional)" hint="Si lo dejás vacío se usa el id autogenerado.">
-          <input placeholder="ej. prueba OAK-D laboratorio" value={runName}
-                 onChange={(e) => setRunName(e.target.value)} />
-        </Field>
-        {manifestModelRef && (
-          <div>
-            <small className="eo-note">El manifiesto declara modelo <b>{manifestModelRef}</b>.</small>
-            {modelError && (
-              <label className="eo-note eo-note--error">
-                <input type="checkbox" checked={confirmModel}
-                       onChange={(e) => setConfirmModel(e.target.checked)} />{' '}
-                Usar el modelo del target de todas formas
-              </label>
-            )}
-            {fieldError('model') && <small className="eo-field__error">{fieldError('model')}</small>}
-          </div>
-        )}
-        {generalError && <ErrorBanner>{generalError}</ErrorBanner>}
-        {busyRunId && (
-          <p className="eo-note eo-note--warn">
-            Ya hay un run activo: <a href={`#/runs/${busyRunId}`}>{busyRunId}</a>
+
+          <PlatformStatus status={preflight} />
+
+          <p className="eo-note eo-note--icon">
+            <IconInfo />
+            <span>
+              Las fuentes en vivo generan corridas que no terminan solas: se detienen a mano desde
+              el detalle.
+            </span>
           </p>
-        )}
-        {previewBusy && (
-          <p className="eo-note eo-note--warn">
-            Hay una prueba de cámara activa. Cerrala en <a href="#/cameras">Cámaras</a> para lanzar el run.
-          </p>
-        )}
-        {missingReason && (
-          <p className="eo-note eo-note--warn">Para lanzar: {missingReason}.</p>
-        )}
-        <div style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'center' }}>
-          <button onClick={submit} disabled={missingReason !== null}>Lanzar</button>
-        </div>
-        <details>
-          <summary>Opciones avanzadas</summary>
-          <p className="eo-note">Overrides (thresholds: read-only del modelo, ver Catálogos)</p>
-          <div>
-            <Field label="Partir de un manifiesto">
-              <select
-                value={params.get('from') ?? ''}
-                onChange={(e) => navigate(`/compose?from=${encodeURIComponent(e.target.value)}`)}
-              >
-                <option value="">— desde cero —</option>
-                {experiments.map((x) => (
-                  <option key={x.id} value={x.id}>{x.group ? `[${x.group}] ` : ''}{x.id}</option>
-                ))}
-              </select>
-            </Field>
-          </div>
-          <div>
-            <Field label="stride (opcional)" error={fieldError('run.stride')}>
-              <input value={stride} onChange={(e) => setStride(e.target.value)} />
-            </Field>
-          </div>
-          <div>
-            <Field label="max_units (opcional)" error={fieldError('run.max_units')}>
-              <input value={maxUnits} onChange={(e) => setMaxUnits(e.target.value)} />
-            </Field>
-          </div>
-          <label>
-            <input type="checkbox" checked={annotated} onChange={(e) => setAnnotated(e.target.checked)} />{' '}
-            save_annotated_video
-          </label>
-          <div style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'center' }}>
-            <input placeholder="nombre_manifiesto" value={saveName}
-                   onChange={(e) => setSaveName(e.target.value)} />
-            <button onClick={save} disabled={!saveName}>Guardar como manifiesto</button>
-          </div>
-          {saveMsg && <p><small>{saveMsg}</small></p>}
-        </details>
-      </Card>
-    </div>
+        </aside>
+      </div>
+    </>
   )
 }

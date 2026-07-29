@@ -1,5 +1,5 @@
 import type { BadgeTone, TraceFrame } from './types'
-import { SERIES_COLORS } from './components/charts/GroupedBars'
+import { SERIES_COLORS } from './palette'
 import { CONTROL_DROP_REASONS } from './labels'
 
 export function controlTone(control: string): BadgeTone {

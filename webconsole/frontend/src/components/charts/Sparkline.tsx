@@ -1,17 +1,5 @@
 import { areaPaths } from './layout'
-
-export type ChartTone = 'live' | 'ok' | 'warn' | 'alert' | 'error' | 'accent'
-
-/** Mismo vocabulario de tono que BadgeTone, más `accent`. `alert` es el naranja
- *  (--sr); no existe un tono llamado "serious". */
-export const TONE_VAR: Record<ChartTone, string> = {
-  live: '--live',
-  ok: '--ok',
-  warn: '--wn',
-  alert: '--sr',
-  error: '--er',
-  accent: '--ac',
-}
+import { toneVar, type ChartTone } from '../../palette'
 
 /**
  * Serie de una sola variable dentro de un tile KPI: sin ejes, sin leyenda y sin
@@ -30,7 +18,7 @@ export default function Sparkline({
   height?: number
 }) {
   const { line, area } = areaPaths(values, width, height)
-  const color = `var(${TONE_VAR[tone]})`
+  const color = toneVar(tone)
   if (!line) {
     return <span className="eo-spark eo-spark--empty" style={{ width, height }} aria-hidden="true" />
   }

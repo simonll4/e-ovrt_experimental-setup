@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import logging
+import re
+from datetime import UTC, datetime
 
 from fastapi import APIRouter, HTTPException, Query, Request
 from fastapi.responses import JSONResponse, Response, StreamingResponse
@@ -16,7 +18,7 @@ from eovrt_webconsole.routers.compose import validate_composition
 from eovrt_webconsole.run_backend import (
     RunActive, RunBusy, RunNotFinished, ServiceRejected, ServiceUnavailable, UnknownRun,
 )
-from eovrt_webconsole.trace import compose_trace
+from eovrt_webconsole.trace import build_trace_index, compose_trace, filtrar_frames
 from eovrt_webconsole.translation import Composition, composition_to_run_request
 
 logger = logging.getLogger(__name__)
@@ -26,10 +28,38 @@ router = APIRouter(prefix="/api/runs")
 _FORWARD_HEADERS = {"content-type", "content-length", "content-range", "accept-ranges"}
 
 
+_RUN_ID_FECHA = re.compile(r"^run_(\d{8})_(\d{6})")
+
+
+def _created_at(info: dict) -> str | None:
+    """Cuándo se creó la corrida, en ISO-8601 UTC.
+
+    `started_at` solo viene en las filas hidratadas, así que el listado tenía
+    corridas con fecha y corridas sin fecha, y ordenarlo obligaba al cliente a
+    reconstruirla parseando el `run_id`. El identificador es determinístico
+    (`run_AAAAMMDD_HHMMSS_...`), así que la reconstrucción se hace acá una vez y
+    el campo viaja siempre.
+    """
+    started_at = info.get("started_at") or (info.get("summary") or {}).get("started_at")
+    if started_at:
+        return started_at
+    match = _RUN_ID_FECHA.match(info.get("run_id") or "")
+    if not match:
+        return None
+    fecha, hora = match.groups()
+    try:
+        return datetime.strptime(
+            f"{fecha}{hora}", "%Y%m%d%H%M%S"
+        ).replace(tzinfo=UTC).isoformat()
+    except ValueError:
+        return None
+
+
 def _row(info: dict) -> dict:
     summary = info.get("summary") or {}
     return {
         "run_id": info.get("run_id"),
+        "created_at": _created_at(info),
         "name": info.get("name") or summary.get("name"),
         "status": info.get("status", "unknown"),
         "model": info.get("model") or summary.get("model_name"),
@@ -79,8 +109,70 @@ async def launch(comp: Composition, request: Request):
     return {"run_id": run_id}
 
 
+# Campos por los que se puede ordenar. `created_at`, `name` y `status` salen del
+# listado base; el resto necesita hidratar la fila, así que ordenar por ellos
+# cuesta una lectura por corrida (acotada por `hydration_limit`).
+_ORDENABLES = {
+    "created_at", "name", "status", "model",
+    "fps_effective", "total_detections", "duration_seconds",
+}
+
+
+def _coincide(fila: dict, q: str) -> bool:
+    texto = f"{fila.get('run_id') or ''} {fila.get('name') or ''}".lower()
+    return q in texto
+
+
+def _clave_de_orden(fila: dict, campo: str):
+    """Clave `(no_tiene_valor, valor)`, con el texto normalizado a minúsculas.
+
+    El primer elemento separa las filas con valor de las que no lo tienen; quién
+    va al final lo decide `_ordenar()`, no esta función.
+    """
+    valor = fila.get(campo)
+    if valor is None:
+        return (1, "")
+    if isinstance(valor, str):
+        return (0, valor.lower())
+    return (0, valor)
+
+
+def _ordenar(filas: list[dict], campo: str, direccion: str) -> None:
+    """Ordena en el lugar dejando los nulos al final en las DOS direcciones.
+
+    Son dos pasadas y no una porque `reverse=True` invierte la clave entera,
+    incluido el indicador de "tiene valor": ordenando por una métrica de forma
+    descendente, las corridas fallidas —que tienen casi todas las métricas en
+    null— encabezaban el listado, que es exactamente lo contrario de lo que
+    busca quien ordena por esa métrica. Como `list.sort` es estable, la segunda
+    pasada empuja los nulos al final sin alterar el orden de la primera.
+    """
+    filas.sort(key=lambda r: _clave_de_orden(r, campo), reverse=(direccion == "desc"))
+    filas.sort(key=lambda r: _clave_de_orden(r, campo)[0])
+
+
 @router.get("")
-async def list_runs(request: Request) -> list[dict]:
+async def list_runs(
+    request: Request,
+    response: Response,
+    estado: str | None = Query(default=None, description="running | succeeded | failed | stopped"),
+    q: str | None = Query(default=None, description="Busca en el identificador y el nombre"),
+    orden: str = Query(default="created_at"),
+    direccion: str = Query(default="desc", pattern="^(asc|desc)$"),
+    pagina: int = Query(default=1, ge=1),
+    page_size: int = Query(default=25, ge=1, le=200),
+) -> list[dict]:
+    """Listado de corridas, filtrado, ordenado y paginado del lado del servidor.
+
+    La respuesta sigue siendo una lista (el contrato de antes) y el total va en
+    la cabecera `X-Total-Count`: envolverlo en un objeto habría roto a todos los
+    consumidores por un dato que la paginación necesita al margen.
+
+    El filtro se aplica ANTES de hidratar, así que buscar entre cien corridas ya
+    no cuesta cien lecturas al motor de detección: solo se hidrata la página que
+    se va a devolver (o el conjunto filtrado, si el orden pedido depende de un
+    campo que solo existe hidratado).
+    """
     settings = request.app.state.settings
     backend = request.app.state.backend
     try:
@@ -88,33 +180,164 @@ async def list_runs(request: Request) -> list[dict]:
     except ServiceUnavailable as exc:
         logger.warning("list_runs: servicio inaccesible: %s", exc)
         raise HTTPException(status_code=502, detail=str(exc)) from exc
-    rows: list[dict] = []
-    for item in base[: settings.hydration_limit]:
+
+    if estado:
+        base = [r for r in base if r.get("status") == estado]
+    if q:
+        aguja = q.strip().lower()
+        base = [r for r in base if _coincide(r, aguja)]
+
+    total = len(base)
+    response.headers["X-Total-Count"] = str(total)
+
+    campo = orden if orden in _ORDENABLES else "created_at"
+    inicio = (pagina - 1) * page_size
+
+    if campo in ("created_at", "name", "status"):
+        # Ordenable sin hidratar: se ordena todo y se hidrata solo la página.
+        for fila in base:
+            fila.setdefault("created_at", _created_at(fila))
+        _ordenar(base, campo, direccion)
+        seleccion = base[inicio : inicio + page_size]
+        return [await _hidratar(backend, item) for item in seleccion]
+
+    # Orden por una métrica: hay que hidratar antes de poder comparar. Se acota
+    # con `hydration_limit` para no disparar una lectura por corrida sobre un
+    # historial largo; las que quedan afuera van al final, sin métricas.
+    hidratadas = [await _hidratar(backend, item) for item in base[: settings.hydration_limit]]
+    resto = [_fila_flaca(item) for item in base[settings.hydration_limit :]]
+    _ordenar(hidratadas, campo, direccion)
+    return (hidratadas + resto)[inicio : inicio + page_size]
+
+
+def _fila_flaca(item: dict) -> dict:
+    """Fila sin hidratar: lo que el listado base ya sabe, sin métricas."""
+    return {
+        "run_id": item["run_id"],
+        "created_at": _created_at(item),
+        "name": item.get("name"),
+        "status": item["status"],
+        "bench_split": item.get("bench_split"),
+        "evaluated": item.get("evaluated"),
+        "live": item.get("live", False),
+    }
+
+
+async def _hidratar(backend, item: dict) -> dict:
+    try:
+        return _row(await backend.status(item["run_id"]))
+    except (UnknownRun, ServiceUnavailable):
+        # La corrida desapareció entre el listado y la lectura, o el servicio se
+        # cayó a mitad: se devuelve lo que ya se sabía en vez de perder la fila.
+        return _fila_flaca(item)
+
+
+
+
+# Qué hace "comparable" a dos corridas. Comparar contra la corrida anterior a
+# secas no sirve: si cambió el modelo o el conjunto de prompts, la variación no
+# mide una mejora, mide que se cambió el experimento.
+_EJES_DE_COMPARACION = ("model", "prompt_set_id", "source_type")
+
+# Métricas cuya variación se muestra en los indicadores. `mejor` dice hacia dónde
+# es bueno moverse, para que la interfaz pueda pintar el delta sin repetir esta
+# tabla: más cuadros por segundo es mejor, más latencia es peor.
+_METRICAS_COMPARABLES = {
+    "fps_effective": "mas",
+    "total_detections": None,   # ni bueno ni malo: depende de la escena
+    "duration_seconds": None,
+    "p50_latency_ms": "menos",
+    "p95_latency_ms": "menos",
+    "gpu_memory_peak_mb": "menos",
+}
+
+
+def _metricas_de(info: dict) -> dict[str, float | None]:
+    summary = info.get("summary") or {}
+    return {
+        clave: (summary.get(clave) if isinstance(summary.get(clave), (int, float)) else None)
+        for clave in _METRICAS_COMPARABLES
+    }
+
+
+@router.get("/{run_id}/comparison")
+async def run_comparison(run_id: str, request: Request) -> dict:
+    """La corrida anterior comparable y la variación de cada indicador.
+
+    Los indicadores del detalle muestran "+0,3 vs la corrida anterior", y para
+    eso hace falta saber cuál es esa corrida. "La anterior" a secas no sirve: si
+    entre las dos cambió el modelo o el conjunto de prompts, la variación no
+    mide una mejora sino un cambio de experimento. Se compara contra la última
+    corrida terminada que coincide en modelo, conjunto de prompts y tipo de
+    fuente.
+
+    Sin candidata devuelve `previous_run_id: null` y sin deltas, que la interfaz
+    muestra como indicadores sin variación — no como variación cero.
+    """
+    backend = request.app.state.backend
+    try:
+        actual = await backend.status(run_id)
+    except UnknownRun as exc:
+        raise HTTPException(status_code=404, detail=f"Run desconocido: {run_id}") from exc
+    except ServiceUnavailable as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+    fila_actual = _row(actual)
+    creada_actual = fila_actual.get("created_at") or ""
+
+    try:
+        base = await backend.list_runs()
+    except ServiceUnavailable as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+    candidatas = [
+        item for item in base
+        if item.get("run_id") != run_id and item.get("status") == "succeeded"
+    ]
+    # De la más nueva a la más vieja: la primera que coincida en los tres ejes y
+    # sea anterior a la actual es la que se busca.
+    candidatas.sort(key=lambda item: _created_at(item) or "", reverse=True)
+
+    previa = None
+    for item in candidatas:
+        if (_created_at(item) or "") >= creada_actual:
+            continue
         try:
-            rows.append(_row(await backend.status(item["run_id"])))
+            detalle = await backend.status(item["run_id"])
         except (UnknownRun, ServiceUnavailable):
-            rows.append(
-                {
-                    "run_id": item["run_id"],
-                    "name": item.get("name"),
-                    "status": item["status"],
-                    "bench_split": item.get("bench_split"),
-                    "evaluated": item.get("evaluated"),
-                    "live": item.get("live", False),
-                }
-            )
-    rows.extend(
-        {
-            "run_id": item["run_id"],
-            "name": item.get("name"),
-            "status": item["status"],
-            "bench_split": item.get("bench_split"),
-            "evaluated": item.get("evaluated"),
-            "live": item.get("live", False),
+            continue
+        fila = _row(detalle)
+        if all(fila.get(eje) == fila_actual.get(eje) for eje in _EJES_DE_COMPARACION):
+            previa = detalle
+            break
+
+    if previa is None:
+        return {
+            "run_id": run_id,
+            "previous_run_id": None,
+            "matched_on": list(_EJES_DE_COMPARACION),
+            "deltas": {},
         }
-        for item in base[settings.hydration_limit :]
-    )
-    return rows
+
+    actuales, anteriores = _metricas_de(actual), _metricas_de(previa)
+    deltas = {}
+    for clave, mejor in _METRICAS_COMPARABLES.items():
+        ahora, antes = actuales[clave], anteriores[clave]
+        if ahora is None or antes is None:
+            continue
+        deltas[clave] = {
+            "current": ahora,
+            "previous": antes,
+            "delta": round(ahora - antes, 4),
+            "better": mejor,
+        }
+
+    return {
+        "run_id": run_id,
+        "previous_run_id": previa.get("run_id"),
+        "matched_on": list(_EJES_DE_COMPARACION),
+        "deltas": deltas,
+    }
 
 
 @router.get("/{run_id}")
@@ -290,14 +513,15 @@ async def _fetch_all(fetch, run_id: str) -> list[dict]:
     return items
 
 
-@router.get("/{run_id}/trace")
-async def trace(
-    run_id: str,
-    request: Request,
-    page: int = Query(1, ge=1),
-    page_size: int = Query(100, ge=1, le=1000),
-    control_run_id: str | None = Query(default=None),
-) -> dict:
+async def _gather_trace(
+    run_id: str, request: Request, control_run_id: str | None
+) -> tuple[dict, str | None]:
+    """Junta las cuatro fuentes y compone la traza completa.
+
+    Lo comparten `/trace` (que después pagina) y `/trace/index` (que proyecta el
+    índice de la línea de tiempo): las dos necesitan exactamente la misma
+    lectura, y tenerla duplicada garantizaba que se desincronizaran.
+    """
     backend = request.app.state.backend
     control = request.app.state.control_backend
     try:
@@ -351,7 +575,24 @@ async def trace(
         received_unit_ids=received, control_run_id=control_run_id,
         topology=topology,
     )
-    frames = composed.pop("frames")
+    return composed, control_error
+
+
+@router.get("/{run_id}/trace")
+async def trace(
+    run_id: str,
+    request: Request,
+    page: int = Query(1, ge=1),
+    page_size: int = Query(100, ge=1, le=1000),
+    control_run_id: str | None = Query(default=None),
+    solo: str | None = Query(
+        default=None,
+        pattern="^(actividad|alertas)$",
+        description="Filtra los cuadros antes de paginar",
+    ),
+) -> dict:
+    composed, control_error = await _gather_trace(run_id, request, control_run_id)
+    frames = filtrar_frames(composed.pop("frames"), solo)
     start = (page - 1) * page_size
     return {
         "media_run_id": run_id,
@@ -359,9 +600,44 @@ async def trace(
         "control_error": control_error,
         "page": page,
         "page_size": page_size,
+        # Total del conjunto FILTRADO: es lo que la lista tiene que paginar.
+        # `totals.frames` sigue siendo el de la corrida entera.
         "total": len(frames),
         "frames": frames[start : start + page_size],
     }
+
+
+@router.get("/{run_id}/trace/index")
+async def trace_index(
+    run_id: str,
+    request: Request,
+    control_run_id: str | None = Query(default=None),
+) -> dict:
+    """Actividad de la corrida completa, en una sola respuesta.
+
+    Sin esto la línea de tiempo tenía que paginar `/trace` hasta 40 veces para
+    poder dibujarse.
+    """
+    composed, control_error = await _gather_trace(run_id, request, control_run_id)
+    return {
+        "media_run_id": run_id,
+        **build_trace_index(composed),
+        "control_error": control_error,
+    }
+
+
+# Declarada ANTES de la ruta con `{artifact_path:path}`: Starlette matchea por
+# orden de registro, y `:path` acepta el segmento vacío.
+@router.get("/{run_id}/artifacts")
+async def artifacts_index(run_id: str, request: Request) -> dict:
+    backend = request.app.state.backend
+    try:
+        return await backend.list_artifacts(run_id)
+    except UnknownRun as exc:
+        raise HTTPException(status_code=404, detail=f"Run desconocido: {run_id}") from exc
+    except ServiceUnavailable as exc:
+        logger.warning("artifacts_index(%s): servicio inaccesible: %s", run_id, exc)
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
 
 
 @router.get("/{run_id}/artifacts/{artifact_path:path}")

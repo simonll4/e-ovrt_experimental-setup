@@ -22,7 +22,7 @@ def _clips_por_master(videos_dir: Path) -> dict[str, list[str]]:
         return por_master
     for path in sorted(videos_dir.glob("*.clip.yaml")):
         try:
-            data = yaml.safe_load(path.read_text())
+            data = yaml.safe_load(path.read_text(encoding="utf-8"))
         except yaml.YAMLError:
             continue
         if not isinstance(data, dict):
@@ -89,7 +89,7 @@ def list_clips(videos_dir: Path) -> list[dict]:
     clips = []
     for info_path in sorted(clips_dir.glob("*.info.json")):
         try:
-            info = json.loads(info_path.read_text())
+            info = json.loads(info_path.read_text(encoding="utf-8"))
         except (json.JSONDecodeError, OSError):
             continue
         clip_id = info.get("clip_id", info_path.name.removesuffix(".info.json"))
@@ -99,7 +99,7 @@ def list_clips(videos_dir: Path) -> list[dict]:
         has_yaml = yaml_path.is_file()
         if has_yaml:
             try:
-                meta = yaml.safe_load(yaml_path.read_text()) or {}
+                meta = yaml.safe_load(yaml_path.read_text(encoding="utf-8")) or {}
             except yaml.YAMLError:
                 meta = {}
             master = meta.get("master")

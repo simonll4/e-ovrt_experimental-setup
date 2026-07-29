@@ -47,7 +47,7 @@ def run_prepare_clip(
         raise TrimFailed(salida or f"prepare_clip.sh devolvió {completed.returncode}")
     info_path = clips_dir / f"{clip_id}.info.json"
     try:
-        return json.loads(info_path.read_text())
+        return json.loads(info_path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
         raise TrimFailed(
             f"prepare_clip.sh terminó bien pero no dejó {info_path} legible: {exc}"

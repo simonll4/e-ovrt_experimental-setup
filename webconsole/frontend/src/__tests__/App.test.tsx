@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, afterEach } from 'vitest'
-import { cleanup, render, screen, waitFor } from '@testing-library/react'
+import { cleanup, render, screen, waitFor, within } from '../test-utils'
 import { MemoryRouter } from 'react-router-dom'
 import App from '../App'
 import * as api from '../api'
@@ -23,9 +23,14 @@ vi.mock('../components/DeriveExperimentForm', () => ({
 afterEach(() => cleanup())
 
 describe('App', () => {
+  // La marca aparece dos veces en el DOM: en la barra lateral y en la superior.
+  // No se pisan porque cada una vive en un tamaño de pantalla —el CSS esconde la
+  // superior por encima de 760 px—, pero jsdom no aplica media queries, así que
+  // la consulta se acota a la lateral.
   it('renderiza el título de la consola', () => {
     render(<MemoryRouter><App /></MemoryRouter>)
-    expect(screen.getByText('E-OVRT')).toBeTruthy()
+    const lateral = screen.getByRole('complementary', { name: 'Navegación principal' })
+    expect(within(lateral).getByText('E-OVRT')).toBeTruthy()
   })
 
   it('/experiments/new monta ExperimentsPage, NO ExperimentDetailPage buscando un experimento "new" (trampa de orden de rutas)', async () => {

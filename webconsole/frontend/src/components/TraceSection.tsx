@@ -1,77 +1,74 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import FrameInspector from './FrameInspector'
 import { Badge, Button, Card, EmptyState } from './ui'
-import { controlTone, frameHasActivity } from '../traceview'
-import type { BadgeTone, TraceFrame, TraceTotals } from '../types'
+import { controlTone } from '../traceview'
+import { useTracePage, type TraceFilter } from '../api/queries/runs'
+import { toneVar } from '../palette'
+import type { TraceTotals } from '../types'
 
-/** Cuántos cuadros se renderizan a la vez. Una traza de 1468 cuadros no puede
- *  volcarse entera: ese scroll infinito es justo lo que este panel reemplaza. */
-const WINDOW = 200
-
-const DOT_VAR: Record<BadgeTone, string> = {
-  ok: '--ok',
-  warn: '--wn',
-  error: '--er',
-  live: '--live',
-  alert: '--sr',
-  neutral: '--nt',
-}
+/** Cuántos cuadros trae cada página. Coincide con lo que se renderiza: una
+ *  traza de miles de cuadros no puede volcarse entera, y ahora tampoco se
+ *  descarga entera. */
+const PAGE_SIZE = 200
 
 /**
  * Panel de traza en maestro-detalle: la lista de cuadros a la izquierda, el
  * cuadro elegido completo a la derecha.
  *
- * Recibe los cuadros por props en vez de pedirlos: la línea de tiempo y esta
- * lista comparten el mismo índice, que trae `useFullTrace` una sola vez en la
- * página. Pedirlo dos veces sería traer miles de cuadros dos veces.
+ * Trae su propia página en vez de recibir la traza entera por props. Antes la
+ * página la tenía toda en memoria (`useFullTrace` paginaba hasta 40 veces) y
+ * recortaba de a 200 en el cliente; con esto se descarga solo lo que se muestra,
+ * y el filtro viaja al servidor para que "solo alertas" siga significando las de
+ * la corrida y no las de la página cargada.
  */
 export default function TraceSection({
   runId,
-  frames,
   totals,
-  selected,
-  onSelect,
+  enabled = true,
+  jumpTo = null,
 }: {
   runId: string
-  frames: TraceFrame[]
   totals: TraceTotals | null
-  /** Posición seleccionada dentro de los cuadros visibles. Controlada desde la
-   *  página para que la línea de tiempo y la lista se muevan juntas. */
-  selected?: number | null
-  onSelect?: (position: number) => void
+  enabled?: boolean
+  /** Posición global pedida desde la línea de tiempo. Al llegar una nueva, la
+   *  lista salta a la página que la contiene y suelta los filtros: en una vista
+   *  filtrada no se puede garantizar que ese cuadro esté. */
+  jumpTo?: number | null
 }) {
-  const [onlyActivity, setOnlyActivity] = useState(false)
-  const [onlyAlerts, setOnlyAlerts] = useState(false)
-  const [innerPos, setInnerPos] = useState(0)
-  const [anchor, setAnchor] = useState(0)
+  const [filtro, setFiltro] = useState<TraceFilter>(null)
+  const [pagina, setPagina] = useState(1)
+  const [pos, setPos] = useState(0)
 
-  const visible = useMemo(
-    () =>
-      frames.filter(
-        (f) => (!onlyActivity || frameHasActivity(f)) && (!onlyAlerts || (f.alert?.length ?? 0) > 0),
-      ),
-    [frames, onlyActivity, onlyAlerts],
-  )
+  useEffect(() => {
+    if (jumpTo == null) return
+    setFiltro(null)
+    setPagina(Math.floor(jumpTo / PAGE_SIZE) + 1)
+    setPos(jumpTo % PAGE_SIZE)
+  }, [jumpTo])
 
-  const clamp = (p: number) => Math.min(Math.max(0, p), Math.max(0, visible.length - 1))
-  const pos = clamp(selected ?? innerPos)
+  const consulta = useTracePage(runId, pagina, PAGE_SIZE, filtro, enabled)
+  const frames = consulta.data?.frames ?? []
+  const total = consulta.data?.total ?? 0
+  const paginas = Math.max(1, Math.ceil(total / PAGE_SIZE))
 
-  const setPos = (p: number) => {
-    const c = clamp(p)
-    setInnerPos(c)
-    onSelect?.(c)
-  }
-
-  const from = Math.max(0, Math.min(anchor, Math.max(0, visible.length - WINDOW)))
-  const slice = visible.slice(from, from + WINDOW)
-
-  const applyFilter = (fn: () => void) => {
-    fn()
-    setAnchor(0)
+  const cambiarFiltro = (siguiente: TraceFilter) => {
+    setFiltro(siguiente)
+    setPagina(1)
     setPos(0)
   }
 
-  if (!frames.length) {
+  const irA = (p: number) => {
+    setPagina(Math.min(Math.max(1, p), paginas))
+    setPos(0)
+  }
+
+  const elegido = frames[Math.min(pos, Math.max(0, frames.length - 1))] ?? null
+  const desde = (pagina - 1) * PAGE_SIZE
+
+  if (consulta.isPending && !consulta.data) {
+    return <p className="eo-cap">Leyendo la traza de la corrida…</p>
+  }
+  if (!total && !filtro) {
     return (
       <EmptyState hint="Sin traza no se puede inspeccionar cuadro a cuadro.">
         Esta corrida no tiene traza
@@ -86,76 +83,87 @@ export default function TraceSection({
           <label>
             <input
               type="checkbox"
-              checked={onlyActivity}
-              onChange={(e) => applyFilter(() => setOnlyActivity(e.target.checked))}
+              checked={filtro === 'actividad'}
+              onChange={(e) => cambiarFiltro(e.target.checked ? 'actividad' : null)}
             />{' '}
             Solo con actividad
           </label>
           <label>
             <input
               type="checkbox"
-              checked={onlyAlerts}
-              onChange={(e) => applyFilter(() => setOnlyAlerts(e.target.checked))}
+              checked={filtro === 'alertas'}
+              onChange={(e) => cambiarFiltro(e.target.checked ? 'alertas' : null)}
             />{' '}
             Solo alertas
           </label>
           <span className="eo-mono">
-            {visible.length} de {totals?.frames ?? frames.length}
+            {total} de {totals?.frames ?? total}
           </span>
         </div>
 
-        {from > 0 && (
+        {pagina > 1 && (
           <div className="eo-trace__more">
-            <Button onClick={() => setAnchor(Math.max(0, from - WINDOW))}>Cuadros anteriores</Button>
+            <Button onClick={() => irA(pagina - 1)}>Cuadros anteriores</Button>
           </div>
         )}
 
         <ul className="eo-trace__list" role="listbox" aria-label="Cuadros de la traza">
-          {slice.map((f, i) => {
-            const idx = from + i
-            return (
-              <li
-                key={f.unit_id ?? idx}
-                role="option"
-                aria-selected={idx === pos}
-                className={idx === pos ? 'is-selected' : undefined}
-                onClick={() => setPos(idx)}
-              >
-                <span className="eo-trace__idx eo-mono">{f.frame_index ?? idx}</span>
-                <span className="eo-trace__unit eo-mono">{f.unit_id}</span>
-                <span className="eo-trace__dets">{f.detections?.length || '—'}</span>
-                {(f.alert?.length ?? 0) > 0 ? (
-                  <Badge tone="alert">Alerta</Badge>
-                ) : (
-                  <i
-                    className="eo-trace__dot"
-                    title={f.control}
-                    style={{ background: `var(${DOT_VAR[controlTone(f.control)]})` }}
-                  />
-                )}
-              </li>
-            )
-          })}
+          {frames.map((f, i) => (
+            <li
+              key={f.unit_id ?? desde + i}
+              role="option"
+              aria-selected={i === pos}
+              className={i === pos ? 'is-selected' : undefined}
+              onClick={() => setPos(i)}
+            >
+              <span className="eo-trace__idx eo-mono">{f.frame_index ?? desde + i}</span>
+              <span className="eo-trace__unit eo-mono">{f.unit_id}</span>
+              <span className="eo-trace__dets">{f.detections?.length || '—'}</span>
+              {(f.alert?.length ?? 0) > 0 ? (
+                <Badge tone="alert">Alerta</Badge>
+              ) : (
+                <i
+                  className="eo-trace__dot"
+                  // `control_label` lo resuelve el backend; `control` es el
+                  // código crudo y solo se usa si viene una traza vieja.
+                  title={f.control_label ?? f.control}
+                  style={{ background: toneVar(controlTone(f.control)) }}
+                />
+              )}
+            </li>
+          ))}
         </ul>
 
-        {from + WINDOW < visible.length && (
+        {pagina < paginas && (
           <div className="eo-trace__more">
-            <Button onClick={() => setAnchor(from + WINDOW)}>Cuadros siguientes</Button>
+            <Button onClick={() => irA(pagina + 1)}>Cuadros siguientes</Button>
           </div>
         )}
 
-        {visible.length === 0 && (
+        {total === 0 && (
           <EmptyState hint="Sacá alguno de los dos filtros.">Ningún cuadro pasa el filtro</EmptyState>
         )}
       </Card>
 
       <div className="eo-trace__detail">
         <FrameInspector
-          frame={visible[pos] ?? null}
+          frame={elegido}
           runId={runId}
-          position={pos}
-          total={visible.length}
-          onStep={(d) => setPos(pos + d)}
+          position={desde + pos}
+          total={total}
+          onStep={(d) => {
+            const siguiente = pos + d
+            // Pasar del borde de la página avanza de página en vez de frenar.
+            if (siguiente < 0 && pagina > 1) {
+              setPagina(pagina - 1)
+              setPos(PAGE_SIZE - 1)
+            } else if (siguiente >= frames.length && pagina < paginas) {
+              setPagina(pagina + 1)
+              setPos(0)
+            } else {
+              setPos(Math.min(Math.max(0, siguiente), Math.max(0, frames.length - 1)))
+            }
+          }}
         />
       </div>
     </div>

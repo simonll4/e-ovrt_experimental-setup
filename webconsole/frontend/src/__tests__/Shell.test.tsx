@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, waitFor } from '../test-utils'
 import { MemoryRouter } from 'react-router-dom'
 import Shell from '../components/Shell'
 import * as api from '../api'
@@ -13,7 +13,7 @@ vi.mock('../api', async (importOriginal) => ({
     media: { service_url: 'x', healthy: true, ready: true },
     control: { service_url: 'y', healthy: true, ready: true },
   }),
-  listRuns: vi.fn().mockResolvedValue([]),
+  listRunsPaged: vi.fn().mockResolvedValue({ items: [], total: 0 }),
   getExperimentManifests: vi.fn().mockResolvedValue([]),
   listPromptSets: vi.fn().mockResolvedValue([]),
 }))
@@ -127,10 +127,10 @@ describe('Shell', () => {
   })
 
   it('muestra el contador de corridas en curso cuando es mayor a 0', async () => {
-    vi.mocked(api.listRuns).mockResolvedValue([
-      { run_id: 'r1', status: 'running' } as any,
-      { run_id: 'r2', status: 'succeeded' } as any,
-    ])
+    vi.mocked(api.listRunsPaged).mockResolvedValue({
+      items: [{ run_id: 'r1', status: 'running' }],
+      total: 1,
+    } as never)
     renderShell()
     const runsLink = screen.getByRole('link', { name: 'Corridas' })
     await waitFor(() => expect(runsLink.querySelector('.eo-sidebar__count')?.textContent).toBe('1'))

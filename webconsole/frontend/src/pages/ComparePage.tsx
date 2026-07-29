@@ -1,6 +1,10 @@
-import { useEffect, useMemo, useState, type ReactNode } from 'react'
-import { getCompare, listRuns } from '../api'
-import GroupedBars, { SERIES_COLORS } from '../components/charts/GroupedBars'
+import { useMemo, useState, type ReactNode } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { getCompare } from '../api'
+import { qk } from '../api/keys'
+import { useRuns } from '../api/queries/runs'
+import GroupedBars from '../components/charts/GroupedBars'
+import { SERIES_COLORS } from '../palette'
 import { Banner, Card, EmptyState, ErrorBanner, PageHeader, Table } from '../components/ui'
 import { hace } from '../runview'
 import type { CompareResult, RunRow } from '../types'
@@ -50,29 +54,24 @@ function MetricRow({ name, values }: { name: ReactNode; values: Array<number | n
 }
 
 export default function ComparePage() {
-  const [rows, setRows] = useState<RunRow[] | null>(null)
   const [selected, setSelected] = useState<string[]>([])
-  const [result, setResult] = useState<CompareResult | null>(null)
-  const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    listRuns()
-      .then(setRows)
-      .catch((e) => setError(String(e)))
-  }, [])
+  const consultaCorridas = useRuns()
+  const rows: RunRow[] | null = consultaCorridas.data ?? null
 
-  useEffect(() => {
-    if (selected.length < 2) {
-      setResult(null)
-      return
-    }
-    getCompare(selected)
-      .then((r) => {
-        setResult(r)
-        setError(null)
-      })
-      .catch((e) => setError(String(e)))
-  }, [selected])
+  // La comparación se pide sola al cambiar la selección, y la clave ordena los
+  // ids: elegir A y B, o B y A, es la misma comparación y no debe pedirse dos
+  // veces. Con menos de dos corridas no hay nada que comparar.
+  const consultaComparacion = useQuery<CompareResult>({
+    queryKey: qk.compare(selected),
+    queryFn: () => getCompare(selected),
+    enabled: selected.length >= 2,
+    staleTime: Infinity,
+  })
+  const result = selected.length >= 2 ? consultaComparacion.data ?? null : null
+
+  const fallo = consultaCorridas.error ?? consultaComparacion.error
+  const error = fallo ? String(fallo) : null
 
   const toggle = (id: string) =>
     setSelected((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]))

@@ -47,13 +47,25 @@ export function SortableHeader({
   )
 }
 
+/** Nombre en dos líneas, sin el `<td>`.
+ *
+ *  Va separado de `RowNameCell` porque la tabla de Corridas arma sus celdas con
+ *  TanStack Table: ahí el `<td>` lo pone el cuerpo de la tabla y la columna solo
+ *  aporta el contenido. Las tablas escritas a mano siguen usando `RowNameCell`.
+ */
+export function RowName({ title, subtitle }: { title: ReactNode; subtitle?: ReactNode }) {
+  return (
+    <span className="eo-rowname">
+      <b>{title}</b>
+      {subtitle && <span className="eo-mono">{subtitle}</span>}
+    </span>
+  )
+}
+
 export function RowNameCell({ title, subtitle }: { title: ReactNode; subtitle?: ReactNode }) {
   return (
     <td>
-      <span className="eo-rowname">
-        <b>{title}</b>
-        {subtitle && <span className="eo-mono">{subtitle}</span>}
-      </span>
+      <RowName title={title} subtitle={subtitle} />
     </td>
   )
 }

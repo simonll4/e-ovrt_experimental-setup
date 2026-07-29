@@ -5,7 +5,8 @@ import type {
   FieldError, GenerateClipBody, GenerateClipResult, IngestPlugin, MasterEntry, PlatformInstance,
   PreflightStatus, PreviewStartBody, PreviewStatus, PromptSet, PromptSetDetail, PromptSetSummary,
   RecordingStatus, RunDetail, RunRow, StartRecordingBody, TargetStatus, TracePage,
-} from './types'
+  ArtifactEntry, ConditionInfo, RunComparison, TraceIndex,
+} from '../types'
 
 export class ApiError extends Error {
   constructor(
@@ -47,7 +48,29 @@ export const validateComposition = (comp: Composition) =>
   })
 export const launchRun = (comp: Composition) =>
   request<{ run_id: string }>('/api/runs', { method: 'POST', body: JSON.stringify(comp) })
-export const listRuns = () => request<RunRow[]>('/api/runs')
+/** Tope de página del servidor (`page_size` acepta hasta 200). */
+const RUNS_PAGE_MAX = 200
+
+/** Todas las corridas, agotando la paginación del servidor.
+ *
+ *  `GET /api/runs` pelado ya no devuelve el historial completo: desde que el
+ *  listado pagina del lado del servidor, sin parámetros contesta la primera
+ *  página de 25. Quien creía tener todas las corridas —Comparar, que filtra las
+ *  evaluadas— estaba mirando las 25 más nuevas y no tenía forma de notarlo.
+ *
+ *  Se pide de a 200 y se sigue mientras `X-Total-Count` diga que falta. Para el
+ *  listado de la pantalla de Corridas esto NO se usa: ahí se pide una página por
+ *  vez, que es de lo que se trata paginar en el servidor.
+ */
+export async function listRuns(): Promise<RunRow[]> {
+  const primera = await listRunsPaged({ pageSize: RUNS_PAGE_MAX })
+  const items = [...primera.items]
+  const paginas = Math.ceil(primera.total / RUNS_PAGE_MAX)
+  for (let pagina = 2; pagina <= paginas; pagina++) {
+    items.push(...(await listRunsPaged({ pagina, pageSize: RUNS_PAGE_MAX })).items)
+  }
+  return items
+}
 export const getRun = (id: string) => request<RunDetail>(`/api/runs/${encodeURIComponent(id)}`)
 export const stopRun = (id: string) =>
   request<{ run_id: string; stopping: boolean }>(
@@ -167,9 +190,80 @@ export const derivePromptSet = (id: string, newId: string, changes: string) =>
     body: JSON.stringify({ new_id: newId, changes }),
   })
 
-export const getTrace = (id: string, page = 1, pageSize = 50, controlRunId?: string) => {
+/** Actividad de la corrida completa en una sola petición.
+ *  Reemplaza al bucle que paginaba `/trace` hasta 40 veces para dibujar la
+ *  línea de tiempo. */
+export const getTraceIndex = (id: string, controlRunId?: string) => {
+  const params = controlRunId ? `?control_run_id=${encodeURIComponent(controlRunId)}` : ''
+  return request<TraceIndex>(`/api/runs/${encodeURIComponent(id)}/trace/index${params}`)
+}
+
+/** Inventario de archivos generados por la corrida. */
+export const getArtifacts = (id: string) =>
+  request<{ run_id: string; items: ArtifactEntry[] }>(
+    `/api/runs/${encodeURIComponent(id)}/artifacts`,
+  )
+
+/** Corrida anterior comparable y variación de cada indicador. */
+export const getRunComparison = (id: string) =>
+  request<RunComparison>(`/api/runs/${encodeURIComponent(id)}/comparison`)
+
+/** Nombres legibles de las condiciones de riesgo, desde el motor de reglas. */
+export const getConditions = () => request<ConditionInfo[]>('/api/catalog/conditions')
+
+/** Listado de corridas con filtro, orden y paginación del lado del servidor.
+ *  El total viaja en la cabecera `X-Total-Count`, así que hace falta leer la
+ *  respuesta cruda en vez de pasar por `request()`. */
+export interface RunsQuery {
+  estado?: string
+  q?: string
+  orden?: string
+  direccion?: 'asc' | 'desc'
+  pagina?: number
+  pageSize?: number
+}
+
+export async function listRunsPaged(
+  filtros: RunsQuery = {},
+): Promise<{ items: RunRow[]; total: number }> {
+  const params = new URLSearchParams()
+  if (filtros.estado) params.set('estado', filtros.estado)
+  if (filtros.q) params.set('q', filtros.q)
+  if (filtros.orden) params.set('orden', filtros.orden)
+  if (filtros.direccion) params.set('direccion', filtros.direccion)
+  if (filtros.pagina) params.set('pagina', String(filtros.pagina))
+  if (filtros.pageSize) params.set('page_size', String(filtros.pageSize))
+
+  const response = await fetch(`/api/runs?${params.toString()}`, {
+    headers: { 'Content-Type': 'application/json' },
+  })
+  if (!response.ok) {
+    let payload: unknown = null
+    try {
+      payload = await response.json()
+    } catch {
+      /* cuerpo no-JSON */
+    }
+    throw new ApiError(response.status, payload)
+  }
+  const items = (await response.json()) as RunRow[]
+  // Sin la cabecera (proxy que la filtra, fixture vieja) se cae a la cantidad
+  // de la página: es un total incorrecto pero acotado, mejor que romper.
+  const total = Number(response.headers.get('X-Total-Count') ?? items.length)
+  return { items, total: Number.isFinite(total) ? total : items.length }
+}
+
+export const getTrace = (
+  id: string,
+  page = 1,
+  pageSize = 50,
+  controlRunId?: string,
+  /** Filtra los cuadros ANTES de paginar: 'actividad' | 'alertas'. */
+  solo?: string,
+) => {
   const params = new URLSearchParams({ page: String(page), page_size: String(pageSize) })
   if (controlRunId) params.set('control_run_id', controlRunId)
+  if (solo) params.set('solo', solo)
   return request<TracePage>(`/api/runs/${encodeURIComponent(id)}/trace?${params.toString()}`)
 }
 

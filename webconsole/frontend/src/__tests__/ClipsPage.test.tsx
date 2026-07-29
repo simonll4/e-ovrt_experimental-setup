@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, waitFor } from '../test-utils'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import ClipsPage from '../pages/ClipsPage'
@@ -46,7 +46,7 @@ describe('ClipsPage', () => {
     vi.mocked(getMasters).mockResolvedValue({ masters: MASTERS })
     vi.mocked(getClips).mockResolvedValue({ clips: [] })
     render(<ClipsPage />)
-    await waitFor(() => expect(screen.getByText(/ilegible/)).toBeTruthy())
+    await waitFor(() => expect(screen.getByText(/Ilegible/)).toBeTruthy())
     const botones = screen.getAllByText('Recortar') as HTMLButtonElement[]
     expect(botones[1].disabled).toBe(true)
   })

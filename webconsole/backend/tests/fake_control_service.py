@@ -45,6 +45,7 @@ class FakeControlState:
         self.pattern_progress: dict[str, list[dict]] = {}
         self.pattern_events: dict[str, list[dict]] = {}
         self.received_units: dict[str, list[dict]] = {}
+        self.conditions: list[dict] = []
         self.deleted: list[str] = []
         # Patrones actualmente confirmed/sustained del run activo (riesgo en
         # vivo): sembrable directo por los tests, reflejado tal cual en
@@ -150,6 +151,10 @@ def make_fake_control_service(state: FakeControlState) -> FastAPI:
         if limit is not None:
             rows = rows[: max(limit, 0)]
         return rows
+
+    @app.get("/api/conditions")
+    def conditions():
+        return state.conditions
 
     @app.get("/api/config")
     def get_effective_config():

@@ -35,7 +35,10 @@ def list_prompt_sets(request: Request) -> list[dict]:
 @router.get("/{set_id}")
 def get_prompt_set(request: Request, set_id: str) -> dict:
     try:
-        return ps.get_set(_prompts_dir(request), set_id)
+        # Con `diff`: `derives_from` decía de dónde viene el conjunto pero no qué
+        # cambió, y `changes` es una nota escrita a mano que puede decir
+        # cualquier cosa. El diff calculado es lo auditable.
+        return ps.get_set_with_diff(_prompts_dir(request), set_id)
     except ps.PromptStoreError as exc:
         _raise(exc)
 

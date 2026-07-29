@@ -81,6 +81,16 @@ export function IconCircle() {
   )
 }
 
+/** Signo de más de las acciones primarias de la barra lateral. Es el mismo trazo
+ *  que el botón "Nueva corrida" del prototipo. */
+export function IconPlus() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+      <path d="M8 3v10M3 8h10" />
+    </svg>
+  )
+}
+
 export function IconNavRuns() {
   return (
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden="true">
@@ -95,6 +105,27 @@ export function IconNavExperiments() {
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden="true">
       <path d="M6.3 2v4.2L2.9 12a1.4 1.4 0 0 0 1.2 2.1h7.8A1.4 1.4 0 0 0 13.1 12L9.7 6.2V2" />
       <path d="M5.4 2h5.2M4.7 10h6.6" />
+    </svg>
+  )
+}
+
+/** Matraz con un más: la acción "Nuevo experimento" de la barra lateral.
+ *
+ *  No alcanza con reusar el más a secas: con la barra colapsada las dos acciones
+ *  primarias quedan como dos cuadrados violetas de 38 px, y dos signos de más
+ *  idénticos no se distinguen. Tampoco sirve el matraz solo, porque sería igual
+ *  al ítem "Experimentos" que está tres filas más abajo.
+ *
+ *  El matraz va escalado dentro de un grupo para dejarle lugar al más; el trazo
+ *  se compensa (1.4 / 0.82) para que se vea del mismo grosor que el resto. */
+export function IconNavExperimentNew() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden="true">
+      <g transform="translate(-1.1 1.4) scale(0.82)" strokeWidth="1.71">
+        <path d="M6.3 2v4.2L2.9 12a1.4 1.4 0 0 0 1.2 2.1h7.8A1.4 1.4 0 0 0 13.1 12L9.7 6.2V2" />
+        <path d="M5.4 2h5.2M4.7 10h6.6" />
+      </g>
+      <path d="M12.7 1.5v4M10.7 3.5h4" strokeWidth="1.6" />
     </svg>
   )
 }

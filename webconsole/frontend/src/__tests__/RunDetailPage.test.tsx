@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, waitFor } from '../test-utils'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import RunDetailPage from '../pages/RunDetailPage'
 import * as api from '../api'
@@ -15,6 +15,27 @@ vi.mock('../api', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../api')>()),
   getRun: vi.fn(),
   deleteRun: vi.fn(),
+  // La pantalla ahora se alimenta del índice de traza y del inventario de
+  // artefactos; sin mockearlos, en jsdom fallan por URL relativa y meten un
+  // segundo role="alert" que rompe las búsquedas por rol.
+  getTraceIndex: vi.fn().mockResolvedValue({
+    media_run_id: 'r_1',
+    control_run_id: null,
+    topology: null,
+    control_error: null,
+    totals: { frames: 0, detections: 0, dropped_by_reason: {}, alerts: 0, received: null, not_received: null },
+    total: 0,
+    unit_id: [],
+    frame_index: [],
+    timestamp_ms: [],
+    detections: [],
+    control_state: [],
+    alert: [],
+  }),
+  getArtifacts: vi.fn().mockResolvedValue({ run_id: 'r_1', items: [] }),
+  getRunComparison: vi.fn().mockResolvedValue({
+    run_id: 'r_1', previous_run_id: null, matched_on: [], deltas: {},
+  }),
   getDetections: vi.fn().mockResolvedValue({ items: [], total: 0 }),
   getEvaluation: vi.fn().mockResolvedValue(null),
   getTrace: vi.fn().mockResolvedValue({
@@ -136,14 +157,16 @@ describe('RunDetailPage', () => {
     expect(confirmSpy).not.toHaveBeenCalled()
   })
 
-  it('confirmar borra la corrida y navega a /runs', async () => {
+  // Al listado, que vive en '/'. Antes navegaba a '/runs', una ruta que no
+  // existe en App.tsx: borrar desde el detalle dejaba el contenido en blanco.
+  it('confirmar borra la corrida y vuelve al listado', async () => {
     vi.mocked(api.getRun).mockResolvedValue({ run_id: 'r_1', status: 'succeeded', live: false } as any)
     vi.mocked(api.deleteRun).mockResolvedValue(undefined)
     renderPage()
     await waitFor(() => expect(screen.getByRole('button', { name: 'Borrar' })).toBeTruthy())
     await deleteRun()
     await waitFor(() => expect(api.deleteRun).toHaveBeenCalledWith('r_1'))
-    await waitFor(() => expect(navigateMock).toHaveBeenCalledWith('/runs'))
+    await waitFor(() => expect(navigateMock).toHaveBeenCalledWith('/'))
   })
 
   it('borrado parcial muestra el detalle de los planos que fallaron y persiste (no navega)', async () => {

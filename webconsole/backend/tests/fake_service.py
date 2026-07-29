@@ -280,6 +280,20 @@ def make_fake_service(state: FakeState) -> FastAPI:
         items = items_all[start : start + page_size]
         return {"page": page, "page_size": page_size, "total": len(items_all), "items": items}
 
+    @app.get("/api/runs/{run_id}/artifacts")
+    def artifacts_index(run_id: str):
+        if run_id in state.deleted:
+            return JSONResponse(status_code=404, content={"detail": "Run desconocido"})
+        return {
+            "run_id": run_id,
+            "items": [
+                {"path": "summary.json", "name": "summary.json", "size_bytes": 23,
+                 "n_files": None, "description": "Métricas de la corrida"},
+                {"path": "previews/", "name": "previews/", "size_bytes": 8,
+                 "n_files": 1, "description": "1 imágenes de vista previa"},
+            ],
+        }
+
     @app.get("/api/runs/{run_id}/artifacts/{artifact_path:path}")
     def artifact(run_id: str, artifact_path: str):
         data = ARTIFACTS.get(artifact_path)

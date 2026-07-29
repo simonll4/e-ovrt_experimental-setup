@@ -1,5 +1,5 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { cleanup, fireEvent, render, screen, waitFor, within } from '../test-utils'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import PlatformPage from '../pages/PlatformPage'
 import { activateInstance, getInstances } from '../api'
 import type { PlatformInstance } from '../types'
@@ -22,6 +22,13 @@ const FLEET_ACTIVE: PlatformInstance[] = [
 ]
 
 beforeEach(() => vi.clearAllMocks())
+// Sin esto el DOM de un test sigue montado en el siguiente, y las consultas
+// encuentran los nodos de los dos.
+afterEach(() => cleanup())
+
+/** La tabla de instancias. Hace falta acotar porque el encabezado de instancia
+ *  activa nombra la misma instancia y repite su chip de estado. */
+const tabla = () => screen.getByRole('table')
 
 describe('PlatformPage', () => {
   it('lista el fleet y activa una instancia', async () => {
@@ -31,13 +38,13 @@ describe('PlatformPage', () => {
     vi.mocked(activateInstance).mockResolvedValue({ target: 'mp-mock', model_ref: 'mock' })
 
     render(<PlatformPage />)
-    await waitFor(() => expect(screen.getByText('mp-mock')).toBeTruthy())
+    await waitFor(() => expect(within(tabla()).getByText('mp-mock')).toBeTruthy())
 
     fireEvent.click(screen.getAllByText('Activar')[0])
 
     await waitFor(() => expect(activateInstance).toHaveBeenCalledWith('mp-mock'))
     // "TARGET" era jerga: la instancia activa y lista se llama "Operativa".
-    await waitFor(() => expect(screen.getByText('Operativa')).toBeTruthy())
+    await waitFor(() => expect(within(tabla()).getByText('Operativa')).toBeTruthy())
   })
 
   it('409 muestra el mensaje de run activo', async () => {
@@ -47,9 +54,35 @@ describe('PlatformPage', () => {
       new ApiError(409, { detail: 'Hay un run activo en el target actual', run_id: 'run_x' }),
     )
     render(<PlatformPage />)
-    await waitFor(() => expect(screen.getByText('mp-mock')).toBeTruthy())
+    await waitFor(() => expect(within(tabla()).getByText('mp-mock')).toBeTruthy())
     fireEvent.click(screen.getAllByText('Activar')[0])
     await waitFor(() => expect(screen.getByText(/run activo/i)).toBeTruthy())
+  })
+
+  // §10.1 y §10.2: antes la pantalla arrancaba directo en la tabla y para saber
+  // cuál instancia estaba activa había que leer la columna Estado fila por fila.
+  it('destaca la instancia activa en el encabezado, con su modelo y el botón de apagado', async () => {
+    vi.mocked(getInstances).mockResolvedValue(FLEET_ACTIVE)
+    render(<PlatformPage />)
+    expect(await screen.findByText('Instancia activa')).toBeTruthy()
+    const destacada = screen.getByText('Instancia activa').closest('section') as HTMLElement
+    expect(within(destacada).getByText('mp-mock')).toBeTruthy()
+    expect(within(destacada).getByText('mock')).toBeTruthy()
+    expect(within(destacada).getByText('Operativa')).toBeTruthy()
+    expect(within(destacada).getByRole('button', { name: /Apagar/ })).toBeTruthy()
+  })
+
+  it('sin ninguna instancia activa lo dice, en vez de dejar el encabezado vacío', async () => {
+    vi.mocked(getInstances).mockResolvedValue(FLEET)
+    render(<PlatformPage />)
+    expect(await screen.findByText(/Ninguna instancia está activa/)).toBeTruthy()
+  })
+
+  it('muestra los dos motores con su estado y su puerto', async () => {
+    vi.mocked(getInstances).mockResolvedValue(FLEET_ACTIVE)
+    render(<PlatformPage />)
+    expect(await screen.findByText('Motor de detección')).toBeTruthy()
+    expect(screen.getByText('Motor de reglas')).toBeTruthy()
   })
 
   it('501 muestra el hint de orquestación no habilitada', async () => {

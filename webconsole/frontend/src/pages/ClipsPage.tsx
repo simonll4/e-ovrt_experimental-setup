@@ -1,8 +1,9 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 
-import { clipMediaUrl, getClips, getMasters } from '../api'
+import { clipMediaUrl } from '../api'
+import { useClips, useMasters } from '../api/queries/clips'
 import TrimDialog from '../components/TrimDialog'
-import { Card, EmptyState, ErrorBanner, PageHeader, SearchInput } from '../components/ui'
+import { Badge, Card, EmptyState, ErrorBanner, PageHeader, SearchInput } from '../components/ui'
 import type { ClipEntry, MasterEntry } from '../types'
 
 /** Panel derecho: o se recorta un master, o se reproduce un clip, nunca las dos.
@@ -13,24 +14,15 @@ const segundos = (ms: number | null | undefined) =>
   ms != null ? `${(ms / 1000).toFixed(1)} s` : '—'
 
 export default function ClipsPage() {
-  const [masters, setMasters] = useState<MasterEntry[]>([])
-  const [clips, setClips] = useState<ClipEntry[]>([])
   const [panel, setPanel] = useState<Panel>(null)
   const [filtro, setFiltro] = useState('')
-  const [error, setError] = useState<string | null>(null)
 
-  const recargar = useCallback(() => {
-    getMasters()
-      .then((r) => setMasters(r.masters))
-      .catch((e: unknown) => setError(e instanceof Error ? e.message : String(e)))
-    getClips()
-      .then((r) => setClips(r.clips))
-      .catch((e: unknown) => setError(e instanceof Error ? e.message : String(e)))
-  }, [])
-
-  useEffect(() => {
-    recargar()
-  }, [recargar])
+  const consultaMasters = useMasters()
+  const consultaClips = useClips()
+  const masters: MasterEntry[] = consultaMasters.data ?? []
+  const clips: ClipEntry[] = consultaClips.data ?? []
+  const fallo = consultaMasters.error ?? consultaClips.error
+  const error = fallo ? (fallo instanceof Error ? fallo.message : String(fallo)) : null
 
   // El filtro es una sola caja para las dos listas: el operador busca "4.1" o "p7"
   // sin tener que acordarse de si eso es un master o un clip.
@@ -59,23 +51,26 @@ export default function ClipsPage() {
     <div className="eo-clips">
       <PageHeader
         title="Clips"
-        meta={`${masters.length} masters · ${clips.length} clips generados`}
-        actions={
-          <SearchInput
-            value={filtro}
-            onChange={setFiltro}
-            placeholder="Filtrar masters y clips…"
-            ariaLabel="Filtrar masters y clips"
-          />
-        }
+        meta={`${masters.length} materiales · ${clips.length} clips recortados`}
       />
       {error && <ErrorBanner>{error}</ErrorBanner>}
 
+      {/* El buscador va en su propia barra, no entre las acciones del
+          encabezado: filtra el contenido de abajo, no la pantalla. */}
+      <div className="eo-toolbar">
+        <SearchInput
+          value={filtro}
+          onChange={setFiltro}
+          placeholder="Buscar en materiales y clips"
+          ariaLabel="Buscar en materiales y clips"
+        />
+      </div>
+
       <div className="eo-clips__grid">
         <div className="eo-clips__rail">
-          <Card title={`Masters (${mastersVisibles.length}/${masters.length})`}>
+          <Card title={`Materiales (${mastersVisibles.length}/${masters.length})`}>
             {mastersVisibles.length === 0 ? (
-              <EmptyState>{masters.length === 0 ? 'No hay masters en raw/.' : 'Nada coincide.'}</EmptyState>
+              <EmptyState>{masters.length === 0 ? 'No hay materiales grabados.' : 'Nada coincide.'}</EmptyState>
             ) : (
               <ul className="eo-rows eo-rows--scroll">
                 {mastersVisibles.map((m) => {
@@ -90,7 +85,7 @@ export default function ClipsPage() {
                         <small className="eo-note">
                           {m.scenario ?? 'sin escenario'} · {segundos(m.duration_ms)} ·{' '}
                           {!m.readable ? (
-                            <span className="eo-note--error">ilegible</span>
+                            <Badge tone="error">Ilegible</Badge>
                           ) : m.clips.length > 0 ? (
                             m.clips.join(', ')
                           ) : (
@@ -150,7 +145,13 @@ export default function ClipsPage() {
               key={panel.master.name}
               master={panel.master}
               onClose={() => setPanel(null)}
-              onGenerated={recargar}
+              // `TrimDialog` todavía llama a `generateClip` directo. Cuando pase
+              // a usar `useGenerateClip`, la invalidación es automática y este
+              // callback sobra.
+              onGenerated={() => {
+                void consultaMasters.refetch()
+                void consultaClips.refetch()
+              }}
             />
           )}
           {panel?.kind === 'clip' && (
@@ -168,9 +169,9 @@ export default function ClipsPage() {
             </Card>
           )}
           {panel == null && (
-            <Card title="Área de trabajo">
+            <Card title="Elegí un material o un clip">
               <EmptyState>
-                Elegí un master para recortarlo, o un clip para reproducirlo.
+                Los materiales son las grabaciones completas. Los clips son recortes con nombre, que después podés usar como fuente de una corrida.
               </EmptyState>
             </Card>
           )}

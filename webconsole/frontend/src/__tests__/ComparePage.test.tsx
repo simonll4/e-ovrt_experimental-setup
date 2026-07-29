@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, waitFor, within } from '../test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import ComparePage, { bestPerRow } from '../pages/ComparePage'
 import { getCompare, listRuns } from '../api'

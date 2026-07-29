@@ -1,11 +1,11 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import { NAV_GROUPS } from '../nav'
+import { IconNavExperimentNew, IconPlus } from './ui/icons'
 import Breadcrumbs from './Breadcrumbs'
-import LiveRunPill from './LiveRunPill'
 import TargetBadge from './TargetBadge'
-import { useSidebarCounts } from '../useSidebarCounts'
-import { useServiceHealth, type ServiceStatus } from '../useServiceHealth'
+import { useSidebarCounts } from '../api/queries/sidebar'
+import { useServiceHealth, type ServiceStatus } from '../api/queries/platform'
 
 const COLLAPSE_KEY = 'eovrt-sidebar-collapsed'
 
@@ -67,12 +67,18 @@ export default function Shell({ children }: { children: ReactNode }) {
             </svg>
           </button>
         </div>
+        {/* El icono va como hermano del rótulo, no dentro: con la barra
+            colapsada el CSS esconde los <span> y deja el <svg>, que es lo único
+            que queda para identificar el botón. Sin él eran dos rectángulos
+            violetas mudos. */}
         <Link to="/compose" className="eo-sidebar__action" title="Nueva corrida" onClick={close}>
-          <span>+ Nueva corrida</span>
+          <IconPlus />
+          <span>Nueva corrida</span>
           <span className="eo-tip" aria-hidden="true" data-tip="Nueva corrida" />
         </Link>
         <Link to="/experiments/new" className="eo-sidebar__action" title="Nuevo experimento" onClick={close}>
-          <span>+ Nuevo experimento</span>
+          <IconNavExperimentNew />
+          <span>Nuevo experimento</span>
           <span className="eo-tip" aria-hidden="true" data-tip="Nuevo experimento" />
         </Link>
         <nav className="eo-sidebar__nav">
@@ -106,7 +112,9 @@ export default function Shell({ children }: { children: ReactNode }) {
             </div>
           ))}
         </nav>
-        <LiveRunPill />
+        {/* Sin píldora de corrida viva: el banner del listado de Corridas ya
+            anuncia la corrida en curso, y el prototipo lo diseñó así a
+            propósito para no decir lo mismo en dos lugares. */}
         <div className="eo-sidebar__services" role="group" aria-label="Estado de los servicios">
           <div className="eo-service" title={mediaTip}>
             <span
@@ -135,6 +143,11 @@ export default function Shell({ children }: { children: ReactNode }) {
         </div>
       </aside>
       <div className="eo-main">
+        {/* La barra superior es exclusiva de pantallas chicas: ahí la lateral se
+            esconde y esto es lo único que queda para navegar. En escritorio no
+            aporta nada que la lateral no diga ya, y le robaba alto al contenido.
+            El CSS la muestra recién a ≤760 px, el mismo corte en que la lateral
+            pasa a cajón. */}
         <header className="eo-topbar">
           <button
             type="button"
@@ -145,10 +158,18 @@ export default function Shell({ children }: { children: ReactNode }) {
           >
             ☰
           </button>
-          <Breadcrumbs />
-          <div className="eo-topbar__right"><TargetBadge /></div>
+          <b className="eo-topbar__brand">E-OVRT</b>
         </header>
-        <main className="eo-content">{children}</main>
+        <main className="eo-content">
+          {/* Las migas viven en el contenido, no en una barra global: acompañan
+              a la pantalla y se van con ella. La insignia de la instancia activa
+              las acompaña porque perdió su lugar al esconderse la barra. */}
+          <div className="eo-crumbsbar">
+            <Breadcrumbs />
+            <TargetBadge />
+          </div>
+          {children}
+        </main>
       </div>
     </div>
   )

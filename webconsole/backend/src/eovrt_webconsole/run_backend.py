@@ -152,6 +152,10 @@ class RunBackend:
             f"/api/runs/{run_id}/dropped", page=page, page_size=page_size
         )
 
+    async def list_artifacts(self, run_id: str) -> dict:
+        """Inventario de archivos de la corrida (nombre, tamaño, qué es)."""
+        return await self._get_json(f"/api/runs/{run_id}/artifacts")
+
     async def open_artifact(
         self, run_id: str, artifact_path: str, range_header: str | None = None
     ) -> httpx.Response:

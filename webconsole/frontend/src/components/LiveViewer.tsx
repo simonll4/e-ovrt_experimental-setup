@@ -13,6 +13,12 @@ interface Props {
 
 const DEFAULT_ASPECT = 16 / 9
 
+/** Los dos modos de la prueba, con el mismo nombre que usa «Qué mostrar». */
+const MODOS: Record<string, string> = {
+  raw: 'imagen directa',
+  detect: 'con detecciones',
+}
+
 function drawFrame(
   canvas: HTMLCanvasElement,
   img: HTMLImageElement,
@@ -82,13 +88,16 @@ export default function LiveViewer({ frameUrl, header, connected, fps, mode }: P
       {!frameUrl && <span className="eo-live-viewer__empty">sin señal</span>}
       <div className="eo-live-viewer__overlay">
         <Badge tone={connected ? 'live' : 'neutral'}>{connected ? 'conectado' : 'desconectado'}</Badge>
-        <span>{fps} fps</span>
+        <span>{fps} cuadros/s</span>
         {header && (
           <span>
             {header.width}×{header.height}
           </span>
         )}
-        <span>modo: {header?.mode ?? mode}</span>
+        {/* `raw`/`detect` son los valores de la API; acá se nombran como los
+            nombra el segmento de «Qué mostrar». Un código desconocido cae crudo
+            en vez de que la etiqueta desaparezca. */}
+        <span>modo: {MODOS[header?.mode ?? mode] ?? (header?.mode ?? mode)}</span>
       </div>
     </div>
   )

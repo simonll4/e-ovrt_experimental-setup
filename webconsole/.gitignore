@@ -9,3 +9,6 @@ backend/src/*.egg-info/
 frontend/node_modules/
 frontend/dist/
 frontend/*.tsbuildinfo
+
+# Registro del seed de datos de desarrollo (tools/seed_dev_data.py)
+tools/.seed_runs.json

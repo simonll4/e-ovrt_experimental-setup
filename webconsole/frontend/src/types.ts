@@ -67,6 +67,9 @@ export interface PromptSetDetail {
   changes?: string | null
   frozen_sha256?: string | null
   classes: PromptClassSpec[]
+  /** Diff calculado contra el conjunto del que deriva. null si no deriva de
+   *  ninguno, o si el padre ya no está en el repositorio. */
+  diff?: PromptSetDiff | null
 }
 /** GET /api/experiments/manifests/{slug}/derive-defaults: 1:1 con las claves de
  *  `overrides`. Sin `url` de cámara a propósito (credenciales en claro). */
@@ -91,6 +94,9 @@ export interface IngestPlugin {
   available: boolean
   description: string
   enabled: boolean
+  /** Por qué no se puede elegir, o null si sí se puede. Distingue "la consola no
+   *  lo ofrece" de "falta un SDK en el motor de detección". */
+  disabled_reason?: string | null
 }
 export interface DatasetEntry {
   id: string
@@ -120,6 +126,9 @@ export interface FieldError {
 }
 export interface RunRow {
   run_id: string
+  /** Instante de creación, siempre presente: el backend lo reconstruye del
+   *  `run_id` cuando la corrida no llegó a persistir `started_at`. */
+  created_at?: string | null
   name?: string | null
   status: string
   model?: string | null
@@ -134,13 +143,49 @@ export interface RunRow {
   live?: boolean
   topology?: string | null
 }
+/**
+ * Resumen que persiste el motor de detección al terminar una corrida
+ * (`media.summary.v2`).
+ *
+ * Estuvo tipado como `Record<string, unknown>` y eso obligaba a redeclarar un
+ * par de ayudantes `num()`/`str()` en cada archivo que lo leía, solo para sacarle
+ * un número o una cadena a un campo que el backend siempre manda con el mismo
+ * tipo. Peor: un error de tipeo en el nombre de un campo no lo detectaba nadie y
+ * se veía como un `—` en pantalla.
+ *
+ * Todo es opcional a propósito: mientras la corrida está en curso el resumen
+ * viene incompleto, y las métricas que dependen de haber terminado no existen
+ * todavía.
+ */
+export interface RunSummary {
+  schema_version?: string
+  run_id?: string
+  name?: string
+  status?: string
+  model_name?: string
+  device?: string
+  prompt_set_id?: string
+  source_type?: string
+  started_at?: string
+  units_processed?: number
+  units_dropped?: number
+  total_detections?: number
+  detections_by_label?: Record<string, number>
+  fps_effective?: number
+  duration_seconds?: number
+  p50_latency_ms?: number
+  p95_latency_ms?: number
+  gpu_memory_peak_mb?: number
+  run_descriptor?: { topology?: string } & Record<string, unknown>
+}
+
 export interface RunDetail {
   run_id: string
   name?: string | null
   status: string
   started_at?: string
   model?: string
-  summary?: Record<string, unknown>
+  summary?: RunSummary
   bench_split?: string | null
   evaluated?: boolean
   live?: boolean
@@ -201,6 +246,11 @@ export interface ExperimentManifestSummary {
   experiment_id?: string | null
   description?: string | null
   group?: string | null
+  /** Última ejecución consolidada en disco. */
+  last_experiment_id?: string | null
+  last_run_at?: string | null
+  last_status?: string | null
+  n_runs?: number
 }
 export interface ExperimentRunState {
   experiment_id: string
@@ -252,7 +302,7 @@ export interface ControlCurrentSnapshot {
 
 /** Vocabulario de estado de la UI. Vive acá —y no en Badge.tsx— porque lo consumen
  *  runview.ts y experimentview.ts, que son lógica pura y no deben importar de un .tsx. */
-export type BadgeTone = 'live' | 'ok' | 'warn' | 'alert' | 'error' | 'neutral'
+export type { BadgeTone } from './palette'
 
 export interface TraceDetection {
   label: string
@@ -280,6 +330,10 @@ export interface TraceActivePattern {
   severity: string
   subject_key: string
 }
+/** Estado de entrega al motor de reglas, vocabulario cerrado resuelto por el
+ *  backend. `unknown` es "sin dato" (el motor de reglas no evaluó la corrida). */
+export type ControlState = 'received' | 'dropped' | 'not_received' | 'unknown'
+
 export interface TraceFrame {
   frame_index: number | null
   unit_id: string | null
@@ -291,6 +345,78 @@ export interface TraceFrame {
   /** Opcional para no romper fixtures de test viejos; el backend siempre lo
    *  manda (posiblemente []), tratar ausencia igual que []. */
   active_patterns?: TraceActivePattern[]
+  /** Vocabulario cerrado + etiqueta ya traducida. Opcionales por compatibilidad
+   *  con fixtures viejos; cuando faltan se derivan de `control`. */
+  control_state?: ControlState
+  control_reason?: string | null
+  control_label?: string
+}
+
+/** Actividad de la corrida COMPLETA en arrays paralelos: el i-ésimo elemento de
+ *  cada uno es el i-ésimo cuadro. Es lo que dibuja la línea de tiempo, en una
+ *  sola petición en vez de paginar la traza entera. */
+export interface TraceIndex {
+  media_run_id: string
+  control_run_id: string | null
+  topology: string | null
+  control_error: string | null
+  totals: TraceTotals
+  total: number
+  unit_id: Array<string | null>
+  frame_index: Array<number | null>
+  timestamp_ms: Array<number | null>
+  detections: number[]
+  control_state: ControlState[]
+  /** 1 si el cuadro tiene alerta, 0 si no. */
+  alert: number[]
+}
+
+export interface ArtifactEntry {
+  path: string
+  name: string
+  size_bytes: number
+  /** Cantidad de archivos cuando la entrada es un directorio (previews/). */
+  n_files: number | null
+  description: string | null
+}
+
+/** Variación de un indicador contra la corrida anterior comparable. */
+export interface RunDelta {
+  current: number
+  previous: number
+  delta: number
+  /** Hacia dónde es mejor moverse; null cuando subir no es ni bueno ni malo. */
+  better: 'mas' | 'menos' | null
+}
+
+export interface RunComparison {
+  run_id: string
+  /** null cuando no hay ninguna corrida comparable: la interfaz muestra los
+   *  indicadores sin variación, que no es lo mismo que variación cero. */
+  previous_run_id: string | null
+  matched_on: string[]
+  deltas: Record<string, RunDelta>
+}
+
+/** Condición de riesgo definida en el motor de reglas (CR-01, CR-02, ...). */
+export interface ConditionInfo {
+  condition_id: string
+  pattern_id: string | null
+  pattern_set_id: string | null
+  name: string | null
+  display_name: string | null
+  description: string | null
+  severity: string | null
+  enabled: boolean
+}
+
+/** Qué cambió entre un conjunto de prompts y aquel del que deriva. */
+export interface PromptSetDiff {
+  from: string | null
+  classes_added: string[]
+  classes_removed: string[]
+  phrases_added: Record<string, string[]>
+  phrases_removed: Record<string, string[]>
 }
 export interface TraceTotals {
   frames: number

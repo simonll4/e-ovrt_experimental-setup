@@ -86,6 +86,10 @@ class ControlPlaneBackend:
     async def config(self) -> dict:
         return await self._get_json("/api/config")
 
+    async def conditions(self) -> list[dict]:
+        """Catálogo de condiciones de riesgo con su nombre legible."""
+        return await self._get_json("/api/conditions")
+
     async def list_runs(self, media_run_id: str | None = None) -> list[dict]:
         params = {"media_run_id": media_run_id} if media_run_id else {}
         return await self._get_json("/api/runs", **params)
