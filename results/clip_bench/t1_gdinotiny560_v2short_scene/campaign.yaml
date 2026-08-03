@@ -1,0 +1,41 @@
+schema_version: clip_campaign.v1
+campaign_id: t1_gdinotiny560_v2short_scene
+date: '2026-08-03'
+phase: T
+description: >
+  Línea de base del Nivel B: primera campaña sobre GT temporal HUMANO. Los 34
+  clips del banco del rodaje de punta a punta con el modelo campeón y el prompt
+  set congelado. Toda campaña posterior se compara contra ésta.
+
+# --- LA COMBINACIÓN (lo que se está midiendo) ---
+model: grounding-dino/gdino-tiny-560
+model_note: >
+  Campeón S1/S2 (doc 64). Zero-shot: cero imágenes de este dominio en
+  entrenamiento. image_size 560, box_threshold 0.30, text_threshold 0.25.
+prompt_set: cr01_cr02_v2_short
+prompt_set_frozen_sha256: df81fd48b6daf8924b5fb66aa1ce4acc0c880ac6ed8cd1245c6aca1babdb309a
+prompt_set_note: 'clases: person / helmet / vest (activas las 3)'
+pattern_set: cr01_cr02_v2
+pattern_set_note: 'CR-01 high confirm_after_ms=4000; CR-02 medium 7000'
+granularity: scene
+granularity_note: 'G0 — sin track_id; el motor acumula ausencia a nivel escena'
+path: DBE
+stride: 1
+path_note: >
+  stride=1, sin límite de tasa: mide percepción + patrón, NO latencia operativa
+  (ADR-013: la latencia end-to-end la mide el camino RTSP/live).
+
+# --- PROCEDENCIA ---
+gt_bank: clip_bench (34 clips, Bloque A rodaje 2026-07-25)
+gt_manifest_yaml_sha256: cef5082e1eb1981c89251ba1b45d7ff044627f8aa1e428f50e0601abe64260e8
+gt_doc: docs/operacion/80-gt-rodaje-desde-cvat.md
+evaluator_note: >
+  Evaluado con los fixes F-EV1/2/3 aplicados (control-plane c1cbb56): negativos
+  declarados not_applicable, la ventana hereda start_end_tolerance_ms del GT, y
+  las re-confirmaciones con la infracción activa cuentan re_alerts y no FP.
+  Campañas anteriores a ese commit NO son comparables sin re-evaluar.
+hardware: NVIDIA RTX 4060 Laptop 8 GB (WSL2)
+duration_note: 34/34 clips sin errores, ~50 min, ~5.6 frames/s agregados
+
+report_doc: docs/operacion/81-campana-dbe-rodaje-y-fixes-evaluador.md
+raw_evidence: docs/operacion/datos/81-campana-rodaje-dbe-*
