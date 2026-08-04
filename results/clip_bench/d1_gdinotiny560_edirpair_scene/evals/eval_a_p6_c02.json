@@ -1,0 +1,100 @@
+{
+  "schema_version": "control.eval.temporal.v1",
+  "scenario_id": "a_p6_c02",
+  "alerts_path": "/home/simonll4/projects/docs/operacion/datos/85-d1-edir-clips/control_runs/control_d1_edir_a_p6_c02_20260804T160835Z/alerts.jsonl",
+  "ground_truth_path": "/home/simonll4/projects/e-ovrt_datasets/datasets-videos/gt/a_p6_c02.json",
+  "expected_alerts_count": 2,
+  "observed_alerts_count": 4,
+  "matched_alerts_count": 0,
+  "missed_alerts_count": 2,
+  "unexpected_alerts_count": 4,
+  "duplicate_alerts_count": 0,
+  "precision": 0.0,
+  "recall": 0.0,
+  "f1": 0.0,
+  "avg_latency_frames_from_first_evidence": null,
+  "avg_latency_ms_from_first_evidence": null,
+  "re_alerts_count": 0,
+  "sub_threshold_count": 0,
+  "censored_episodes_count": 0,
+  "observed_duration_ms": 56500.0,
+  "far_per_hour": 254.867257,
+  "applicability_state": "computed",
+  "applicability_cause": null,
+  "avg_latency_ms_from_episode_start": null,
+  "effective_matching_windows": {
+    "CR-01": {
+      "persistencia_min_ms": 4000.0,
+      "t_alert_max_ms": 10000.0,
+      "origin": "gt_provenance"
+    },
+    "CR-02": {
+      "persistencia_min_ms": 7000.0,
+      "t_alert_max_ms": 20000.0,
+      "origin": "gt_provenance"
+    }
+  },
+  "warnings": [],
+  "matches": [],
+  "missed_alerts": [],
+  "unexpected_alerts": [
+    {
+      "alert_id": "a61d8922-6a8e-5055-926f-d09822b4c31c",
+      "condition_id": "CR-01",
+      "subject_key": "CR-01:a_p6_c02",
+      "frame_index": 135,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "fb4ce0b9-8b59-5378-8dfb-bda22a40f1b5",
+      "condition_id": "CR-01",
+      "subject_key": "CR-01:a_p6_c02",
+      "frame_index": 872,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "2962c01f-78de-5bd3-9e47-3ae30ff3e849",
+      "condition_id": "CR-01",
+      "subject_key": "CR-01:a_p6_c02",
+      "frame_index": 1389,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "74b3f48f-a933-5816-9980-d7585f11115b",
+      "condition_id": "CR-01",
+      "subject_key": "CR-01:a_p6_c02",
+      "frame_index": 1618,
+      "reason": "outside_all_episode_windows"
+    }
+  ],
+  "censored_episodes": [],
+  "avg_ttfd_ms": 100.33,
+  "avg_sdr": 0.065639,
+  "ttfd_by_episode": [
+    {
+      "episode_id": "ep1",
+      "ttfd_ms": 100.32999999999993,
+      "cause": null
+    },
+    {
+      "episode_id": "ep2",
+      "ttfd_ms": null,
+      "cause": "no_positive_detected"
+    }
+  ],
+  "sdr_by_episode": [
+    {
+      "episode_id": "ep1",
+      "sdr": 0.1312785580806559,
+      "cause": null
+    },
+    {
+      "episode_id": "ep2",
+      "sdr": 0.0,
+      "cause": "no_positive_detected"
+    }
+  ],
+  "ttfd_sdr_applicability": "computed",
+  "positive_criterion": "spatial_absence(cr01_cr02_edir_v1) >=1 evidencia",
+  "detections_path": "/home/simonll4/projects/e-ovrt_media-plane/runs/run_20260804_160451_dbe_grounding_dino_93a3ac/detections.jsonl"
+}

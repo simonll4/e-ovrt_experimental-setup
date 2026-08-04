@@ -1,0 +1,86 @@
+{
+  "schema_version": "control.eval.temporal.v1",
+  "scenario_id": "a_p6_c01",
+  "alerts_path": "/home/simonll4/projects/docs/operacion/datos/85-d1-edir-clips/control_runs/control_d1_edir_a_p6_c01_20260804T160450Z/alerts.jsonl",
+  "ground_truth_path": "/home/simonll4/projects/e-ovrt_datasets/datasets-videos/gt/a_p6_c01.json",
+  "expected_alerts_count": 2,
+  "observed_alerts_count": 2,
+  "matched_alerts_count": 0,
+  "missed_alerts_count": 2,
+  "unexpected_alerts_count": 2,
+  "duplicate_alerts_count": 0,
+  "precision": 0.0,
+  "recall": 0.0,
+  "f1": 0.0,
+  "avg_latency_frames_from_first_evidence": null,
+  "avg_latency_ms_from_first_evidence": null,
+  "re_alerts_count": 0,
+  "sub_threshold_count": 0,
+  "censored_episodes_count": 0,
+  "observed_duration_ms": 43200.0,
+  "far_per_hour": 166.666667,
+  "applicability_state": "computed",
+  "applicability_cause": null,
+  "avg_latency_ms_from_episode_start": null,
+  "effective_matching_windows": {
+    "CR-02": {
+      "persistencia_min_ms": 7000.0,
+      "t_alert_max_ms": 20000.0,
+      "origin": "gt_provenance"
+    },
+    "CR-01": {
+      "persistencia_min_ms": 4000.0,
+      "t_alert_max_ms": 10000.0,
+      "origin": "gt_provenance"
+    }
+  },
+  "warnings": [],
+  "matches": [],
+  "missed_alerts": [],
+  "unexpected_alerts": [
+    {
+      "alert_id": "025676e2-0e28-5b58-ace1-0a8a42badf00",
+      "condition_id": "CR-01",
+      "subject_key": "CR-01:a_p6_c01",
+      "frame_index": 168,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "295341c3-9f44-5bdf-82d0-ae40741f4ea3",
+      "condition_id": "CR-01",
+      "subject_key": "CR-01:a_p6_c01",
+      "frame_index": 1065,
+      "reason": "outside_all_episode_windows"
+    }
+  ],
+  "censored_episodes": [],
+  "avg_ttfd_ms": 133.67,
+  "avg_sdr": 0.072868,
+  "ttfd_by_episode": [
+    {
+      "episode_id": "ep1",
+      "ttfd_ms": 133.67000000000007,
+      "cause": null
+    },
+    {
+      "episode_id": "ep2",
+      "ttfd_ms": null,
+      "cause": "no_positive_detected"
+    }
+  ],
+  "sdr_by_episode": [
+    {
+      "episode_id": "ep1",
+      "sdr": 0.14573541947369892,
+      "cause": null
+    },
+    {
+      "episode_id": "ep2",
+      "sdr": 0.0,
+      "cause": "no_positive_detected"
+    }
+  ],
+  "ttfd_sdr_applicability": "computed",
+  "positive_criterion": "spatial_absence(cr01_cr02_edir_v1) >=1 evidencia",
+  "detections_path": "/home/simonll4/projects/e-ovrt_media-plane/runs/run_20260804_160157_dbe_grounding_dino_a2e3aa/detections.jsonl"
+}

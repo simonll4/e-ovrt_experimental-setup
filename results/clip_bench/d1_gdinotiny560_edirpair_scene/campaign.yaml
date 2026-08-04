@@ -1,0 +1,66 @@
+schema_version: clip_campaign.v1
+campaign_id: d1_gdinotiny560_edirpair_scene
+date: '2026-08-04'
+phase: D
+description: >
+  Fase 2 de D1 (nucleo/04 §7 Fase 2): la estrategia E-DIR de punta a punta sobre el
+  banco de clips. La VARIABLE respecto de T1 es la ESTRATEGIA (doc 12 §6.3:
+  estrategia = prompt set + evaluador): detecciones de frases directas de la
+  condicion consumidas por el evaluador direct_evidence (nuevo, spec 41 §6.1),
+  en lugar de vocabulario canonico + spatial_absence. El brazo E-IND de esta
+  comparacion ES T1 (caption eind_v1 byte-identico a cr01_cr02_v2_short, doc 83
+  §5 bis — no se re-infiere).
+
+# --- LA COMBINACIÓN (lo que se está midiendo) ---
+model: grounding-dino/gdino-tiny-560
+model_note: 'Campeón S1/S2 (doc 64) — idéntico a T1. image_size 560, box 0.30, text 0.25.'
+prompt_set: edir_v1 (par desplegado) + person
+prompt_set_frozen_sha256: a1278d0c34cd13beb759a1fe10b13c7096f147f7be23154f28a79454b5643703
+prompt_set_note: >
+  Caption: "person. construction worker without safety helmet. person without
+  bright colored safety clothing." — las variantes ganadoras por condicion en la
+  calibracion (mitad A, bench_obra) de la Fase 1 (doc 83): cr01_spec y cr02_obs,
+  frases CONGELADAS de edir_v1 transcriptas literales. `person` NO es evidencia:
+  es el sujeto que exige el gating por persona del evaluador (doc 12 §4.2) — sin
+  detecciones de persona ningun hit directo puede disparar. 3 clases en el caption,
+  igual cardinalidad que el de T1 (simetria de amontonamiento declarada; las
+  frases E-DIR son largas y el de T1 son etiquetas cortas — eso ES parte de la
+  estrategia).
+pattern_set: cr01_cr02_edir_v1
+pattern_set_note: >
+  strategy: edir (evaluador direct_evidence, gating por persona IoU>=0.5). MISMOS
+  timings que v2 (CR-01 high 4000 ms / CR-02 medium 7000 ms), mismas regiones y
+  umbral de sujeto 0.35. Umbral de evidencia directa 0.25 = el default de la
+  plataforma (identico trato que el min_absent_class_confidence de E-IND): los
+  umbrales calibrados en imagenes (0.70/0.40) NO transfieren a video — en el humo
+  cr01_spec tuvo confianza MAXIMA 0.37 (doc 85 F-85.1) y con 0.70 la campana
+  daria cero por construccion. No se calibro sobre los clips (son el test set).
+granularity: scene
+granularity_note: 'G0 — sin track_id; idéntico a T1'
+path: DBE
+stride: 1
+path_note: 'stride=1 DBE, idéntico a T1 (ADR-013).'
+
+# --- PROCEDENCIA ---
+gt_bank: clip_bench (34 clips, Bloque A rodaje 2026-07-25)
+gt_manifest_yaml_sha256: cef5082e1eb1981c89251ba1b45d7ff044627f8aa1e428f50e0601abe64260e8
+gt_doc: docs/operacion/80-gt-rodaje-desde-cvat.md
+evaluator_note: >
+  Control-plane con el evaluador direct_evidence y el fix del derivador de
+  SDR/TTFD (F-85.2: _positive_flags_for_source despachaba SIEMPRE a
+  spatial_absence — con un run E-DIR sin clase EPP en el caption, toda persona
+  contaba como evidencia y el SDR salia ~1.0 con cero alertas; ahora despacha por
+  estrategia). Fixes F-EV1/2/3 incluidos. Suite 285 passed.
+  Los SDR/TTFD de esta campana usan el criterio de SU estrategia: comparables
+  entre si y contra el GT, pero el criterio de frame-positivo difiere del de T1
+  (ausencia espacial vs hit directo gateado) — declarado.
+hardware: NVIDIA RTX 4060 Laptop 8 GB (WSL2)
+smoke_note: >
+  Humo a_p1_c09 (doc 85): cadena verde (alertas emitidas, histéresis, SDR 0.37
+  interpretable), resultado P=R=0 en ese clip — confirma prematura a 4.0 s con
+  evidencia desde el frame 0 (ceguera al atributo de la frase durante el
+  pre-roll donde el GT dice "cumple", la contracara Nivel B del 54% de FP
+  atributo-ciegos medido en Nivel A).
+
+report_doc: docs/operacion/85-fase2-edir-nivel-b.md
+raw_evidence: docs/operacion/datos/85-d1-edir-clips/

@@ -1,0 +1,112 @@
+schema_version: person_state_campaign.v1
+campaign_id: d1_gdinotiny560_edir_vs_eind
+date: '2026-08-03'
+phase: D
+level: A
+description: >
+  Fase D — Fase 1 del pre-registro (nucleo/04 §7): E-DIR vs E-IND puntuadas a nivel
+  PERSONA sobre el bench de imágenes, con umbrales calibrados en la mitad A y todo lo
+  reportado saliendo de la mitad B. Es el gate del §8: decide si E-DIR llega a la
+  Fase 2 (clips) como candidata a núcleo.
+
+# --- LO QUE SE VARÍA (la única variable) ---
+variable: prompt_set
+arms:
+  eind:
+    prompt_set: eind_v1
+    frozen_sha256: 7a0126f45eb1362a2cfcc67458caa307357dc3f7684188fae6486486cd5ed770
+    caption_regime: joint
+    note: >
+      Las 3 clases canónicas en UN caption ("person. helmet. vest.") — su forma
+      desplegada. La predicción sale de aplicar spatial_absence offline con las
+      regiones del pattern set cr01_cr02_v2.
+  edir:
+    prompt_set: edir_v1
+    frozen_sha256: a1278d0c34cd13beb759a1fe10b13c7096f147f7be23154f28a79454b5643703
+    caption_regime: isolated
+    variants_scored: [cr01_neg, cr01_spec, cr01_obs, cr02_neg, cr02_spec, cr02_obs]
+    variants_excluded: [cr01_template, cr02_template]
+    note: >
+      UNA CORRIDA POR VARIANTE, cada frase sola en su caption. Con las 6 juntas el
+      phrase grounding tendría que repartir cajas entre frases que comparten casi
+      todo el vocabulario, y el número mediría formulación + amontonamiento del
+      caption. Los dos diagnostic_template quedan fuera por ser sondas del eje de
+      presencia (enabled_by_default: false), no candidatas a evidencia de ausencia.
+
+# --- LO QUE SE MANTIENE FIJO ---
+model: grounding-dino/gdino-tiny-560
+model_note: >
+  Campeón S1/S2 (doc 64). Zero-shot. image_size 560, box_threshold 0.30,
+  text_threshold 0.25 — idénticos en los dos brazos.
+regions: cr01_cr02_v2
+regions_note: >
+  E-IND usa las regiones del pattern set DESPLEGADO (CR-01 upper_body 0.0–0.45
+  margen 0.12; CR-02 torso 0.25–0.85 margen 0.08), no unas calibradas para el bench.
+matching: iou>=0.5, greedy 1:1 por confianza
+matching_note: >
+  Una predicción consume a lo sumo una persona del GT: si no, una caja grande
+  "acierta" toda una multitud. Una predicción sin persona del GT es FP.
+
+# --- PARTICIÓN CALIB / TEST ---
+split: stratified_halves
+split_seed: 20260803
+split_note: >
+  Estratificada por presencia de violador de la condición evaluada. Los umbrales se
+  calibran SOLO en la mitad A; todas las métricas reportadas salen de la mitad B.
+threshold_grids:
+  eind_person: [0.30, 0.35, 0.40, 0.45, 0.50, 0.60, 0.70, 0.80]
+  eind_evidence: [0.30, 0.35, 0.40, 0.45, 0.50, 0.60, 0.70, 0.80]
+  edir: [0.30, 0.35, 0.40, 0.45, 0.50, 0.55, 0.60, 0.65, 0.70, 0.75, 0.80, 0.85]
+threshold_grids_note: >
+  Idénticos para los dos brazos y arrancan en 0.30 porque el modelo no emite por
+  debajo de su box_threshold. Llegan a 0.80/0.85 tras comprobar que con el grid
+  cortado en 0.50/0.60 AMBOS brazos elegían su valor máximo: el óptimo caía en el
+  borde y la comparación medía el techo del grid, no la estrategia.
+
+# --- MATERIAL Y GT ---
+strata:
+  bench_obra:
+    images: 147
+    conditions: [CR-01, CR-02]
+    person_gt: processed/coco/bench/curated/person_gt_bench_obra_v2.json
+    persons: 262
+    violators_cr01: 60
+    violators_cr02: 142
+  shel5k:
+    images: 5000
+    conditions: [CR-01]
+    person_gt: processed/coco/bench/curated/person_gt_shel5k.json
+    persons: 20015
+    violators_cr01: 5248
+strata_note: >
+  CR-02 se puntúa SOLO en bench_obra: es el único estrato con GT de chaleco a nivel
+  persona. El universo de imágenes es el estrato completo, no solo las imágenes con
+  personas anotadas — si no, una alucinación sobre una imagen vacía no paga costo.
+excluded_stratum:
+  chv:
+    reason: circularidad_D10
+    note: >
+      CHV tiene 3.887 person + 1.784 vest a nivel caja y habría dado n grande para
+      CR-02, pero derivar has_vest de "ninguna caja vest cae dentro de la persona" ES
+      la operación de E-IND (spatial_absence). Ese GT haría circular la comparación
+      E-DIR vs E-IND en el eje central de la tesis. Descartado.
+
+cr02_gt_provenance: explicit_raw_negatives
+cr02_gt_note: >
+  has_vest sale de la clase negativa explícita NO-Safety Vest del raw de
+  construction_site_safety (147 anotaciones humanas en 56 de las 147 imágenes), que
+  canonical_v2 no arrastra. NUNCA inferido por ausencia de cajas vest positivas (D10).
+  Cada negativo se atribuye a UNA sola persona: sin eso salían 148 violadores contra
+  147 negativos porque 15 cajas caen en dos cuerpos superpuestos. Las 27 personas
+  candidatas en casos ambiguos quedan marcadas con vest_attribution_ambiguous.
+
+# --- PROCEDENCIA ---
+hardware: NVIDIA RTX 4060 Laptop 8 GB (WSL2)
+inference_runs: docs/operacion/datos/83-fase-d-nivel-a/runs.json
+report_doc: docs/operacion/83-fase-d-nivel-a-edir-vs-eind.md
+scorer: e-ovrt_datasets/datasets/scripts/bench/run_fase_d_nivel_a.py
+comparability_note: >
+  Los runs de bench de Sprint 2 NO son reutilizables como brazo E-IND: usaron
+  cr01_cr02_bench_v2 (4 clases, con bare_head declarado observable_state — el mismo
+  eje que cr01_obs de E-DIR) y el caption de GDINO se arma con todas las frases
+  activas. E-IND se re-infirió con eind_v1 limpio.

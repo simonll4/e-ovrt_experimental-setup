@@ -1,0 +1,44 @@
+schema_version: clip_campaign.v1
+campaign_id: t2_gdinobase560_v2short_scene
+date: '2026-08-04'
+phase: T
+description: >
+  Contraste de MODELO contra la línea de base T1: se cambia gdino-tiny-560 por
+  gdino-base-560 y se deja todo lo demás idéntico. Pone a prueba F-81.2b — si los
+  missed de P7/P9 vienen de mis-detección de casco en el pre-roll, el especialista
+  CR-01/bare_head del doc 64 debería recuperarlos.
+
+# --- LA COMBINACIÓN (lo que se está midiendo) ---
+model: grounding-dino/gdino-base-560
+model_note: >
+  Especialista CR-01/bare_head del doc 64 (recall CR-01 0.599 vs 0.308 del campeón).
+  Zero-shot. image_size 560, box_threshold 0.30, text_threshold 0.25.
+  ÚNICA variable respecto de T1.
+prompt_set: cr01_cr02_v2_short
+prompt_set_frozen_sha256: df81fd48b6daf8924b5fb66aa1ce4acc0c880ac6ed8cd1245c6aca1babdb309a
+prompt_set_note: 'clases: person / helmet / vest (activas las 3) — idéntico a T1'
+pattern_set: cr01_cr02_v2
+pattern_set_note: 'CR-01 high confirm_after_ms=4000; CR-02 medium 7000 — idéntico a T1'
+granularity: scene
+granularity_note: 'G0 — sin track_id; idéntico a T1'
+path: DBE
+stride: 1
+path_note: >
+  stride=1, sin límite de tasa: mide percepción + patrón, NO latencia operativa
+  (ADR-013). Idéntico a T1.
+
+# --- PROCEDENCIA ---
+gt_bank: clip_bench (34 clips, Bloque A rodaje 2026-07-25)
+gt_manifest_yaml_sha256: cef5082e1eb1981c89251ba1b45d7ff044627f8aa1e428f50e0601abe64260e8
+gt_doc: docs/operacion/80-gt-rodaje-desde-cvat.md
+evaluator_note: >
+  Mismo evaluador que T1 (control-plane c1cbb56, fixes F-EV1/2/3 aplicados) →
+  DIRECTAMENTE comparable con T1 sin re-evaluar.
+hardware: NVIDIA RTX 4060 Laptop 8 GB (WSL2)
+duration_note: >
+  34/34 clips sin errores, ~104 min (vs ~50 min de T1: base-560 es ~2x más lento
+  por frame que tiny-560). Corrida como 2ª etapa de la cadena nocturna
+  datos/84-cadena-base560.sh.
+
+report_doc: docs/operacion/84-replica-base560-nivel-a-y-t2.md
+raw_evidence: docs/operacion/datos/84-t2-base560-clips/
