@@ -68,12 +68,25 @@ doc 81 §3). Ignorarlas produce conclusiones falsas con números correctos:
 
 ## Limitaciones declaradas
 
-`L1` FAR (determinación D-90.1) · `L2` sin doble anotación, sin kappa (decisión) ·
-`L3` seis bordes adjudicados · **`L4` un solo bloque guionado, sin obra real en
-video** (la más citable; la levanta el lote de internet cuando tenga GT) · `L5`
-escenarios desbalanceados · CR-02 a Nivel A en un solo estrato con IC solapados · el
-`track_id` de G1 es post-hoc/decorador (verificado en vivo, pero el tracker no está
-medido en obra real) · licencia de `chv` parcial (20,5% del bench de imágenes).
+**Lista canónica cerrada el 2026-08-05 (L1–L8).** Antes había cinco etiquetadas y tres
+sueltas sin etiqueta; ahora las ocho tienen código, porque se citan cruzado entre
+documentos y en el informe.
+
+| | Limitación |
+|---|---|
+| **L1** | **FAR/hora no reportable** (D-90.1): harían falta 3 h de cumplimiento anotado y el banco llega a 0,10–0,26 h. Se reemplaza por el **control de negativos**, que discrimina (T1/T2/G1: 0 FP de 4; D1/H1/B1: 2–3) |
+| **L2** | Sin doble anotación ni kappa — **decisión declarada, no omisión** |
+| **L3** | **Seis bordes del GT adjudicados** por oclusión (no cambio de estado), con firma en `clip.yaml` |
+| **L4** | **Un solo bloque guionado, sin obra real en video** — la más citable. Mismos actores, misma locación. La levanta el lote de internet cuando tenga GT |
+| **L5** | **Escenarios desbalanceados** ⇒ obliga a reportar siempre por escenario y por estrato |
+| **L6** | **El tracker no está medido en obra real con multitud** — G1 se verificó en vivo con pocos sujetos; el `track_id` es post-hoc/decorador |
+| **L7** | **Licencia de `chv` parcial** (20,5% del bench de imágenes): uso permitido con cita, sin redistribución |
+| **L8** | **CR-02 a Nivel A no cerrada** — un solo estrato, IC solapados |
+
+> **Ojo al citar `L1`:** la **Fase L** del plan maestro (doc 62) usa `L0`/`L1` para sus
+> hitos (`L0` = ensayo pre-rodaje, `L1` = el rodaje). Son cosas distintas: escribir
+> **"limitación L1"** cuando se habla de esta lista, y "hito L1" / "el rodaje" cuando se
+> habla de la fase.
 
 ## Verificación de estos índices
 

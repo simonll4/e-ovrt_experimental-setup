@@ -100,11 +100,12 @@ solapan con los de E-IND: el 0,87 alcanza para que el gate no se dispare (es un
 umbral, no una prueba de significancia) pero **no** para afirmar que las estrategias
 empatan en chaleco. Haría falta otra fuente con negativos de chaleco explícitos.
 
-## Próximas campañas
+## Campañas de Fase 2 que salieron de acá (todas resueltas — ver `results/clip_bench/`)
 
-| Prioridad | Combinación | Qué responde | Estado |
-|---|---|---|---|
-| 1 | Fase 2 (Nivel B): E-DIR sobre el clip bench | ¿La formulación directa sobrevive al motor temporal? Evaluador `direct_evidence` **implementado** (spec 41 §6.1, control-plane 285 passed, doc 85); brazo E-IND = T1 | **campaña D1 corriendo (2026-08-04)** |
-| 2 | Fase 2: fusiones E-HYB (`hyb_or` ya implementada; `hyb_and` = factor de ventana, pendiente) | §8.3: adopción solo si supera a la mejor individual en F1 de alertas por ≥0,05. Corroboración de CR-01 validada 2,4–3,0×; CR-02 indeterminada (F-83.7 corregido, doc 84) | tras D1 |
-| 3 | ~~`gdino-base-560` réplica Nivel A + T2 clips~~ | **HECHA (doc 84)**: F-84.1 estructural, F-84.5/F-84.6 en clips | completa |
-| 4 | `bare_head` como evidencia directa × base-560 (Nivel B) | La vía que T2 no probó (F-84.5): la mayor separación entre modelos (0,599 vs 0,308) consumida por `direct_evidence` con `match: region_center` | habilitada por el evaluador |
+| Combinación | Resolución |
+|---|---|
+| ~~Fase 2 (Nivel B): E-DIR sobre el clip bench~~ | **HECHA (D1, doc 85)**: precision 0,146 < 0,5 ⇒ **veto del §8, E-DIR descartada como núcleo**; el ratio F1 cae de 0,34–0,46 (Nivel A) a 0,20 — la brecha se agranda con la plataforma (F-85.4: el ranking de Nivel A no transfiere) |
+| ~~Fase 2: fusión `hyb_or`~~ | **HECHA (H1, doc 87)**: predicción refutada — recall 0,824→0,353; F-87.2: la unión de evidencia NO es monótona en un motor temporal |
+| ~~Fase 2: fusión `hyb_and`~~ | **No ejecutada CON CAUSA (D-90.4)**: no es medible contra este banco sin romper la comparabilidad de las 6 campañas (el evaluador deriva la ventana de la persistencia nominal del GT); predicción y condición de medición escritas (doc 87 §5) |
+| ~~`gdino-base-560` réplica Nivel A + T2 clips~~ | **HECHA (doc 84)**: F-84.1 estructural, F-84.5/F-84.6 en clips |
+| ~~`bare_head` como evidencia directa × base-560 (Nivel B)~~ | **HECHA (B1, doc 88)**: F-88.2 — tampoco alcanza (0,480 vs 0,582 sobre las mismas detecciones); de yapa F-88.1 (costo del caption: 0,082 de F1 por una palabra) y F-88.3 (la etiqueta corta gana a la frase negada) |

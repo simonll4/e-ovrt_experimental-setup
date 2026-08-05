@@ -236,7 +236,12 @@ Variable única contra T1/G1: el `stride`.
 
 > **Qué NO miden.** No son corridas por el bus: miden densidad de evidencia sobre el
 > camino DBE. Integridad del acople y latencia operativa siguen viniendo de los humos
-> EBE (docs 37/65/67/91). El decimado es regular; el descarte live es irregular.
+> EBE (docs 37/65/67/91). El decimado es regular; el descarte live es irregular —
+> **límite cerrado por el doc 101**: la irregularidad real se midió (CV 0,22 hoy /
+> 0,36 rodaje) y el eje se re-corrió con decimado empírico (3 semillas, equivalencia
+> decimado≡re-inferencia verificada 34/34 contra R1): ningún contraste
+> jitter−regular detectable y la ganancia de la identidad conserva el signo en 6/6
+> realizaciones (F-101.3/4, con matiz declarado a 2,5 fps).
 
 ## Campañas candidatas (el contraste que falta)
 

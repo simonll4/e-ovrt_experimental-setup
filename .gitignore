@@ -4,3 +4,10 @@ runs/
 cameras/
 
 .worktrees/
+
+# videos de defensa: media derivada, se regenera con defensa/armar_videos.py
+defensa/videos/
+defensa/trabajo/
+
+__pycache__/
+*.pyc

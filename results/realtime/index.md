@@ -37,6 +37,17 @@ toda corrida live es re-evaluable offline y produce artefactos idénticos (verif
 > **Orden de arranque EBE:** control-plane **primero** (`POST :8081/api/runs`,
 > `mode: live`, cuyo 201 implica suscripción activa) y media-plane **después** con
 > `bus.enabled: true`. PUB/SUB pierde lo publicado antes de la suscripción.
+>
+> **Tres trampas más, medidas el 2026-08-05 (doc 101 §5.2):** **F-101.5** la fuente
+> OAK-D no cierra cooperativamente y depthai tira `std::system_error` desde un hilo
+> no-Python → **SIGABRT del media-plane** (misma familia que la de ZeroMQ, otro
+> culpable) ⇒ **una sola corrida OAK-D por vida del servicio**; los artefactos se
+> salvan porque se escriben incrementalmente. **F-101.6** el device crashea y
+> reconecta **mientras el ping ICMP da 0% de pérdida** (la pila de red del PoE
+> responde con la aplicación caída) ⇒ el ping no descarta nada, el remedio es
+> power-cycle. **F-101.7** el status en vivo del media-plane **no trae
+> `units_processed`** (aparece recién en el `summary`): esperar frames leyéndolo de
+> ahí reporta "la cámara no entregó frames" con la cámara funcionando.
 
 ## 2. Latencia operativa (G2A: captura → alerta)
 
@@ -51,6 +62,19 @@ en presupuesto temporal (YOLOE) es el que **no sirve para la condición** (recal
 `bare_head` 0,000 en el bench de imágenes, y en vivo produjo una CR-02 falsa al 100% y
 dos alertas con tiempo corrompido). El que detecta (GDINO) no entra en presupuesto.
 Esa tensión calidad↔latencia es un hallazgo de primera línea del trabajo.
+
+> **F-101.8 — el G2A se mide desde el DEQUEUE, no desde el fotón, y el informe debe
+> decirlo.** `capture_wallclock_ms` se estampa cuando el host saca el frame de la
+> cola; el wallclock del fotón es `capture_wallclock_ms − capture_to_host_ms`. O sea
+> que **la latencia vidrio→alerta es `capture_to_host` + G2A**, y ese término varía
+> un orden de magnitud con el estado de la fuente (medianas por corrida):
+> **202–217 ms en las 6 corridas del rodaje**, **169 ms** en el humo del doc 91 y
+> **1.600 ms** en las tomas del 08-05 (cola estacionaria, huecos regulares de
+> 275 ms — consistente con el doc 61 hallazgo 5: el cuello es la fuente, no el
+> modelo). Está instrumentado por frame, así que es **declarable, no un hueco**, y
+> quedó **validado contra el mundo físico** por la toma anclada del doc 101 §5.4
+> (tono → fotón = +1.066 ms). **Los números de la tabla de arriba son G2A y su
+> lectura no cambia**: en el rodaje el término era ~0,21 s estable.
 
 ## 3. Techo de throughput y su diagnóstico
 
@@ -120,12 +144,33 @@ evidencia".** Lo esencial:
 > el **`t_alert` agregado no se compara entre densidades sin control de
 > supervivencia** (F-96.5).
 
+**Verificación posterior (doc 101, 2026-08-05).** El límite declarado del doc 96
+("el decimado es regular; el descarte live es irregular") quedó **medido y
+verificado**: la irregularidad real es CV 0,22 (estado actual, media 7,28 frames@30
+= 4,12 fps — que además **valida empíricamente el ancla stride 7** de R1/R2) y CV
+0,36 (rodaje); re-corriendo el eje con decimado **empírico** (huecos muestreados de
+esas distribuciones, 3 semillas, guard de equivalencia decimado≡re-inferencia verde
+en 34/34 contra R1), **ningún contraste jitter−regular es detectable** (12/12 IC
+cruzan el cero, t_alert +11 ms entre supervivientes comunes, 0 FP en negativos en
+las 16 variantes) y **la ganancia de la identidad conserva el signo en 6/6
+realizaciones** (F-101.3/4; matiz declarado a 2,5 fps en doc 101 §3).
+
 ## 5. Confirmaciones de patrones en vivo (evidencia contra reloj real)
 
 | Condición | Confirmaciones live legítimas | Deltas medidos | Umbral |
 |---|---|---|---|
 | CR-01 | **7** (rodaje: 18:30, 19:21, 19:43, 20:10 + humos) | 4,1–4,6 s | 4,0 s |
 | CR-02 | **3** (rodaje 15:47 + humo fase A + humo fase B) | 7,1 s y superiores | 7,0 s |
+
+**Verificación con reloj EXTERNO (doc 101 §5.4, toma anclada del 2026-08-05).** Lo
+anterior compara los relojes del sistema contra sí mismos; esta toma ancla la cadena
+a un instante físico conocido (tono generado por el host, cuyo wallclock real se
+mide, y el sujeto entra a cuadro en ese instante). Las cuatro patas cierran:
+**ancla física→estampa +1.066 ms**; **onset observado = 1ª evidencia del motor**
+(mismo frame, con confirmación visual del hombro entrando al cuadro); **política
+4.142 ms** contra 4.000; **relojes de los dos procesos con 4 ms de residuo**; y la
+**cadena completa tono→alerta = 7.045 ms = 2.716 + 4.329**. Cierra el stretch que el
+doc 58 había declarado diferible. Cadencia de esa corrida: 3,60 fps, CV **0,016**.
 
 La aritmética cierra contra la política, que es lo que había que demostrar del motor
 temporal en vivo. El caso de las 19:21 además demostró la resolución con histéresis:
@@ -160,10 +205,14 @@ medir G1.
 ## 7. Qué NO está medido
 
 - **Campaña EBE de punta a punta por el bus sobre los 34 clips.** El eje de calidad se
-  cubre hoy por proxy de densidad sobre DBE (doc 96) + integridad verificada en humos.
-  Trabajo ubicado, no ejecutado.
-- **La irregularidad del descarte live.** El decimado del doc 96 es regular; el live
-  descarta con jitter según lo que el consumidor tome. Ese efecto no está medido.
+  cubre hoy por proxy de densidad sobre DBE (doc 96) + integridad verificada en humos,
+  y el proxy quedó verificado también contra el descarte irregular (doc 101) — la
+  prioridad de esta campaña baja aún más. Bloqueo técnico: el ancla wallclock↔media
+  (ingeniería, no material). Trabajo ubicado, no ejecutado.
+- ~~La irregularidad del descarte live~~ → **MEDIDA Y VERIFICADA (doc 101)**: CV
+  0,22–0,36 según estado del host, sin efecto detectable sobre el eje de densidad.
+  Residuo de segundo orden declarado: el jitter muestreado es i.i.d.; el real puede
+  correlacionar con el contenido de la escena.
 - **El tracker en obra real con multitud.** G1 se verificó en vivo con pocos sujetos.
 - **Ancla de sincronización para EBE-desde-clip**, lo que impediría hoy alimentar el
   banco por el bus con correspondencia exacta al GT temporal.
@@ -184,4 +233,5 @@ medir G1.
 | Protocolo de higiene de medición | `docs/operacion/74` |
 | Regresión live post-cambios + G1 en vivo | `docs/operacion/91` |
 | **Calidad bajo densidad del live** | `docs/operacion/96` + `results/clip_bench/` |
+| **Irregularidad del descarte live + verificación por decimado empírico** | `docs/operacion/101` + `datos/101-*` |
 | Manual de arranque y trampas operativas | `docs/operacion/68` |
