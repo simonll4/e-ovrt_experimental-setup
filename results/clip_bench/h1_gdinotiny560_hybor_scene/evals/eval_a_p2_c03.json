@@ -1,0 +1,71 @@
+{
+  "schema_version": "control.eval.temporal.v1",
+  "scenario_id": "a_p2_c03",
+  "alerts_path": "/home/simonll4/projects/docs/operacion/datos/87-h1-hybor-clips/control_runs/control_h1_hybor_a_p2_c03_20260804T165151Z/alerts.jsonl",
+  "ground_truth_path": "/home/simonll4/projects/e-ovrt_datasets/datasets-videos/gt/a_p2_c03.json",
+  "expected_alerts_count": 1,
+  "observed_alerts_count": 3,
+  "matched_alerts_count": 1,
+  "missed_alerts_count": 0,
+  "unexpected_alerts_count": 2,
+  "duplicate_alerts_count": 0,
+  "precision": 0.333333,
+  "recall": 1.0,
+  "f1": 0.5,
+  "avg_latency_frames_from_first_evidence": null,
+  "avg_latency_ms_from_first_evidence": null,
+  "re_alerts_count": 0,
+  "sub_threshold_count": 0,
+  "censored_episodes_count": 0,
+  "observed_duration_ms": 37500.0,
+  "far_per_hour": 192.0,
+  "applicability_state": "computed",
+  "applicability_cause": null,
+  "avg_latency_ms_from_episode_start": 8900.0,
+  "effective_matching_windows": {
+    "CR-02": {
+      "persistencia_min_ms": 7000.0,
+      "t_alert_max_ms": 20000.0,
+      "origin": "gt_provenance"
+    }
+  },
+  "warnings": [],
+  "matches": [],
+  "missed_alerts": [],
+  "unexpected_alerts": [
+    {
+      "alert_id": "7bcb51a8-7db7-5eb6-8a72-d3118b0b2330",
+      "condition_id": "CR-01",
+      "subject_key": "CR-01:a_p2_c03",
+      "frame_index": 151,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "caa76ce4-15d0-5d75-bd9e-e15346226bd1",
+      "condition_id": "CR-01",
+      "subject_key": "CR-01:a_p2_c03",
+      "frame_index": 920,
+      "reason": "outside_all_episode_windows"
+    }
+  ],
+  "censored_episodes": [],
+  "avg_ttfd_ms": 0.0,
+  "avg_sdr": 0.173742,
+  "ttfd_by_episode": [
+    {
+      "episode_id": "ep1",
+      "ttfd_ms": 0.0,
+      "cause": null
+    }
+  ],
+  "sdr_by_episode": [
+    {
+      "episode_id": "ep1",
+      "sdr": 0.17374247104247126,
+      "cause": null
+    }
+  ],
+  "ttfd_sdr_applicability": "computed",
+  "positive_criterion": "spatial_absence(cr01_cr02_hyb_or_v1) >=1 evidencia",
+  "detections_path": "/home/simonll4/projects/docs/operacion/datos/87-h1-hybor-clips/fusion/a_p2_c03.jsonl"
+}

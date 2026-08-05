@@ -1,0 +1,48 @@
+{
+  "schema_version": "control.eval.temporal.v1",
+  "scenario_id": "a_p5_c02",
+  "alerts_path": "/home/simonll4/projects/docs/operacion/datos/88-b1-barehead-clips/barehead/control_runs/control_b1_barehead_a_p5_c02_20260804T175846Z/alerts.jsonl",
+  "ground_truth_path": "/home/simonll4/projects/e-ovrt_datasets/datasets-videos/gt/a_p5_c02.json",
+  "expected_alerts_count": 0,
+  "observed_alerts_count": 1,
+  "matched_alerts_count": 0,
+  "missed_alerts_count": 0,
+  "unexpected_alerts_count": 1,
+  "duplicate_alerts_count": 0,
+  "precision": 0.0,
+  "recall": 0.0,
+  "f1": 0.0,
+  "avg_latency_frames_from_first_evidence": null,
+  "avg_latency_ms_from_first_evidence": null,
+  "re_alerts_count": 0,
+  "sub_threshold_count": 0,
+  "censored_episodes_count": 0,
+  "observed_duration_ms": 52767.0,
+  "far_per_hour": 68.224458,
+  "applicability_state": "not_applicable",
+  "applicability_cause": "negative_clip_no_episodes",
+  "avg_latency_ms_from_episode_start": null,
+  "effective_matching_windows": {},
+  "warnings": [
+    "clip negativo (0 episodios en el GT): precision/recall/F1 no son evaluables (denominador 0) y NO deben promediarse. Lo que si es dato real: 1 falso(s) positivo(s) y far_per_hour — este clip es control de falsos positivos, no de recall."
+  ],
+  "matches": [],
+  "missed_alerts": [],
+  "unexpected_alerts": [
+    {
+      "alert_id": "21ece930-c5fc-55ff-9bbc-858c1db39ad8",
+      "condition_id": "CR-01",
+      "subject_key": "CR-01:a_p5_c02",
+      "frame_index": 345,
+      "reason": "outside_all_episode_windows"
+    }
+  ],
+  "censored_episodes": [],
+  "avg_ttfd_ms": null,
+  "avg_sdr": null,
+  "ttfd_by_episode": [],
+  "sdr_by_episode": [],
+  "ttfd_sdr_applicability": "computed",
+  "positive_criterion": "spatial_absence(cr01_bare_head_v1) >=1 evidencia",
+  "detections_path": "/home/simonll4/projects/e-ovrt_media-plane/runs/run_20260804_175444_dbe_grounding_dino_79dbd4/detections.jsonl"
+}

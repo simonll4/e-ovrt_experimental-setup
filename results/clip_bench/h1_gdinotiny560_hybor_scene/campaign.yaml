@@ -1,0 +1,56 @@
+schema_version: clip_campaign.v1
+campaign_id: h1_gdinotiny560_hybor_scene
+date: '2026-08-04'
+phase: D
+description: >
+  Fusion E-HYB-or a Nivel B (doc 12 §4.3): la unidad visual aporta evidencia si la
+  aporta spatial_absence (E-IND) O direct_evidence (E-DIR gateada por persona).
+  Prediccion pre-registrada a contrastar: sube recall, baja precision; la histeresis
+  filtra parte del ruido extra. F-85.5 la ubica: la ganancia esperada esta en el
+  pre-roll (P9), no en general.
+
+# --- LA COMBINACIÓN ---
+model: grounding-dino/gdino-tiny-560
+model_note: 'Idéntico a T1 y D1 — no hay inferencia nueva en esta campaña.'
+prompt_set: fusión dual-run de T1 (eind_v1/v2_short) + D1 (edir_v1 par)
+prompt_set_note: >
+  DUAL-RUN, no vocabulario unión (doc 12 §4.1). Las detecciones de E-IND vienen de la
+  corrida T1 y los hits directos de la corrida D1, bit a bit los mismos; toda
+  diferencia observada es atribuible SOLO a la función de fusión. Un pase único con
+  las 5 clases daría señales distintas: está medido que `person` con la MISMA frase
+  produce 729 vs 731 cajas en a_p1_c09 (1095 vs 1317 en a_p2_c01) según el resto del
+  caption — que es exactamente el fundamento del pre-registro.
+  Fusión producida por `datasets/scripts/bench/merge_dual_run.py` (11 tests): del
+  stream E-IND entra todo; del E-DIR solo las clases de evidencia directa (sus
+  `person` se descartan para no duplicar sujetos).
+pattern_set: cr01_cr02_hyb_or_v1
+pattern_set_note: >
+  strategy: hyb_or. ÚNICA variable vs cr01_cr02_v2: la estrategia de evidencia.
+  Mismos timings (4000/7000), regiones, granularidad y umbral de sujeto; umbral de
+  evidencia directa 0.25 = el mismo de cr01_cr02_edir_v1 (trato simétrico).
+granularity: scene
+path: DBE
+stride: 1
+path_note: 'Hereda el stride=1 de las corridas fusionadas. SIN GPU: solo replay (CPU).'
+
+# --- DESVIACIÓN DECLARADA Y MEDIDA ---
+gating_deviation: >
+  El gating por persona de direct_evidence (doc 12 §4.2) usa las personas del stream
+  E-IND, no las del E-DIR contra las que se gatearon en D1 — en el sistema fusionado
+  hay una sola fuente de sujetos, coherente con §4.3 (E-IND es la señal primaria).
+  MEDIDO sobre los 34 clips: de 5.943 hits directos gateados en D1, 5.897 siguen
+  gateando contra las personas de T1 = 99,2%. La desviación afecta al 0,8% de los
+  hits. No se supuso: se midió con `merge_dual_run.py --medir-gating`.
+
+# --- PROCEDENCIA ---
+gt_bank: clip_bench (34 clips, Bloque A rodaje 2026-07-25)
+gt_manifest_yaml_sha256: cef5082e1eb1981c89251ba1b45d7ff044627f8aa1e428f50e0601abe64260e8
+gt_doc: docs/operacion/80-gt-rodaje-desde-cvat.md
+evaluator_note: >
+  Mismo control-plane que D1 (evaluador direct_evidence + fix del derivador SDR/TTFD
+  por estrategia + F-EV1/2/3). Directamente comparable con T1 y D1 sin re-evaluar.
+hardware: 'CPU (sin GPU: la fusión es dual-run sobre corridas existentes)'
+duration_note: '34/34 clips en 0,4 min'
+
+report_doc: docs/operacion/87-ehyb-nivel-b.md
+raw_evidence: docs/operacion/datos/87-h1-hybor-clips/

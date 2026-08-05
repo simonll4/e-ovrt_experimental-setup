@@ -72,6 +72,8 @@ Están implementadas en `aggregate_clip_campaign.py` y cubiertas por
 
 Vienen del banco, no de la combinación — están en
 `e-ovrt_datasets/datasets/registry/clip_bench.md` (L1–L5) y se declaran una vez
-en el informe, no por campaña: sin soak (FAR no computable), sin doble anotación
+en el informe, no por campaña: **FAR/hora no reportable como rendimiento**
+(determinación doc 90 D-90.1: ninguna cota alcanzable sostiene una afirmación; la
+evidencia de FP es el control de negativos, comparativo pareado), sin doble anotación
 (sin kappa, decisión del equipo), 6 episodios con bordes adjudicados, un solo
 bloque guionado sin obra real, escenarios desbalanceados.

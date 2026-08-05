@@ -1,0 +1,71 @@
+{
+  "schema_version": "control.eval.temporal.v1",
+  "scenario_id": "a_p2_c04",
+  "alerts_path": "/home/simonll4/projects/docs/operacion/datos/87-h1-hybor-clips/control_runs/control_h1_hybor_a_p2_c04_20260804T165152Z/alerts.jsonl",
+  "ground_truth_path": "/home/simonll4/projects/e-ovrt_datasets/datasets-videos/gt/a_p2_c04.json",
+  "expected_alerts_count": 1,
+  "observed_alerts_count": 4,
+  "matched_alerts_count": 1,
+  "missed_alerts_count": 0,
+  "unexpected_alerts_count": 2,
+  "duplicate_alerts_count": 0,
+  "precision": 0.333333,
+  "recall": 1.0,
+  "f1": 0.5,
+  "avg_latency_frames_from_first_evidence": null,
+  "avg_latency_ms_from_first_evidence": null,
+  "re_alerts_count": 1,
+  "sub_threshold_count": 0,
+  "censored_episodes_count": 0,
+  "observed_duration_ms": 42333.0,
+  "far_per_hour": 170.080079,
+  "applicability_state": "computed",
+  "applicability_cause": null,
+  "avg_latency_ms_from_episode_start": 8000.33,
+  "effective_matching_windows": {
+    "CR-02": {
+      "persistencia_min_ms": 7000.0,
+      "t_alert_max_ms": 20000.0,
+      "origin": "gt_provenance"
+    }
+  },
+  "warnings": [],
+  "matches": [],
+  "missed_alerts": [],
+  "unexpected_alerts": [
+    {
+      "alert_id": "884d15ce-62c1-53ae-918b-631e56cdaec7",
+      "condition_id": "CR-01",
+      "subject_key": "CR-01:a_p2_c04",
+      "frame_index": 143,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "588bc9fc-57c8-51ec-81a7-706110bfec77",
+      "condition_id": "CR-01",
+      "subject_key": "CR-01:a_p2_c04",
+      "frame_index": 1193,
+      "reason": "outside_all_episode_windows"
+    }
+  ],
+  "censored_episodes": [],
+  "avg_ttfd_ms": 633.67,
+  "avg_sdr": 0.058531,
+  "ttfd_by_episode": [
+    {
+      "episode_id": "ep1",
+      "ttfd_ms": 633.6700000000001,
+      "cause": null
+    }
+  ],
+  "sdr_by_episode": [
+    {
+      "episode_id": "ep1",
+      "sdr": 0.05853095238095269,
+      "cause": null
+    }
+  ],
+  "ttfd_sdr_applicability": "computed",
+  "positive_criterion": "spatial_absence(cr01_cr02_hyb_or_v1) >=1 evidencia",
+  "detections_path": "/home/simonll4/projects/docs/operacion/datos/87-h1-hybor-clips/fusion/a_p2_c04.jsonl"
+}

@@ -1,0 +1,59 @@
+schema_version: clip_campaign.v1
+campaign_id: g1_gdinotiny560_v2short_subject
+date: '2026-08-04'
+phase: D
+description: >
+  Granularidad por SUJETO (G1) contra la línea de base de escena (T1). Cierra la última
+  palanca abierta del banco: el mecanismo (a) de F-81.2 (doc 81) — el único que ninguna
+  palanca de percepción ni de formulación puede tocar.
+
+  Bajo escena el motor acumula "alguien sin casco", pero el GT exige que UN SUJETO
+  sostenga la violación 4 s (regla C1 de derive_clip_gt). En multitud los sujetos se
+  relevan: la escena nunca deja de estar en evidencia aunque ninguna persona individual
+  sostenga el umbral, y la alerta cae fuera de la ventana del episodio. Bajo `subject`
+  la semántica del motor coincide con la del GT.
+
+# --- LA COMBINACIÓN ---
+model: grounding-dino/gdino-tiny-560
+model_note: 'Idéntico a T1 — NO hay inferencia nueva en esta campaña.'
+prompt_set: cr01_cr02_v2_short
+prompt_set_frozen_sha256: df81fd48b6daf8924b5fb66aa1ce4acc0c880ac6ed8cd1245c6aca1babdb309a
+prompt_set_note: 'Idéntico a T1.'
+pattern_set: cr01_cr02_v2_subject
+pattern_set_note: >
+  cr01_cr02_v2 con `granularity: subject`. ÚNICA variable respecto de T1: la
+  granularidad. Mismos timings (4000/7000), regiones, umbrales y estrategia (eind).
+granularity: subject
+granularity_note: >
+  G1. ADR-002: la escena sigue siendo el núcleo; las métricas se reportan a nivel
+  escena-condición y NO se computan métricas MOT ni GT de identidades (la exclusión del
+  ADR sigue vigente). `track_id` producido con el SimpleIoUTracker de eovrt_labs sobre
+  las detecciones de T1 — cajas bit a bit las mismas → contraste de variable única sin
+  re-inferir.
+  ✎ 2026-08-04: esta campaña se corrió con `tools.track_detections` (post-hoc), pero la
+  identidad YA ES capacidad de la plataforma: `sources/tracking.py` la produce como
+  decorador de fuente con `input.track_persons: true`, en DBE y en EBE/live (adenda de
+  ADR-002). VERIFICADO que el camino config-driven reproduce esta campaña EXACTO en los
+  34 clips, 11 campos por clip (matched/missed/FP, re_alerts, P/R/F1, t_alert, SDR y
+  TTFD incluidos).
+path: DBE
+stride: 1
+path_note: 'Hereda el stride=1 de T1. SIN GPU: tracking + replay, ambos CPU.'
+
+# --- GUARD ---
+guard_note: >
+  Si una persona quedara sin `track_id`, el motor degrada a clave de escena con causa
+  `no_track_id` y la campaña mediría G0 creyendo medir G1. El runner verifica por clip
+  que ninguna persona quede sin identidad y aborta ese clip si ocurre. 34/34 pasaron.
+
+# --- PROCEDENCIA ---
+gt_bank: clip_bench (34 clips, Bloque A rodaje 2026-07-25)
+gt_manifest_yaml_sha256: cef5082e1eb1981c89251ba1b45d7ff044627f8aa1e428f50e0601abe64260e8
+gt_doc: docs/operacion/80-gt-rodaje-desde-cvat.md
+evaluator_note: >
+  Mismo control-plane que D1/H1/B1. Comparable con T1 sin re-evaluar.
+hardware: 'CPU (tracking post-hoc + replay; sin GPU)'
+duration_note: '34/34 clips en 0,4 min'
+
+report_doc: docs/operacion/89-g1-granularidad-sujeto.md
+raw_evidence: docs/operacion/datos/89-g1-subject-clips/

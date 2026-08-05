@@ -1,0 +1,58 @@
+schema_version: clip_campaign.v1
+campaign_id: b1_gdinobase560_barehead_scene
+date: '2026-08-04'
+phase: D
+description: >
+  `bare_head` como EVIDENCIA DIRECTA de CR-01, con el modelo especialista. Cierra
+  F-84.5 (doc 84): la "especialidad CR-01" de gdino-base-560 (recall 0.599 vs 0.308
+  de tiny, doc 64) se midió DETECTANDO bare_head, y el prompt set desplegado
+  cr01_cr02_v2_short no incluye esa clase — la campaña T2 nunca la ejercitó. Es la
+  mayor separación medida entre los dos modelos y la última palanca de percepción sin
+  probar a Nivel B.
+
+# --- DISEÑO: una inferencia, dos evaluadores ---
+design_note: >
+  UNA corrida por clip con el caption de 4 clases, y DOS replays sobre las MISMAS
+  detecciones:
+    (a) cr01_cr02_v2      -> E-IND (spatial_absence sobre person/helmet)
+    (b) cr01_bare_head_v1 -> bare_head como evidencia directa (region_center)
+  Como (a) y (b) comparten las detecciones bit a bit, la comparación entre ambas es
+  de variable única: cambia SOLO el evaluador. Y (a) contra T2 (mismo modelo, caption
+  de 3 clases) aísla el efecto del caption.
+  Los números reportados en index.md son los de (b); (a) queda como control interno.
+
+# --- LA COMBINACIÓN ---
+model: grounding-dino/gdino-base-560
+model_note: >
+  Especialista bare_head/CR-01 del doc 64. Es el modelo en el que la palanca puede
+  rendir: con tiny la misma vía partiría de recall 0.308.
+prompt_set: cr01_cr02_bench_v2
+prompt_set_note: >
+  4 clases (person/helmet/vest/bare_head), status exploratory. Se usa ESTE caption a
+  propósito: es aquel en el que doc 64 midió la especialidad. Un caption distinto
+  (p.ej. person+bare_head solo) cambiaría el régimen de la detección y repetiría el
+  error F-83.1 — el vocabulario es parte de la inferencia.
+pattern_set: cr01_bare_head_v1
+pattern_set_note: >
+  strategy: edir, clase directa bare_head con `match: region_center` — bare_head es
+  una detección de PARTE (caja de cabeza), no persona-céntrica: se gatea por centro
+  dentro de la región upper_body del sujeto, igual que head_region del person_gt. Con
+  person_iou no gatearía nunca. Umbral 0.25 = default de plataforma, el mismo de
+  cr01_cr02_edir_v1 y cr01_cr02_hyb_or_v1. Timings, región, granularidad y umbral de
+  sujeto idénticos a cr01_cr02_v2: la única variable es de dónde sale la evidencia.
+  SOLO CR-01: bare_head no dice nada sobre el chaleco.
+granularity: scene
+path: DBE
+stride: 1
+
+# --- PROCEDENCIA ---
+gt_bank: clip_bench (34 clips, Bloque A rodaje 2026-07-25)
+gt_manifest_yaml_sha256: cef5082e1eb1981c89251ba1b45d7ff044627f8aa1e428f50e0601abe64260e8
+gt_doc: docs/operacion/80-gt-rodaje-desde-cvat.md
+evaluator_note: >
+  Mismo control-plane que D1/H1 (evaluador direct_evidence + despacho por estrategia
+  del derivador SDR/TTFD + F-EV1/2/3). Comparable con T1/T2/D1/H1 sin re-evaluar.
+hardware: NVIDIA RTX 4060 Laptop 8 GB (WSL2)
+
+report_doc: docs/operacion/88-barehead-evidencia-directa.md
+raw_evidence: docs/operacion/datos/88-b1-barehead-clips/

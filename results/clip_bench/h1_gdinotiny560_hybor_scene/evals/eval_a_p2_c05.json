@@ -1,0 +1,78 @@
+{
+  "schema_version": "control.eval.temporal.v1",
+  "scenario_id": "a_p2_c05",
+  "alerts_path": "/home/simonll4/projects/docs/operacion/datos/87-h1-hybor-clips/control_runs/control_h1_hybor_a_p2_c05_20260804T165153Z/alerts.jsonl",
+  "ground_truth_path": "/home/simonll4/projects/e-ovrt_datasets/datasets-videos/gt/a_p2_c05.json",
+  "expected_alerts_count": 1,
+  "observed_alerts_count": 5,
+  "matched_alerts_count": 1,
+  "missed_alerts_count": 0,
+  "unexpected_alerts_count": 3,
+  "duplicate_alerts_count": 0,
+  "precision": 0.25,
+  "recall": 1.0,
+  "f1": 0.4,
+  "avg_latency_frames_from_first_evidence": null,
+  "avg_latency_ms_from_first_evidence": null,
+  "re_alerts_count": 1,
+  "sub_threshold_count": 0,
+  "censored_episodes_count": 0,
+  "observed_duration_ms": 39467.0,
+  "far_per_hour": 273.646337,
+  "applicability_state": "computed",
+  "applicability_cause": null,
+  "avg_latency_ms_from_episode_start": 16733.67,
+  "effective_matching_windows": {
+    "CR-02": {
+      "persistencia_min_ms": 7000.0,
+      "t_alert_max_ms": 20000.0,
+      "origin": "gt_provenance"
+    }
+  },
+  "warnings": [],
+  "matches": [],
+  "missed_alerts": [],
+  "unexpected_alerts": [
+    {
+      "alert_id": "c21b3b4a-ad25-591d-b17c-391da66d5b23",
+      "condition_id": "CR-01",
+      "subject_key": "CR-01:a_p2_c05",
+      "frame_index": 121,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "92da7a7a-1a65-5286-aee8-8d8f3de79b40",
+      "condition_id": "CR-01",
+      "subject_key": "CR-01:a_p2_c05",
+      "frame_index": 535,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "c1c76580-09db-55f8-9b7a-97fe968b732d",
+      "condition_id": "CR-01",
+      "subject_key": "CR-01:a_p2_c05",
+      "frame_index": 867,
+      "reason": "outside_all_episode_windows"
+    }
+  ],
+  "censored_episodes": [],
+  "avg_ttfd_ms": 0.33,
+  "avg_sdr": 0.070011,
+  "ttfd_by_episode": [
+    {
+      "episode_id": "ep1",
+      "ttfd_ms": 0.32999999999992724,
+      "cause": null
+    }
+  ],
+  "sdr_by_episode": [
+    {
+      "episode_id": "ep1",
+      "sdr": 0.07001085168201084,
+      "cause": null
+    }
+  ],
+  "ttfd_sdr_applicability": "computed",
+  "positive_criterion": "spatial_absence(cr01_cr02_hyb_or_v1) >=1 evidencia",
+  "detections_path": "/home/simonll4/projects/docs/operacion/datos/87-h1-hybor-clips/fusion/a_p2_c05.jsonl"
+}
