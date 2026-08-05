@@ -1,0 +1,48 @@
+prompt_set:
+  id: clase_nueva_v1
+  description: >
+    Mini-piloto de clase nueva (doc 62 SS7 / argumento A1 de nucleo/09): mide el costo
+    real de agregar condiciones que la plataforma JAMAS configuro ni evaluo. Este
+    archivo ES el artefacto cuyo costo se reporta: cero entrenamientos, estas lineas,
+    minutos. Dos grupos: (a) machinery/vehicle — tienen GT humano en el raw de
+    construction_site_safety sobre el nucleo curado bench_obra => AP@0.5 REAL;
+    (b) excavator/dump truck/tower crane — vocabulario de maquinaria especifica para
+    MOCS (solo anota Worker => evidencia cualitativa + ancla person-vs-Worker).
+  language: en
+  status: exploratory
+  track: comparative
+  classes:
+    # --- el catalogo desplegado (v2_short, congelado) ---
+    - id: person
+      role: entity
+      strategy: canonical_positive
+      phrasings: { default: ["person"] }
+    - id: helmet
+      role: ppe
+      strategy: canonical_positive
+      phrasings: { default: ["helmet"] }
+    - id: vest
+      role: ppe
+      strategy: canonical_positive
+      phrasings: { default: ["vest"] }
+    # --- las clases NUEVAS (nunca configuradas en el proyecto) ---
+    - id: machinery
+      role: entity
+      strategy: canonical_positive
+      phrasings: { default: ["machinery"] }
+    - id: vehicle
+      role: entity
+      strategy: canonical_positive
+      phrasings: { default: ["vehicle"] }
+    - id: excavator
+      role: entity
+      strategy: canonical_positive
+      phrasings: { default: ["excavator"] }
+    - id: dump_truck
+      role: entity
+      strategy: canonical_positive
+      phrasings: { default: ["dump truck"] }
+    - id: tower_crane
+      role: entity
+      strategy: canonical_positive
+      phrasings: { default: ["tower crane"] }
