@@ -1,0 +1,79 @@
+{
+  "schema_version": "control.eval.temporal.v1",
+  "scenario_id": "a_p6_c01",
+  "alerts_path": "/home/simonll4/projects/docs/operacion/datos/96-rt-stride15-subject/control_runs/control_rt_s15_subject_a_p6_c01_20260805T040450Z/alerts.jsonl",
+  "ground_truth_path": "/home/simonll4/projects/e-ovrt_datasets/datasets-videos/gt/a_p6_c01.json",
+  "expected_alerts_count": 2,
+  "observed_alerts_count": 3,
+  "matched_alerts_count": 1,
+  "missed_alerts_count": 1,
+  "unexpected_alerts_count": 1,
+  "duplicate_alerts_count": 0,
+  "precision": 0.5,
+  "recall": 0.5,
+  "f1": 0.5,
+  "avg_latency_frames_from_first_evidence": null,
+  "avg_latency_ms_from_first_evidence": null,
+  "re_alerts_count": 1,
+  "sub_threshold_count": 0,
+  "censored_episodes_count": 0,
+  "observed_duration_ms": 43200.0,
+  "far_per_hour": 83.333333,
+  "applicability_state": "computed",
+  "applicability_cause": null,
+  "avg_latency_ms_from_episode_start": 4367.0,
+  "effective_matching_windows": {
+    "CR-01": {
+      "persistencia_min_ms": 4000.0,
+      "t_alert_max_ms": 10000.0,
+      "origin": "gt_provenance"
+    },
+    "CR-02": {
+      "persistencia_min_ms": 7000.0,
+      "t_alert_max_ms": 20000.0,
+      "origin": "gt_provenance"
+    }
+  },
+  "warnings": [],
+  "matches": [],
+  "missed_alerts": [],
+  "unexpected_alerts": [
+    {
+      "alert_id": "8700947d-dacd-556f-b9ea-dcc08582a6f7",
+      "condition_id": "CR-02",
+      "subject_key": "CR-02:a_p6_c01:subject_001",
+      "frame_index": 960,
+      "reason": "outside_all_episode_windows"
+    }
+  ],
+  "censored_episodes": [],
+  "avg_ttfd_ms": 783.5,
+  "avg_sdr": 0.59223,
+  "ttfd_by_episode": [
+    {
+      "episode_id": "ep1",
+      "ttfd_ms": 367.0,
+      "cause": null
+    },
+    {
+      "episode_id": "ep2",
+      "ttfd_ms": 1200.0,
+      "cause": null
+    }
+  ],
+  "sdr_by_episode": [
+    {
+      "episode_id": "ep1",
+      "sdr": 0.989908433469904,
+      "cause": null
+    },
+    {
+      "episode_id": "ep2",
+      "sdr": 0.19455252918287938,
+      "cause": null
+    }
+  ],
+  "ttfd_sdr_applicability": "computed",
+  "positive_criterion": "spatial_absence(cr01_cr02_v2_subject) >=1 evidencia",
+  "detections_path": "/home/simonll4/projects/docs/operacion/datos/96-rt-stride15-subject/tracked/a_p6_c01.jsonl"
+}

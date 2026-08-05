@@ -179,6 +179,65 @@ efecto declarado es *acelerar* la confirmación, y F-87.2 muestra que adelantar 
 justamente el mecanismo de falla en este banco. Salida legítima del pre-registro
 (§6.2: "lo no corrido se reporta *no ejecutada con causa*").
 
+## Eje de densidad de evidencia — el costo del tiempo real (R1–R6, doc 96)
+
+**Estas filas NO van en la tabla de arriba a propósito.** Aquélla compara combinaciones
+a `stride: 1`; ésta varía la *cadencia*, y el SDR **no es comparable entre cadencias**
+(F-96.6: la subida del SDR al bajar la densidad es ~100% artefacto del instrumento —
+`_sdr_for_episode` funde huecos ≤ paso nominal, y el paso nominal crece con el stride).
+Mezclarlas invitaría justo a esa lectura equivocada.
+
+Las seis campañas del banco corrieron todas a 30 fps de evidencia; el camino live
+entrega 1,16–4,42 fps (docs 71/73). Estas seis miden qué sobrevive a esa restricción.
+Variable única contra T1/G1: el `stride`.
+
+| # | `campaign_id` | Gran. | fps ev. | Ancla del live | Recall | Prec. | F1 | t_alert | TTFD | FP neg. |
+|---|---|---|---|---|---|---|---|---|---|---|
+| T1 | `t1_…_scene` | escena | 30,00 | (referencia DBE) | 0,824 | 0,757 | **0,789** | 5.327 ms | 168 ms | 0/4 |
+| R1 | `r1_…_scene_s7` | escena | **4,29** | techo de hoy (F-RT5) | 0,794 | 0,794 | **0,794** | 5.623 ms | 572 ms | 0/4 |
+| R3 | `r3_…_scene_s15` | escena | **2,00** | lo que corrió en el rodaje | 0,706 | 0,774 | **0,738** | 4.846 ms | 870 ms | 0/4 |
+| R5 | `r5_…_scene_s26` | escena | **1,15** | peor caso medido (20:10) | 0,618 | 0,677 | **0,646** | 5.360 ms | 1.463 ms | 0/4 |
+| G1 | `g1_…_subject` | sujeto | 30,00 | (referencia DBE) | 0,971 | 0,892 | **0,930** | 5.236 ms | 168 ms | 0/4 |
+| R2 | `r2_…_subject_s7` | sujeto | **4,29** | techo de hoy (F-RT5) | 0,853 | 0,879 | **0,866** | 5.635 ms | 572 ms | 0/4 |
+| R4 | `r4_…_subject_s15` | sujeto | **2,00** | lo que corrió en el rodaje | 0,824 | 0,933 | **0,875** | 4.981 ms | 870 ms | 0/4 |
+| R6 | `r6_…_subject_s26` | sujeto | **1,15** | peor caso medido (20:10) | 0,676 | 0,821 | **0,742** | 5.577 ms | 1.463 ms | 0/4 |
+
+**Lo que dicen estas filas (verificadas con bootstrap pareado por clip, doc 96 §4.1):**
+
+- **F-96.4 (el central): la ganancia de la identidad sobrevive al tiempo real y
+  excluye el cero en las CUATRO densidades** — sujeto−escena: +0,141 [+0,032,+0,258]
+  a 30 fps, +0,072 [+0,013,+0,145] a 4,29, +0,137 [+0,032,+0,258] a 2,00, +0,096
+  [+0,011,+0,202] a 1,15. Es la única palanca del banco significativa a la densidad
+  del live de hoy. El tracker NO se fragmenta (tracks 154→103/91/105). La comparación
+  cruzada "R2 (0,866) > T1 con 30 fps (0,789)" es **estimación puntual** (IC
+  [−0,071,+0,229]), se reporta como consistente, no como hallazgo.
+- **F-96.1: a ~4 fps el agregado no se degrada de forma detectable** (+0,005
+  [−0,120,+0,132]), pero esconde una redistribución: P2 cae 1,00→0,60 y P6 1,00→0,50,
+  mientras **P9 sube 0,60→1,00 con 2 FP menos**. Los deltas de densidad del agregado
+  NO excluyen el cero (ni R5−T1 −0,143); el costo queda como tendencia monótona con
+  mecanismo identificado, no como efecto establecido.
+- **F-96.2: lo primero que se rompe es el rescate de F-81.1.** CR-02 vive de que la
+  histéresis acumule percepción intermitente (SDR 0,281); P2 pasa a 0,600 y luego a
+  0,200. Límite declarado de F-81.1: la histéresis rescata mientras la cadencia
+  alcance para muestrear. La identidad no lo arregla — es percepción, no atribución.
+- **F-96.5 (✎ corregido en revisión adversarial): el `t_alert` agregado quieto era
+  un artefacto de supervivencia** — los episodios lentos mueren como `missed` y su
+  salida baja el promedio. Entre supervivientes comunes, t_alert crece **+0,7 a
+  +1,3 s**. El costo real es acotado (~1 s sobre políticas de 4–7 s) y `t_alert` no
+  se compara entre densidades sin control de supervivencia.
+- **F-96.7: 0 FP en negativos en las ocho campañas.** Con 4 clips es control
+  comparativo, no cota — el tiempo real no introduce falsas alarmas en cumplimiento.
+
+> **Guards de esta campaña.** (a) `run_descriptor.rate_control.stride` + conteo de
+> unidades contra `ceil(n/stride)`, por clip: 34/34 en las seis. (b) Comparabilidad
+> con las referencias verificada, no supuesta: re-correr replay + `evaluate-alerts`
+> con el código de hoy sobre las detecciones de T1 reprodujo sus **34 evals idénticos
+> campo a campo** (`datos/96-verificar-comparabilidad-t1.py`).
+
+> **Qué NO miden.** No son corridas por el bus: miden densidad de evidencia sobre el
+> camino DBE. Integridad del acople y latencia operativa siguen viniendo de los humos
+> EBE (docs 37/65/67/91). El decimado es regular; el descarte live es irregular.
+
 ## Campañas candidatas (el contraste que falta)
 
 | Prioridad | Combinación a variar | Qué pregunta responde | Estado |
@@ -189,12 +248,15 @@ justamente el mecanismo de falla en este banco. Salida legítima del pre-registr
 | ~~2~~ | ~~E-HYB `hyb_and`~~ | **No ejecutada CON CAUSA** (doc 87 §5): su mecanismo es acelerar la confirmación, que es el modo de falla medido | trabajo futuro con predicción escrita |
 | ~~1~~ | ~~`bare_head` × `gdino-base-560`~~ | **HECHO (B1, doc 88)**: F-88.2 tampoco alcanza (0,480 vs 0,582); de yapa F-88.1 (costo del caption) y F-88.3 | **cerrado** |
 | ~~1~~ | ~~Granularidad `subject` (G1)~~ | **HECHO (G1, doc 89)**: F1 0,930, la mejor del banco. `track_id` post-hoc, sin GPU | **cerrado** |
+| ~~1~~ | ~~Densidad de evidencia del camino live~~ | **HECHO (R1–R6, doc 96)**: F-96.4 — la ganancia de la identidad excluye el cero en las 4 densidades; los deltas de densidad del agregado no | **cerrado** |
 | 1 | Lote de internet (14 clips) sumado al banco | Material no guionado (L4) + **soak → FAR/hora** (L1) | espera CVAT — **ver caveat de soak abajo** |
+| 2 | Campaña EBE de punta a punta por el bus sobre los 34 clips | Integridad del acople y latencia operativa CONTRA GT, no en humos. Hoy el eje se cubre por densidad (R1–R6) + humos verdes (37/65/67/91) | trabajo ubicado, no ejecutado |
 | 2 | Port de `track_id` al pipeline online (spec 42 §3) | Solo si se decide llevar G1 a producción: hoy el `track_id` es post-hoc. Decisión de ADR-002, ver doc 89 §7 | decisión del usuario |
 
 **Todas las palancas del banco están agotadas.** Formulación (D1), fusión (H1), modelo
-(T2), vocabulario nativo (B1) y granularidad (G1). Lo único que falta para cerrar el
-banco es material: soak para FAR/hora y video no guionado.
+(T2), vocabulario nativo (B1), granularidad (G1) y **densidad de evidencia (R1–R6)**.
+Lo único que falta para cerrar el banco es material: soak para FAR/hora y video no
+guionado.
 
 > **FAR/hora no es una métrica de este trabajo (determinación doc 90 D-90.1,
 > 2026-08-04).** Para afirmar "FAR ≤ 1 FA/hora" con 0 FP harían falta **3 h** de video
@@ -207,3 +269,13 @@ banco es material: soak para FAR/hora y video no guionado.
 > (control-plane `c1cbb56`). Cualquier campaña anterior a ese commit **no es
 > comparable** sin re-evaluar — se re-evalúa barato desde los artefactos
 > guardados (`docs/operacion/datos/81-reevaluar.py`), la inferencia no se repite.
+>
+> Después vino `5327080` (08-04), que cambió el despacho de evaluadores y toca
+> `_positive_flags_for_source` (el que deriva SDR/TTFD). **Verificado que NO afecta a
+> las campañas `eind`**: el código de hoy reproduce los 34 evals de T1 idénticos campo
+> a campo (`datos/96-verificar-comparabilidad-t1.py`, 2026-08-05). Las filas de arriba
+> son comparables entre sí sin re-evaluar.
+
+> **El SDR no se compara entre cadencias (F-96.6).** Vale dentro de un mismo `stride`.
+> Las seis campañas de la tabla principal comparten `stride: 1`, así que ninguna
+> conclusión previa se ve afectada; para el eje de densidad, ver la sección R1–R6.

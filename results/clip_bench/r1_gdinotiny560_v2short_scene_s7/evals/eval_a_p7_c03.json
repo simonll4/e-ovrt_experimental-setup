@@ -1,0 +1,74 @@
+{
+  "schema_version": "control.eval.temporal.v1",
+  "scenario_id": "a_p7_c03",
+  "alerts_path": "/home/simonll4/projects/docs/operacion/datos/96-rt-stride7/control_runs/control_rt_s7_a_p7_c03_20260805T034833Z/alerts.jsonl",
+  "ground_truth_path": "/home/simonll4/projects/e-ovrt_datasets/datasets-videos/gt/a_p7_c03.json",
+  "expected_alerts_count": 2,
+  "observed_alerts_count": 3,
+  "matched_alerts_count": 2,
+  "missed_alerts_count": 0,
+  "unexpected_alerts_count": 1,
+  "duplicate_alerts_count": 0,
+  "precision": 0.666667,
+  "recall": 1.0,
+  "f1": 0.8,
+  "avg_latency_frames_from_first_evidence": null,
+  "avg_latency_ms_from_first_evidence": null,
+  "re_alerts_count": 0,
+  "sub_threshold_count": 0,
+  "censored_episodes_count": 0,
+  "observed_duration_ms": 32533.0,
+  "far_per_hour": 110.656871,
+  "applicability_state": "computed",
+  "applicability_cause": null,
+  "avg_latency_ms_from_episode_start": 4133.335,
+  "effective_matching_windows": {
+    "CR-01": {
+      "persistencia_min_ms": 4000.0,
+      "t_alert_max_ms": 10000.0,
+      "origin": "gt_provenance"
+    }
+  },
+  "warnings": [],
+  "matches": [],
+  "missed_alerts": [],
+  "unexpected_alerts": [
+    {
+      "alert_id": "f516fda0-bcb2-5650-a831-a286d87960c1",
+      "condition_id": "CR-02",
+      "subject_key": "CR-02:a_p7_c03",
+      "frame_index": 546,
+      "reason": "outside_all_episode_windows"
+    }
+  ],
+  "censored_episodes": [],
+  "avg_ttfd_ms": 633.335,
+  "avg_sdr": 0.773914,
+  "ttfd_by_episode": [
+    {
+      "episode_id": "ep1",
+      "ttfd_ms": 500.0,
+      "cause": null
+    },
+    {
+      "episode_id": "ep2",
+      "ttfd_ms": 766.6700000000001,
+      "cause": null
+    }
+  ],
+  "sdr_by_episode": [
+    {
+      "episode_id": "ep1",
+      "sdr": 0.9013222814288534,
+      "cause": null
+    },
+    {
+      "episode_id": "ep2",
+      "sdr": 0.6465064730330101,
+      "cause": null
+    }
+  ],
+  "ttfd_sdr_applicability": "computed",
+  "positive_criterion": "spatial_absence(cr01_cr02_v2) >=1 evidencia",
+  "detections_path": "/home/simonll4/projects/e-ovrt_media-plane/runs/run_20260805_034808_dbe_grounding_dino_a37d2f/detections.jsonl"
+}

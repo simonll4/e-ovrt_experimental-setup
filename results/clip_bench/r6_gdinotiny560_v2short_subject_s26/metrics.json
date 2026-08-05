@@ -1,0 +1,808 @@
+{
+  "schema_version": "clip_campaign_metrics.v1",
+  "clips_total": 34,
+  "positives": {
+    "clips": 30,
+    "episodes_total": 35,
+    "episodes_censored": 1,
+    "episodes_evaluable": 34,
+    "matched": 23,
+    "missed": 11,
+    "false_positives": 5,
+    "re_alerts": 2,
+    "sub_threshold": 1,
+    "recall_micro": 0.676471,
+    "precision_micro": 0.821429,
+    "recall_macro": 0.7,
+    "t_alert_system_ms": 5576.855217,
+    "ttfd_ms": 1463.400333,
+    "sdr": 0.718905,
+    "f1_micro": 0.741936
+  },
+  "negatives": {
+    "clips": 4,
+    "false_positives": 0,
+    "observed_ms": 128834,
+    "soak_clips": 0,
+    "soak_ms": 0,
+    "far_per_hour": null,
+    "far_basis": "solo clips soak (negativos >= 5 min, doc 57 §3.2 G1)"
+  },
+  "by_condition": {
+    "CR-01": {
+      "episodes": 28,
+      "clips": 25,
+      "sdr": 0.81845,
+      "t_alert_system_ms": 5431.863636,
+      "false_positives": 4
+    },
+    "CR-02": {
+      "episodes": 7,
+      "clips": 7,
+      "sdr": 0.339408,
+      "t_alert_system_ms": 6066.89,
+      "false_positives": 2
+    }
+  },
+  "by_scenario": {
+    "P1": {
+      "clips": 11,
+      "positive_clips": 11,
+      "episodes_evaluable": 11,
+      "matched": 8,
+      "false_positives": 3,
+      "recall": 0.727273,
+      "sdr": 0.82773
+    },
+    "P2": {
+      "clips": 5,
+      "positive_clips": 5,
+      "episodes_evaluable": 5,
+      "matched": 1,
+      "false_positives": 1,
+      "recall": 0.2,
+      "sdr": 0.221179
+    },
+    "P3": {
+      "clips": 2,
+      "positive_clips": 0,
+      "episodes_evaluable": 0,
+      "matched": 0,
+      "false_positives": 0,
+      "recall": null,
+      "sdr": null
+    },
+    "P4": {
+      "clips": 2,
+      "positive_clips": 2,
+      "episodes_evaluable": 2,
+      "matched": 2,
+      "false_positives": 0,
+      "recall": 1.0,
+      "sdr": 0.871552
+    },
+    "P5": {
+      "clips": 2,
+      "positive_clips": 0,
+      "episodes_evaluable": 0,
+      "matched": 0,
+      "false_positives": 0,
+      "recall": null,
+      "sdr": null
+    },
+    "P6": {
+      "clips": 2,
+      "positive_clips": 2,
+      "episodes_evaluable": 4,
+      "matched": 2,
+      "false_positives": 1,
+      "recall": 0.5,
+      "sdr": 0.634981
+    },
+    "P7": {
+      "clips": 4,
+      "positive_clips": 4,
+      "episodes_evaluable": 5,
+      "matched": 4,
+      "false_positives": 0,
+      "recall": 0.8,
+      "sdr": 0.888254
+    },
+    "P8": {
+      "clips": 1,
+      "positive_clips": 1,
+      "episodes_evaluable": 2,
+      "matched": 1,
+      "false_positives": 0,
+      "recall": 0.5,
+      "sdr": 0.842511
+    },
+    "P9": {
+      "clips": 5,
+      "positive_clips": 5,
+      "episodes_evaluable": 5,
+      "matched": 5,
+      "false_positives": 0,
+      "recall": 1.0,
+      "sdr": 0.789524
+    }
+  },
+  "by_clip": [
+    {
+      "clip_id": "a_p1_c02",
+      "scenario": "P1",
+      "conditions": [
+        "CR-01"
+      ],
+      "expected": 1,
+      "matched": 0,
+      "missed": 1,
+      "censored": 0,
+      "false_positives": 1,
+      "re_alerts": 0,
+      "recall": 0.0,
+      "t_alert_system_ms": null,
+      "ttfd_ms": 1300.33,
+      "sdr": 0.502183,
+      "applicability": "computed",
+      "applicability_cause": null
+    },
+    {
+      "clip_id": "a_p1_c03",
+      "scenario": "P1",
+      "conditions": [
+        "CR-01"
+      ],
+      "expected": 1,
+      "matched": 1,
+      "missed": 0,
+      "censored": 0,
+      "false_positives": 0,
+      "re_alerts": 0,
+      "recall": 1.0,
+      "t_alert_system_ms": 5433.67,
+      "ttfd_ms": 1100.33,
+      "sdr": 0.862223,
+      "applicability": "computed",
+      "applicability_cause": null
+    },
+    {
+      "clip_id": "a_p1_c04",
+      "scenario": "P1",
+      "conditions": [
+        "CR-01"
+      ],
+      "expected": 1,
+      "matched": 1,
+      "missed": 0,
+      "censored": 0,
+      "false_positives": 0,
+      "re_alerts": 1,
+      "recall": 1.0,
+      "t_alert_system_ms": 6400.33,
+      "ttfd_ms": 1200.33,
+      "sdr": 0.835184,
+      "applicability": "computed",
+      "applicability_cause": null
+    },
+    {
+      "clip_id": "a_p1_c05",
+      "scenario": "P1",
+      "conditions": [
+        "CR-01"
+      ],
+      "expected": 2,
+      "matched": 1,
+      "missed": 0,
+      "censored": 1,
+      "false_positives": 0,
+      "re_alerts": 0,
+      "recall": 1.0,
+      "t_alert_system_ms": 5633.33,
+      "ttfd_ms": 500.0,
+      "sdr": 0.631796,
+      "applicability": "computed",
+      "applicability_cause": null
+    },
+    {
+      "clip_id": "a_p1_c06",
+      "scenario": "P1",
+      "conditions": [
+        "CR-01"
+      ],
+      "expected": 1,
+      "matched": 1,
+      "missed": 0,
+      "censored": 0,
+      "false_positives": 0,
+      "re_alerts": 0,
+      "recall": 1.0,
+      "t_alert_system_ms": 4833.67,
+      "ttfd_ms": 500.33,
+      "sdr": 0.971519,
+      "applicability": "computed",
+      "applicability_cause": null
+    },
+    {
+      "clip_id": "a_p1_c07",
+      "scenario": "P1",
+      "conditions": [
+        "CR-01"
+      ],
+      "expected": 1,
+      "matched": 0,
+      "missed": 1,
+      "censored": 0,
+      "false_positives": 1,
+      "re_alerts": 0,
+      "recall": 0.0,
+      "t_alert_system_ms": null,
+      "ttfd_ms": 166.67,
+      "sdr": 0.896574,
+      "applicability": "computed",
+      "applicability_cause": null
+    },
+    {
+      "clip_id": "a_p1_c08",
+      "scenario": "P1",
+      "conditions": [
+        "CR-01"
+      ],
+      "expected": 1,
+      "matched": 0,
+      "missed": 1,
+      "censored": 0,
+      "false_positives": 1,
+      "re_alerts": 0,
+      "recall": 0.0,
+      "t_alert_system_ms": null,
+      "ttfd_ms": 1333.33,
+      "sdr": 0.71653,
+      "applicability": "computed",
+      "applicability_cause": null
+    },
+    {
+      "clip_id": "a_p1_c09",
+      "scenario": "P1",
+      "conditions": [
+        "CR-01"
+      ],
+      "expected": 1,
+      "matched": 1,
+      "missed": 0,
+      "censored": 0,
+      "false_positives": 0,
+      "re_alerts": 0,
+      "recall": 1.0,
+      "t_alert_system_ms": 5600.33,
+      "ttfd_ms": 1267.0,
+      "sdr": 0.883982,
+      "applicability": "computed",
+      "applicability_cause": null
+    },
+    {
+      "clip_id": "a_p1_c10",
+      "scenario": "P1",
+      "conditions": [
+        "CR-01"
+      ],
+      "expected": 1,
+      "matched": 1,
+      "missed": 0,
+      "censored": 0,
+      "false_positives": 0,
+      "re_alerts": 1,
+      "recall": 1.0,
+      "t_alert_system_ms": 4899.67,
+      "ttfd_ms": 566.33,
+      "sdr": 0.924295,
+      "applicability": "computed",
+      "applicability_cause": null
+    },
+    {
+      "clip_id": "a_p1_c11",
+      "scenario": "P1",
+      "conditions": [
+        "CR-01"
+      ],
+      "expected": 1,
+      "matched": 1,
+      "missed": 0,
+      "censored": 0,
+      "false_positives": 0,
+      "re_alerts": 0,
+      "recall": 1.0,
+      "t_alert_system_ms": 5499.67,
+      "ttfd_ms": 299.67,
+      "sdr": 0.93872,
+      "applicability": "computed",
+      "applicability_cause": null
+    },
+    {
+      "clip_id": "a_p1_c12",
+      "scenario": "P1",
+      "conditions": [
+        "CR-01"
+      ],
+      "expected": 1,
+      "matched": 1,
+      "missed": 0,
+      "censored": 0,
+      "false_positives": 0,
+      "re_alerts": 0,
+      "recall": 1.0,
+      "t_alert_system_ms": 4800.0,
+      "ttfd_ms": 466.67,
+      "sdr": 0.942029,
+      "applicability": "computed",
+      "applicability_cause": null
+    },
+    {
+      "clip_id": "a_p2_c01",
+      "scenario": "P2",
+      "conditions": [
+        "CR-02"
+      ],
+      "expected": 1,
+      "matched": 0,
+      "missed": 1,
+      "censored": 0,
+      "false_positives": 0,
+      "re_alerts": 0,
+      "recall": 0.0,
+      "t_alert_system_ms": null,
+      "ttfd_ms": 1633.67,
+      "sdr": 0.205604,
+      "applicability": "computed",
+      "applicability_cause": null
+    },
+    {
+      "clip_id": "a_p2_c02",
+      "scenario": "P2",
+      "conditions": [
+        "CR-02"
+      ],
+      "expected": 1,
+      "matched": 1,
+      "missed": 0,
+      "censored": 0,
+      "false_positives": 0,
+      "re_alerts": 0,
+      "recall": 1.0,
+      "t_alert_system_ms": 8766.67,
+      "ttfd_ms": 966.67,
+      "sdr": 0.411192,
+      "applicability": "computed",
+      "applicability_cause": null
+    },
+    {
+      "clip_id": "a_p2_c03",
+      "scenario": "P2",
+      "conditions": [
+        "CR-02"
+      ],
+      "expected": 1,
+      "matched": 0,
+      "missed": 1,
+      "censored": 0,
+      "false_positives": 0,
+      "re_alerts": 0,
+      "recall": 0.0,
+      "t_alert_system_ms": null,
+      "ttfd_ms": 1900.0,
+      "sdr": 0.234234,
+      "applicability": "computed",
+      "applicability_cause": null
+    },
+    {
+      "clip_id": "a_p2_c04",
+      "scenario": "P2",
+      "conditions": [
+        "CR-02"
+      ],
+      "expected": 1,
+      "matched": 0,
+      "missed": 1,
+      "censored": 0,
+      "false_positives": 0,
+      "re_alerts": 0,
+      "recall": 0.0,
+      "t_alert_system_ms": null,
+      "ttfd_ms": 8233.67,
+      "sdr": 0.103174,
+      "applicability": "computed",
+      "applicability_cause": null
+    },
+    {
+      "clip_id": "a_p2_c05",
+      "scenario": "P2",
+      "conditions": [
+        "CR-02"
+      ],
+      "expected": 1,
+      "matched": 0,
+      "missed": 1,
+      "censored": 0,
+      "false_positives": 1,
+      "re_alerts": 0,
+      "recall": 0.0,
+      "t_alert_system_ms": null,
+      "ttfd_ms": 1967.0,
+      "sdr": 0.15169,
+      "applicability": "computed",
+      "applicability_cause": null
+    },
+    {
+      "clip_id": "a_p3_c01",
+      "scenario": "P3",
+      "conditions": [],
+      "expected": 0,
+      "matched": 0,
+      "missed": 0,
+      "censored": 0,
+      "false_positives": 0,
+      "re_alerts": 0,
+      "recall": null,
+      "t_alert_system_ms": null,
+      "ttfd_ms": null,
+      "sdr": null,
+      "applicability": "not_applicable",
+      "applicability_cause": "negative_clip_no_episodes"
+    },
+    {
+      "clip_id": "a_p3_c02",
+      "scenario": "P3",
+      "conditions": [],
+      "expected": 0,
+      "matched": 0,
+      "missed": 0,
+      "censored": 0,
+      "false_positives": 0,
+      "re_alerts": 0,
+      "recall": null,
+      "t_alert_system_ms": null,
+      "ttfd_ms": null,
+      "sdr": null,
+      "applicability": "not_applicable",
+      "applicability_cause": "negative_clip_no_episodes"
+    },
+    {
+      "clip_id": "a_p4_c01",
+      "scenario": "P4",
+      "conditions": [
+        "CR-01"
+      ],
+      "expected": 1,
+      "matched": 1,
+      "missed": 0,
+      "censored": 0,
+      "false_positives": 0,
+      "re_alerts": 0,
+      "recall": 1.0,
+      "t_alert_system_ms": 6466.33,
+      "ttfd_ms": 399.67,
+      "sdr": 0.766332,
+      "applicability": "computed",
+      "applicability_cause": null
+    },
+    {
+      "clip_id": "a_p4_c02",
+      "scenario": "P4",
+      "conditions": [
+        "CR-01"
+      ],
+      "expected": 1,
+      "matched": 1,
+      "missed": 0,
+      "censored": 0,
+      "false_positives": 0,
+      "re_alerts": 0,
+      "recall": 1.0,
+      "t_alert_system_ms": 4733.67,
+      "ttfd_ms": 400.33,
+      "sdr": 0.976771,
+      "applicability": "computed",
+      "applicability_cause": null
+    },
+    {
+      "clip_id": "a_p5_c01",
+      "scenario": "P5",
+      "conditions": [],
+      "expected": 0,
+      "matched": 0,
+      "missed": 0,
+      "censored": 0,
+      "false_positives": 0,
+      "re_alerts": 0,
+      "recall": null,
+      "t_alert_system_ms": null,
+      "ttfd_ms": null,
+      "sdr": null,
+      "applicability": "not_applicable",
+      "applicability_cause": "negative_clip_no_episodes"
+    },
+    {
+      "clip_id": "a_p5_c02",
+      "scenario": "P5",
+      "conditions": [],
+      "expected": 0,
+      "matched": 0,
+      "missed": 0,
+      "censored": 0,
+      "false_positives": 0,
+      "re_alerts": 0,
+      "recall": null,
+      "t_alert_system_ms": null,
+      "ttfd_ms": null,
+      "sdr": null,
+      "applicability": "not_applicable",
+      "applicability_cause": "negative_clip_no_episodes"
+    },
+    {
+      "clip_id": "a_p6_c01",
+      "scenario": "P6",
+      "conditions": [
+        "CR-01",
+        "CR-02"
+      ],
+      "expected": 2,
+      "matched": 1,
+      "missed": 1,
+      "censored": 0,
+      "false_positives": 1,
+      "re_alerts": 0,
+      "recall": 0.5,
+      "t_alert_system_ms": 4667.0,
+      "ttfd_ms": 350.17,
+      "sdr": 0.701638,
+      "applicability": "computed",
+      "applicability_cause": null
+    },
+    {
+      "clip_id": "a_p6_c02",
+      "scenario": "P6",
+      "conditions": [
+        "CR-01",
+        "CR-02"
+      ],
+      "expected": 2,
+      "matched": 1,
+      "missed": 1,
+      "censored": 0,
+      "false_positives": 0,
+      "re_alerts": 0,
+      "recall": 0.5,
+      "t_alert_system_ms": 4767.0,
+      "ttfd_ms": 11000.0,
+      "sdr": 0.568324,
+      "applicability": "computed",
+      "applicability_cause": null
+    },
+    {
+      "clip_id": "a_p7_c01",
+      "scenario": "P7",
+      "conditions": [
+        "CR-01"
+      ],
+      "expected": 1,
+      "matched": 1,
+      "missed": 0,
+      "censored": 0,
+      "false_positives": 0,
+      "re_alerts": 0,
+      "recall": 1.0,
+      "t_alert_system_ms": 4767.0,
+      "ttfd_ms": 433.67,
+      "sdr": 0.985131,
+      "applicability": "computed",
+      "applicability_cause": null
+    },
+    {
+      "clip_id": "a_p7_c02",
+      "scenario": "P7",
+      "conditions": [
+        "CR-01"
+      ],
+      "expected": 1,
+      "matched": 1,
+      "missed": 0,
+      "censored": 0,
+      "false_positives": 0,
+      "re_alerts": 0,
+      "recall": 1.0,
+      "t_alert_system_ms": 9333.33,
+      "ttfd_ms": 666.67,
+      "sdr": 0.825238,
+      "applicability": "computed",
+      "applicability_cause": null
+    },
+    {
+      "clip_id": "a_p7_c03",
+      "scenario": "P7",
+      "conditions": [
+        "CR-01"
+      ],
+      "expected": 2,
+      "matched": 1,
+      "missed": 1,
+      "censored": 0,
+      "false_positives": 0,
+      "re_alerts": 0,
+      "recall": 0.5,
+      "t_alert_system_ms": 5733.33,
+      "ttfd_ms": 933.335,
+      "sdr": 0.797904,
+      "applicability": "computed",
+      "applicability_cause": null
+    },
+    {
+      "clip_id": "a_p7_c04",
+      "scenario": "P7",
+      "conditions": [
+        "CR-01"
+      ],
+      "expected": 1,
+      "matched": 1,
+      "missed": 0,
+      "censored": 0,
+      "false_positives": 0,
+      "re_alerts": 0,
+      "recall": 1.0,
+      "t_alert_system_ms": 4899.67,
+      "ttfd_ms": 566.33,
+      "sdr": 0.944742,
+      "applicability": "computed",
+      "applicability_cause": null
+    },
+    {
+      "clip_id": "a_p8_c01",
+      "scenario": "P8",
+      "conditions": [
+        "CR-01"
+      ],
+      "expected": 2,
+      "matched": 1,
+      "missed": 1,
+      "censored": 0,
+      "false_positives": 0,
+      "re_alerts": 0,
+      "recall": 0.5,
+      "t_alert_system_ms": 4733.0,
+      "ttfd_ms": 249.835,
+      "sdr": 0.842511,
+      "applicability": "computed",
+      "applicability_cause": null
+    },
+    {
+      "clip_id": "a_p9_c01",
+      "scenario": "P9",
+      "conditions": [
+        "CR-01"
+      ],
+      "expected": 1,
+      "matched": 1,
+      "missed": 0,
+      "censored": 0,
+      "false_positives": 0,
+      "re_alerts": 0,
+      "recall": 1.0,
+      "t_alert_system_ms": 4966.67,
+      "ttfd_ms": 633.33,
+      "sdr": 0.969453,
+      "applicability": "computed",
+      "applicability_cause": null
+    },
+    {
+      "clip_id": "a_p9_c02",
+      "scenario": "P9",
+      "conditions": [
+        "CR-01"
+      ],
+      "expected": 1,
+      "matched": 1,
+      "missed": 0,
+      "censored": 0,
+      "false_positives": 0,
+      "re_alerts": 0,
+      "recall": 1.0,
+      "t_alert_system_ms": 4700.0,
+      "ttfd_ms": 366.67,
+      "sdr": 0.90156,
+      "applicability": "computed",
+      "applicability_cause": null
+    },
+    {
+      "clip_id": "a_p9_c03",
+      "scenario": "P9",
+      "conditions": [
+        "CR-01"
+      ],
+      "expected": 1,
+      "matched": 1,
+      "missed": 0,
+      "censored": 0,
+      "false_positives": 0,
+      "re_alerts": 0,
+      "recall": 1.0,
+      "t_alert_system_ms": 4233.33,
+      "ttfd_ms": 766.67,
+      "sdr": 0.828877,
+      "applicability": "computed",
+      "applicability_cause": null
+    },
+    {
+      "clip_id": "a_p9_c06",
+      "scenario": "P9",
+      "conditions": [
+        "CR-01"
+      ],
+      "expected": 1,
+      "matched": 1,
+      "missed": 0,
+      "censored": 0,
+      "false_positives": 0,
+      "re_alerts": 0,
+      "recall": 1.0,
+      "t_alert_system_ms": 7766.67,
+      "ttfd_ms": 3433.33,
+      "sdr": 0.55517,
+      "applicability": "computed",
+      "applicability_cause": null
+    },
+    {
+      "clip_id": "a_p9_c08",
+      "scenario": "P9",
+      "conditions": [
+        "CR-01"
+      ],
+      "expected": 1,
+      "matched": 1,
+      "missed": 0,
+      "censored": 0,
+      "false_positives": 0,
+      "re_alerts": 0,
+      "recall": 1.0,
+      "t_alert_system_ms": 4633.33,
+      "ttfd_ms": 300.0,
+      "sdr": 0.692562,
+      "applicability": "computed",
+      "applicability_cause": null
+    }
+  ],
+  "notes": [
+    "Los clips negativos NO entran a precision/recall/F1 (F-EV1): son control de FP.",
+    "Los episodios censurados salen del denominador de recall (A2, doc 57 §6.7).",
+    "Las re_alerts no cuentan como FP (ADR-011).",
+    "Reportar SIEMPRE by_scenario junto al agregado (L5, registry/clip_bench.md).",
+    "recall_micro = por episodio; recall_macro = media por clip. Declarar cual se usa."
+  ],
+  "campaign": {
+    "schema_version": "clip_campaign.v1",
+    "campaign_id": "r6_gdinotiny560_v2short_subject_s26",
+    "date": "2026-08-05",
+    "phase": "R",
+    "description": "El costo del tiempo real (R6). Las seis campañas previas del banco corrieron todas `stride: 1` — 30 inferencias por segundo de video — pero el camino live no puede sostener esa densidad: durante el rodaje GDINO rindió 1,16-2,62 fps con 92-94% de frames descartados (doc 71) y el techo de esta máquina tras F-RT5 es 3,75-4,42 fps (doc 73). O sea que todo el resultado del banco se midió con ~7 a 25x más evidencia por segundo de la que el tiempo real entrega, y cuánto de ese rendimiento sobrevive a la restricción no estaba medido.\nEsta campaña lo mide a densidad 1,15 fps, que es el PEOR caso medido en vivo: 1,16 fps a las 20:10 del rodaje, tras la degradación térmica de 2,4x a lo largo de la jornada (doc 71 §4).\n",
+    "model": "grounding-dino/gdino-tiny-560",
+    "model_note": "Idéntico a g1_gdinotiny560_v2short_subject. Campeón S1/S2 (doc 64).",
+    "prompt_set": "cr01_cr02_v2_short",
+    "prompt_set_frozen_sha256": "df81fd48b6daf8924b5fb66aa1ce4acc0c880ac6ed8cd1245c6aca1babdb309a",
+    "prompt_set_note": "Idéntico a g1_gdinotiny560_v2short_subject.",
+    "pattern_set": "cr01_cr02_v2_subject",
+    "pattern_set_note": "Idéntico a g1_gdinotiny560_v2short_subject. Mismos timings 4000/7000.",
+    "granularity": "subject",
+    "granularity_note": "G1 — track_id post-hoc con SimpleIoUTracker sobre las detecciones de esta misma densidad. OJO: el tracker asocia por IoU entre frames consecutivos, y acá los frames están a 867 ms en vez de 33 ms. La degradación de la identidad es PARTE del costo del tiempo real que se está midiendo, no un defecto del montaje.\n",
+    "path": "DBE",
+    "stride": 26,
+    "path_note": "Camino DBE por archivo, pero con la DENSIDAD DE EVIDENCIA del camino live. La variable única contra g1_gdinotiny560_v2short_subject es el stride; modelo, prompts, patrones, GT y evaluador son los mismos.\nQué mide y qué NO: mide el efecto de ver menos frames por segundo sobre la percepción y sobre el motor temporal. NO mide latencia operativa ni integridad del bus — eso vive en los humos EBE (docs 65/67/91) y en la caracterización de fps (docs 73/74). El decimado es regular; el descarte live es irregular (jitter), diferencia declarada.\n",
+    "guard_note": "Si el stride no se aplicara, la campaña mediría g1_gdinotiny560_v2short_subject creyendo medir tiempo real y el error no se vería en ningún lado (la lección del `no_track_id` de G1). Se verifica por clip y por partida doble: `run_descriptor.rate_control.stride` de la corrida declara el stride que rigió, y el conteo de unidades procesadas lo confirma independientemente contra ceil(n_frames/stride). 34/34 pasaron.\nAdemás, el guard de identidad de G1: si una persona quedara sin `track_id`, el motor degrada a escena en silencio y esto mediría G0.\n",
+    "comparabilidad_note": "Las referencias (T1 08-03, G1 08-04) se evaluaron con el control-plane de esas fechas, y después vino `5327080` (08-04 16:38), que cambió el despacho de evaluadores y toca `_positive_flags_for_source` — el que deriva SDR/TTFD. Contrastar contra números producidos por otro evaluador mezclaría densidad de evidencia con versión del código. VERIFICADO que no: re-correr replay + evaluate-alerts con el código de hoy sobre las mismas detecciones de T1 reprodujo sus 34 evals **idénticos campo a campo** (`96-verificar-comparabilidad-t1.py`). La comparación es limpia.\n",
+    "gt_bank": "clip_bench (34 clips, Bloque A rodaje 2026-07-25)",
+    "gt_manifest_yaml_sha256": "cef5082e1eb1981c89251ba1b45d7ff044627f8aa1e428f50e0601abe64260e8",
+    "gt_doc": "docs/operacion/80-gt-rodaje-desde-cvat.md",
+    "evaluator_note": "Mismo control-plane y mismo pattern set que g1_gdinotiny560_v2short_subject.",
+    "hardware": "CPU (tracking post-hoc + replay; sin GPU)",
+    "duration_note": "34/34 clips en CPU, < 1 min",
+    "report_doc": "docs/operacion/96-costo-tiempo-real.md",
+    "raw_evidence": "docs/operacion/datos/96-rt-stride26-subject/"
+  }
+}
