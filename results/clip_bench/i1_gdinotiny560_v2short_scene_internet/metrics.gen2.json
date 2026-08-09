@@ -1,0 +1,201 @@
+{
+  "schema_version": "clip_campaign_metrics.v1",
+  "clips_total": 4,
+  "positives": {
+    "clips": 2,
+    "episodes_total": 3,
+    "episodes_censored": 0,
+    "episodes_evaluable": 3,
+    "matched": 2,
+    "missed": 1,
+    "false_positives": 2,
+    "re_alerts": 1,
+    "sub_threshold": 0,
+    "recall_micro": 0.666667,
+    "precision_micro": 0.5,
+    "recall_macro": 0.5,
+    "t_alert_system_ms": 5533.335,
+    "ttfd_ms": 16.5,
+    "sdr": 0.823072,
+    "f1_micro": 0.571429
+  },
+  "negatives": {
+    "clips": 2,
+    "false_positives": 5,
+    "observed_ms": 428600,
+    "soak_clips": 1,
+    "soak_ms": 369567,
+    "far_per_hour": 48.705647,
+    "far_basis": "solo clips soak (negativos >= 5 min, doc 57 §3.2 G1)"
+  },
+  "by_condition": {
+    "CR-01": {
+      "episodes": 2,
+      "clips": 2,
+      "sdr": 0.823072,
+      "t_alert_system_ms": 5533.335,
+      "false_positives": 2
+    },
+    "CR-02": {
+      "episodes": 1,
+      "clips": 1,
+      "sdr": 0.646145,
+      "t_alert_system_ms": 5533.335,
+      "false_positives": 0
+    }
+  },
+  "by_scenario": {
+    "P1": {
+      "clips": 1,
+      "positive_clips": 1,
+      "episodes_evaluable": 1,
+      "matched": 0,
+      "false_positives": 2,
+      "recall": 0.0,
+      "sdr": 1.0
+    },
+    "P5": {
+      "clips": 2,
+      "positive_clips": 0,
+      "episodes_evaluable": 0,
+      "matched": 0,
+      "false_positives": 5,
+      "recall": null,
+      "sdr": null
+    },
+    "P6": {
+      "clips": 1,
+      "positive_clips": 1,
+      "episodes_evaluable": 2,
+      "matched": 2,
+      "false_positives": 0,
+      "recall": 1.0,
+      "sdr": 0.646145
+    }
+  },
+  "by_clip": [
+    {
+      "clip_id": "v04_c01",
+      "scenario": "P1",
+      "conditions": [
+        "CR-01"
+      ],
+      "expected": 1,
+      "matched": 0,
+      "missed": 1,
+      "censored": 0,
+      "false_positives": 2,
+      "re_alerts": 0,
+      "recall": 0.0,
+      "t_alert_system_ms": null,
+      "ttfd_ms": 33.0,
+      "sdr": 1.0,
+      "applicability": "computed",
+      "applicability_cause": null
+    },
+    {
+      "clip_id": "v04_c02",
+      "scenario": "P6",
+      "conditions": [
+        "CR-01",
+        "CR-02"
+      ],
+      "expected": 2,
+      "matched": 2,
+      "missed": 0,
+      "censored": 0,
+      "false_positives": 0,
+      "re_alerts": 1,
+      "recall": 1.0,
+      "t_alert_system_ms": 5533.335,
+      "ttfd_ms": 0.0,
+      "sdr": 0.646145,
+      "applicability": "computed",
+      "applicability_cause": null
+    },
+    {
+      "clip_id": "v06_c01",
+      "scenario": "P5",
+      "conditions": [],
+      "expected": 0,
+      "matched": 0,
+      "missed": 0,
+      "censored": 0,
+      "false_positives": 3,
+      "re_alerts": 0,
+      "recall": null,
+      "t_alert_system_ms": null,
+      "ttfd_ms": null,
+      "sdr": null,
+      "applicability": "not_applicable",
+      "applicability_cause": "negative_clip_no_episodes"
+    },
+    {
+      "clip_id": "v10_c01",
+      "scenario": "P5",
+      "conditions": [],
+      "expected": 0,
+      "matched": 0,
+      "missed": 0,
+      "censored": 0,
+      "false_positives": 2,
+      "re_alerts": 0,
+      "recall": null,
+      "t_alert_system_ms": null,
+      "ttfd_ms": null,
+      "sdr": null,
+      "applicability": "not_applicable",
+      "applicability_cause": "negative_clip_no_episodes"
+    }
+  ],
+  "notes": [
+    "Los clips negativos NO entran a precision/recall/F1 (F-EV1): son control de FP.",
+    "Los episodios censurados salen del denominador de recall (A2, doc 57 §6.7).",
+    "Las re_alerts no cuentan como FP (ADR-011).",
+    "Reportar SIEMPRE by_scenario junto al agregado (L5, registry/clip_bench.md).",
+    "recall_micro = por episodio; recall_macro = media por clip. Declarar cual se usa."
+  ],
+  "campaign": {
+    "schema_version": "clip_campaign.v1",
+    "campaign_id": "i1_gdinotiny560_v2short_scene_internet",
+    "date": "2026-08-07",
+    "phase": "I",
+    "description": "Estrato B: los 4 clips del lote de internet con GT humano (obra real, NO guionada). Es T1 con la combinación intacta y el material cambiado — la única variable es el estrato. Levanta L4 (parcial: n = 3 episodios).\nNO es comparable clip a clip con T1: son 4 clips contra 34, y el material difiere en fuente, iluminación, densidad y escala del sujeto. Se reporta como fila aparte con su desglose (D-90.6), nunca fusionado al agregado del rodaje.\n",
+    "model": "grounding-dino/gdino-tiny-560",
+    "model_note": "Campeón S1/S2 (doc 64). Zero-shot: cero imágenes de este dominio en entrenamiento. image_size 560, box_threshold 0.30, text_threshold 0.25.\n",
+    "prompt_set": "cr01_cr02_v2_short",
+    "prompt_set_frozen_sha256": "df81fd48b6daf8924b5fb66aa1ce4acc0c880ac6ed8cd1245c6aca1babdb309a",
+    "prompt_set_note": "clases: person / helmet / vest (activas las 3). Idéntico a T1.",
+    "pattern_set": "cr01_cr02_v2",
+    "pattern_set_note": "CR-01 high confirm_after_ms=4000; CR-02 medium 7000. Idéntico a T1.",
+    "granularity": "scene",
+    "granularity_note": "G0 — sin track_id; el motor acumula ausencia a nivel escena.",
+    "path": "DBE",
+    "stride": 1,
+    "path_note": "stride=1, sin límite de tasa: mide percepción + patrón, NO latencia operativa (ADR-013: la latencia end-to-end la mide el camino RTSP/live).\n",
+    "gt_bank": "clip_bench, estrato B — 4 clips: v04_c01 (P1, nocturno) · v04_c02 (P6, nocturno, 2 episodios) · v06_c01 (P5 NEGATIVO, el único clip SOAK del banco) · v10_c01 (P5 negativo). Banco de 38 clips al 2026-08-07.\n",
+    "gt_manifest_yaml_sha256": "4437eb6d6228d3fa9a31fca2d92defab57bb5d9e8d6192a78313de1517b8e34e",
+    "gt_manifest_note": "Freezes anteriores, todos verificables en git: 34 clips del rodaje `cef5082e…` (commit f7a27fe6 — el que citan T1/T2/D1/H1/G1/B1/R1–R6), 37 con el estrato B inicial `6b75ac6e…`. El manifest solo crece; las filas del rodaje nunca cambiaron.\n",
+    "gt_doc": "docs/operacion/109-plan-reorganizacion-video.md",
+    "gt_note": "GT humano (CVAT, anotador `simon`), derivado con derive_clip_gt.py y los mismos umbrales 4000/7000. 3 episodios evaluables sin censura (1 CR-01 en v04_c01; CR-01+CR-02 en v04_c02) y 2 clips negativos. `v04_c02` tiene aviso de PRE-ROLL (onset en t=0): su TTFD es artefacto del recorte, no mérito del sistema. **n = 3 episodios: el intervalo de confianza es enorme y hay que decirlo.**\n",
+    "generations": [
+      {
+        "gen": 1,
+        "date": "2026-08-06",
+        "clips": 3,
+        "note": "Primera corrida (docs 102/103): v04_c01, v06_c01, v10_c01. `v06_c01` figuraba como POSITIVO (1 episodio CR-02) y el banco no tenía clip soak. Sus cifras se citan en los docs 103/104/107, que llevan banner de corrección.\n"
+      },
+      {
+        "gen": 2,
+        "date": "2026-08-07",
+        "clips": 4,
+        "note": "Reconstrucción completa (doc 109). Dos cambios de GT: (a) la revisión visual en CVAT determinó que el episodio CR-02 de `v06_c01` era ERROR DE ANOTACIÓN — el clip pasó a negativo y, con 6:09,6 continuos, se volvió el primer clip SOAK del banco (habilita FAR/hora); (b) se incorporó `v04_c02`. Inferencia FRESCA de los 4 clips en una sola sesión: una procedencia, un hardware.\n"
+      }
+    ],
+    "evaluator_note": "Evaluado con los fixes F-EV1/2/3 (control-plane c1cbb56), igual que T1: negativos declarados not_applicable, la ventana hereda start_end_tolerance_ms del GT, y las re-confirmaciones con la infracción activa cuentan re_alerts y no FP.\n",
+    "hardware": "NVIDIA RTX 4060 Laptop 8 GB (WSL2)",
+    "runner": "docs/operacion/datos/102-ciclo-internet-runner.py --fase scene",
+    "report_doc": "docs/operacion/109-plan-reorganizacion-video.md",
+    "raw_evidence": "docs/operacion/datos/109-estrato-b-final/scene"
+  }
+}

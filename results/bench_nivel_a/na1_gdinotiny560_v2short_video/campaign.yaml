@@ -1,0 +1,78 @@
+schema_version: clip_campaign.v1
+campaign_id: na1_gdinotiny560_v2short_video
+date: '2026-08-07'
+phase: NA
+level: A
+description: >
+  Nivel A (estado por persona) sobre VIDEO — la primera del proyecto. Consolida en una
+  sola campaña los 8 clips de video con GT humano frame a frame: los 4 del estrato B
+  (lote de internet) y los 4 del piloto del 2026-07-18 recuperados de CVAT.
+
+  Por qué existe: los 4 clips piloto tienen todos sus episodios CENSURADOS por el gate
+  A1 (12 s de duración), así que a Nivel B no producen recall. Pero Nivel A **no
+  depende de la duración del clip**: mide, por persona y por frame, si el sistema
+  determina bien su estado. Es la capa que los docs 103/104 identificaron como raíz del
+  derrumbe del estrato B, medida con el scorer oficial en vez del proxy ad-hoc.
+
+# --- LA COMBINACIÓN ---
+model: grounding-dino/gdino-tiny-560
+prompt_set: cr01_cr02_v2_short
+prompt_set_frozen_sha256: df81fd48b6daf8924b5fb66aa1ce4acc0c880ac6ed8cd1245c6aca1babdb309a
+strategy: E-IND
+strategy_note: >
+  `spatial_absence` offline con las regiones del pattern set DESPLEGADO cr01_cr02_v2
+  (upper_body 0,0–0,45 x_margin 0,12 para CR-01; torso 0,25–0,85 x_margin 0,08 para
+  CR-02). Si esta geometría diverge del YAML, el número de Nivel A deja de predecir el
+  de Nivel B.
+
+# --- TRES DECISIONES METODOLÓGICAS (todas explícitas en la salida del scorer) ---
+operating_point:
+  person_conf: 0.35          # evidence.min_subject_confidence del pattern set
+  evidence_conf: 0.25        # evidence.min_absent_class_confidence
+  calibracion: >
+    NINGUNA. El runner de imágenes (D1) calibra umbrales en la mitad A y reporta en la
+    B; con 8 clips no hay material para eso y barrer sería ajuste in-sample. Se puntúa
+    en el punto de operación DESPLEGADO, que es lo que la plataforma hace de verdad.
+    **Por eso esta campaña NO es comparable fila a fila con D1.**
+unknown_policy: >
+  Las person-frames con atributo `unknown` se EXCLUYEN del denominador de esa
+  condición. Contarlas como `true` inventaría cumplimiento; como `false`, violaciones.
+  Es el principio que `derive_clip_gt` defiende y que el runtime NO tiene (F-104.4).
+  El ratio de exclusión se reporta por clip — y es un resultado en sí: en material
+  far-field es enorme.
+temporal_subsampling:
+  stride: 15
+  note: >
+    2 Hz. Frames contiguos son casi idénticos; puntuar los 360/840/11.087 frames de
+    cada clip inflaría `n` y falsearía cualquier intervalo de confianza. El `n`
+    reportado es de person-frames efectivamente puntuadas.
+
+# --- MATERIAL ---
+clips:
+  estrato_b:
+    - v04_c01      # P1, nocturno
+    - v04_c02      # P6, nocturno, 2 episodios
+    - v06_c01      # P5 negativo — el clip SOAK del banco
+    - v10_c01      # P5 negativo (fachada en altura: arnés, NO chalecos)
+  piloto_2026_07_18:
+    - video02_clip07   # cuadrilla apiñada, 58,5% de solape
+    - video15_clip01   # 0% unknown — el material más juzgable del conjunto
+    - video16_clip10   # el clip testigo del doc 57 (gate A1)
+    - video16_clip14
+gt_note: >
+  GT humano de CVAT (cajas + has_helmet/has_vest frame a frame). Los 4 del piloto viven
+  en `_retired/piloto_2026-07-18/` (fuera del banco de Nivel B por censura A1, pero
+  ejecutables desde que se recuperaron los .mp4). Los 4 del estrato B están en el banco.
+  `v06_c01` usa el XML CORREGIDO (doc 108 §6): el artefacto previo
+  `datos/105-nivel-a-estrato-b.json` quedó STALE por haberse puntuado antes de esa
+  corrección — esta campaña lo supersede.
+
+supersedes:
+  - docs/operacion/datos/105-nivel-a-estrato-b.json   # STALE: GT de v06 pre-corrección
+  - docs/operacion/datos/105-nivel-a-piloto.json
+  - docs/operacion/datos/108-nivel-a-v04c02.json
+
+hardware: 'sin GPU (reusa las detecciones de las campañas I1 y del piloto)'
+scorer: datasets/scripts/bench/score_clip_person_state.py   # 8 tests en la suite
+report_doc: docs/operacion/109-plan-reorganizacion-video.md
+raw_evidence: docs/operacion/datos/109-nivel-a-consolidado.json

@@ -28,19 +28,22 @@ artefacto en disco y su doc de procedencia.
    estructural: `person`/`helmet` sólidas, `vest` débil, `bare_head` fuerte solo en el
    especialista. → `bench_imagenes/`
 2. **Cómo conviene expresar la condición** — evidencia positiva + inferencia (E-IND)
-   gana a los prompts directos de ausencia (E-DIR) por el criterio pre-registrado, en
-   los dos niveles; a Nivel B el **veto de precisión (0,146 < 0,5)** la descarta como
-   núcleo. Lo que manda es la formulación, no el mecanismo (F-88.3). →
-   `bench_nivel_a/` + `clip_bench/`
+   gana a los prompts directos de ausencia (E-DIR) en los dos niveles: a Nivel A por
+   F1 con IC no solapados en `shel5k` (el gate pre-registrado **no se disparó** y
+   E-DIR pasó a Fase 2), y a Nivel B decide el criterio pre-registrado — el **veto de
+   precisión (0,146 < 0,5)** la descarta como núcleo. Lo que manda es la formulación,
+   no el mecanismo (F-88.3). → `bench_nivel_a/` + `clip_bench/`
 3. **Qué agrega la plataforma sobre la detección cruda** — la histéresis rescata
    percepción intermitente (CR-02 llega a recall 1,000 con SDR 0,281), pero es palanca
    de doble filo; y **la capa que más agrega es la identidad**: F1 0,789 → **0,930**
    con las detecciones bit a bit idénticas. El margen no estaba en el modelo. →
    `clip_bench/`
 4. **Qué sobrevive al tiempo real** — la ganancia de la identidad **excluye el cero en
-   las cuatro densidades medidas**, incluida la que el camino live entrega hoy
-   (4,29 fps). Es la única palanca del banco significativa bajo esa restricción. →
-   `realtime/` + `clip_bench/` § densidad
+   las cuatro densidades medidas** (bajo decimado regular; conserva la dirección bajo
+   el descarte irregular medido del live, 6/6 — doc 101), incluida el ancla del techo
+   live de hoy (stride 7 ≈ 4,29 fps nominal; el live entrega 1,16–4,42 fps). Es la
+   única palanca del banco significativa bajo esa restricción. → `realtime/` +
+   `clip_bench/` § densidad
 
 ## Reglas de lectura que NO son negociables
 
@@ -76,8 +79,8 @@ documentos y en el informe.
 |---|---|
 | **L1** | **FAR/hora no reportable** (D-90.1): harían falta 3 h de cumplimiento anotado y el banco llega a 0,10–0,26 h. Se reemplaza por el **control de negativos**, que discrimina (T1/T2/G1: 0 FP de 4; D1/H1/B1: 2–3) |
 | **L2** | Sin doble anotación ni kappa — **decisión declarada, no omisión** |
-| **L3** | **Seis bordes del GT adjudicados** por oclusión (no cambio de estado), con firma en `clip.yaml` |
-| **L4** | **Un solo bloque guionado, sin obra real en video** — la más citable. Mismos actores, misma locación. La levanta el lote de internet cuando tenga GT |
+| **L3** | **Bordes del GT adjudicados en 6 clips** por oclusión (no cambio de estado), con firma en `clip.yaml` |
+| **L4** | **Un solo bloque guionado, sin obra real en video** — la más citable. Mismos actores, misma locación. ✎ 2026-08-06: **parcialmente levantada y con un hallazgo nuevo** — el estrato B (3 clips, banco 34→37, doc `operacion/102`) corrió (I1/I2, doc `operacion/103`): `v06_c01` (127 personas GT, el clip más denso del banco) expone que `scene` y `subject` fallan de dos formas opuestas en escenas densas (recall 0,000 vs precision 0,010) — no queda claro si esto es una limitación NUEVA (densidad de escena) o una ampliación de L4/L6; decisión pendiente del equipo (doc 103 §3) |
 | **L5** | **Escenarios desbalanceados** ⇒ obliga a reportar siempre por escenario y por estrato |
 | **L6** | **El tracker no está medido en obra real con multitud** — G1 se verificó en vivo con pocos sujetos; el `track_id` es post-hoc/decorador |
 | **L7** | **Licencia de `chv` parcial** (20,5% del bench de imágenes): uso permitido con cita, sin redistribución |
@@ -90,11 +93,14 @@ documentos y en el informe.
 
 ## Verificación de estos índices
 
-`docs/operacion/datos/96-verificar-indices.py` chequea mecánicamente que (a) todos los
-enlaces relativos resuelvan, (b) cada cifra citada coincida con el `metrics.json` en
-disco, (c) los deltas del bootstrap coincidan con su artefacto y sus IC excluyan el
-cero donde se afirma, y (d) todo doc referenciado exista. **Última corrida: todo
-verde.** Correrlo antes de volcar cifras al informe — la auditoría del informe
+`docs/operacion/datos/96-verificar-indices.py` chequea mecánicamente que (a) los
+enlaces markdown relativos resuelvan, (b) los **8 F1 del índice de clips** (T1, G1,
+R1–R6) coincidan con el `metrics.json` en disco, (c) los 3 deltas del bootstrap donde
+se afirma exclusión del cero coincidan con su artefacto, y (d) todo doc referenciado
+exista. **Última corrida: todo verde.** Alcance declarado (no sobreestimar): **no
+cubre** D1/H1/T2/B1 ni las cifras de `bench_imagenes`/`bench_nivel_a`/`realtime`
+(verificadas a mano — hueco registrado en `docs/informe/99` §2.2); si se agrega una
+campaña al índice, extender el script. Correrlo antes de volcar cifras al informe — la auditoría del informe
 (`docs/informe/95-auditoria-y-plan-de-cierre.md` §2.1, serie distinta de
 `operacion/95`) ya encontró una vez que *"el número estrella del TFG no tenía
 respaldo en el repo"*.

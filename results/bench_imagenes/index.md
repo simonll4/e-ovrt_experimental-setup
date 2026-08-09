@@ -48,11 +48,14 @@ agregadas, nunca solo el agregado.** El agregado de `bench_v3` está dominado po
 
 ### Confirmación B5 sobre `bench_v3` completo (6.477 imgs)
 
-| Modelo | mAP50 (n=6.477) | recall CR-01 (n=5.313) | inf p50 |
+| Modelo | mAP50 (n=6.477) | recall CR-01 (n=5.313) | inf p50 † |
 |---|---|---|---|
 | **`gdino-tiny-560`** | **0,551** (1º) | 0,308 | **129 ms** |
 | `gdino-base-560` | 0,525 | **0,599** (1º) | 146 ms |
 | `yoloe-26x` | 0,442 | 0,000 | 43 ms |
+
+† Las latencias p50 provienen de la matriz sobre el BENCH v2 (196 imgs, doc 64), no
+se re-midieron sobre `bench_v3`.
 
 **El campeón se sostiene en las dos escalas** — `gdino-tiny-560` gana mAP50 tanto en
 el núcleo curado (147) como en el bench completo (6.477): **es robusto a la fuente**,
@@ -72,14 +75,21 @@ no un artefacto del denominador chico.
 ### Decisiones S2 que salieron de acá
 
 1. **Campeón: `gdino-tiny-560`.** La resolución 560 da **−24% de latencia con igual o
-   mejor mAP que 800** (doc 61) — la variante 800 quedó descartada por dominancia.
-2. **`gdino-base-560` es el especialista CR-02/`bare_head`, con rol acotado.** Su
-   ventaja en `bare_head` era casi empate en `bench_obra` (0,400 vs 0,369, n=65) y
-   **se separa con claridad al sumar `shel5k`** (0,599 vs 0,308, n=5.313): no era
-   ruido de denominador chico, es un efecto real.
-3. **La familia YOLOE no sirve para CR-01**: recall 0,000 en `bare_head` en las tres
-   variantes medidas. Es rápida (43 ms) pero ciega a la condición que importa.
-4. **MM-Grounding-DINO descartado** (bboxes rotas, mAP 0,017 — Sprint 2).
+   mejor mAP que 800** (doc 61; el −24% es inferencia batch sobre el BENCH — D-61.4 —
+   no una medición live: `base-560` quedó **sin latencia live medida**, doc 101 §1).
+   La variante 800 quedó descartada por dominancia.
+2. **`gdino-base-560` es el especialista, con rol acotado, en dos ejes:**
+   **`bare_head` (evidencia de CR-01)** — casi empate en `bench_obra` (0,400 vs
+   0,369, n=65) que **se separa con claridad al sumar `shel5k`** (0,599 vs 0,308,
+   n=5.313): no era ruido de denominador chico, es un efecto real — **y `vest`
+   (CR-02)** (0,582 vs 0,520 en `bench_obra`; en video, SDR CR-02 0,281→0,920 — T2).
+   (✎ 2026-08-06: *la etiqueta anterior "especialista CR-02/`bare_head`" mezclaba
+   los dos ejes* — `bare_head` es evidencia de CR-01, no de CR-02.)
+3. **La familia YOLOE no sirve para CR-01**: AP 0,000 en `bare_head` en las cuatro
+   variantes medidas (26x/26l/26s/26m); recall CR-01 0,000 en `26x` (0,049 en `26s`).
+   Es rápida (43 ms) pero ciega a la condición que importa.
+4. **MM-Grounding-DINO descartado** en dos pasos: `tiny` excluido en Sprint 2 por
+   bboxes degeneradas; `large` mAP 0,017 en S1 (doc 64).
 
 > **Salvedad de lectura.** `vest` no tiene AP en `shel5k` y `bare_head` no lo tiene en
 > `chv`: ninguna de las dos fuentes anota esa clase. Las celdas `—` son ausencia de
@@ -92,9 +102,9 @@ veredicto: el gate pre-registrado de `nucleo/04` §8 **no se dispara** (CR-01 ra
 0,34–0,46 sí cumple, CR-02 0,87 no, y el gate exige ambas) ⇒ E-DIR pasó a Fase 2, donde
 el veto de precisión de Nivel B la descartó como núcleo (D1, doc 85).
 
-**CR-02 a Nivel A no está cerrado**: se mide en un solo estrato (`bench_obra`, n=142
-violadores desde negativos explícitos del raw) y con IC solapados. Declarado, no
-disimulado.
+**CR-02 a Nivel A no está cerrado**: se mide en un solo estrato (`bench_obra`, **n=82
+violadores en la mitad B de test** — el estrato completo trae 142, pero la mitad A se
+consume en calibración) y con IC solapados. Declarado, no disimulado.
 
 ## 4. Extensibilidad — el costo de una clase nueva (A1, doc 94)
 
@@ -115,7 +125,9 @@ sobre material con clases que la plataforma **jamás configuró**:
 | `excavator` con det ≥0,5 en MOCS | 62/151 imgs | sin GT (visual) |
 
 **`machinery` zero-shot (0,662) supera el mAP50 agregado del campeón con las clases
-configuradas (0,447–0,551).**
+configuradas** — tanto el rango sobre el mismo núcleo curado (0,447–0,503, doc 64,
+que es la comparación que hace la fuente, doc 94) como el agregado de `bench_v3`
+(0,551).
 
 > **F-94.1, el hallazgo honesto que acompaña al número:** la palabra tiene que alinear
 > con la taxonomía del despliegue. `vehicle` junto a `machinery` en el mismo caption da

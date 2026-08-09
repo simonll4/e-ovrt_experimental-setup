@@ -54,7 +54,7 @@ toda corrida live es re-evaluable offline y produce artefactos idénticos (verif
 | Contexto | G2A p50 | G2A p95 | Presupuesto 50–250 ms |
 |---|---|---|---|
 | Single-host, video (doc 39) | **14,7 ms** | **31,8 ms** | ✅ dentro |
-| GDINO live sobre OAK-D (doc 71) | — | **630–890 ms** | ❌ fuera |
+| GDINO (`tiny-560`) live sobre OAK-D (doc 71) | — | **630–890 ms** | ❌ fuera |
 | YOLOE live sobre OAK-D (doc 71) | — | **225–249 ms** | ✅ dentro |
 
 **El resultado incómodo, y es un resultado, no una falla:** el único modelo que entra
@@ -89,9 +89,14 @@ Esa tensión calidad↔latencia es un hallazgo de primera línea del trabajo.
 | YOLOE P2 | 295/710 (71%) | 5,98 | 118 ms | 225 ms ✓ |
 | YOLOE P3 | 152/322 (68%) | 5,12 | 112 ms | 249 ms ✓ |
 
-**Degradación monótona a lo largo de la jornada**: la misma configuración rindió
-**2,62 fps a las 13:33 y 1,16 fps a las 20:10 — 2,4× más lento al final del día**.
-Correlato térmico: GPU idle a 41 °C a las 13 h contra 55–61 °C a las 19–20 h.
+**Variación a lo largo de la jornada**: la misma configuración rindió **2,62 fps a
+las 13:33 y 1,16 fps a las 20:10 (2,26×)**. ✎ 2026-08-06: *la lectura original
+("degradación monótona, correlato térmico 41 °C vs 55–61 °C", doc 71) fue refutada
+por doc 73 §0.3 con los datos del propio rodaje*: 17:50 rindió 201 ms y 17:58
+445 ms (2,2× en 8 min), y la corrida de las 13:33 es más lenta que la de las 17:50
+— lo que separa las poblaciones es **la fuente** (`video_file` 306 ms vs `oak_d`
+426 ms, intercaladas en el tiempo), no el calor. Coherente con F-RT3 (abajo): el
+techo es contención de GIL, no térmico.
 
 ### Causa raíz y palanca aplicada (docs 73/74)
 
@@ -136,8 +141,10 @@ evidencia".** Lo esencial:
   (F-81.1): CR-02/P2 cae 1,00 → 0,60 → 0,20. Límite de cadencia declarado.
 - **F-96.5:** el costo real en tiempo de alerta es **+0,7 a +1,3 s** entre
   supervivientes comunes, sobre políticas de 4–7 s. Acotado y declarable.
-- **Ningún delta de densidad del agregado excluye el cero** — el costo del tiempo real
-  es tendencia monótona con mecanismo identificado, no efecto establecido.
+- **Ningún delta de densidad del agregado de escena excluye el cero** — ahí el costo
+  del tiempo real es tendencia monótona con mecanismo identificado, no efecto
+  establecido. Bajo **sujeto**, el peor caso **sí es individualmente significativo**:
+  R6−G1 = −0,188 [−0,334, −0,040] (doc 96 §4.1).
 
 > **Dos reglas de lectura que salieron de acá y el informe debe llevar:** el **SDR no
 > se compara entre cadencias** (F-96.6: la subida es ~100% artefacto del instrumento) y
@@ -214,6 +221,10 @@ medir G1.
   Residuo de segundo orden declarado: el jitter muestreado es i.i.d.; el real puede
   correlacionar con el contenido de la escena.
 - **El tracker en obra real con multitud.** G1 se verificó en vivo con pocos sujetos.
+- **`gdino-base-560` no tiene latencia live medida** (doc 101 §1): lo medido en vivo
+  fue `gdino-base` a **800 px** (G2A p50 311–388 / p95 446–614 ms); el −24% de la
+  resolución 560 es inferencia batch sobre el BENCH (D-61.4), no una medición live.
+  T2 y B1 quedan sin costo operativo live declarado.
 - **Ancla de sincronización para EBE-desde-clip**, lo que impediría hoy alimentar el
   banco por el bus con correspondencia exacta al GT temporal.
 - **FAR/hora**: limitación declarada (D-90.1), no métrica. La evidencia de falsas

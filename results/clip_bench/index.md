@@ -1,8 +1,16 @@
 # Campañas sobre el banco de clips — tabla comparativa
 
 Banco: **34 clips** del rodaje (Bloque A, 2026-07-25), 35 episodios (CR-01 28 /
-CR-02 7), P1–P9, `manifest.yaml` sha256 `cef5082e…`. Limitaciones comunes a
-todas las campañas: `e-ovrt_datasets/datasets/registry/clip_bench.md` (L1–L5).
+CR-02 7), P1–P9, `manifest.yaml` sha256 `cef5082e…` — **ese sha es el freeze de 34
+que usaron todas las campañas de esta tabla**, recuperable en el commit `f7a27fe6` de
+`e-ovrt_datasets`. El banco **vigente** tiene **38 clips** (34 del rodaje + 4 del
+estrato B, manifest `4437eb6d…`): las filas del rodaje nunca cambiaron, el manifest
+solo creció. El estrato B tiene su propia sección al final. **Denominador citable: 34
+episodios evaluables sobre 35** — 1 censurado con causa
+(`clip_too_short_for_t_alert_window`, un CR-01 de P1; enmienda A2): todos los
+recall de esta página son sobre 34 (T1 28/34 = 0,824; G1 33/34 = 0,971 — quien
+recomponga 28/35 no reproduce la tabla). Limitaciones comunes a todas las
+campañas: `e-ovrt_datasets/datasets/registry/clip_bench.md` (L1–L5).
 
 **Cómo leer esta tabla.** Cada fila es el rendimiento medido de UNA combinación,
 no una nota. La pregunta de la tesis es *qué se consigue hoy con OVD sin
@@ -28,8 +36,11 @@ evaluables; los clips negativos quedan fuera y se reportan como control de FP.
 | T2 | 0,818 | 1,000 | 0 FP | 1,000 | 0 FP | 1,000 | **0,400** | **0,500** | **0,400** |
 | D1 | 0,091 | 0,000 | 2 FP | 0,500 | 0 FP | 0,000 | 0,000 | 0,000 | **0,800** |
 | H1 | **0,000** | 1,000 | 2 FP | 0,000 | 0 FP | 0,500 | 0,400 | 0,000 | 0,600 |
+| B1 | 0,273 | 0,000 | 2 FP | 1,000 | 1 FP | 0,250 | 0,200 | 1,000 | 0,800 |
 
-(∅ = escenario negativo: se reporta FP, no recall)
+(∅ = escenario negativo: se reporta FP, no recall. Fila B1 agregada 2026-08-06 —
+regla L5: ninguna campaña sin su desglose. Ojo con los `n` chicos: P2 = 5
+episodios, P6 = 2 clips / 4 episodios, P8 = 1 clip.)
 
 ## Detalle por condición
 
@@ -38,18 +49,34 @@ evaluables; los clips negativos quedan fuera y se reportan como control de FP.
 | T1 | 0,805 | 4.314 ms | 8 | **0,281** | 8.572 ms | 1 |
 | T2 | 0,804 | 4.364 ms | 11 | **0,920** | **6.417 ms** | 1 |
 | D1 | 0,252 | 6.611 ms | **27** | **0,020** | — (recall 0) | **14** |
+| H1 | 0,854 | 5.081 ms | 24 | 0,282 | 9.167 ms | 13 |
+| G1 | 0,805 | 4.331 ms | **3** | **0,281** | 8.572 ms | 1 |
+| B1 | 0,940 | 3.919 ms | 14 | 0,966 | 3.867 ms | 9 |
 
-(CR-01 = 28 episodios / 25 clips; CR-02 = 7 episodios / 7 clips, en las tres campañas)
+(CR-01 = 28 episodios / 25 clips; CR-02 = 7 episodios / 7 clips, en todas. Filas
+H1/G1/B1 agregadas 2026-08-06 desde sus `metrics.json` — regla L5. **Dos
+advertencias de lectura:** (1) los FP se imputan a las condiciones *presentes* en
+el clip, con solapamiento — la suma por condición puede superar el total de la
+campaña (D1: 27+14 = 41 vs 35 totales); (2) `by_condition` no trae recall — el
+recall por condición vive en los docs de campaña: en T1 **CR-02 confirma 7/7 =
+1,000 pese a SDR 0,281** (F-81.1, doc 81), la cifra que sostiene el argumento de
+la histéresis.)
 
 ## Mecanismo de las alertas inesperadas (`datos/85-mecanismo-de-fallas.py`)
 
-| Tipo | T1 | T2 | D1 | H1 |
-|---|---|---|---|---|
-| `prematura_pre_roll` | 5 | 6 | 14 | **20** |
-| `cruzada_de_condicion` | 4 | 4 | 8 | **14** |
-| `sin_episodio_activo` | 0 | 2 | **12** | 3 |
-| `tardia` | 0 | 0 | 3 | 0 |
-| adelanto mediano de prematuras | 0,5 s | 1,8 s | 2,5 s | **2,6 s** |
+| Tipo | T1 | T2 | D1 | H1 | I1 † | I2 † |
+|---|---|---|---|---|---|---|
+| `prematura_pre_roll` | 5 | 6 | 14 | **20** | 2 | **117** |
+| `cruzada_de_condicion` | 4 | 4 | 8 | **14** | 3 | 79 |
+| `sin_episodio_activo` | 0 | 2 | **12** | 3 | 2 | 20 |
+| `tardia` | 0 | 0 | 3 | 0 | 0 | 0 |
+| adelanto mediano de prematuras | 0,5 s | 1,8 s | 2,5 s | **2,6 s** | 341,9 s | **221,2 s** |
+
+† Columnas del estrato B agregadas 2026-08-06 — **NO comparar con las del rodaje sin
+la nota F-107.4** (doc `operacion/107`): en clips largos la taxonomía satura — el
+adelanto mediano de las "prematuras" de I2 es **221 s**, no medio segundo: la etiqueta
+técnica aplica pero el mecanismo es *otra persona fabricando la misma condición
+minutos antes del episodio*, la firma de la evidencia fabricada del doc 103.
 
 ## Hallazgos vigentes
 
@@ -174,10 +201,14 @@ Nivel A. Y las tres fallas están **explicadas por mecanismo**, no solo cuantifi
 ceguera al atributo (Nivel A), su amplificación por la histéresis (D1) y la no-monotonía
 de la unión (H1).
 
-`hyb_and` **no se implementó, con causa y predicción registrada** (doc 87 §5): su único
-efecto declarado es *acelerar* la confirmación, y F-87.2 muestra que adelantar es
-justamente el mecanismo de falla en este banco. Salida legítima del pre-registro
-(§6.2: "lo no corrido se reporta *no ejecutada con causa*").
+`hyb_and` **no se implementó, con causa y predicción registrada**. La causa vigente es
+**D-90.4** (2026-08-05, doc 90 §hyb_and): **no es medible contra este banco sin romper
+la comparabilidad de las 6 campañas** — el evaluador deriva la ventana de la
+persistencia nominal del GT, y `-and` la altera. El planteo original (doc 87 §5: su
+único efecto declarado es *acelerar* la confirmación, y F-87.2 muestra que adelantar
+es justamente el mecanismo de falla) queda archivado como predicción conservada.
+Salida legítima del pre-registro (§6.2: "lo no corrido se reporta *no ejecutada con
+causa*").
 
 ## Eje de densidad de evidencia — el costo del tiempo real (R1–R6, doc 96)
 
@@ -194,13 +225,18 @@ Variable única contra T1/G1: el `stride`.
 | # | `campaign_id` | Gran. | fps ev. | Ancla del live | Recall | Prec. | F1 | t_alert | TTFD | FP neg. |
 |---|---|---|---|---|---|---|---|---|---|---|
 | T1 | `t1_…_scene` | escena | 30,00 | (referencia DBE) | 0,824 | 0,757 | **0,789** | 5.327 ms | 168 ms | 0/4 |
-| R1 | `r1_…_scene_s7` | escena | **4,29** | techo de hoy (F-RT5) | 0,794 | 0,794 | **0,794** | 5.623 ms | 572 ms | 0/4 |
+| R1 | `r1_…_scene_s7` | escena | **4,29** | ancla del techo live (stride 7) | 0,794 | 0,794 | **0,794** | 5.623 ms | 572 ms | 0/4 |
 | R3 | `r3_…_scene_s15` | escena | **2,00** | lo que corrió en el rodaje | 0,706 | 0,774 | **0,738** | 4.846 ms | 870 ms | 0/4 |
-| R5 | `r5_…_scene_s26` | escena | **1,15** | peor caso medido (20:10) | 0,618 | 0,677 | **0,646** | 5.360 ms | 1.463 ms | 0/4 |
+| R5 | `r5_…_scene_s26` | escena | **1,15** | ancla del peor caso (stride 26) | 0,618 | 0,677 | **0,646** | 5.360 ms | 1.463 ms | 0/4 |
 | G1 | `g1_…_subject` | sujeto | 30,00 | (referencia DBE) | 0,971 | 0,892 | **0,930** | 5.236 ms | 168 ms | 0/4 |
-| R2 | `r2_…_subject_s7` | sujeto | **4,29** | techo de hoy (F-RT5) | 0,853 | 0,879 | **0,866** | 5.635 ms | 572 ms | 0/4 |
+| R2 | `r2_…_subject_s7` | sujeto | **4,29** | ancla del techo live (stride 7) | 0,853 | 0,879 | **0,866** | 5.635 ms | 572 ms | 0/4 |
 | R4 | `r4_…_subject_s15` | sujeto | **2,00** | lo que corrió en el rodaje | 0,824 | 0,933 | **0,875** | 4.981 ms | 870 ms | 0/4 |
-| R6 | `r6_…_subject_s26` | sujeto | **1,15** | peor caso medido (20:10) | 0,676 | 0,821 | **0,742** | 5.577 ms | 1.463 ms | 0/4 |
+| R6 | `r6_…_subject_s26` | sujeto | **1,15** | ancla del peor caso (stride 26) | 0,676 | 0,821 | **0,742** | 5.577 ms | 1.463 ms | 0/4 |
+
+Anclas: los strides son 30/7 ≈ 4,29 y 30/26 ≈ 1,15 fps **nominales** — el techo
+medido fue 4,42 fps con F-RT5 (4,12 hoy, doc 101) y el peor caso medido 1,16 fps
+(20:10). **R4 (0,875) > R2 (0,866) pese a tener la mitad de densidad: es ruido, no
+una inversión — se declara, no se explica (doc 96 §7).**
 
 **Lo que dicen estas filas (verificadas con bootstrap pareado por clip, doc 96 §4.1):**
 
@@ -214,8 +250,10 @@ Variable única contra T1/G1: el `stride`.
 - **F-96.1: a ~4 fps el agregado no se degrada de forma detectable** (+0,005
   [−0,120,+0,132]), pero esconde una redistribución: P2 cae 1,00→0,60 y P6 1,00→0,50,
   mientras **P9 sube 0,60→1,00 con 2 FP menos**. Los deltas de densidad del agregado
-  NO excluyen el cero (ni R5−T1 −0,143); el costo queda como tendencia monótona con
-  mecanismo identificado, no como efecto establecido.
+  **de escena** NO excluyen el cero (ni R5−T1 −0,143); bajo **sujeto** el peor caso
+  **sí**: R6−G1 = −0,188 [−0,334, −0,040] es el único costo de densidad
+  individualmente significativo (doc 96 §4.1). Para escena, el costo queda como
+  tendencia monótona con mecanismo identificado, no como efecto establecido.
 - **F-96.2: lo primero que se rompe es el rescate de F-81.1.** CR-02 vive de que la
   histéresis acumule percepción intermitente (SDR 0,281); P2 pasa a 0,600 y luego a
   0,200. Límite declarado de F-81.1: la histéresis rescata mientras la cadencia
@@ -250,25 +288,122 @@ Variable única contra T1/G1: el `stride`.
 | ~~1~~ | ~~Prompts `edir_v1` / `eind_v1`~~ | **RESUELTO**: Nivel A (doc 83) + Nivel B (D1, doc 85) → veto de precisión, E-IND es el núcleo | **cerrado** |
 | ~~2~~ | ~~Modelo `gdino-base-560`~~ | **HECHO** (T2, doc 84): F-81.2b refutada bajo `v2_short`; CR-02 SDR 0,281→0,920 | **cerrado** |
 | ~~1~~ | ~~E-HYB `hyb_or`~~ | **HECHO (H1, doc 87)**: predicción refutada, F-87.2 | **cerrado** |
-| ~~2~~ | ~~E-HYB `hyb_and`~~ | **No ejecutada CON CAUSA** (doc 87 §5): su mecanismo es acelerar la confirmación, que es el modo de falla medido | trabajo futuro con predicción escrita |
+| ~~2~~ | ~~E-HYB `hyb_and`~~ | **No ejecutada CON CAUSA** — la vigente es D-90.4: no medible contra este banco sin romper la comparabilidad de las 6 campañas (el planteo original de doc 87 §5 queda archivado como predicción) | trabajo futuro con predicción escrita |
 | ~~1~~ | ~~`bare_head` × `gdino-base-560`~~ | **HECHO (B1, doc 88)**: F-88.2 tampoco alcanza (0,480 vs 0,582); de yapa F-88.1 (costo del caption) y F-88.3 | **cerrado** |
 | ~~1~~ | ~~Granularidad `subject` (G1)~~ | **HECHO (G1, doc 89)**: F1 0,930, la mejor del banco. `track_id` post-hoc, sin GPU | **cerrado** |
 | ~~1~~ | ~~Densidad de evidencia del camino live~~ | **HECHO (R1–R6, doc 96)**: F-96.4 — la ganancia de la identidad excluye el cero en las 4 densidades; los deltas de densidad del agregado no | **cerrado** |
-| 1 | Lote de internet (14 clips) sumado al banco | Material no guionado (L4) + **soak → FAR/hora** (L1) | espera CVAT — **ver caveat de soak abajo** |
+| 1 | Lote de internet sumado al banco | Material no guionado (L4) + soak → **análisis de sensibilidad del control de FP** (D-90.1 punto 4 — NO habilita FAR/hora: la limitación L1 permanece, ver caveat abajo) | **GT LISTO (3 clips, doc 102); campañas I1/I2 armadas, sin correr** |
 | 2 | Campaña EBE de punta a punta por el bus sobre los 34 clips | Integridad del acople y latencia operativa CONTRA GT, no en humos. Hoy el eje se cubre por densidad (R1–R6) + humos verdes (37/65/67/91) | trabajo ubicado, no ejecutado |
 | 2 | Port de `track_id` al pipeline online (spec 42 §3) | Solo si se decide llevar G1 a producción: hoy el `track_id` es post-hoc. Decisión de ADR-002, ver doc 89 §7 | decisión del usuario |
 
 **Todas las palancas del banco están agotadas.** Formulación (D1), fusión (H1), modelo
 (T2), vocabulario nativo (B1), granularidad (G1) y **densidad de evidencia (R1–R6)**.
-Lo único que falta para cerrar el banco es material: soak para FAR/hora y video no
-guionado.
+Lo único que falta para cerrar el banco es material: video no guionado (L4) y el soak
+como **control de negativos ampliado** — que no convierte a FAR/hora en métrica (L1
+permanece: el techo del banco con soak es 0,263 h y hacen falta 3 h).
 
-> **FAR/hora no es una métrica de este trabajo (determinación doc 90 D-90.1,
-> 2026-08-04).** Para afirmar "FAR ≤ 1 FA/hora" con 0 FP harían falta **3 h** de video
-> en cumplimiento anotado; el banco alcanza 0,101 h con el clip soak previsto y 0,263 h
-> como techo absoluto. Una cota de 11–30 FA/h no sostiene ninguna afirmación operativa.
-> **La evidencia de falsas alarmas de este informe es la columna "FP neg." de la tabla
-> de arriba**, que ya discrimina: T1/T2/G1 dan 0 FP de 4; D1, H1 y B1 dan 2–3.
+### Estrato B — lote de internet (4 clips, obra real NO guionada)
+
+### Estrato B — lote de internet (13 clips, obra real NO guionada) · gen. 3, 2026-08-09
+
+**El lote cerrado y medido de punta a punta.** 13 de los 14 clips con GT humano
+(`v08_c01` excluido con causa, doc `operacion/111`); inferencia fresca de los 13 en
+**una sola sesión** de 72 min de GPU. Procedencia única. Las gen. 1 y 2 (3 y 4 clips)
+quedan supersedidas — `metrics.gen2.json` preservado al lado.
+
+**El material:** 4 clips positivos (5 episodios, **1 censurado** por A1 ⇒ 4 evaluables)
+y **9 negativos** (13,1 min), de los cuales **1 es soak** (`v06_c01`, 6:09,6 = 0,1027 h,
+el único denominador temporal del banco). Dos nocturnos positivos (`v04_c01`,
+`v04_c02`) y un nocturno negativo (`v04_c03`, el único del banco).
+
+| | I1 `scene` | I2 `subject` |
+|---|---|---|
+| recall (4 eps evaluables) | 0,750 | **1,000** |
+| precision | **0,375** | 0,111 |
+| **F1** | **0,500** | 0,200 |
+| matched / missed / FP | 3 / 1 / 5 | 4 / 0 / 32 |
+| t_alert | **4.767 ms** | 5.800 ms |
+| SDR · TTFD | 0,890 · 16,5 ms | idénticos (mismas detecciones) |
+| FP sobre los 9 negativos | **21** | **304** |
+| **FAR/hora** (soak, 0,1027 h) | **29,2** | **1.850,8** |
+
+**Por escenario:**
+
+| | P1 (3 clips, 2 eps) | P6 (1 clip, 2 eps) | P5∅ (9 clips) |
+|---|---|---|---|
+| `scene` | recall 0,500 · 5 FP | **recall 1,000 · 0 FP** | 21 FP |
+| `subject` | recall 1,000 · 32 FP | **recall 1,000 · 0 FP** | 304 FP |
+
+### Cómo se lee — y confirma lo que la gen. 2 insinuaba
+
+1. **`scene` le gana a `subject` en F1 (0,500 vs 0,200), y la brecha se agrandó** al
+   pasar de 4 a 13 clips. `subject` compra el episodio que falta (recall 0,750→1,000)
+   pagando **6× más FP en positivos y 14× más en negativos**. En el rodaje G1 dominaba;
+   en obra real no guionada, no. **No hay una granularidad mejor: hay una correcta para
+   cada régimen de densidad** (F-108.1).
+2. **`v04_c02` (P6) es el único caso limpio de todo el estrato**: recall 1,000 y **0 FP**
+   en ambas granularidades. Es nocturno, disperso y con un solo violador sosteniendo las
+   dos condiciones — el régimen donde el sistema funciona.
+3. **El episodio que `scene` pierde** es el CR-01 de `v04_c01`, por alerta prematura
+   (confirma a los 4,0 s; la ventana abre a los 7,97 s).
+4. **FAR/hora: 29,2 FA/hora en el mejor caso**, sobre 6 minutos de obra real donde nadie
+   infringe. Ver el bloque de L1 abajo.
+5. **n = 4 episodios evaluables en 13 clips.** Describe un régimen; no establece un
+   ranking con poder estadístico.
+
+**Determinismo re-confirmado (F-109.1).** Los 4 clips que ya se habían inferido en la
+gen. 2 dieron detecciones **idénticas** al re-inferirlos (572 / 840 / 11.087 / 1.771
+frames, mismas cajas). El pipeline DBE es reproducible entre sesiones.
+
+**⚠️ Corrección de métrica que afecta cifras publicadas antes (doc 111 §6).** El
+agregador calculaba `far_per_hour` con el numerador de **todos** los negativos y el
+denominador de **solo los soak** — dos bases distintas. Con 1 soak y 1 negativo corto
+(gen. 2) la distorsión era 1,2×; con 9 negativos infla **7×**. Corregido con test de
+regresión: ahora numerador y denominador salen del mismo conjunto. **Las cifras de FAR
+de la gen. 2 que circularon (48,7 y 2.045,6) eran incorrectas; las correctas son 29,2 y
+1.850,8** — y son las mismas en gen. 2 y gen. 3, porque dependen solo del clip soak,
+que es determinista. El `metrics.json` expone además `far_per_hour_all_negatives`
+(96,1 / 1.390,5) como base informativa.
+
+**Advertencias de lectura que salieron de este estrato** (valen para toda la página):
+
+- **F-104.2** — en `scene`, subir el gate de área **empeora** los FP porque el conteo
+  bajo era el latch de la escena capturada. **El conteo de FP no compara `scene` contra
+  `subject` cuando la escena está capturada.**
+- **F-104.4** — en `v10_c01` (fachada en altura: arnés, **no** chalecos) el GT humano
+  dice `unknown` en ~85% de los frames-sujeto y el motor alerta igual. **El conteo de FP
+  se mueve por alucinación de la clase ausente, no por acertar.**
+- **F-108.2** — la mejor palanca de configuración medida in-sample
+  (`min_subject_confidence` 0,50) **costó un episodio real** fuera de muestra. Ninguna
+  configuración sale recomendada de este estrato.
+
+**Nivel A del mismo material** (estado por persona, sin motor temporal), consolidado con
+los 4 clips piloto: `results/bench_nivel_a/na1_gdinotiny560_v2short_video/`.
+
+**✎ 2026-08-07 — L1 cambió de naturaleza: FAR/hora pasó a ser MEDIBLE, y el dato la
+refuta.** Con la corrección del GT, `v06_c01` es negativo de 6:09,6 ⇒ **el primer clip
+soak del banco** ⇒ denominador **0,1027 h** (era 0,0 h). El agregador ya no devuelve
+`None`: devuelve **29,2 FA/hora en escena y 1.850,8 FA/hora por sujeto** (cifras
+corregidas el 08-09 — las que circularon antes, 48,7 y 2.045,6, salían de un cálculo
+que mezclaba bases; ver la sección del estrato B).
+
+**D-90.1 no queda derogada, queda precisada.** Su argumento era que ningún denominador
+alcanzable permite afirmar *"≤1 FA/hora"* — y sigue siendo cierto: con 0,1027 h y la
+regla de 3 harían falta 3,0 h. Lo que cambió es que **ya no hace falta ese argumento**:
+no se declara "no medible" una métrica cuando el dato medido la refuta de frente. El
+banco pasó de 0,0358 h a **0,1548 h de tiempo negativo total** (`clip_bench_manifest.json`),
+de los cuales 0,1027 h son soak citable.
+
+> **~~FAR/hora no es una métrica de este trabajo~~ — DEROGADO el 2026-08-07 por el
+> bloque de arriba.** Se conserva el texto original por trazabilidad: *"(D-90.1,
+> 2026-08-04) Para afirmar 'FAR ≤ 1 FA/hora' con 0 FP harían falta 3 h de video en
+> cumplimiento anotado; el banco alcanza 0,101 h con el clip soak previsto y 0,263 h
+> como techo. Una cota de 11–30 FA/h no sostiene ninguna afirmación operativa."*
+> **Lo que cambió:** el clip soak existe y FAR/hora se mide (**29,2** y **1.850,8** FA/hora).
+> El argumento del denominador sigue en pie —no alcanza para afirmar una cota— pero ya
+> no se declara la métrica no medible. **La evidencia de falsas alarmas del rodaje
+> sigue siendo la columna "FP neg." de la tabla de arriba**: T1/T2/G1 dan 0 FP de 4;
+> D1, H1 y B1 dan 2–3.
 
 > **Comparabilidad:** T1 se evaluó con los fixes F-EV1/2/3 del evaluador
 > (control-plane `c1cbb56`). Cualquier campaña anterior a ese commit **no es

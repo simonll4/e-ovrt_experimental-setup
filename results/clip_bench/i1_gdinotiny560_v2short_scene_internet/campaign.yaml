@@ -1,0 +1,94 @@
+schema_version: clip_campaign.v1
+campaign_id: i1_gdinotiny560_v2short_scene_internet
+date: '2026-08-07'
+phase: I
+description: >
+  Estrato B: los 4 clips del lote de internet con GT humano (obra real, NO guionada).
+  Es T1 con la combinación intacta y el material cambiado — la única variable es el
+  estrato. Levanta L4 (parcial: n = 3 episodios).
+
+  NO es comparable clip a clip con T1: son 4 clips contra 34, y el material difiere en
+  fuente, iluminación, densidad y escala del sujeto. Se reporta como fila aparte con su
+  desglose (D-90.6), nunca fusionado al agregado del rodaje.
+
+# --- LA COMBINACIÓN (idéntica a T1 — esto es deliberado) ---
+model: grounding-dino/gdino-tiny-560
+model_note: >
+  Campeón S1/S2 (doc 64). Zero-shot: cero imágenes de este dominio en entrenamiento.
+  image_size 560, box_threshold 0.30, text_threshold 0.25.
+prompt_set: cr01_cr02_v2_short
+prompt_set_frozen_sha256: df81fd48b6daf8924b5fb66aa1ce4acc0c880ac6ed8cd1245c6aca1babdb309a
+prompt_set_note: 'clases: person / helmet / vest (activas las 3). Idéntico a T1.'
+pattern_set: cr01_cr02_v2
+pattern_set_note: 'CR-01 high confirm_after_ms=4000; CR-02 medium 7000. Idéntico a T1.'
+granularity: scene
+granularity_note: 'G0 — sin track_id; el motor acumula ausencia a nivel escena.'
+path: DBE
+stride: 1
+path_note: >
+  stride=1, sin límite de tasa: mide percepción + patrón, NO latencia operativa
+  (ADR-013: la latencia end-to-end la mide el camino RTSP/live).
+
+# --- PROCEDENCIA ---
+gt_bank: >
+  clip_bench, estrato B — **13 clips, el lote de internet COMPLETO** (doc 111;
+  `v08_c01` excluido con causa). Positivos: v04_c01 (P1, nocturno) · v04_c02 (P6,
+  nocturno, 2 episodios) · v01_c02 (P1) · v01_c01 (P1, episodio CENSURADO por A1).
+  Negativos (9): v02_c01 · v03_c01 · v03_c02 · v04_c03 (el único nocturno) · v05_c01 ·
+  v06_c01 (**el clip SOAK**, 0,1027 h) · v07_c01 · v09_c01 · v10_c01.
+  Banco de 47 clips al 2026-08-09.
+gt_manifest_yaml_sha256: 299ccc19593361db2677bb41d20d07dbd47d77855555f9686ff54303f1d47c34
+gt_manifest_note: >
+  Freezes anteriores, todos verificables en git: 34 del rodaje `cef5082e…`
+  (commit f7a27fe6 — el que citan T1/T2/D1/H1/G1/B1/R1–R6), 37 con el estrato B inicial
+  `6b75ac6e…`, 38 con v04_c02 `4437eb6d…`, 39 con v03_c02 `c1791c9b…`. El manifest solo
+  crece; las filas del rodaje nunca cambiaron.
+gt_doc: docs/operacion/111-cierre-del-lote-de-internet.md
+gt_note: >
+  GT humano (CVAT, anotador `simon`), derivado con derive_clip_gt.py y los mismos
+  umbrales 4000/7000. 3 episodios evaluables sin censura (1 CR-01 en v04_c01;
+  CR-01+CR-02 en v04_c02) y 2 clips negativos. `v04_c02` tiene aviso de PRE-ROLL
+  (onset en t=0): su TTFD es artefacto del recorte, no mérito del sistema.
+  **n = 3 episodios: el intervalo de confianza es enorme y hay que decirlo.**
+
+# --- HISTORIA DE ALCANCE (por qué las cifras cambiaron respecto de versiones citadas) ---
+generations:
+  - gen: 1
+    date: '2026-08-06'
+    clips: 3
+    note: >
+      Primera corrida (docs 102/103): v04_c01, v06_c01, v10_c01. `v06_c01` figuraba
+      como POSITIVO (1 episodio CR-02) y el banco no tenía clip soak. Sus cifras se
+      citan en los docs 103/104/107, que llevan banner de corrección.
+  - gen: 2
+    date: '2026-08-07'
+    clips: 4
+    note: >
+      Reconstrucción completa (doc 109). Dos cambios de GT: (a) la revisión visual en
+      CVAT determinó que el episodio CR-02 de `v06_c01` era ERROR DE ANOTACIÓN — el
+      clip pasó a negativo y, con 6:09,6 continuos, se volvió el primer clip SOAK del
+      banco (habilita FAR/hora); (b) se incorporó `v04_c02`. Inferencia FRESCA de los
+      4 clips en una sola sesión: una procedencia, un hardware.
+
+  - gen: 3
+    date: '2026-08-09'
+    clips: 13
+    note: >
+      CAMPAÑA VIGENTE. El lote de internet quedó CERRADO (13 de 14 con GT; `v08_c01`
+      excluido con causa, doc 111): inferencia fresca de los 13 en UNA sesión, 72 min
+      de GPU, manifest `299ccc19…`. Determinismo re-confirmado: los 4 clips de la gen. 2
+      dieron detecciones idénticas. La gen. 2 queda en `metrics.gen2.json`.
+      ⚠️ En esta generación se corrigió un BUG del agregador que afectaba `far_per_hour`
+      (numerador de todos los negativos, denominador de solo los soak — doc 111 §6): las
+      cifras de FAR de las gen. 1/2 que circularon (48,7 / 2.045,6) eran incorrectas.
+      Resultado: recall 0,750 · precision 0,375 · F1 0,500 · FAR/hora 29,2.
+
+evaluator_note: >
+  Evaluado con los fixes F-EV1/2/3 (control-plane c1cbb56), igual que T1: negativos
+  declarados not_applicable, la ventana hereda start_end_tolerance_ms del GT, y las
+  re-confirmaciones con la infracción activa cuentan re_alerts y no FP.
+hardware: NVIDIA RTX 4060 Laptop 8 GB (WSL2)
+
+runner: docs/operacion/datos/102-ciclo-internet-runner.py --fase scene
+report_doc: docs/operacion/111-cierre-del-lote-de-internet.md
+raw_evidence: docs/operacion/datos/110-estrato-b-gen3/scene

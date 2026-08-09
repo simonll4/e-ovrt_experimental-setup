@@ -71,9 +71,12 @@ derivarlo por geometría, que sería circular con E-IND (D10, doc 83 F-83.3).
 | `shel5k`/CR-01 | 0,546 | 0,333 | **58%** | **24%** |
 
 -or no supera a E-IND en ningún corte de Nivel A (la adopción §8.3 se decide en Fase 2
-sobre F1 de alertas). La corroboración (-and) **discrimina 2,4× en CR-01** y se
-**invierte en CR-02** (los errores de ambas estrategias caen sobre los mismos chalecos
-difíciles) → si -and va a Fase 2, el `corroboration_factor` tiene que ser por condición.
+sobre F1 de alertas). La corroboración (-and) **discrimina 2,4× en CR-01** (la réplica
+con `base-560` la refuerza: **3,0×, 51% vs 17%** — doc 84). ✎ 2026-08-06: la parte
+"se invierte en CR-02" **no replicó** (doc 83, corrección del 08-04: con `base-560`
+la dirección es la correcta, 50% TP vs 36% FP) — **CR-02 no tiene evidencia
+concluyente en ninguna dirección**; la derivación correcta no es "factor por
+condición" sino **medir la corroboración por condición antes de fijar el factor**.
 
 ## Hallazgos vigentes
 
@@ -87,11 +90,13 @@ difíciles) → si -and va a Fase 2, el `corroboration_factor` tiene que ser por
 - **F-83.6 — E-DIR no es un detector, pero es un recuperador.** `cr01_obs` en `shel5k`
   rinde F1 0,188 (precision 0,119, 8.212 FP) y aun así recupera el 18,5% de lo que
   E-IND no ve. El costo de E-DIR es precision, no recall.
-- **F-83.7 — la corroboración discrimina en CR-01 y se invierte en CR-02.** Los FP de
+- **F-83.7 — la corroboración discrimina en CR-01.** (✎ título vigente tras la
+  corrección del 2026-08-04, doc 83 §✎; *decía "…y se invierte en CR-02"*, parte que
+  **no replicó** con `base-560` y quedó sin evidencia concluyente.) Los FP de
   `cr01_obs` son 54% ceguera al atributo + 46% alucinación (el gating filtra solo lo
-  segundo). En casco E-DIR corrobora aciertos 2,4× más que errores; en chaleco
-  corrobora más a los errores: percepción correlacionada sobre los mismos chalecos
-  difíciles (la otra cara de F-G2.1/F-81.1).
+  segundo). En casco E-DIR corrobora aciertos 2,4× más que errores (réplica: 3,0×,
+  51% vs 17% — doc 84). En chaleco, medir por condición antes de fijar cualquier
+  `corroboration_factor`.
 
 ## Limitación abierta
 
@@ -109,3 +114,40 @@ empatan en chaleco. Haría falta otra fuente con negativos de chaleco explícito
 | ~~Fase 2: fusión `hyb_and`~~ | **No ejecutada CON CAUSA (D-90.4)**: no es medible contra este banco sin romper la comparabilidad de las 6 campañas (el evaluador deriva la ventana de la persistencia nominal del GT); predicción y condición de medición escritas (doc 87 §5) |
 | ~~`gdino-base-560` réplica Nivel A + T2 clips~~ | **HECHA (doc 84)**: F-84.1 estructural, F-84.5/F-84.6 en clips |
 | ~~`bare_head` como evidencia directa × base-560 (Nivel B)~~ | **HECHA (B1, doc 88)**: F-88.2 — tampoco alcanza (0,480 vs 0,582 sobre las mismas detecciones); de yapa F-88.1 (costo del caption: 0,082 de F1 por una palabra) y F-88.3 (la etiqueta corta gana a la frase negada) |
+
+## Nivel A sobre CLIPS de video — `na1_gdinotiny560_v2short_video` (gen. 3, 2026-08-09)
+
+Nivel A sobre **video real**, contra el GT humano de CVAT. Consolida los **17 clips de
+video con GT**: los **13 del estrato B** (lote de internet CERRADO, doc `operacion/111`)
+y los **4 del piloto** del 2026-07-18. Artefactos en
+`na1_gdinotiny560_v2short_video/metrics.json`.
+
+**NO es comparable fila a fila con D1**: acá NO hay calibración de umbrales (punto de
+operación **desplegado**: person ≥ 0,35, evidencia ≥ 0,25), el material es video
+sub-muestreado a 2 Hz, y las **person-frames con `unknown` se excluyen del denominador**
+— el ratio de exclusión se reporta y es un resultado en sí.
+
+| material | CR-01 P / R / F1 | CR-02 P / R / F1 | unknown | n eval |
+|---|---|---|---|---|
+| `bench_obra` (imágenes, referencia de arriba) | 0,476 / 0,357 / **0,408** | 0,567 / 0,415 / **0,479** | — | — |
+| **video, agregado (17 clips)** | 0,021 / 0,371 / **0,039** | 0,010 / 0,271 / **0,020** | 11,5% / 11,6% | 10.415 / 10.409 |
+| — solo estrato B (13) | 0,022 / 0,372 / 0,041 | 0,004 / 0,204 / 0,007 | 11,1% / 10,9% | 9.709 / 9.730 |
+
+### Las celdas que se destacan
+
+| clip | cond | violadores | P | R | **F1** | por qué |
+|---|---|---|---|---|---|---|
+| `video15_clip01` | CR-02 | 49 | 0,312 | 0,490 | **0,381** | el mejor del conjunto — **0% unknown**, material plenamente juzgable |
+| `v01_c02` | CR-01 | 32 | 0,216 | 0,594 | **0,317** | el mejor del estrato B |
+| `v04_c01` | CR-01 | 28 | 0,132 | 0,714 | 0,223 | **el recall más alto** (0,714), con 55% de unknown |
+| `v01_c01` | CR-01 | 13 | 0,101 | **0,846** | 0,180 | recall altísimo, precision baja |
+| `v06_c01` | CR-02 | 10 | 0,001 | 0,300 | **0,002** | el peor — 3.173 FP sobre 6.442 person-frames |
+
+**Lectura (docs 103/104/105/108/111):** el mismo E-IND que da F1 0,41–0,55 en imágenes
+se derrumba en video far-field **por precision, no por recall** (el recall agregado se
+sostiene en 0,37 / 0,27). Es la medición canónica del mecanismo "ausencia de evidencia =
+evidencia de ausencia" fuera del régimen de juzgabilidad. Hallazgos: **F-105.3** — la
+juzgabilidad tiene tres ejes (escala × iluminación × **oclusión**) — y **F-105.4** — el
+`unknown` del anotador **no** predice el F1 del modelo: el humano usa continuidad
+temporal que el modelo por frame no tiene, y esa brecha señala **agregación temporal de
+evidencia para determinar estado** como vía de mejora.

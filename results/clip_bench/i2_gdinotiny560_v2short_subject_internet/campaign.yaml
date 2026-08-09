@@ -1,0 +1,87 @@
+schema_version: clip_campaign.v1
+campaign_id: i2_gdinotiny560_v2short_subject_internet
+date: '2026-08-07'
+phase: I
+description: >
+  Granularidad por SUJETO sobre el estrato B. Es G1 —la mejor combinación del banco del
+  rodaje— con el material cambiado, y es el contraste que interesa: si la ganancia de la
+  identidad (F1 0,789 → 0,930 en el rodaje) se sostiene sobre obra real NO guionada,
+  deja de poder explicarse por el guion.
+
+  Variable única contra I1: la granularidad del motor. Las detecciones son bit a bit las
+  de I1 — no hay inferencia nueva. SIN GPU.
+
+# --- LA COMBINACIÓN ---
+model: grounding-dino/gdino-tiny-560
+model_note: 'Idéntico a I1 — NO hay inferencia nueva en esta campaña.'
+prompt_set: cr01_cr02_v2_short
+prompt_set_frozen_sha256: df81fd48b6daf8924b5fb66aa1ce4acc0c880ac6ed8cd1245c6aca1babdb309a
+prompt_set_note: 'Idéntico a I1.'
+pattern_set: cr01_cr02_v2_subject
+pattern_set_note: >
+  cr01_cr02_v2 con `granularity: subject`. ÚNICA variable respecto de I1. Mismos
+  timings (4000/7000), regiones, umbrales y estrategia (eind).
+granularity: subject
+granularity_note: >
+  G1. ADR-002 (con la adenda de 2026-08-04): la escena sigue siendo el núcleo y no se
+  computan métricas MOT ni GT de identidades. `track_id` producido con el
+  SimpleIoUTracker post-hoc sobre las detecciones de I1 — mismo procedimiento que la
+  campaña G1 del rodaje, cuyo camino config-driven (`input.track_persons`) se verificó
+  equivalente exacto en los 34 clips.
+  Guard del runner: si alguna persona quedara sin `track_id` el motor degrada a escena
+  EN SILENCIO y esto mediría G0 — se verifica por clip y aborta el clip.
+path: DBE
+stride: 1
+
+# --- PROCEDENCIA ---
+gt_bank: >
+  clip_bench, estrato B — **13 clips, el lote de internet COMPLETO** (doc 111;
+  `v08_c01` excluido con causa). Positivos: v04_c01 (P1, nocturno) · v04_c02 (P6,
+  nocturno, 2 episodios) · v01_c02 (P1) · v01_c01 (P1, episodio CENSURADO por A1).
+  Negativos (9): v02_c01 · v03_c01 · v03_c02 · v04_c03 (el único nocturno) · v05_c01 ·
+  v06_c01 (**el clip SOAK**, 0,1027 h) · v07_c01 · v09_c01 · v10_c01.
+  Banco de 47 clips al 2026-08-09.
+gt_manifest_yaml_sha256: 299ccc19593361db2677bb41d20d07dbd47d77855555f9686ff54303f1d47c34
+gt_manifest_note: >
+  Freezes anteriores, todos verificables en git: 34 del rodaje `cef5082e…`
+  (commit f7a27fe6 — el que citan T1/T2/D1/H1/G1/B1/R1–R6), 37 con el estrato B inicial
+  `6b75ac6e…`, 38 con v04_c02 `4437eb6d…`, 39 con v03_c02 `c1791c9b…`. El manifest solo
+  crece; las filas del rodaje nunca cambiaron.
+gt_doc: docs/operacion/111-cierre-del-lote-de-internet.md
+
+# --- HISTORIA DE ALCANCE ---
+generations:
+  - gen: 1
+    date: '2026-08-06'
+    clips: 3
+    note: >
+      Primera corrida (doc 103): 3 clips, con `v06_c01` como positivo. Es la campaña
+      cuyas cifras (precision 0,010; 196 FP) citan los docs 103/104/107.
+  - gen: 2
+    date: '2026-08-07'
+    clips: 4
+    note: >
+      Reconstrucción completa (doc 109) sobre el GT corregido + `v04_c02`. **Aviso de
+      lectura:** al dejar `v06_c01` de ser positivo, sus FP se mudaron del cubo de
+      positivos al de negativos — la precision sube sin que el sistema mejore. Misma
+      advertencia que F-104.2: estos conteos se mueven por razones ajenas a acertar.
+
+  - gen: 3
+    date: '2026-08-09'
+    clips: 13
+    note: >
+      CAMPAÑA VIGENTE. El lote de internet quedó CERRADO (13 de 14 con GT; `v08_c01`
+      excluido con causa, doc 111): inferencia fresca de los 13 en UNA sesión, 72 min
+      de GPU, manifest `299ccc19…`. Determinismo re-confirmado: los 4 clips de la gen. 2
+      dieron detecciones idénticas. La gen. 2 queda en `metrics.gen2.json`.
+      ⚠️ En esta generación se corrigió un BUG del agregador que afectaba `far_per_hour`
+      (numerador de todos los negativos, denominador de solo los soak — doc 111 §6): las
+      cifras de FAR de las gen. 1/2 que circularon (48,7 / 2.045,6) eran incorrectas.
+      Resultado: recall 1,000 · precision 0,111 · F1 0,200 · FAR/hora 1.850,8.
+
+evaluator_note: 'Idéntico a I1 (fixes F-EV1/2/3, control-plane c1cbb56).'
+hardware: 'sin GPU (reusa las detecciones de I1)'
+
+runner: docs/operacion/datos/102-ciclo-internet-runner.py --fase subject
+report_doc: docs/operacion/111-cierre-del-lote-de-internet.md
+raw_evidence: docs/operacion/datos/110-estrato-b-gen3/subject

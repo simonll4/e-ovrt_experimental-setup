@@ -32,7 +32,7 @@ dónde está cada una.
 ## Convención de `campaign_id`
 
 `<fase><n>_<modelo>_<promptset>_<granularidad>` — p.ej.
-`t1_gdinotiny560_v2short_scene`, `d1_gdinotiny560_edirv1_scene`,
+`t1_gdinotiny560_v2short_scene`, `d1_gdinotiny560_edirpair_scene`,
 `g1_gdinotiny560_v2short_subject`. La fase remite al plan maestro (doc 62).
 
 ## Cómo agregar una campaña
@@ -75,5 +75,5 @@ Vienen del banco, no de la combinación — están en
 en el informe, no por campaña: **FAR/hora no reportable como rendimiento**
 (determinación doc 90 D-90.1: ninguna cota alcanzable sostiene una afirmación; la
 evidencia de FP es el control de negativos, comparativo pareado), sin doble anotación
-(sin kappa, decisión del equipo), 6 episodios con bordes adjudicados, un solo
+(sin kappa, decisión del equipo), bordes adjudicados en 6 clips (limitación L3), un solo
 bloque guionado sin obra real, escenarios desbalanceados.
