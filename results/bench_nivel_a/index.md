@@ -127,11 +127,34 @@ operación **desplegado**: person ≥ 0,35, evidencia ≥ 0,25), el material es 
 sub-muestreado a 2 Hz, y las **person-frames con `unknown` se excluyen del denominador**
 — el ratio de exclusión se reporta y es un resultado en sí.
 
+> **⚠️ REGLA DECLARADA (fijada 2026-08-09, decisión D-113.2, doc `operacion/113` §D):**
+> la persona `unknown` sale del **denominador** (no es evaluable, no hay estado que
+> juzgar), pero **si el modelo predice una violación sobre esa misma persona, esa
+> predicción SÍ cuenta como FP en el numerador**. Es una decisión deliberada, no una
+> asimetría accidental: **la alerta sobre una persona no juzgable suena igual** — un
+> supervisor la recibiría como una falsa alarma real, independientemente de que el
+> anotador no haya podido determinar el estado. Medido sobre los 4 clips piloto (mismas
+> detecciones, mismo GT, única variable la regla): **48% de los FP de CR-01 (91/190) y
+> 22% de los de CR-02 (77/346)** son predicciones sobre personas `unknown`. La regla
+> alternativa (excluir también del numerador, simétrica al denominador) subiría la
+> precision CR-01 de 0,0052 a 0,0100 con el recall intacto — **se evaluó y se descartó**:
+> las cifras de esta tabla y de la fila de arriba del piloto (doc `operacion/105`) usan
+> la regla declarada, no la alternativa.
+
+> **✎ 2026-08-09 — RE-PUNTUADO tras la revisión ciega del GT (doc `operacion/113` §B).**
+> Las correcciones firmadas de `v04_c02` (ambos atributos del sujeto en cabina →
+> `unknown`) y `v01_c01` (casco a contraluz → `unknown`) cambian el GT de atributos.
+> Mismas detecciones, mismo stride; solo se re-corrió el scorer. **El recall SUBE**
+> (los violadores no observables salieron del denominador) **y la precision baja** (las
+> predicciones sobre esas personas ahora-`unknown` cuentan como FP, regla D-113.2).
+> Cifras anteriores (0,039 / 0,020) supersedidas; evidencia en
+> `docs/operacion/datos/113-nivel-a-consolidado-post-revision.json`.
+
 | material | CR-01 P / R / F1 | CR-02 P / R / F1 | unknown | n eval |
 |---|---|---|---|---|
 | `bench_obra` (imágenes, referencia de arriba) | 0,476 / 0,357 / **0,408** | 0,567 / 0,415 / **0,479** | — | — |
-| **video, agregado (17 clips)** | 0,021 / 0,371 / **0,039** | 0,010 / 0,271 / **0,020** | 11,5% / 11,6% | 10.415 / 10.409 |
-| — solo estrato B (13) | 0,022 / 0,372 / 0,041 | 0,004 / 0,204 / 0,007 | 11,1% / 10,9% | 9.709 / 9.730 |
+| **video, agregado (17 clips)** | 0,016 / 0,467 / **0,031** | 0,009 / 0,318 / **0,018** | 12,0% / 12,0% | 10.356 / 10.361 |
+| — solo estrato B (13) | 0,017 / 0,472 / 0,032 | 0,003 / 0,300 / 0,006 | 11,6% / 11,3% | 9.650 / 9.682 |
 
 ### Las celdas que se destacan
 
@@ -140,12 +163,17 @@ sub-muestreado a 2 Hz, y las **person-frames con `unknown` se excluyen del denom
 | `video15_clip01` | CR-02 | 49 | 0,312 | 0,490 | **0,381** | el mejor del conjunto — **0% unknown**, material plenamente juzgable |
 | `v01_c02` | CR-01 | 32 | 0,216 | 0,594 | **0,317** | el mejor del estrato B |
 | `v04_c01` | CR-01 | 28 | 0,132 | 0,714 | 0,223 | **el recall más alto** (0,714), con 55% de unknown |
-| `v01_c01` | CR-01 | 13 | 0,101 | **0,846** | 0,180 | recall altísimo, precision baja |
 | `v06_c01` | CR-02 | 10 | 0,001 | 0,300 | **0,002** | el peor — 3.173 FP sobre 6.442 person-frames |
+
+> ✎ **2026-08-09:** la fila de `v01_c01` CR-01 (recall 0,846 con 13 violadores) salió
+> de esta tabla: la corrección firmada del track 9 (casco a contraluz → `unknown`) dejó
+> al clip con **2 person-frames violadoras residuales de tracks fugaces** (0 tp, 109 fp)
+> — su "recall altísimo" medía en gran parte al sujeto que resultó no juzgable.
 
 **Lectura (docs 103/104/105/108/111):** el mismo E-IND que da F1 0,41–0,55 en imágenes
 se derrumba en video far-field **por precision, no por recall** (el recall agregado se
-sostiene en 0,37 / 0,27). Es la medición canónica del mecanismo "ausencia de evidencia =
+sostiene en 0,47 / 0,32 tras la revisión del GT — de hecho SUBIÓ al salir del
+denominador los violadores no observables). Es la medición canónica del mecanismo "ausencia de evidencia =
 evidencia de ausencia" fuera del régimen de juzgabilidad. Hallazgos: **F-105.3** — la
 juzgabilidad tiene tres ejes (escala × iluminación × **oclusión**) — y **F-105.4** — el
 `unknown` del anotador **no** predice el F1 del modelo: el humano usa continuidad

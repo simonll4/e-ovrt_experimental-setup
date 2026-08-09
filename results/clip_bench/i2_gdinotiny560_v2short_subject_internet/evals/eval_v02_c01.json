@@ -1,10 +1,10 @@
 {
   "schema_version": "control.eval.temporal.v1",
-  "scenario_id": "v04_c02",
-  "alerts_path": "/home/simonll4/projects/docs/operacion/datos/110-estrato-b-gen3/subject/control_runs/control_internet_subject_v04_c02_20260809T064615Z/alerts.jsonl",
-  "ground_truth_path": "/home/simonll4/projects/e-ovrt_datasets/datasets-videos/gt/v04_c02.json",
+  "scenario_id": "v02_c01",
+  "alerts_path": "/home/simonll4/projects/docs/operacion/datos/110-estrato-b-gen3/subject/control_runs/control_internet_subject_v02_c01_20260809T064611Z/alerts.jsonl",
+  "ground_truth_path": "/home/simonll4/projects/e-ovrt_datasets/datasets-videos/gt/v02_c01.json",
   "expected_alerts_count": 0,
-  "observed_alerts_count": 5,
+  "observed_alerts_count": 4,
   "matched_alerts_count": 0,
   "missed_alerts_count": 0,
   "unexpected_alerts_count": 4,
@@ -15,10 +15,10 @@
   "avg_latency_frames_from_first_evidence": null,
   "avg_latency_ms_from_first_evidence": null,
   "re_alerts_count": 0,
-  "sub_threshold_count": 1,
+  "sub_threshold_count": 0,
   "censored_episodes_count": 0,
-  "observed_duration_ms": 28000.0,
-  "far_per_hour": 514.285714,
+  "observed_duration_ms": 48900.0,
+  "far_per_hour": 294.478528,
   "applicability_state": "not_applicable",
   "applicability_cause": "negative_clip_no_episodes",
   "avg_latency_ms_from_episode_start": null,
@@ -30,31 +30,31 @@
   "missed_alerts": [],
   "unexpected_alerts": [
     {
-      "alert_id": "5c39b79a-a6c8-543e-9380-057b8a7b516d",
-      "condition_id": "CR-01",
-      "subject_key": "CR-01:v04_c02:subject_007",
-      "frame_index": 120,
-      "reason": "outside_all_episode_windows"
-    },
-    {
-      "alert_id": "e3d47fec-8fb4-5915-93ae-32eb71eefda1",
+      "alert_id": "712d43af-5ca6-53a2-911b-d4607f30cff6",
       "condition_id": "CR-02",
-      "subject_key": "CR-02:v04_c02:subject_002",
-      "frame_index": 428,
+      "subject_key": "CR-02:v02_c01:subject_002",
+      "frame_index": 249,
       "reason": "outside_all_episode_windows"
     },
     {
-      "alert_id": "4b9d79b8-4373-5b89-b829-6a1f8d2d5393",
-      "condition_id": "CR-01",
-      "subject_key": "CR-01:v04_c02:subject_032",
-      "frame_index": 546,
-      "reason": "outside_all_episode_windows"
-    },
-    {
-      "alert_id": "8b5354a6-ce48-5dd5-9cab-8888cbbf1776",
+      "alert_id": "1210dc72-916a-5c24-8cf0-de866139bc79",
       "condition_id": "CR-02",
-      "subject_key": "CR-02:v04_c02:subject_032",
-      "frame_index": 636,
+      "subject_key": "CR-02:v02_c01:subject_003",
+      "frame_index": 251,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "1d49f4ba-0a9b-5621-9970-d4137eb3a926",
+      "condition_id": "CR-01",
+      "subject_key": "CR-01:v02_c01:subject_012",
+      "frame_index": 263,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "aaa16d15-0aba-5197-ad4b-6d798d8d82d1",
+      "condition_id": "CR-02",
+      "subject_key": "CR-02:v02_c01:subject_009",
+      "frame_index": 374,
       "reason": "outside_all_episode_windows"
     }
   ],
@@ -65,5 +65,5 @@
   "sdr_by_episode": [],
   "ttfd_sdr_applicability": "computed",
   "positive_criterion": "spatial_absence(cr01_cr02_v2_subject) >=1 evidencia",
-  "detections_path": "/home/simonll4/projects/docs/operacion/datos/110-estrato-b-gen3/subject/tracked/v04_c02.jsonl"
+  "detections_path": "/home/simonll4/projects/docs/operacion/datos/110-estrato-b-gen3/subject/tracked/v02_c01.jsonl"
 }

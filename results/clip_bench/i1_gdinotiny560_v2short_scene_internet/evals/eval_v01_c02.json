@@ -1,0 +1,64 @@
+{
+  "schema_version": "control.eval.temporal.v1",
+  "scenario_id": "v01_c02",
+  "alerts_path": "/home/simonll4/projects/docs/operacion/datos/110-estrato-b-gen3/scene/control_runs/control_internet_scene_v01_c02_20260809T053955Z/alerts.jsonl",
+  "ground_truth_path": "/home/simonll4/projects/e-ovrt_datasets/datasets-videos/gt/v01_c02.json",
+  "expected_alerts_count": 1,
+  "observed_alerts_count": 2,
+  "matched_alerts_count": 1,
+  "missed_alerts_count": 0,
+  "unexpected_alerts_count": 1,
+  "duplicate_alerts_count": 0,
+  "precision": 0.5,
+  "recall": 1.0,
+  "f1": 0.666667,
+  "avg_latency_frames_from_first_evidence": null,
+  "avg_latency_ms_from_first_evidence": null,
+  "re_alerts_count": 0,
+  "sub_threshold_count": 0,
+  "censored_episodes_count": 0,
+  "observed_duration_ms": 32767.0,
+  "far_per_hour": 109.866634,
+  "applicability_state": "computed",
+  "applicability_cause": null,
+  "avg_latency_ms_from_episode_start": 4000.0,
+  "effective_matching_windows": {
+    "CR-01": {
+      "persistencia_min_ms": 4000.0,
+      "t_alert_max_ms": 10000.0,
+      "origin": "gt_provenance"
+    }
+  },
+  "warnings": [],
+  "matches": [],
+  "missed_alerts": [],
+  "unexpected_alerts": [
+    {
+      "alert_id": "8ef9f227-3417-50e6-bc63-04ffa0b57340",
+      "condition_id": "CR-02",
+      "subject_key": "CR-02:v01_c02",
+      "frame_index": 212,
+      "reason": "outside_all_episode_windows"
+    }
+  ],
+  "censored_episodes": [],
+  "avg_ttfd_ms": 0.0,
+  "avg_sdr": 0.918993,
+  "ttfd_by_episode": [
+    {
+      "episode_id": "ep1",
+      "ttfd_ms": 0.0,
+      "cause": null
+    }
+  ],
+  "sdr_by_episode": [
+    {
+      "episode_id": "ep1",
+      "sdr": 0.9189931555043817,
+      "cause": null
+    }
+  ],
+  "ttfd_sdr_applicability": "computed",
+  "positive_criterion": "spatial_absence(cr01_cr02_v2) >=1 evidencia",
+  "detections_path": "/home/simonll4/projects/e-ovrt_media-plane/runs/run_20260809_053738_dbe_grounding_dino_a31637/detections.jsonl"
+}

@@ -1,7 +1,7 @@
 {
   "schema_version": "control.eval.temporal.v1",
   "scenario_id": "v04_c01",
-  "alerts_path": "/home/simonll4/projects/docs/operacion/datos/109-estrato-b-final/subject/control_runs/control_internet_subject_v04_c01_20260807T204644Z/alerts.jsonl",
+  "alerts_path": "/home/simonll4/projects/docs/operacion/datos/110-estrato-b-gen3/subject/control_runs/control_internet_subject_v04_c01_20260809T064614Z/alerts.jsonl",
   "ground_truth_path": "/home/simonll4/projects/e-ovrt_datasets/datasets-videos/gt/v04_c01.json",
   "expected_alerts_count": 1,
   "observed_alerts_count": 15,
@@ -34,63 +34,63 @@
   "missed_alerts": [],
   "unexpected_alerts": [
     {
-      "alert_id": "926d50e3-e671-51c4-b05f-39929969ad03",
+      "alert_id": "07cb402b-9b22-579f-b449-14a9c77bd9a8",
       "condition_id": "CR-01",
       "subject_key": "CR-01:v04_c01:subject_002",
       "frame_index": 120,
       "reason": "outside_all_episode_windows"
     },
     {
-      "alert_id": "3613fba9-f8c3-5158-b691-ad5dbd0de309",
+      "alert_id": "b4b2a0f9-ce8a-5868-b92b-83046dcbe28f",
       "condition_id": "CR-01",
       "subject_key": "CR-01:v04_c01:subject_003",
       "frame_index": 120,
       "reason": "outside_all_episode_windows"
     },
     {
-      "alert_id": "018051ae-0a47-5027-a3cd-83ac7d4bd3fb",
+      "alert_id": "e1ba8088-8eef-5d64-8299-292667a3be19",
       "condition_id": "CR-01",
       "subject_key": "CR-01:v04_c01:subject_004",
       "frame_index": 120,
       "reason": "outside_all_episode_windows"
     },
     {
-      "alert_id": "d4e999bd-d5db-5451-9ffb-022299964bee",
+      "alert_id": "382d72f9-af71-5b05-819a-d29bcfbea4b0",
       "condition_id": "CR-01",
       "subject_key": "CR-01:v04_c01:subject_007",
       "frame_index": 121,
       "reason": "outside_all_episode_windows"
     },
     {
-      "alert_id": "24cd9da8-b3cc-5e34-9b75-8db0024dc532",
+      "alert_id": "3c5bb036-0db6-58e6-8983-dc14af11c03e",
       "condition_id": "CR-02",
       "subject_key": "CR-02:v04_c01:subject_002",
       "frame_index": 210,
       "reason": "outside_all_episode_windows"
     },
     {
-      "alert_id": "b16bb9d4-508f-53bf-8559-7e3aaa292b1c",
+      "alert_id": "86cc89c7-31ff-5cfb-aa0a-7a9c5ffe190f",
       "condition_id": "CR-02",
       "subject_key": "CR-02:v04_c01:subject_003",
       "frame_index": 210,
       "reason": "outside_all_episode_windows"
     },
     {
-      "alert_id": "ca7b47b1-1552-598a-b74b-45c108f32c26",
+      "alert_id": "08e86be7-bf69-508d-a13d-7684eb6cef89",
       "condition_id": "CR-02",
       "subject_key": "CR-02:v04_c01:subject_020",
       "frame_index": 356,
       "reason": "outside_all_episode_windows"
     },
     {
-      "alert_id": "91138c18-8703-5005-be86-0197a92eb81e",
+      "alert_id": "f14ffc03-7369-5e2c-b06d-58ed1b678d04",
       "condition_id": "CR-02",
       "subject_key": "CR-02:v04_c01:subject_023",
       "frame_index": 402,
       "reason": "outside_all_episode_windows"
     },
     {
-      "alert_id": "86c3b8e3-abfc-51c3-ba00-ea89d05949dd",
+      "alert_id": "f4f5d16e-927c-563d-a99c-fa87ff61f6ae",
       "condition_id": "CR-02",
       "subject_key": "CR-02:v04_c01:subject_025",
       "frame_index": 453,
@@ -116,5 +116,5 @@
   ],
   "ttfd_sdr_applicability": "computed",
   "positive_criterion": "spatial_absence(cr01_cr02_v2_subject) >=1 evidencia",
-  "detections_path": "/home/simonll4/projects/docs/operacion/datos/109-estrato-b-final/subject/tracked/v04_c01.jsonl"
+  "detections_path": "/home/simonll4/projects/docs/operacion/datos/110-estrato-b-gen3/subject/tracked/v04_c01.jsonl"
 }

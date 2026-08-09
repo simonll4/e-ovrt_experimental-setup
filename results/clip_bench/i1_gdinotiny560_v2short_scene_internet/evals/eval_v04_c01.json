@@ -1,7 +1,7 @@
 {
   "schema_version": "control.eval.temporal.v1",
   "scenario_id": "v04_c01",
-  "alerts_path": "/home/simonll4/projects/docs/operacion/datos/109-estrato-b-final/scene/control_runs/control_internet_scene_v04_c01_20260807T200518Z/alerts.jsonl",
+  "alerts_path": "/home/simonll4/projects/docs/operacion/datos/110-estrato-b-gen3/scene/control_runs/control_internet_scene_v04_c01_20260809T055342Z/alerts.jsonl",
   "ground_truth_path": "/home/simonll4/projects/e-ovrt_datasets/datasets-videos/gt/v04_c01.json",
   "expected_alerts_count": 1,
   "observed_alerts_count": 2,
@@ -34,14 +34,14 @@
   "missed_alerts": [],
   "unexpected_alerts": [
     {
-      "alert_id": "f3088056-eb64-50e9-a90b-025e80203813",
+      "alert_id": "89afd6d9-218a-58ca-977c-8dacc23b4530",
       "condition_id": "CR-01",
       "subject_key": "CR-01:v04_c01",
       "frame_index": 120,
       "reason": "outside_all_episode_windows"
     },
     {
-      "alert_id": "88fae0d0-1e36-5156-a6a7-50a7def59c4e",
+      "alert_id": "0e10e5db-1fe1-509a-8ba4-2d895515b2b4",
       "condition_id": "CR-02",
       "subject_key": "CR-02:v04_c01",
       "frame_index": 210,
@@ -67,5 +67,5 @@
   ],
   "ttfd_sdr_applicability": "computed",
   "positive_criterion": "spatial_absence(cr01_cr02_v2) >=1 evidencia",
-  "detections_path": "/home/simonll4/projects/e-ovrt_media-plane/runs/run_20260807_200343_dbe_grounding_dino_d98fff/detections.jsonl"
+  "detections_path": "/home/simonll4/projects/e-ovrt_media-plane/runs/run_20260809_055220_dbe_grounding_dino_11b4f6/detections.jsonl"
 }

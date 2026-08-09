@@ -1,7 +1,7 @@
 {
   "schema_version": "control.eval.temporal.v1",
   "scenario_id": "v06_c01",
-  "alerts_path": "/home/simonll4/projects/docs/operacion/datos/109-estrato-b-final/scene/control_runs/control_internet_scene_v06_c01_20260807T204035Z/alerts.jsonl",
+  "alerts_path": "/home/simonll4/projects/docs/operacion/datos/110-estrato-b-gen3/scene/control_runs/control_internet_scene_v06_c01_20260809T063637Z/alerts.jsonl",
   "ground_truth_path": "/home/simonll4/projects/e-ovrt_datasets/datasets-videos/gt/v06_c01.json",
   "expected_alerts_count": 0,
   "observed_alerts_count": 3,
@@ -30,21 +30,21 @@
   "missed_alerts": [],
   "unexpected_alerts": [
     {
-      "alert_id": "05057cc9-7502-5c68-8030-22243b03b70d",
+      "alert_id": "f3af607e-ffac-5745-87f2-d21c329e5c67",
       "condition_id": "CR-01",
       "subject_key": "CR-01:v06_c01",
       "frame_index": 137,
       "reason": "outside_all_episode_windows"
     },
     {
-      "alert_id": "fa76c219-7c94-52cd-8c1d-5bb1322dbf96",
+      "alert_id": "25e8895b-0f12-544b-afb0-48e03dafceb6",
       "condition_id": "CR-02",
       "subject_key": "CR-02:v06_c01",
       "frame_index": 210,
       "reason": "outside_all_episode_windows"
     },
     {
-      "alert_id": "6e351e29-bef2-5349-845a-68b484f838e8",
+      "alert_id": "72eda73f-7f08-5379-85cb-61e4897ce09f",
       "condition_id": "CR-01",
       "subject_key": "CR-01:v06_c01",
       "frame_index": 10720,
@@ -58,5 +58,5 @@
   "sdr_by_episode": [],
   "ttfd_sdr_applicability": "computed",
   "positive_criterion": "spatial_absence(cr01_cr02_v2) >=1 evidencia",
-  "detections_path": "/home/simonll4/projects/e-ovrt_media-plane/runs/run_20260807_200734_dbe_grounding_dino_2dd34f/detections.jsonl"
+  "detections_path": "/home/simonll4/projects/e-ovrt_media-plane/runs/run_20260809_060658_dbe_grounding_dino_59670a/detections.jsonl"
 }

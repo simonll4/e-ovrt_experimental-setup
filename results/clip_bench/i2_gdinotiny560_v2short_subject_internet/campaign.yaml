@@ -77,7 +77,26 @@ generations:
       ⚠️ En esta generación se corrigió un BUG del agregador que afectaba `far_per_hour`
       (numerador de todos los negativos, denominador de solo los soak — doc 111 §6): las
       cifras de FAR de las gen. 1/2 que circularon (48,7 / 2.045,6) eran incorrectas.
-      Resultado: recall 1,000 · precision 0,111 · F1 0,200 · FAR/hora 1.850,8.
+      Resultado original de la gen. 3: recall 1,000 · precision 0,111 · F1 0,200 ·
+      FAR/hora 1.850,8 — SUPERADO por la re-evaluación de abajo.
+      ⚠️ RE-EVALUACIÓN 2026-08-09 (revisión ciega del GT, doc 113 §B): 3 de los 5
+      episodios del estrato cayeron por corrección firmada (v04_c02 CR-01+CR-02,
+      v01_c01 CR-01 — estados no observables). MISMAS detecciones y alertas; solo
+      re-evaluate + re-aggregate; 13/13 evals archivados en evals/ (cierra D-G).
+      RESULTADO VIGENTE: 2 episodios evaluables · recall 1,000 · precision 0,105 ·
+      F1 0,190 · 11 negativos / 323 FP · FAR/hora soak 1.850,8 (sin cambio: 190 FP
+      en 0,1027 h) · informativo all-negatives 1.364,4.
+      ⚠️ TRAMPA AL AUDITAR `metrics.gen2.json` (anotado 2026-08-09, doc 113 §D3): ese
+      archivo conserva el valor incorrecto (2045,637192) junto a `far_basis: "solo clips
+      soak…"`, string que describe la fórmula CORREGIDA y NO la que produjo ese número
+      (se computó con los FP de todos los negativos sobre las horas de solo el soak).
+      El archivo se conserva sin editar a propósito: es el registro de lo que la gen. 2
+      produjo. Ver registry `clip_bench.md` §L1.
+      ⚠️ AL CITAR EL FAR: el dato es "190 FP en 6:09,6 del único clip soak"; 1.850,8 es
+      la tasa horaria derivada sobre 0,1027 h, no una hora de operación observada.
+      ⚠️ AL CITAR EL F1 (0,200 vs 0,500 de I1): F-111.1 quedó ENMENDADO (doc 111) — con
+      4 episodios evaluables el ranking entre granularidades no es sostenible; lo robusto
+      es la asimetría de FP (6× en positivos, 14× en los 9 negativos).
 
 evaluator_note: 'Idéntico a I1 (fixes F-EV1/2/3, control-plane c1cbb56).'
 hardware: 'sin GPU (reusa las detecciones de I1)'

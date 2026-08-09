@@ -2,99 +2,89 @@
   "schema_version": "clip_campaign_metrics.v1",
   "clips_total": 13,
   "positives": {
-    "clips": 4,
-    "episodes_total": 5,
-    "episodes_censored": 1,
-    "episodes_evaluable": 4,
-    "matched": 4,
+    "clips": 2,
+    "episodes_total": 2,
+    "episodes_censored": 0,
+    "episodes_evaluable": 2,
+    "matched": 2,
     "missed": 0,
-    "false_positives": 32,
-    "re_alerts": 11,
+    "false_positives": 17,
+    "re_alerts": 8,
     "sub_threshold": 0,
     "recall_micro": 1.0,
-    "precision_micro": 0.111111,
+    "precision_micro": 0.105263,
     "recall_macro": 1.0,
-    "t_alert_system_ms": 5799.888333,
+    "recall_macro_n": 2,
+    "t_alert_system_ms": 4133.165,
+    "t_alert_system_ms_n": 2,
     "ttfd_ms": 16.5,
-    "sdr": 0.889805,
-    "f1_micro": 0.2
+    "ttfd_ms_n": 2,
+    "sdr": 0.959496,
+    "sdr_n": 2,
+    "f1_micro": 0.190476
   },
   "negatives": {
-    "clips": 9,
-    "false_positives": 304,
-    "observed_ms": 787067,
+    "clips": 11,
+    "false_positives": 323,
+    "observed_ms": 852267,
     "soak_clips": 1,
     "soak_ms": 369567,
     "soak_false_positives": 190,
     "far_per_hour": 1850.814602,
     "far_basis": "solo clips soak (negativos >= 5 min, doc 57 §3.2 G1)",
-    "far_per_hour_all_negatives": 1390.478828,
+    "far_per_hour_all_negatives": 1364.361169,
     "far_all_negatives_basis": "todos los negativos (informativo; ventanas cortas extrapolan)"
   },
   "by_condition": {
     "CR-01": {
-      "episodes": 4,
-      "clips": 4,
-      "sdr": 0.889805,
-      "t_alert_system_ms": 5799.888333,
-      "false_positives": 32
-    },
-    "CR-02": {
-      "episodes": 1,
-      "clips": 1,
-      "sdr": 0.646145,
-      "t_alert_system_ms": 9133.335,
-      "false_positives": 0
+      "episodes": 2,
+      "clips": 2,
+      "sdr": 0.959496,
+      "sdr_n": 2,
+      "t_alert_system_ms": 4133.165,
+      "t_alert_system_ms_n": 2,
+      "false_positives": 17
     }
   },
   "by_scenario": {
     "P1": {
-      "clips": 3,
-      "positive_clips": 3,
+      "clips": 2,
+      "positive_clips": 2,
       "episodes_evaluable": 2,
       "matched": 2,
-      "false_positives": 32,
+      "false_positives": 17,
       "recall": 1.0,
-      "sdr": 0.971025
+      "sdr": 0.959496,
+      "sdr_n": 2
     },
     "P5": {
-      "clips": 9,
+      "clips": 11,
       "positive_clips": 0,
       "episodes_evaluable": 0,
       "matched": 0,
-      "false_positives": 304,
+      "false_positives": 323,
       "recall": null,
-      "sdr": null
-    },
-    "P6": {
-      "clips": 1,
-      "positive_clips": 1,
-      "episodes_evaluable": 2,
-      "matched": 2,
-      "false_positives": 0,
-      "recall": 1.0,
-      "sdr": 0.646145
+      "sdr": null,
+      "sdr_n": 0
     }
   },
   "by_clip": [
     {
       "clip_id": "v01_c01",
-      "scenario": "P1",
-      "conditions": [
-        "CR-01"
-      ],
-      "expected": 1,
+      "scenario": "P5",
+      "conditions": [],
+      "expected": 0,
       "matched": 0,
       "missed": 0,
-      "censored": 1,
+      "censored": 0,
       "false_positives": 15,
       "re_alerts": 0,
       "recall": null,
       "t_alert_system_ms": null,
-      "ttfd_ms": 33.0,
-      "sdr": 0.994081,
+      "ttfd_ms": null,
+      "sdr": null,
       "applicability": "not_applicable",
-      "applicability_cause": "all_episodes_metric_censored"
+      "applicability_cause": "negative_clip_no_episodes"
     },
     {
       "clip_id": "v01_c02",
@@ -187,23 +177,20 @@
     },
     {
       "clip_id": "v04_c02",
-      "scenario": "P6",
-      "conditions": [
-        "CR-01",
-        "CR-02"
-      ],
-      "expected": 2,
-      "matched": 2,
+      "scenario": "P5",
+      "conditions": [],
+      "expected": 0,
+      "matched": 0,
       "missed": 0,
       "censored": 0,
-      "false_positives": 0,
-      "re_alerts": 3,
-      "recall": 1.0,
-      "t_alert_system_ms": 9133.335,
-      "ttfd_ms": 0.0,
-      "sdr": 0.646145,
-      "applicability": "computed",
-      "applicability_cause": null
+      "false_positives": 4,
+      "re_alerts": 0,
+      "recall": null,
+      "t_alert_system_ms": null,
+      "ttfd_ms": null,
+      "sdr": null,
+      "applicability": "not_applicable",
+      "applicability_cause": "negative_clip_no_episodes"
     },
     {
       "clip_id": "v04_c03",
@@ -313,7 +300,10 @@
     "Los episodios censurados salen del denominador de recall (A2, doc 57 §6.7).",
     "Las re_alerts no cuentan como FP (ADR-011).",
     "Reportar SIEMPRE by_scenario junto al agregado (L5, registry/clip_bench.md).",
-    "recall_micro = por episodio; recall_macro = media por clip. Declarar cual se usa."
+    "recall_micro = por episodio; recall_macro = media por clip. Declarar cual se usa.",
+    "Toda media publica su n (*_n): sale solo de los clips que tienen ese valor. t_alert/ttfd/sdr promedian SOLO los clips que alertaron — comparar dos campanas con tasas de deteccion distintas sin mirar el n es la trampa de supervivencia (F-96).",
+    "by_condition NO es una particion y su columna de FP no se suma: un clip con dos condiciones aporta sus FP a las dos (el eval los da por clip). El total de FP es el de positives/negatives.",
+    "far_per_hour y far_per_hour_all_negatives usan bases distintas y CADA una toma numerador y denominador del mismo subconjunto de clips."
   ],
   "campaign": {
     "schema_version": "clip_campaign.v1",
@@ -332,10 +322,10 @@
     "granularity_note": "G1. ADR-002 (con la adenda de 2026-08-04): la escena sigue siendo el núcleo y no se computan métricas MOT ni GT de identidades. `track_id` producido con el SimpleIoUTracker post-hoc sobre las detecciones de I1 — mismo procedimiento que la campaña G1 del rodaje, cuyo camino config-driven (`input.track_persons`) se verificó equivalente exacto en los 34 clips. Guard del runner: si alguna persona quedara sin `track_id` el motor degrada a escena EN SILENCIO y esto mediría G0 — se verifica por clip y aborta el clip.\n",
     "path": "DBE",
     "stride": 1,
-    "gt_bank": "clip_bench, estrato B — 4 clips: v04_c01 · v04_c02 · v06_c01 (SOAK, negativo) · v10_c01. Banco de 38 clips al 2026-08-07.\n",
-    "gt_manifest_yaml_sha256": "4437eb6d6228d3fa9a31fca2d92defab57bb5d9e8d6192a78313de1517b8e34e",
-    "gt_manifest_note": "Freezes anteriores verificables en git: 34 del rodaje `cef5082e…` (commit f7a27fe6), 37 con el estrato B inicial `6b75ac6e…`.\n",
-    "gt_doc": "docs/operacion/109-plan-reorganizacion-video.md",
+    "gt_bank": "clip_bench, estrato B — **13 clips, el lote de internet COMPLETO** (doc 111; `v08_c01` excluido con causa). Positivos: v04_c01 (P1, nocturno) · v04_c02 (P6, nocturno, 2 episodios) · v01_c02 (P1) · v01_c01 (P1, episodio CENSURADO por A1). Negativos (9): v02_c01 · v03_c01 · v03_c02 · v04_c03 (el único nocturno) · v05_c01 · v06_c01 (**el clip SOAK**, 0,1027 h) · v07_c01 · v09_c01 · v10_c01. Banco de 47 clips al 2026-08-09.\n",
+    "gt_manifest_yaml_sha256": "299ccc19593361db2677bb41d20d07dbd47d77855555f9686ff54303f1d47c34",
+    "gt_manifest_note": "Freezes anteriores, todos verificables en git: 34 del rodaje `cef5082e…` (commit f7a27fe6 — el que citan T1/T2/D1/H1/G1/B1/R1–R6), 37 con el estrato B inicial `6b75ac6e…`, 38 con v04_c02 `4437eb6d…`, 39 con v03_c02 `c1791c9b…`. El manifest solo crece; las filas del rodaje nunca cambiaron.\n",
+    "gt_doc": "docs/operacion/111-cierre-del-lote-de-internet.md",
     "generations": [
       {
         "gen": 1,
@@ -348,12 +338,18 @@
         "date": "2026-08-07",
         "clips": 4,
         "note": "Reconstrucción completa (doc 109) sobre el GT corregido + `v04_c02`. **Aviso de lectura:** al dejar `v06_c01` de ser positivo, sus FP se mudaron del cubo de positivos al de negativos — la precision sube sin que el sistema mejore. Misma advertencia que F-104.2: estos conteos se mueven por razones ajenas a acertar.\n"
+      },
+      {
+        "gen": 3,
+        "date": "2026-08-09",
+        "clips": 13,
+        "note": "CAMPAÑA VIGENTE. El lote de internet quedó CERRADO (13 de 14 con GT; `v08_c01` excluido con causa, doc 111): inferencia fresca de los 13 en UNA sesión, 72 min de GPU, manifest `299ccc19…`. Determinismo re-confirmado: los 4 clips de la gen. 2 dieron detecciones idénticas. La gen. 2 queda en `metrics.gen2.json`. ⚠️ En esta generación se corrigió un BUG del agregador que afectaba `far_per_hour` (numerador de todos los negativos, denominador de solo los soak — doc 111 §6): las cifras de FAR de las gen. 1/2 que circularon (48,7 / 2.045,6) eran incorrectas. Resultado: recall 1,000 · precision 0,111 · F1 0,200 · FAR/hora 1.850,8. ⚠️ TRAMPA AL AUDITAR `metrics.gen2.json` (anotado 2026-08-09, doc 113 §D3): ese archivo conserva el valor incorrecto (2045,637192) junto a `far_basis: \"solo clips soak…\"`, string que describe la fórmula CORREGIDA y NO la que produjo ese número (se computó con los FP de todos los negativos sobre las horas de solo el soak). El archivo se conserva sin editar a propósito: es el registro de lo que la gen. 2 produjo. Ver registry `clip_bench.md` §L1. ⚠️ AL CITAR EL FAR: el dato es \"190 FP en 6:09,6 del único clip soak\"; 1.850,8 es la tasa horaria derivada sobre 0,1027 h, no una hora de operación observada. ⚠️ AL CITAR EL F1 (0,200 vs 0,500 de I1): F-111.1 quedó ENMENDADO (doc 111) — con 4 episodios evaluables el ranking entre granularidades no es sostenible; lo robusto es la asimetría de FP (6× en positivos, 14× en los 9 negativos).\n"
       }
     ],
     "evaluator_note": "Idéntico a I1 (fixes F-EV1/2/3, control-plane c1cbb56).",
     "hardware": "sin GPU (reusa las detecciones de I1)",
     "runner": "docs/operacion/datos/102-ciclo-internet-runner.py --fase subject",
-    "report_doc": "docs/operacion/109-plan-reorganizacion-video.md",
-    "raw_evidence": "docs/operacion/datos/109-estrato-b-final/subject"
+    "report_doc": "docs/operacion/111-cierre-del-lote-de-internet.md",
+    "raw_evidence": "docs/operacion/datos/110-estrato-b-gen3/subject"
   }
 }

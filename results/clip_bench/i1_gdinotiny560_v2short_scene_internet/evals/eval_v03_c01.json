@@ -1,8 +1,8 @@
 {
   "schema_version": "control.eval.temporal.v1",
-  "scenario_id": "v10_c01",
-  "alerts_path": "/home/simonll4/projects/docs/operacion/datos/110-estrato-b-gen3/scene/control_runs/control_internet_scene_v10_c01_20260809T064603Z/alerts.jsonl",
-  "ground_truth_path": "/home/simonll4/projects/e-ovrt_datasets/datasets-videos/gt/v10_c01.json",
+  "scenario_id": "v03_c01",
+  "alerts_path": "/home/simonll4/projects/docs/operacion/datos/110-estrato-b-gen3/scene/control_runs/control_internet_scene_v03_c01_20260809T054457Z/alerts.jsonl",
+  "ground_truth_path": "/home/simonll4/projects/e-ovrt_datasets/datasets-videos/gt/v03_c01.json",
   "expected_alerts_count": 0,
   "observed_alerts_count": 2,
   "matched_alerts_count": 0,
@@ -17,8 +17,8 @@
   "re_alerts_count": 0,
   "sub_threshold_count": 0,
   "censored_episodes_count": 0,
-  "observed_duration_ms": 59033.0,
-  "far_per_hour": 121.96568,
+  "observed_duration_ms": 22000.0,
+  "far_per_hour": 327.272727,
   "applicability_state": "not_applicable",
   "applicability_cause": "negative_clip_no_episodes",
   "avg_latency_ms_from_episode_start": null,
@@ -30,17 +30,17 @@
   "missed_alerts": [],
   "unexpected_alerts": [
     {
-      "alert_id": "035fe2b9-105d-560f-91e4-82bf2707742b",
+      "alert_id": "7625b982-d647-56ef-8027-a6609f5faa49",
       "condition_id": "CR-01",
-      "subject_key": "CR-01:v10_c01",
-      "frame_index": 120,
+      "subject_key": "CR-01:v03_c01",
+      "frame_index": 294,
       "reason": "outside_all_episode_windows"
     },
     {
-      "alert_id": "a0fa13b1-21ff-528f-bb27-c5cb7db216f5",
+      "alert_id": "21531248-7ef0-5494-8e2d-a9e1b52ca6bf",
       "condition_id": "CR-02",
-      "subject_key": "CR-02:v10_c01",
-      "frame_index": 210,
+      "subject_key": "CR-02:v03_c01",
+      "frame_index": 336,
       "reason": "outside_all_episode_windows"
     }
   ],
@@ -51,5 +51,5 @@
   "sdr_by_episode": [],
   "ttfd_sdr_applicability": "computed",
   "positive_criterion": "spatial_absence(cr01_cr02_v2) >=1 evidencia",
-  "detections_path": "/home/simonll4/projects/e-ovrt_media-plane/runs/run_20260809_064155_dbe_grounding_dino_6e107a/detections.jsonl"
+  "detections_path": "/home/simonll4/projects/e-ovrt_media-plane/runs/run_20260809_054325_dbe_grounding_dino_74c2fa/detections.jsonl"
 }

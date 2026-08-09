@@ -311,45 +311,70 @@ permanece: el techo del banco con soak es 0,263 h y hacen falta 3 h).
 **una sola sesión** de 72 min de GPU. Procedencia única. Las gen. 1 y 2 (3 y 4 clips)
 quedan supersedidas — `metrics.gen2.json` preservado al lado.
 
-**El material:** 4 clips positivos (5 episodios, **1 censurado** por A1 ⇒ 4 evaluables)
-y **9 negativos** (13,1 min), de los cuales **1 es soak** (`v06_c01`, 6:09,6 = 0,1027 h,
-el único denominador temporal del banco). Dos nocturnos positivos (`v04_c01`,
-`v04_c02`) y un nocturno negativo (`v04_c03`, el único del banco).
+> **✎ 2026-08-09, RE-EVALUADO tras la revisión ciega del GT (doc `operacion/113` §B).**
+> La revisión visual a ciegas de los 5 episodios del estrato — disparada por el patrón
+> de sobre-declaración que ya habían mostrado `v06_c01` y `v03_c02` — **tiró 3 de los
+> 5**: los dos de `v04_c02` (el sujeto está en la cabina de una máquina: estado no
+> observable) y el de `v01_c01` (contraluz; ya estaba censurado). Correcciones firmadas
+> en los `clip.yaml`, GT re-derivado, banco regenerado (**32 positivos / 15 negativos /
+> 37 episodios**). MISMAS detecciones y alertas (determinismo verificado: 11/11 clips
+> sin cambio de GT dieron evals idénticos); se re-corrió solo `evaluate-alerts` +
+> agregación, y los **13 evals quedaron archivados** en `evals/` de cada campaña.
+> Las cifras de abajo son las VIGENTES; las de la gen. 3 original (F1 0,500/0,200
+> sobre 4 evaluables) quedaron supersedidas y viven en el git y en la evidencia de
+> `docs/operacion/datos/110-estrato-b-gen3/`.
+
+**El material (post-revisión):** 2 clips positivos (**2 episodios evaluables, 0
+censurados**) y **11 negativos** (14,2 min = 0,2367 h), de los cuales **1 es soak**
+(`v06_c01`, 6:09,6 = 0,1027 h, el único denominador temporal del banco). Un positivo
+nocturno (`v04_c01`) y dos negativos nocturnos (`v04_c02`, `v04_c03`).
 
 | | I1 `scene` | I2 `subject` |
 |---|---|---|
-| recall (4 eps evaluables) | 0,750 | **1,000** |
-| precision | **0,375** | 0,111 |
-| **F1** | **0,500** | 0,200 |
-| matched / missed / FP | 3 / 1 / 5 | 4 / 0 / 32 |
-| t_alert | **4.767 ms** | 5.800 ms |
-| SDR · TTFD | 0,890 · 16,5 ms | idénticos (mismas detecciones) |
-| FP sobre los 9 negativos | **21** | **304** |
+| recall (2 eps evaluables) | 0,500 | **1,000** |
+| precision | **0,250** | 0,105 |
+| **F1** | **0,333** | 0,190 |
+| matched / missed / FP | 1 / 1 / 3 | 2 / 0 / 17 |
+| t_alert | 4.000 ms (n=1) | 4.133 ms (n=2) |
+| SDR · TTFD | 0,959 · 16,5 ms (n=2) | idénticos (mismas detecciones) |
+| FP sobre los 11 negativos | **26** | **323** |
 | **FAR/hora** (soak, 0,1027 h) | **29,2** | **1.850,8** |
 
 **Por escenario:**
 
-| | P1 (3 clips, 2 eps) | P6 (1 clip, 2 eps) | P5∅ (9 clips) |
-|---|---|---|---|
-| `scene` | recall 0,500 · 5 FP | **recall 1,000 · 0 FP** | 21 FP |
-| `subject` | recall 1,000 · 32 FP | **recall 1,000 · 0 FP** | 304 FP |
+| | P1 (2 clips, 2 eps) | P5∅ (11 clips) |
+|---|---|---|
+| `scene` | recall 0,500 · 3 FP | 26 FP |
+| `subject` | recall 1,000 · 17 FP | 323 FP |
 
 ### Cómo se lee — y confirma lo que la gen. 2 insinuaba
 
-1. **`scene` le gana a `subject` en F1 (0,500 vs 0,200), y la brecha se agrandó** al
-   pasar de 4 a 13 clips. `subject` compra el episodio que falta (recall 0,750→1,000)
-   pagando **6× más FP en positivos y 14× más en negativos**. En el rodaje G1 dominaba;
-   en obra real no guionada, no. **No hay una granularidad mejor: hay una correcta para
-   cada régimen de densidad** (F-108.1).
-2. **`v04_c02` (P6) es el único caso limpio de todo el estrato**: recall 1,000 y **0 FP**
-   en ambas granularidades. Es nocturno, disperso y con un solo violador sosteniendo las
-   dos condiciones — el régimen donde el sistema funciona.
+1. **En este régimen, la ventaja de la identidad que G1 mostró en el rodaje NO se
+   reproduce, y `subject` paga un costo de FP un orden de magnitud mayor**: ~6× más FP
+   en positivos (17 vs 3) y **12× más en negativos** (323 vs 26) — esa asimetría es lo
+   robusto (conteos grandes) y **sobrevivió intacta a la revisión del GT**. `subject`
+   compra el episodio que falta (recall 0,500→1,000) pagándola. **No hay una
+   granularidad mejor: hay una correcta para cada régimen de densidad** (F-108.1).
+   *(✎ el ranking por F1 que una versión anterior afirmaba quedó enmendado — F-111.1,
+   doc 111 — y con n=2 menos sostenible aún.)*
+2. **Ya NO hay ningún "caso limpio" en el estrato.** `v04_c02` (ex-P6, recall 1,000 y
+   0 FP en ambas) lo era — hasta que la revisión ciega mostró que su único sujeto está
+   en la cabina de una máquina y su estado **no es observable**: sus 2 episodios eran
+   sobre-declaración del anotador, el clip es **negativo**, y las mismas alertas que
+   antes "acertaban" son ahora **3 FP (`scene`) / 4 FP (`subject`)**. Es el ejemplo más
+   crudo de la frontera de juzgabilidad: **ni el anotador ni el motor podían juzgar, y
+   los dos declararon violación.**
 3. **El episodio que `scene` pierde** es el CR-01 de `v04_c01`, por alerta prematura
    (confirma a los 4,0 s; la ventana abre a los 7,97 s).
-4. **FAR/hora: 29,2 FA/hora en el mejor caso**, sobre 6 minutos de obra real donde nadie
-   infringe. Ver el bloque de L1 abajo.
-5. **n = 4 episodios evaluables en 13 clips.** Describe un régimen; no establece un
-   ranking con poder estadístico.
+4. **FAR/hora: 29,2 FA/hora en el mejor caso** — que son **3 FP en 6:09,6** del único
+   clip soak, obra real donde nadie infringe (`subject`: 190 FP ⇒ 1.850,8). La tasa
+   horaria es una derivada sobre 0,1027 h, no una hora observada. Ver el bloque de L1
+   abajo.
+5. **n = 2 episodios evaluables en 13 clips** (eran 4 antes de la revisión ciega; **5 de
+   las 7 declaraciones de episodio que el lote produjo resultaron errores de
+   anotación**, todas sobre-declarando donde el estado no era observable). El estrato
+   describe un régimen y la calidad de su GT es un resultado en sí; **ninguna
+   comparación por F1 sale de acá**.
 
 **Determinismo re-confirmado (F-109.1).** Los 4 clips que ya se habían inferido en la
 gen. 2 dieron detecciones **idénticas** al re-inferirlos (572 / 840 / 11.087 / 1.771
@@ -357,13 +382,17 @@ frames, mismas cajas). El pipeline DBE es reproducible entre sesiones.
 
 **⚠️ Corrección de métrica que afecta cifras publicadas antes (doc 111 §6).** El
 agregador calculaba `far_per_hour` con el numerador de **todos** los negativos y el
-denominador de **solo los soak** — dos bases distintas. Con 1 soak y 1 negativo corto
-(gen. 2) la distorsión era 1,2×; con 9 negativos infla **7×**. Corregido con test de
+denominador de **solo los soak** — dos bases distintas. El factor de inflación es
+`FP de todos los negativos / FP del soak`, así que varía por generación y granularidad:
+**lo que llegó a publicarse (gen. 2) estaba inflado 1,67× en escena y 1,11× en sujeto**;
+en la gen. 3 el mismo bug habría impreso 204,6 en escena (**7×** — el número absurdo que
+lo delató antes de publicarse) y 2.961,3 en sujeto (1,60×). Corregido con test de
 regresión: ahora numerador y denominador salen del mismo conjunto. **Las cifras de FAR
 de la gen. 2 que circularon (48,7 y 2.045,6) eran incorrectas; las correctas son 29,2 y
 1.850,8** — y son las mismas en gen. 2 y gen. 3, porque dependen solo del clip soak,
 que es determinista. El `metrics.json` expone además `far_per_hour_all_negatives`
-(96,1 / 1.390,5) como base informativa.
+como base informativa (**109,8 / 1.364,4** tras la revisión del GT: los negativos
+pasaron de 9 a 11 y suman 0,2367 h).
 
 **Advertencias de lectura que salieron de este estrato** (valen para toda la página):
 
@@ -374,8 +403,12 @@ que es determinista. El `metrics.json` expone además `far_per_hour_all_negative
   dice `unknown` en ~85% de los frames-sujeto y el motor alerta igual. **El conteo de FP
   se mueve por alucinación de la clase ausente, no por acertar.**
 - **F-108.2** — la mejor palanca de configuración medida in-sample
-  (`min_subject_confidence` 0,50) **costó un episodio real** fuera de muestra. Ninguna
-  configuración sale recomendada de este estrato.
+  (`min_subject_confidence` 0,50) corrió la alerta de `v04_c02` fuera de su ventana en
+  el control out-of-sample. *(✎ 2026-08-09: el "episodio real" que esa prueba usaba
+  cayó después en la revisión ciega — el sujeto no era juzgable — así que el costo
+  medido ya no es "un missed", pero la lección operativa queda: la palanca calibrada
+  in-sample cambió el comportamiento sobre el primer material fresco de manera no
+  anticipada.)* Ninguna configuración sale recomendada de este estrato.
 
 **Nivel A del mismo material** (estado por persona, sin motor temporal), consolidado con
 los 4 clips piloto: `results/bench_nivel_a/na1_gdinotiny560_v2short_video/`.
@@ -391,7 +424,8 @@ que mezclaba bases; ver la sección del estrato B).
 alcanzable permite afirmar *"≤1 FA/hora"* — y sigue siendo cierto: con 0,1027 h y la
 regla de 3 harían falta 3,0 h. Lo que cambió es que **ya no hace falta ese argumento**:
 no se declara "no medible" una métrica cuando el dato medido la refuta de frente. El
-banco pasó de 0,0358 h a **0,1548 h de tiempo negativo total** (`clip_bench_manifest.json`),
+banco pasó de 0,0358 h a **0,2725 h de tiempo negativo total** (`clip_bench_manifest.json`;
+✎ 08-09: incluye los ex-positivos `v01_c01` y `v04_c02` tras la revisión ciega),
 de los cuales 0,1027 h son soak citable.
 
 > **~~FAR/hora no es una métrica de este trabajo~~ — DEROGADO el 2026-08-07 por el

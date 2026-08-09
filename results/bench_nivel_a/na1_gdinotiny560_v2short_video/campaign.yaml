@@ -72,7 +72,29 @@ supersedes:
   - docs/operacion/datos/105-nivel-a-piloto.json
   - docs/operacion/datos/108-nivel-a-v04c02.json
 
+updates:
+  - date: '2026-08-09'
+    note: >
+      GEN. 3 (doc 111 §6.2): la campaña pasó de 8 a **17 clips** — los 13 del lote
+      cerrado + los 4 del piloto — con detecciones frescas de la corrida gen. 3.
+      La lista `clips:` de arriba describe la composición original de 8 y queda por
+      trazabilidad; la composición vigente son los 17 del runs-map
+      (docs/operacion/datos/110-estrato-b-gen3/runs-map-consolidado.json).
+      Resultado gen. 3 original: CR-01 F1 0,039 / CR-02 0,020 — SUPERADO abajo.
+  - date: '2026-08-09'
+    note: >
+      ⚠️ RE-PUNTUACIÓN tras la revisión ciega del GT (doc 113 §B): las correcciones
+      firmadas de v04_c02 (has_helmet y has_vest del track 6 -> unknown) y v01_c01
+      (has_helmet del track 9 -> unknown) cambian el GT de atributos. MISMAS
+      detecciones y mismo stride; solo se re-corrió el scorer.
+      RESULTADO VIGENTE (17 clips): CR-01 P 0,016 / R 0,467 / **F1 0,031** ·
+      CR-02 P 0,009 / R 0,318 / **F1 0,018**. El recall SUBE respecto de la gen. 3
+      original (0,371->0,467 / 0,271->0,318) porque los violadores no observables
+      salieron del denominador; la precision baja porque las predicciones sobre esas
+      personas ahora-unknown cuentan como FP (regla D-113.2, declarada en el índice).
+      Evidencia: docs/operacion/datos/113-nivel-a-consolidado-post-revision.json.
+
 hardware: 'sin GPU (reusa las detecciones de las campañas I1 y del piloto)'
-scorer: datasets/scripts/bench/score_clip_person_state.py   # 8 tests en la suite
-report_doc: docs/operacion/109-plan-reorganizacion-video.md
-raw_evidence: docs/operacion/datos/109-nivel-a-consolidado.json
+scorer: datasets/scripts/bench/score_clip_person_state.py   # 8+ tests en la suite
+report_doc: docs/operacion/111-cierre-del-lote-de-internet.md
+raw_evidence: docs/operacion/datos/113-nivel-a-consolidado-post-revision.json
