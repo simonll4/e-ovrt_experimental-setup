@@ -255,6 +255,258 @@ def test_ground_truth_metrics_figuran_not_applicable_no_ground_truth(tmp_path):
         assert resultados_by_name[name]["cause"] == "no_ground_truth"
 
 
+def test_distribution_metric_not_applicable_sin_distribution_summary(tmp_path):
+    """Sin runs/exp_<id>/distribution/ (mayoria de las corridas hoy): comportamiento
+    sin cambios, mismo que antes de cablear la distribucion (spec 45 / ADR-016)."""
+    consolidated_dir = _build_video_experiment(tmp_path)
+
+    report = generate_report(consolidated_dir)
+    resultados_by_name = {m["name"]: m for m in report["resultados"]}
+
+    t_notif = resultados_by_name["t_alert-notification"]
+    assert t_notif["status"] == "not_applicable"
+    assert t_notif["cause"] == "no_distribution"
+    assert report["distribucion"] == {}
+
+
+def test_distribution_metric_computed_desde_latencia_live(tmp_path):
+    """Con modo 'live' presente (EBE, publisher real): es la latencia operativa,
+    se reporta como computed con el p95 de ESE modo (nunca mezclado con DBE)."""
+    consolidated_dir = _build_video_experiment(tmp_path)
+    _write_json(
+        consolidated_dir / "distribution" / "distribution_summary.json",
+        {
+            "schema_version": "control.distribution_summary.v1",
+            "channel": "mqtt",
+            "mode": "live",
+            "counts": {"delivered": 23, "suppressed_cooldown": 170},
+            "skipped_invalid_alerts": 0,
+            "talert_notification_ms": {
+                "live": {"count": 23, "min": 0.7, "mean": 1.2, "p95": 1.8},
+            },
+        },
+    )
+
+    report = generate_report(consolidated_dir)
+    resultados_by_name = {m["name"]: m for m in report["resultados"]}
+
+    t_notif = resultados_by_name["t_alert-notification"]
+    assert t_notif["status"] == "computed"
+    assert t_notif["value"] == 1.8
+    assert t_notif["cause"] is None
+    assert report["distribucion"]["counts"]["delivered"] == 23
+
+
+def test_distribution_metric_not_interpretable_solo_wall_clock_dbe(tmp_path):
+    """Replay DBE puro: la unica latencia disponible es reloj de pared de un
+    reproceso, no la latencia real del tramo (92b SS8) -- mismo tratamiento que
+    t_capture->alert con reloj de medio (dbe_media_time): not_interpretable, no
+    computed con un caveat escondido."""
+    consolidated_dir = _build_video_experiment(tmp_path)
+    _write_json(
+        consolidated_dir / "distribution" / "distribution_summary.json",
+        {
+            "schema_version": "control.distribution_summary.v1",
+            "channel": "mqtt",
+            "mode": "dry_run",
+            "counts": {"delivered": 23, "suppressed_cooldown": 170},
+            "skipped_invalid_alerts": 0,
+            "talert_notification_ms": {
+                "wall_clock_dbe": {"count": 23, "min": 0.02, "mean": 0.03, "p95": 0.05},
+            },
+        },
+    )
+
+    report = generate_report(consolidated_dir)
+    resultados_by_name = {m["name"]: m for m in report["resultados"]}
+
+    t_notif = resultados_by_name["t_alert-notification"]
+    assert t_notif["status"] == "not_interpretable"
+    assert t_notif["cause"] == "distribution_wall_clock_dbe_only"
+    assert t_notif["value"] is None
+
+
+def test_distribution_outcomes_by_alert_toma_ultimo_por_alert_id(tmp_path):
+    """Ante reintentos, se conserva el último outcome por alert_id.
+
+    `distribution/notifications.jsonl` es append-only: una misma alerta puede
+    aparecer varias veces (reintento), y el registro terminal real es la última
+    línea de ese alert_id. Cualquier UI que mire la primera pierde el estado final.
+    """
+    consolidated_dir = _build_video_experiment(tmp_path)
+    _write_json(
+        consolidated_dir / "distribution" / "notifications.jsonl",
+        {
+            "not_json": "ignored",
+        },
+    )
+    # notifications en realidad es JSONL; escribo explícitamente para no
+    # mezclar formatos al generar con _write_json.
+    (consolidated_dir / "distribution" / "notifications.jsonl").write_text(
+        "\n".join(
+            [
+                json.dumps({"alert_id": "a-1", "outcome": "failed", "notification_id": "n1"}),
+                json.dumps({"alert_id": "a-1", "outcome": "delivered", "notification_id": "n2"}),
+                json.dumps({"alert_id": "a-2", "outcome": "failed", "notification_id": "n3"}),
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    report = generate_report(consolidated_dir)
+    outcomes = report["distribucion_por_alerta"]
+
+    assert outcomes == {
+        "a-1": {"alert_id": "a-1", "outcome": "delivered", "notification_id": "n2"},
+        "a-2": {"alert_id": "a-2", "outcome": "failed", "notification_id": "n3"},
+    }
+
+
+def test_distribution_outcomes_by_alert_ignora_lineas_no_json(tmp_path):
+    """Una línea corrupta no rompe el parser: se omite y se siguen procesando
+    los registros válidos siguientes.
+
+    En campo real esto se ve cuando un proceso se cae y deja trazas parciales:
+    robustez en lectura evita que se pierda el reporte entero.
+    """
+    consolidated_dir = _build_video_experiment(tmp_path)
+    notifications_path = consolidated_dir / "distribution" / "notifications.jsonl"
+    notifications_path.parent.mkdir(parents=True, exist_ok=True)
+    notifications_path.write_text(
+        "\n".join(
+            [
+                "no-json",
+                json.dumps({"alert_id": "a-1", "outcome": "failed"}),
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    report = generate_report(consolidated_dir)
+    outcomes = report["distribucion_por_alerta"]
+
+    assert outcomes == {"a-1": {"alert_id": "a-1", "outcome": "failed"}}
+
+
+def test_distribution_outcomes_by_alert_ignora_json_que_no_es_objeto(tmp_path):
+    consolidated_dir = _build_video_experiment(tmp_path)
+    notifications_path = consolidated_dir / "distribution" / "notifications.jsonl"
+    notifications_path.parent.mkdir(parents=True, exist_ok=True)
+    notifications_path.write_text(
+        "[]\nnull\n42\n" + json.dumps({"alert_id": "a-1", "outcome": "delivered"}) + "\n",
+        encoding="utf-8",
+    )
+
+    report = generate_report(consolidated_dir)
+
+    assert report["distribucion_por_alerta"] == {
+        "a-1": {"alert_id": "a-1", "outcome": "delivered"}
+    }
+
+
+def test_distribution_summary_corrupto_se_trata_como_ausente(tmp_path):
+    consolidated_dir = _build_video_experiment(tmp_path)
+    summary_path = consolidated_dir / "distribution" / "distribution_summary.json"
+    summary_path.parent.mkdir(parents=True, exist_ok=True)
+    summary_path.write_text("{truncado", encoding="utf-8")
+
+    report = generate_report(consolidated_dir)
+    metric = next(row for row in report["resultados"] if row["name"] == "t_alert-notification")
+
+    assert report["distribucion"] == {}
+    assert metric["status"] == "not_applicable"
+    assert metric["cause"] == "no_distribution"
+
+
+def test_distribution_summary_json_no_objeto_se_trata_como_ausente(tmp_path):
+    consolidated_dir = _build_video_experiment(tmp_path)
+    summary_path = consolidated_dir / "distribution" / "distribution_summary.json"
+    summary_path.parent.mkdir(parents=True, exist_ok=True)
+    summary_path.write_text("[]", encoding="utf-8")
+
+    report = generate_report(consolidated_dir)
+
+    assert report["distribucion"] == {}
+
+
+def test_distribution_artifacts_invalid_utf8_do_not_break_report(tmp_path):
+    consolidated_dir = _build_video_experiment(tmp_path)
+    distribution_dir = consolidated_dir / "distribution"
+    distribution_dir.mkdir()
+    (distribution_dir / "distribution_summary.json").write_bytes(b"\xff")
+    (distribution_dir / "notifications.jsonl").write_bytes(b"\xff")
+
+    report = generate_report(consolidated_dir)
+
+    assert report["distribucion"] == {}
+    assert report["distribucion_por_alerta"] == {}
+
+
+def test_distribution_outcomes_by_alert_vacio_sin_directorio_distribucion(tmp_path):
+    """Corridas históricas sin distribución no rompen: `{}` como contrato
+    tolerante de lectura (ADR-006: sin dato no hay excepción).
+    """
+    consolidated_dir = _build_video_experiment(tmp_path)
+
+    report = generate_report(consolidated_dir)
+
+    assert report["distribucion_por_alerta"] == {}
+
+
+def test_distribution_metric_applicable_not_computed_sin_entregas(tmp_path):
+    """Distribucion corrio pero nada se entrego (todo suprimido/duplicado):
+    no hay latencia que promediar, y no es lo mismo que 'no_distribution'
+    (el modulo si corrio)."""
+    consolidated_dir = _build_video_experiment(tmp_path)
+    _write_json(
+        consolidated_dir / "distribution" / "distribution_summary.json",
+        {
+            "schema_version": "control.distribution_summary.v1",
+            "channel": "mqtt",
+            "mode": "dry_run",
+            "counts": {"suppressed_cooldown": 5},
+            "skipped_invalid_alerts": 0,
+            "talert_notification_ms": None,
+        },
+    )
+
+    report = generate_report(consolidated_dir)
+    resultados_by_name = {m["name"]: m for m in report["resultados"]}
+
+    t_notif = resultados_by_name["t_alert-notification"]
+    assert t_notif["status"] == "applicable_not_computed"
+    assert t_notif["cause"] == "no_notifications_delivered"
+
+
+def test_hito_notificacion_entregada_refleja_delivered_del_summary(tmp_path):
+    consolidated_dir = _build_video_experiment(tmp_path)
+    _write_json(
+        consolidated_dir / "distribution" / "distribution_summary.json",
+        {
+            "schema_version": "control.distribution_summary.v1",
+            "channel": "mqtt",
+            "mode": "live",
+            "counts": {"delivered": 1},
+            "skipped_invalid_alerts": 0,
+            "talert_notification_ms": {"live": {"count": 1, "min": 1.0, "mean": 1.0, "p95": 1.0}},
+        },
+    )
+
+    report = generate_report(consolidated_dir)
+
+    assert report["eventos"]["hitos"]["notificacion_entregada"] is True
+
+
+def test_hito_notificacion_entregada_false_sin_distribucion(tmp_path):
+    consolidated_dir = _build_video_experiment(tmp_path)
+
+    report = generate_report(consolidated_dir)
+
+    assert report["eventos"]["hitos"]["notificacion_entregada"] is False
+
+
 def test_todas_las_metricas_del_diccionario_figuran(tmp_path):
     consolidated_dir = _build_video_experiment(tmp_path)
 

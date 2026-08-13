@@ -24,7 +24,6 @@ _CONTROL_LIGHT_ARTIFACTS = (
     "alerts.jsonl",
     "pattern_events.jsonl",
 )
-
 _CHUNK_SIZE = 1024 * 1024  # 1 MiB por lectura, para no cargar archivos grandes en memoria.
 
 
@@ -91,6 +90,8 @@ def consolidate_experiment(
       `detections.ref.json` con `{run_id, path}` (NO copia detections.jsonl).
     - `control/`: copia effective_config, summary.json, metrics.jsonl,
       alerts.jsonl, pattern_events.jsonl.
+    - `distribution/`: si ya existe, se preserva. El distribuidor escribe
+      directamente en ese sibling; no pertenece al directorio del control-plane.
     - `manifest.effective.yaml`: dump del manifiesto efectivo.
     - `report/`: directorio vacio, listo para el generador de reporte (Tarea 3).
 
@@ -112,7 +113,6 @@ def consolidate_experiment(
 
     _copy_effective_config(control_run_dir, control_dest_dir)
     _copy_light_artifacts(control_run_dir, control_dest_dir, _CONTROL_LIGHT_ARTIFACTS)
-
     experiment_dir.mkdir(parents=True, exist_ok=True)
     manifest_path = experiment_dir / "manifest.effective.yaml"
     manifest_path.write_text(

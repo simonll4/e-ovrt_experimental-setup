@@ -1,11 +1,16 @@
 """Tests del manifiesto paraguas experiment.manifest.v1 (spec 44 SS2)."""
-from datetime import datetime, timezone
+from datetime import UTC, datetime
+
+import pytest
+from pydantic import ValidationError
+
+from eovrt_webconsole.experiment.manifest import ExperimentManifest
 
 
 def test_generate_experiment_id_format():
     from eovrt_webconsole.experiment.manifest import generate_experiment_id
 
-    got = generate_experiment_id("d1-fase1", datetime(2026, 7, 12, 14, 0, 0, tzinfo=timezone.utc))
+    got = generate_experiment_id("d1-fase1", datetime(2026, 7, 12, 14, 0, 0, tzinfo=UTC))
     assert got == "exp_20260712T140000Z_d1-fase1"
 
 
@@ -93,5 +98,58 @@ def test_manifest_rejects_unknown_sequencing():
                 "sequencing": "media_first_wrong",
                 "report": {},
                 "frozen": {},
+            }
+        )
+
+
+def test_manifest_accepts_distribution_block_with_optional_endpoint_and_idle_timeout():
+    """ADR-016: `runs.distribution` es opcional y acepta endpoint/timeout para
+    la integración con `eovrt-distribute` sin romper el manifiesto existente."""
+    from eovrt_webconsole.experiment.manifest import ExperimentManifest
+
+    manifest = ExperimentManifest.model_validate(
+        {
+            "schema_version": "experiment.manifest.v1",
+            "slug": "d1",
+            "runs": {
+                "media": {"service": "u", "config": "c", "mode": "run"},
+                "control": {"service": "u", "config": "c", "mode": "replay"},
+                "distribution": {
+                    "service": "u-distribution",
+                    "config": "d.yaml",
+                    "mode": "replay",
+                    "endpoint": "mqtt://localhost:1883",
+                    "idle_timeout_ms": 1200.5,
+                },
+            },
+            "sequencing": "media_first",
+            "report": {},
+            "frozen": {},
+        }
+    )
+
+    distribution = manifest.runs["distribution"]
+    assert distribution.endpoint == "mqtt://localhost:1883"
+    assert distribution.idle_timeout_ms == 1200.5
+
+
+@pytest.mark.parametrize("idle_timeout_ms", [0, -1, float("inf"), float("nan")])
+def test_manifest_rejects_invalid_distribution_idle_timeout(idle_timeout_ms):
+    with pytest.raises(ValidationError):
+        ExperimentManifest.model_validate(
+            {
+                "schema_version": "experiment.manifest.v1",
+                "slug": "d1",
+                "runs": {
+                    "media": {"service": "u", "config": "c", "mode": "run"},
+                    "control": {"service": "u", "config": "c", "mode": "live"},
+                    "distribution": {
+                        "service": "u",
+                        "config": "d.yaml",
+                        "mode": "live",
+                        "idle_timeout_ms": idle_timeout_ms,
+                    },
+                },
+                "sequencing": "control_first",
             }
         )

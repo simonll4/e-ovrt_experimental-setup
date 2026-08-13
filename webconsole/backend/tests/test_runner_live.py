@@ -1,7 +1,9 @@
 """Runner: rama live (control primero, suscripcion antes del disparo del media), spec 44 SS3."""
 from __future__ import annotations
 
-from datetime import datetime, timezone
+import json
+from datetime import UTC, datetime
+from pathlib import Path
 
 import httpx
 import pytest
@@ -17,7 +19,7 @@ from eovrt_webconsole.run_backend import RunBackend
 from tests.fake_control_service import FakeControlState, make_fake_control_service
 from tests.fake_service import FakeState, make_fake_service
 
-NOW = datetime(2026, 7, 12, 14, 0, 0, tzinfo=timezone.utc)
+NOW = datetime(2026, 7, 12, 14, 0, 0, tzinfo=UTC)
 
 MEDIA_CONFIG = {"ingest": {"type": "rtsp", "path": "camera1"}, "prompts": {"ref": "eind_v1"}}
 CONTROL_CONFIG = {
@@ -37,15 +39,25 @@ def _load_config(path: str) -> dict:
     raise AssertionError(f"config no esperada: {path}")
 
 
-def _build_manifest(*, sequencing: str = "control_first", mode: str = "live") -> ExperimentManifest:
+def _build_manifest(
+    *, sequencing: str = "control_first", mode: str = "live", with_distribution: bool = False,
+) -> ExperimentManifest:
+    runs = {
+        "media": {"service": "http://media", "config": "media.yaml", "mode": "run"},
+        "control": {"service": "http://control", "config": "control.yaml", "mode": mode},
+    }
+    if with_distribution:
+        runs["distribution"] = {
+            "service": "http://distribution",
+            "config": "distribution.yaml",
+            "mode": mode,
+            "endpoint": "tcp://0.0.0.0:5558",
+        }
     return ExperimentManifest.model_validate(
         {
             "schema_version": "experiment.manifest.v1",
             "slug": "d1",
-            "runs": {
-                "media": {"service": "http://media", "config": "media.yaml", "mode": "run"},
-                "control": {"service": "http://control", "config": "control.yaml", "mode": mode},
-            },
+            "runs": runs,
             "sequencing": sequencing,
             "report": {},
             "frozen": {},
@@ -292,8 +304,8 @@ async def test_live_timeout_raises_when_control_never_terminal(media_backend, co
     """Si el control nunca reporta un estado terminal, con timeout_s chico debe
     levantar ExperimentTimeout en vez de colgarse (cierra el guard sin testear
     de _poll_until_terminal)."""
-    real_media, media_state = media_backend
-    real_control, control_state = control_backend
+    real_media, _media_state = media_backend
+    real_control, _control_state = control_backend
     # No seteamos control_state.finish_status: GET /api/runs/{id} para el run
     # activo siempre devuelve status "running" (ver fake_control_service.py),
     # asi que el poll del control jamas ve un estado terminal.
@@ -332,7 +344,7 @@ async def test_live_media_stopped_is_terminal_not_stuck_until_timeout(
     timeout_s chico (igual que el test de arriba) prueba que esto NO cuelga:
     si 'stopped' no fuera terminal, este test fallaria por ExperimentTimeout
     en vez de completar."""
-    real_media, media_state = media_backend
+    real_media, _media_state = media_backend
     real_control, control_state = control_backend
     control_state.finish_status = "succeeded"
 
@@ -350,3 +362,117 @@ async def test_live_media_stopped_is_terminal_not_stuck_until_timeout(
     )
 
     assert result.media_status == "stopped"
+
+
+def _write_control_artifacts_for_live(run_dir: Path, *, alerts: list[dict] | None = None) -> None:
+    run_dir.mkdir(parents=True, exist_ok=True)
+    (run_dir / "summary.json").write_text(
+        json.dumps({"control_run_id": run_dir.name}), encoding="utf-8"
+    )
+    (run_dir / "alerts.jsonl").write_text(
+        "".join(json.dumps(row) + "\n" for row in (alerts or [])),
+        encoding="utf-8",
+    )
+
+
+def _write_media_artifacts_for_live(run_dir: Path) -> None:
+    run_dir.mkdir(parents=True, exist_ok=True)
+    (run_dir / "summary.json").write_text(
+        json.dumps({"run_id": run_dir.name, "source_clock": "none"}), encoding="utf-8"
+    )
+
+
+async def test_live_starts_distribution_before_media_and_derives_endpoint(media_backend, control_backend, tmp_path):
+    """Distribución live se dispara antes que media y normaliza wildcard endpoint."""
+    real_media, _media_state = media_backend
+    real_control, control_state = control_backend
+    control_state.finish_status = "succeeded"
+
+    calls: list[dict] = []
+
+    async def fake_distribution(
+        *,
+        mode: str,
+        alerts_path: Path | None,
+        out_dir: Path,
+        config_path: str | None,
+        endpoint: str | None,
+        control_run_id: str | None,
+        backfill_path: Path | None,
+        idle_timeout_ms: float | None,
+        timeout_s: float,
+    ) -> dict:
+        calls.append(
+            {
+                "mode": mode,
+                "endpoint": endpoint,
+                "out_dir": str(out_dir),
+                "alerts_path": str(alerts_path),
+                "idle_timeout_ms": idle_timeout_ms,
+            }
+        )
+        out_dir.mkdir(parents=True, exist_ok=True)
+        summary = {
+            "schema_version": "control.distribution_summary.v1",
+            "counts": {"delivered": 1},
+            "source_stats": {"read": 1, "skipped_malformed": 0},
+            "skipped_invalid_alerts": 0,
+            "talert_notification_ms": {
+                "live": {"count": 1, "min": 1.1, "mean": 1.1, "p95": 1.1}
+            },
+        }
+        (out_dir / "distribution_summary.json").write_text(
+            json.dumps(summary), encoding="utf-8"
+        )
+        return summary
+
+    def resolve_run_dir(plane: str, run_id: str) -> Path:
+        run_base = tmp_path / "runs" / run_id
+        if plane == "media":
+            _write_media_artifacts_for_live(run_base)
+        else:
+            _write_control_artifacts_for_live(run_base)
+        return run_base
+
+    media = RecordingMediaBackend(real_media, [])
+    control = RecordingControlBackend(real_control, [])
+
+    result = await run_experiment(
+        _build_manifest(with_distribution=True),
+        media_backend=media,
+        control_backend=control,
+        now=NOW,
+        load_config=_load_config,
+        run_distribution=fake_distribution,
+        resolve_run_dir=resolve_run_dir,
+        dest_root=tmp_path / "runs",
+    )
+
+    assert result.ok
+    assert result.distribution_status == "succeeded"
+    assert calls
+    assert calls[0]["mode"] == "live"
+    # wildcard 0.0.0.0 del bloque distribution.endpoint -> 127.0.0.1
+    assert calls[0]["endpoint"] == "tcp://127.0.0.1:5558"
+
+
+async def test_live_distribution_failure_cancels_success(media_backend, control_backend):
+    """Fallo de la distribución en live invalida el contrato de ok."""
+    real_media, _media_state = media_backend
+    real_control, control_state = control_backend
+    control_state.finish_status = "succeeded"
+
+    async def fake_distribution(**_: object) -> dict:  # type: ignore[type-arg]
+        raise RuntimeError("fallo de distribucion")
+
+    result = await run_experiment(
+        _build_manifest(with_distribution=True),
+        media_backend=RecordingMediaBackend(real_media, []),
+        control_backend=real_control,
+        now=NOW,
+        load_config=_load_config,
+        run_distribution=fake_distribution,
+    )
+
+    assert result.ok is False
+    assert result.distribution_status == "failed"

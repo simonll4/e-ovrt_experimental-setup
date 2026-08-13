@@ -13,7 +13,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["pytest", "pytest-asyncio", "ruff"]
+dev = ["httpx2", "pytest", "pytest-asyncio", "ruff"]
 
 [build-system]
 requires = ["setuptools>=68.0", "wheel"]
@@ -28,6 +28,5 @@ line-length = 100
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 filterwarnings = [
-    "ignore:Using `httpx` with `starlette.testclient` is deprecated.*:starlette.exceptions.StarletteDeprecationWarning",
     "ignore:remove second argument of ws_handler:DeprecationWarning:websockets.legacy.server",
 ]

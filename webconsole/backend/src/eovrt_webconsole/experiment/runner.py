@@ -16,11 +16,15 @@ import asyncio
 import functools
 import json
 import logging
+import math
+import os
+import shutil
 import subprocess
 import time
+from collections.abc import Callable
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Callable, Protocol
+from typing import Any, Protocol
 
 import yaml
 from pydantic import BaseModel
@@ -48,6 +52,7 @@ TERMINAL_STATUSES = frozenset({"succeeded", "failed", "error", "stopped"})
 # tests; el default de produccion invoca la CLI `eovrt-control evaluate-alerts`
 # (ver `_default_evaluate_temporal`).
 EvaluateTemporal = Callable[[Path, Path, Path, Path | None, Path | None], dict | None]
+RunDistribution = Callable[..., Any]
 
 LoadConfig = Callable[[str], dict]
 # Resuelve el directorio runs/<run_id>/ de un plano ("media" | "control") a
@@ -80,6 +85,7 @@ class ExperimentResult(BaseModel):
     control_run_id: str | None
     media_status: str | None
     control_status: str | None
+    distribution_status: str | None = None
     ok: bool
     # Paso final post-run (Tarea 4): set solo si ambas corridas terminaron OK
     # y la consolidacion + el reporte se generaron sin error.
@@ -94,6 +100,20 @@ def _default_load_config(config_path: str) -> dict:
     load_config que resuelva rutas relativas al directorio del manifiesto.
     """
     return yaml.safe_load(Path(config_path).read_text(encoding="utf-8"))
+
+
+def _default_distribution_executable() -> str:
+    """Resuelve el binario de distribución por orden de preferencia."""
+    configured = os.environ.get("EOVRT_DISTRIBUTION_EXECUTABLE")
+    if configured:
+        return configured
+    path = shutil.which("eovrt-distribute")
+    if path:
+        return path
+    fallback = _repo_root().parent / "e-ovrt_alert-distribution" / ".venv" / "bin" / "eovrt-distribute"
+    if fallback.is_file():
+        return str(fallback)
+    return "eovrt-distribute"
 
 
 def _repo_root() -> Path:
@@ -191,6 +211,9 @@ def _inject_source_id(media_config: dict, clip_id: str | None) -> dict:
 
 
 _EVALUATE_ALERTS_CMD = ("eovrt-control", "evaluate-alerts")
+_DISTRIBUTION_TIMEOUT_S = 300.0
+_DISTRIBUTION_SUMMARY = "distribution_summary.json"
+_DEFAULT_CONTROL_ALERT_BUS_ENDPOINT = "tcp://0.0.0.0:5558"
 
 
 @functools.lru_cache(maxsize=1)
@@ -275,6 +298,299 @@ def _detections_path_for(media_run_id: str, media_summary: dict) -> str:
     return str(_default_resolve_run_dir("media", media_run_id) / "detections.jsonl")
 
 
+def _validate_distribution_mode(control_mode: str, distribution_run: Any) -> None:
+    """Valida que `runs.distribution.mode` (si existe) coincida con el modo de
+    control."""
+    if distribution_run is None:
+        return
+    if distribution_run.mode != control_mode:
+        raise ValueError(
+            f"runs.distribution.mode '{distribution_run.mode}' no coincide con "
+            f"runs.control.mode '{control_mode}'"
+        )
+
+
+def _normalize_distribution_endpoint(endpoint: str | None) -> str | None:
+    """Traduce endpoints wildcard (`0.0.0.0`, `*`) a loopback local para el
+    suscriptor de distribución.
+
+    El distribuidor corre como proceso adyacente en el host y no puede consumir
+    un bind wildcard que en control-plane es útil para publicar.
+    """
+    if not endpoint:
+        return None
+    candidate = endpoint.strip()
+    if not candidate:
+        return None
+    wildcard_host_prefixes = ("0.0.0.0", "*")
+    for wildcard in wildcard_host_prefixes:
+        if "://" in candidate:
+            scheme, rest = candidate.split("://", 1)
+            if rest.startswith(wildcard):
+                return f"{scheme}://127.0.0.1{rest[len(wildcard):]}"
+        elif candidate.startswith(wildcard):
+            return f"127.0.0.1{candidate[len(wildcard):]}"
+    return candidate
+
+
+def _distribution_out_dir(consolidated_dir: Path) -> Path:
+    return consolidated_dir / "distribution"
+
+
+def _distribution_summary_path(out_dir: Path) -> Path:
+    return out_dir / _DISTRIBUTION_SUMMARY
+
+
+async def _terminate_process(process: asyncio.subprocess.Process, *, timeout_s: float = 3.0) -> None:
+    if process.returncode is not None:
+        return
+    process.terminate()
+    try:
+        await asyncio.wait_for(process.wait(), timeout=timeout_s)
+        return
+    except TimeoutError:
+        process.kill()
+        await process.wait()
+
+
+async def _cancel_distribution_task(task: asyncio.Task | None) -> None:
+    """Cancela y cosecha la tarea para que su subprocesso no quede huérfano."""
+    if task is None:
+        return
+    if not task.done():
+        task.cancel()
+    try:
+        await asyncio.wait_for(task, timeout=5.0)
+    except (TimeoutError, asyncio.CancelledError):
+        return
+    except Exception:  # noqa: BLE001 - no ocultar la causa primaria durante el teardown
+        return
+
+
+def _parse_distribution_summary(raw_stdout: str) -> dict:
+    text = (raw_stdout or "").strip()
+    if not text:
+        raise ValueError("distribucion no produjo salida JSON")
+    for candidate in reversed(text.splitlines()):
+        line = candidate.strip()
+        if not line:
+            continue
+        try:
+            parsed = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if isinstance(parsed, dict):
+            return parsed
+    raise ValueError("salida de distribucion invalida: no es JSON de objeto")
+
+
+async def _default_run_distribution(
+    *,
+    mode: str,
+    alerts_path: Path | None,
+    out_dir: Path,
+    config_path: str | None,
+    endpoint: str | None,
+    control_run_id: str | None = None,
+    backfill_path: Path | None = None,
+    idle_timeout_ms: float | None = None,
+    executable: str | None = None,
+    timeout_s: float = _DISTRIBUTION_TIMEOUT_S,
+) -> dict:
+    """Ejecuta `eovrt-distribute` en un subprocesso aislado (spec 44 B4)."""
+    if mode not in {"replay", "live"}:
+        raise ValueError(f"modo de distribucion invalido: {mode}")
+    if mode == "replay" and not alerts_path:
+        raise ValueError("distribucion en replay sin alerts_path")
+    if mode == "live" and not endpoint:
+        raise ValueError("distribucion en live sin endpoint")
+
+    executable = executable or _default_distribution_executable()
+    out_dir.mkdir(parents=True, exist_ok=True)
+    cmd = [
+        executable,
+        mode,
+        "--out-dir",
+        str(out_dir),
+    ]
+    if mode == "replay":
+        cmd.extend(["--alerts", str(alerts_path)])
+    else:
+        cmd.extend(["--endpoint", _normalize_distribution_endpoint(endpoint)])
+        if control_run_id:
+            cmd.extend(["--control-run-id", control_run_id])
+        if backfill_path is not None:
+            cmd.extend(["--backfill", str(backfill_path)])
+        if idle_timeout_ms is not None:
+            cmd.extend(["--idle-timeout-ms", str(idle_timeout_ms)])
+    if config_path:
+        cmd.extend(["--config", config_path])
+
+    process = await asyncio.create_subprocess_exec(
+        *cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.DEVNULL
+    )
+    try:
+        stdout, _stderr = await asyncio.wait_for(process.communicate(), timeout=timeout_s)
+    except TimeoutError:
+        await _terminate_process(process)
+        logger.warning(
+            "distribution %s timeout (%ss) con cmd=%s", mode, timeout_s, cmd[0]
+        )
+        raise
+    except asyncio.CancelledError:
+        await _terminate_process(process)
+        raise
+    if process.returncode != 0:
+        raise RuntimeError(
+            f"distribution exit {process.returncode} (mode={mode}); "
+            "salida omitida para no exponer configuracion sensible"
+        )
+    return _parse_distribution_summary((stdout or b"").decode(errors="replace"))
+
+
+def _distribution_summary_is_valid(summary: dict, out_dir: Path) -> bool:
+    if not isinstance(summary, dict):
+        return False
+    if summary.get("schema_version") != "control.distribution_summary.v1":
+        return False
+    counts = summary.get("counts")
+    if not isinstance(counts, dict) or any(
+        not isinstance(key, str)
+        or isinstance(value, bool)
+        or not isinstance(value, int)
+        or value < 0
+        for key, value in counts.items()
+    ):
+        return False
+    source_stats = summary.get("source_stats")
+    if not isinstance(source_stats, dict) or any(
+        isinstance(source_stats.get(key), bool)
+        or not isinstance(source_stats.get(key), int)
+        or source_stats[key] < 0
+        for key in ("read", "skipped_malformed")
+    ):
+        return False
+    latency_by_mode = summary.get("talert_notification_ms")
+    if latency_by_mode is not None:
+        if not isinstance(latency_by_mode, dict) or not latency_by_mode:
+            return False
+        for mode, stats in latency_by_mode.items():
+            if mode not in {"live", "wall_clock_dbe"} or not isinstance(stats, dict):
+                return False
+            count = stats.get("count")
+            if isinstance(count, bool) or not isinstance(count, int) or count < 1:
+                return False
+            for metric in ("min", "mean", "p95"):
+                value = stats.get(metric)
+                if (
+                    isinstance(value, bool)
+                    or not isinstance(value, (int, float))
+                    or not math.isfinite(value)
+                    or value < 0
+                ):
+                    return False
+    summary_path = _distribution_summary_path(out_dir)
+    if not summary_path.is_file():
+        return False
+    try:
+        persisted = json.loads(summary_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return False
+    return persisted == summary
+
+
+def _consolidate_runs(
+    result: ExperimentResult,
+    *,
+    resolve_run_dir: ResolveRunDir,
+    dest_root: Path,
+    manifest_effective: dict | None = None,
+) -> Path:
+    if not result.media_run_id or not result.control_run_id:
+        raise RuntimeError("corridas incompletas para consolidar")
+    media_run_dir = resolve_run_dir("media", result.media_run_id)
+    control_run_dir = resolve_run_dir("control", result.control_run_id)
+    if manifest_effective is None:
+        raise RuntimeError("manifest_effective es obligatorio para consolidar")
+    return consolidate_experiment(
+        result.experiment_id,
+        media_run_dir=media_run_dir,
+        control_run_dir=control_run_dir,
+        manifest_effective=manifest_effective,
+        dest_root=dest_root,
+    )
+
+
+async def _run_distribution_and_validate(
+    run_distribution: RunDistribution,
+    *,
+    mode: str,
+    alerts_path: Path | None,
+    out_dir: Path,
+    config_path: str | None,
+    endpoint: str | None,
+    control_run_id: str | None,
+    backfill_path: Path | None,
+    idle_timeout_ms: float | None,
+    timeout_s: float,
+) -> dict:
+    summary = await run_distribution(
+        mode=mode,
+        alerts_path=alerts_path,
+        out_dir=out_dir,
+        config_path=config_path,
+        endpoint=endpoint,
+        control_run_id=control_run_id,
+        backfill_path=backfill_path,
+        idle_timeout_ms=idle_timeout_ms,
+        timeout_s=timeout_s,
+    )
+    if not isinstance(summary, dict) or not _distribution_summary_is_valid(summary, out_dir):
+        raise RuntimeError("distribution_summary invalido o no persistido")
+    return summary
+
+
+def _write_report_if_possible(
+    result: ExperimentResult,
+    *,
+    manifest_effective: dict,
+    resolve_run_dir: ResolveRunDir,
+    dest_root: Path,
+    evaluate_temporal: EvaluateTemporal,
+) -> ExperimentResult:
+    try:
+        consolidated_dir = _consolidate_runs(
+            result,
+            resolve_run_dir=resolve_run_dir,
+            dest_root=dest_root,
+            manifest_effective=manifest_effective,
+        )
+        media_run_dir = resolve_run_dir("media", result.media_run_id)
+        ground_truth = manifest_effective.get("ground_truth")
+        if ground_truth:
+            _run_temporal_evaluation(
+                evaluate_temporal,
+                consolidated_dir=consolidated_dir,
+                media_run_dir=media_run_dir,
+                ground_truth=ground_truth,
+            )
+        report_json_path, _report_md_path = write_report(consolidated_dir)
+    except Exception:
+        logger.warning(
+            "post-run: fallo la consolidacion/reporte del experimento %s "
+            "(no afecta el resultado de la corrida)",
+            result.experiment_id,
+            exc_info=True,
+        )
+        return result
+    return result.model_copy(
+        update={
+            "consolidated_dir": str(consolidated_dir),
+            "report_path": str(report_json_path),
+        }
+    )
+
+
 async def run_experiment(
     manifest: ExperimentManifest,
     *,
@@ -287,6 +603,7 @@ async def run_experiment(
     resolve_run_dir: ResolveRunDir | None = None,
     dest_root: Path | str | None = None,
     evaluate_temporal: EvaluateTemporal | None = None,
+    run_distribution: RunDistribution | None = None,
 ) -> ExperimentResult:
     """Orquesta el experimento paraguas segun el modo del control-plane.
 
@@ -313,9 +630,12 @@ async def run_experiment(
     loader = load_config or _default_load_config
     resolver = resolve_run_dir or _default_resolve_run_dir
     resolved_dest_root = Path(dest_root) if dest_root is not None else _default_dest_root()
+    distribution_caller: RunDistribution = run_distribution or _default_run_distribution
 
     _validate_planes_present(manifest.runs)
     control_run = manifest.runs["control"]
+    distribution_run = manifest.runs.get("distribution")
+    _validate_distribution_mode(control_run.mode, distribution_run)
     _validate_sequencing(manifest.sequencing, control_run.mode)
 
     if control_run.mode == "replay":
@@ -337,10 +657,15 @@ async def run_experiment(
             poll_interval_s=poll_interval_s,
             timeout_s=timeout_s,
             loader=loader,
+            run_distribution=distribution_caller if distribution_run else None,
+            distribution_run=distribution_run,
+            dest_root=resolved_dest_root,
         )
     else:
         raise NotImplementedError(f"modo de control '{control_run.mode}' no soportado")
 
+    if not result.ok and distribution_run:
+        return result.model_copy(update={"distribution_status": "failed"})
     if not result.ok:
         # Si cualquiera de las dos corridas fallo, no hay artefactos
         # completos que consolidar: se deja consolidated_dir/report_path en None.
@@ -349,7 +674,83 @@ async def run_experiment(
     manifest_effective = manifest.model_dump(mode="json")
     manifest_effective["experiment_id"] = experiment_id
 
-    return await _consolidate_and_report(
+    if not distribution_run:
+        return _write_report_if_possible(
+            result,
+            manifest_effective=manifest_effective,
+            resolve_run_dir=resolver,
+            dest_root=resolved_dest_root,
+            evaluate_temporal=evaluate_temporal or _default_evaluate_temporal,
+        )
+
+    if control_run.mode == "live":
+        return _write_report_if_possible(
+            result,
+            manifest_effective=manifest_effective,
+            resolve_run_dir=resolver,
+            dest_root=resolved_dest_root,
+            evaluate_temporal=evaluate_temporal or _default_evaluate_temporal,
+        )
+
+    try:
+        consolidated_dir = _consolidate_runs(
+            result,
+            resolve_run_dir=resolver,
+            dest_root=resolved_dest_root,
+            manifest_effective=manifest_effective,
+        )
+    except Exception:
+        logger.warning(
+            "post-run: fallo la consolidacion de %s (sin reporte) aunque distribution fue solicitada",
+            experiment_id,
+            exc_info=True,
+        )
+        return result.model_copy(
+            update={"ok": False, "distribution_status": "failed"}
+        )
+
+    control_alerts_path = consolidated_dir / "control" / "alerts.jsonl"
+    distribution_config = distribution_run.config if distribution_run else None
+    distribution_out_dir = _distribution_out_dir(consolidated_dir)
+    distribution_endpoint = distribution_run.endpoint if distribution_run else None
+
+    try:
+        await _run_distribution_and_validate(
+            distribution_caller,
+            mode=distribution_run.mode,
+            alerts_path=control_alerts_path,
+            out_dir=distribution_out_dir,
+            config_path=distribution_config,
+            endpoint=distribution_endpoint,
+            control_run_id=result.control_run_id,
+            backfill_path=None,
+            idle_timeout_ms=distribution_run.idle_timeout_ms if distribution_run else None,
+            timeout_s=timeout_s,
+        )
+    except Exception:
+        logger.warning(
+            "post-run: distribucion solicitada para %s finalizo con fallo",
+            experiment_id,
+            exc_info=True,
+        )
+        return result.model_copy(
+            update={
+                "distribution_status": "failed",
+                "consolidated_dir": str(consolidated_dir),
+                "ok": False,
+            }
+        )
+
+    result = result.model_copy(
+        update={
+            "distribution_status": "succeeded",
+            "consolidated_dir": str(consolidated_dir),
+        }
+    )
+    # Una vez que la distribución terminó OK, se corre temporal + reporte. Si
+    # falla ese tramo, la corrida ya terminó y no debe perderse: mismo patrón
+    # de protección que en _consolidate_and_report original.
+    return _write_report_if_possible(
         result,
         manifest_effective=manifest_effective,
         resolve_run_dir=resolver,
@@ -561,6 +962,9 @@ async def _run_live(
     poll_interval_s: float,
     timeout_s: float,
     loader: LoadConfig,
+    run_distribution: RunDistribution | None,
+    distribution_run: Any | None = None,
+    dest_root: Path | None = None,
 ) -> ExperimentResult:
     """Rama live: control-plane primero, media-plane recien despues.
 
@@ -570,23 +974,37 @@ async def _run_live(
     El control cierra 1:1 con el media (run_finished); se hace poll de
     ambos hasta un estado terminal.
     """
+    dest_root = dest_root or _default_dest_root()
     media_run = manifest.runs["media"]
     control_run = manifest.runs["control"]
 
     control_config = dict(loader(control_run.config))
     control_config["experiment_id"] = experiment_id
-    # Fusion, NO reemplazo: el runner impone el transporte (`type='bus'`) pero
-    # el payload conserva sus parametros de bus (endpoint, topics, timeouts).
-    # `InputSection` del control-plane exige `input.bus` cuando type='bus' y
-    # `endpoint` no tiene default, asi que pisar el dict entero deja un payload
-    # invalido y el 422 mata el experimento antes de lanzar nada.
-    control_config["input"] = {**dict(control_config.get("input") or {}), "type": "bus"}
+
+    has_distribution = distribution_run is not None and run_distribution is not None
+    input_section = dict(control_config.get("input") or {})
+    bus_section = dict(input_section.get("bus") or {})
+    if not isinstance(bus_section, dict):
+        bus_section = {}
+
+    control_config["input"] = {
+        **input_section,
+        "type": "bus",
+        "bus": bus_section,
+    }
+    alert_bus_section = dict(control_config.get("alert_bus") or {})
+    if has_distribution:
+        alert_bus_section["enabled"] = True
+        alert_bus_section["wait_for_subscriber_ms"] = max(
+            int(alert_bus_section.get("wait_for_subscriber_ms") or 0), 10000
+        )
+        control_config["alert_bus"] = alert_bus_section
 
     control_run_id = await control_backend.launch(
         control_config, mode="live", experiment_id=experiment_id
     )
 
-    # Confirmacion explicita de la invariante antes de tocar el media: el
+    # Confirmacion explícita de la invariante antes de tocar el media: el
     # 201 ya implica suscripto, pero lo verificamos con current() en vez de
     # confiar ciegamente en el codigo de estado.
     current = await control_backend.current()
@@ -596,24 +1014,92 @@ async def _run_live(
             "se aborta el disparo del media (invariante de orden violada)"
         )
 
+    distribution_task: asyncio.Task | None = None
+    distribution_status = None
+    distribution_summary_error: BaseException | None = None
+    distribution_endpoint = (
+        _normalize_distribution_endpoint(distribution_run.endpoint)
+        if distribution_run is not None and getattr(distribution_run, "endpoint", None)
+        else _normalize_distribution_endpoint(
+            alert_bus_section.get("endpoint", _DEFAULT_CONTROL_ALERT_BUS_ENDPOINT)
+        )
+    )
+
+    if has_distribution:
+        if not distribution_endpoint:
+            raise ValueError("no se puede derivar el endpoint de distribucion para live")
+
+        distribution_task = asyncio.create_task(
+            _run_distribution_and_validate(
+                run_distribution,
+                mode=distribution_run.mode,
+                alerts_path=None,
+                out_dir=dest_root / experiment_id / "distribution",
+                config_path=getattr(distribution_run, "config", None),
+                endpoint=distribution_endpoint,
+                control_run_id=control_run_id,
+                backfill_path=None,
+                idle_timeout_ms=getattr(distribution_run, "idle_timeout_ms", None),
+                timeout_s=timeout_s,
+            )
+        )
+        # Give the consumer coroutine a chance to start before media can make
+        # control emit alerts.  The alert publisher still performs its own
+        # subscriber handshake, but merely creating a task does not schedule
+        # it when a backend double returns synchronously.
+        await asyncio.sleep(0)
+
     media_config = dict(loader(media_run.config))
     media_config["experiment_id"] = experiment_id
     media_config["bus"] = {"enabled": True}
     media_config = _inject_source_id(media_config, manifest.clip_id)
 
-    media_run_id = await media_backend.launch(media_config)
-
-    media_summary = await _poll_until_terminal(
-        media_backend.status, media_run_id, poll_interval_s=poll_interval_s, timeout_s=timeout_s
-    )
-    control_summary = await _poll_until_terminal(
-        control_backend.status,
-        control_run_id,
-        poll_interval_s=poll_interval_s,
-        timeout_s=timeout_s,
-    )
+    try:
+        media_run_id = await media_backend.launch(media_config)
+        media_summary = await _poll_until_terminal(
+            media_backend.status,
+            media_run_id,
+            poll_interval_s=poll_interval_s,
+            timeout_s=timeout_s,
+        )
+    except BaseException:
+        await _cancel_distribution_task(distribution_task)
+        raise
     media_status = media_summary.get("status")
+
+    if media_status != "succeeded" and distribution_task is not None:
+        await _cancel_distribution_task(distribution_task)
+
+    try:
+        control_summary = await _poll_until_terminal(
+            control_backend.status,
+            control_run_id,
+            poll_interval_s=poll_interval_s,
+            timeout_s=timeout_s,
+        )
+    except BaseException:
+        await _cancel_distribution_task(distribution_task)
+        raise
     control_status = control_summary.get("status")
+
+    if distribution_task is not None and control_status != "succeeded":
+        await _cancel_distribution_task(distribution_task)
+        distribution_status = "failed"
+    elif distribution_task is not None and media_status != "succeeded":
+        distribution_status = "failed"
+    elif distribution_task is not None:
+        try:
+            await distribution_task
+            distribution_status = "succeeded"
+        except Exception as exc:  # noqa: BLE001
+            distribution_summary_error = exc
+            distribution_status = "failed"
+
+    ok = (
+        media_status == "succeeded"
+        and control_status == "succeeded"
+        and distribution_summary_error is None
+    )
 
     return ExperimentResult(
         experiment_id=experiment_id,
@@ -621,5 +1107,6 @@ async def _run_live(
         control_run_id=control_run_id,
         media_status=media_status,
         control_status=control_status,
-        ok=media_status == "succeeded" and control_status == "succeeded",
+        distribution_status=distribution_status,
+        ok=ok,
     )

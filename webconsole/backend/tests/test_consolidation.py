@@ -120,6 +120,8 @@ def test_consolidate_experiment_tolera_artefactos_faltantes(tmp_path):
     assert not (result / "media" / "metrics.jsonl").exists()
     assert not (result / "control" / "summary.json").exists()
     assert not (result / "control" / "alerts.jsonl").exists()
+    assert not (result / "distribution" / "distribution_summary.json").exists()
+    assert not (result / "distribution" / "notifications.jsonl").exists()
 
     # La referencia a detections se escribe igual (aunque el archivo no exista
     # fisicamente todavia), con la ruta convencional derivada del run_id.
@@ -132,6 +134,31 @@ def test_consolidate_experiment_tolera_artefactos_faltantes(tmp_path):
     # manifest.effective.yaml y report/ siempre se crean.
     assert (result / "manifest.effective.yaml").exists()
     assert (result / "report").is_dir()
+
+
+def test_consolidate_experiment_preserva_distribution_escrita_en_el_consolidado(tmp_path):
+    media_run_dir = _build_media_run_dir(tmp_path)
+    control_run_dir = _build_control_run_dir(tmp_path, run_id="control-run-dist")
+    dest_root = tmp_path / "runs"
+    distribution_dir = dest_root / "exp_dist" / "distribution"
+    _write(distribution_dir / "distribution_summary.json", '{"counts": {"delivered": 1}}')
+    _write(
+        distribution_dir / "notifications.jsonl",
+        '{"alert_id": "al-1", "outcome": "delivered"}\n',
+    )
+
+    result = consolidate_experiment(
+        "exp_dist",
+        media_run_dir=media_run_dir,
+        control_run_dir=control_run_dir,
+        manifest_effective={"slug": "smoke"},
+        dest_root=dest_root,
+    )
+
+    assert json.loads((result / "distribution" / "distribution_summary.json").read_text()) == {
+        "counts": {"delivered": 1}
+    }
+    assert "delivered" in (result / "distribution" / "notifications.jsonl").read_text()
 
 
 def test_consolidate_experiment_prefiere_effective_config_json_si_no_hay_yaml(tmp_path):

@@ -36,6 +36,13 @@ CLOCK_SKEW = "clock_skew"
 NON_TEMPORAL_SOURCE = "non_temporal_source"
 MISSING_JOIN_KEY = "missing_join_key"
 NO_DISTRIBUTION = "no_distribution"
+# La distribucion corrio pero nada se entrego (todo suprimido/duplicado): no es
+# lo mismo que no_distribution (el modulo si corrio, spec 45 / ADR-016).
+NO_NOTIFICATIONS_DELIVERED = "no_notifications_delivered"
+# Unica latencia disponible es wall-clock de un reproceso DBE, no la latencia
+# operativa real (92b SS8, mismo tratamiento que DBE_MEDIA_TIME para
+# t_capture->alert): nunca se reporta como si fuera la metrica real.
+DISTRIBUTION_WALL_CLOCK_DBE_ONLY = "distribution_wall_clock_dbe_only"
 # Evaluacion temporal presente pero SIN los campos v2 A2/A3 (FAR/censura):
 # JSON persistido por una version vieja de evaluate-alerts, o path v1 (el GT
 # por frame no tiene ms). No se inventa un valor: applicable_not_computed.
@@ -257,6 +264,78 @@ def _temporal_evaluation(consolidated_dir: Path, control_summary: dict) -> dict 
     return None
 
 
+def _distribution_detail(consolidated_dir: Path) -> dict:
+    """Busca `distribution_summary.json` del modulo de distribucion de alertas
+    (spec 45 / ADR-016), si el runner lo corrio -- cuarto hermano de
+    media/control/report en el layout de corrida (ADR-014). Passthrough
+    verbatim, sin recalcular (ADR-006): {} si no existe."""
+    path = consolidated_dir / "distribution" / "distribution_summary.json"
+    if not path.is_file():
+        return {}
+    try:
+        detail = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError):
+        return {}
+    return detail if isinstance(detail, dict) else {}
+
+
+def _distribution_outcomes_by_alert(consolidated_dir: Path) -> dict:
+    """Último DeliveryRecord por alert_id en `distribution/notifications.jsonl`.
+
+    Un mismo alert_id puede aparecer varias veces por reintentos; la última línea
+    escrita para ese alert_id es su outcome terminal.
+    """
+    path = consolidated_dir / "distribution" / "notifications.jsonl"
+    if not path.is_file():
+        return {}
+
+    try:
+        lines = path.read_text(encoding="utf-8").splitlines()
+    except (OSError, UnicodeDecodeError):
+        return {}
+
+    by_alert: dict = {}
+    for line in lines:
+        row = line.strip()
+        if not row:
+            continue
+        try:
+            record = json.loads(row)
+        except json.JSONDecodeError:
+            continue
+        if not isinstance(record, dict):
+            continue
+        alert_id = record.get("alert_id")
+        if alert_id:
+            by_alert[str(alert_id)] = record
+    return by_alert
+
+
+def _distribution_metric(distribution_detail: dict) -> MetricResult:
+    """t_alert-notification (spec 40 SS5, spec 45 SS6). El summary agrega la
+    latencia por `latency_mode` (nunca mezclada, 92b SS8): si hay 'live', es la
+    latencia operativa real y se reporta `computed`; si SOLO hay
+    'wall_clock_dbe', es reloj de pared de un reproceso, no la metrica real --
+    mismo criterio que `t_capture->alert` con reloj de medio
+    (`DBE_MEDIA_TIME`): `not_interpretable`, nunca un caveat escondido detras
+    de un numero."""
+    if not distribution_detail:
+        return MetricResult(name="t_alert-notification", unit="ms",
+                             status="not_applicable", cause=NO_DISTRIBUTION)
+    latency_by_mode = distribution_detail.get("talert_notification_ms")
+    if not latency_by_mode:
+        return MetricResult(name="t_alert-notification", unit="ms",
+                             status="applicable_not_computed",
+                             cause=NO_NOTIFICATIONS_DELIVERED)
+    live = latency_by_mode.get("live")
+    if live is not None:
+        return MetricResult(name="t_alert-notification", value=live["p95"],
+                             unit="ms", status="computed", cause=None)
+    return MetricResult(name="t_alert-notification", unit="ms",
+                         status="not_interpretable",
+                         cause=DISTRIBUTION_WALL_CLOCK_DBE_ONLY)
+
+
 def _sdr_metric(temporal_eval: dict | None) -> MetricResult:
     """SDR (spec 43 SS10 / spec 40 SS17.1.7): proporcion del intervalo anotado
     con deteccion sostenida. Campo nativo del control-plane: `avg_sdr`
@@ -406,7 +485,7 @@ def _perception_metrics(
 def _build_resultados(
     consolidated_dir: Path, media_summary: dict, control_summary: dict,
     join_results: list[dict], *, source_clock: str, two_node: bool,
-    temporal_eval: dict | None,
+    temporal_eval: dict | None, distribution_detail: dict,
 ) -> list[MetricResult]:
     resultados = [
         _g2a_metric(media_summary),
@@ -415,8 +494,7 @@ def _build_resultados(
         _aggregate_t_capture_to_alert(join_results, source_clock=source_clock,
                                        two_node=two_node),
         _aggregate_t_compute_budget(join_results),
-        MetricResult(name="t_alert-notification", unit="ms",
-                     status="not_applicable", cause=NO_DISTRIBUTION),
+        _distribution_metric(distribution_detail),
         _ttfd_metric(temporal_eval),
         _sdr_metric(temporal_eval),
         *_temporal_eval_v2_metrics(temporal_eval),
@@ -483,20 +561,25 @@ def _clock_criterion_text(source_clock: str | None) -> str:
     return "source_clock no declarado en el summary del media-plane."
 
 
-def _hitos(alerts: list[dict], pattern_events: list[dict]) -> dict:
+def _hitos(alerts: list[dict], pattern_events: list[dict], distribution_detail: dict) -> dict:
     return {
         "primera_evidencia": any(a.get("first_evidence_unit_id") for a in alerts),
         "patron_confirmado": bool(pattern_events),
         "alerta_registrada": any(a.get("alert_registered_ms") is not None for a in alerts),
-        # Hito de spec 45 (distribucion): sin trayecto instrumentado todavia.
-        "notificacion_entregada": False,
+        # Hito de spec 45 / ADR-016: refleja distribution_summary.json si el
+        # runner corrio el modulo; False si no corrio (sin cambios).
+        "notificacion_entregada": bool(
+            (distribution_detail.get("counts") or {}).get("delivered")
+        ),
     }
 
 
 def _observaciones(source_clock: str, anti_drift: dict) -> list[str]:
     notas = [
-        "Reporte agregado (ADR-006): no recalcula metricas persistidas; la unica "
-        "excepcion es el join t_capture->alert (spec 40 SS5.2.4).",
+        (
+            "Reporte agregado (ADR-006): no recalcula metricas persistidas; la unica "
+            "excepcion es el join t_capture->alert (spec 40 SS5.2.4)."
+        ),
     ]
     if source_clock == "none":
         notas.append(
@@ -506,8 +589,10 @@ def _observaciones(source_clock: str, anti_drift: dict) -> list[str]:
         )
     for plano, entry in anti_drift.items():
         if entry.get("checked") and entry.get("drift_detected"):
-            notas.append(f"anti-drift: la config enviada del plano '{plano}' difiere de la "
-                         "effective_config persistida.")
+            notas.append(
+                f"anti-drift: la config enviada del plano '{plano}' difiere de la "
+                "effective_config persistida."
+            )
     return notas
 
 
@@ -542,6 +627,7 @@ def generate_report(consolidated_dir: str | Path) -> dict:
 
     anti_drift = _build_anti_drift(manifest_effective, media_dir, control_dir)
     temporal_eval = _temporal_evaluation(consolidated_dir, control_summary)
+    distribution_detail = _distribution_detail(consolidated_dir)
 
     experiment_id = manifest_effective.get("experiment_id") or consolidated_dir.name
 
@@ -590,12 +676,13 @@ def generate_report(consolidated_dir: str | Path) -> dict:
         "errors_count": control_summary.get("errors_count"),
         "units_processed_media": media_summary.get("units_processed"),
         "units_processed_control": control_summary.get("units_processed"),
-        "hitos": _hitos(alerts, pattern_events),
+        "hitos": _hitos(alerts, pattern_events, distribution_detail),
     }
 
     resultados = _build_resultados(
         consolidated_dir, media_summary, control_summary, join_results,
         source_clock=source_clock, two_node=two_node, temporal_eval=temporal_eval,
+        distribution_detail=distribution_detail,
     )
 
     return {
@@ -610,6 +697,11 @@ def generate_report(consolidated_dir: str | Path) -> dict:
         # Detalle A2 (aditivo): la METRICA censored_episodes figura arriba con
         # su estado ADR-006; esto es el rastro auditable por episodio.
         "censored_episodes": _censored_episodes_detail(temporal_eval),
+        # Detalle aditivo (spec 45 / ADR-016): la METRICA t_alert-notification
+        # figura arriba con su estado ADR-006; esto es el distribution_summary.json
+        # verbatim, para auditar counts/skipped_invalid_alerts sin abrir el JSON crudo.
+        "distribucion": distribution_detail,
+        "distribucion_por_alerta": _distribution_outcomes_by_alert(consolidated_dir),
         "anti_drift": anti_drift,
         "observaciones": _observaciones(source_clock, anti_drift),
     }

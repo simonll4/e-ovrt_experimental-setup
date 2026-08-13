@@ -17,6 +17,8 @@ class PlaneRun(BaseModel):
     service: str
     config: str  # ruta al YAML de config por payload de ese plano
     mode: str  # media: "run"; control: "live" | "replay"
+    endpoint: str | None = None
+    idle_timeout_ms: float | None = Field(default=None, gt=0, allow_inf_nan=False)
 
 
 class ExperimentManifest(BaseModel):

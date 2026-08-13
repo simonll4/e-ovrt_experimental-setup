@@ -1,7 +1,9 @@
 """Runner: rama DBE-replay (media primero -> control replay), spec 44 SS3."""
 from __future__ import annotations
 
-from datetime import datetime, timezone
+import json
+from datetime import UTC, datetime
+from pathlib import Path
 
 import httpx
 import pytest
@@ -13,7 +15,7 @@ from eovrt_webconsole.run_backend import RunBackend
 from tests.fake_control_service import FakeControlState, make_fake_control_service
 from tests.fake_service import FakeState, make_fake_service
 
-NOW = datetime(2026, 7, 12, 14, 0, 0, tzinfo=timezone.utc)
+NOW = datetime(2026, 7, 12, 14, 0, 0, tzinfo=UTC)
 
 MEDIA_CONFIG = {"ingest": {"type": "image_folder", "path": "demo"}, "prompts": {"ref": "demo_set"}}
 CONTROL_CONFIG = {"pattern_set": "cr01_cr02_v2"}
@@ -27,23 +29,48 @@ def _load_config(path: str) -> dict:
     raise AssertionError(f"config no esperada: {path}")
 
 
-def _build_manifest() -> ExperimentManifest:
+def _build_manifest(*, with_distribution: bool = False) -> ExperimentManifest:
+    runs = {
+        "media": {"service": "http://media", "config": "media.yaml", "mode": "run"},
+        "control": {
+            "service": "http://control",
+            "config": "control.yaml",
+            "mode": "replay",
+        },
+    }
+    if with_distribution:
+        runs["distribution"] = {
+            "service": "http://distribution",
+            "config": "distribution.yaml",
+            "mode": "replay",
+        }
     return ExperimentManifest.model_validate(
         {
             "schema_version": "experiment.manifest.v1",
             "slug": "d1",
-            "runs": {
-                "media": {"service": "http://media", "config": "media.yaml", "mode": "run"},
-                "control": {
-                    "service": "http://control",
-                    "config": "control.yaml",
-                    "mode": "replay",
-                },
-            },
+            "runs": runs,
             "sequencing": "media_first",
             "report": {},
             "frozen": {},
         }
+    )
+
+
+def _write_media_artifacts(run_dir: Path) -> None:
+    run_dir.mkdir(parents=True, exist_ok=True)
+    (run_dir / "summary.json").write_text(
+        json.dumps({"run_id": run_dir.name}), encoding="utf-8"
+    )
+
+
+def _write_control_artifacts(run_dir: Path, *, alerts: list[dict] | None = None) -> None:
+    run_dir.mkdir(parents=True, exist_ok=True)
+    (run_dir / "summary.json").write_text(
+        json.dumps({"control_run_id": run_dir.name}), encoding="utf-8"
+    )
+    rows = alerts or []
+    (run_dir / "alerts.jsonl").write_text(
+        "".join(json.dumps(row) + "\n" for row in rows), encoding="utf-8"
     )
 
 
@@ -142,7 +169,7 @@ async def test_dbe_replay_happy_path(media_backend, control_backend):
 
 
 async def test_dbe_replay_media_failure_skips_control(media_backend, control_backend):
-    real_media, media_state = media_backend
+    real_media, _media_state = media_backend
     real_control, control_state = control_backend
 
     events: list = []
@@ -163,3 +190,117 @@ async def test_dbe_replay_media_failure_skips_control(media_backend, control_bac
     assert result.control_status is None
     assert control_state.active_run_id is None
     assert control_state.launched == []
+
+
+async def test_dbe_replay_runs_distribution_after_consolidation(media_backend, control_backend, tmp_path):
+    """DBE-replay: orden explícito y contrato de salida de distribución.
+
+    Después de media y control, `run_distribution` corre con:
+    - alerts_path apuntando a control/alerts del consolidado
+    - out_dir dentro de runs/{experiment_id}/distribution
+    - mode 'replay'
+    """
+    real_media, _media_state = media_backend
+    real_control, control_state = control_backend
+    control_state.finish_status = "succeeded"
+
+    run_dir = tmp_path / "runs"
+    media_dir = run_dir / "media"
+    control_dir = run_dir / "control"
+    _write_media_artifacts(media_dir)
+    _write_control_artifacts(control_dir, alerts=[{"alert_id": "al-1"}])
+
+    calls: list[tuple[str, Path | None, str | None, float | None]] = []
+
+    async def fake_distribution(
+        *,
+        mode: str,
+        alerts_path: Path | None,
+        out_dir: Path,
+        config_path: str | None,
+        endpoint: str | None,
+        control_run_id: str | None,
+        backfill_path: Path | None,
+        idle_timeout_ms: float | None,
+        timeout_s: float,
+    ) -> dict:
+        calls.append((mode, alerts_path, endpoint, idle_timeout_ms))
+        out_dir.mkdir(parents=True, exist_ok=True)
+        summary = {
+            "schema_version": "control.distribution_summary.v1",
+            "counts": {"delivered": 1},
+            "source_stats": {"read": 1, "skipped_malformed": 0},
+            "skipped_invalid_alerts": 0,
+            "talert_notification_ms": None,
+        }
+        (out_dir / "distribution_summary.json").write_text(
+            json.dumps(summary), encoding="utf-8"
+        )
+        return summary
+
+    def resolve_run_dir(plane: str, run_id: str) -> Path:
+        return media_dir if plane == "media" else control_dir
+
+    result = await run_experiment(
+        _build_manifest(with_distribution=True),
+        media_backend=RecordingMediaBackend(real_media, []),
+        control_backend=real_control,
+        now=NOW,
+        load_config=_load_config,
+        run_distribution=fake_distribution,
+        resolve_run_dir=resolve_run_dir,
+        dest_root=run_dir,
+    )
+
+    assert result.ok
+    assert result.distribution_status == "succeeded"
+    assert result.consolidated_dir == str(run_dir / result.experiment_id)
+    assert result.report_path is not None
+
+    assert calls
+    mode, alerts_path, endpoint, idle_timeout_ms = calls[0]
+    assert mode == "replay"
+    assert alerts_path is not None
+    assert alerts_path.name == "alerts.jsonl"
+    assert alerts_path.parent == run_dir / result.experiment_id / "control"
+    assert endpoint is None
+    assert idle_timeout_ms is None
+
+
+async def test_dbe_replay_distribution_failure_cancela_chain(media_backend, control_backend, tmp_path):
+    """Si `run_distribution` falla, el experimento entra como no exitoso y no
+    genera `report`, pero conserva el consolidado.
+
+    Esto cierra el borde B4: distribución no es opcional para el path de éxito,
+    y su error no debe presentarse como corrida exitosa.
+    """
+    real_media, _media_state = media_backend
+    real_control, control_state = control_backend
+    control_state.finish_status = "succeeded"
+
+    run_dir = tmp_path / "runs"
+    media_dir = run_dir / "media"
+    control_dir = run_dir / "control"
+    _write_media_artifacts(media_dir)
+    _write_control_artifacts(control_dir, alerts=[{"alert_id": "al-1"}])
+
+    async def fake_distribution(**_: object) -> dict:  # type: ignore[type-arg]
+        raise RuntimeError("eovrt-distribute no pudo ejecutar")
+
+    def resolve_run_dir(plane: str, run_id: str) -> Path:
+        return media_dir if plane == "media" else control_dir
+
+    result = await run_experiment(
+        _build_manifest(with_distribution=True),
+        media_backend=RecordingMediaBackend(real_media, []),
+        control_backend=real_control,
+        now=NOW,
+        load_config=_load_config,
+        run_distribution=fake_distribution,
+        resolve_run_dir=resolve_run_dir,
+        dest_root=run_dir,
+    )
+
+    assert result.ok is False
+    assert result.distribution_status == "failed"
+    assert result.report_path is None
