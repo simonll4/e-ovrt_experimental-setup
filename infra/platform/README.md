@@ -45,6 +45,58 @@ stop` dejó todo `Exited` y los puertos 8080/8090 libres. Detalle en
   completos desde cualquier target.
 - Cambiar de modelo NO recarga in-process (Spec A): siempre es stop + up + carga.
 
+## Broker MQTT (distribución de alertas, spec 45 / ADR-016)
+
+El compose declara un servicio `mosquitto` (`docker compose up -d mosquitto`), **pero
+hoy no es el camino que usamos**: el control-plane y el distribuidor tampoco corren
+en contenedor en este workspace, y la integración WSL de Docker Desktop no está
+activa en esta sesión. **Este bloque queda sin verificar** hasta que se dockerice el
+resto del deploy.
+
+**Camino actual (proceso común del host, igual que el control-plane):**
+
+```bash
+pip install amqtt          # broker MQTT 3.1.1 puro Python, sin apt/sudo
+amqtt -c infra/platform/mosquitto/amqtt.yaml   # o el binario mosquitto si está instalado
+```
+
+`amqtt` respeta el mismo `mosquitto.conf` en espíritu (puerto 1883, anónimo, sin
+persistencia) y es lo que se usó para verificar el camino `live` real del canal MQTT
+del distribuidor (`docs/operacion/114-relevamiento-distribucion-alertas.md`; PUBACK
+QoS 1 revalidado el 2026-08-13).
+Tanto el puerto publicado por Docker como el broker aMQTT del host quedan ligados a
+`127.0.0.1`: el acceso anónimo es solo para el laboratorio single-host.
+
+### Manifiesto del runner
+
+La distribución es opt-in. Su `mode` debe coincidir con el del control-plane:
+
+```yaml
+runs:
+  media:
+    service: http://127.0.0.1:8080
+    config: experiments/mi_corrida/media.yaml
+    mode: run
+  control:
+    service: http://127.0.0.1:8081
+    config: experiments/mi_corrida/control.yaml
+    mode: live
+  distribution:
+    service: eovrt-alert-distribution
+    config: ../e-ovrt_alert-distribution/configs/example.yaml
+    mode: live
+    # Opcional: si falta, se deriva de control.alert_bus.endpoint.
+    endpoint: tcp://127.0.0.1:5558
+    idle_timeout_ms: 300000
+```
+
+Hay dos buses y no son intercambiables: `control.input.bus` (`:5557`) lleva
+detecciones media→control; `control.alert_bus` (`:5558`) lleva alertas
+control→distribución. En live el runner habilita `alert_bus`, inicia control,
+lanza el distribuidor suscripto a `:5558` y recién después dispara media. En replay
+espera media y control, consolida, ejecuta el distribuidor sobre
+`control/alerts.jsonl` y finalmente genera el reporte.
+
 ## Seguridad
 
 El socket de Docker montado en la consola es **root-equivalente en el host**. Aceptado

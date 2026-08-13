@@ -1,0 +1,13 @@
+# Config para `amqtt` (broker MQTT puro Python, sin apt/sudo) -- equivalente
+# en espiritu al mosquitto.conf de al lado: puerto 1883, anonimo, sin
+# persistencia. Uso: `amqtt -c infra/platform/mosquitto/amqtt.yaml`.
+listeners:
+  default:
+    type: tcp
+    bind: 127.0.0.1:1883
+plugins:
+  amqtt.plugins.logging_amqtt.EventLoggerPlugin:
+  amqtt.plugins.authentication.AnonymousAuthPlugin:
+    allow_anonymous: true
+  amqtt.plugins.sys.broker.BrokerSysPlugin:
+    sys_interval: 20

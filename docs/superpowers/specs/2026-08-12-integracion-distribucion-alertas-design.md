@@ -102,8 +102,8 @@ outcomes persistidos siguen viniendo del reporte consolidado.
 ## 6. Empaquetado y operación
 
 Mosquitto permanece en `infra/platform/docker-compose.yml`. El control-plane y el distribuidor se
-ejecutan como procesos del host en la topología actual; sus imágenes independientes permiten una
-migración posterior sin cambiar este runner. La documentación incluye comandos de arranque,
+ejecutan como procesos del host en la topología actual y no mantienen imágenes propias. La
+documentación incluye comandos de arranque,
 configuración del bloque `runs.distribution` y el orden live.
 
 No se agrega un servicio persistente `distribution` al compose: no existe un daemon que deba quedar

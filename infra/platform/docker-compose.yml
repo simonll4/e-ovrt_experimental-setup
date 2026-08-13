@@ -27,6 +27,26 @@ x-gpu: &gpu
             capabilities: [gpu]
 
 services:
+  # Broker MQTT del modulo de distribucion de alertas (spec 45 / ADR-016).
+  # NO es el camino que usamos hoy en este workspace (ver README): la
+  # integracion WSL de Docker Desktop no esta activa y el resto de los
+  # servicios (control-plane, distribuidor) tampoco corren en contenedor.
+  # Este bloque queda declarado para cuando SI se dockerice el deploy;
+  # mientras tanto, `mosquitto`/`amqtt` corre como proceso comun del host,
+  # igual que el control-plane.
+  mosquitto:
+    image: eclipse-mosquitto:2
+    ports: ["127.0.0.1:1883:1883"]
+    networks: [eovrt]
+    volumes:
+      - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+    healthcheck:
+      test: ["CMD", "mosquitto_pub", "-h", "127.0.0.1", "-t", "eovrt/health", "-m", "ok", "-q", "1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
   console:
     image: eovrt/console:latest
     build:
