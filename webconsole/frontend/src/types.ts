@@ -219,10 +219,17 @@ export interface ExperimentAlert {
   timestamp_ms?: number | null
   message?: string | null
 }
+export interface DistributionOutcomeRecord {
+  alert_id?: string
+  outcome?: string | null
+  [key: string]: unknown
+}
 export interface ExperimentReport {
   non_temporal: boolean
   resultados?: unknown[]
   identificacion?: Record<string, unknown>
+  distribucion?: Record<string, unknown>
+  distribucion_por_alerta?: Record<string, DistributionOutcomeRecord>
 }
 /** Un patron de riesgo actualmente confirmed/sustained en el motor del
  *  control-plane (GET /api/runs/current -> bloque `patterns`). */

@@ -18,6 +18,7 @@ import {
 import {
   APPLICABILITY_CAUSE,
   APPLICABILITY_STATUS,
+  DISTRIBUTION_OUTCOME,
   applicabilityLabel,
   conditionLabel,
 } from '../labels'
@@ -25,6 +26,7 @@ import type {
   ActiveRiskPattern,
   ExperimentAlert,
   ExperimentReport,
+  DistributionOutcomeRecord,
   ExperimentRunState,
 } from '../types'
 import {
@@ -37,10 +39,18 @@ import {
   PageHeader,
   Table,
 } from '../components/ui'
+import Meter from '../components/charts/Meter'
 
 const CONTROL_CURRENT_POLL_MS = 2000
 
 const SEVERITY_LABEL: Record<string, string> = { high: 'Alta', medium: 'Media', low: 'Baja' }
+const DISTRIBUTION_OUTCOME_TONE: Record<string, 'ok' | 'neutral' | 'error'> = {
+  delivered: 'ok',
+  suppressed_cooldown: 'neutral',
+  skipped_duplicate: 'neutral',
+  failed: 'error',
+  dead_letter: 'error',
+}
 
 function RiskActiveBanner({ patterns }: { patterns: ActiveRiskPattern[] }) {
   if (patterns.length === 0) return null
@@ -91,6 +101,78 @@ const fmtValue = (m: MetricRow): string => {
 
 const fmtMoment = (ms: number | null | undefined): string =>
   ms == null ? '—' : `${(ms / 1000).toFixed(1).replace('.', ',')} s`
+
+const isDistributionRun = (distribution: unknown): distribution is Record<string, unknown> => {
+  return typeof distribution === 'object' && distribution !== null
+}
+
+const readDistributionSummary = (report: ExperimentReport | null): Record<string, unknown> | null => {
+  if (!isDistributionRun(report?.distribucion)) return null
+  if (Object.keys(report?.distribucion ?? {}).length === 0) return null
+  return report?.distribucion ?? null
+}
+
+const readDistributionOutcome = (
+  report: ExperimentReport | null,
+  alert: ExperimentAlert,
+): DistributionOutcomeRecord | null => {
+  if (!isDistributionRun(report?.distribucion_por_alerta)) return null
+  const payload = report.distribucion_por_alerta[alert.alert_id]
+  return typeof payload === 'object' && payload !== null ? payload : null
+}
+
+const distributionOutcomeLabel = (outcome: string | null | undefined): string | null => {
+  if (!outcome) return null
+  return applicabilityLabel(outcome, DISTRIBUTION_OUTCOME)
+}
+
+const distributionOutcomeTone = (outcome: string | null | undefined): 'ok' | 'neutral' | 'error' => {
+  if (!outcome) return 'neutral'
+  return DISTRIBUTION_OUTCOME_TONE[outcome] ?? 'neutral'
+}
+
+const distributionOutcomeSegments = (distribution: Record<string, unknown>) => {
+  const counts = distribution['counts']
+  if (!isDistributionRun(counts)) return []
+
+  const entries = Object.entries(counts)
+    .filter(([, raw]) => typeof raw === 'number' && raw > 0)
+    .map(([outcome, count]) => {
+      const key = outcome
+      return {
+        key,
+        label: applicabilityLabel(key, DISTRIBUTION_OUTCOME),
+        value: count as number,
+        tone: DISTRIBUTION_OUTCOME_TONE[key] ?? 'neutral',
+      }
+    })
+
+  return entries
+}
+
+function DistributionOutcomeCell({
+  report,
+  alert,
+}: {
+  report: ExperimentReport | null
+  alert: ExperimentAlert
+}) {
+  const outcome = readDistributionOutcome(report, alert)?.outcome
+  if (!outcome || typeof outcome !== 'string') {
+    return <span>—</span>
+  }
+  const label = distributionOutcomeLabel(outcome)
+  return <Badge tone={distributionOutcomeTone(outcome)}>{label ?? outcome}</Badge>
+}
+
+const readSkippedInvalidAlerts = (
+  distribution: Record<string, unknown> | null,
+): number | null => {
+  if (!distribution) return null
+  const skippedInvalid = distribution['skipped_invalid_alerts']
+  if (typeof skippedInvalid === 'number') return skippedInvalid
+  return null
+}
 
 export default function ExperimentDetailPage() {
   const { id = '' } = useParams()
@@ -203,6 +285,37 @@ export default function ExperimentDetailPage() {
   const metrics: MetricRow[] = useMemo(
     () => (Array.isArray(report?.resultados) ? report.resultados.map(readMetricRow) : []),
     [report],
+  )
+  const distribution = useMemo(() => readDistributionSummary(report), [report])
+  const distributionSegments = useMemo(
+    () => (distribution ? distributionOutcomeSegments(distribution) : []),
+    [distribution],
+  )
+  const distributionMetric = useMemo(
+    () => metrics.find((row) => row.name === 't_alert-notification'),
+    [metrics],
+  )
+  const distributionSkippedInvalid = useMemo(
+    () => readSkippedInvalidAlerts(distribution),
+    [distribution],
+  )
+  const distributionMetricLabel = useMemo(
+    () =>
+      distributionMetric && distributionMetric.cause
+        ? applicabilityLabel(distributionMetric.cause, APPLICABILITY_CAUSE)
+        : '',
+    [distributionMetric],
+  )
+  const distributionHasRun = useMemo(() => {
+    const byAlert = report?.distribucion_por_alerta
+    return distribution !== null || (isDistributionRun(byAlert) && Object.keys(byAlert).length > 0)
+  }, [distribution, report])
+  const distributionMetricStatusLabel = useMemo(
+    () =>
+      distributionMetric
+        ? applicabilityLabel(distributionMetric.status, APPLICABILITY_STATUS)
+        : '',
+    [distributionMetric],
   )
 
   if (error) {
@@ -335,6 +448,7 @@ export default function ExperimentDetailPage() {
                 <th>Alerta</th>
                 <th>Condición</th>
                 <th>Severidad</th>
+                <th className="eo-mono">Notificada</th>
                 <th className="eo-num">Momento</th>
               </tr>
             </thead>
@@ -348,11 +462,76 @@ export default function ExperimentDetailPage() {
                       {SEVERITY_LABEL[a.severity] ?? a.severity}
                     </Badge>
                   </td>
+                  <td>
+                    {!distributionHasRun ? (
+                      <span
+                        title="el módulo de distribución no corrió para este experimento"
+                        className="eo-mono"
+                      >
+                        —
+                      </span>
+                    ) : (
+                      <DistributionOutcomeCell
+                        report={report}
+                        alert={a}
+                      />
+                    )}
+                  </td>
                   <NumCell>{fmtMoment(a.timestamp_ms)}</NumCell>
                 </tr>
               ))}
             </tbody>
           </Table>
+        )}
+      </Card>
+
+      <Card title="Distribución de alertas" flush>
+        {distribution === null ? (
+          <EmptyState
+            hint="Si el experimento no incluyó distribución, este resumen no se genera."
+          >
+            Sin datos de distribución
+          </EmptyState>
+        ) : (
+          <div className="eo-stack">
+            {distributionSegments.length > 0 ? (
+              <div>
+                <Meter
+                  segments={distributionSegments.map((segment) => ({
+                    value: segment.value,
+                    tone: segment.tone,
+                    label: segment.label,
+                  }))}
+                  total={Math.max(
+                    1,
+                    distributionSegments.reduce((acc, segment) => acc + segment.value, 0),
+                  )}
+                />
+                <p className="eo-cap eo-cap--inset">
+                  {distributionSegments
+                    .map((segment) => `${segment.label}: ${segment.value}`)
+                    .join(' · ')}
+                </p>
+              </div>
+            ) : (
+              <p className="eo-cap eo-cap--inset">No hay resultados de entregas para graficar aún.</p>
+            )}
+
+            <p className="eo-cap eo-cap--inset">
+              Latencia de entrega:{' '}
+              {distributionMetric ? <strong>{fmtValue(distributionMetric)}</strong> : '—'}
+              {distributionMetric && distributionMetric.value == null && distributionMetricLabel
+                ? ` (${distributionMetricLabel})`
+                : ''}
+              {distributionMetric ? ` · Estado: ${distributionMetricStatusLabel}` : ''}
+            </p>
+
+            {distributionSkippedInvalid !== null && distributionSkippedInvalid > 0 && (
+              <p className="eo-cap eo-cap--inset">
+                Alertas descartadas por datos inválidos: {distributionSkippedInvalid}
+              </p>
+            )}
+          </div>
         )}
       </Card>
 

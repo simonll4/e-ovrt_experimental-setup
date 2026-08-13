@@ -162,4 +162,124 @@ describe('ExperimentDetailPage', () => {
     expect(screen.getByText('ctl_abc')).toBeTruthy()
     expect(screen.getAllByText('perimetro_v3').length).toBeGreaterThan(0)
   })
+
+  it('muestra el estado Notificada por alerta desde distribucion_por_alerta', async () => {
+    vi.mocked(api.getExperiment).mockResolvedValue({
+      experiment_id: 'exp_9', status: 'succeeded', ok: true,
+    } as any)
+    vi.mocked(api.getExperimentAlerts).mockResolvedValue([
+      {
+        alert_id: 'al-1',
+        condition_id: 'CR-01',
+        severity: 'medium',
+        timestamp_ms: 100,
+      },
+      {
+        alert_id: 'al-2',
+        condition_id: 'CR-02',
+        severity: 'high',
+        timestamp_ms: 200,
+      },
+    ])
+    vi.mocked(api.getExperimentReport).mockResolvedValue({
+      non_temporal: false,
+      distribucion_por_alerta: {
+        'al-1': { alert_id: 'al-1', outcome: 'failed' },
+        'al-2': { alert_id: 'al-2', outcome: 'delivered' },
+      },
+      resultados: [],
+    } as any)
+    renderPage('exp_9')
+    await waitFor(() => expect(screen.getByText('entregada')).toBeTruthy())
+    const cell1 = screen.getByText('al-1').closest('tr') as HTMLElement
+    const cell2 = screen.getByText('al-2').closest('tr') as HTMLElement
+    expect(cell1.textContent).toContain('falló, reintentando')
+    expect(cell2.textContent).toContain('entregada')
+  })
+
+  it('muestra la card de distribución con latencia y conteo de descartes inválidos', async () => {
+    vi.mocked(api.getExperiment).mockResolvedValue({ experiment_id: 'exp_10', status: 'succeeded', ok: true } as any)
+    vi.mocked(api.getExperimentAlerts).mockResolvedValue([
+      { alert_id: 'al-1', condition_id: 'CR-01', severity: 'low', timestamp_ms: 500 } as any,
+    ])
+    vi.mocked(api.getExperimentReport).mockResolvedValue({
+      non_temporal: false,
+      resultados: [
+        { name: 't_alert-notification', value: 1.8, unit: 'ms', status: 'computed', cause: null },
+      ],
+      distribucion: {
+        counts: { delivered: 2, suppressed_cooldown: 1 },
+        skipped_invalid_alerts: 4,
+      },
+      distribucion_por_alerta: {
+        'al-1': { alert_id: 'al-1', outcome: 'delivered' },
+      },
+    } as any)
+    renderPage('exp_10')
+    await waitFor(() => expect(screen.getByText('Distribución de alertas')).toBeTruthy())
+    expect(screen.getByText(/entregada: 2/)).toBeTruthy()
+    expect(screen.getByText(/suprimida \(cooldown\): 1/)).toBeTruthy()
+    expect(screen.getByText(/Latencia de entrega/)).toBeTruthy()
+    expect(screen.getAllByText('1,800 ms').length).toBeGreaterThan(0)
+    expect(screen.getByText(/Estado: calculada/)).toBeTruthy()
+    expect(screen.getByText('Alertas descartadas por datos inválidos: 4')).toBeTruthy()
+  })
+
+  it('cuando no hay distribución corredera, Notificada queda como no aplicable', async () => {
+    vi.mocked(api.getExperiment).mockResolvedValue({
+      experiment_id: 'exp_11', status: 'succeeded', ok: true,
+    } as any)
+    vi.mocked(api.getExperimentAlerts).mockResolvedValue([
+      {
+        alert_id: 'al-1',
+        condition_id: 'CR-01',
+        severity: 'medium',
+        timestamp_ms: 100,
+      },
+    ])
+    vi.mocked(api.getExperimentReport).mockResolvedValue({
+      non_temporal: false,
+      resultados: [],
+    } as any)
+    renderPage('exp_11')
+    await waitFor(() =>
+      expect(
+        screen.getByTitle('el módulo de distribución no corrió para este experimento'),
+      ).toBeTruthy(),
+    )
+    expect(
+      screen.getByTitle('el módulo de distribución no corrió para este experimento').textContent,
+    ).toBe('—')
+  })
+
+  it('si distribución corrió pero una alerta no tiene outcome, muestra guion sin decir que no corrió', async () => {
+    vi.mocked(api.getExperiment).mockResolvedValue({
+      experiment_id: 'exp_12', status: 'succeeded', ok: true,
+    } as any)
+    vi.mocked(api.getExperimentAlerts).mockResolvedValue([
+      {
+        alert_id: 'al-sin-outcome',
+        condition_id: 'CR-01',
+        severity: 'medium',
+        timestamp_ms: 100,
+      },
+    ])
+    vi.mocked(api.getExperimentReport).mockResolvedValue({
+      non_temporal: false,
+      resultados: [],
+      distribucion: {
+        counts: {},
+        skipped_invalid_alerts: 1,
+      },
+      distribucion_por_alerta: {},
+    } as any)
+
+    renderPage('exp_12')
+
+    await waitFor(() => expect(screen.getByText('al-sin-outcome')).toBeTruthy())
+    expect(
+      screen.queryByTitle('el módulo de distribución no corrió para este experimento'),
+    ).toBeNull()
+    expect(screen.getByText('al-sin-outcome').closest('tr')?.textContent).toContain('—')
+  })
 })

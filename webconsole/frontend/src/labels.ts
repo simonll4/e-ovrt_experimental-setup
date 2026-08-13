@@ -46,6 +46,16 @@ export const APPLICABILITY_CAUSE: Record<string, string> = {
   missing_join_key: 'falta clave de cruce',
   no_ground_truth: 'sin ground truth',
   no_distribution: 'sin distribución',
+  no_notifications_delivered: 'sin entregas',
+  distribution_wall_clock_dbe_only: 'latencia con reloj de prueba',
+}
+
+export const DISTRIBUTION_OUTCOME: Record<string, string> = {
+  delivered: 'entregada',
+  suppressed_cooldown: 'suprimida (cooldown)',
+  skipped_duplicate: 'duplicada (ya entregada)',
+  failed: 'falló, reintentando',
+  dead_letter: 'agotada (dead letter)',
 }
 
 export function applicabilityLabel(code: string, dict: Record<string, string>): string {

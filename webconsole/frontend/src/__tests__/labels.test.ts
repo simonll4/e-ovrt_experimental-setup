@@ -3,6 +3,7 @@ import {
   applicabilityLabel,
   APPLICABILITY_CAUSE,
   APPLICABILITY_STATUS,
+  DISTRIBUTION_OUTCOME,
   applyPlaneGlossary,
   conditionLabel,
   CONDITION_NAMES,
@@ -44,6 +45,19 @@ describe('CONDITION_NAMES / CONTROL_DROP_REASONS', () => {
 
   it('no inventa motivos que no existen en el sistema', () => {
     expect(CONTROL_DROP_REASONS.overload).toBeUndefined()
+  })
+
+  it('expone etiquetas de outcome de distribución', () => {
+    expect(DISTRIBUTION_OUTCOME.delivered).toBe('entregada')
+    expect(DISTRIBUTION_OUTCOME.suppressed_cooldown).toBe('suprimida (cooldown)')
+    expect(DISTRIBUTION_OUTCOME.skipped_duplicate).toBe('duplicada (ya entregada)')
+    expect(DISTRIBUTION_OUTCOME.failed).toBe('falló, reintentando')
+    expect(DISTRIBUTION_OUTCOME.dead_letter).toBe('agotada (dead letter)')
+  })
+
+  it('agrega causas nuevas de distribución en APPLICABILITY_CAUSE', () => {
+    expect(APPLICABILITY_CAUSE.no_notifications_delivered).toBe('sin entregas')
+    expect(APPLICABILITY_CAUSE.distribution_wall_clock_dbe_only).toBe('latencia con reloj de prueba')
   })
 })
 
