@@ -1,0 +1,30 @@
+{
+  "artifacts": [
+    {
+      "filename": "yoloe-26s-seg.pt",
+      "license_spdx": "AGPL-3.0",
+      "role": "base_checkpoint",
+      "sha256": "48f24206bc8680d60cbbfa296b0140da849669b9515058b72f5a945142df0654",
+      "size_bytes": 31072171,
+      "source_url": "https://github.com/ultralytics/assets/releases/download/v8.4.0/yoloe-26s-seg.pt"
+    },
+    {
+      "filename": "mobileclip2_b.ts",
+      "license_spdx": "NOASSERTION",
+      "role": "text_encoder",
+      "sha256": "35d7f213e4d75f38514e4656ad3cb91158bd33e3805d8ac349f23b186f66982f",
+      "size_bytes": 253794476,
+      "source_url": "https://github.com/ultralytics/assets/releases/download/v8.4.0/mobileclip2_b.ts"
+    },
+    {
+      "filename": "yolo26n.pt",
+      "license_spdx": "AGPL-3.0",
+      "role": "ultralytics_amp_check_asset",
+      "sha256": "9b09cc8bf347f0fc8a5f7657480587f25db09b34bf33b0652110fb03a8ad4fef",
+      "size_bytes": 5544453,
+      "source_url": "https://github.com/ultralytics/assets/releases/download/v8.4.0/yolo26n.pt"
+    }
+  ],
+  "name": "t1_yoloe26s_base_assets",
+  "schema_version": "eovrt.weight-manifest.v1"
+}

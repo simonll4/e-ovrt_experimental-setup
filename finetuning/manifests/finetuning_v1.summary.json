@@ -1,0 +1,78 @@
+{
+  "audit_report_sha256": "a6a1bc0fa83cfcc4eff8266ab5bb6ffd228134dae44058cfb17ad7b41064e4f4",
+  "bench_v3_sha256": "4557024ecc4ee497ab1fad01d6819206395c10fd794010ed8c1d9198b19a4462",
+  "candidate_images": 4210,
+  "decision": "D-FT-11",
+  "deduplication": {
+    "deduplicated_ppe_lineage": 700
+  },
+  "excluded_images": 781,
+  "exclusions": {
+    "bench_perceptual_component": 56,
+    "bench_source_lineage": 25,
+    "deduplicated_ppe_lineage": 700
+  },
+  "gates": {
+    "bench_overlap_selected": 0,
+    "bench_rows_in_manifest": 0,
+    "shared_components_train_val": 0,
+    "val_all_canonical_classes": true
+  },
+  "inventory_sha256": "0baf47938ff50ea8f916935c2903c166c071dad8c362833806b817e576fb2839",
+  "name": "finetuning_v1",
+  "ppe_representative_policy": "one image per refined visual lineage; highest canonical annotation count, then source split train-val-test, then path",
+  "schema_version": "eovrt.finetuning-summary.v1",
+  "seed": 42,
+  "selected_class_instances": {
+    "bare_head": 2308,
+    "helmet": 4026,
+    "person": 10324,
+    "vest": 4168
+  },
+  "selected_images": 3429,
+  "sources": {
+    "construction_site_safety": {
+      "license_spdx": "CC-BY-4.0",
+      "source_url": "https://universe.roboflow.com/roboflow-universe-projects/construction-site-safety",
+      "source_version": "27"
+    },
+    "ppe_siabar": {
+      "license_spdx": "CC-BY-4.0",
+      "source_url": "https://universe.roboflow.com/siabar/ppe-plsuk",
+      "source_version": "1"
+    }
+  },
+  "split_manifest_sha256": "46ad275ba0da51bc2167a385dcf3d4c88ea6cc2c94f5e9ab82eb8ec8b87383c3",
+  "splits": {
+    "train": {
+      "class_instances": {
+        "bare_head": 1900,
+        "helmet": 3267,
+        "person": 8495,
+        "vest": 3384
+      },
+      "datasets": {
+        "construction_site_safety": 2203,
+        "ppe_siabar": 743
+      },
+      "groups": 1008,
+      "images": 2946
+    },
+    "val": {
+      "class_instances": {
+        "bare_head": 408,
+        "helmet": 759,
+        "person": 1829,
+        "vest": 784
+      },
+      "datasets": {
+        "construction_site_safety": 375,
+        "ppe_siabar": 108
+      },
+      "groups": 178,
+      "images": 483
+    }
+  },
+  "target_val_group_ratio": 0.15,
+  "test_contract": "bench_v3 external final evaluation only; absent from this manifest"
+}

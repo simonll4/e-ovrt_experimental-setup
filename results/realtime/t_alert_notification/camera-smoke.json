@@ -1,0 +1,8 @@
+{
+  "cause": "hardware_source_not_connected",
+  "included_in_primary_aggregate": false,
+  "interpretation": "No aporta evidencia positiva ni negativa del sistema.",
+  "schema_version": "talert_notification_camera_smoke.v1",
+  "source_connected": false,
+  "status": "not_executed"
+}

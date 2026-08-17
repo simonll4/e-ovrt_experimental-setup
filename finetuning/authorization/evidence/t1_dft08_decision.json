@@ -1,0 +1,51 @@
+{
+  "consequences_at_signature": [
+    "T-FT-005 pasa a done",
+    "T-FT-031 pasa a ready y se cerro la misma jornada",
+    "D-FT-13 (derogacion de la sonda machinery solo para T1) queda con premisa valida",
+    "La retencion exigible por D-FT-12 es in-domain, NO open-vocabulary generalista"
+  ],
+  "contract": {
+    "asserts_open_vocabulary_retention": false,
+    "canonical_ids_in_order": [
+      "person",
+      "helmet",
+      "vest",
+      "bare_head"
+    ],
+    "checkpoint_names_in_order": [
+      "person",
+      "helmet",
+      "vest",
+      "bare head"
+    ],
+    "media_plane_rejects_any_id_name_or_order_difference": true,
+    "set_classes_allowed_on_tuned_checkpoint": false,
+    "vocabulary_is_fixed_and_ordered": true
+  },
+  "decision": {
+    "approved_at": "2026-08-15",
+    "approved_by": "usuario (autor del proyecto)",
+    "approved_without_modifications": true,
+    "id": "D-FT-08",
+    "status": "aprobada",
+    "title": "Contrato de serving T1 - vocabulario fijo y ordenado"
+  },
+  "enforcement": {
+    "note": "La firma habilito implementar el enforcement en el schema de config del media-plane: cualquier fixed_vocabulary distinto del canonico v2 se rechaza ANTES de llegar al adapter.",
+    "repository": "e-ovrt_media-plane",
+    "repository_relative_path": "src/eovrt_media/config/schemas.py",
+    "sha256": "d026cdc39620c8234343ad69aabf7c890429b8269127e88dbc50050c4094d0e5",
+    "symbol": "CANONICAL_V2_FIXED_VOCABULARY",
+    "tests": "5 casos de mutacion (reordenado/subset/id no canonico/text no exacto/superset); suite completa 665 passed, Ruff limpio"
+  },
+  "gate": "fixed_vocabulary_decision_approved",
+  "provenance": {
+    "adr": "ADR-017 (serie del proyecto, 3 digitos)",
+    "closure_record": "docs/operacion/120-cierre-t031-t032-baseline-26s.md",
+    "decision_record": "docs/operacion/117-decisiones-y-tareas-finetuning.md (tabla de decisiones, fila D-FT-08)",
+    "signature_record": "docs/operacion/119-relevamiento-post-codex-y-cierre-de-brechas.md seccion 8"
+  },
+  "schema_version": "eovrt.t1-dft08-decision-record.v1",
+  "task_id": "T-FT-005"
+}

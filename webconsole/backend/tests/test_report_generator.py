@@ -11,7 +11,12 @@ import json
 
 import yaml
 
-from eovrt_webconsole.experiment.report import generate_report, render_markdown, write_report
+from eovrt_webconsole.experiment.report import (
+    DISTRIBUTION_WALL_CLOCK_DBE_ONLY,
+    generate_report,
+    render_markdown,
+    write_report,
+)
 
 
 def _write_json(path, data):
@@ -298,10 +303,11 @@ def test_distribution_metric_computed_desde_latencia_live(tmp_path):
 
 
 def test_distribution_metric_not_interpretable_solo_wall_clock_dbe(tmp_path):
-    """Replay DBE puro: la unica latencia disponible es reloj de pared de un
-    reproceso, no la latencia real del tramo (92b SS8) -- mismo tratamiento que
-    t_capture->alert con reloj de medio (dbe_media_time): not_interpretable, no
-    computed con un caveat escondido."""
+    """Replay DBE con `mode='dry_run'`: la causa es canal no operativo.
+
+    La causa `distribution_wall_clock_dbe_only` ya no aplica si el canal no fue
+    `live`.
+    """
     consolidated_dir = _build_video_experiment(tmp_path)
     _write_json(
         consolidated_dir / "distribution" / "distribution_summary.json",
@@ -321,9 +327,78 @@ def test_distribution_metric_not_interpretable_solo_wall_clock_dbe(tmp_path):
     resultados_by_name = {m["name"]: m for m in report["resultados"]}
 
     t_notif = resultados_by_name["t_alert-notification"]
+    assert t_notif["status"] == "applicable_not_computed"
+    assert t_notif["cause"] == "canal en dry_run: la latencia no atraviesa un broker MQTT real; " \
+        "la metrica operativa exige channel.mode=live (92b SS8)"
+    assert t_notif["value"] is None
+
+
+def test_distribution_metric_not_interpretable_canal_live_solo_wall_clock_dbe(tmp_path):
+    """Canal MQTT live real, pero la latencia agregada SOLO tiene base
+    `wall_clock_dbe` (reproceso DBE publicado contra un broker de verdad): no es
+    la latencia operativa, y tampoco es un caveat escondido detras de un numero
+    -> `not_interpretable`.
+
+    Es la unica combinacion que alcanza la rama
+    `DISTRIBUTION_WALL_CLOCK_DBE_ONLY`: con `mode != live` el guard de dry_run
+    corta antes, asi que sin `mode: live` esta rama queda muerta y sin cubrir.
+    """
+    consolidated_dir = _build_video_experiment(tmp_path)
+    _write_json(
+        consolidated_dir / "distribution" / "distribution_summary.json",
+        {
+            "schema_version": "control.distribution_summary.v1",
+            "channel": "mqtt",
+            "mode": "live",
+            "counts": {"delivered": 23, "suppressed_cooldown": 170},
+            "skipped_invalid_alerts": 0,
+            "talert_notification_ms": {
+                "wall_clock_dbe": {"count": 23, "min": 0.02, "mean": 0.03, "p95": 0.05},
+            },
+        },
+    )
+
+    report = generate_report(consolidated_dir)
+    resultados_by_name = {m["name"]: m for m in report["resultados"]}
+
+    t_notif = resultados_by_name["t_alert-notification"]
     assert t_notif["status"] == "not_interpretable"
+    assert t_notif["cause"] == DISTRIBUTION_WALL_CLOCK_DBE_ONLY
     assert t_notif["cause"] == "distribution_wall_clock_dbe_only"
     assert t_notif["value"] is None
+
+
+def test_distribution_metric_dry_run_channel_never_computed():
+    detail = {
+        "schema_version": "control.distribution_summary.v1",
+        "channel": "mqtt",
+        "mode": "dry_run",
+        "counts": {"delivered": 3},
+        "talert_notification_ms": {"live": {"count": 3, "min": 1.0, "mean": 2.0, "p95": 7.8}},
+    }
+    from eovrt_webconsole.experiment.report import _distribution_metric
+
+    metric = _distribution_metric(detail)
+
+    assert metric.status == "applicable_not_computed"
+    assert metric.cause == (
+        "canal en dry_run: la latencia no atraviesa un broker MQTT real; "
+        "la metrica operativa exige channel.mode=live (92b SS8)"
+    )
+    assert metric.value is None
+
+
+def test_distribution_metric_live_channel_still_computed():
+    detail = {
+        "schema_version": "control.distribution_summary.v1",
+        "mode": "live",
+        "counts": {"delivered": 3},
+        "talert_notification_ms": {"live": {"count": 3, "min": 1.0, "mean": 2.0, "p95": 7.8}},
+    }
+    from eovrt_webconsole.experiment.report import _distribution_metric
+
+    metric = _distribution_metric(detail)
+    assert metric.status == "computed"
 
 
 def test_distribution_outcomes_by_alert_toma_ultimo_por_alert_id(tmp_path):
@@ -555,6 +630,28 @@ def test_re_alerts_toma_el_conteo_del_summary_de_control_si_esta(tmp_path):
     assert re_alerts["value"] == 2.0
 
 
+def test_re_alerts_toma_el_conteo_de_la_evaluacion_temporal_dedicada(tmp_path):
+    consolidated_dir = _build_video_experiment(tmp_path)
+    _write_json(
+        consolidated_dir / "control" / "temporal_evaluation.json",
+        {
+            "schema_version": "control.eval.temporal.v1",
+            "scenario_id": "clip_0007",
+            "re_alerts_count": 3,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0,
+            "applicability_state": "computed",
+        },
+    )
+
+    report = generate_report(consolidated_dir)
+    re_alerts = next(m for m in report["resultados"] if m["name"] == "re_alerts")
+
+    assert re_alerts["status"] == "computed"
+    assert re_alerts["value"] == 3.0
+
+
 def test_re_alerts_no_temporal_source_cuando_source_clock_none(tmp_path):
     # source_clock: none (imagenes) -- re_alerts es metrica de patron/temporal
     # (spec 40 SS5.2.3.3): su causa de no-aplicabilidad debe ser
@@ -600,6 +697,148 @@ def test_sdr_ttfd_computed_desde_temporal_evaluation_json(tmp_path):
     ttfd = resultados_by_name["TTFD"]
     assert ttfd["status"] == "computed"
     assert ttfd["value"] == 1.2  # avg_ttfd_ms/1000, NO la latencia de alerta (2.5)
+
+
+def test_t_alert_system_y_clasificacion_se_proyectan_desde_evaluacion_temporal(tmp_path):
+    consolidated_dir = _build_video_experiment(tmp_path)
+    _write_json(
+        consolidated_dir / "control" / "temporal_evaluation.json",
+        {
+            "schema_version": "control.eval.temporal.v1",
+            "scenario_id": "clip_0007",
+            "matched_alerts_count": 2,
+            "precision": 0.9,
+            "recall": 0.75,
+            "f1": 0.81,
+            "avg_latency_ms_from_episode_start": 2500.0,
+            "applicability_state": "computed",
+            "applicability_cause": None,
+        },
+    )
+
+    report = generate_report(consolidated_dir)
+    resultados_by_name = {m["name"]: m for m in report["resultados"]}
+
+    assert resultados_by_name["t_alert-system"] == {
+        "name": "t_alert-system",
+        "value": 2.5,
+        "unit": "s",
+        "status": "computed",
+        "cause": None,
+    }
+    assert resultados_by_name["precision_alertas"]["value"] == 0.9
+    assert resultados_by_name["recall_alertas"]["value"] == 0.75
+    assert resultados_by_name["F1_alertas"]["value"] == 0.81
+    for name in ("precision_alertas", "recall_alertas", "F1_alertas"):
+        assert resultados_by_name[name]["status"] == "computed"
+
+
+def test_metricas_temporales_honran_no_aplicabilidad_del_evaluador(tmp_path):
+    consolidated_dir = _build_video_experiment(tmp_path)
+    _write_json(
+        consolidated_dir / "control" / "temporal_evaluation.json",
+        {
+            "schema_version": "control.eval.temporal.v1",
+            "scenario_id": "clip_negativo",
+            "matched_alerts_count": 0,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "avg_latency_ms_from_episode_start": None,
+            "applicability_state": "not_applicable",
+            "applicability_cause": "negative_clip_no_episodes",
+        },
+    )
+
+    report = generate_report(consolidated_dir)
+    resultados_by_name = {m["name"]: m for m in report["resultados"]}
+
+    for name in ("t_alert-system", "precision_alertas", "recall_alertas", "F1_alertas"):
+        assert resultados_by_name[name]["status"] == "not_applicable"
+        assert resultados_by_name[name]["value"] is None
+        assert resultados_by_name[name]["cause"] == "negative_clip_no_episodes"
+
+
+def test_t_alert_system_sin_matches_es_aplicable_no_computado(tmp_path):
+    consolidated_dir = _build_video_experiment(tmp_path)
+    _write_json(
+        consolidated_dir / "control" / "temporal_evaluation.json",
+        {
+            "schema_version": "control.eval.temporal.v1",
+            "scenario_id": "clip_sin_match",
+            "matched_alerts_count": 0,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "avg_latency_ms_from_episode_start": None,
+            "applicability_state": "computed",
+            "applicability_cause": None,
+        },
+    )
+
+    report = generate_report(consolidated_dir)
+    metric = next(m for m in report["resultados"] if m["name"] == "t_alert-system")
+
+    assert metric["status"] == "applicable_not_computed"
+    assert metric["value"] is None
+    assert metric["cause"] == "no_matched_alerts"
+
+
+def test_percepcion_consume_el_contrato_canonico_del_media_plane(tmp_path):
+    consolidated_dir = _build_images_experiment(tmp_path)
+    _write_json(
+        consolidated_dir / "media" / "eval_perception.json",
+        {
+            "type": "perception",
+            "run_id": "media-run-2",
+            "benchmark": "construction_site_safety_bench",
+            "iou_threshold": 0.5,
+            "mAP50": 0.7,
+            "per_class": [
+                {"class_name": "person", "AP50": 0.8, "n_gt": 10, "n_det": 11},
+                {"class_name": "helmet", "AP50": 0.6, "n_gt": 5, "n_det": 6},
+            ],
+            "cr01_detection_recall": 0.75,
+            "evaluated_at": "2026-08-13T00:00:00Z",
+        },
+    )
+
+    report = generate_report(consolidated_dir)
+    resultados_by_name = {m["name"]: m for m in report["resultados"]}
+
+    assert resultados_by_name["mAP"]["value"] == 0.7
+    assert resultados_by_name["AP person"]["value"] == 0.8
+    assert resultados_by_name["AP helmet"]["value"] == 0.6
+    assert resultados_by_name["recall CR-01"]["value"] == 0.75
+    for name in ("mAP", "AP person", "AP helmet", "recall CR-01"):
+        assert resultados_by_name[name]["status"] == "computed"
+
+
+def test_percepcion_antigua_sin_agregado_no_declara_map_computado_nulo(tmp_path):
+    consolidated_dir = _build_images_experiment(tmp_path)
+    _write_json(
+        consolidated_dir / "media" / "eval_perception.json",
+        {
+            "type": "perception",
+            "run_id": "media-run-2",
+            "benchmark": "construction_site_safety_bench",
+            "iou_threshold": 0.5,
+            "per_class": [
+                {"class_name": "person", "AP50": 0.8, "n_gt": 10, "n_det": 11},
+            ],
+            "cr01_detection_recall": 0.75,
+            "evaluated_at": "2026-08-12T00:00:00Z",
+        },
+    )
+
+    report = generate_report(consolidated_dir)
+    resultados_by_name = {m["name"]: m for m in report["resultados"]}
+
+    assert resultados_by_name["mAP"]["status"] == "applicable_not_computed"
+    assert resultados_by_name["mAP"]["value"] is None
+    assert resultados_by_name["mAP"]["cause"] == "evaluation_without_perception_fields"
+    assert resultados_by_name["AP person"]["value"] == 0.8
+    assert resultados_by_name["recall CR-01"]["value"] == 0.75
 
 
 def _write_temporal_eval_v2(consolidated_dir, **overrides):

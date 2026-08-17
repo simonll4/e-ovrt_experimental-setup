@@ -1,0 +1,5 @@
+# Torch/Torchvision/CUDA are fixed by the immutable base image in t1-yoloe.def.
+ultralytics==8.4.86
+clip @ git+https://github.com/ultralytics/CLIP.git@f5e9fc6a896e66309f07747bd607704f6c3d282a
+ftfy==6.3.1
+

@@ -1,0 +1,118 @@
+{
+  "attempt_id": "official-20260813-03",
+  "citable": {
+    "name": "t_alert-notification",
+    "sample_size": 460,
+    "statistic": "p95",
+    "unit": "ms",
+    "value": 64.5341796875
+  },
+  "definition": "puback_wall_ms - ts_publish_ms",
+  "gates": {
+    "all_runs_finished": true,
+    "bus_dropped_events_zero": true,
+    "camera_not_required_for_primary_metric": true,
+    "dead_letters_zero": true,
+    "integrated_video_three_repetitions": true,
+    "invalid_alerts_zero": true,
+    "malformed_events_zero": true,
+    "mqtt_duplicates_zero": true,
+    "mqtt_witness_exact": true,
+    "primary_full_corpus": true
+  },
+  "latency_mode": "live",
+  "measurement_tooling_sha256": "5e0b7bc8229720a886f4d1325a9e08b06c4392816ac947dd5312c162fe159aea",
+  "payload_bytes": {
+    "count": 460,
+    "max": 1835,
+    "mean": 1057.8760869565217,
+    "min": 1022,
+    "p50": 1037,
+    "p95": 1078,
+    "p99": 1374
+  },
+  "primary": {
+    "by_origin": {
+      "dbe": {
+        "count": 447,
+        "max": 119.44287109375,
+        "mean": 42.505947855494966,
+        "min": 27.766357421875,
+        "p50": 41.392578125,
+        "p95": 61.770263671875,
+        "p99": 105.92626953125
+      },
+      "ebe": {
+        "count": 13,
+        "max": 71.8076171875,
+        "mean": 45.03280874399039,
+        "min": 31.467041015625,
+        "p50": 41.475830078125,
+        "p95": 71.8076171875,
+        "p99": 71.8076171875
+      }
+    },
+    "cooldown_rate": 0.44976076555023925,
+    "events": 836,
+    "latency_ms": {
+      "count": 460,
+      "max": 119.44287109375,
+      "mean": 42.57735914147418,
+      "min": 27.766357421875,
+      "p50": 41.433837890625,
+      "p95": 64.5341796875,
+      "p99": 105.92626953125
+    },
+    "mqtt_duplicates": 0,
+    "nonempty_runs": 356,
+    "origins": {
+      "dbe": 400,
+      "ebe": 13
+    },
+    "outcomes": {
+      "delivered": 460,
+      "suppressed_cooldown": 376
+    },
+    "runs": 413,
+    "witness_messages": 460,
+    "witness_unique_ids": 460
+  },
+  "schema_version": "talert_notification_metrics.v1",
+  "scope": "control alert bus to MQTT QoS 1 PUBACK",
+  "status": "accepted",
+  "steady_state": {
+    "first_delivery_per_run": {
+      "count": 356,
+      "max": 76.021728515625,
+      "mean": 39.98492774534761,
+      "min": 27.766357421875,
+      "p50": 40.882568359375,
+      "p95": 49.86865234375,
+      "p99": 65.15087890625
+    },
+    "subsequent_deliveries": {
+      "count": 104,
+      "max": 119.44287109375,
+      "mean": 51.45145122821514,
+      "min": 30.559814453125,
+      "p50": 44.3984375,
+      "p95": 102.025390625,
+      "p99": 116.170166015625
+    }
+  },
+  "supplemental": {
+    "events": 574,
+    "mqtt_duplicates": 0,
+    "nonempty_runs": 440,
+    "origins": {
+      "derived_ebe": 544
+    },
+    "outcomes": {
+      "delivered": 492,
+      "suppressed_cooldown": 82
+    },
+    "runs": 544,
+    "witness_messages": 492,
+    "witness_unique_ids": 492
+  }
+}

@@ -7,6 +7,7 @@ from pathlib import Path
 
 import pytest
 
+from eovrt_webconsole.experiment import runner as runner_module
 from eovrt_webconsole.experiment.manifest import ExperimentManifest
 from eovrt_webconsole.experiment.runner import (
     _default_run_distribution,
@@ -286,17 +287,28 @@ async def test_dbe_consolidation_failure_marks_required_distribution_failed(tmp_
 async def test_subprocess_failure_does_not_expose_child_output(monkeypatch, tmp_path: Path) -> None:
     received_kwargs: dict[str, object] = {}
 
+    class FakeStream:
+        def __init__(self, payload: bytes) -> None:
+            self.payload = payload
+
+        async def read(self, _size: int = -1) -> bytes:
+            payload, self.payload = self.payload, b""
+            return payload
+
     class FailedProcess:
         returncode = 2
+        stdout = FakeStream(b"token=secret-stdout")
+        stderr = FakeStream(b"token=secret-stderr password=hunter2")
 
-        async def communicate(self):
-            return b"token=secret-stdout", b"password=secret-stderr"
+        async def wait(self):
+            return self.returncode
 
     async def create_subprocess_exec(*args, **kwargs):
         received_kwargs.update(kwargs)
         return FailedProcess()
 
     monkeypatch.setattr(asyncio, "create_subprocess_exec", create_subprocess_exec)
+    monkeypatch.setenv("EOVRT_MQTT_PASSWORD", "hunter2")
 
     with pytest.raises(RuntimeError) as exc_info:
         await _default_run_distribution(
@@ -309,9 +321,104 @@ async def test_subprocess_failure_does_not_expose_child_output(monkeypatch, tmp_
 
     message = str(exc_info.value)
     assert "secret-stdout" not in message
-    assert "secret-stderr" not in message
-    assert "salida omitida" in message
-    assert received_kwargs["stderr"] is asyncio.subprocess.DEVNULL
+    assert "hunter2" not in message
+    assert "stderr.log" in message
+    assert (tmp_path / "distribution" / "stderr.log").is_file()
+    assert (tmp_path / "distribution" / "stderr.log").read_text() == "token=secret-stderr password=***"
+    assert received_kwargs["stderr"] is asyncio.subprocess.PIPE
+
+
+def _fake_distribute(tmp_path: Path, body: str) -> Path:
+    """Ejecutable real (no un doble en memoria) para ejercer el pipe de verdad."""
+    fake = tmp_path / "eovrt-distribute-fake"
+    fake.write_text(f"#!/bin/sh\n{body}\n", encoding="utf-8")
+    fake.chmod(0o755)
+    return fake
+
+
+async def test_subprocess_real_failure_persists_redacted_stderr(
+    monkeypatch, tmp_path: Path
+) -> None:
+    """Mismo contrato que el test con doble, pero con un subprocesso REAL: el
+    drenaje concurrente del pipe y la resolucion del binario por
+    EOVRT_DISTRIBUTION_EXECUTABLE se ejercitan de punta a punta.
+    """
+    fake = _fake_distribute(
+        tmp_path,
+        'echo "boom secreto=$EOVRT_MQTT_PASSWORD user=$EOVRT_MQTT_USERNAME" 1>&2\nexit 3',
+    )
+    monkeypatch.setenv("EOVRT_DISTRIBUTION_EXECUTABLE", str(fake))
+    monkeypatch.setenv("EOVRT_MQTT_PASSWORD", "hunter2")
+    monkeypatch.setenv("EOVRT_MQTT_USERNAME", "operario-obra")
+
+    out_dir = tmp_path / "distribution"
+    with pytest.raises(RuntimeError) as exc_info:
+        await _default_run_distribution(
+            mode="replay",
+            alerts_path=tmp_path / "alerts.jsonl",
+            out_dir=out_dir,
+            config_path=None,
+            endpoint=None,
+            timeout_s=20.0,
+        )
+
+    stderr_log = out_dir / "stderr.log"
+    assert stderr_log.is_file()
+    log = stderr_log.read_text(encoding="utf-8")
+    assert "boom" in log
+    assert "hunter2" not in log
+    assert "operario-obra" not in log
+    assert "***" in log
+
+    message = str(exc_info.value)
+    assert "hunter2" not in message
+    assert "operario-obra" not in message
+    assert "stderr.log" in message
+    assert "distribution exit 3" in message
+
+
+async def test_subprocess_real_flood_does_not_deadlock_and_log_stays_capped(
+    monkeypatch, tmp_path: Path
+) -> None:
+    """El hijo escribe MAS de 1 MiB a stderr: sin drenaje concurrente el pipe se
+    llena y el proceso queda colgado. Ademas el log persistido queda acotado a
+    _DISTRIBUTION_STDERR_LOG_MAX_BYTES (se conserva la cola).
+    """
+    limit = runner_module._DISTRIBUTION_STDERR_LOG_MAX_BYTES
+    fake = _fake_distribute(
+        tmp_path,
+        f'yes "ruido-de-diagnostico-del-distribuidor" | head -c {limit * 3} 1>&2\n'
+        'echo "ULTIMA-LINEA-DIAGNOSTICO" 1>&2\n'
+        "exit 4",
+    )
+    monkeypatch.setenv("EOVRT_DISTRIBUTION_EXECUTABLE", str(fake))
+    # sin secretos en el entorno la redaccion es identidad: el tamano del log es
+    # exactamente el cap, y la asercion no puede pasar de forma vacua.
+    monkeypatch.delenv("EOVRT_MQTT_PASSWORD", raising=False)
+    monkeypatch.delenv("EOVRT_MQTT_USERNAME", raising=False)
+
+    out_dir = tmp_path / "distribution"
+    with pytest.raises(RuntimeError) as exc_info:
+        await asyncio.wait_for(
+            _default_run_distribution(
+                mode="replay",
+                alerts_path=tmp_path / "alerts.jsonl",
+                out_dir=out_dir,
+                config_path=None,
+                endpoint=None,
+                timeout_s=30.0,
+            ),
+            timeout=45.0,
+        )
+
+    stderr_log = out_dir / "stderr.log"
+    size = stderr_log.stat().st_size
+    # el hijo escribio 3x el cap: el log quedo acotado exactamente en el cap
+    # (si el flood no hubiera ocurrido, el tamano seria menor y esto fallaria)
+    assert size == limit
+    # se conserva la COLA, no la cabeza: lo ultimo que dijo el hijo es lo que sirve
+    assert stderr_log.read_text(encoding="utf-8").endswith("ULTIMA-LINEA-DIAGNOSTICO\n")
+    assert "distribution exit 4" in str(exc_info.value)
 
 
 async def test_default_distribution_replay_runs_the_sibling_service(tmp_path: Path) -> None:
@@ -436,3 +543,55 @@ async def test_replay_runner_generates_report_with_real_distribution_outcomes(
     report = json.loads(Path(result.report_path).read_text(encoding="utf-8"))
     assert report["distribucion"]["counts"] == {"delivered": 1}
     assert report["distribucion_por_alerta"]["alert-smoke-1"]["outcome"] == "delivered"
+
+
+async def test_replay_distribution_calls_consolidate_once(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    """Regresión: evitar doble consolidate + write-report para replay con distribución."""
+    calls = {"count": 0}
+    original_consolidate = runner_module._consolidate_runs
+
+    def tracking_consolidate(*args, **kwargs):
+        calls["count"] += 1
+        return original_consolidate(*args, **kwargs)
+
+    monkeypatch.setattr(runner_module, "_consolidate_runs", tracking_consolidate)
+
+    async def run_distribution(
+        *, out_dir: Path, **_: object
+    ) -> dict:
+        out_dir.mkdir(parents=True, exist_ok=True)
+        summary = _valid_summary()
+        (out_dir / "distribution_summary.json").write_text(
+            json.dumps(summary), encoding="utf-8"
+        )
+        return summary
+
+    manifest_payload = _replay_manifest().model_dump(mode="json")
+    manifest = ExperimentManifest.model_validate(manifest_payload)
+
+    media_dir = tmp_path / "media-1"
+    control_dir = tmp_path / "control-1"
+    media_dir.mkdir(parents=True)
+    control_dir.mkdir(parents=True)
+    (media_dir / "summary.json").write_text(json.dumps({"run_id": "media-1"}), encoding="utf-8")
+    (control_dir / "summary.json").write_text(
+        json.dumps({"control_run_id": "control-1"}), encoding="utf-8"
+    )
+    (control_dir / "alerts.jsonl").write_text(json.dumps({}), encoding="utf-8")
+
+    result = await run_experiment(
+        manifest,
+        media_backend=_MediaSucceeded(),
+        control_backend=_ControlSucceeded(),
+        now=NOW,
+        load_config=_load_config,
+        run_distribution=run_distribution,
+        resolve_run_dir=lambda plane, _run_id: media_dir if plane == "media" else control_dir,
+        dest_root=tmp_path / "runs",
+    )
+
+    assert result.ok is True
+    assert calls["count"] == 1

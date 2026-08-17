@@ -34,6 +34,7 @@ from eovrt_webconsole.experiment.manifest import ExperimentManifest, generate_ex
 from eovrt_webconsole.experiment.report import write_report
 
 logger = logging.getLogger(__name__)
+_DISTRIBUTION_STDERR_LOG_MAX_BYTES = 1_048_576
 
 # Estados terminales de un run en cualquiera de los dos planos. "stopped" es
 # el resultado real y distinto de un stop manual explicito (boton "Detener"
@@ -102,18 +103,27 @@ def _default_load_config(config_path: str) -> dict:
     return yaml.safe_load(Path(config_path).read_text(encoding="utf-8"))
 
 
-def _default_distribution_executable() -> str:
+def resolve_distribution_executable() -> str:
     """Resuelve el binario de distribución por orden de preferencia."""
     configured = os.environ.get("EOVRT_DISTRIBUTION_EXECUTABLE")
     if configured:
-        return configured
+        candidate = Path(configured)
+        if not candidate.is_file():
+            raise FileNotFoundError(
+                "el binario indicado por EOVRT_DISTRIBUTION_EXECUTABLE no existe: "
+                f"{configured}"
+            )
+        return str(candidate)
     path = shutil.which("eovrt-distribute")
     if path:
         return path
     fallback = _repo_root().parent / "e-ovrt_alert-distribution" / ".venv" / "bin" / "eovrt-distribute"
     if fallback.is_file():
         return str(fallback)
-    return "eovrt-distribute"
+    raise FileNotFoundError(
+        "No se encontró eovrt-distribute. Configure EOVRT_DISTRIBUTION_EXECUTABLE o "
+        "instale el binario en PATH / e-ovrt_alert-distribution/.venv/bin"
+    )
 
 
 def _repo_root() -> Path:
@@ -384,6 +394,29 @@ def _parse_distribution_summary(raw_stdout: str) -> dict:
     raise ValueError("salida de distribucion invalida: no es JSON de objeto")
 
 
+def _redact(text: str) -> str:
+    for var in ("EOVRT_MQTT_PASSWORD", "EOVRT_MQTT_USERNAME"):
+        value = os.environ.get(var)
+        if value:
+            text = text.replace(value, "***")
+    return text
+
+
+async def _drain_tail(stream: asyncio.StreamReader, limit: int) -> bytes:
+    """Drena un pipe sin bloquear al hijo y conserva sólo el último tramo."""
+    tail = bytearray()
+    while chunk := await stream.read(64 * 1024):
+        tail.extend(chunk)
+        overflow = len(tail) - limit
+        if overflow > 0:
+            del tail[:overflow]
+    return bytes(tail)
+
+
+def _tail_lines(text: str, max_lines: int = 10) -> str:
+    return "\n".join(text.rstrip("\n").splitlines()[-max_lines:])
+
+
 async def _default_run_distribution(
     *,
     mode: str,
@@ -405,7 +438,7 @@ async def _default_run_distribution(
     if mode == "live" and not endpoint:
         raise ValueError("distribucion en live sin endpoint")
 
-    executable = executable or _default_distribution_executable()
+    executable = executable or resolve_distribution_executable()
     out_dir.mkdir(parents=True, exist_ok=True)
     cmd = [
         executable,
@@ -427,23 +460,40 @@ async def _default_run_distribution(
         cmd.extend(["--config", config_path])
 
     process = await asyncio.create_subprocess_exec(
-        *cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.DEVNULL
+        *cmd,
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.PIPE,
+    )
+    stderr_path = out_dir / "stderr.log"
+    assert process.stdout is not None
+    assert process.stderr is not None
+    stdout_task = asyncio.create_task(process.stdout.read())
+    stderr_task = asyncio.create_task(
+        _drain_tail(process.stderr, _DISTRIBUTION_STDERR_LOG_MAX_BYTES)
     )
     try:
-        stdout, _stderr = await asyncio.wait_for(process.communicate(), timeout=timeout_s)
+        await asyncio.wait_for(process.wait(), timeout=timeout_s)
     except TimeoutError:
         await _terminate_process(process)
+        stdout, stderr = await asyncio.gather(stdout_task, stderr_task)
+        stderr_path.write_text(_redact(stderr.decode(errors="replace")), encoding="utf-8")
         logger.warning(
             "distribution %s timeout (%ss) con cmd=%s", mode, timeout_s, cmd[0]
         )
         raise
     except asyncio.CancelledError:
         await _terminate_process(process)
+        await asyncio.gather(stdout_task, stderr_task, return_exceptions=True)
         raise
+    stdout, stderr = await asyncio.gather(stdout_task, stderr_task)
+    stderr_text = stderr.decode(errors="replace")
+    stderr_text = _redact(stderr_text)
+    stderr_path.write_text(stderr_text, encoding="utf-8")
     if process.returncode != 0:
+        tail = _tail_lines(stderr_text, max_lines=10)
         raise RuntimeError(
-            f"distribution exit {process.returncode} (mode={mode}); "
-            "salida omitida para no exponer configuracion sensible"
+            f"distribution exit {process.returncode}; stderr log en {stderr_path.name}; "
+            f"ultimas lineas: {tail}"
         )
     return _parse_distribution_summary((stdout or b"").decode(errors="replace"))
 
@@ -557,14 +607,20 @@ def _write_report_if_possible(
     resolve_run_dir: ResolveRunDir,
     dest_root: Path,
     evaluate_temporal: EvaluateTemporal,
+    already_consolidated: bool = False,
 ) -> ExperimentResult:
     try:
-        consolidated_dir = _consolidate_runs(
-            result,
-            resolve_run_dir=resolve_run_dir,
-            dest_root=dest_root,
-            manifest_effective=manifest_effective,
-        )
+        if already_consolidated:
+            if not result.consolidated_dir:
+                raise RuntimeError("resultado no tiene ruta de consolidado")
+            consolidated_dir = Path(result.consolidated_dir)
+        else:
+            consolidated_dir = _consolidate_runs(
+                result,
+                resolve_run_dir=resolve_run_dir,
+                dest_root=dest_root,
+                manifest_effective=manifest_effective,
+            )
         media_run_dir = resolve_run_dir("media", result.media_run_id)
         ground_truth = manifest_effective.get("ground_truth")
         if ground_truth:
@@ -756,6 +812,7 @@ async def run_experiment(
         resolve_run_dir=resolver,
         dest_root=resolved_dest_root,
         evaluate_temporal=evaluate_temporal or _default_evaluate_temporal,
+        already_consolidated=True,
     )
 
 

@@ -1,0 +1,28 @@
+{
+  "checkpoint": {
+    "path": "finetuning/weights/finetuned/smoke-1166583/weights/best.pt",
+    "sha256": "22fc034b797eace9cca35b936984dab66a59e92f246dd64e6f985fc0134cf68a"
+  },
+  "date": "2026-08-15",
+  "driver_note": "driver efimero en scratchpad de sesion; la mecanica queda cubierta por el comando congelado evaluate_t1_bench_v3.py y sus tests sinteticos",
+  "purpose": "ejercicio mecanico E2E del serving fixed-vocabulary via POST /api/runs (NO citable)",
+  "run": {
+    "detections_note": "0 detecciones es lo esperado del checkpoint smoke (1 epoca al 5%, no cientifico); la validacion es mecanica: run E2E + detections.jsonl parseable por el evaluador congelado (load_detections -> 8 claves)",
+    "detections_total": 0,
+    "device": "cpu",
+    "images_expected": 8,
+    "images_processed": 8,
+    "run_id": "run_20260815_193622_dbe_yoloe_e31020",
+    "units_dropped": 0,
+    "units_failed": 0,
+    "units_processed": 8
+  },
+  "schema_version": "eovrt.t1-smoke-e2e-run.v1",
+  "task_id": "T-FT-031",
+  "validations": [
+    "startup del servicio con EOVRT_MODEL_REF de catalogo fixed-vocabulary (canonico v2)",
+    "run image_folder completo con status succeeded",
+    "detections.jsonl parseado por evaluate_bench.load_detections del repo datasets (hash congelado en el protocolo)",
+    "cobertura del mini-run 8/8 (claves presentes aun con 0 detecciones)"
+  ]
+}

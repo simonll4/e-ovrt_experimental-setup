@@ -1,12 +1,18 @@
 schema_version: clip_campaign.v1
 campaign_id: na1_gdinotiny560_v2short_video
-date: '2026-08-07'
+date: '2026-08-09'   # ✎ era 2026-08-07; la composición y la puntuación vigentes son
+                     # las del bloque `updates:` (gen. 3 = 17 clips, y la
+                     # RE-PUNTUACIÓN tras la revisión ciega del GT, doc 113 §B)
 phase: NA
 level: A
 description: >
   Nivel A (estado por persona) sobre VIDEO — la primera del proyecto. Consolida en una
-  sola campaña los 8 clips de video con GT humano frame a frame: los 4 del estrato B
+  sola campaña los clips de video con GT humano frame a frame: los del estrato B
   (lote de internet) y los 4 del piloto del 2026-07-18 recuperados de CVAT.
+  ✎ **Composición VIGENTE: 17 clips** (13 del estrato B + 4 del piloto). El texto de
+  abajo describe el arranque con 8; el detalle por clip está en `metrics.json/por_clip`
+  y la procedencia por corrida en `provenance.json` (regenerado 2026-08-09 con
+  `docs/operacion/datos/113-regenerar-provenance-estrato-b.py`).
 
   Por qué existe: los 4 clips piloto tienen todos sus episodios CENSURADOS por el gate
   A1 (12 s de duración), así que a Nivel B no producen recall. Pero Nivel A **no

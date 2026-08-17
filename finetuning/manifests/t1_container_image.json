@@ -1,0 +1,27 @@
+{
+  "base_image": {
+    "digest": "sha256:77f17f843507062875ce8be2a6f76aa6aa3df7f9ef1e31d9d7432f4b0f563dee",
+    "name": "docker.io/pytorch/pytorch:2.6.0-cuda12.4-cudnn9-runtime"
+  },
+  "build": {
+    "apptainer": "1.5.3-3.el8",
+    "location": "Mendieta login node",
+    "reason": "compute nodes cannot reliably reach external OCI registries"
+  },
+  "image": {
+    "filename": "eovrt-t1-yoloe.sif",
+    "sha256": "958cabd60f4daadd886944e682b2679bda87dea7e7d89fc1eb266854599f1cc1",
+    "size_bytes": 3546914816
+  },
+  "recipe": {
+    "definition_sha256": "0f5d0a6402ba80cdf46eea6864148085ced44d54943bdc07675efa8fc88d3430",
+    "requirements_sha256": "6ab4bc9705f5b50b11b680b37405650ff6bd9eef0ae224e3a1288ab245bb1d44"
+  },
+  "runtime": {
+    "python": "3.11.11",
+    "torch": "2.6.0+cu124",
+    "torch_cuda": "12.4",
+    "ultralytics": "8.4.86"
+  },
+  "schema_version": "eovrt.container-manifest.v1"
+}

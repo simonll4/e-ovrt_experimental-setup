@@ -1,0 +1,31 @@
+# Entorno de desarrollo/tests de e-ovrt_experimental-setup (F-119.1, 2026-08-15)
+#
+# Este repo NO es un paquete instalable: es el dueño de la configuración experimental
+# (prompts/, experiments/), la orquestación (tools/), el fine-tuning (finetuning/) y la
+# webconsole. Por eso no tiene pyproject.toml propio y su entorno se declara acá.
+#
+# POR QUÉ PYTHON 3.11 (y no 3.14 como control-plane/webconsole):
+#   `e-ovrt_alert-distribution` declara `requires-python = ">=3.11,<3.12"`. Su código
+#   importa bien en 3.14, pero el pin es su contrato declarado y no se toca desde otro
+#   repo. 3.11 satisface a los tres hermanos a la vez, así que es el único denominador
+#   común que permite correr la suite completa en UN intérprete.
+#
+# CREAR EL ENTORNO (desde la raíz del repo):
+#   python3.11 -m venv .venv
+#   .venv/bin/pip install -r requirements-dev.txt
+#
+# QUÉ HABILITA (verificado 2026-08-15, los tres desde este único venv):
+#   .venv/bin/python -m pytest tests/                 ->  88 passed
+#   .venv/bin/python -m pytest finetuning/tests/      ->  46 passed
+#   cd webconsole/backend && ../../.venv/bin/python -m pytest  ->  643 passed
+#
+# Los tres hermanos van en editable: la suite ejercita el código vivo de cada plano,
+# no una copia. Asume el layout de repos hermanos en disco (ver CLAUDE.md del workspace).
+
+-e ../e-ovrt_alert-distribution[mqtt]
+-e ../e-ovrt_control-plane
+-e ./webconsole/backend[dev]
+
+# Dependencias directas de la suite que no arrastra ningún hermano
+pytest>=8
+Pillow>=10

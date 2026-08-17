@@ -1,0 +1,32 @@
+{
+  "primary": {
+    "dbe": {
+      "events": 823,
+      "nonempty_runs": 346,
+      "runs": 400
+    },
+    "ebe_non_derived": {
+      "events": 13,
+      "nonempty_runs": 10,
+      "runs": 13
+    },
+    "total": {
+      "events": 836,
+      "nonempty_runs": 356,
+      "runs": 413
+    }
+  },
+  "schema_version": "talert_notification_corpus.v1",
+  "source": "results/evidence-runs/resolved-runs.json",
+  "supplemental_derived_ebe": {
+    "events": 574,
+    "nonempty_runs": 440,
+    "runs": 544
+  },
+  "total": {
+    "events": 1410,
+    "nonempty_runs": 796,
+    "runs": 957
+  },
+  "validated_alert_ids_unique": 1410
+}

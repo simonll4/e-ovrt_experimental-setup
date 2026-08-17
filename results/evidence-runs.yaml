@@ -1,0 +1,438 @@
+schema_version: evidence_runs.v1
+generated_date: 2026-08-13
+
+collections:
+  dbe_datasets: Resultados DBE sobre datasets de imágenes y Nivel A
+  dbe_video: Resultados DBE temporales sobre el banco de clips
+  ebe_realtime: Resultados EBE y mediciones de tiempo real
+  shared: Runs relacionados con más de una colección
+
+source_roots:
+  media-plane:
+    - ../e-ovrt_media-plane/runs
+    - ../e-ovrt_media-plane/.claude/worktrees/pil-roundtrip/runs
+  control-plane:
+    - ../e-ovrt_control-plane/runs
+
+expected_campaigns:
+  - clip_bench/b1_gdinobase560_barehead_scene
+  - clip_bench/d1_gdinotiny560_edirpair_scene
+  - clip_bench/g1_gdinotiny560_v2short_subject
+  - clip_bench/h1_gdinotiny560_hybor_scene
+  - clip_bench/i1_gdinotiny560_v2short_scene_internet
+  - clip_bench/i2_gdinotiny560_v2short_subject_internet
+  - clip_bench/r1_gdinotiny560_v2short_scene_s7
+  - clip_bench/r2_gdinotiny560_v2short_subject_s7
+  - clip_bench/r3_gdinotiny560_v2short_scene_s15
+  - clip_bench/r4_gdinotiny560_v2short_subject_s15
+  - clip_bench/r5_gdinotiny560_v2short_scene_s26
+  - clip_bench/r6_gdinotiny560_v2short_subject_s26
+  - clip_bench/t1_gdinotiny560_v2short_scene
+  - clip_bench/t2_gdinobase560_v2short_scene
+  - bench_nivel_a/d1_gdinotiny560_edir_vs_eind
+  - bench_nivel_a/na1_gdinotiny560_v2short_video
+
+structured_sources:
+  - id: bench31_modelos_crudos
+    path: ../docs/operacion/datos/31-benchmark-modelos-host-local.datos.json
+    selectors:
+      - "*.bench.run_id"
+    expected_count: 6
+    plane: media-plane
+    collection: dbe_datasets
+    result_id: bench_imagenes/modelos_crudos
+    role: benchmark_modelos
+    document: ../docs/operacion/31-benchmark-modelos-host-local.md
+
+  - id: s1_seleccion_modelos
+    path: ../docs/operacion/datos/s1_matrix_results_2026-07-23.jsonl
+    selectors:
+      - "*.run_id"
+    expected_count: 20
+    plane: media-plane
+    collection: dbe_datasets
+    result_id: bench_imagenes/seleccion_s1
+    role: seleccion_modelos
+    document: ../docs/operacion/64-resultados-s1-s2-seleccion-modelos.md
+
+  - id: b5_confirmacion
+    path: ../docs/operacion/datos/b5_rescore_partial_2026-07-23.jsonl
+    selectors:
+      - "*.run_id"
+    expected_count: 6
+    plane: media-plane
+    collection: dbe_datasets
+    result_id: bench_imagenes/confirmacion_b5
+    role: confirmacion_estratos
+    document: ../docs/operacion/64-resultados-s1-s2-seleccion-modelos.md
+
+  - id: gdino560_bench
+    path: ../docs/operacion/datos/bench_v2_gdino560_eval_2026-07-23.json
+    selectors:
+      - "*.run_id"
+    expected_count: 2
+    plane: media-plane
+    collection: dbe_datasets
+    result_id: bench_imagenes/gdino560
+    role: contraste_resolucion
+    document: ../docs/operacion/61-benchmark-realtime-person-2026-07-23.md
+
+  - id: gdino560_realtime
+    path: ../docs/operacion/datos/bench_v2_gdino560_eval_2026-07-23.json
+    selectors:
+      - "*.run_id"
+    expected_count: 2
+    plane: media-plane
+    collection: ebe_realtime
+    result_id: realtime/gdino560
+    role: contraste_resolucion
+    document: ../docs/operacion/61-benchmark-realtime-person-2026-07-23.md
+
+  - id: nivel_a_tiny560
+    path: ../docs/operacion/datos/83-fase-d-nivel-a/runs.json
+    selectors:
+      - "*.run_id"
+    expected_count: 18
+    plane: media-plane
+    collection: dbe_datasets
+    result_id: bench_nivel_a/edir_vs_eind
+    role: nivel_a_primaria
+    document: ../docs/operacion/83-fase-d-nivel-a-edir-vs-eind.md
+
+  - id: nivel_a_base560
+    path: ../docs/operacion/datos/84-fase-d-nivel-a-base560/runs.json
+    selectors:
+      - "*.run_id"
+    expected_count: 18
+    plane: media-plane
+    collection: dbe_datasets
+    result_id: bench_nivel_a/replica_base560
+    role: nivel_a_replica
+    document: ../docs/operacion/84-replica-base560-nivel-a-y-t2.md
+
+  - id: piloto_clase_nueva
+    path: ../docs/operacion/datos/94-piloto-clase-nueva/resultados.json
+    selectors:
+      - runs.clase_nueva_bench_obra_val.run_id
+      - runs.clase_nueva_bench_obra_test.run_id
+      - runs.clase_nueva_mocs_valid.run_id
+      - "runs.vehiculo_aislado.*"
+    expected_count: 5
+    plane: media-plane
+    collection: dbe_datasets
+    result_id: bench_imagenes/clase_nueva
+    role: extensibilidad_y_contraste_negativo
+    document: ../docs/operacion/94-piloto-clase-nueva.md
+
+  - id: matriz_realtime_person
+    path: ../docs/operacion/datos/bench_realtime_person_2026-07-23.jsonl
+    selectors:
+      - "*.run_id"
+    expected_count: 24
+    plane: media-plane
+    collection: ebe_realtime
+    result_id: realtime/matriz_modelo_fuente
+    role: benchmark_realtime
+    document: ../docs/operacion/61-benchmark-realtime-person-2026-07-23.md
+
+  - id: distribucion_descarte_live
+    path: ../docs/operacion/datos/101-descarte-live-distribucion.json
+    selectors:
+      - "por_corrida.*.run_id"
+    expected_count: 76
+    plane: media-plane
+    collection: ebe_realtime
+    result_id: realtime/descarte_irregular
+    role: distribucion_live
+    document: ../docs/operacion/101-blindaje-ebe.md
+
+  - id: controles_decimado_empirico
+    kind: eval_control_runs
+    paths:
+      - ../docs/operacion/datos/101-rt-s7dec
+      - ../docs/operacion/datos/101-rt-s7dec-subject
+      - ../docs/operacion/datos/101-rt-j7
+      - ../docs/operacion/datos/101-rt-j7-subject
+      - ../docs/operacion/datos/101-rt-j7-seed202
+      - ../docs/operacion/datos/101-rt-j7-seed202-subject
+      - ../docs/operacion/datos/101-rt-j7-seed303
+      - ../docs/operacion/datos/101-rt-j7-seed303-subject
+      - ../docs/operacion/datos/101-rt-s12
+      - ../docs/operacion/datos/101-rt-s12-subject
+      - ../docs/operacion/datos/101-rt-j12
+      - ../docs/operacion/datos/101-rt-j12-subject
+      - ../docs/operacion/datos/101-rt-j12-seed202
+      - ../docs/operacion/datos/101-rt-j12-seed202-subject
+      - ../docs/operacion/datos/101-rt-j12-seed303
+      - ../docs/operacion/datos/101-rt-j12-seed303-subject
+    expected_count: 544
+    collection: ebe_realtime
+    result_id: realtime/decimado_empirico
+    role: control_replay_empirico
+    document: ../docs/operacion/101-blindaje-ebe.md
+
+manual_groups:
+  - id: doc37_media_live
+    collection: ebe_realtime
+    result_id: realtime/bus_live_paridad
+    role: media_live_e2e
+    document: ../docs/operacion/37-plan2-bus-y-live-resultados.md
+    plane: media-plane
+    runs:
+      - run_20260710_062654_dbe_mock_757a73
+
+  - id: doc37_controles_live_replay
+    collection: ebe_realtime
+    result_id: realtime/bus_live_paridad
+    role: control_live_y_replay
+    document: ../docs/operacion/37-plan2-bus-y-live-resultados.md
+    plane: control-plane
+    runs:
+      - e2e_live_control
+      - e2e_replay_control
+
+  - id: doc39_g2a
+    collection: ebe_realtime
+    result_id: realtime/g2a_single_host
+    role: instrumentacion_g2a
+    document: ../docs/operacion/39-instrumentacion-g2a-media-plane.md
+    plane: media-plane
+    runs:
+      - run_20260710_144331_dbe_mock_47e4b2
+
+  - id: doc118_talert_notification_integrado
+    collection: ebe_realtime
+    result_id: realtime/t_alert_notification
+    role: validacion_integrada_distribucion
+    document: ../docs/operacion/118-campana-t-alert-notification.md
+    requires_pair: true
+    pairs:
+      - pair_id: repetition_1
+        media_run_id: run_20260813_051703_dbe_grounding_dino_1d5e83
+        control_run_id: control_talert_integrated_a_p1_c08_20260813T051703Z_21e369
+      - pair_id: repetition_2
+        media_run_id: run_20260813_051718_dbe_grounding_dino_5135ac
+        control_run_id: control_talert_integrated_a_p1_c08_20260813T051718Z_362334
+      - pair_id: repetition_3
+        media_run_id: run_20260813_051736_dbe_grounding_dino_6fac85
+        control_run_id: control_talert_integrated_a_p1_c08_20260813T051736Z_200a27
+
+  - id: doc65_l0
+    collection: ebe_realtime
+    result_id: realtime/l0
+    role: ensayo_ebe_1a1
+    document: ../docs/operacion/65-l0-ensayo-ebe-tramo1.md
+    requires_pair: true
+    pairs:
+      - pair_id: l0
+        media_run_id: run_20260723_024636_dbe_grounding_dino_d4b938
+        control_run_id: control_live_cr01_cr02_20260723T024608Z_7e0673
+
+  - id: doc71_rodaje_final
+    collection: ebe_realtime
+    result_id: realtime/rodaje_seis_corridas
+    role: rodaje_ebe_final
+    document: ../docs/operacion/71-relevamiento-rodaje-2026-07-25.md
+    requires_pair: true
+    pairs:
+      - pair_id: gdino_p1
+        media_run_id: run_20260725_201020_dbe_grounding_dino_0ca90e
+        control_run_id: control_ebe_p1_live_20260725T201020Z_8dc1c2
+      - pair_id: gdino_p2
+        media_run_id: run_20260725_201145_dbe_grounding_dino_0eb1fd
+        control_run_id: control_ebe_p2_live_20260725T201145Z_caacb3
+      - pair_id: gdino_p3
+        media_run_id: run_20260725_201247_dbe_grounding_dino_12394a
+        control_run_id: control_ebe_p3_live_20260725T201247Z_c246e1
+      - pair_id: yoloe_p1
+        media_run_id: run_20260725_201820_dbe_yoloe_210d40
+        control_run_id: control_yoloe_p1_live_20260725T201820Z_2a56b5
+      - pair_id: yoloe_p2
+        media_run_id: run_20260725_201916_dbe_yoloe_73535e
+        control_run_id: control_yoloe_p2_live_20260725T201916Z_b5cc5b
+      - pair_id: yoloe_p3
+        media_run_id: run_20260725_202012_dbe_yoloe_e2bfe1
+        control_run_id: control_yoloe_p3_live_20260725T202012Z_fa1c9e
+
+  - id: doc73_frt5
+    collection: ebe_realtime
+    result_id: realtime/frt5_roundtrip_pil
+    role: bloques_ab
+    document: ../docs/operacion/73-diagnostico-fps-realtime-contencion-gil.md
+    plane: media-plane
+    runs:
+      - run_20260727_223425_dbe_grounding_dino_33563c
+      - run_20260727_223648_dbe_grounding_dino_de5768
+      - run_20260727_223921_dbe_grounding_dino_f8820f
+      - run_20260727_224146_dbe_grounding_dino_ec021b
+      - run_20260727_224425_dbe_grounding_dino_421cc5
+      - run_20260727_224650_dbe_grounding_dino_0f76ca
+      - run_20260727_224910_dbe_grounding_dino_b59fe1
+      - run_20260728_001328_dbe_grounding_dino_ea3470
+      - run_20260728_001544_dbe_grounding_dino_0e017f
+      - run_20260728_001757_dbe_grounding_dino_e92a6a
+      - run_20260728_002010_dbe_grounding_dino_e3d553
+      - run_20260728_002223_dbe_grounding_dino_f27649
+      - run_20260728_002440_dbe_grounding_dino_5eb4c0
+      - run_20260728_002653_dbe_grounding_dino_966269
+      - run_20260728_002906_dbe_grounding_dino_86c4e3
+      - run_20260728_003207_dbe_grounding_dino_e60e13
+      - run_20260728_003422_dbe_grounding_dino_d98693
+      - run_20260728_003635_dbe_grounding_dino_0c7eb7
+      - run_20260728_003848_dbe_grounding_dino_c5a2d9
+      - run_20260728_004101_dbe_grounding_dino_a8dda4
+      - run_20260728_004318_dbe_grounding_dino_4afc44
+      - run_20260728_004538_dbe_grounding_dino_fa386c
+      - run_20260728_004753_dbe_grounding_dino_5fd207
+
+  - id: doc91_regresion_y_g1
+    collection: ebe_realtime
+    result_id: realtime/regresion_g1_live
+    role: smoke_ebe_post_cambios
+    document: ../docs/operacion/91-smoke-ebe-live-post-cambios.md
+    requires_pair: true
+    pairs:
+      - pair_id: regresion
+        media_run_id: run_20260805_003533_dbe_grounding_dino_3246e1
+        control_run_id: smoke_ebe_a_20260805T003533Z_1593d8
+      - pair_id: granularidad_sujeto
+        media_run_id: run_20260805_003713_dbe_grounding_dino_70ace4
+        control_run_id: smoke_ebe_b_20260805T003713Z_ff0134
+
+  - id: doc101_claqueta
+    collection: ebe_realtime
+    result_id: realtime/claqueta_reloj_externo
+    role: claqueta_y_guards_negativos
+    document: ../docs/operacion/101-blindaje-ebe.md
+    requires_pair: true
+    pairs:
+      - pair_id: device_crash
+        media_run_id: run_20260805_171426_dbe_grounding_dino_0c2cbe
+        control_run_id: smoke_claqueta_20260805T171426Z_cada33
+      - pair_id: entrada_anticipada
+        media_run_id: run_20260805_172632_dbe_grounding_dino_f4fc5f
+        control_run_id: smoke_claqueta_20260805T172632Z_fd7b16
+      - pair_id: alerta_pre_tono
+        media_run_id: run_20260805_173014_dbe_grounding_dino_376f78
+        control_run_id: smoke_claqueta_20260805T173014Z_843122
+      - pair_id: toma_final
+        media_run_id: run_20260805_173354_dbe_grounding_dino_780a1c
+        control_run_id: smoke_claqueta_20260805T173350Z_b9c64e
+
+archived_only:
+  - id: bench31_modelos_crudos
+    plane: media-plane
+    relation_result_id: bench_imagenes/modelos_crudos
+    substitutes:
+      - ../docs/operacion/datos/31-benchmark-modelos-host-local.datos.json
+    reason: Los seis directorios originales ya no están en el workspace; el JSON crudo versionado conserva el summary y la evaluación completos de cada run.
+
+  - id: t1_controls
+    request_source: campaign:clip_bench/t1_gdinotiny560_v2short_scene
+    substitute_from: matching_eval
+    reason: Los 34 control runs T1 vivían en un scratchpad ausente; cada eval versionado conserva su resultado derivado y el ID original.
+
+  - id: doc37_media
+    plane: media-plane
+    run_id: run_20260710_062654_dbe_mock_757a73
+    substitutes:
+      - ../docs/operacion/datos/37-2026-07-10-live-e2e-media-summary.json
+    reason: El run original ya no está; se conserva el summary operativo versionado.
+
+  - id: doc37_live_control
+    plane: control-plane
+    run_id: e2e_live_control
+    substitutes:
+      - ../docs/operacion/datos/37-2026-07-10-live-e2e-control-summary.json
+      - ../docs/operacion/datos/37-2026-07-10-live-e2e-control-alerts.jsonl
+    reason: El control run original ya no está; se conservan summary y alertas operativas.
+
+  - id: doc37_replay_control
+    plane: control-plane
+    run_id: e2e_replay_control
+    substitutes:
+      - ../docs/operacion/datos/37-2026-07-10-live-e2e-replay-summary.json
+    reason: El replay original ya no está; se conserva el summary byte-comparado.
+
+  - id: doc39_media
+    plane: media-plane
+    run_id: run_20260710_144331_dbe_mock_47e4b2
+    substitutes:
+      - ../docs/operacion/datos/39-2026-07-10-g2a-video-summary.json
+    reason: El run original ya no está; se conserva el summary de instrumentación G2A.
+
+source_dispositions:
+  - id: doc38_servicio_control
+    disposition: methodology_only
+    source: ../docs/operacion/38-servicio-control-plane.md
+    reason: Describe el servicio; no agrega una medición ni un run citado adicional.
+  - id: doc63_auditoria_bench
+    disposition: duplicate_crosscheck
+    source: ../docs/operacion/63-auditoria-bench-v2-s0.md
+    reason: Audita los mismos runs de benchmark ya resueltos por las fuentes 31 y S1.
+  - id: doc64_seleccion
+    disposition: duplicate_crosscheck
+    source: ../docs/operacion/64-resultados-s1-s2-seleccion-modelos.md
+    reason: Sus runs se resuelven desde s1_matrix y b5_rescore.
+  - id: doc66_ampliacion
+    disposition: methodology_only
+    source: ../docs/operacion/66-plan-ampliacion-bench-imagenes.md
+    reason: Define la ampliación; los runs vigentes aparecen en B5, Nivel A y clase nueva.
+  - id: doc68_manual_arranque
+    disposition: methodology_only
+    source: ../docs/operacion/68-manual-arranque-rodaje.md
+    reason: Es una guía operativa y no una fuente de resultados.
+  - id: doc74_higiene
+    disposition: methodology_only
+    source: ../docs/operacion/74-protocolo-higiene-medicion-realtime.md
+    reason: Es el protocolo de medición; F-RT5 se declara por sus 23 bloques exactos.
+  - id: doc96_densidad
+    disposition: duplicate_crosscheck
+    source: ../docs/operacion/96-costo-tiempo-real.md
+    reason: R1-R6 se resuelven como campañas con provenance y controles propios.
+  - id: doc101_derivados
+    disposition: duplicate_crosscheck
+    source: ../docs/operacion/datos/101-decimado-empirico-contraste.json
+    reason: Los derivados usan media runs T1 ya declarados y 544 control runs resueltos desde evals.
+  - id: doc73_exclusiones
+    disposition: excluded
+    source: ../docs/operacion/73-diagnostico-fps-realtime-contencion-gil.md
+    runs:
+      - run_20260727_222424_dbe_grounding_dino_599d5b
+      - run_20260727_225143_dbe_grounding_dino_258401
+    reason: El primero es telemetría previa y el segundo un bloque parcial de 25 s; ninguno integra los 23 bloques y 11 pares F-RT5 citados.
+
+archive_policy:
+  allowed_extensions:
+    - .json
+    - .jsonl
+    - .csv
+    - .yaml
+    - .yml
+    - .txt
+    - .log
+    - .md
+  excluded_extensions:
+    - .jpg
+    - .jpeg
+    - .png
+    - .webp
+    - .bmp
+    - .gif
+    - .tif
+    - .tiff
+    - .mp4
+    - .avi
+    - .mkv
+    - .mov
+    - .webm
+    - .m4v
+  excluded_directories:
+    - previews
+    - frames
+    - images
+    - annotated
+    - videos
+    - cameras
+    - camera_presets
+  max_archive_mib: 95

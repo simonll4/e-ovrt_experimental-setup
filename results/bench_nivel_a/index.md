@@ -1,9 +1,14 @@
-# Campañas de Nivel A (estado por persona sobre el bench de imágenes)
+# Campañas de Nivel A (estado por persona) — sobre imágenes **y sobre video**
 
 Nivel A = **percepción**: se puntúa el estado "sin EPP" de cada persona contra
 `has_helmet` / `has_vest`, sin motor de patrones ni tiempo. Es el nivel donde se
 decide entre estrategias de prompts (`nucleo/04` §8); el Nivel B (alertas sobre
 clips, `results/clip_bench/`) mide la plataforma alrededor del modelo.
+
+> **Dos materiales, misma métrica.** La primera mitad de esta página es Nivel A sobre
+> el **bench de imágenes** (campaña D1 — el eje E-DIR vs E-IND). La segunda es la misma
+> métrica sobre **video** (campaña NA1, 17 clips), y es donde se ve el derrumbe de
+> precisión en obra real. No mezclar los agregados: son materiales distintos.
 
 **Cómo leer esta tabla.** Cada fila es el rendimiento medido de una combinación, no
 una nota (marco del doc 81 §1). Umbrales calibrados en la **mitad A** de cada estrato,
@@ -179,3 +184,14 @@ juzgabilidad tiene tres ejes (escala × iluminación × **oclusión**) — y **F
 `unknown` del anotador **no** predice el F1 del modelo: el humano usa continuidad
 temporal que el modelo por frame no tiene, y esa brecha señala **agregación temporal de
 evidencia para determinar estado** como vía de mejora.
+
+## Artefactos y procedencia de esta familia (✎ declarados 2026-08-09)
+
+| Campaña | Artefactos | Nota |
+|---|---|---|
+| `d1_gdinotiny560_edir_vs_eind` | `metrics.json` · **`metrics_base560_replica.json`** · `provenance_runs.json` (18 corridas) | La réplica **está VIGENTE**, no es una generación supersedida: es la misma corrida (seed `20260803`, misma partición y grids) repetida con **`gdino-base-560`** — doc `operacion/84`, sostiene F-84.3/84.4 y la corrección a F-83.7. **Ojo: el JSON no declara su modelo por dentro** (claves raíz `seed`/`strata`/`gate`/`complementarity`); la atribución vive en el bloque `replica_secundaria` de su `campaign.yaml`. Cifras ancla: `shel5k` CR-01 **0,4958**, `bench_obra` CR-02 **0,5828** |
+| `na1_gdinotiny560_v2short_video` | `metrics.json` · `provenance.json` (17 corridas) | **✎ `provenance.json` se generó el 08-09** (`docs/operacion/datos/113-regenerar-provenance-estrato-b.py`): antes esta campaña era la única sin procedencia por corrida. **No tiene `evals/` por diseño**: a Nivel A no interviene el motor temporal, así que no hay "eval por clip" — el detalle vive en `metrics.json/por_clip` |
+
+> **`provenance.json` y `provenance_runs.json` son el mismo artefacto con distinto
+> nombre** (`informe/99` §2.4 los pone en la misma fila): cambia la unidad que indexan
+> — un clip en `clip_bench`, una corrida de inferencia en `d1`.

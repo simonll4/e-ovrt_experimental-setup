@@ -1,0 +1,129 @@
+{
+  "protocol_id": "t1_yoloe26s_bench_v3_v1",
+  "arm": "baseline",
+  "run_dir": "finetuning/runs/t1_yoloe26s_baseline_bench_v3",
+  "iou_threshold": 0.5,
+  "evaluated_at": "2026-08-15T19:44:58.100795+00:00",
+  "strata": {
+    "bench_obra_test": {
+      "per_class": [
+        {
+          "class_name": "person",
+          "AP50": 0.6293,
+          "n_gt": 135,
+          "n_det": 94
+        },
+        {
+          "class_name": "helmet",
+          "AP50": 0.6256,
+          "n_gt": 83,
+          "n_det": 57
+        },
+        {
+          "class_name": "vest",
+          "AP50": 0.1705,
+          "n_gt": 38,
+          "n_det": 9
+        },
+        {
+          "class_name": "bare_head",
+          "AP50": 0.0,
+          "n_gt": 26,
+          "n_det": 2
+        }
+      ],
+      "mAP50": 0.35635,
+      "images": 62
+    },
+    "bench_obra_val": {
+      "per_class": [
+        {
+          "class_name": "person",
+          "AP50": 0.6229,
+          "n_gt": 127,
+          "n_det": 96
+        },
+        {
+          "class_name": "helmet",
+          "AP50": 0.6166,
+          "n_gt": 76,
+          "n_det": 52
+        },
+        {
+          "class_name": "vest",
+          "AP50": 0.2727,
+          "n_gt": 41,
+          "n_det": 10
+        },
+        {
+          "class_name": "bare_head",
+          "AP50": 0.0,
+          "n_gt": 35,
+          "n_det": 0
+        }
+      ],
+      "mAP50": 0.37805,
+      "images": 85
+    },
+    "chv": {
+      "per_class": [
+        {
+          "class_name": "person",
+          "AP50": 0.7904,
+          "n_gt": 3887,
+          "n_det": 4062
+        },
+        {
+          "class_name": "helmet",
+          "AP50": 0.8035,
+          "n_gt": 3538,
+          "n_det": 3397
+        },
+        {
+          "class_name": "vest",
+          "AP50": 0.333,
+          "n_gt": 1784,
+          "n_det": 820
+        },
+        {
+          "class_name": "bare_head",
+          "AP50": null,
+          "n_gt": 0,
+          "n_det": 7
+        }
+      ],
+      "mAP50": 0.6423,
+      "images": 1330
+    },
+    "shel5k": {
+      "per_class": [
+        {
+          "class_name": "person",
+          "AP50": 0.7084,
+          "n_gt": 20023,
+          "n_det": 19344
+        },
+        {
+          "class_name": "helmet",
+          "AP50": 0.627,
+          "n_gt": 19252,
+          "n_det": 13252
+        },
+        {
+          "class_name": "vest",
+          "AP50": null,
+          "n_gt": 0,
+          "n_det": 458
+        },
+        {
+          "class_name": "bare_head",
+          "AP50": 0.0,
+          "n_gt": 6120,
+          "n_det": 1
+        }
+      ],
+      "mAP50": 0.445133,
+      "images": 5000
+    }
+  }
+}

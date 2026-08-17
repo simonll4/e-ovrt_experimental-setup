@@ -1,0 +1,27 @@
+# Artefactos pesados o regenerables. Las recetas y los README sí se versionan.
+/cache/
+/containers/images/
+
+/data/payloads/*
+!/data/payloads/README.md
+
+/runs/*
+!/runs/README.md
+
+/weights/base/*
+!/weights/base/README.md
+
+/weights/finetuned/*
+!/weights/finetuned/README.md
+
+*.ckpt
+*.engine
+*.onnx
+*.pt
+*.pth
+*.safetensors
+*.sif
+*.sqsh
+*.tar
+*.tar.gz
+

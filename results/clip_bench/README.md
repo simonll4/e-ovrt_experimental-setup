@@ -21,13 +21,15 @@ results/clip_bench/
     campaign.yaml      la COMBINACIÓN declarada + procedencia (shas)
     metrics.json       agregado normalizado (clip_campaign_metrics.v1)
     evals/             eval_<clip>.json por clip (livianos, versionados)
-    provenance.json    clip_id → media_run_id (las detecciones NO se copian)
+    provenance.json    clip_id → media_run_id (referencia al original)
 ```
 
 Las **detecciones** (`detections.jsonl`, ~1 GB por campaña) quedan en `runs/` del
-media-plane, que es su fuente de verdad (DA-03 / ADR-014 híbrido selectivo). Acá
-se referencian por `media_run_id`. Si hay que re-evaluar, `provenance.json` dice
-dónde está cada una.
+media-plane, que es su fuente de verdad (DA-03 / ADR-014 híbrido selectivo). Acá se
+referencian por `media_run_id`. Además, el archivo común
+[`../evidence-runs/`](../evidence-runs/README.md) conserva una copia versionable del subconjunto
+textual de cada run citado, con los JSONL comprimidos y sin imágenes, video, previews, presets ni
+secretos. El listado exhaustivo y regenerable está en [`../evidence-runs.md`](../evidence-runs.md).
 
 ## Convención de `campaign_id`
 
@@ -37,9 +39,9 @@ dónde está cada una.
 
 ## Cómo agregar una campaña
 
-1. **Correr la cadena** sobre los 34 clips (runner de referencia:
-   `docs/operacion/datos/81-ciclo-rodaje-runner.py`) → un directorio con
-   `eval_<clip>.json` por clip.
+1. **Correr la cadena** sobre el banco (hoy **47 clips**: 34 del rodaje + 13 del
+   estrato B; runners de referencia `docs/operacion/datos/81-ciclo-rodaje-runner.py` y
+   `102-ciclo-internet-runner.py`) → un directorio con `eval_<clip>.json` por clip.
 2. **Declarar la combinación** en `<campaign_id>/campaign.yaml`. No es opcional:
    sin eso el número no significa nada dentro de seis meses. Incluir los sha256
    del prompt set congelado y del `manifest.yaml` del banco.
@@ -53,6 +55,18 @@ dónde está cada una.
        --out        <.../metrics.json>
    ```
 4. **Agregar la fila a `index.md`** con el hallazgo en una línea.
+5. **Extender `docs/operacion/datos/96-verificar-indices.py`** con una fila en `CIFRAS`.
+   No es opcional: el script tiene un **guard de cobertura** que falla si una campaña
+   con `metrics.json` no tiene cifra verificada — justamente para que "todo verde" no
+   signifique "verde sobre lo que mirábamos hace tres meses".
+
+> ⚠️ **Trampa: re-evaluar NO regenera `metrics.json`** (encontrada el 2026-08-09 en
+> I1/I2). El agregador **copia `campaign.yaml` adentro de `metrics.json`**, así que
+> tocar el GT o el yaml sin volver a correr el paso 3 deja el archivo con las cifras
+> nuevas y **la procedencia vieja** — I1/I2 llegaron a declarar el freeze del banco
+> pre-corrección, con lo cual quien reprodujera desde ese sha obtenía F1 0,500 en vez
+> de 0,333. **Después de cualquier cambio de GT o de `campaign.yaml`: re-correr el paso
+> 3 y diffear.** Con los `evals/` archivados cuesta segundos y no usa GPU.
 
 ## Reglas de agregación (todas con test)
 
@@ -70,10 +84,18 @@ Están implementadas en `aggregate_clip_campaign.py` y cubiertas por
 
 ## Limitaciones que arrastran TODAS las campañas
 
+> ⚠️ **Este README es el manual de proceso** (cómo se agrega y se agrega una campaña).
+> **La lista canónica de limitaciones es L1–L8 en `results/index.md`**, no la de acá:
+> si las dos discrepan, manda `index.md`. Lo de abajo quedó como resumen y se actualizó
+> el 2026-08-09.
+
 Vienen del banco, no de la combinación — están en
-`e-ovrt_datasets/datasets/registry/clip_bench.md` (L1–L5) y se declaran una vez
-en el informe, no por campaña: **FAR/hora no reportable como rendimiento**
-(determinación doc 90 D-90.1: ninguna cota alcanzable sostiene una afirmación; la
-evidencia de FP es el control de negativos, comparativo pareado), sin doble anotación
-(sin kappa, decisión del equipo), bordes adjudicados en 6 clips (limitación L3), un solo
-bloque guionado sin obra real, escenarios desbalanceados.
+`e-ovrt_datasets/datasets/registry/clip_bench.md` y se declaran una vez en el informe,
+no por campaña: **FAR/hora se reporta pero no sostiene una cota** (D-90.1 **precisada**
+el 08-07/09 — limitación **L1**: con el clip soak del estrato B la métrica pasó a ser
+computable, 29,2 y 1.850,8 FA/hora = 3 y 190 FP en 6:09,6, pero 0,1027 h están a dos
+órdenes de magnitud de las 3 h que exigiría afirmar una cota; la evidencia principal
+sigue siendo el control de negativos), sin doble anotación (sin kappa, decisión
+declarada — **L2**), bordes adjudicados en 6 clips (**L3**), **obra real medida pero
+acotada** (**L4 precisada**, D-113.1: el estrato B aportó 13 clips no guionados, y su
+contenido nuevo es la frontera de juzgabilidad), escenarios desbalanceados (**L5**).

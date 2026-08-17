@@ -1,0 +1,100 @@
+{
+  "schema_version": "eovrt.t1-go-no-go.v1",
+  "task_id": "T-FT-052",
+  "decision_id": "D-FT-12",
+  "evaluated_at": "2026-08-17T01:59:33+00:00",
+  "verdict": "NO-GO",
+  "verdict_summary": "El ajuste T1 rescata bare_head de cero pero se queda a 0,0045 del umbral de ganancia y rompe la retencion de person (-11,62 %, tope 10 %). Ninguna de las dos vias del gain gate pasa. Resultado negativo valido y pre-registrado (ADR-017): no es un fracaso, es el dato de esta combinacion.",
+  "margins_provenance": {
+    "signed_by_user_at": "2026-08-15",
+    "signed_before_baseline": true,
+    "signed_before_any_tuned_result": true,
+    "note": "pre-registracion estricta: los margenes se firmaron antes de existir la baseline y el checkpoint"
+  },
+  "arms": {
+    "baseline": {
+      "run_dir": "finetuning/runs/t1_yoloe26s_baseline_bench_v3",
+      "run_id": "run_20260815_193750_dbe_yoloe_1113f7",
+      "model_ref": "yoloe/yoloe-26s",
+      "executed_at": "2026-08-15"
+    },
+    "tuned": {
+      "run_dir": "finetuning/runs/t1_yoloe26s_tuned_bench_v3",
+      "run_id": "run_20260817_015315_dbe_yoloe_deterministic",
+      "model_ref": "yoloe/yoloe-26s-ft-t1",
+      "checkpoint_sha256": "5714f8339dfcf68469b27c127857d801afb5d6d556e0db0c96ce28c74bc5efbe",
+      "slurm_job_id": "1167640",
+      "executed_at": "2026-08-17",
+      "units_processed": 6477,
+      "units_failed": 0,
+      "units_dropped": 0,
+      "total_detections": 40696,
+      "inference_wall_seconds": 256.7
+    }
+  },
+  "gain_gate": {
+    "rule": "either",
+    "passed": false,
+    "primary_target_class": "bare_head",
+    "via_a_absolute_ap50_delta": {
+      "baseline": 0.0,
+      "tuned": 0.0455,
+      "delta": 0.0455,
+      "threshold": 0.05,
+      "shortfall": 0.0045,
+      "passed": false
+    },
+    "via_b_recall_rescue": {
+      "metric": "cr01_recall_count_weighted",
+      "baseline": 0.0002,
+      "tuned": 0.2089,
+      "requires_from_below": 0.1,
+      "requires_to_above": 0.5,
+      "from_below_satisfied": true,
+      "to_above_satisfied": false,
+      "passed": false
+    }
+  },
+  "retention_gate": {
+    "scope": "in_domain_only (person/helmet/vest sobre bench_v3) + mAP50 agregado",
+    "max_relative_regression": 0.1,
+    "passed": false,
+    "per_class": {
+      "person": { "baseline": 0.7843, "tuned": 0.6932, "relative_regression": 0.1162, "passed": false },
+      "helmet": { "baseline": 0.6286, "tuned": 0.6004, "relative_regression": 0.0449, "passed": true },
+      "vest": { "baseline": 0.2642, "tuned": 0.3292, "relative_regression": -0.246, "passed": true },
+      "mAP50_aggregate": { "baseline": 0.419275, "tuned": 0.417075, "relative_regression": 0.0052, "passed": true }
+    }
+  },
+  "latency_gate": {
+    "rule": "degradacion mayor al 5% relativo se rechaza",
+    "status": "no_medido",
+    "decision_relevant": false,
+    "note": "F-120.1 exige medicion pareada (ambos brazos con corriente, post-warmup). No se midio porque gain y retention ya fallan: la latencia no puede revertir el NO-GO. Si el informe la necesita como dato descriptivo, se mide aparte y se reporta como tal."
+  },
+  "cr01_recall_by_source": {
+    "policy": "cada fuente por separado; nunca el person_gt combinado",
+    "bench_obra": { "baseline": 0.0167, "tuned": 0.1667, "n_violators": 60, "n_detected_baseline": 1, "n_detected_tuned": 10 },
+    "shel5k": { "baseline": 0.0, "tuned": 0.2094, "n_violators": 5248, "n_detected_baseline": 0, "n_detected_tuned": 1099 },
+    "count_weighted_aggregate": { "baseline": 0.0002, "tuned": 0.2089, "n_violators": 5308 }
+  },
+  "per_stratum_note": "Reportar SIEMPRE por estrato ademas del agregado. bench_obra_val es el estrato donde bare_head mas mejora (0,000 -> 0,2614) y donde el mAP50 sube (+0,0828); chv y shel5k bajan por la caida de helmet (-0,12 y -0,10). Detalle en eval_perception.by_stratum.json de cada brazo.",
+  "one_shot_compliance": {
+    "tuned_evaluated_exactly_once": true,
+    "last_pt_never_evaluated": true,
+    "config_frozen_fields_identical_to_baseline": true,
+    "note": "Un primer intento de lanzamiento aborto en la carga del modelo (ruta de pesos relativa al CWD) sin escribir artefactos ni observar metrica alguna; no cuenta como observacion del brazo.",
+    "known_asymmetry": "La baseline declaro el prompt inline y perdio el campo 'strategy' de cada clase; el brazo tuned lee el yaml congelado que el protocolo fija por sha256 y si lo trae. No entra al PromptPlan: ids, textos y orden son identicos en ambos brazos."
+  },
+  "evidence": {
+    "tuned_eval_artifacts": "finetuning/runs/t1_yoloe26s_tuned_bench_v3/eval/artifact.sha256",
+    "promotion_manifest": "finetuning/manifests/t1_promotion_1167640.json",
+    "serving_smoke": "finetuning/manifests/t1_full_1167640_media_plane.json",
+    "remote_audit": "finetuning/weights/finetuned/full-1167640/full-ready-1167640.json"
+  },
+  "consequences": {
+    "checkpoint_not_adopted": "El checkpoint T1 NO reemplaza al modelo de servicio. Queda como rama comparativa documentada.",
+    "catalog_kept": "yoloe-26s-ft-t1.yaml y el peso promovido se conservan para reproducir la evaluacion; no se declaran modelo de produccion.",
+    "escalera": "T2/T3 quedan gobernados por los go/no-go de contingencia/20 §6; esta corrida es la entrada de esa escalera, no su cierre."
+  }
+}

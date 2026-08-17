@@ -1,13 +1,14 @@
 schema_version: clip_campaign.v1
 campaign_id: i1_gdinotiny560_v2short_scene_internet
-date: '2026-08-07'
+date: '2026-08-09'
 phase: I
 description: >
-  Estrato B: los 4 clips del lote de internet con GT humano (obra real, NO guionada).
+  Estrato B: los 13 clips del lote de internet con GT humano (obra real, NO guionada).
   Es T1 con la combinación intacta y el material cambiado — la única variable es el
-  estrato. Levanta L4 (parcial: n = 3 episodios).
+  estrato. **Precisa L4** (D-113.1, no la levanta): n = **2 episodios evaluables**
+  tras la revisión ciega del GT.
 
-  NO es comparable clip a clip con T1: son 4 clips contra 34, y el material difiere en
+  NO es comparable clip a clip con T1: son 13 clips contra 34, y el material difiere en
   fuente, iluminación, densidad y escala del sujeto. Se reporta como fila aparte con su
   desglose (D-90.6), nunca fusionado al agregado del rodaje.
 
@@ -32,24 +33,38 @@ path_note: >
 # --- PROCEDENCIA ---
 gt_bank: >
   clip_bench, estrato B — **13 clips, el lote de internet COMPLETO** (doc 111;
-  `v08_c01` excluido con causa). Positivos: v04_c01 (P1, nocturno) · v04_c02 (P6,
-  nocturno, 2 episodios) · v01_c02 (P1) · v01_c01 (P1, episodio CENSURADO por A1).
-  Negativos (9): v02_c01 · v03_c01 · v03_c02 · v04_c03 (el único nocturno) · v05_c01 ·
+  `v08_c01` excluido con causa). ✎ Composición **VIGENTE tras la revisión ciega del GT**
+  (doc 113 §B, 2026-08-09).
+  Positivos (2): v04_c01 (P1, nocturno, 1 episodio CR-01, onset 3.967 ms) ·
+  v01_c02 (P1, 1 episodio CR-01, onset en t=0).
+  Negativos (11): v01_c01 (**ex-positivo**: contraluz, estado no observable) ·
+  v02_c01 · v03_c01 · v03_c02 · v04_c02 (**ex-positivo P6**, ahora P5: el sujeto está
+  en la cabina de una máquina, estado no observable — sus 2 episodios eran
+  sobre-declaración) · v04_c03 (el único nocturno) · v05_c01 ·
   v06_c01 (**el clip SOAK**, 0,1027 h) · v07_c01 · v09_c01 · v10_c01.
-  Banco de 47 clips al 2026-08-09.
-gt_manifest_yaml_sha256: 299ccc19593361db2677bb41d20d07dbd47d77855555f9686ff54303f1d47c34
+  Banco de 47 clips = **32 positivos / 15 negativos / 37 episodios** al 2026-08-09.
+gt_manifest_yaml_sha256: 3f14f50a53c0d6c57b429378544dcfb6ed87fc942640db302c53ba1470001a75
 gt_manifest_note: >
+  ⚠️ El sha de arriba es el del banco **post-revisión ciega** (commit 7961ac62), que es
+  contra el que se computaron las cifras VIGENTES de este archivo. Quien reproduzca
+  debe usar ESE freeze: el anterior (`299ccc19…`, commit 907d50fa) tiene el GT
+  pre-corrección y devuelve F1 0,500 en vez de 0,333.
   Freezes anteriores, todos verificables en git: 34 del rodaje `cef5082e…`
   (commit f7a27fe6 — el que citan T1/T2/D1/H1/G1/B1/R1–R6), 37 con el estrato B inicial
-  `6b75ac6e…`, 38 con v04_c02 `4437eb6d…`, 39 con v03_c02 `c1791c9b…`. El manifest solo
-  crece; las filas del rodaje nunca cambiaron.
+  `6b75ac6e…`, 38 con v04_c02 `4437eb6d…`, 39 con v03_c02 `c1791c9b…`, 47 con el lote
+  cerrado `299ccc19…`. **Hasta el freeze de 47 el manifest solo creció y las filas del
+  rodaje nunca cambiaron; la revisión ciega del 08-09 fue el primer cambio de CONTENIDO
+  del GT** — y ocurrió enteramente dentro del Bloque B (v01_c01 y v04_c02).
 gt_doc: docs/operacion/111-cierre-del-lote-de-internet.md
 gt_note: >
   GT humano (CVAT, anotador `simon`), derivado con derive_clip_gt.py y los mismos
-  umbrales 4000/7000. 3 episodios evaluables sin censura (1 CR-01 en v04_c01;
-  CR-01+CR-02 en v04_c02) y 2 clips negativos. `v04_c02` tiene aviso de PRE-ROLL
-  (onset en t=0): su TTFD es artefacto del recorte, no mérito del sistema.
-  **n = 3 episodios: el intervalo de confianza es enorme y hay que decirlo.**
+  umbrales 4000/7000, **re-derivado tras las correcciones firmadas del 08-09**.
+  **2 episodios evaluables, 0 censurados** (1 CR-01 en v04_c01, 1 CR-01 en v01_c02) y
+  **11 clips negativos**. `v01_c02` tiene aviso de PRE-ROLL (onset en t=0): su TTFD es
+  artefacto del recorte, no mérito del sistema.
+  **n = 2 episodios: el intervalo de confianza es enorme y NINGUNA comparación por F1
+  sale de acá** (F-111.1 enmendado). Lo robusto del estrato es la asimetría de FP
+  sobre los 11 negativos (26 en `scene` vs 323 en `subject`), que son conteos grandes.
 
 # --- HISTORIA DE ALCANCE (por qué las cifras cambiaron respecto de versiones citadas) ---
 generations:

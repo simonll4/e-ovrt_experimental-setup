@@ -1,0 +1,783 @@
+{
+  "archive": {
+    "determinism": {
+      "entry_order": "archive_path ascending",
+      "file_modes": "normalized 0644 or 0755",
+      "gid": 0,
+      "mtime": 0,
+      "owner_names": "empty",
+      "uid": 0
+    },
+    "format": "uncompressed POSIX PAX tar",
+    "root": "t1-source-snapshot",
+    "sha256": "639e60df1bcca25590357f54c6897cedcb83cb6e21a651328f6b828cefac3ebe",
+    "size_bytes": 573440
+  },
+  "exclusions": {
+    "credentials": "filename and content guards applied",
+    "git_ignored": "forbidden",
+    "selection": "explicit regular UTF-8 source files only",
+    "symlinks": "forbidden",
+    "weights_payload_bench_runs": "not inventoried; artifact directories and binary suffixes forbidden"
+  },
+  "files": [
+    {
+      "archive_path": "t1-source-snapshot/docs/CRONOLOGIA.md",
+      "mode": "0644",
+      "path": "CRONOLOGIA.md",
+      "repository": "docs",
+      "sha256": "30f5f546029866966603e99da6c7769986037c8f4b19e2e9669541febe610b8d",
+      "size_bytes": 29830
+    },
+    {
+      "archive_path": "t1-source-snapshot/docs/contingencia/20-investigacion-finetuning-condicionada-e04.md",
+      "mode": "0644",
+      "path": "contingencia/20-investigacion-finetuning-condicionada-e04.md",
+      "repository": "docs",
+      "sha256": "207781820ca99856796a14833d14a7e2d1c482cd13cb7b279c7d8ab10820b101",
+      "size_bytes": 14424
+    },
+    {
+      "archive_path": "t1-source-snapshot/docs/decisiones/adr-017-fine-tuning-jornada-experimental.md",
+      "mode": "0644",
+      "path": "decisiones/adr-017-fine-tuning-jornada-experimental.md",
+      "repository": "docs",
+      "sha256": "81d726e3e9e1a8c543d2c5c455c06fbb1042a72f61f35f4194c4142fe6f74984",
+      "size_bytes": 13240
+    },
+    {
+      "archive_path": "t1-source-snapshot/docs/operacion/100-t1-dimensionamiento-medido.md",
+      "mode": "0644",
+      "path": "operacion/100-t1-dimensionamiento-medido.md",
+      "repository": "docs",
+      "sha256": "1722029d1f055a572405cf92872df62988001060b27731a2fbb829bc701af8f7",
+      "size_bytes": 20997
+    },
+    {
+      "archive_path": "t1-source-snapshot/docs/operacion/116-plan-maestro-finetuning.md",
+      "mode": "0644",
+      "path": "operacion/116-plan-maestro-finetuning.md",
+      "repository": "docs",
+      "sha256": "4e875393e431d4b96000655ee42477df5ee75b062c782c59c66912049e11091e",
+      "size_bytes": 18473
+    },
+    {
+      "archive_path": "t1-source-snapshot/docs/operacion/117-decisiones-y-tareas-finetuning.md",
+      "mode": "0644",
+      "path": "operacion/117-decisiones-y-tareas-finetuning.md",
+      "repository": "docs",
+      "sha256": "3badb4fd0f60b0147e48a8f1202531dc019433ee77075bae94da55114a648dd3",
+      "size_bytes": 25340
+    },
+    {
+      "archive_path": "t1-source-snapshot/experimental/finetuning/README.md",
+      "mode": "0644",
+      "path": "finetuning/README.md",
+      "repository": "experimental",
+      "sha256": "6f98d1cb6dfb4f7bfa51e8ce22897d02c38b1e874244ba0593c05c0712f551b9",
+      "size_bytes": 4597
+    },
+    {
+      "archive_path": "t1-source-snapshot/experimental/finetuning/configs/README.md",
+      "mode": "0644",
+      "path": "finetuning/configs/README.md",
+      "repository": "experimental",
+      "sha256": "010cd3df5e5fb27a9692d9396d702e07a367a7d9782f83482f99cb4d049555ad",
+      "size_bytes": 482
+    },
+    {
+      "archive_path": "t1-source-snapshot/experimental/finetuning/configs/t1_yoloe26s_lp.yaml",
+      "mode": "0644",
+      "path": "finetuning/configs/t1_yoloe26s_lp.yaml",
+      "repository": "experimental",
+      "sha256": "612f41e1b3d95642f6e1f6691e42fe951ea7ecfb363b3e4b016d4b971e3e96ff",
+      "size_bytes": 1349
+    },
+    {
+      "archive_path": "t1-source-snapshot/experimental/finetuning/containers/README.md",
+      "mode": "0644",
+      "path": "finetuning/containers/README.md",
+      "repository": "experimental",
+      "sha256": "42f509b589d55368fc3739254a6b7150cce75cdb98523da1708f4f4245a9af0e",
+      "size_bytes": 530
+    },
+    {
+      "archive_path": "t1-source-snapshot/experimental/finetuning/containers/requirements-t1.txt",
+      "mode": "0644",
+      "path": "finetuning/containers/requirements-t1.txt",
+      "repository": "experimental",
+      "sha256": "6ab4bc9705f5b50b11b680b37405650ff6bd9eef0ae224e3a1288ab245bb1d44",
+      "size_bytes": 205
+    },
+    {
+      "archive_path": "t1-source-snapshot/experimental/finetuning/containers/t1-yoloe.def",
+      "mode": "0644",
+      "path": "finetuning/containers/t1-yoloe.def",
+      "repository": "experimental",
+      "sha256": "0f5d0a6402ba80cdf46eea6864148085ced44d54943bdc07675efa8fc88d3430",
+      "size_bytes": 1053
+    },
+    {
+      "archive_path": "t1-source-snapshot/experimental/finetuning/manifests/README.md",
+      "mode": "0644",
+      "path": "finetuning/manifests/README.md",
+      "repository": "experimental",
+      "sha256": "33f81ab14edcb0e7048705ec4e5c0436a29b130b750d18e1f87b839805a5cc83",
+      "size_bytes": 1317
+    },
+    {
+      "archive_path": "t1-source-snapshot/experimental/finetuning/manifests/t1_base_weights.json",
+      "mode": "0644",
+      "path": "finetuning/manifests/t1_base_weights.json",
+      "repository": "experimental",
+      "sha256": "7f7a59f8278aaee32abd07f719f8b0ad9b5cb03c75b3b56737d1f427da16ef5f",
+      "size_bytes": 1111
+    },
+    {
+      "archive_path": "t1-source-snapshot/experimental/finetuning/manifests/t1_container_image.json",
+      "mode": "0644",
+      "path": "finetuning/manifests/t1_container_image.json",
+      "repository": "experimental",
+      "sha256": "385d60642302f31359d9d7abc8baec17b0be23a2bfd742b59479ab4f0f4cd62c",
+      "size_bytes": 901
+    },
+    {
+      "archive_path": "t1-source-snapshot/experimental/finetuning/manifests/t1_smoke_1166583_media_plane.json",
+      "mode": "0644",
+      "path": "finetuning/manifests/t1_smoke_1166583_media_plane.json",
+      "repository": "experimental",
+      "sha256": "4cd51708cb6dbd8baf8218bea044d4879ba4b7dccef8631686b66d0488ceb532",
+      "size_bytes": 1890
+    },
+    {
+      "archive_path": "t1-source-snapshot/experimental/finetuning/manifests/t1_source_inventory.json",
+      "mode": "0644",
+      "path": "finetuning/manifests/t1_source_inventory.json",
+      "repository": "experimental",
+      "sha256": "431e43a4241357b65e8124b86171a8fa5c7555ff3d5abd129b729b633b483617",
+      "size_bytes": 3582
+    },
+    {
+      "archive_path": "t1-source-snapshot/experimental/finetuning/manifests/t1_yoloe26s_bench_v3_protocol.json",
+      "mode": "0644",
+      "path": "finetuning/manifests/t1_yoloe26s_bench_v3_protocol.json",
+      "repository": "experimental",
+      "sha256": "4fe082f925d2182dce4a7f8462f5986fc65acc1041445fd91000d8fbe4124de0",
+      "size_bytes": 13499
+    },
+    {
+      "archive_path": "t1-source-snapshot/experimental/finetuning/requirements-audit.txt",
+      "mode": "0644",
+      "path": "finetuning/requirements-audit.txt",
+      "repository": "experimental",
+      "sha256": "d2129368b6479e3bb2d3845834db18f467421f6c7486d3aa4c8dfa9062eaa520",
+      "size_bytes": 88
+    },
+    {
+      "archive_path": "t1-source-snapshot/experimental/finetuning/scripts/README.md",
+      "mode": "0644",
+      "path": "finetuning/scripts/README.md",
+      "repository": "experimental",
+      "sha256": "3e16e904192ae816bcef28ad2312251c2bf8126a6f2b557de80b8fb70b8ab7dc",
+      "size_bytes": 2041
+    },
+    {
+      "archive_path": "t1-source-snapshot/experimental/finetuning/scripts/audit_finetuning_v1.py",
+      "mode": "0644",
+      "path": "finetuning/scripts/audit_finetuning_v1.py",
+      "repository": "experimental",
+      "sha256": "7bdcacd4218d2b40f919403c174b93f40d0f2d4fcb46ab288ede3cd46b7452f9",
+      "size_bytes": 7273
+    },
+    {
+      "archive_path": "t1-source-snapshot/experimental/finetuning/scripts/audit_t1_full.py",
+      "mode": "0644",
+      "path": "finetuning/scripts/audit_t1_full.py",
+      "repository": "experimental",
+      "sha256": "62593633a0466a0d7e1805f41e1149b7c2e5d38e4b9ba0f3ef2c947e3a54a0f0",
+      "size_bytes": 6902
+    },
+    {
+      "archive_path": "t1-source-snapshot/experimental/finetuning/scripts/build_finetuning_v1.py",
+      "mode": "0644",
+      "path": "finetuning/scripts/build_finetuning_v1.py",
+      "repository": "experimental",
+      "sha256": "f1b0e8d1dc3475c4b8dedee5918df7d8cb854541f91fc279bc8172255ec03f12",
+      "size_bytes": 8911
+    },
+    {
+      "archive_path": "t1-source-snapshot/experimental/finetuning/scripts/build_t1_image_login.sh",
+      "mode": "0755",
+      "path": "finetuning/scripts/build_t1_image_login.sh",
+      "repository": "experimental",
+      "sha256": "bc746dd4d90e4e43f919bf97a24c931d00b75cc539da4bec1c9d56b04313a02f",
+      "size_bytes": 1056
+    },
+    {
+      "archive_path": "t1-source-snapshot/experimental/finetuning/scripts/create_t1_source_snapshot.py",
+      "mode": "0755",
+      "path": "finetuning/scripts/create_t1_source_snapshot.py",
+      "repository": "experimental",
+      "sha256": "42cfc8395e83e90644c8fe41b9a34b85ba99dc54d99c992577a1a6c455852229",
+      "size_bytes": 19637
+    },
+    {
+      "archive_path": "t1-source-snapshot/experimental/finetuning/scripts/finalize_t1_full_mendieta.sh",
+      "mode": "0644",
+      "path": "finetuning/scripts/finalize_t1_full_mendieta.sh",
+      "repository": "experimental",
+      "sha256": "bd1a44ae2efc66b796d94cc7c2b4b7810078e073dde7b4da2e2231927f03e0c5",
+      "size_bytes": 1790
+    },
+    {
+      "archive_path": "t1-source-snapshot/experimental/finetuning/scripts/finalize_t1_smoke_mendieta.sh",
+      "mode": "0644",
+      "path": "finetuning/scripts/finalize_t1_smoke_mendieta.sh",
+      "repository": "experimental",
+      "sha256": "26b18a11819b1a36d74770672b28a95b16e486225a76a9f5efab968def0c869a",
+      "size_bytes": 2787
+    },
+    {
+      "archive_path": "t1-source-snapshot/experimental/finetuning/scripts/finetuning_data.py",
+      "mode": "0644",
+      "path": "finetuning/scripts/finetuning_data.py",
+      "repository": "experimental",
+      "sha256": "564129ba7381c9c001501d4a2175c066bdf2e23a5a72ba1cca7672276430e0a8",
+      "size_bytes": 34020
+    },
+    {
+      "archive_path": "t1-source-snapshot/experimental/finetuning/scripts/materialize_bench_v3_view.py",
+      "mode": "0755",
+      "path": "finetuning/scripts/materialize_bench_v3_view.py",
+      "repository": "experimental",
+      "sha256": "afd8571a1f1229b1073bcfb8ab4c609237f6c7e13061db9f27e88e452f0e7b3c",
+      "size_bytes": 15514
+    },
+    {
+      "archive_path": "t1-source-snapshot/experimental/finetuning/scripts/materialize_t1_payload.py",
+      "mode": "0755",
+      "path": "finetuning/scripts/materialize_t1_payload.py",
+      "repository": "experimental",
+      "sha256": "a41fad28704b9b7327b10b253a1893b6cde48b422137cb355467d71bf137b3b4",
+      "size_bytes": 8945
+    },
+    {
+      "archive_path": "t1-source-snapshot/experimental/finetuning/scripts/package_t1_bundle.py",
+      "mode": "0755",
+      "path": "finetuning/scripts/package_t1_bundle.py",
+      "repository": "experimental",
+      "sha256": "c6452e4d465b94db3498e37b5e8d0b5f7d6949ceedff7ed72c1679032b02ece0",
+      "size_bytes": 6069
+    },
+    {
+      "archive_path": "t1-source-snapshot/experimental/finetuning/scripts/prepare_t1_full_authorization.py",
+      "mode": "0644",
+      "path": "finetuning/scripts/prepare_t1_full_authorization.py",
+      "repository": "experimental",
+      "sha256": "5973393a6316032ff05c378e08885f3bef48fc4f87fc7fa640ce5eed22d0b8f9",
+      "size_bytes": 4239
+    },
+    {
+      "archive_path": "t1-source-snapshot/experimental/finetuning/scripts/prepare_t1_smoke_gate.py",
+      "mode": "0644",
+      "path": "finetuning/scripts/prepare_t1_smoke_gate.py",
+      "repository": "experimental",
+      "sha256": "eaa375394a59b90e806a05712ee7951963f98af5c526337e51bd9c5028130387",
+      "size_bytes": 7678
+    },
+    {
+      "archive_path": "t1-source-snapshot/experimental/finetuning/scripts/stage_t1_base_assets.py",
+      "mode": "0755",
+      "path": "finetuning/scripts/stage_t1_base_assets.py",
+      "repository": "experimental",
+      "sha256": "e665ffb26e3396ab2a0df2a29996709564b6eab09fddba01897d7a533a0b8a20",
+      "size_bytes": 1929
+    },
+    {
+      "archive_path": "t1-source-snapshot/experimental/finetuning/scripts/submit_t1_full_mendieta.sh",
+      "mode": "0644",
+      "path": "finetuning/scripts/submit_t1_full_mendieta.sh",
+      "repository": "experimental",
+      "sha256": "9b09633fd896a10b2369dacafa0ca7fcfd014382a6d018c2924bcf36cccceda9",
+      "size_bytes": 4143
+    },
+    {
+      "archive_path": "t1-source-snapshot/experimental/finetuning/scripts/train_t1.py",
+      "mode": "0755",
+      "path": "finetuning/scripts/train_t1.py",
+      "repository": "experimental",
+      "sha256": "e0336a31ccc54db32a2df5c61043aefa8fd3ae5dba546e2a3f9465c10c6ef48f",
+      "size_bytes": 26864
+    },
+    {
+      "archive_path": "t1-source-snapshot/experimental/finetuning/scripts/verify_t1_bundle.py",
+      "mode": "0755",
+      "path": "finetuning/scripts/verify_t1_bundle.py",
+      "repository": "experimental",
+      "sha256": "fcc4033176400e240fb10a56f35e3abe9874366c7d2aa6d54928fb8fe0393af6",
+      "size_bytes": 2245
+    },
+    {
+      "archive_path": "t1-source-snapshot/experimental/finetuning/scripts/verify_t1_full_authorization.py",
+      "mode": "0644",
+      "path": "finetuning/scripts/verify_t1_full_authorization.py",
+      "repository": "experimental",
+      "sha256": "9cffa4c671c3e60e8e0e74b7f33f42c13d0d197a241fc59663ba3fae8527bc39",
+      "size_bytes": 4112
+    },
+    {
+      "archive_path": "t1-source-snapshot/experimental/finetuning/scripts/verify_t1_media_plane.py",
+      "mode": "0644",
+      "path": "finetuning/scripts/verify_t1_media_plane.py",
+      "repository": "experimental",
+      "sha256": "664fc3f133e2c252f514b9f1822ee51bbe25bfad555b1f12d3d46a6027eae17d",
+      "size_bytes": 13533
+    },
+    {
+      "archive_path": "t1-source-snapshot/experimental/finetuning/scripts/verify_t1_smoke_gate.py",
+      "mode": "0644",
+      "path": "finetuning/scripts/verify_t1_smoke_gate.py",
+      "repository": "experimental",
+      "sha256": "1e0441f00ed8fa8b4ba4b21688027d6209cbaa07897cf0a7175a49b8a522ef86",
+      "size_bytes": 6039
+    },
+    {
+      "archive_path": "t1-source-snapshot/experimental/finetuning/scripts/watch_finalize_t1_full_mendieta.sh",
+      "mode": "0644",
+      "path": "finetuning/scripts/watch_finalize_t1_full_mendieta.sh",
+      "repository": "experimental",
+      "sha256": "62b9621d0f4f8f87ebbf36b3ef50fcb0a7c00c3c5dd26cca01fcf9f87c9e0a1a",
+      "size_bytes": 1350
+    },
+    {
+      "archive_path": "t1-source-snapshot/experimental/finetuning/scripts/watch_finalize_t1_smoke_mendieta.sh",
+      "mode": "0644",
+      "path": "finetuning/scripts/watch_finalize_t1_smoke_mendieta.sh",
+      "repository": "experimental",
+      "sha256": "db11c09e2a04971e5a8a2ebeba54cde9366ab169477b3175b436048f319f316f",
+      "size_bytes": 1390
+    },
+    {
+      "archive_path": "t1-source-snapshot/experimental/finetuning/slurm/README.md",
+      "mode": "0644",
+      "path": "finetuning/slurm/README.md",
+      "repository": "experimental",
+      "sha256": "3f247bfae9f0e0dafe8b9aa3310858bf8cba234c39bb74b18be029078b7baa9f",
+      "size_bytes": 1353
+    },
+    {
+      "archive_path": "t1-source-snapshot/experimental/finetuning/slurm/run_t1_job.sh",
+      "mode": "0755",
+      "path": "finetuning/slurm/run_t1_job.sh",
+      "repository": "experimental",
+      "sha256": "ee33bec09aabbc9a2ae1dd2cd89bf2833adf50e1bfe0a5ebdaa06238cf910f01",
+      "size_bytes": 4237
+    },
+    {
+      "archive_path": "t1-source-snapshot/experimental/finetuning/slurm/t1_full.sbatch",
+      "mode": "0755",
+      "path": "finetuning/slurm/t1_full.sbatch",
+      "repository": "experimental",
+      "sha256": "2e360ec08d0a3f24a036034d46230e48507eccffd1a4cd5c9f19ca494ead6637",
+      "size_bytes": 432
+    },
+    {
+      "archive_path": "t1-source-snapshot/experimental/finetuning/slurm/t1_smoke.sbatch",
+      "mode": "0755",
+      "path": "finetuning/slurm/t1_smoke.sbatch",
+      "repository": "experimental",
+      "sha256": "808bc4d3918b8d41efbf6604c8b7307df8a16c4ed6d787ae192a6f0b8b7bc3c2",
+      "size_bytes": 449
+    },
+    {
+      "archive_path": "t1-source-snapshot/experimental/finetuning/tests/README.md",
+      "mode": "0644",
+      "path": "finetuning/tests/README.md",
+      "repository": "experimental",
+      "sha256": "2f90661b53f3762b5d9aa7739678e24c39ded4dbfbb906a198817de801b335e8",
+      "size_bytes": 432
+    },
+    {
+      "archive_path": "t1-source-snapshot/experimental/finetuning/tests/test_bench_v3_view.py",
+      "mode": "0644",
+      "path": "finetuning/tests/test_bench_v3_view.py",
+      "repository": "experimental",
+      "sha256": "ea0dc58390beeb3f2bc4b6d7c2158ce57b24d579b7daff7aec48793ed027ad87",
+      "size_bytes": 7811
+    },
+    {
+      "archive_path": "t1-source-snapshot/experimental/finetuning/tests/test_finetuning_data.py",
+      "mode": "0644",
+      "path": "finetuning/tests/test_finetuning_data.py",
+      "repository": "experimental",
+      "sha256": "91a156a0799a599749d2961e366a75d810f5d2f1855eddf5d906039f1525499f",
+      "size_bytes": 7187
+    },
+    {
+      "archive_path": "t1-source-snapshot/experimental/finetuning/tests/test_t1_source_snapshot.py",
+      "mode": "0644",
+      "path": "finetuning/tests/test_t1_source_snapshot.py",
+      "repository": "experimental",
+      "sha256": "35d0a8dc729590f9001efbba63f59e4450a9d716f85479f57366f59e3d899d90",
+      "size_bytes": 8352
+    },
+    {
+      "archive_path": "t1-source-snapshot/experimental/finetuning/tests/test_t1_stack.py",
+      "mode": "0644",
+      "path": "finetuning/tests/test_t1_stack.py",
+      "repository": "experimental",
+      "sha256": "a5ab3d6be10baad716b7b3e301a5dc430c49a70c4cd21bc7b549756667fc3c98",
+      "size_bytes": 24877
+    },
+    {
+      "archive_path": "t1-source-snapshot/experimental/prompts/cr01_cr02_bench_v2.yaml",
+      "mode": "0644",
+      "path": "prompts/cr01_cr02_bench_v2.yaml",
+      "repository": "experimental",
+      "sha256": "98f6e4636e3e5afdaf99566a77e8255da41926411626debebe32e7a88686bad5",
+      "size_bytes": 877
+    },
+    {
+      "archive_path": "t1-source-snapshot/media/configs/models/yoloe/yoloe-26s.yaml",
+      "mode": "0644",
+      "path": "configs/models/yoloe/yoloe-26s.yaml",
+      "repository": "media",
+      "sha256": "fac97fa39039d200da16846bb5e77882c1e72a619873720a883253ece49a45d3",
+      "size_bytes": 532
+    },
+    {
+      "archive_path": "t1-source-snapshot/media/pyproject.toml",
+      "mode": "0644",
+      "path": "pyproject.toml",
+      "repository": "media",
+      "sha256": "b87b33061e5eb244574ab3ee8a8cbb5d8bb2f67bbb8670bbc4ba51c47bca44e6",
+      "size_bytes": 856
+    },
+    {
+      "archive_path": "t1-source-snapshot/media/src/eovrt_media/config/__init__.py",
+      "mode": "0644",
+      "path": "src/eovrt_media/config/__init__.py",
+      "repository": "media",
+      "sha256": "f8931075071a682f491e22625f87fbf8767ae7874e425cb07a948952b8e11e0f",
+      "size_bytes": 860
+    },
+    {
+      "archive_path": "t1-source-snapshot/media/src/eovrt_media/config/loader.py",
+      "mode": "0644",
+      "path": "src/eovrt_media/config/loader.py",
+      "repository": "media",
+      "sha256": "1f5a8910a7806f1e7d5a76b98c0d1c0b8bf27a96b76e9f00e189ecf7c97669a0",
+      "size_bytes": 14080
+    },
+    {
+      "archive_path": "t1-source-snapshot/media/src/eovrt_media/config/prompt_plan.py",
+      "mode": "0644",
+      "path": "src/eovrt_media/config/prompt_plan.py",
+      "repository": "media",
+      "sha256": "7fdf8f5d047a1f78bc738106f1242efb8dd3f52124876e9cb7f80b68d76c8a6d",
+      "size_bytes": 2114
+    },
+    {
+      "archive_path": "t1-source-snapshot/media/src/eovrt_media/config/schemas.py",
+      "mode": "0644",
+      "path": "src/eovrt_media/config/schemas.py",
+      "repository": "media",
+      "sha256": "a81c51df53102c5a25ac375e12a7c9673e517e784287d2c3047cb0b1e8743703",
+      "size_bytes": 26680
+    },
+    {
+      "archive_path": "t1-source-snapshot/media/src/eovrt_media/evaluation/__init__.py",
+      "mode": "0644",
+      "path": "src/eovrt_media/evaluation/__init__.py",
+      "repository": "media",
+      "sha256": "dcf2ec3c514313f1fdd3b59f89fdbe434177ee43e13a279920ac0e9162b9e159",
+      "size_bytes": 161
+    },
+    {
+      "archive_path": "t1-source-snapshot/media/src/eovrt_media/evaluation/runner.py",
+      "mode": "0644",
+      "path": "src/eovrt_media/evaluation/runner.py",
+      "repository": "media",
+      "sha256": "d60025c4c0a53e9f005ecdb2304cfa62e2b61eae04a2d1745e2e12a7c101f1be",
+      "size_bytes": 5911
+    },
+    {
+      "archive_path": "t1-source-snapshot/media/src/eovrt_media/evaluation/schemas.py",
+      "mode": "0644",
+      "path": "src/eovrt_media/evaluation/schemas.py",
+      "repository": "media",
+      "sha256": "6973e64e6da2f975a269086f30f9a2d75ab99346fb36aeee44c910f120fe21df",
+      "size_bytes": 474
+    },
+    {
+      "archive_path": "t1-source-snapshot/media/src/eovrt_media/models/__init__.py",
+      "mode": "0644",
+      "path": "src/eovrt_media/models/__init__.py",
+      "repository": "media",
+      "sha256": "6ecc0b3d9c55dcd18556e369093631ae9fe607a49a1737a83dfbe4b59c7be4f8",
+      "size_bytes": 2729
+    },
+    {
+      "archive_path": "t1-source-snapshot/media/src/eovrt_media/models/base.py",
+      "mode": "0644",
+      "path": "src/eovrt_media/models/base.py",
+      "repository": "media",
+      "sha256": "35abc52617f3cf3dbce745cca10a8a8ad472bb96273aae1c2ff01b9d486e1895",
+      "size_bytes": 3064
+    },
+    {
+      "archive_path": "t1-source-snapshot/media/src/eovrt_media/models/runtime_utils.py",
+      "mode": "0644",
+      "path": "src/eovrt_media/models/runtime_utils.py",
+      "repository": "media",
+      "sha256": "7f7f32e4d1b465d37bfcf49d79b25cba2927650c8ddc138ec60d19012cbe0e19",
+      "size_bytes": 1194
+    },
+    {
+      "archive_path": "t1-source-snapshot/media/src/eovrt_media/models/yoloe_adapter.py",
+      "mode": "0644",
+      "path": "src/eovrt_media/models/yoloe_adapter.py",
+      "repository": "media",
+      "sha256": "9eb5ec05cf98f9a186dd6ecc2dfbd2ed596ae5e9d79b515988344fbb8ee74142",
+      "size_bytes": 11265
+    },
+    {
+      "archive_path": "t1-source-snapshot/media/src/eovrt_media/service/routers/runs.py",
+      "mode": "0644",
+      "path": "src/eovrt_media/service/routers/runs.py",
+      "repository": "media",
+      "sha256": "c5e87e92dfca7ec7ee97e702b51c62469336277e8fefb315e3b3a129ab632306",
+      "size_bytes": 8625
+    },
+    {
+      "archive_path": "t1-source-snapshot/media/src/eovrt_media/tools/evaluate.py",
+      "mode": "0644",
+      "path": "src/eovrt_media/tools/evaluate.py",
+      "repository": "media",
+      "sha256": "99023618055d5251ae73bb2e678a0de4b9f1681d243a47ebb0771ff9c0f8e35a",
+      "size_bytes": 3243
+    },
+    {
+      "archive_path": "t1-source-snapshot/media/tests/test_config_refs.py",
+      "mode": "0644",
+      "path": "tests/test_config_refs.py",
+      "repository": "media",
+      "sha256": "48c09b564fe707c6ae6e691cf3f24e43ecad2351417523deca68d18a93466fcc",
+      "size_bytes": 6725
+    },
+    {
+      "archive_path": "t1-source-snapshot/media/tests/test_evaluate.py",
+      "mode": "0644",
+      "path": "tests/test_evaluate.py",
+      "repository": "media",
+      "sha256": "cd3f98f1768ee65e0a28ef81ea756afb04cf76ab37e0c2245ab12730bf96f4a4",
+      "size_bytes": 16585
+    },
+    {
+      "archive_path": "t1-source-snapshot/media/tests/test_model_factory_runtime.py",
+      "mode": "0644",
+      "path": "tests/test_model_factory_runtime.py",
+      "repository": "media",
+      "sha256": "30678c6eebfb9088b6384197e20bd831336f750f77a940e784269c616edd6c29",
+      "size_bytes": 2152
+    },
+    {
+      "archive_path": "t1-source-snapshot/media/tests/test_yoloe_binding.py",
+      "mode": "0644",
+      "path": "tests/test_yoloe_binding.py",
+      "repository": "media",
+      "sha256": "08e346b24f97d2cc1b377c166b2ba6212edc314466ac9d8ca3d0b7096c150055",
+      "size_bytes": 4699
+    },
+    {
+      "archive_path": "t1-source-snapshot/media/tests/test_yoloe_runtime.py",
+      "mode": "0644",
+      "path": "tests/test_yoloe_runtime.py",
+      "repository": "media",
+      "sha256": "425db930382dccbf62085059c559b9c81d1491fcc5f3c241823f9e5974503729",
+      "size_bytes": 3443
+    }
+  ],
+  "inventory": {
+    "normalized_sha256": "51b643cfa5b77257fca8353a3b6168c47b403f7a77aec3d81338027924ead117",
+    "repositories": {
+      "docs": [
+        "CRONOLOGIA.md",
+        "contingencia/20-investigacion-finetuning-condicionada-e04.md",
+        "decisiones/adr-017-fine-tuning-jornada-experimental.md",
+        "operacion/100-t1-dimensionamiento-medido.md",
+        "operacion/116-plan-maestro-finetuning.md",
+        "operacion/117-decisiones-y-tareas-finetuning.md"
+      ],
+      "experimental": [
+        "finetuning/README.md",
+        "finetuning/configs/README.md",
+        "finetuning/configs/t1_yoloe26s_lp.yaml",
+        "finetuning/containers/README.md",
+        "finetuning/containers/requirements-t1.txt",
+        "finetuning/containers/t1-yoloe.def",
+        "finetuning/manifests/README.md",
+        "finetuning/manifests/t1_base_weights.json",
+        "finetuning/manifests/t1_container_image.json",
+        "finetuning/manifests/t1_smoke_1166583_media_plane.json",
+        "finetuning/manifests/t1_source_inventory.json",
+        "finetuning/manifests/t1_yoloe26s_bench_v3_protocol.json",
+        "finetuning/requirements-audit.txt",
+        "finetuning/scripts/README.md",
+        "finetuning/scripts/audit_finetuning_v1.py",
+        "finetuning/scripts/audit_t1_full.py",
+        "finetuning/scripts/build_finetuning_v1.py",
+        "finetuning/scripts/build_t1_image_login.sh",
+        "finetuning/scripts/create_t1_source_snapshot.py",
+        "finetuning/scripts/finalize_t1_full_mendieta.sh",
+        "finetuning/scripts/finalize_t1_smoke_mendieta.sh",
+        "finetuning/scripts/finetuning_data.py",
+        "finetuning/scripts/materialize_bench_v3_view.py",
+        "finetuning/scripts/materialize_t1_payload.py",
+        "finetuning/scripts/package_t1_bundle.py",
+        "finetuning/scripts/prepare_t1_full_authorization.py",
+        "finetuning/scripts/prepare_t1_smoke_gate.py",
+        "finetuning/scripts/stage_t1_base_assets.py",
+        "finetuning/scripts/submit_t1_full_mendieta.sh",
+        "finetuning/scripts/train_t1.py",
+        "finetuning/scripts/verify_t1_bundle.py",
+        "finetuning/scripts/verify_t1_full_authorization.py",
+        "finetuning/scripts/verify_t1_media_plane.py",
+        "finetuning/scripts/verify_t1_smoke_gate.py",
+        "finetuning/scripts/watch_finalize_t1_full_mendieta.sh",
+        "finetuning/scripts/watch_finalize_t1_smoke_mendieta.sh",
+        "finetuning/slurm/README.md",
+        "finetuning/slurm/run_t1_job.sh",
+        "finetuning/slurm/t1_full.sbatch",
+        "finetuning/slurm/t1_smoke.sbatch",
+        "finetuning/tests/README.md",
+        "finetuning/tests/test_bench_v3_view.py",
+        "finetuning/tests/test_finetuning_data.py",
+        "finetuning/tests/test_t1_source_snapshot.py",
+        "finetuning/tests/test_t1_stack.py",
+        "prompts/cr01_cr02_bench_v2.yaml"
+      ],
+      "media": [
+        "configs/models/yoloe/yoloe-26s.yaml",
+        "pyproject.toml",
+        "src/eovrt_media/config/__init__.py",
+        "src/eovrt_media/config/loader.py",
+        "src/eovrt_media/config/prompt_plan.py",
+        "src/eovrt_media/config/schemas.py",
+        "src/eovrt_media/evaluation/__init__.py",
+        "src/eovrt_media/evaluation/runner.py",
+        "src/eovrt_media/evaluation/schemas.py",
+        "src/eovrt_media/models/__init__.py",
+        "src/eovrt_media/models/base.py",
+        "src/eovrt_media/models/runtime_utils.py",
+        "src/eovrt_media/models/yoloe_adapter.py",
+        "src/eovrt_media/service/routers/runs.py",
+        "src/eovrt_media/tools/evaluate.py",
+        "tests/test_config_refs.py",
+        "tests/test_evaluate.py",
+        "tests/test_model_factory_runtime.py",
+        "tests/test_yoloe_binding.py",
+        "tests/test_yoloe_runtime.py"
+      ]
+    },
+    "schema_version": "eovrt.t1-source-inventory.v1"
+  },
+  "repositories": {
+    "docs": {
+      "branch": "main",
+      "dirty_scoped": true,
+      "files": 6,
+      "head": "aa723b3078a1df508f40f9a4f4de813fe3e00827",
+      "status_porcelain_v1": [
+        " M CRONOLOGIA.md",
+        " M contingencia/20-investigacion-finetuning-condicionada-e04.md",
+        " M decisiones/adr-017-fine-tuning-jornada-experimental.md",
+        " M operacion/100-t1-dimensionamiento-medido.md",
+        "?? operacion/116-plan-maestro-finetuning.md",
+        "?? operacion/117-decisiones-y-tareas-finetuning.md"
+      ],
+      "status_scope": "inventory_paths_only"
+    },
+    "experimental": {
+      "branch": "feature/webconsole-consola-tesis",
+      "dirty_scoped": true,
+      "files": 46,
+      "head": "cd3af9fc2308a72b8f688abf24ca4cbade133cb3",
+      "status_porcelain_v1": [
+        "?? finetuning/README.md",
+        "?? finetuning/configs/README.md",
+        "?? finetuning/configs/t1_yoloe26s_lp.yaml",
+        "?? finetuning/containers/README.md",
+        "?? finetuning/containers/requirements-t1.txt",
+        "?? finetuning/containers/t1-yoloe.def",
+        "?? finetuning/manifests/README.md",
+        "?? finetuning/manifests/t1_base_weights.json",
+        "?? finetuning/manifests/t1_container_image.json",
+        "?? finetuning/manifests/t1_smoke_1166583_media_plane.json",
+        "?? finetuning/manifests/t1_source_inventory.json",
+        "?? finetuning/manifests/t1_yoloe26s_bench_v3_protocol.json",
+        "?? finetuning/requirements-audit.txt",
+        "?? finetuning/scripts/README.md",
+        "?? finetuning/scripts/audit_finetuning_v1.py",
+        "?? finetuning/scripts/audit_t1_full.py",
+        "?? finetuning/scripts/build_finetuning_v1.py",
+        "?? finetuning/scripts/build_t1_image_login.sh",
+        "?? finetuning/scripts/create_t1_source_snapshot.py",
+        "?? finetuning/scripts/finalize_t1_full_mendieta.sh",
+        "?? finetuning/scripts/finalize_t1_smoke_mendieta.sh",
+        "?? finetuning/scripts/finetuning_data.py",
+        "?? finetuning/scripts/materialize_bench_v3_view.py",
+        "?? finetuning/scripts/materialize_t1_payload.py",
+        "?? finetuning/scripts/package_t1_bundle.py",
+        "?? finetuning/scripts/prepare_t1_full_authorization.py",
+        "?? finetuning/scripts/prepare_t1_smoke_gate.py",
+        "?? finetuning/scripts/stage_t1_base_assets.py",
+        "?? finetuning/scripts/submit_t1_full_mendieta.sh",
+        "?? finetuning/scripts/train_t1.py",
+        "?? finetuning/scripts/verify_t1_bundle.py",
+        "?? finetuning/scripts/verify_t1_full_authorization.py",
+        "?? finetuning/scripts/verify_t1_media_plane.py",
+        "?? finetuning/scripts/verify_t1_smoke_gate.py",
+        "?? finetuning/scripts/watch_finalize_t1_full_mendieta.sh",
+        "?? finetuning/scripts/watch_finalize_t1_smoke_mendieta.sh",
+        "?? finetuning/slurm/README.md",
+        "?? finetuning/slurm/run_t1_job.sh",
+        "?? finetuning/slurm/t1_full.sbatch",
+        "?? finetuning/slurm/t1_smoke.sbatch",
+        "?? finetuning/tests/README.md",
+        "?? finetuning/tests/test_bench_v3_view.py",
+        "?? finetuning/tests/test_finetuning_data.py",
+        "?? finetuning/tests/test_t1_source_snapshot.py",
+        "?? finetuning/tests/test_t1_stack.py"
+      ],
+      "status_scope": "inventory_paths_only"
+    },
+    "media": {
+      "branch": "feature/inference-service",
+      "dirty_scoped": true,
+      "files": 20,
+      "head": "94660e6cadff825a383d5026b067d7e0b6b7cdce",
+      "status_porcelain_v1": [
+        " M src/eovrt_media/config/__init__.py",
+        " M src/eovrt_media/config/schemas.py",
+        " M src/eovrt_media/evaluation/runner.py",
+        " M src/eovrt_media/evaluation/schemas.py",
+        " M src/eovrt_media/models/__init__.py",
+        " M src/eovrt_media/models/yoloe_adapter.py",
+        " M src/eovrt_media/service/routers/runs.py",
+        " M tests/test_config_refs.py",
+        " M tests/test_evaluate.py",
+        " M tests/test_model_factory_runtime.py",
+        " M tests/test_yoloe_binding.py",
+        " M tests/test_yoloe_runtime.py"
+      ],
+      "status_scope": "inventory_paths_only"
+    }
+  },
+  "schema_version": "eovrt.t1-source-snapshot.v1",
+  "task_id": "T-FT-023",
+  "totals": {
+    "files": 72,
+    "source_bytes": 512774
+  }
+}

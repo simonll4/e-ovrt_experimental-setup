@@ -298,7 +298,7 @@ async def run_experiment_route(body: dict, request: Request) -> dict:
     # ANTES de disparar media), y replay los encadena. Si algo falta, el
     # operador se entera ACA con un 503 explicable, no polleando un
     # experimento que nació muerto dentro del runner en background.
-    status = await platform_preflight(request.app)
+    status = await platform_preflight(request.app, manifest=manifest)
     if not status["ready"]:
         return JSONResponse(
             status_code=503,

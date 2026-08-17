@@ -3,9 +3,12 @@
 Banco: **34 clips** del rodaje (Bloque A, 2026-07-25), 35 episodios (CR-01 28 /
 CR-02 7), P1–P9, `manifest.yaml` sha256 `cef5082e…` — **ese sha es el freeze de 34
 que usaron todas las campañas de esta tabla**, recuperable en el commit `f7a27fe6` de
-`e-ovrt_datasets`. El banco **vigente** tiene **38 clips** (34 del rodaje + 4 del
-estrato B, manifest `4437eb6d…`): las filas del rodaje nunca cambiaron, el manifest
-solo creció. El estrato B tiene su propia sección al final. **Denominador citable: 34
+`e-ovrt_datasets`. El banco **vigente** (✎ 2026-08-09) tiene **47 clips** — 34 del
+rodaje (Bloque A) + **13** del estrato B (Bloque B), **32 positivos / 15 negativos /
+37 episodios** (CR-01 30 / CR-02 7), manifest `manifest.yaml` sha256 `3f14f50a…`.
+**Las filas del rodaje nunca cambiaron**: tanto las altas del estrato B como la
+revisión ciega del GT del 08-09 (doc `operacion/113` §B) ocurrieron enteramente en el
+Bloque B. El estrato B tiene su propia sección al final. **Denominador citable: 34
 episodios evaluables sobre 35** — 1 censurado con causa
 (`clip_too_short_for_t_alert_window`, un CR-01 de P1; enmienda A2): todos los
 recall de esta página son sobre 34 (T1 28/34 = 0,824; G1 33/34 = 0,971 — quien
@@ -61,6 +64,36 @@ campaña (D1: 27+14 = 41 vs 35 totales); (2) `by_condition` no trae recall — e
 recall por condición vive en los docs de campaña: en T1 **CR-02 confirma 7/7 =
 1,000 pese a SDR 0,281** (F-81.1, doc 81), la cifra que sostiene el argumento de
 la histéresis.)
+
+## `t_alert` = `t_alert-system` — equivalencia de nombres y regla de cita (✎ 2026-08-15)
+
+La columna **`t_alert`** de las tablas de arriba **es la métrica `t_alert-system` del
+diccionario de la spec 40 §5.1**: el mismo campo `t_alert_system_ms` de los `metrics.json`
+de cada campaña (`positives`, `by_condition`, `by_clip`), que a su vez es passthrough de
+`avg_latency_ms_from_episode_start` de `evaluate-alerts` (control-plane). Mide **desde el
+inicio anotado del episodio en el GT hasta la alerta registrada** — o sea que incluye la
+persistencia del patrón por diseño (`t_alert ≈ persistencia + TTFD + intermitencia`, F-81.3).
+
+**Citabilidad, decidida el 2026-08-15 (doc `operacion/119` §7.3):**
+
+- **Citable por campaña y por condición**, desde estas tablas o desde el `metrics.json`
+  correspondiente. **Nunca** promediada entre campañas, y **nunca** comparada entre
+  densidades sin control de supervivencia (F-96.5: el agregado esconde sesgo de
+  supervivencia — al degradarse el recall, los episodios difíciles salen de la muestra).
+- En `report.json` de corridas nuevas la métrica aparece como `t_alert-system`
+  (`computed` cuando hay evaluación temporal con GT; estados con causa en el resto).
+  Los 232 reports consolidados anteriores al 2026-08-13 la muestran `not_applicable`
+  porque son previos al cambio: **la fuente citable para las campañas de este índice son
+  estos `metrics.json`**, no aquellos reports.
+- `precision_alertas` / `recall_alertas` / `F1_alertas` de `report.json` **no son
+  citables**: duplican las cifras de `evaluate-alerts` que este índice ya publica con
+  denominadores por estrato.
+
+**No confundir los dos nombres del diccionario:** `t_alert-system` (este — episodio→alerta,
+dentro de la plataforma) ≠ **`t_alert-notification`** (bus de alertas→PUBACK MQTT, el tramo
+de distribución: campaña propia en
+[`../realtime/t_alert_notification/`](../realtime/t_alert_notification/README.md), p95
+64,534 ms n=460). Son tramos disjuntos de la cadena y no se suman percentiles entre ellos.
 
 ## Mecanismo de las alertas inesperadas (`datos/85-mecanismo-de-fallas.py`)
 
@@ -292,17 +325,26 @@ una inversión — se declara, no se explica (doc 96 §7).**
 | ~~1~~ | ~~`bare_head` × `gdino-base-560`~~ | **HECHO (B1, doc 88)**: F-88.2 tampoco alcanza (0,480 vs 0,582); de yapa F-88.1 (costo del caption) y F-88.3 | **cerrado** |
 | ~~1~~ | ~~Granularidad `subject` (G1)~~ | **HECHO (G1, doc 89)**: F1 0,930, la mejor del banco. `track_id` post-hoc, sin GPU | **cerrado** |
 | ~~1~~ | ~~Densidad de evidencia del camino live~~ | **HECHO (R1–R6, doc 96)**: F-96.4 — la ganancia de la identidad excluye el cero en las 4 densidades; los deltas de densidad del agregado no | **cerrado** |
-| 1 | Lote de internet sumado al banco | Material no guionado (L4) + soak → **análisis de sensibilidad del control de FP** (D-90.1 punto 4 — NO habilita FAR/hora: la limitación L1 permanece, ver caveat abajo) | **GT LISTO (3 clips, doc 102); campañas I1/I2 armadas, sin correr** |
-| 2 | Campaña EBE de punta a punta por el bus sobre los 34 clips | Integridad del acople y latencia operativa CONTRA GT, no en humos. Hoy el eje se cubre por densidad (R1–R6) + humos verdes (37/65/67/91) | trabajo ubicado, no ejecutado |
-| 2 | Port de `track_id` al pipeline online (spec 42 §3) | Solo si se decide llevar G1 a producción: hoy el `track_id` es post-hoc. Decisión de ADR-002, ver doc 89 §7 | decisión del usuario |
+| ~~1~~ | ~~Lote de internet sumado al banco~~ | **HECHO (I1/I2, gen. 3, docs 109–113)**: 13 clips con GT humano en el banco, soak incorporado, y el análisis de sensibilidad del control de FP dio la asimetría 26 vs 323. De yapa, la revisión ciega del GT (**5 de 7 declaraciones eran errores de anotación**) convirtió la calidad del GT en un resultado. Ver la sección del estrato B | **cerrado** |
+| ~~2~~ | ~~Campaña EBE de punta a punta por el bus sobre los 34 clips~~ | Integridad del acople y latencia operativa CONTRA GT, no en humos. Hoy el eje se cubre por densidad (R1–R6) + humos verdes (37/65/67/91). ✎ **2026-08-15 — evaluada y DESCARTADA CON CAUSA (F-121.1)**: no daría resultado nuevo. El pipeline DBE es determinista (F-109.1) y el bus publica el evento **byte-idéntico** al del JSONL (paridad verificada por mutación, doc 37 §3) ⇒ **el resultado sería idéntico a T1 por construcción**. La única divergencia posible (pérdida en el bus) ya se cuenta y degrada la corrida | **declarada con causa — no pendiente** |
+| ~~2~~ | ~~Port de `track_id` al pipeline online (spec 42 §3)~~ | ✎ **2026-08-15 — esta fila estaba STALE y se corrige.** *Decía: "solo si se decide llevar G1 a producción: hoy el `track_id` es post-hoc. Decisión de ADR-002, ver doc 89 §7 — decisión del usuario".* **El planteo lo reencuadró la implementación** (doc 89 §6 bis) y la **adenda de ADR-002 quedó RATIFICADA el 2026-08-05**: la identidad se implementó como **decorador de fuente en el control-plane** (`sources/tracking.py`, `input.track_persons`), cableado en los **dos** runtimes ⇒ **G1 ya está disponible en DBE y en EBE/live**, sin que el media-plane emita `track_id`. Verificado en vivo con la OAK-D (doc 91: clave `CR-01:smoke_ebe:subject_001`, sin `no_track_id`). El port del spec 42 §3 **dejó de ser el camino obligatorio**; sería sólo una decisión de arquitectura (mover el tracker al media-plane para embeber `track_id` en `detections.jsonl`), **no un pendiente de resultados** | **cerrado — ya no es decisión pendiente** |
+| ~~2~~ | ~~Resolución 800 px sobre el banco temporal~~ | ✎ **Fila agregada 2026-08-10 para que la palanca no falte del tablero. NO ejecutada CON CAUSA:** 560 domina a 800 en el bench de imágenes (igual o mejor mAP con **−24% de latencia**, D-61.4), así que correrla habría medido una configuración dominada y roto la variable única de las campañas. Declarado en doc 64 §Decisiones S2 | **no ejecutada con causa** — trabajo futuro con predicción escrita (doc 103 §7.4 la lista entre las mitigaciones no medidas para `vest` a distancia) |
 
 **Todas las palancas del banco están agotadas.** Formulación (D1), fusión (H1), modelo
 (T2), vocabulario nativo (B1), granularidad (G1) y **densidad de evidencia (R1–R6)**.
-Lo único que falta para cerrar el banco es material: video no guionado (L4) y el soak
-como **control de negativos ampliado** — que no convierte a FAR/hora en métrica (L1
-permanece: el techo del banco con soak es 0,263 h y hacen falta 3 h).
-
-### Estrato B — lote de internet (4 clips, obra real NO guionada)
+La única que **no** se ejercitó es la **resolución** (800 px), y está declarada como no
+ejecutada con causa en la fila de arriba — no se cuenta entre las agotadas a propósito.
+✎ **2026-08-09: el material que faltaba también entró.** El video no guionado (L4,
+precisada) y el soak llegaron con el estrato B: el banco quedó en 47 clips con 0,2725 h
+de tiempo negativo total, de las cuales 0,1027 h son soak citable. Eso **no convierte a
+FAR/hora en una cota** (L1 sigue en pie por el denominador: hacen falta 3 h), pero sí la
+hizo computable y reportada. ~~Lo que queda abierto no es material del banco sino los dos
+ejes ubicados y no ejecutados de la tabla de arriba (campaña EBE por el bus, port del
+`track_id` al pipeline online).~~ ✎ **2026-08-15 — no queda ninguno de los dos:** el port
+del `track_id` **nunca fue un pendiente** (G1 ya corre en DBE y EBE/live como decorador
+del control-plane; ADR-002 adenda ratificada el 08-05, verificada en vivo en el doc 91) y
+la campaña EBE por el bus quedó **declarada con causa** tras evaluarla (F-121.1: daría el
+resultado idéntico por construcción). **El banco no tiene frentes abiertos.**
 
 ### Estrato B — lote de internet (13 clips, obra real NO guionada) · gen. 3, 2026-08-09
 
@@ -428,8 +470,10 @@ banco pasó de 0,0358 h a **0,2725 h de tiempo negativo total** (`clip_bench_man
 ✎ 08-09: incluye los ex-positivos `v01_c01` y `v04_c02` tras la revisión ciega),
 de los cuales 0,1027 h son soak citable.
 
-> **~~FAR/hora no es una métrica de este trabajo~~ — DEROGADO el 2026-08-07 por el
-> bloque de arriba.** Se conserva el texto original por trazabilidad: *"(D-90.1,
+> **~~FAR/hora no es una métrica de este trabajo~~ — lo derogado el 2026-08-07 es esa
+> REGLA DE REPORTE; D-90.1 queda PRECISADA, no derogada** (bloque de arriba, y
+> limitación **L1** en `results/index.md`, que es la formulación canónica: se computa y
+> se reporta, no sostiene una cota). Se conserva el texto original por trazabilidad: *"(D-90.1,
 > 2026-08-04) Para afirmar 'FAR ≤ 1 FA/hora' con 0 FP harían falta 3 h de video en
 > cumplimiento anotado; el banco alcanza 0,101 h con el clip soak previsto y 0,263 h
 > como techo. Una cota de 11–30 FA/h no sostiene ninguna afirmación operativa."*
@@ -449,6 +493,24 @@ de los cuales 0,1027 h son soak citable.
 > las campañas `eind`**: el código de hoy reproduce los 34 evals de T1 idénticos campo
 > a campo (`datos/96-verificar-comparabilidad-t1.py`, 2026-08-05). Las filas de arriba
 > son comparables entre sí sin re-evaluar.
+
+## Artefactos secundarios de esta familia (✎ declarados 2026-08-09)
+
+Tres campañas guardan un `.json` **además** de su `metrics.json`. Hasta hoy ninguno
+estaba nombrado en un índice, y un archivo de métricas sin etiqueta al lado del
+principal es una invitación a citar el número equivocado. Qué es cada uno:
+
+| Archivo | Qué es | Estado | Doc |
+|---|---|---|---|
+| `i1_…_internet/metrics.gen2.json` | Generación 2 de I1: **4 clips**, banco de 38, manifest `4437eb6d…`. F1 0,571 | **SUPERSEDIDO** por `metrics.json` (gen. 3, 13 clips) | `operacion/109`–`111` |
+| `i2_…_internet/metrics.gen2.json` | Ídem, brazo `subject`. F1 0,400 | **SUPERSEDIDO** | Ídem |
+| `b1_…_barehead_scene/metrics_eind_mismo_caption.json` | **Control interno de B1**, no una generación vieja: las MISMAS detecciones de `gdino-base-560` con caption de 4 clases, evaluadas con **E-IND** en vez de `bare_head` directo. **F1 0,622 y 0 FP en negativos** (contra 0,377 y 3 FP del principal) | **VIGENTE** — es la mitad (a) del diseño "una inferencia, dos evaluadores" y sostiene **F-88.1** (el costo del caption: 0,704 → 0,622, −0,082) | `operacion/88` |
+
+> ⚠️ **Los dos `metrics.gen2.json` NO se editan** (doc 113 §D3): conservan el valor
+> incorrecto de `far_per_hour` (48,7 / 2.045,6) junto a un `far_basis` que describe la
+> fórmula **corregida** y no la que produjo ese número. Se congelan a propósito, como
+> registro de lo que la gen. 2 produjo; lo que se corrige es el registry y la
+> procedencia, nunca el artefacto histórico.
 
 > **El SDR no se compara entre cadencias (F-96.6).** Vale dentro de un mismo `stride`.
 > Las seis campañas de la tabla principal comparten `stride: 1`, así que ninguna

@@ -1,0 +1,56 @@
+schema_version: eovrt.finetuning-config.v1
+experiment_id: t1_yoloe26s_lp
+decision: D-FT-01
+
+model:
+  architecture: yoloe-26s.yaml
+  base_weight: weights/base/yoloe-26s-seg.pt
+  text_encoder: weights/base/mobileclip2_b.ts
+  fixed_vocabulary:
+    0: person
+    1: helmet
+    2: vest
+    3: bare head
+
+data:
+  manifest: manifests/finetuning_v1.summary.json
+  yaml: data/finetuning_v1/data.yaml
+  train_images: 2946
+  val_images: 483
+
+trainer:
+  implementation: ultralytics.models.yolo.yoloe.YOLOEPETrainer
+  freeze_guard: eovrt.fused_class_projection_only.v1
+  expected_trainable_tensors: 12
+  expected_trainable_parameters: 3096
+  expected_trainable_names:
+    - model.23.cv3.0.2.bias
+    - model.23.cv3.0.2.weight
+    - model.23.cv3.1.2.bias
+    - model.23.cv3.1.2.weight
+    - model.23.cv3.2.2.bias
+    - model.23.cv3.2.2.weight
+    - model.23.one2one_cv3.0.2.bias
+    - model.23.one2one_cv3.0.2.weight
+    - model.23.one2one_cv3.1.2.bias
+    - model.23.one2one_cv3.1.2.weight
+    - model.23.one2one_cv3.2.2.bias
+    - model.23.one2one_cv3.2.2.weight
+  ultralytics: 8.4.86
+  epochs: 10
+  batch: 8
+  workers: 2
+  imgsz: 640
+  seed: 100
+  deterministic: true
+  device: 0
+  val: true
+  plots: false
+  save: true
+  save_period: 1
+  checkpoint_policy: best_metrics_mAP50-95_B_all_four_val_classes
+  retain_last: true
+
+smoke:
+  epochs: 1
+  fraction: 0.05

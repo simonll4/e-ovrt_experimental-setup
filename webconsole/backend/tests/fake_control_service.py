@@ -106,7 +106,7 @@ def make_fake_control_service(state: FakeControlState) -> FastAPI:
         }
 
     @app.get("/api/runs/{run_id}")
-    def get_run(run_id: str):
+    async def get_run(run_id: str):
         if run_id == state.active_run_id:
             if state.finish_status is not None:
                 return {

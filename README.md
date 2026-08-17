@@ -1,9 +1,10 @@
 # e-ovrt_experimental-setup
 
-Home de la **declaración de experimentos** de la plataforma **E-OVRT-VDP** (Experimental
+Home de la **declaración y preparación reproducible de experimentos** de la plataforma **E-OVRT-VDP** (Experimental
 Open-Vocabulary Real-Time Video Detection Platform — detección asistiva de riesgos de seguridad en
 obra). Contiene los *prompt sets* y los *manifiestos de corrida* que definen **qué se estudia**, y
-que antes vivían dentro de `e-ovrt_media-plane/configs/`.
+que antes vivían dentro de `e-ovrt_media-plane/configs/`. El proceso de entrenamiento remoto se
+encapsula en `finetuning/` con sus recetas, manifiestos y artefactos locales ignorados.
 
 ---
 
@@ -17,7 +18,8 @@ en particular.
 Por eso se separa en este repo:
 
 - **Este repo (`experimental-setup`)** = *qué se estudia*. Fuente canónica de prompt sets y
-  manifiestos. Es declarativo: no ejecuta nada por sí mismo.
+  manifiestos. El flujo habitual es declarativo; la excepción explícita es `finetuning/`, que
+  contiene tooling reproducible para preparar y ejecutar entrenamientos experimentales.
 - **`e-ovrt_media-plane`** = *cómo corre el plano*. Conserva el **contrato** (schemas Pydantic,
   `PromptPlan`, adaptadores, binding) y las **capacidades** (catálogos `configs/models/` y
   `configs/datasets/`), que los manifiestos referencian por id.
@@ -51,6 +53,8 @@ infra/
                                    # media-plane (una por modelo) + consola. Ver infra/platform/README.md.
   console/                        # consola standalone (Dockerfile + compose) contra un
                                    # servicio media-plane externo, sin fleet propio.
+finetuning/                       # configs, scripts, Apptainer, Slurm y manifiestos de training
+  weights/  data/payloads/  runs/ # artefactos locales pesados, ignorados por Git
 README.md
 ```
 
@@ -77,6 +81,41 @@ El binding de detecciones a la clase canónica lo hace el adaptador del media-pl
 
 **Supuesto de disposición:** `e-ovrt_media-plane`, `e-ovrt_experimental-setup` y `e-ovrt_datasets`
 viven como **repos hermanos** en el mismo directorio.
+
+## 3 bis. Entorno de desarrollo y tests (✎ 2026-08-15, cierra F-119.1)
+
+Este repo **no es un paquete instalable** —es el dueño de la configuración experimental,
+la orquestación, el fine-tuning y la webconsole—, así que no tiene `pyproject.toml`
+propio. Su entorno se declara en **`requirements-dev.txt`**:
+
+```bash
+python3.11 -m venv .venv
+.venv/bin/pip install -r requirements-dev.txt
+```
+
+**Python 3.11, no 3.14.** `e-ovrt_alert-distribution` declara
+`requires-python = ">=3.11,<3.12"`; su código importa bien en 3.14, pero el pin es su
+contrato y no se toca desde otro repo. **3.11 es el único denominador común** que
+satisface a los tres hermanos a la vez, y por eso permite correr la suite entera en **un
+solo intérprete** — que era justamente lo que faltaba:
+
+```bash
+.venv/bin/python -m pytest tests/                            #  88 passed
+.venv/bin/python -m pytest finetuning/tests/                 #  46 passed
+cd webconsole/backend && ../../.venv/bin/python -m pytest    # 643 passed
+```
+
+Los tres hermanos se instalan **editable**, así que la suite ejercita el código vivo de
+cada plano, no una copia. Asume el layout de repos hermanos en disco (ver el `CLAUDE.md`
+del workspace).
+
+> **Por qué esto era un problema.** Los seis módulos `tests/test_talert_*` necesitan
+> `eovrt_distribution` + `eovrt_control` + `httpx` + `paho` + `msgpack` **en el mismo
+> entorno**, y ningún venv de los repos hermanos los tiene juntos. Existía un
+> `.venv-talert/` ad-hoc que sí funcionaba, pero estaba gitignoreado, sin documentar y
+> con un nombre que sugería que servía sólo para la campaña `t_alert` — o sea, invisible
+> para cualquiera que leyera el repo. Ahora el entorno es `.venv/`, declarado y
+> reproducible; `.venv-talert/` quedó **redundante**.
 
 ## 4. Quickstart
 
@@ -150,14 +189,27 @@ Estado validado (2026-06-30): corridas reales two-node con YOLOE-26s (1330 imgs)
 - **Experimento nuevo:** copiá un manifiesto de `experiments/`, ajustá `source.ref`/`model.ref`/
   `prompts.ref`. Convención de naming del bench y campos en [`docs/experiments.md`](docs/experiments.md).
 
-## 7. Puntos de extensión (futuro)
+## 7. Fine-tuning
+
+La jornada E-04 se organiza en [`finetuning/`](finetuning/README.md). Esa carpeta concentra
+configuraciones, herramientas, recetas Apptainer, jobs Slurm, manifiestos y los pesos de trabajo.
+Los datos canónicos siguen en `e-ovrt_datasets`; un peso sólo se copia al catálogo del media-plane
+después del gate de integración. Plan y decisiones: `docs/operacion/116` y `117` del repo hermano.
+
+## 8. Puntos de extensión (futuro)
 
 Cuando existan los planos de **control** (reglas de riesgo) y **alertas** (umbrales/notificaciones),
 el manifiesto los compondrá con el mismo patrón "ref por id" (`control_plane.ref`, `alerts.ref`),
 resolviendo cada uno contra el catálogo de su plano. Hoy **no** existen y **no** se declaran (YAGNI).
 
-## 8. Versionado
+## 9. Versionado
 
-Se commitean prompt sets, manifiestos y documentación (texto). **No** se commitean salidas de
-corridas (`runs/`, que viven en el media-plane). Los prompt sets congelados (`cr01_cr02_*`) **no se
-modifican** — su byte-equivalencia garantiza la reproducibilidad del BENCH.
+Se commitean prompt sets, manifiestos y documentación (texto). **No** se commitean los directorios
+originales de corridas (`runs/`, que viven en los planos hermanos). La única excepción es el
+archivo generado [`results/evidence-runs/`](results/evidence-runs/README.md): contiene solo la
+copia textual curada de los runs citados por resultados DBE/EBE y excluye imágenes, video,
+previews, presets y secretos. Su inventario canónico está en
+[`results/evidence-runs.md`](results/evidence-runs.md). Los prompt sets congelados
+(`cr01_cr02_*`) **no se modifican** — su byte-equivalencia garantiza la reproducibilidad del
+BENCH. Bajo `finetuning/` tampoco se versionan pesos, payloads, imágenes Apptainer ni runs: se
+versionan sus recetas, manifiestos, hashes y resúmenes curados.

@@ -1,0 +1,2 @@
+# Reproduce the image fingerprints recorded by finetuning_v1.audit.json.
+Pillow==12.2.0

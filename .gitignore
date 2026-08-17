@@ -1,9 +1,20 @@
 infra/platform/.env
 runs/
+!finetuning/runs/
+!finetuning/runs/README.md
 # presets de cámara con credenciales en claro (doc 56 §7 de docs/)
 cameras/
 
 .worktrees/
+
+# venv canónico del repo (ver README §Entorno de desarrollo). Python 3.11 por el
+# pin `requires-python = ">=3.11,<3.12"` de e-ovrt_alert-distribution.
+.venv/
+# fósil: venv ad-hoc que se creaba sólo para los tests talert, superado por .venv/
+.venv-talert/
+
+# copia de evidencia (120 MB): excepción de versionado declarada en README §Runs de evidencia
+results/evidence-runs/
 
 # videos de defensa: media derivada, se regenera con defensa/armar_videos.py
 defensa/videos/

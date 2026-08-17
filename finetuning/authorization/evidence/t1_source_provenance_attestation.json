@@ -1,0 +1,65 @@
+{
+  "schema_version": "eovrt.t1-source-provenance-attestation.v1",
+  "task_id": "T-FT-023",
+  "status": "provenance_frozen",
+  "attested_at": "2026-08-13",
+  "scope": {
+    "repositories": {
+      "experimental": 46,
+      "docs": 6,
+      "media": 20
+    },
+    "files": 72,
+    "source_bytes": 512774,
+    "excludes": [
+      "weights",
+      "training_and_validation_payloads",
+      "bench_v3",
+      "runs",
+      "cache",
+      "binary_artifacts",
+      "symlinks",
+      "git_ignored_files",
+      "credentials"
+    ]
+  },
+  "snapshot": {
+    "inventory": {
+      "path": "finetuning/manifests/t1_source_inventory.json",
+      "sha256": "431e43a4241357b65e8124b86171a8fa5c7555ff3d5abd129b729b633b483617"
+    },
+    "manifest": {
+      "path": "finetuning/manifests/t1_source_snapshot.json",
+      "sha256": "f487347b058997e9e5d1a9f7721377a3dd86784f807fdcb95633c84f54229bc8"
+    },
+    "archive": {
+      "local_ignored_path": "finetuning/cache/t1_source_snapshot.tar",
+      "sha256": "639e60df1bcca25590357f54c6897cedcb83cb6e21a651328f6b828cefac3ebe",
+      "size_bytes": 573440,
+      "second_generation_byte_identical": true
+    }
+  },
+  "active_training_bundle": {
+    "release": "r20",
+    "declared_entries": 6888,
+    "bundle_sha256_index_sha256": "1049b3ea1bebd8ebbeb78224daf0febf8dfcaac22503721feeaa0ca39893e026",
+    "bundle_json_sha256": "084c8842f54e531f5065192b3b733b068b046f0d9789c463dfeda8c144d14954",
+    "verified_locally": true,
+    "verified_in_active_apptainer_image_on_mendieta": true
+  },
+  "remote_copy": {
+    "root_relative_path": "provenance/t1-source-snapshot-639e60df",
+    "inventory_mode": "0440",
+    "manifest_mode": "0440",
+    "archive_mode": "0440",
+    "all_hashes_verified_after_transfer": true
+  },
+  "closure_semantics": {
+    "snapshot_is_immutable": true,
+    "snapshot_captured_pre_closure_state": true,
+    "snapshot_docs_may_record_t_ft_023_as_blocked": true,
+    "this_attestation_is_the_post_snapshot_closure_evidence": true,
+    "git_commit_or_staging_claimed": false,
+    "future_decision_and_evaluation_evidence_must_be_hash_bound_separately": true
+  }
+}

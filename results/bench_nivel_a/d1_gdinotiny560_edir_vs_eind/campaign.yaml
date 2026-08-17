@@ -9,6 +9,25 @@ description: >
   reportado saliendo de la mitad B. Es el gate del §8: decide si E-DIR llega a la
   Fase 2 (clips) como candidata a núcleo.
 
+# --- ARTEFACTO SECUNDARIO DE ESTA CAMPAÑA (✎ declarado 2026-08-09) ---
+# `metrics_base560_replica.json` NO es una generación supersedida: es la MISMA corrida
+# (seed 20260803, misma partición, mismos brazos y grids) repetida con
+# `grounding-dino/gdino-base-560` en lugar de tiny-560. Es la réplica del doc 84, y es
+# la que sostiene F-84.3/F-84.4 y la corrección firmada a F-83.7 (la corroboración
+# discrimina en CR-01: 2,4x en tiny, 3,0x en base). Está VIGENTE.
+# Ojo al auditar: el JSON no declara su modelo por dentro (sus claves raíz son solo
+# seed/strata/gate/complementarity), así que la atribución a base-560 se establece por
+# este bloque y por coincidencia exacta con la tabla del doc 84 §2 — no por un campo
+# del archivo. El `model:` de abajo es el de la campaña principal (tiny-560).
+replica_secundaria:
+  archivo: metrics_base560_replica.json
+  modelo: grounding-dino/gdino-base-560
+  estado: vigente
+  doc: docs/operacion/84-replica-base560-nivel-a-y-t2.md
+  cifras_ancla:
+    shel5k_CR01_eind_f1: 0.4958
+    bench_obra_CR02_eind_f1: 0.5828
+
 # --- LO QUE SE VARÍA (la única variable) ---
 variable: prompt_set
 arms:

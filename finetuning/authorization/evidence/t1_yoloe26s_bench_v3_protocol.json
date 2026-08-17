@@ -1,0 +1,474 @@
+{
+  "amendments": [
+    {
+      "changes": [
+        "go_no_go: completado con los margenes de D-FT-12 firmados por el usuario (antes: null/pending)",
+        "open_gates: D-FT-08/T-FT-023/D-FT-12 cerradas; queda T-FT-032 antes del eval tuned",
+        "evaluation.source_files: schemas.py re-congelado a81c51df53102c5a25ac375e12a7c9673e517e784287d2c3047cb0b1e8743703 -> d026cdc39620c8234343ad69aabf7c890429b8269127e88dbc50050c4094d0e5 (causa: enforcement del vocabulario canonico v2 en config, habilitado por la firma de D-FT-08; 665 tests del media-plane verdes)",
+        "evaluation.source_files: agregado el comando congelado evaluate_t1_bench_v3.py (4 tests sinteticos verdes)",
+        "tuned_serving_catalog: agregado yoloe-26s-ft-t1.yaml"
+      ],
+      "date": "2026-08-15",
+      "guards_at_amendment": {
+        "baseline_executed": false,
+        "bench_used_for_training_or_validation": false,
+        "fixed_vocabulary_serving_smoke_executed": true,
+        "full_t1_authorized_by_this_manifest": false,
+        "tuned_checkpoint_observed": false,
+        "tuned_evaluation_executed": false
+      },
+      "pre_result": true,
+      "rationale": "actualizacion integra PRE-RESULTADO: baseline_executed=false, tuned_evaluation_executed=false; la regla one-shot prohibe cambios DESPUES de observar resultados, no antes"
+    }
+  ],
+  "baseline": {
+    "auxiliary_assets": [
+      {
+        "filename": "mobileclip2_b.ts",
+        "license_spdx": "NOASSERTION",
+        "local_ignored_path": "finetuning/weights/base/mobileclip2_b.ts",
+        "role": "dynamic_prompt_text_encoder",
+        "sha256": "35d7f213e4d75f38514e4656ad3cb91158bd33e3805d8ac349f23b186f66982f",
+        "size_bytes": 253794476,
+        "source_url": "https://github.com/ultralytics/assets/releases/download/v8.4.0/mobileclip2_b.ts"
+      }
+    ],
+    "base_weight_manifest": {
+      "path": "finetuning/manifests/t1_base_weights.json",
+      "sha256": "7f7a59f8278aaee32abd07f719f8b0ad9b5cb03c75b3b56737d1f427da16ef5f"
+    },
+    "checkpoint": {
+      "filename": "yoloe-26s-seg.pt",
+      "license_spdx": "AGPL-3.0",
+      "local_ignored_path": "finetuning/weights/base/yoloe-26s-seg.pt",
+      "sha256": "48f24206bc8680d60cbbfa296b0140da849669b9515058b72f5a945142df0654",
+      "size_bytes": 31072171,
+      "source_url": "https://github.com/ultralytics/assets/releases/download/v8.4.0/yoloe-26s-seg.pt"
+    },
+    "execution": {
+      "artifact_sha256": {
+        "detections.jsonl": "81398d1b59932a0f1bd0888d85ecea86c501fce5a7a945be5d43ac746c9fede7",
+        "eval_cr01.by_source.json": "e69c5ef3526249a0ed03bb0648383643b22f5d0911cdd2e8e44396e358edb14c",
+        "eval_perception.aggregate.json": "93874b8244e9bcfebdb3548bc5cb69df03c87e1679c289a1639456b42b8f5fec",
+        "eval_perception.by_stratum.json": "f02f3a64c0b3c892a99481bac5cdd47fec389328d29fd050175e15f1b466935b",
+        "summary.json": "64223935ff23b95119a3"
+      },
+      "coverage": "6477/6477 verificada por el comando congelado (aborta si falta una)",
+      "date": "2026-08-15",
+      "device": "cuda (RTX 4060 Laptop)",
+      "headline_results": {
+        "cr01_recall_by_source": {
+          "bench_obra": 0.0167,
+          "shel5k": 0.0
+        },
+        "cr01_recall_count_weighted": 0.0002,
+        "mAP50_aggregate": 0.419275,
+        "per_class_AP50": {
+          "bare_head": 0.0,
+          "helmet": 0.6286,
+          "person": 0.7843,
+          "vest": 0.2642
+        }
+      },
+      "instrument_note_power": "el host cambio de bateria a corriente CON LA CORRIDA EN CURSO (entre la unidad ~2364 y ~4556). Las DETECCIONES no se afectan (la aritmetica es identica a cualquier reloj); las LATENCIAS de este run quedan mezcladas entre condiciones de energia y NO son citables como brazo baseline del gate de latencia D-FT-12. Ese gate se medira aparte, pareado, ambos brazos con corriente y post-warmup.",
+      "run_directory": "finetuning/runs/t1_yoloe26s_baseline_bench_v3",
+      "run_id": "run_20260815_193750_dbe_yoloe_1113f7",
+      "total_detections": 41661,
+      "units_dropped": 0,
+      "units_failed": 0,
+      "units_processed": 6477
+    },
+    "execution_status": "executed_2026-08-15_one_shot",
+    "family": "YOLOE",
+    "lineage": "original",
+    "model_catalog_source": {
+      "repository": "e-ovrt_media-plane",
+      "repository_relative_path": "configs/models/yoloe/yoloe-26s.yaml",
+      "sha256": "fac97fa39039d200da16846bb5e77882c1e72a619873720a883253ece49a45d3"
+    },
+    "variant": "yoloe-26s"
+  },
+  "benchmark": {
+    "categories": [
+      {
+        "annotations": 24172,
+        "id": 0,
+        "name": "person"
+      },
+      {
+        "annotations": 22949,
+        "id": 1,
+        "name": "helmet"
+      },
+      {
+        "annotations": 1863,
+        "id": 2,
+        "name": "vest"
+      },
+      {
+        "annotations": 6181,
+        "id": 3,
+        "name": "bare_head"
+      }
+    ],
+    "coco": {
+      "annotations": 55165,
+      "images": 6477,
+      "repository_relative_path": "datasets/processed/coco/bench/curated/bench_v3.json",
+      "sha256": "4557024ecc4ee497ab1fad01d6819206395c10fd794010ed8c1d9198b19a4462",
+      "unique_basenames": 6477,
+      "unique_file_names": 6477,
+      "unique_image_ids": 6477
+    },
+    "flat_view": {
+      "basename_collisions": 0,
+      "copy_images": false,
+      "default_output": "finetuning/cache/bench_v3_flat",
+      "expected_entries": 6477,
+      "expected_extras": 0,
+      "expected_missing": 0,
+      "expected_regular_files": 0,
+      "expected_symlinks": 6477,
+      "materializer": "finetuning/scripts/materialize_bench_v3_view.py",
+      "mode": "relative_symlinks_preserving_original_basename",
+      "modify_sources": false
+    },
+    "id": "bench_v3",
+    "image_extensions": {
+      ".jpg": 1477,
+      ".png": 5000
+    },
+    "policy": "read_only_external_benchmark",
+    "repository": "e-ovrt_datasets",
+    "source_manifest": {
+      "repository_relative_path": "datasets/processed/coco/bench/curated/bench_v3_manifest.json",
+      "sha256": "47e4ae3a19ddc9a3e9decf79b8f9205f83ba0aa6f74e4a0f6f9f81f0e6b46c46"
+    },
+    "strata": {
+      "bench_obra_test": {
+        "annotations": 282,
+        "annotations_by_class": {
+          "bare_head": 26,
+          "helmet": 83,
+          "person": 135,
+          "vest": 38
+        },
+        "images": 62,
+        "source_coco_repository_relative_path": "datasets/processed/coco/bench/curated/construction_site_safety_bench_obra_test.json",
+        "source_coco_sha256": "e82eed03469665a335dd655a89d5412ae1e33274e9d73f9075f69df1c8eaf61a"
+      },
+      "bench_obra_val": {
+        "annotations": 279,
+        "annotations_by_class": {
+          "bare_head": 35,
+          "helmet": 76,
+          "person": 127,
+          "vest": 41
+        },
+        "images": 85,
+        "source_coco_repository_relative_path": "datasets/processed/coco/bench/curated/construction_site_safety_bench_obra_val.json",
+        "source_coco_sha256": "b2326724b71e7776fb53440d98d1d00be4f2c2b6b4484a049ceb7045ad74c58c"
+      },
+      "chv": {
+        "annotations": 9209,
+        "annotations_by_class": {
+          "bare_head": 0,
+          "helmet": 3538,
+          "person": 3887,
+          "vest": 1784
+        },
+        "images": 1330,
+        "source_coco_repository_relative_path": "datasets/processed/coco/bench/curated/bench_stratum_chv.json",
+        "source_coco_sha256": "6d15ff9b464075111e327b18ee46b1d1248abe4822b26647af90aff7404939a7"
+      },
+      "shel5k": {
+        "annotations": 45395,
+        "annotations_by_class": {
+          "bare_head": 6120,
+          "helmet": 19252,
+          "person": 20023,
+          "vest": 0
+        },
+        "images": 5000,
+        "source_coco_repository_relative_path": "datasets/processed/coco/bench/curated/bench_stratum_shel5k.json",
+        "source_coco_sha256": "bf35f63bcf726c1c57d8768838f8c4a5ff48ca4a0ebf452edef32ab5e6ad1e0f"
+      }
+    }
+  },
+  "closed_gates_2026_08_15": [
+    "D-FT-08 aprobada por el usuario (contrato de vocabulario fijo; enforcement agregado al schema de config del media-plane)",
+    "D-FT-12 aprobada por el usuario ANTES de la baseline (go_no_go de este manifiesto)",
+    "D-FT-13 aprobada (sonda machinery derogada solo para T1)",
+    "T-FT-023 procedencia cerrada 2026-08-13 (snapshot tar 639e60df…)",
+    "T-FT-031 catalogo finetuned + comando de evaluacion congelado (este manifiesto)"
+  ],
+  "evaluation": {
+    "detection_match_iou_threshold": 0.5,
+    "frozen_command": "python3 finetuning/scripts/evaluate_t1_bench_v3.py --run <run_dir> --arm baseline|tuned",
+    "primary_metric_family": "AP@0.5",
+    "required_cr01_reports": [
+      "bench_obra CR-01 recall",
+      "shel5k CR-01 recall",
+      "transparent count-weighted aggregate where mathematically applicable"
+    ],
+    "required_detection_reports": [
+      "aggregate mAP50",
+      "AP50 and n_gt/n_det for every canonical class",
+      "the same metrics for every benchmark stratum"
+    ],
+    "source_files": [
+      {
+        "repository": "e-ovrt_media-plane",
+        "repository_relative_path": "src/eovrt_media/evaluation/runner.py",
+        "sha256": "d60025c4c0a53e9f005ecdb2304cfa62e2b61eae04a2d1745e2e12a7c101f1be"
+      },
+      {
+        "repository": "e-ovrt_media-plane",
+        "repository_relative_path": "src/eovrt_media/tools/evaluate.py",
+        "sha256": "99023618055d5251ae73bb2e678a0de4b9f1681d243a47ebb0771ff9c0f8e35a"
+      },
+      {
+        "repository": "e-ovrt_media-plane",
+        "repository_relative_path": "src/eovrt_media/models/yoloe_adapter.py",
+        "sha256": "9eb5ec05cf98f9a186dd6ecc2dfbd2ed596ae5e9d79b515988344fbb8ee74142"
+      },
+      {
+        "repository": "e-ovrt_media-plane",
+        "repository_relative_path": "src/eovrt_media/config/schemas.py",
+        "sha256": "d026cdc39620c8234343ad69aabf7c890429b8269127e88dbc50050c4094d0e5"
+      },
+      {
+        "repository": "e-ovrt_media-plane",
+        "repository_relative_path": "src/eovrt_media/models/__init__.py",
+        "sha256": "6ecc0b3d9c55dcd18556e369093631ae9fe607a49a1737a83dfbe4b59c7be4f8"
+      },
+      {
+        "repository": "e-ovrt_media-plane",
+        "repository_relative_path": "src/eovrt_media/evaluation/schemas.py",
+        "sha256": "6973e64e6da2f975a269086f30f9a2d75ab99346fb36aeee44c910f120fe21df"
+      },
+      {
+        "repository": "e-ovrt_datasets",
+        "repository_relative_path": "datasets/scripts/bench/evaluate_bench.py",
+        "sha256": "2bfba9f26e46958e2a9357e9a575b58c20905d4f6470f7158da7261815728a0f"
+      },
+      {
+        "repository": "e-ovrt_experimental-setup",
+        "repository_relative_path": "finetuning/scripts/evaluate_t1_bench_v3.py",
+        "role": "frozen_evaluation_command",
+        "sha256": "88797beefebd0606f88e487cf2d1588373f5f54f3304876cb86e725c71fd8f46"
+      }
+    ],
+    "stratified_output_status": "required_by_protocol; consumer command and persistence must be exercised before T-FT-031 can close"
+  },
+  "go_no_go": {
+    "decision_id": "D-FT-12",
+    "gain_gate": {
+      "min_target_ap50_delta_absolute": 0.05,
+      "or_recall_rescue": {
+        "from_below": 0.1,
+        "metric": "cr01_recall",
+        "to_above": 0.5
+      },
+      "rule": "either"
+    },
+    "latency_gate": {
+      "comparison": "mismo host/runtime, post-warmup",
+      "instrument_tolerance_relative": 0.05,
+      "rule": "degradacion mayor al 5% relativo se rechaza"
+    },
+    "numerical_margin_status": "frozen_by_user_signature_2026-08-15_pre_baseline",
+    "primary_target_class": "bare_head",
+    "retention_gate": {
+      "applies_to": [
+        "cada clase individual",
+        "mAP50 agregado"
+      ],
+      "max_relative_regression": 0.1,
+      "note": "T1 NO mide retencion open-vocabulary generalista (vocabulario fijo D-FT-08)",
+      "scope": "in_domain_only (person/helmet/vest sobre bench_v3)"
+    },
+    "signed_before_any_tuned_result": true,
+    "signed_before_baseline": true,
+    "signed_by_user_at": "2026-08-15"
+  },
+  "ground_truth": {
+    "cr01_person_level": {
+      "aggregation_policy": "evaluate each eligible source separately and aggregate counts transparently; do not use the historical combined person_gt.json",
+      "sources": [
+        {
+          "eligible_strata": [
+            "bench_obra_test",
+            "bench_obra_val"
+          ],
+          "has_helmet_false": 60,
+          "has_helmet_true": 202,
+          "id": "bench_obra",
+          "images": 104,
+          "persons": 262,
+          "repository_relative_path": "datasets/processed/coco/bench/curated/person_gt_bench_obra.json",
+          "sha256": "caa734b65d691e8b3bdd5073cbf75bcb3603bb76fe777e982e2f8f6adf142828",
+          "violators_cr01": 60
+        },
+        {
+          "eligible_strata": [
+            "shel5k"
+          ],
+          "has_helmet_false": 5248,
+          "has_helmet_true": 14767,
+          "id": "shel5k",
+          "images": 4979,
+          "persons": 20015,
+          "repository_relative_path": "datasets/processed/coco/bench/curated/person_gt_shel5k.json",
+          "sha256": "014d179f6d708a15a8034b872a3770551eb574e2d0fe8ed2f4cb9c031c85724b",
+          "violators_cr01": 5248
+        }
+      ],
+      "unavailable_strata": {
+        "chv": "no person-level CR-01 ground truth"
+      }
+    },
+    "detection": {
+      "kind": "COCO bbox",
+      "matching_iou_threshold": 0.5,
+      "source": "benchmark.coco"
+    }
+  },
+  "inference": {
+    "detector_confidence_threshold": 0.25,
+    "device": "cuda",
+    "half_precision": true,
+    "image_size": 640,
+    "nms": {
+      "iou_threshold": 0.5
+    },
+    "postprocess": {
+      "min_box_area_px": 100.0,
+      "min_confidence": 0.25,
+      "normalize_boxes": true
+    },
+    "prompt": {
+      "fixed_order_required": true,
+      "id": "cr01_cr02_bench_v2",
+      "ordered_class_ids": [
+        "person",
+        "helmet",
+        "vest",
+        "bare_head"
+      ],
+      "ordered_phrases": [
+        "person",
+        "helmet",
+        "vest",
+        "bare head"
+      ],
+      "path": "prompts/cr01_cr02_bench_v2.yaml",
+      "sha256": "98f6e4636e3e5afdaf99566a77e8255da41926411626debebe32e7a88686bad5"
+    },
+    "rate_control": {
+      "max_units": null,
+      "policy": "deterministic",
+      "stride": 1
+    },
+    "seed": 42,
+    "serving_binding": {
+      "baseline_mode": "dynamic set_classes with the pinned ordered prompt phrases",
+      "evidence": {
+        "path": "finetuning/manifests/t1_smoke_1166583_media_plane.json",
+        "sha256": "4cd51708cb6dbd8baf8218bea044d4879ba4b7dccef8631686b66d0488ceb532"
+      },
+      "required_canonical_id_equality": [
+        "person",
+        "helmet",
+        "vest",
+        "bare_head"
+      ],
+      "required_checkpoint_names_for_tuned": [
+        "person",
+        "helmet",
+        "vest",
+        "bare head"
+      ],
+      "status": "real_media_plane_startup_and_inference_passed; human_contract_D-FT-08_SIGNED_2026-08-15; config-level canonical-v2 enforcement active (CANONICAL_V2_FIXED_VOCABULARY)",
+      "tuned_mode": "fixed ordered checkpoint vocabulary with no set_classes mutation"
+    },
+    "threshold_status": "frozen_from_existing_yoloe_catalog_and_reportable_bench_protocol",
+    "warmup": true
+  },
+  "one_shot_rule": {
+    "baseline": "run original YOLOE-26s exactly once over all 6477 images before tuned evaluation",
+    "excluded_candidate": "last.pt is retained for audit and is never evaluated as a second candidate",
+    "forbidden_after_observation": [
+      "change prompts or class order",
+      "change thresholds, NMS, image size or postprocess",
+      "select another checkpoint",
+      "rerun because of aggregate or per-stratum metrics"
+    ],
+    "freeze_before_results": [
+      "benchmark and GT hashes",
+      "base checkpoint hash",
+      "prompt strings and class order",
+      "image size",
+      "confidence, NMS and evaluation IoU thresholds",
+      "postprocess parameters",
+      "evaluator source hashes",
+      "go/no-go target and numerical margins"
+    ],
+    "tuned": "after best.pt is selected using finetuning_v1/val only, evaluate that best.pt exactly once with this identical protocol"
+  },
+  "open_gates": [
+    "T-FT-032 YOLOE-26s baseline execution (unica compuerta previa al eval tuned)",
+    "T-FT-043 full run: solo con full-authorization.json y confirmacion manual del usuario"
+  ],
+  "outputs": {
+    "baseline_run_directory": "finetuning/runs/t1_yoloe26s_baseline_bench_v3",
+    "persistence_contract_status": "planned_pre_result; verify exact consumer filenames before execution",
+    "required_evaluation_artifacts": [
+      "eval_perception.aggregate.json",
+      "eval_perception.by_stratum.json",
+      "eval_cr01.by_source.json"
+    ],
+    "required_protocol_artifacts": [
+      "protocol_snapshot.json",
+      "artifact.sha256"
+    ],
+    "required_run_artifacts": [
+      "detections.jsonl",
+      "summary.json",
+      "effective_config.yaml",
+      "run_manifest.json",
+      "run_provenance.json"
+    ],
+    "tuned_run_directory": "finetuning/runs/t1_yoloe26s_tuned_bench_v3"
+  },
+  "pre_result_guards": {
+    "baseline_executed": true,
+    "bench_used_for_training_or_validation": false,
+    "fixed_vocabulary_serving_smoke_executed": true,
+    "full_t1_authorized_by_this_manifest": false,
+    "tuned_checkpoint_observed": false,
+    "tuned_evaluation_executed": false
+  },
+  "prepared_at": "2026-08-13",
+  "protocol_id": "t1_yoloe26s_bench_v3_v1",
+  "provenance": {
+    "benchmark_mutation_allowed": false,
+    "dirty_head_is_not_a_durable_identifier": true,
+    "durable_source_freeze": "pending_T-FT-023",
+    "gpu_evaluation_performed_while_preparing_this_manifest": false,
+    "path_policy": "all paths are repository-relative; sibling repositories are resolved at runtime"
+  },
+  "related_task_ids": [
+    "T-FT-032"
+  ],
+  "schema_version": "eovrt.t1-bench-evaluation-protocol.v1",
+  "status": "frozen_pre_baseline_all_human_decisions_signed_2026-08-15",
+  "task_id": "T-FT-031",
+  "tuned_serving_catalog": {
+    "note": "preparado pre-checkpoint; los pesos aterrizan en la promocion T-FT-050",
+    "repository": "e-ovrt_media-plane",
+    "repository_relative_path": "configs/models/yoloe/yoloe-26s-ft-t1.yaml",
+    "sha256": "97129219034820896b06347a997735d01aee8eca908cae3f47448cb12b57cc9f",
+    "weights_expected_at": "models/yoloe/finetuned/t1/best.pt"
+  }
+}

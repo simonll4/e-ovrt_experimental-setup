@@ -43,10 +43,18 @@ NO_NOTIFICATIONS_DELIVERED = "no_notifications_delivered"
 # operativa real (92b SS8, mismo tratamiento que DBE_MEDIA_TIME para
 # t_capture->alert): nunca se reporta como si fuera la metrica real.
 DISTRIBUTION_WALL_CLOCK_DBE_ONLY = "distribution_wall_clock_dbe_only"
+# La latencia operativa exige un camino de broker real: modo "live".
+DISTRIBUTION_CHANNEL_DRY_RUN = (
+    "canal en dry_run: la latencia no atraviesa un broker MQTT real; "
+    "la metrica operativa exige channel.mode=live (92b SS8)"
+)
 # Evaluacion temporal presente pero SIN los campos v2 A2/A3 (FAR/censura):
 # JSON persistido por una version vieja de evaluate-alerts, o path v1 (el GT
 # por frame no tiene ms). No se inventa un valor: applicable_not_computed.
 EVAL_WITHOUT_V2_FIELDS = "evaluation_without_v2_fields"
+EVAL_WITHOUT_TEMPORAL_FIELDS = "evaluation_without_temporal_fields"
+EVAL_WITHOUT_PERCEPTION_FIELDS = "evaluation_without_perception_fields"
+NO_MATCHED_ALERTS = "no_matched_alerts"
 
 
 # ---------------------------------------------------------------------------
@@ -314,9 +322,11 @@ def _distribution_outcomes_by_alert(consolidated_dir: Path) -> dict:
 def _distribution_metric(distribution_detail: dict) -> MetricResult:
     """t_alert-notification (spec 40 SS5, spec 45 SS6). El summary agrega la
     latencia por `latency_mode` (nunca mezclada, 92b SS8): si hay 'live', es la
-    latencia operativa real y se reporta `computed`; si SOLO hay
-    'wall_clock_dbe', es reloj de pared de un reproceso, no la metrica real --
-    mismo criterio que `t_capture->alert` con reloj de medio
+    latencia operativa real y se reporta `computed`; el summary además declara el
+    modo del canal ('mode'): dry_run nunca produce una metrica computed, aunque
+    latency_mode sea 'live'. Si SOLO hay 'wall_clock_dbe', es reloj de pared de
+    un reproceso, no la metrica real -- mismo criterio que `t_capture->alert`
+    con reloj de medio
     (`DBE_MEDIA_TIME`): `not_interpretable`, nunca un caveat escondido detras
     de un numero."""
     if not distribution_detail:
@@ -327,6 +337,9 @@ def _distribution_metric(distribution_detail: dict) -> MetricResult:
         return MetricResult(name="t_alert-notification", unit="ms",
                              status="applicable_not_computed",
                              cause=NO_NOTIFICATIONS_DELIVERED)
+    if distribution_detail.get("mode") != "live":
+        return MetricResult(name="t_alert-notification", unit="ms",
+                             status="applicable_not_computed", cause=DISTRIBUTION_CHANNEL_DRY_RUN)
     live = latency_by_mode.get("live")
     if live is not None:
         return MetricResult(name="t_alert-notification", value=live["p95"],
@@ -368,6 +381,106 @@ def _ttfd_metric(temporal_eval: dict | None) -> MetricResult:
                             cause=cause)
     return MetricResult(name="TTFD", value=float(ttfd_ms) / 1000.0, unit="s",
                         status="computed", cause=None)
+
+
+def _t_alert_system_metric(temporal_eval: dict | None) -> MetricResult:
+    """Latencia desde el inicio anotado del episodio hasta la alerta registrada.
+
+    Es passthrough de `avg_latency_ms_from_episode_start`; el evaluador temporal
+    ya hizo el matching contra GT. Un clip negativo o totalmente censurado
+    conserva la no-aplicabilidad declarada por ese evaluador.
+    """
+    if temporal_eval is None:
+        return MetricResult(
+            name="t_alert-system",
+            unit="s",
+            status="not_applicable",
+            cause=NO_GROUND_TRUTH,
+        )
+
+    if temporal_eval.get("applicability_state") == "not_applicable":
+        return MetricResult(
+            name="t_alert-system",
+            unit="s",
+            status="not_applicable",
+            cause=temporal_eval.get("applicability_cause"),
+        )
+
+    latency_ms = temporal_eval.get("avg_latency_ms_from_episode_start")
+    if latency_ms is not None:
+        return MetricResult(
+            name="t_alert-system",
+            value=float(latency_ms) / 1000.0,
+            unit="s",
+            status="computed",
+            cause=None,
+        )
+
+    cause = (
+        NO_MATCHED_ALERTS
+        if temporal_eval.get("matched_alerts_count") == 0
+        else EVAL_WITHOUT_TEMPORAL_FIELDS
+    )
+    return MetricResult(
+        name="t_alert-system",
+        unit="s",
+        status="applicable_not_computed",
+        cause=cause,
+    )
+
+
+def _temporal_classification_metrics(temporal_eval: dict | None) -> list[MetricResult]:
+    specs = (
+        ("precision_alertas", "precision"),
+        ("recall_alertas", "recall"),
+        ("F1_alertas", "f1"),
+    )
+    if temporal_eval is None:
+        return [
+            MetricResult(
+                name=name,
+                unit="ratio",
+                status="not_applicable",
+                cause=NO_GROUND_TRUTH,
+            )
+            for name, _field in specs
+        ]
+
+    if temporal_eval.get("applicability_state") == "not_applicable":
+        cause = temporal_eval.get("applicability_cause")
+        return [
+            MetricResult(
+                name=name,
+                unit="ratio",
+                status="not_applicable",
+                cause=cause,
+            )
+            for name, _field in specs
+        ]
+
+    metrics: list[MetricResult] = []
+    for name, field in specs:
+        value = temporal_eval.get(field)
+        if value is None:
+            metrics.append(
+                MetricResult(
+                    name=name,
+                    unit="ratio",
+                    status="applicable_not_computed",
+                    cause=EVAL_WITHOUT_TEMPORAL_FIELDS,
+                )
+            )
+        else:
+            metrics.append(
+                MetricResult(
+                    name=name,
+                    value=float(value),
+                    unit="ratio",
+                    status="computed",
+                    cause=None,
+                )
+            )
+    return metrics
 
 
 def _censura_evaluada(temporal_eval: dict) -> bool:
@@ -436,26 +549,150 @@ def _censored_episodes_detail(temporal_eval: dict | None) -> list[dict]:
 
 
 def _perception_metrics(
-    consolidated_dir: Path, media_summary: dict, control_summary: dict, source_clock: str
+    consolidated_dir: Path,
+    media_summary: dict,
+    control_summary: dict,
+    source_clock: str,
+    temporal_eval: dict | None,
 ) -> list[MetricResult]:
     eval_perception = _eval_perception(consolidated_dir, media_summary)
     metrics: list[MetricResult] = []
 
     if eval_perception:
-        metrics.append(
-            MetricResult(name="mAP", value=eval_perception.get("map"), unit="ratio",
-                         status="computed", cause=None)
-        )
-        ap_by_class = eval_perception.get("ap_by_class") or {}
-        for class_name, ap_value in ap_by_class.items():
+        map_key = next((key for key in ("mAP50", "map") if key in eval_perception), None)
+        map_value = eval_perception.get(map_key) if map_key else None
+        if map_key is None:
             metrics.append(
-                MetricResult(name=f"AP {class_name}", value=ap_value, unit="ratio",
-                             status="computed", cause=None)
+                MetricResult(
+                    name="mAP",
+                    unit="ratio",
+                    status="applicable_not_computed",
+                    cause=EVAL_WITHOUT_PERCEPTION_FIELDS,
+                )
             )
-        metrics.append(
-            MetricResult(name="recall CR-01", value=eval_perception.get("recall_cr01"),
-                         unit="ratio", status="computed", cause=None)
+        elif map_value is None:
+            metrics.append(
+                MetricResult(
+                    name="mAP",
+                    unit="ratio",
+                    status="not_applicable",
+                    cause=NO_GROUND_TRUTH,
+                )
+            )
+        else:
+            metrics.append(
+                MetricResult(
+                    name="mAP",
+                    value=float(map_value),
+                    unit="ratio",
+                    status="computed",
+                    cause=None,
+                )
+            )
+
+        class_metrics: list[MetricResult] = []
+        if "per_class" in eval_perception:
+            for item in eval_perception.get("per_class") or []:
+                class_name = item.get("class_name")
+                if not class_name:
+                    continue
+                ap_value = item.get("AP50")
+                if ap_value is None:
+                    class_metrics.append(
+                        MetricResult(
+                            name=f"AP {class_name}",
+                            unit="ratio",
+                            status="not_applicable",
+                            cause=NO_GROUND_TRUTH,
+                        )
+                    )
+                else:
+                    class_metrics.append(
+                        MetricResult(
+                            name=f"AP {class_name}",
+                            value=float(ap_value),
+                            unit="ratio",
+                            status="computed",
+                            cause=None,
+                        )
+                    )
+            if not class_metrics:
+                class_metrics.append(
+                    MetricResult(
+                        name="AP por clase",
+                        unit="ratio",
+                        status="not_applicable",
+                        cause=NO_GROUND_TRUTH,
+                    )
+                )
+        elif "ap_by_class" in eval_perception:
+            for class_name, ap_value in (eval_perception.get("ap_by_class") or {}).items():
+                class_metrics.append(
+                    MetricResult(
+                        name=f"AP {class_name}",
+                        value=float(ap_value),
+                        unit="ratio",
+                        status="computed",
+                        cause=None,
+                    )
+                )
+            if not class_metrics:
+                class_metrics.append(
+                    MetricResult(
+                        name="AP por clase",
+                        unit="ratio",
+                        status="not_applicable",
+                        cause=NO_GROUND_TRUTH,
+                    )
+                )
+        else:
+            class_metrics.append(
+                MetricResult(
+                    name="AP por clase",
+                    unit="ratio",
+                    status="applicable_not_computed",
+                    cause=EVAL_WITHOUT_PERCEPTION_FIELDS,
+                )
+            )
+        metrics.extend(class_metrics)
+
+        recall_key = next(
+            (
+                key
+                for key in ("cr01_detection_recall", "recall_cr01")
+                if key in eval_perception
+            ),
+            None,
         )
+        recall_value = eval_perception.get(recall_key) if recall_key else None
+        if recall_key is None:
+            metrics.append(
+                MetricResult(
+                    name="recall CR-01",
+                    unit="ratio",
+                    status="applicable_not_computed",
+                    cause=EVAL_WITHOUT_PERCEPTION_FIELDS,
+                )
+            )
+        elif recall_value is None:
+            metrics.append(
+                MetricResult(
+                    name="recall CR-01",
+                    unit="ratio",
+                    status="not_applicable",
+                    cause=NO_GROUND_TRUTH,
+                )
+            )
+        else:
+            metrics.append(
+                MetricResult(
+                    name="recall CR-01",
+                    value=float(recall_value),
+                    unit="ratio",
+                    status="computed",
+                    cause=None,
+                )
+            )
     else:
         metrics.append(MetricResult(name="mAP", unit="ratio",
                                      status="not_applicable", cause=NO_GROUND_TRUTH))
@@ -466,8 +703,7 @@ def _perception_metrics(
 
     re_alerts = control_summary.get("re_alerts_count")
     if re_alerts is None:
-        temporal_eval = control_summary.get("temporal_evaluation") or {}
-        re_alerts = temporal_eval.get("re_alerts_count")
+        re_alerts = (temporal_eval or {}).get("re_alerts_count")
     if re_alerts is not None:
         metrics.append(MetricResult(name="re_alerts", value=float(re_alerts), unit="count",
                                      status="computed", cause=None))
@@ -489,14 +725,14 @@ def _build_resultados(
 ) -> list[MetricResult]:
     resultados = [
         _g2a_metric(media_summary),
-        MetricResult(name="t_alert-system", unit="s",
-                     status="not_applicable", cause=NO_GROUND_TRUTH),
+        _t_alert_system_metric(temporal_eval),
         _aggregate_t_capture_to_alert(join_results, source_clock=source_clock,
                                        two_node=two_node),
         _aggregate_t_compute_budget(join_results),
         _distribution_metric(distribution_detail),
         _ttfd_metric(temporal_eval),
         _sdr_metric(temporal_eval),
+        *_temporal_classification_metrics(temporal_eval),
         *_temporal_eval_v2_metrics(temporal_eval),
         _ttfa_interna_metric(control_summary, source_clock),
         MetricResult(name="ΔFP_tracker", unit="count",
@@ -504,7 +740,13 @@ def _build_resultados(
     ]
     resultados.extend(_substage_metrics(media_summary, control_summary))
     resultados.extend(
-        _perception_metrics(consolidated_dir, media_summary, control_summary, source_clock)
+        _perception_metrics(
+            consolidated_dir,
+            media_summary,
+            control_summary,
+            source_clock,
+            temporal_eval,
+        )
     )
     return resultados
 

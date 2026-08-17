@@ -1,6 +1,6 @@
 schema_version: clip_campaign.v1
 campaign_id: i2_gdinotiny560_v2short_subject_internet
-date: '2026-08-07'
+date: '2026-08-09'
 phase: I
 description: >
   Granularidad por SUJETO sobre el estrato B. Es G1 —la mejor combinación del banco del
@@ -36,17 +36,28 @@ stride: 1
 # --- PROCEDENCIA ---
 gt_bank: >
   clip_bench, estrato B — **13 clips, el lote de internet COMPLETO** (doc 111;
-  `v08_c01` excluido con causa). Positivos: v04_c01 (P1, nocturno) · v04_c02 (P6,
-  nocturno, 2 episodios) · v01_c02 (P1) · v01_c01 (P1, episodio CENSURADO por A1).
-  Negativos (9): v02_c01 · v03_c01 · v03_c02 · v04_c03 (el único nocturno) · v05_c01 ·
+  `v08_c01` excluido con causa). ✎ Composición **VIGENTE tras la revisión ciega del GT**
+  (doc 113 §B, 2026-08-09).
+  Positivos (2): v04_c01 (P1, nocturno, 1 episodio CR-01, onset 3.967 ms) ·
+  v01_c02 (P1, 1 episodio CR-01, onset en t=0).
+  Negativos (11): v01_c01 (**ex-positivo**: contraluz, estado no observable) ·
+  v02_c01 · v03_c01 · v03_c02 · v04_c02 (**ex-positivo P6**, ahora P5: el sujeto está
+  en la cabina de una máquina, estado no observable — sus 2 episodios eran
+  sobre-declaración) · v04_c03 (el único nocturno) · v05_c01 ·
   v06_c01 (**el clip SOAK**, 0,1027 h) · v07_c01 · v09_c01 · v10_c01.
-  Banco de 47 clips al 2026-08-09.
-gt_manifest_yaml_sha256: 299ccc19593361db2677bb41d20d07dbd47d77855555f9686ff54303f1d47c34
+  Banco de 47 clips = **32 positivos / 15 negativos / 37 episodios** al 2026-08-09.
+gt_manifest_yaml_sha256: 3f14f50a53c0d6c57b429378544dcfb6ed87fc942640db302c53ba1470001a75
 gt_manifest_note: >
+  ⚠️ El sha de arriba es el del banco **post-revisión ciega** (commit 7961ac62), que es
+  contra el que se computaron las cifras VIGENTES de este archivo. Quien reproduzca
+  debe usar ESE freeze: el anterior (`299ccc19…`, commit 907d50fa) tiene el GT
+  pre-corrección y devuelve F1 0,200 en vez de 0,190.
   Freezes anteriores, todos verificables en git: 34 del rodaje `cef5082e…`
   (commit f7a27fe6 — el que citan T1/T2/D1/H1/G1/B1/R1–R6), 37 con el estrato B inicial
-  `6b75ac6e…`, 38 con v04_c02 `4437eb6d…`, 39 con v03_c02 `c1791c9b…`. El manifest solo
-  crece; las filas del rodaje nunca cambiaron.
+  `6b75ac6e…`, 38 con v04_c02 `4437eb6d…`, 39 con v03_c02 `c1791c9b…`, 47 con el lote
+  cerrado `299ccc19…`. **Hasta el freeze de 47 el manifest solo creció y las filas del
+  rodaje nunca cambiaron; la revisión ciega del 08-09 fue el primer cambio de CONTENIDO
+  del GT** — y ocurrió enteramente dentro del Bloque B (v01_c01 y v04_c02).
 gt_doc: docs/operacion/111-cierre-del-lote-de-internet.md
 
 # --- HISTORIA DE ALCANCE ---
@@ -94,9 +105,10 @@ generations:
       produjo. Ver registry `clip_bench.md` §L1.
       ⚠️ AL CITAR EL FAR: el dato es "190 FP en 6:09,6 del único clip soak"; 1.850,8 es
       la tasa horaria derivada sobre 0,1027 h, no una hora de operación observada.
-      ⚠️ AL CITAR EL F1 (0,200 vs 0,500 de I1): F-111.1 quedó ENMENDADO (doc 111) — con
-      4 episodios evaluables el ranking entre granularidades no es sostenible; lo robusto
-      es la asimetría de FP (6× en positivos, 14× en los 9 negativos).
+      ⚠️ AL CITAR EL F1 (0,190 vs 0,333 de I1): F-111.1 quedó ENMENDADO (doc 111) — con
+      **2 episodios evaluables** el ranking entre granularidades no es sostenible, y con
+      n=2 menos aún; lo robusto es la asimetría de FP (**6×** en positivos, 17 vs 3, y
+      **12×** en los **11 negativos**, 323 vs 26).
 
 evaluator_note: 'Idéntico a I1 (fixes F-EV1/2/3, control-plane c1cbb56).'
 hardware: 'sin GPU (reusa las detecciones de I1)'

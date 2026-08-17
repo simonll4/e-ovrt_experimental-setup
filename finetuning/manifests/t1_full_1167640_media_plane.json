@@ -1,0 +1,64 @@
+{
+  "checkpoint": {
+    "filename": "best.pt",
+    "sha256": "5714f8339dfcf68469b27c127857d801afb5d6d556e0db0c96ce28c74bc5efbe",
+    "size_bytes": 20320825
+  },
+  "created_at": "2026-08-17T01:47:11.185803+00:00",
+  "media_plane": {
+    "dirty": true,
+    "revision": "94660e6cadff825a383d5026b067d7e0b6b7cdce",
+    "source_sha256": {
+      "src/eovrt_media/config/schemas.py": "d026cdc39620c8234343ad69aabf7c890429b8269127e88dbc50050c4094d0e5",
+      "src/eovrt_media/models/__init__.py": "6ecc0b3d9c55dcd18556e369093631ae9fe607a49a1737a83dfbe4b59c7be4f8",
+      "src/eovrt_media/models/yoloe_adapter.py": "9eb5ec05cf98f9a186dd6ecc2dfbd2ed596ae5e9d79b515988344fbb8ee74142",
+      "src/eovrt_media/service/app.py": "c7e18c106ccb8cd2bd99a3d106d6623519bfe191f0e524b340696176efa60592"
+    }
+  },
+  "sample": {
+    "filename": "-I1-MS09uaqsLdGTFkgnS0Rcg1mmPyAj95ySg_eckoM_jpeg_jpg.rf.0e23fd5243f3dab695ef8c6768c49ef0.jpg",
+    "sha256": "9eabc4413b5202c367d0785a3b53d3b80b6eba78baa240f406eacf54e1f9afa0"
+  },
+  "schema_version": "eovrt.t1-media-plane-serving-smoke.v1",
+  "service": {
+    "detection_prompt_ids": [
+      "person",
+      "person",
+      "helmet",
+      "vest",
+      "helmet"
+    ],
+    "detections": 5,
+    "dynamic_prompt_cache_untouched": true,
+    "inference_seconds": 0.15892443399934564,
+    "model_ref": "yoloe/t1-smoke",
+    "ordered_vocabulary": [
+      {
+        "class_id": 0,
+        "id": "person",
+        "text": "person"
+      },
+      {
+        "class_id": 1,
+        "id": "helmet",
+        "text": "helmet"
+      },
+      {
+        "class_id": 2,
+        "id": "vest",
+        "text": "vest"
+      },
+      {
+        "class_id": 3,
+        "id": "bare_head",
+        "text": "bare head"
+      }
+    ],
+    "ready": true,
+    "resolved_device": "cuda",
+    "set_classes_forbidden_during_inference": true,
+    "startup_warmup_enabled": true,
+    "warmup_and_load_seconds": 13.741285409996635
+  },
+  "status": "fixed_vocabulary_serving_passed"
+}

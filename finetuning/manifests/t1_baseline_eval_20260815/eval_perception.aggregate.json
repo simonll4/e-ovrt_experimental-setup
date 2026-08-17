@@ -1,0 +1,37 @@
+{
+  "protocol_id": "t1_yoloe26s_bench_v3_v1",
+  "arm": "baseline",
+  "run_dir": "finetuning/runs/t1_yoloe26s_baseline_bench_v3",
+  "iou_threshold": 0.5,
+  "evaluated_at": "2026-08-15T19:44:58.100795+00:00",
+  "benchmark": "bench_v3.json",
+  "per_class": [
+    {
+      "class_name": "person",
+      "AP50": 0.7843,
+      "n_gt": 24172,
+      "n_det": 23596
+    },
+    {
+      "class_name": "helmet",
+      "AP50": 0.6286,
+      "n_gt": 22949,
+      "n_det": 16758
+    },
+    {
+      "class_name": "vest",
+      "AP50": 0.2642,
+      "n_gt": 1863,
+      "n_det": 1297
+    },
+    {
+      "class_name": "bare_head",
+      "AP50": 0.0,
+      "n_gt": 6181,
+      "n_det": 10
+    }
+  ],
+  "mAP50": 0.419275,
+  "images": 6477,
+  "cr01_note": "el recall CR-01 vive en eval_cr01.by_source.json, por fuente"
+}

@@ -1,0 +1,114 @@
+{
+  "accepted_at": "2026-08-13T05:30:38.876083Z",
+  "amendments": [
+    {
+      "action": "rebuild_curated_metrics",
+      "cause": "Los bloques steady_state y payload_bytes se habian insertado a mano sobre el metrics.json publicado: el candidate-metrics.json del intento no los contenia y el pipeline no podia reproducir el artefacto. Se re-agrego el intento desde sus fases inmutables (verify --allow-completed) y se re-derivo la publicacion (rebuild-curated), devolviendo la cadena fases -> candidato -> publicado.",
+      "date": "2026-08-14",
+      "reference": "docs/operacion/119",
+      "scope": [
+        "metrics.json",
+        "README.md"
+      ],
+      "tooling_sha256_after": "27bfce60dd4081ed97849ff4e2b632178deba3d41e1c79e340a1bd47a1526ca1",
+      "unchanged_artifacts": [
+        "corpus.json",
+        "integrated-runs.json",
+        "camera-smoke.json",
+        "campaign.yaml",
+        "outcomes.csv",
+        "provenance.json (salvo este bloque)"
+      ],
+      "value_changes": "ninguno: se agrego la clave derivada primary.cooldown_rate y no cambio ningun valor previo"
+    }
+  ],
+  "attempt_id": "official-20260813-03",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "x86_64",
+    "platform": "Linux-6.6.114.1-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+    "python": "3.11.15",
+    "versions": {
+      "amqtt": "0.11.3",
+      "eovrt-alert-distribution": "0.1.0",
+      "eovrt-control-plane": "0.1.0",
+      "eovrt-webconsole": "0.1.0",
+      "paho-mqtt": "2.1.0",
+      "pyzmq": "27.1.0"
+    }
+  },
+  "excluded_attempts": [
+    {
+      "attempt_id": "official-20260813-01",
+      "cause": "incomplete_preparation_fingerprint"
+    },
+    {
+      "attempt_id": "official-20260813-02",
+      "cause": "orchestrator_empty_run_ledger_assumption"
+    }
+  ],
+  "excluded_phases": [
+    {
+      "cause": "media_request_schema_rejected",
+      "phase": "integrated-video"
+    },
+    {
+      "cause": "media_request_schema_rejected",
+      "phase": "camera-smoke"
+    },
+    {
+      "cause": "hardware_source_not_connected",
+      "phase": "camera-smoke-02"
+    },
+    {
+      "cause": "hardware_source_not_connected",
+      "phase": "camera-smoke-03"
+    }
+  ],
+  "hashes": {
+    "campaign": "20486b7ac219b1f81aadafc0716e0e8839802a8d426f0b37f45bd4f7f915258c",
+    "design": "fb1fbec69a8eed360db3ca7bd1e056f7de96aa17581f16f91ab815748bd2427d",
+    "distribution_live": "84b545ac3e00b4f6f1641d2d62f8ebffdf9974f327e7d53500bcc54c75fe98cb",
+    "distribution_replay": "43530c4d62dee4b825256e9018a87b6c46f7d604377f5c835f64f537a4ef8062",
+    "plan": "a6b550af16e399746c677a68e88b17529cbe51230e2f28b869ebb9b8dd74f497",
+    "resolved_runs": "f6b89fb168adbd4b98ce8d1ddd6965906b45a4c3f4d13ee196b11aa447239c62",
+    "tooling_tree": "5e0b7bc8229720a886f4d1325a9e08b06c4392816ac947dd5312c162fe159aea"
+  },
+  "prepared_at": "2026-08-13T05:02:31.611372Z",
+  "publication_tooling_sha256": "505e008d24d31a28ebefda74287f2651204c0e0271cc3df33ac450d3beb26520",
+  "repositories": {
+    "e-ovrt_alert-distribution": {
+      "branch": "main",
+      "commit": "1e6d8fadd1b8ef27c55fd629cdee874ecf5a898f",
+      "dirty": true
+    },
+    "e-ovrt_control-plane": {
+      "branch": "feature/control-service",
+      "commit": "87a10aa43004582336dd5a121d2acc5964dc5ac3",
+      "dirty": false
+    },
+    "e-ovrt_datasets": {
+      "branch": "feature/datasets-v2-setup",
+      "commit": "7961ac62172c0b48a6b17e4e3ec1f8ddc3f0d4db",
+      "dirty": true
+    },
+    "e-ovrt_experimental-setup": {
+      "branch": "feature/webconsole-consola-tesis",
+      "commit": "cd3af9fc2308a72b8f688abf24ca4cbade133cb3",
+      "dirty": true
+    },
+    "e-ovrt_media-plane": {
+      "branch": "feature/inference-service",
+      "commit": "94660e6cadff825a383d5026b067d7e0b6b7cdce",
+      "dirty": true
+    }
+  },
+  "schema_version": "talert_notification_provenance.v1",
+  "selected_phases": {
+    "camera": null,
+    "integrated_video": "integrated-video-02",
+    "preflight": "preflight-dbe",
+    "primary": "live-primary",
+    "supplemental": "live-supplemental"
+  }
+}

@@ -17,7 +17,7 @@ import yaml
 
 # Artefactos livianos comunes a ambos planos (mas los especificos de control).
 _EFFECTIVE_CONFIG_NAMES = ("effective_config.yaml", "effective_config.json")
-_MEDIA_LIGHT_ARTIFACTS = ("summary.json", "metrics.jsonl")
+_MEDIA_LIGHT_ARTIFACTS = ("summary.json", "metrics.jsonl", "eval_perception.json")
 _CONTROL_LIGHT_ARTIFACTS = (
     "summary.json",
     "metrics.jsonl",
@@ -86,8 +86,9 @@ def consolidate_experiment(
 ) -> Path:
     """Arma el consolidado ADR-014 de un experimento en `dest_root/<experiment_id>/`.
 
-    - `media/`: copia effective_config, summary.json, metrics.jsonl; escribe
-      `detections.ref.json` con `{run_id, path}` (NO copia detections.jsonl).
+    - `media/`: copia effective_config, summary.json, metrics.jsonl y, si existe,
+      eval_perception.json; escribe `detections.ref.json` con `{run_id, path}`
+      (NO copia detections.jsonl).
     - `control/`: copia effective_config, summary.json, metrics.jsonl,
       alerts.jsonl, pattern_events.jsonl.
     - `distribution/`: si ya existe, se preserva. El distribuidor escribe

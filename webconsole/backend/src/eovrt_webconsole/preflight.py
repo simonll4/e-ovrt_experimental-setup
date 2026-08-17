@@ -11,9 +11,17 @@ muestra tal cual, sin traducir códigos.
 from __future__ import annotations
 
 import asyncio
+import contextlib
+import socket
+from pathlib import Path
+from typing import Any
 
 import httpx
+import yaml
 from fastapi import FastAPI
+
+from eovrt_webconsole.experiment.manifest import ExperimentManifest
+from eovrt_webconsole.experiment.runner import resolve_distribution_executable
 
 
 async def _probe(http: httpx.AsyncClient) -> tuple[bool, bool]:
@@ -27,7 +35,66 @@ async def _probe(http: httpx.AsyncClient) -> tuple[bool, bool]:
     return healthy, ready
 
 
-async def platform_preflight(app: FastAPI) -> dict:
+def _load_distribution_config(path: Path) -> dict[str, Any]:
+    return yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+
+
+def _distribution_preflight_checks(manifest: ExperimentManifest, experiments_dir: Path) -> list[str]:
+    blockers: list[str] = []
+    distribution_run = manifest.runs.get("distribution")
+    if distribution_run is None:
+        return blockers
+
+    try:
+        resolve_distribution_executable()
+    except FileNotFoundError as exc:
+        blockers.append(f"el binario eovrt-distribute no es resoluble: {exc}")
+        return blockers
+
+    config_path = Path(distribution_run.config)
+    if not config_path.is_absolute():
+        config_path = experiments_dir / config_path
+    if not config_path.is_file():
+        blockers.append(f"la configuración de distribución no existe: {config_path}")
+        return blockers
+
+    try:
+        distribution_config = _load_distribution_config(config_path)
+    except (OSError, yaml.YAMLError) as exc:
+        blockers.append(f"error leyendo configuración de distribución: {exc}")
+        return blockers
+
+    channel = distribution_config.get("channel")
+    if not isinstance(channel, dict):
+        blockers.append("la configuración de distribución no tiene sección channel")
+        return blockers
+
+    mode = channel.get("mode")
+    if mode != "live":
+        return blockers
+
+    host = channel.get("host")
+    port = channel.get("port")
+    if not isinstance(host, str) or not host:
+        blockers.append("la configuración de distribución live no define channel.host")
+        return blockers
+
+    try:
+        port_int = int(port)
+    except (TypeError, ValueError):
+        blockers.append("la configuración de distribución live no define channel.port válido")
+        return blockers
+
+    try:
+        with contextlib.closing(socket.create_connection((host, port_int), timeout=2.0)):
+            pass
+    except OSError as exc:
+        blockers.append(f"broker MQTT inalcanzable ({host}:{port_int}): {exc}")
+
+    return blockers
+
+
+async def platform_preflight(app: FastAPI, manifest: ExperimentManifest | None = None) -> dict:
     settings = app.state.settings
     (media_healthy, media_ready), (control_healthy, control_ready) = await asyncio.gather(
         _probe(app.state.http), _probe(app.state.control_http)
@@ -62,5 +129,8 @@ async def platform_preflight(app: FastAPI) -> dict:
         blockers.append("el control-plane no responde")
     elif not control_ready:
         blockers.append("el control-plane no está listo")
+
+    if manifest is not None:
+        blockers.extend(_distribution_preflight_checks(manifest, settings.experiments_dir))
 
     return {"ready": not blockers, "blockers": blockers, "media": media, "control": control}

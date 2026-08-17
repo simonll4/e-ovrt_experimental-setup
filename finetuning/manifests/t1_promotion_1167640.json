@@ -1,0 +1,78 @@
+{
+  "schema_version": "eovrt.t1-promotion.v1",
+  "task_id": "T-FT-050",
+  "created_at": "2026-08-17T01:47:46+00:00",
+  "status": "promoted_to_media_plane",
+  "decision_reference": "D-FT-08 (contrato de serving, firmado 2026-08-15)",
+  "source": {
+    "cluster": "Mendieta (CCAD-UNC), cluster ivb, particion multi",
+    "slurm_job_id": "1167640",
+    "job_state": "COMPLETED",
+    "elapsed": "00:13:08",
+    "epochs_completed": 10,
+    "remote_run_directory": "~/eovrt-finetuning/t1-yoloe26s-20260813/runs/full-1167640",
+    "local_backup": "finetuning/weights/finetuned/full-1167640/",
+    "remote_audit": {
+      "path": "finetuning/weights/finetuned/full-1167640/full-ready-1167640.json",
+      "sha256": "c8f49b03ff509aabfe1df43f84840ec97462037d850c3d3bffb27b11aa6d474b",
+      "schema_version": "eovrt.t1-full-audit.v1"
+    }
+  },
+  "checkpoint": {
+    "filename": "best.pt",
+    "sha256": "5714f8339dfcf68469b27c127857d801afb5d6d556e0db0c96ce28c74bc5efbe",
+    "size_bytes": 20320825,
+    "selected_by": "mejor mAP50-95 sobre finetuning_v1/val (epoca 10, 0.1905)",
+    "excluded_candidate": "last.pt (sha256 2c71f82ef4140d93491d5159205204bf7c914d0134e50338dbddffdf926412e7) se conserva para auditoria y NUNCA se evalua como segundo candidato",
+    "license_spdx": "AGPL-3.0",
+    "license_note": "heredada del peso base y del trainer; uso local/academico, sin redistribucion (license_registry.md, 2026-08-15)"
+  },
+  "destination": {
+    "repository": "e-ovrt_media-plane",
+    "repository_relative_path": "models/yoloe/finetuned/t1/best.pt",
+    "sha256_after_copy": "5714f8339dfcf68469b27c127857d801afb5d6d556e0db0c96ce28c74bc5efbe",
+    "sha256_preserved": true,
+    "git_ignored_by": ".gitignore:17 models/**/*.pt"
+  },
+  "catalog": {
+    "repository": "e-ovrt_media-plane",
+    "repository_relative_path": "configs/models/yoloe/yoloe-26s-ft-t1.yaml",
+    "sha256": "97129219034820896b06347a997735d01aee8eca908cae3f47448cb12b57cc9f",
+    "sha256_matches_frozen_protocol": true,
+    "model_ref": "yoloe/yoloe-26s-ft-t1"
+  },
+  "prerequisites": {
+    "note": "regla 7 de finetuning/README.md: no promover sin integridad, binding de clases y serving smoke",
+    "integrity": {
+      "passed": true,
+      "evidence": "sha256 y size_bytes de best.pt coinciden con full-ready-1167640.json emitido por el finalize remoto; verificado tras la transferencia local"
+    },
+    "class_binding": {
+      "passed": true,
+      "checkpoint_names_ordered": ["person", "helmet", "vest", "bare head"],
+      "required_by_protocol": ["person", "helmet", "vest", "bare head"],
+      "evidence": "torch.load del checkpoint; names == {0: person, 1: helmet, 2: vest, 3: bare head}"
+    },
+    "serving_smoke": {
+      "passed": true,
+      "status": "fixed_vocabulary_serving_passed",
+      "mode": "service",
+      "resolved_device": "cuda",
+      "detections": 5,
+      "dynamic_prompt_cache_untouched": true,
+      "set_classes_forbidden_during_inference": true,
+      "evidence": {
+        "path": "finetuning/manifests/t1_full_1167640_media_plane.json",
+        "sha256": "41f79681cc27b939bf4041b29533b9891c805ec4080584d1f95554233e82c022"
+      },
+      "media_plane_revision": "94660e6cadff825a383d5026b067d7e0b6b7cdce",
+      "media_plane_dirty": true
+    }
+  },
+  "next": {
+    "task_id": "T-FT-051",
+    "action": "corrida unica del brazo tuned sobre bench_v3 (6.477 imgs) y evaluacion con evaluate_t1_bench_v3.py --arm tuned",
+    "one_shot": true,
+    "gate": "D-FT-12 (margenes firmados 2026-08-15, antes de la baseline)"
+  }
+}

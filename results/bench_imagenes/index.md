@@ -46,6 +46,35 @@ agregadas, nunca solo el agregado.** El agregado de `bench_v3` está dominado po
 | `gdino-base-560` | 0,474 | **0,400** | **0,582** |
 | `yoloe-26x` | 0,405 | 0,000 | 0,182 |
 
+### Las 6 configuraciones que NO llegaron a `bench_obra` (✎ agregado 2026-08-10)
+
+La tabla de arriba re-puntúa **4** configuraciones sobre el núcleo curado. La matriz S1
+original (doc 64) midió **10**, y las 6 restantes se descartaron antes de esa re-puntuación.
+Hasta hoy este índice nombraba solo a `mm-gdino-tiny` y `mm-gdino-large` en la prosa de
+descartes, y **omitía a `mm-gdino-base` y a `gdino-base` (800)** — que sí se midieron. Van
+acá con sus números, para que la exclusión no sea una afirmación sin dato:
+
+> ⚠️ **Marco distinto: estas filas son BENCH v2 (196 imgs), no `bench_obra` (147).** No se
+> comparan celda a celda con la tabla de arriba; se leen entre sí. Es la única escala en la
+> que existen: nunca se re-puntuaron, precisamente porque quedaron fuera.
+
+| Configuración (BENCH v2, 196 imgs) | mAP50 | recall CR-01 | vest AP | `bare_head` AP | inf p50 | Por qué no siguió |
+|---|---|---|---|---|---|---|
+| `gdino-base` (800) | 0,401 | 0,514 | 0,43 | 0,01–0,03 | 213 ms | **Dominada por su propia variante 560** (0,453 mAP, 146 ms): peor mAP y **+46% de latencia**. Misma regla que descartó `gdino-tiny` (800) |
+| `mm-gdino-base` | 0,360 | 0,029 | 0,39 | **0,00** | 213 ms | **Mediocre sin ventaja en nada** (hallazgo 5 del doc 64): recall CR-01 0,029 y `bare_head` 0,00 |
+| `mm-gdino-large` | 0,017 | — | — | — | 723 ms | **Roto**: reproduce el bug de bboxes degeneradas (sanity-check pre-planificado: 2–3 degeneradas) |
+| `mm-gdino-tiny` | — | — | — | — | — | **Excluido a priori** en Sprint 2 por bboxes degeneradas; no se re-midió |
+| `yoloe-26l` / `26m` / `26s` | 0,407 (26x, campeón de la familia) | 0,049 (`26s`) | — | **0,000 en las 4** | 43 ms (`26x`) | **La familia entera es ciega a la condición.** `26x` es el campeón YOLOE y **el único tabulado arriba** por eso: representa a la familia en su mejor talla, no en la más rápida |
+
+Fuente: doc 64 (BENCH v2, 196 imgs — sin `metrics.json` mecánico; verificado a mano
+2026-08-14).
+
+**Lectura de esta tabla, en una línea:** de los 6 descartes, **3 son por dominancia
+medida** dentro de su propia familia (las dos variantes 800 y las tallas menores de YOLOE),
+**2 por defecto técnico verificado** (MM-GDINO large y tiny, bboxes degeneradas) y **1 por
+mediocridad sin eje propio** (`mm-gdino-base`). Ninguno quedó afuera por no haberse
+probado.
+
 ### Confirmación B5 sobre `bench_v3` completo (6.477 imgs)
 
 | Modelo | mAP50 (n=6.477) | recall CR-01 (n=5.313) | inf p50 † |
@@ -77,7 +106,12 @@ no un artefacto del denominador chico.
 1. **Campeón: `gdino-tiny-560`.** La resolución 560 da **−24% de latencia con igual o
    mejor mAP que 800** (doc 61; el −24% es inferencia batch sobre el BENCH — D-61.4 —
    no una medición live: `base-560` quedó **sin latencia live medida**, doc 101 §1).
-   La variante 800 quedó descartada por dominancia.
+   La variante 800 quedó descartada por dominancia. ✎ **2026-08-10 — el corolario, que
+   hasta hoy era inferencia del lector: por eso NINGUNA variante 800 px se llevó al banco
+   temporal** (decisión declarada en doc 64 §Decisiones S2). No es un hueco de cobertura:
+   correr 800 en los clips habría medido una configuración **dominada** y roto la variable
+   única de las campañas. Sigue siendo **trabajo futuro con causa**: doc 103 §7.4 lista
+   "800 px" entre las mitigaciones **no medidas** para el colapso de `vest` a distancia.
 2. **`gdino-base-560` es el especialista, con rol acotado, en dos ejes:**
    **`bare_head` (evidencia de CR-01)** — casi empate en `bench_obra` (0,400 vs
    0,369, n=65) que **se separa con claridad al sumar `shel5k`** (0,599 vs 0,308,
@@ -88,8 +122,13 @@ no un artefacto del denominador chico.
 3. **La familia YOLOE no sirve para CR-01**: AP 0,000 en `bare_head` en las cuatro
    variantes medidas (26x/26l/26s/26m); recall CR-01 0,000 en `26x` (0,049 en `26s`).
    Es rápida (43 ms) pero ciega a la condición que importa.
-4. **MM-Grounding-DINO descartado** en dos pasos: `tiny` excluido en Sprint 2 por
-   bboxes degeneradas; `large` mAP 0,017 en S1 (doc 64).
+4. **MM-Grounding-DINO descartado — la familia COMPLETA, sus tres variantes** (✎ 2026-08-10:
+   *antes esta línea decía "en dos pasos" y nombraba solo `tiny` y `large`, omitiendo a
+   `mm-gdino-base`, que sí se midió*): `tiny` excluido en Sprint 2 por bboxes degeneradas;
+   `large` **roto** (mAP 0,017 en S1, con el sanity-check de bboxes que estaba
+   pre-planificado "por si la familia reincide"); **`base` medido y mediocre** (mAP 0,360,
+   recall CR-01 0,029, `bare_head` 0,00 — "sin ventaja en nada", hallazgo 5 del doc 64).
+   Números en la tabla de descartes de §2.
 
 > **Salvedad de lectura.** `vest` no tiene AP en `shel5k` y `bare_head` no lo tiene en
 > `chv`: ninguna de las dos fuentes anota esa clase. Las celdas `—` son ausencia de

@@ -1,0 +1,27 @@
+{
+  "protocol_id": "t1_yoloe26s_bench_v3_v1",
+  "arm": "baseline",
+  "run_dir": "finetuning/runs/t1_yoloe26s_baseline_bench_v3",
+  "iou_threshold": 0.5,
+  "evaluated_at": "2026-08-15T19:44:58.100795+00:00",
+  "policy": "cada fuente elegible por separado; nunca el person_gt combinado",
+  "sources": {
+    "bench_obra": {
+      "cr01_recall": 0.0167,
+      "n_violators": 60,
+      "n_detected": 1,
+      "n_violators_gt_total": 60
+    },
+    "shel5k": {
+      "cr01_recall": 0.0,
+      "n_violators": 5248,
+      "n_detected": 0,
+      "n_violators_gt_total": 5248
+    }
+  },
+  "count_weighted_aggregate": {
+    "n_violators": 5308,
+    "n_detected": 1,
+    "recall": 0.0002
+  }
+}

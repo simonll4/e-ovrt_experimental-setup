@@ -1,0 +1,23 @@
+schema_version: experiment.manifest.v1
+slug: talert_integrated_video
+experiment_id: ${EOVRT_EXPERIMENT_ID}
+clip_id: ${EOVRT_CLIP_ID}
+ground_truth: ${EOVRT_WORKSPACE}/e-ovrt_datasets/datasets-videos/gt/${EOVRT_CLIP_ID}.json
+runs:
+  media:
+    service: media-plane
+    config: ${EOVRT_MEDIA_CONFIG}
+    mode: run
+  control:
+    service: control-plane
+    config: ${EOVRT_CONTROL_CONFIG}
+    mode: live
+  distribution:
+    service: alert-distribution
+    config: ${EOVRT_DISTRIBUTION_CONFIG}
+    mode: live
+    endpoint: tcp://127.0.0.1:5558
+    idle_timeout_ms: 30000
+sequencing: control_first
+report: {}
+frozen: {}

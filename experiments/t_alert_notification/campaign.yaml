@@ -1,0 +1,32 @@
+schema_version: talert_notification_campaign.v1
+python: "3.11"
+broker:
+  implementation: amqtt
+  version: "0.11.3"
+  host: 127.0.0.1
+  port: 1883
+bus:
+  endpoint: tcp://127.0.0.1:5558
+  subscriptions_expected: 2
+mqtt:
+  topic_prefix: eovrt/alerts
+  qos: 1
+policy:
+  cooldown_ms: 30000
+  key:
+    - condition_id
+    - source_id
+corpus:
+  resolved_runs: results/evidence-runs/resolved-runs.json
+  expected:
+    copied_runs: 957
+    nonempty_runs: 796
+    events: 1410
+  primary:
+    runs: 413
+    nonempty_runs: 356
+    events: 836
+  supplemental:
+    runs: 544
+    nonempty_runs: 440
+    events: 574

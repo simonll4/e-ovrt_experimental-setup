@@ -1,10 +1,343 @@
 [
   {
+    "clip_id": "v01_c01",
+    "eval": {
+      "schema_version": "control.eval.temporal.v1",
+      "scenario_id": "v01_c01",
+      "alerts_path": "/home/simonll4/projects/docs/operacion/datos/110-estrato-b-gen3/scene/control_runs/control_internet_scene_v01_c01_20260809T053738Z/alerts.jsonl",
+      "ground_truth_path": "/home/simonll4/projects/e-ovrt_datasets/datasets-videos/gt/v01_c01.json",
+      "expected_alerts_count": 0,
+      "observed_alerts_count": 2,
+      "matched_alerts_count": 0,
+      "missed_alerts_count": 0,
+      "unexpected_alerts_count": 2,
+      "duplicate_alerts_count": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "avg_latency_frames_from_first_evidence": null,
+      "avg_latency_ms_from_first_evidence": null,
+      "re_alerts_count": 0,
+      "sub_threshold_count": 0,
+      "censored_episodes_count": 0,
+      "observed_duration_ms": 37200.0,
+      "far_per_hour": 193.548387,
+      "applicability_state": "not_applicable",
+      "applicability_cause": "negative_clip_no_episodes",
+      "avg_latency_ms_from_episode_start": null,
+      "effective_matching_windows": {},
+      "warnings": [
+        "clip negativo (0 episodios en el GT): precision/recall/F1 no son evaluables (denominador 0) y NO deben promediarse. Lo que si es dato real: 2 falso(s) positivo(s) y far_per_hour — este clip es control de falsos positivos, no de recall."
+      ],
+      "matches": [],
+      "missed_alerts": [],
+      "unexpected_alerts": [
+        {
+          "alert_id": "bd11f35a-9c0e-5d2f-b82c-61506dfad7ad",
+          "condition_id": "CR-01",
+          "subject_key": "CR-01:v01_c01",
+          "frame_index": 120,
+          "reason": "outside_all_episode_windows"
+        },
+        {
+          "alert_id": "2824970b-38cc-5612-9795-858363b6f093",
+          "condition_id": "CR-02",
+          "subject_key": "CR-02:v01_c01",
+          "frame_index": 219,
+          "reason": "outside_all_episode_windows"
+        }
+      ],
+      "censored_episodes": [],
+      "avg_ttfd_ms": null,
+      "avg_sdr": null,
+      "ttfd_by_episode": [],
+      "sdr_by_episode": [],
+      "ttfd_sdr_applicability": "computed",
+      "positive_criterion": "spatial_absence(cr01_cr02_v2) >=1 evidencia",
+      "detections_path": "/home/simonll4/projects/e-ovrt_media-plane/runs/run_20260809_053403_dbe_grounding_dino_30c227/detections.jsonl"
+    },
+    "seconds": null,
+    "seconds_note": "null: el wall-clock por clip lo medía el runner en el momento y no es derivable de los artefactos; se declara ausente en vez de estimarlo (regeneración 2026-08-09)",
+    "media_run_id": "run_20260809_053403_dbe_grounding_dino_30c227",
+    "frames": 1116
+  },
+  {
+    "clip_id": "v01_c02",
+    "eval": {
+      "schema_version": "control.eval.temporal.v1",
+      "scenario_id": "v01_c02",
+      "alerts_path": "/home/simonll4/projects/docs/operacion/datos/110-estrato-b-gen3/scene/control_runs/control_internet_scene_v01_c02_20260809T053955Z/alerts.jsonl",
+      "ground_truth_path": "/home/simonll4/projects/e-ovrt_datasets/datasets-videos/gt/v01_c02.json",
+      "expected_alerts_count": 1,
+      "observed_alerts_count": 2,
+      "matched_alerts_count": 1,
+      "missed_alerts_count": 0,
+      "unexpected_alerts_count": 1,
+      "duplicate_alerts_count": 0,
+      "precision": 0.5,
+      "recall": 1.0,
+      "f1": 0.666667,
+      "avg_latency_frames_from_first_evidence": null,
+      "avg_latency_ms_from_first_evidence": null,
+      "re_alerts_count": 0,
+      "sub_threshold_count": 0,
+      "censored_episodes_count": 0,
+      "observed_duration_ms": 32767.0,
+      "far_per_hour": 109.866634,
+      "applicability_state": "computed",
+      "applicability_cause": null,
+      "avg_latency_ms_from_episode_start": 4000.0,
+      "effective_matching_windows": {
+        "CR-01": {
+          "persistencia_min_ms": 4000.0,
+          "t_alert_max_ms": 10000.0,
+          "origin": "gt_provenance"
+        }
+      },
+      "warnings": [],
+      "matches": [],
+      "missed_alerts": [],
+      "unexpected_alerts": [
+        {
+          "alert_id": "8ef9f227-3417-50e6-bc63-04ffa0b57340",
+          "condition_id": "CR-02",
+          "subject_key": "CR-02:v01_c02",
+          "frame_index": 212,
+          "reason": "outside_all_episode_windows"
+        }
+      ],
+      "censored_episodes": [],
+      "avg_ttfd_ms": 0.0,
+      "avg_sdr": 0.918993,
+      "ttfd_by_episode": [
+        {
+          "episode_id": "ep1",
+          "ttfd_ms": 0.0,
+          "cause": null
+        }
+      ],
+      "sdr_by_episode": [
+        {
+          "episode_id": "ep1",
+          "sdr": 0.9189931555043817,
+          "cause": null
+        }
+      ],
+      "ttfd_sdr_applicability": "computed",
+      "positive_criterion": "spatial_absence(cr01_cr02_v2) >=1 evidencia",
+      "detections_path": "/home/simonll4/projects/e-ovrt_media-plane/runs/run_20260809_053738_dbe_grounding_dino_a31637/detections.jsonl"
+    },
+    "seconds": null,
+    "seconds_note": "null: el wall-clock por clip lo medía el runner en el momento y no es derivable de los artefactos; se declara ausente en vez de estimarlo (regeneración 2026-08-09)",
+    "media_run_id": "run_20260809_053738_dbe_grounding_dino_a31637",
+    "frames": 983
+  },
+  {
+    "clip_id": "v02_c01",
+    "eval": {
+      "schema_version": "control.eval.temporal.v1",
+      "scenario_id": "v02_c01",
+      "alerts_path": "/home/simonll4/projects/docs/operacion/datos/110-estrato-b-gen3/scene/control_runs/control_internet_scene_v02_c01_20260809T054324Z/alerts.jsonl",
+      "ground_truth_path": "/home/simonll4/projects/e-ovrt_datasets/datasets-videos/gt/v02_c01.json",
+      "expected_alerts_count": 0,
+      "observed_alerts_count": 4,
+      "matched_alerts_count": 0,
+      "missed_alerts_count": 0,
+      "unexpected_alerts_count": 4,
+      "duplicate_alerts_count": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "avg_latency_frames_from_first_evidence": null,
+      "avg_latency_ms_from_first_evidence": null,
+      "re_alerts_count": 0,
+      "sub_threshold_count": 0,
+      "censored_episodes_count": 0,
+      "observed_duration_ms": 48900.0,
+      "far_per_hour": 294.478528,
+      "applicability_state": "not_applicable",
+      "applicability_cause": "negative_clip_no_episodes",
+      "avg_latency_ms_from_episode_start": null,
+      "effective_matching_windows": {},
+      "warnings": [
+        "clip negativo (0 episodios en el GT): precision/recall/F1 no son evaluables (denominador 0) y NO deben promediarse. Lo que si es dato real: 4 falso(s) positivo(s) y far_per_hour — este clip es control de falsos positivos, no de recall."
+      ],
+      "matches": [],
+      "missed_alerts": [],
+      "unexpected_alerts": [
+        {
+          "alert_id": "06d67bc3-7322-58d7-8bf5-c6e844d168fe",
+          "condition_id": "CR-01",
+          "subject_key": "CR-01:v02_c01",
+          "frame_index": 132,
+          "reason": "outside_all_episode_windows"
+        },
+        {
+          "alert_id": "4759ad2b-f7b9-58ed-9d93-225b44b6a32a",
+          "condition_id": "CR-02",
+          "subject_key": "CR-02:v02_c01",
+          "frame_index": 210,
+          "reason": "outside_all_episode_windows"
+        },
+        {
+          "alert_id": "b7d005d6-7184-54a7-bbe3-7c76b6b92ce5",
+          "condition_id": "CR-01",
+          "subject_key": "CR-01:v02_c01",
+          "frame_index": 1067,
+          "reason": "outside_all_episode_windows"
+        },
+        {
+          "alert_id": "c3db0b23-c36d-51d1-99b9-5716718307b9",
+          "condition_id": "CR-01",
+          "subject_key": "CR-01:v02_c01",
+          "frame_index": 1430,
+          "reason": "outside_all_episode_windows"
+        }
+      ],
+      "censored_episodes": [],
+      "avg_ttfd_ms": null,
+      "avg_sdr": null,
+      "ttfd_by_episode": [],
+      "sdr_by_episode": [],
+      "ttfd_sdr_applicability": "computed",
+      "positive_criterion": "spatial_absence(cr01_cr02_v2) >=1 evidencia",
+      "detections_path": "/home/simonll4/projects/e-ovrt_media-plane/runs/run_20260809_053955_dbe_grounding_dino_434ca8/detections.jsonl"
+    },
+    "seconds": null,
+    "seconds_note": "null: el wall-clock por clip lo medía el runner en el momento y no es derivable de los artefactos; se declara ausente en vez de estimarlo (regeneración 2026-08-09)",
+    "media_run_id": "run_20260809_053955_dbe_grounding_dino_434ca8",
+    "frames": 1467
+  },
+  {
+    "clip_id": "v03_c01",
+    "eval": {
+      "schema_version": "control.eval.temporal.v1",
+      "scenario_id": "v03_c01",
+      "alerts_path": "/home/simonll4/projects/docs/operacion/datos/110-estrato-b-gen3/scene/control_runs/control_internet_scene_v03_c01_20260809T054457Z/alerts.jsonl",
+      "ground_truth_path": "/home/simonll4/projects/e-ovrt_datasets/datasets-videos/gt/v03_c01.json",
+      "expected_alerts_count": 0,
+      "observed_alerts_count": 2,
+      "matched_alerts_count": 0,
+      "missed_alerts_count": 0,
+      "unexpected_alerts_count": 2,
+      "duplicate_alerts_count": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "avg_latency_frames_from_first_evidence": null,
+      "avg_latency_ms_from_first_evidence": null,
+      "re_alerts_count": 0,
+      "sub_threshold_count": 0,
+      "censored_episodes_count": 0,
+      "observed_duration_ms": 22000.0,
+      "far_per_hour": 327.272727,
+      "applicability_state": "not_applicable",
+      "applicability_cause": "negative_clip_no_episodes",
+      "avg_latency_ms_from_episode_start": null,
+      "effective_matching_windows": {},
+      "warnings": [
+        "clip negativo (0 episodios en el GT): precision/recall/F1 no son evaluables (denominador 0) y NO deben promediarse. Lo que si es dato real: 2 falso(s) positivo(s) y far_per_hour — este clip es control de falsos positivos, no de recall."
+      ],
+      "matches": [],
+      "missed_alerts": [],
+      "unexpected_alerts": [
+        {
+          "alert_id": "7625b982-d647-56ef-8027-a6609f5faa49",
+          "condition_id": "CR-01",
+          "subject_key": "CR-01:v03_c01",
+          "frame_index": 294,
+          "reason": "outside_all_episode_windows"
+        },
+        {
+          "alert_id": "21531248-7ef0-5494-8e2d-a9e1b52ca6bf",
+          "condition_id": "CR-02",
+          "subject_key": "CR-02:v03_c01",
+          "frame_index": 336,
+          "reason": "outside_all_episode_windows"
+        }
+      ],
+      "censored_episodes": [],
+      "avg_ttfd_ms": null,
+      "avg_sdr": null,
+      "ttfd_by_episode": [],
+      "sdr_by_episode": [],
+      "ttfd_sdr_applicability": "computed",
+      "positive_criterion": "spatial_absence(cr01_cr02_v2) >=1 evidencia",
+      "detections_path": "/home/simonll4/projects/e-ovrt_media-plane/runs/run_20260809_054325_dbe_grounding_dino_74c2fa/detections.jsonl"
+    },
+    "seconds": null,
+    "seconds_note": "null: el wall-clock por clip lo medía el runner en el momento y no es derivable de los artefactos; se declara ausente en vez de estimarlo (regeneración 2026-08-09)",
+    "media_run_id": "run_20260809_054325_dbe_grounding_dino_74c2fa",
+    "frames": 660
+  },
+  {
+    "clip_id": "v03_c02",
+    "eval": {
+      "schema_version": "control.eval.temporal.v1",
+      "scenario_id": "v03_c02",
+      "alerts_path": "/home/simonll4/projects/docs/operacion/datos/110-estrato-b-gen3/scene/control_runs/control_internet_scene_v03_c02_20260809T055218Z/alerts.jsonl",
+      "ground_truth_path": "/home/simonll4/projects/e-ovrt_datasets/datasets-videos/gt/v03_c02.json",
+      "expected_alerts_count": 0,
+      "observed_alerts_count": 2,
+      "matched_alerts_count": 0,
+      "missed_alerts_count": 0,
+      "unexpected_alerts_count": 2,
+      "duplicate_alerts_count": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "avg_latency_frames_from_first_evidence": null,
+      "avg_latency_ms_from_first_evidence": null,
+      "re_alerts_count": 0,
+      "sub_threshold_count": 0,
+      "censored_episodes_count": 0,
+      "observed_duration_ms": 104900.0,
+      "far_per_hour": 68.636797,
+      "applicability_state": "not_applicable",
+      "applicability_cause": "negative_clip_no_episodes",
+      "avg_latency_ms_from_episode_start": null,
+      "effective_matching_windows": {},
+      "warnings": [
+        "clip negativo (0 episodios en el GT): precision/recall/F1 no son evaluables (denominador 0) y NO deben promediarse. Lo que si es dato real: 2 falso(s) positivo(s) y far_per_hour — este clip es control de falsos positivos, no de recall."
+      ],
+      "matches": [],
+      "missed_alerts": [],
+      "unexpected_alerts": [
+        {
+          "alert_id": "a1994063-3215-523f-9dea-f63366108088",
+          "condition_id": "CR-01",
+          "subject_key": "CR-01:v03_c02",
+          "frame_index": 120,
+          "reason": "outside_all_episode_windows"
+        },
+        {
+          "alert_id": "b106fc04-e65b-556f-90f8-4202a10f02fd",
+          "condition_id": "CR-02",
+          "subject_key": "CR-02:v03_c02",
+          "frame_index": 210,
+          "reason": "outside_all_episode_windows"
+        }
+      ],
+      "censored_episodes": [],
+      "avg_ttfd_ms": null,
+      "avg_sdr": null,
+      "ttfd_by_episode": [],
+      "sdr_by_episode": [],
+      "ttfd_sdr_applicability": "computed",
+      "positive_criterion": "spatial_absence(cr01_cr02_v2) >=1 evidencia",
+      "detections_path": "/home/simonll4/projects/e-ovrt_media-plane/runs/run_20260809_054457_dbe_grounding_dino_31f00e/detections.jsonl"
+    },
+    "seconds": null,
+    "seconds_note": "null: el wall-clock por clip lo medía el runner en el momento y no es derivable de los artefactos; se declara ausente en vez de estimarlo (regeneración 2026-08-09)",
+    "media_run_id": "run_20260809_054457_dbe_grounding_dino_31f00e",
+    "frames": 3147
+  },
+  {
     "clip_id": "v04_c01",
     "eval": {
       "schema_version": "control.eval.temporal.v1",
       "scenario_id": "v04_c01",
-      "alerts_path": "/home/simonll4/projects/docs/operacion/datos/109-estrato-b-final/scene/control_runs/control_internet_scene_v04_c01_20260807T200518Z/alerts.jsonl",
+      "alerts_path": "/home/simonll4/projects/docs/operacion/datos/110-estrato-b-gen3/scene/control_runs/control_internet_scene_v04_c01_20260809T055342Z/alerts.jsonl",
       "ground_truth_path": "/home/simonll4/projects/e-ovrt_datasets/datasets-videos/gt/v04_c01.json",
       "expected_alerts_count": 1,
       "observed_alerts_count": 2,
@@ -37,14 +370,14 @@
       "missed_alerts": [],
       "unexpected_alerts": [
         {
-          "alert_id": "f3088056-eb64-50e9-a90b-025e80203813",
+          "alert_id": "89afd6d9-218a-58ca-977c-8dacc23b4530",
           "condition_id": "CR-01",
           "subject_key": "CR-01:v04_c01",
           "frame_index": 120,
           "reason": "outside_all_episode_windows"
         },
         {
-          "alert_id": "88fae0d0-1e36-5156-a6a7-50a7def59c4e",
+          "alert_id": "0e10e5db-1fe1-509a-8ba4-2d895515b2b4",
           "condition_id": "CR-02",
           "subject_key": "CR-02:v04_c01",
           "frame_index": 210,
@@ -70,95 +403,212 @@
       ],
       "ttfd_sdr_applicability": "computed",
       "positive_criterion": "spatial_absence(cr01_cr02_v2) >=1 evidencia",
-      "detections_path": "/home/simonll4/projects/e-ovrt_media-plane/runs/run_20260807_200343_dbe_grounding_dino_d98fff/detections.jsonl"
+      "detections_path": "/home/simonll4/projects/e-ovrt_media-plane/runs/run_20260809_055220_dbe_grounding_dino_11b4f6/detections.jsonl"
     },
-    "seconds": 95.4,
-    "media_run_id": "run_20260807_200343_dbe_grounding_dino_d98fff",
-    "frames": null
+    "seconds": null,
+    "seconds_note": "null: el wall-clock por clip lo medía el runner en el momento y no es derivable de los artefactos; se declara ausente en vez de estimarlo (regeneración 2026-08-09)",
+    "media_run_id": "run_20260809_055220_dbe_grounding_dino_11b4f6",
+    "frames": 572
   },
   {
     "clip_id": "v04_c02",
     "eval": {
       "schema_version": "control.eval.temporal.v1",
       "scenario_id": "v04_c02",
-      "alerts_path": "/home/simonll4/projects/docs/operacion/datos/109-estrato-b-final/scene/control_runs/control_internet_scene_v04_c02_20260807T200733Z/alerts.jsonl",
+      "alerts_path": "/home/simonll4/projects/docs/operacion/datos/110-estrato-b-gen3/scene/control_runs/control_internet_scene_v04_c02_20260809T055611Z/alerts.jsonl",
       "ground_truth_path": "/home/simonll4/projects/e-ovrt_datasets/datasets-videos/gt/v04_c02.json",
-      "expected_alerts_count": 2,
+      "expected_alerts_count": 0,
       "observed_alerts_count": 3,
-      "matched_alerts_count": 2,
+      "matched_alerts_count": 0,
       "missed_alerts_count": 0,
-      "unexpected_alerts_count": 0,
+      "unexpected_alerts_count": 3,
       "duplicate_alerts_count": 0,
-      "precision": 1.0,
-      "recall": 1.0,
-      "f1": 1.0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
       "avg_latency_frames_from_first_evidence": null,
       "avg_latency_ms_from_first_evidence": null,
-      "re_alerts_count": 1,
+      "re_alerts_count": 0,
       "sub_threshold_count": 0,
       "censored_episodes_count": 0,
       "observed_duration_ms": 28000.0,
-      "far_per_hour": 0.0,
-      "applicability_state": "computed",
-      "applicability_cause": null,
-      "avg_latency_ms_from_episode_start": 5533.335,
-      "effective_matching_windows": {
-        "CR-01": {
-          "persistencia_min_ms": 4000.0,
-          "t_alert_max_ms": 10000.0,
-          "origin": "gt_provenance"
-        },
-        "CR-02": {
-          "persistencia_min_ms": 7000.0,
-          "t_alert_max_ms": 20000.0,
-          "origin": "gt_provenance"
-        }
-      },
-      "warnings": [],
+      "far_per_hour": 385.714286,
+      "applicability_state": "not_applicable",
+      "applicability_cause": "negative_clip_no_episodes",
+      "avg_latency_ms_from_episode_start": null,
+      "effective_matching_windows": {},
+      "warnings": [
+        "clip negativo (0 episodios en el GT): precision/recall/F1 no son evaluables (denominador 0) y NO deben promediarse. Lo que si es dato real: 3 falso(s) positivo(s) y far_per_hour — este clip es control de falsos positivos, no de recall."
+      ],
       "matches": [],
       "missed_alerts": [],
-      "unexpected_alerts": [],
+      "unexpected_alerts": [
+        {
+          "alert_id": "06f90583-fe17-5bf9-8ecb-65d79663cc3b",
+          "condition_id": "CR-01",
+          "subject_key": "CR-01:v04_c02",
+          "frame_index": 120,
+          "reason": "outside_all_episode_windows"
+        },
+        {
+          "alert_id": "2a10048b-471f-5a6e-bf72-4f923821be50",
+          "condition_id": "CR-02",
+          "subject_key": "CR-02:v04_c02",
+          "frame_index": 212,
+          "reason": "outside_all_episode_windows"
+        },
+        {
+          "alert_id": "394a0f13-4641-5d41-b2df-bec35d2fe065",
+          "condition_id": "CR-01",
+          "subject_key": "CR-01:v04_c02",
+          "frame_index": 526,
+          "reason": "outside_all_episode_windows"
+        }
+      ],
       "censored_episodes": [],
-      "avg_ttfd_ms": 0.0,
-      "avg_sdr": 0.646145,
-      "ttfd_by_episode": [
-        {
-          "episode_id": "ep1",
-          "ttfd_ms": 0.0,
-          "cause": null
-        },
-        {
-          "episode_id": "ep2",
-          "ttfd_ms": 0.0,
-          "cause": null
-        }
-      ],
-      "sdr_by_episode": [
-        {
-          "episode_id": "ep1",
-          "sdr": 0.5132744513909295,
-          "cause": null
-        },
-        {
-          "episode_id": "ep2",
-          "sdr": 0.779015230982252,
-          "cause": null
-        }
-      ],
+      "avg_ttfd_ms": null,
+      "avg_sdr": null,
+      "ttfd_by_episode": [],
+      "sdr_by_episode": [],
       "ttfd_sdr_applicability": "computed",
       "positive_criterion": "spatial_absence(cr01_cr02_v2) >=1 evidencia",
-      "detections_path": "/home/simonll4/projects/e-ovrt_media-plane/runs/run_20260807_200519_dbe_grounding_dino_bf1487/detections.jsonl"
+      "detections_path": "/home/simonll4/projects/e-ovrt_media-plane/runs/run_20260809_055343_dbe_grounding_dino_1db026/detections.jsonl"
     },
-    "seconds": 135.7,
-    "media_run_id": "run_20260807_200519_dbe_grounding_dino_bf1487",
-    "frames": null
+    "seconds": null,
+    "seconds_note": "null: el wall-clock por clip lo medía el runner en el momento y no es derivable de los artefactos; se declara ausente en vez de estimarlo (regeneración 2026-08-09)",
+    "media_run_id": "run_20260809_055343_dbe_grounding_dino_1db026",
+    "frames": 840
+  },
+  {
+    "clip_id": "v04_c03",
+    "eval": {
+      "schema_version": "control.eval.temporal.v1",
+      "scenario_id": "v04_c03",
+      "alerts_path": "/home/simonll4/projects/docs/operacion/datos/110-estrato-b-gen3/scene/control_runs/control_internet_scene_v04_c03_20260809T055910Z/alerts.jsonl",
+      "ground_truth_path": "/home/simonll4/projects/e-ovrt_datasets/datasets-videos/gt/v04_c03.json",
+      "expected_alerts_count": 0,
+      "observed_alerts_count": 2,
+      "matched_alerts_count": 0,
+      "missed_alerts_count": 0,
+      "unexpected_alerts_count": 2,
+      "duplicate_alerts_count": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "avg_latency_frames_from_first_evidence": null,
+      "avg_latency_ms_from_first_evidence": null,
+      "re_alerts_count": 0,
+      "sub_threshold_count": 0,
+      "censored_episodes_count": 0,
+      "observed_duration_ms": 32133.0,
+      "far_per_hour": 224.068714,
+      "applicability_state": "not_applicable",
+      "applicability_cause": "negative_clip_no_episodes",
+      "avg_latency_ms_from_episode_start": null,
+      "effective_matching_windows": {},
+      "warnings": [
+        "clip negativo (0 episodios en el GT): precision/recall/F1 no son evaluables (denominador 0) y NO deben promediarse. Lo que si es dato real: 2 falso(s) positivo(s) y far_per_hour — este clip es control de falsos positivos, no de recall."
+      ],
+      "matches": [],
+      "missed_alerts": [],
+      "unexpected_alerts": [
+        {
+          "alert_id": "9f6eb59f-27d9-5736-96d3-515836c1c4af",
+          "condition_id": "CR-01",
+          "subject_key": "CR-01:v04_c03",
+          "frame_index": 139,
+          "reason": "outside_all_episode_windows"
+        },
+        {
+          "alert_id": "ce0e6d5b-5de2-5450-9b09-c0b4922e4c27",
+          "condition_id": "CR-02",
+          "subject_key": "CR-02:v04_c03",
+          "frame_index": 210,
+          "reason": "outside_all_episode_windows"
+        }
+      ],
+      "censored_episodes": [],
+      "avg_ttfd_ms": null,
+      "avg_sdr": null,
+      "ttfd_by_episode": [],
+      "sdr_by_episode": [],
+      "ttfd_sdr_applicability": "computed",
+      "positive_criterion": "spatial_absence(cr01_cr02_v2) >=1 evidencia",
+      "detections_path": "/home/simonll4/projects/e-ovrt_media-plane/runs/run_20260809_055612_dbe_grounding_dino_4992fe/detections.jsonl"
+    },
+    "seconds": null,
+    "seconds_note": "null: el wall-clock por clip lo medía el runner en el momento y no es derivable de los artefactos; se declara ausente en vez de estimarlo (regeneración 2026-08-09)",
+    "media_run_id": "run_20260809_055612_dbe_grounding_dino_4992fe",
+    "frames": 964
+  },
+  {
+    "clip_id": "v05_c01",
+    "eval": {
+      "schema_version": "control.eval.temporal.v1",
+      "scenario_id": "v05_c01",
+      "alerts_path": "/home/simonll4/projects/docs/operacion/datos/110-estrato-b-gen3/scene/control_runs/control_internet_scene_v05_c01_20260809T060656Z/alerts.jsonl",
+      "ground_truth_path": "/home/simonll4/projects/e-ovrt_datasets/datasets-videos/gt/v05_c01.json",
+      "expected_alerts_count": 0,
+      "observed_alerts_count": 2,
+      "matched_alerts_count": 0,
+      "missed_alerts_count": 0,
+      "unexpected_alerts_count": 2,
+      "duplicate_alerts_count": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "avg_latency_frames_from_first_evidence": null,
+      "avg_latency_ms_from_first_evidence": null,
+      "re_alerts_count": 0,
+      "sub_threshold_count": 0,
+      "censored_episodes_count": 0,
+      "observed_duration_ms": 78500.0,
+      "far_per_hour": 91.719745,
+      "applicability_state": "not_applicable",
+      "applicability_cause": "negative_clip_no_episodes",
+      "avg_latency_ms_from_episode_start": null,
+      "effective_matching_windows": {},
+      "warnings": [
+        "clip negativo (0 episodios en el GT): precision/recall/F1 no son evaluables (denominador 0) y NO deben promediarse. Lo que si es dato real: 2 falso(s) positivo(s) y far_per_hour — este clip es control de falsos positivos, no de recall."
+      ],
+      "matches": [],
+      "missed_alerts": [],
+      "unexpected_alerts": [
+        {
+          "alert_id": "85509aea-1d09-5f5e-94e8-a07da5a0ebb3",
+          "condition_id": "CR-01",
+          "subject_key": "CR-01:v05_c01",
+          "frame_index": 120,
+          "reason": "outside_all_episode_windows"
+        },
+        {
+          "alert_id": "9fda2467-3ec4-54c2-82f4-4c462d90059b",
+          "condition_id": "CR-02",
+          "subject_key": "CR-02:v05_c01",
+          "frame_index": 210,
+          "reason": "outside_all_episode_windows"
+        }
+      ],
+      "censored_episodes": [],
+      "avg_ttfd_ms": null,
+      "avg_sdr": null,
+      "ttfd_by_episode": [],
+      "sdr_by_episode": [],
+      "ttfd_sdr_applicability": "computed",
+      "positive_criterion": "spatial_absence(cr01_cr02_v2) >=1 evidencia",
+      "detections_path": "/home/simonll4/projects/e-ovrt_media-plane/runs/run_20260809_055911_dbe_grounding_dino_8b9247/detections.jsonl"
+    },
+    "seconds": null,
+    "seconds_note": "null: el wall-clock por clip lo medía el runner en el momento y no es derivable de los artefactos; se declara ausente en vez de estimarlo (regeneración 2026-08-09)",
+    "media_run_id": "run_20260809_055911_dbe_grounding_dino_8b9247",
+    "frames": 2355
   },
   {
     "clip_id": "v06_c01",
     "eval": {
       "schema_version": "control.eval.temporal.v1",
       "scenario_id": "v06_c01",
-      "alerts_path": "/home/simonll4/projects/docs/operacion/datos/109-estrato-b-final/scene/control_runs/control_internet_scene_v06_c01_20260807T204035Z/alerts.jsonl",
+      "alerts_path": "/home/simonll4/projects/docs/operacion/datos/110-estrato-b-gen3/scene/control_runs/control_internet_scene_v06_c01_20260809T063637Z/alerts.jsonl",
       "ground_truth_path": "/home/simonll4/projects/e-ovrt_datasets/datasets-videos/gt/v06_c01.json",
       "expected_alerts_count": 0,
       "observed_alerts_count": 3,
@@ -187,21 +637,21 @@
       "missed_alerts": [],
       "unexpected_alerts": [
         {
-          "alert_id": "05057cc9-7502-5c68-8030-22243b03b70d",
+          "alert_id": "f3af607e-ffac-5745-87f2-d21c329e5c67",
           "condition_id": "CR-01",
           "subject_key": "CR-01:v06_c01",
           "frame_index": 137,
           "reason": "outside_all_episode_windows"
         },
         {
-          "alert_id": "fa76c219-7c94-52cd-8c1d-5bb1322dbf96",
+          "alert_id": "25e8895b-0f12-544b-afb0-48e03dafceb6",
           "condition_id": "CR-02",
           "subject_key": "CR-02:v06_c01",
           "frame_index": 210,
           "reason": "outside_all_episode_windows"
         },
         {
-          "alert_id": "6e351e29-bef2-5349-845a-68b484f838e8",
+          "alert_id": "72eda73f-7f08-5379-85cb-61e4897ce09f",
           "condition_id": "CR-01",
           "subject_key": "CR-01:v06_c01",
           "frame_index": 10720,
@@ -215,18 +665,143 @@
       "sdr_by_episode": [],
       "ttfd_sdr_applicability": "computed",
       "positive_criterion": "spatial_absence(cr01_cr02_v2) >=1 evidencia",
-      "detections_path": "/home/simonll4/projects/e-ovrt_media-plane/runs/run_20260807_200734_dbe_grounding_dino_2dd34f/detections.jsonl"
+      "detections_path": "/home/simonll4/projects/e-ovrt_media-plane/runs/run_20260809_060658_dbe_grounding_dino_59670a/detections.jsonl"
     },
-    "seconds": 1997.0,
-    "media_run_id": "run_20260807_200734_dbe_grounding_dino_2dd34f",
-    "frames": null
+    "seconds": null,
+    "seconds_note": "null: el wall-clock por clip lo medía el runner en el momento y no es derivable de los artefactos; se declara ausente en vez de estimarlo (regeneración 2026-08-09)",
+    "media_run_id": "run_20260809_060658_dbe_grounding_dino_59670a",
+    "frames": 11087
+  },
+  {
+    "clip_id": "v07_c01",
+    "eval": {
+      "schema_version": "control.eval.temporal.v1",
+      "scenario_id": "v07_c01",
+      "alerts_path": "/home/simonll4/projects/docs/operacion/datos/110-estrato-b-gen3/scene/control_runs/control_internet_scene_v07_c01_20260809T063843Z/alerts.jsonl",
+      "ground_truth_path": "/home/simonll4/projects/e-ovrt_datasets/datasets-videos/gt/v07_c01.json",
+      "expected_alerts_count": 0,
+      "observed_alerts_count": 2,
+      "matched_alerts_count": 0,
+      "missed_alerts_count": 0,
+      "unexpected_alerts_count": 2,
+      "duplicate_alerts_count": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "avg_latency_frames_from_first_evidence": null,
+      "avg_latency_ms_from_first_evidence": null,
+      "re_alerts_count": 0,
+      "sub_threshold_count": 0,
+      "censored_episodes_count": 0,
+      "observed_duration_ms": 26867.0,
+      "far_per_hour": 267.98675,
+      "applicability_state": "not_applicable",
+      "applicability_cause": "negative_clip_no_episodes",
+      "avg_latency_ms_from_episode_start": null,
+      "effective_matching_windows": {},
+      "warnings": [
+        "clip negativo (0 episodios en el GT): precision/recall/F1 no son evaluables (denominador 0) y NO deben promediarse. Lo que si es dato real: 2 falso(s) positivo(s) y far_per_hour — este clip es control de falsos positivos, no de recall."
+      ],
+      "matches": [],
+      "missed_alerts": [],
+      "unexpected_alerts": [
+        {
+          "alert_id": "8e4f8b69-c690-5d05-9d5b-26cf34c488e3",
+          "condition_id": "CR-01",
+          "subject_key": "CR-01:v07_c01",
+          "frame_index": 120,
+          "reason": "outside_all_episode_windows"
+        },
+        {
+          "alert_id": "ac9ca83f-812a-5663-a83d-10edfa8b083d",
+          "condition_id": "CR-02",
+          "subject_key": "CR-02:v07_c01",
+          "frame_index": 210,
+          "reason": "outside_all_episode_windows"
+        }
+      ],
+      "censored_episodes": [],
+      "avg_ttfd_ms": null,
+      "avg_sdr": null,
+      "ttfd_by_episode": [],
+      "sdr_by_episode": [],
+      "ttfd_sdr_applicability": "computed",
+      "positive_criterion": "spatial_absence(cr01_cr02_v2) >=1 evidencia",
+      "detections_path": "/home/simonll4/projects/e-ovrt_media-plane/runs/run_20260809_063646_dbe_grounding_dino_75ccb4/detections.jsonl"
+    },
+    "seconds": null,
+    "seconds_note": "null: el wall-clock por clip lo medía el runner en el momento y no es derivable de los artefactos; se declara ausente en vez de estimarlo (regeneración 2026-08-09)",
+    "media_run_id": "run_20260809_063646_dbe_grounding_dino_75ccb4",
+    "frames": 806
+  },
+  {
+    "clip_id": "v09_c01",
+    "eval": {
+      "schema_version": "control.eval.temporal.v1",
+      "scenario_id": "v09_c01",
+      "alerts_path": "/home/simonll4/projects/docs/operacion/datos/110-estrato-b-gen3/scene/control_runs/control_internet_scene_v09_c01_20260809T064154Z/alerts.jsonl",
+      "ground_truth_path": "/home/simonll4/projects/e-ovrt_datasets/datasets-videos/gt/v09_c01.json",
+      "expected_alerts_count": 0,
+      "observed_alerts_count": 2,
+      "matched_alerts_count": 0,
+      "missed_alerts_count": 0,
+      "unexpected_alerts_count": 2,
+      "duplicate_alerts_count": 0,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "avg_latency_frames_from_first_evidence": null,
+      "avg_latency_ms_from_first_evidence": null,
+      "re_alerts_count": 0,
+      "sub_threshold_count": 0,
+      "censored_episodes_count": 0,
+      "observed_duration_ms": 45167.0,
+      "far_per_hour": 159.408418,
+      "applicability_state": "not_applicable",
+      "applicability_cause": "negative_clip_no_episodes",
+      "avg_latency_ms_from_episode_start": null,
+      "effective_matching_windows": {},
+      "warnings": [
+        "clip negativo (0 episodios en el GT): precision/recall/F1 no son evaluables (denominador 0) y NO deben promediarse. Lo que si es dato real: 2 falso(s) positivo(s) y far_per_hour — este clip es control de falsos positivos, no de recall."
+      ],
+      "matches": [],
+      "missed_alerts": [],
+      "unexpected_alerts": [
+        {
+          "alert_id": "4ab625a7-c47b-5d02-ba36-b2229ff2d377",
+          "condition_id": "CR-01",
+          "subject_key": "CR-01:v09_c01",
+          "frame_index": 120,
+          "reason": "outside_all_episode_windows"
+        },
+        {
+          "alert_id": "fc9abffb-65e0-5948-adeb-1ef3c96ef2a4",
+          "condition_id": "CR-02",
+          "subject_key": "CR-02:v09_c01",
+          "frame_index": 210,
+          "reason": "outside_all_episode_windows"
+        }
+      ],
+      "censored_episodes": [],
+      "avg_ttfd_ms": null,
+      "avg_sdr": null,
+      "ttfd_by_episode": [],
+      "sdr_by_episode": [],
+      "ttfd_sdr_applicability": "computed",
+      "positive_criterion": "spatial_absence(cr01_cr02_v2) >=1 evidencia",
+      "detections_path": "/home/simonll4/projects/e-ovrt_media-plane/runs/run_20260809_063844_dbe_grounding_dino_edbcc0/detections.jsonl"
+    },
+    "seconds": null,
+    "seconds_note": "null: el wall-clock por clip lo medía el runner en el momento y no es derivable de los artefactos; se declara ausente en vez de estimarlo (regeneración 2026-08-09)",
+    "media_run_id": "run_20260809_063844_dbe_grounding_dino_edbcc0",
+    "frames": 1355
   },
   {
     "clip_id": "v10_c01",
     "eval": {
       "schema_version": "control.eval.temporal.v1",
       "scenario_id": "v10_c01",
-      "alerts_path": "/home/simonll4/projects/docs/operacion/datos/109-estrato-b-final/scene/control_runs/control_internet_scene_v10_c01_20260807T204642Z/alerts.jsonl",
+      "alerts_path": "/home/simonll4/projects/docs/operacion/datos/110-estrato-b-gen3/scene/control_runs/control_internet_scene_v10_c01_20260809T064603Z/alerts.jsonl",
       "ground_truth_path": "/home/simonll4/projects/e-ovrt_datasets/datasets-videos/gt/v10_c01.json",
       "expected_alerts_count": 0,
       "observed_alerts_count": 2,
@@ -255,14 +830,14 @@
       "missed_alerts": [],
       "unexpected_alerts": [
         {
-          "alert_id": "3e4db853-9cb4-5184-be41-df0e79599027",
+          "alert_id": "035fe2b9-105d-560f-91e4-82bf2707742b",
           "condition_id": "CR-01",
           "subject_key": "CR-01:v10_c01",
           "frame_index": 120,
           "reason": "outside_all_episode_windows"
         },
         {
-          "alert_id": "262361ee-3d98-5c2a-9760-5a2cef322b7d",
+          "alert_id": "a0fa13b1-21ff-528f-bb27-c5cb7db216f5",
           "condition_id": "CR-02",
           "subject_key": "CR-02:v10_c01",
           "frame_index": 210,
@@ -276,10 +851,11 @@
       "sdr_by_episode": [],
       "ttfd_sdr_applicability": "computed",
       "positive_criterion": "spatial_absence(cr01_cr02_v2) >=1 evidencia",
-      "detections_path": "/home/simonll4/projects/e-ovrt_media-plane/runs/run_20260807_204051_dbe_grounding_dino_169456/detections.jsonl"
+      "detections_path": "/home/simonll4/projects/e-ovrt_media-plane/runs/run_20260809_064155_dbe_grounding_dino_6e107a/detections.jsonl"
     },
-    "seconds": 351.8,
-    "media_run_id": "run_20260807_204051_dbe_grounding_dino_169456",
-    "frames": null
+    "seconds": null,
+    "seconds_note": "null: el wall-clock por clip lo medía el runner en el momento y no es derivable de los artefactos; se declara ausente en vez de estimarlo (regeneración 2026-08-09)",
+    "media_run_id": "run_20260809_064155_dbe_grounding_dino_6e107a",
+    "frames": 1771
   }
 ]

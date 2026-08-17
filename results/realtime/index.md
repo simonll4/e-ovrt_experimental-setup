@@ -14,6 +14,13 @@ conviene no confundirlos porque miden cosas diferentes:
 | **Latencia operativa** | ¿cuánto tarda de captura a alerta? ¿entra en presupuesto? | ✅ medido (GDINO fuera de budget, con causa) |
 | **Techo de throughput** | ¿cuántos fps sostiene esta máquina y por qué? | ✅ diagnosticado + una palanca aplicada |
 | **Calidad bajo restricción de tiempo real** | ¿qué rendimiento sobrevive a ver menos frames? | ✅ **medido 2026-08-05 (doc 96)** |
+| **Distribución de alertas** | ¿cuánto tarda el bus de alertas en obtener PUBACK MQTT QoS 1? | ✅ **p95 64,534 ms (n = 460)** |
+
+La campaña [`t_alert_notification`](t_alert_notification/README.md) mide exclusivamente
+`bus de alertas → PUBACK MQTT QoS 1`. El agregado principal da **p95 = 64,534 ms
+(n = 460)**. En régimen sostenido (entregas 2.ª+ de cada corrida), el p95 es
+**102,025 ms (n = 104)**; las primeras entregas dan **49,869 ms (n = 356)**.
+Ambas lecturas proceden del mismo `outcomes.csv`, sin re-corrida.
 
 ---
 
@@ -215,7 +222,15 @@ medir G1.
   cubre hoy por proxy de densidad sobre DBE (doc 96) + integridad verificada en humos,
   y el proxy quedó verificado también contra el descarte irregular (doc 101) — la
   prioridad de esta campaña baja aún más. Bloqueo técnico: el ancla wallclock↔media
-  (ingeniería, no material). Trabajo ubicado, no ejecutado.
+  (ingeniería, no material). ~~Trabajo ubicado, no ejecutado.~~ ✎ **2026-08-15 —
+  DECLARADA CON CAUSA, no pendiente (F-121.1, `operacion/121` §2.2).** Se evaluó
+  ejecutarla y **no produciría ningún resultado nuevo**: el pipeline DBE es determinista
+  (F-109.1) y el bus publica el evento **byte-idéntico** al del JSONL (gate de paridad
+  verificado por mutación, doc 37 §3) ⇒ **el resultado sería idéntico a T1 por
+  construcción**. La única divergencia posible es pérdida en el bus, que se cuenta
+  (`bus_dropped_events`) y degrada la corrida — y en DBE la presión sobre el bus es
+  **menor** que en vivo, o sea un test más flojo que los humos que ya dieron 0. No es un
+  experimento: es un guard de un modo de falla que ya tiene detector.
 - ~~La irregularidad del descarte live~~ → **MEDIDA Y VERIFICADA (doc 101)**: CV
   0,22–0,36 según estado del host, sin efecto detectable sobre el eje de densidad.
   Residuo de segundo orden declarado: el jitter muestreado es i.i.d.; el real puede

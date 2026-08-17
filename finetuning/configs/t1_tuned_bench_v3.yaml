@@ -1,0 +1,68 @@
+# Brazo TUNED del protocolo T1 sobre bench_v3 (T-FT-051) — corrida ÚNICA.
+#
+# Espejo exacto del brazo baseline (`runs/t1_yoloe26s_baseline_bench_v3/effective_config.yaml`,
+# run_20260815_193750_dbe_yoloe_1113f7). La ÚNICA variable es el modelo:
+#   baseline  model.ref: yoloe/yoloe-26s        (original, set_classes dinámico)
+#   tuned     model.ref: yoloe/yoloe-26s-ft-t1  (checkpoint T1, vocabulario fijo D-FT-08)
+#
+# `device: cuda` se declara explícito porque el catálogo tuned trae `auto`: así el campo
+# efectivo queda idéntico al de la baseline en vez de depender de la resolución automática.
+# `half_precision`/`warmup` no se declaran en ningún brazo: el default del schema es True
+# en ambos (ModelRuntimeConfig), que es lo que exige `inference` del protocolo congelado.
+#
+# Regla one-shot (protocolo §one_shot_rule): tras observar cualquier resultado tuned está
+# PROHIBIDO cambiar prompts, orden de clases, umbrales, NMS, image size o postproceso,
+# elegir otro checkpoint, o re-correr por las métricas. `last.pt` nunca es segundo candidato.
+
+run:
+  scenario: DBE
+  seed: 42
+  warmup_units: 0
+  max_units: null
+
+model:
+  ref: yoloe/yoloe-26s-ft-t1
+  device: cuda
+
+source:
+  type: image_folder
+  path: /home/simonll4/projects/e-ovrt_experimental-setup/finetuning/cache/bench_v3_flat
+  extensions: [.jpg, .jpeg, .png]
+  fps: 10
+  resolution: 1080p
+  orientation: normal
+  warmup_frames: 0
+
+prompts:
+  ref: cr01_cr02_bench_v2
+  active_ids: [person, helmet, vest, bare_head]
+
+postprocess:
+  min_box_area_px: 100.0
+  min_confidence: 0.25
+  normalize_boxes: true
+
+rate_control:
+  policy: deterministic
+  stride: 1
+  max_queue_size: 8
+  overflow: fail_run
+  # buffer_size NO se declara: sólo aplica a policy=bounded_freshness y el loader lo
+  # rechaza. El efectivo queda en su default (2), igual que en la baseline.
+
+outputs:
+  base_dir: /home/simonll4/projects/e-ovrt_experimental-setup/finetuning/runs/staging_t051
+  save_detections_jsonl: true
+  save_metrics_jsonl: true
+  save_errors_jsonl: true
+  save_previews: true
+  preview_max: null
+
+topology:
+  mode: single_host
+
+transport:
+  backend: memory
+
+bus:
+  enabled: false

@@ -1,0 +1,951 @@
+{
+  "bench_leakage": {
+    "by_reason": {
+      "bench_perceptual_component": 56,
+      "bench_source_lineage": 25
+    },
+    "candidate_components_excluded": 34,
+    "candidate_images_excluded": 81,
+    "candidate_lineages_excluded": 34,
+    "lineages": [
+      "construction_site_safety:image_55_jpg",
+      "construction_site_safety:youtube-260_jpg",
+      "construction_site_safety:youtube-391_jpg",
+      "construction_site_safety:youtube-504_jpg",
+      "construction_site_safety:youtube-51_jpg",
+      "ppe_siabar:9417812-serious-male-construction-worker-in-safety-vest-and-hard-hat_jpg@288070d2e2d2",
+      "ppe_siabar:ppe_0137_jpg",
+      "ppe_siabar:ppe_0140_jpg",
+      "ppe_siabar:ppe_0153_jpg",
+      "ppe_siabar:ppe_0185_jpg",
+      "ppe_siabar:ppe_0218_jpg",
+      "ppe_siabar:ppe_0274_jpg",
+      "ppe_siabar:ppe_0302_jpg",
+      "ppe_siabar:ppe_0307_jpg",
+      "ppe_siabar:ppe_0311_jpg@70e9e4516d41",
+      "ppe_siabar:ppe_0320_jpg",
+      "ppe_siabar:ppe_0352_jpg",
+      "ppe_siabar:ppe_0354_jpg",
+      "ppe_siabar:ppe_0374_jpg",
+      "ppe_siabar:ppe_0511_jpg",
+      "ppe_siabar:ppe_0546_jpg",
+      "ppe_siabar:ppe_0636_jpg",
+      "ppe_siabar:ppe_0648_jpg",
+      "ppe_siabar:ppe_0771_jpg",
+      "ppe_siabar:ppe_0873_jpg",
+      "ppe_siabar:ppe_0896_jpg",
+      "ppe_siabar:ppe_0925_jpg",
+      "ppe_siabar:ppe_0941_jpg",
+      "ppe_siabar:ppe_0961_jpg",
+      "ppe_siabar:ppe_1188_jpg",
+      "ppe_siabar:ppe_1200_jpg",
+      "ppe_siabar:ppe_1207_jpg",
+      "ppe_siabar:ppe_1270_jpg",
+      "ppe_siabar:ppe_1328_jpg"
+    ],
+    "matches": [
+      {
+        "bench_datasets": [
+          "chv"
+        ],
+        "bench_images": [
+          "datasets/raw/chv/CHV_dataset/images/ppe_0352.jpg"
+        ],
+        "candidate_images": [
+          "datasets/raw/ppe_siabar/train/images/ppe_0352_jpg.rf.10a8f994a4bacfa196c01f888e247db6.jpg"
+        ],
+        "candidate_lineages": [
+          "ppe_siabar:ppe_0352_jpg"
+        ],
+        "component_id": "grp_025ebde685749709"
+      },
+      {
+        "bench_datasets": [
+          "construction_site_safety"
+        ],
+        "bench_images": [
+          "datasets/raw/construction_site_safety/valid/images/youtube-51_jpg.rf.083f4487f9a468d9ff42aa13953f377a.jpg"
+        ],
+        "candidate_images": [
+          "datasets/raw/construction_site_safety/train/images/youtube-51_jpg.rf.2c234edd4bfc27927f54d09bb395b17a.jpg",
+          "datasets/raw/construction_site_safety/train/images/youtube-51_jpg.rf.9f988fb2591fd11552c51f9996ef8403.jpg",
+          "datasets/raw/construction_site_safety/train/images/youtube-51_jpg.rf.abe2a1a49a03ead9328d8b19f5e20503.jpg",
+          "datasets/raw/construction_site_safety/train/images/youtube-51_jpg.rf.ce63d71340c141fc94de2120b2949896.jpg",
+          "datasets/raw/construction_site_safety/train/images/youtube-51_jpg.rf.ff11aa298dd39a3416b5714b0101d904.jpg"
+        ],
+        "candidate_lineages": [
+          "construction_site_safety:youtube-51_jpg"
+        ],
+        "component_id": "grp_05f5f60188cfeed9"
+      },
+      {
+        "bench_datasets": [
+          "chv"
+        ],
+        "bench_images": [
+          "datasets/raw/chv/CHV_dataset/images/ppe_0218.jpg"
+        ],
+        "candidate_images": [
+          "datasets/raw/ppe_siabar/train/images/ppe_0218_jpg.rf.263e2ad0a8a44be80c25179b5d0cdbac.jpg",
+          "datasets/raw/ppe_siabar/train/images/ppe_0218_jpg.rf.686975b238f72305cea6b9a6941fd354.jpg",
+          "datasets/raw/ppe_siabar/train/images/ppe_0218_jpg.rf.f2be46e880ee760fe5a4bdda639c1926.jpg"
+        ],
+        "candidate_lineages": [
+          "ppe_siabar:ppe_0218_jpg"
+        ],
+        "component_id": "grp_0a6b45693e4e0718"
+      },
+      {
+        "bench_datasets": [
+          "chv"
+        ],
+        "bench_images": [
+          "datasets/raw/chv/CHV_dataset/images/ppe_0648.jpg"
+        ],
+        "candidate_images": [
+          "datasets/raw/ppe_siabar/train/images/ppe_0648_jpg.rf.914e5b08b6f466f85f12df6ee8e51ec3.jpg",
+          "datasets/raw/ppe_siabar/train/images/ppe_0648_jpg.rf.edbbbec0b7979d4fa21e0cb46e5bd1cd.jpg"
+        ],
+        "candidate_lineages": [
+          "ppe_siabar:ppe_0648_jpg"
+        ],
+        "component_id": "grp_0e0afc6ab1ef3edb"
+      },
+      {
+        "bench_datasets": [
+          "chv"
+        ],
+        "bench_images": [
+          "datasets/raw/chv/CHV_dataset/images/ppe_1328.jpg"
+        ],
+        "candidate_images": [
+          "datasets/raw/ppe_siabar/train/images/ppe_1328_jpg.rf.1de26f1d5c240e7c082cc519e34755b5.jpg",
+          "datasets/raw/ppe_siabar/valid/images/ppe_1328_jpg.rf.ef2806424bb0bfcbae734ff3e77e825d.jpg"
+        ],
+        "candidate_lineages": [
+          "ppe_siabar:ppe_1328_jpg"
+        ],
+        "component_id": "grp_0e871a58eadc9305"
+      },
+      {
+        "bench_datasets": [
+          "chv"
+        ],
+        "bench_images": [
+          "datasets/raw/chv/CHV_dataset/images/ppe_0302.jpg"
+        ],
+        "candidate_images": [
+          "datasets/raw/ppe_siabar/train/images/ppe_0302_jpg.rf.93ffb38647916b55b95e3ff5bf44a36b.jpg",
+          "datasets/raw/ppe_siabar/train/images/ppe_0302_jpg.rf.f8c70928265eb8f30c5e9d49d24cd5ad.jpg"
+        ],
+        "candidate_lineages": [
+          "ppe_siabar:ppe_0302_jpg"
+        ],
+        "component_id": "grp_17ee8ee42c90a9ac"
+      },
+      {
+        "bench_datasets": [
+          "chv"
+        ],
+        "bench_images": [
+          "datasets/raw/chv/CHV_dataset/images/ppe_0941.jpg"
+        ],
+        "candidate_images": [
+          "datasets/raw/ppe_siabar/test/images/ppe_0941_jpg.rf.4aaed64753d2075e8bd8198665bfa355.jpg",
+          "datasets/raw/ppe_siabar/valid/images/ppe_0941_jpg.rf.3fd0466682454bd690ced003f9dd4add.jpg"
+        ],
+        "candidate_lineages": [
+          "ppe_siabar:ppe_0941_jpg"
+        ],
+        "component_id": "grp_4328526e622e0d34"
+      },
+      {
+        "bench_datasets": [
+          "construction_site_safety"
+        ],
+        "bench_images": [
+          "datasets/raw/construction_site_safety/valid/images/youtube-260_jpg.rf.76ba0c9fa66318daee5bea72b83b4cc5.jpg"
+        ],
+        "candidate_images": [
+          "datasets/raw/construction_site_safety/train/images/youtube-260_jpg.rf.159ed6b011a68b3cf063b4f65aefdd5e.jpg",
+          "datasets/raw/construction_site_safety/train/images/youtube-260_jpg.rf.36876779672ad5cca8b7f0d8d11fdc1b.jpg",
+          "datasets/raw/construction_site_safety/train/images/youtube-260_jpg.rf.513da73973f55ecf0d110bdb904985e8.jpg",
+          "datasets/raw/construction_site_safety/train/images/youtube-260_jpg.rf.75b664b182be42662934e2414857d4d7.jpg",
+          "datasets/raw/construction_site_safety/train/images/youtube-260_jpg.rf.ea1641c8b47fac6d6c4066c5e5b3b2fc.jpg"
+        ],
+        "candidate_lineages": [
+          "construction_site_safety:youtube-260_jpg"
+        ],
+        "component_id": "grp_44aa094a6191dd96"
+      },
+      {
+        "bench_datasets": [
+          "chv"
+        ],
+        "bench_images": [
+          "datasets/raw/chv/CHV_dataset/images/ppe_0274.jpg"
+        ],
+        "candidate_images": [
+          "datasets/raw/ppe_siabar/train/images/ppe_0274_jpg.rf.345132df8406883d9a684492bdc18c08.jpg",
+          "datasets/raw/ppe_siabar/train/images/ppe_0274_jpg.rf.973627e7bd698aa57c2e107a3f6c6b98.jpg"
+        ],
+        "candidate_lineages": [
+          "ppe_siabar:ppe_0274_jpg"
+        ],
+        "component_id": "grp_52a66f4c917842c3"
+      },
+      {
+        "bench_datasets": [
+          "chv"
+        ],
+        "bench_images": [
+          "datasets/raw/chv/CHV_dataset/images/ppe_0546.jpg",
+          "datasets/raw/chv/CHV_dataset/images/ppe_0567.jpg"
+        ],
+        "candidate_images": [
+          "datasets/raw/ppe_siabar/train/images/ppe_0546_jpg.rf.8811f5ccec78aace1c86a3e581fcf16f.jpg",
+          "datasets/raw/ppe_siabar/train/images/ppe_0546_jpg.rf.a2ad5fda89b43c96fdd4e2e785565fd0.jpg"
+        ],
+        "candidate_lineages": [
+          "ppe_siabar:ppe_0546_jpg"
+        ],
+        "component_id": "grp_57dcbd719c8ab3d3"
+      },
+      {
+        "bench_datasets": [
+          "construction_site_safety"
+        ],
+        "bench_images": [
+          "datasets/raw/construction_site_safety/valid/images/youtube-391_jpg.rf.2744ad86e8dbd4366f1fa839accc48b3.jpg",
+          "datasets/raw/construction_site_safety/valid/images/youtube-392_jpg.rf.7e49e3a8486caaa4e9d82246de93e68e.jpg"
+        ],
+        "candidate_images": [
+          "datasets/raw/construction_site_safety/train/images/youtube-391_jpg.rf.053577d6f2ec2d42d8954a0feb0570dc.jpg",
+          "datasets/raw/construction_site_safety/train/images/youtube-391_jpg.rf.3376e1c730f09014e2693db20b9c2ea7.jpg",
+          "datasets/raw/construction_site_safety/train/images/youtube-391_jpg.rf.7420705685a0eeafeb6c8883c88660c2.jpg",
+          "datasets/raw/construction_site_safety/train/images/youtube-391_jpg.rf.d268640da76f948c2943c31b2b365523.jpg",
+          "datasets/raw/construction_site_safety/train/images/youtube-391_jpg.rf.f087d227159625bcfb1f8071acd192d7.jpg"
+        ],
+        "candidate_lineages": [
+          "construction_site_safety:youtube-391_jpg"
+        ],
+        "component_id": "grp_5ef0a2f1a9df2333"
+      },
+      {
+        "bench_datasets": [
+          "construction_site_safety"
+        ],
+        "bench_images": [
+          "datasets/raw/construction_site_safety/valid/images/youtube-504_jpg.rf.23771986686856ac7d350cea84ddf611.jpg"
+        ],
+        "candidate_images": [
+          "datasets/raw/construction_site_safety/train/images/youtube-504_jpg.rf.590544a175fcf6a37b411e940d17f6cc.jpg",
+          "datasets/raw/construction_site_safety/train/images/youtube-504_jpg.rf.6f3bdf6146994b47affa4f97cd5f7548.jpg",
+          "datasets/raw/construction_site_safety/train/images/youtube-504_jpg.rf.77717d6f6a4b73b99dd20ed0ca372d10.jpg",
+          "datasets/raw/construction_site_safety/train/images/youtube-504_jpg.rf.84333a11582894d1f59e3ebaf115eb83.jpg",
+          "datasets/raw/construction_site_safety/train/images/youtube-504_jpg.rf.8942dadb904ee266a93348fd7aa294a7.jpg"
+        ],
+        "candidate_lineages": [
+          "construction_site_safety:youtube-504_jpg"
+        ],
+        "component_id": "grp_68b9e92866ff752d"
+      },
+      {
+        "bench_datasets": [
+          "chv"
+        ],
+        "bench_images": [
+          "datasets/raw/chv/CHV_dataset/images/ppe_0153.jpg"
+        ],
+        "candidate_images": [
+          "datasets/raw/ppe_siabar/train/images/ppe_0153_jpg.rf.9ab3be437482e7b66e1c2f5958e7a9cf.jpg",
+          "datasets/raw/ppe_siabar/train/images/ppe_0153_jpg.rf.cfc5bb75e388eecc7b459d59d4c41b95.jpg"
+        ],
+        "candidate_lineages": [
+          "ppe_siabar:ppe_0153_jpg"
+        ],
+        "component_id": "grp_6c1f137fb62b0bea"
+      },
+      {
+        "bench_datasets": [
+          "chv"
+        ],
+        "bench_images": [
+          "datasets/raw/chv/CHV_dataset/images/ppe_0636.jpg"
+        ],
+        "candidate_images": [
+          "datasets/raw/ppe_siabar/test/images/ppe_0636_jpg.rf.6ecbe00c8dbbcf3a1a6c0e33c48bee56.jpg",
+          "datasets/raw/ppe_siabar/train/images/ppe_0636_jpg.rf.18fcc5f01f88d310343bfee3c1f8ac6f.jpg",
+          "datasets/raw/ppe_siabar/valid/images/ppe_0636_jpg.rf.38a723fef9f9083f6ef7a390a02aa76d.jpg"
+        ],
+        "candidate_lineages": [
+          "ppe_siabar:ppe_0636_jpg"
+        ],
+        "component_id": "grp_700806e2fa01d458"
+      },
+      {
+        "bench_datasets": [
+          "chv"
+        ],
+        "bench_images": [
+          "datasets/raw/chv/CHV_dataset/images/ppe_0307.jpg"
+        ],
+        "candidate_images": [
+          "datasets/raw/ppe_siabar/train/images/ppe_0307_jpg.rf.25a70ae2d54897d142d429d5e045e4e8.jpg"
+        ],
+        "candidate_lineages": [
+          "ppe_siabar:ppe_0307_jpg"
+        ],
+        "component_id": "grp_7b39f7651d43b4df"
+      },
+      {
+        "bench_datasets": [
+          "chv"
+        ],
+        "bench_images": [
+          "datasets/raw/chv/CHV_dataset/images/ppe_1207.jpg"
+        ],
+        "candidate_images": [
+          "datasets/raw/ppe_siabar/train/images/ppe_1207_jpg.rf.361257757449345d6de5c524239b0c73.jpg",
+          "datasets/raw/ppe_siabar/valid/images/ppe_1207_jpg.rf.2f419ba82fdde49eca58df1bb910e7fa.jpg",
+          "datasets/raw/ppe_siabar/valid/images/ppe_1207_jpg.rf.cac77933fe27c038f525b0b4d3dd317e.jpg"
+        ],
+        "candidate_lineages": [
+          "ppe_siabar:ppe_1207_jpg"
+        ],
+        "component_id": "grp_7b620bb44ea231b8"
+      },
+      {
+        "bench_datasets": [
+          "chv"
+        ],
+        "bench_images": [
+          "datasets/raw/chv/CHV_dataset/images/ppe_1188.jpg"
+        ],
+        "candidate_images": [
+          "datasets/raw/ppe_siabar/train/images/ppe_1188_jpg.rf.1feb80d27a187a5fbb874688b2f85d73.jpg",
+          "datasets/raw/ppe_siabar/train/images/ppe_1188_jpg.rf.93272acf09fceef5f5def872f4109f78.jpg"
+        ],
+        "candidate_lineages": [
+          "ppe_siabar:ppe_1188_jpg"
+        ],
+        "component_id": "grp_961f62ef53284605"
+      },
+      {
+        "bench_datasets": [
+          "construction_site_safety"
+        ],
+        "bench_images": [
+          "datasets/raw/construction_site_safety/test/images/image_55_jpg.rf.27ae4341a9b9647d73a8929ff7a22369.jpg"
+        ],
+        "candidate_images": [
+          "datasets/raw/construction_site_safety/train/images/image_55_jpg.rf.323e177c76f3dc84835bde77e470f5de.jpg",
+          "datasets/raw/construction_site_safety/train/images/image_55_jpg.rf.90ff629a67354f5e98606b7d20abca29.jpg",
+          "datasets/raw/construction_site_safety/train/images/image_55_jpg.rf.92c28ef7d600a0d58a2d2ddd88f70d79.jpg",
+          "datasets/raw/construction_site_safety/train/images/image_55_jpg.rf.a0b75348ecd4895380b6288637887952.jpg",
+          "datasets/raw/construction_site_safety/train/images/image_55_jpg.rf.cf69c20b3e24814e9f218cb05b63040d.jpg"
+        ],
+        "candidate_lineages": [
+          "construction_site_safety:image_55_jpg"
+        ],
+        "component_id": "grp_a6f3a1a5ed6b9de9"
+      },
+      {
+        "bench_datasets": [
+          "chv"
+        ],
+        "bench_images": [
+          "datasets/raw/chv/CHV_dataset/images/ppe_0961.jpg"
+        ],
+        "candidate_images": [
+          "datasets/raw/ppe_siabar/train/images/ppe_0961_jpg.rf.c866fb12470dfc01d67e6481e1fbbff6.jpg",
+          "datasets/raw/ppe_siabar/train/images/ppe_0961_jpg.rf.d8b445f87ba92f5129389a009823668f.jpg"
+        ],
+        "candidate_lineages": [
+          "ppe_siabar:ppe_0961_jpg"
+        ],
+        "component_id": "grp_ab0309b7be2ad5d0"
+      },
+      {
+        "bench_datasets": [
+          "chv"
+        ],
+        "bench_images": [
+          "datasets/raw/chv/CHV_dataset/images/ppe_1200.jpg"
+        ],
+        "candidate_images": [
+          "datasets/raw/ppe_siabar/train/images/ppe_1200_jpg.rf.f294e9962b9781d40f0bd992c0e79951.jpg"
+        ],
+        "candidate_lineages": [
+          "ppe_siabar:ppe_1200_jpg"
+        ],
+        "component_id": "grp_b52183459bc956b5"
+      },
+      {
+        "bench_datasets": [
+          "chv"
+        ],
+        "bench_images": [
+          "datasets/raw/chv/CHV_dataset/images/ppe_0925.jpg"
+        ],
+        "candidate_images": [
+          "datasets/raw/ppe_siabar/train/images/ppe_0925_jpg.rf.160554529318e6815bc267c38963e0a4.jpg"
+        ],
+        "candidate_lineages": [
+          "ppe_siabar:ppe_0925_jpg"
+        ],
+        "component_id": "grp_be3f2d1d7018deed"
+      },
+      {
+        "bench_datasets": [
+          "chv"
+        ],
+        "bench_images": [
+          "datasets/raw/chv/CHV_dataset/images/ppe_0140.jpg"
+        ],
+        "candidate_images": [
+          "datasets/raw/ppe_siabar/test/images/ppe_0140_jpg.rf.640809e0c3a441a267e58943b3ba5d46.jpg",
+          "datasets/raw/ppe_siabar/train/images/ppe_0140_jpg.rf.afa6b800b5e8e62469e2bea88940f7aa.jpg",
+          "datasets/raw/ppe_siabar/train/images/ppe_0140_jpg.rf.ccdbd4009883149747c2fe14e386f5d3.jpg",
+          "datasets/raw/ppe_siabar/valid/images/ppe_0140_jpg.rf.1ddf9bd961ba34d97ad1d2fc754563f3.jpg"
+        ],
+        "candidate_lineages": [
+          "ppe_siabar:ppe_0140_jpg"
+        ],
+        "component_id": "grp_c35a4cf8853600a9"
+      },
+      {
+        "bench_datasets": [
+          "chv"
+        ],
+        "bench_images": [
+          "datasets/raw/chv/CHV_dataset/images/ppe_0896.jpg"
+        ],
+        "candidate_images": [
+          "datasets/raw/ppe_siabar/train/images/ppe_0896_jpg.rf.7c157e943990d3cbc0c5e562e1c39de8.jpg"
+        ],
+        "candidate_lineages": [
+          "ppe_siabar:ppe_0896_jpg"
+        ],
+        "component_id": "grp_c652cf770db8fbc1"
+      },
+      {
+        "bench_datasets": [
+          "chv"
+        ],
+        "bench_images": [
+          "datasets/raw/chv/CHV_dataset/images/ppe_0354.jpg"
+        ],
+        "candidate_images": [
+          "datasets/raw/ppe_siabar/test/images/ppe_0354_jpg.rf.03651cd9281ad0fbe71e0c16a742284c.jpg",
+          "datasets/raw/ppe_siabar/train/images/ppe_0354_jpg.rf.10c6b73a677bd189856671a7300422f1.jpg",
+          "datasets/raw/ppe_siabar/valid/images/ppe_0354_jpg.rf.c50921f205f26cee5ad30bfabd35289e.jpg",
+          "datasets/raw/ppe_siabar/valid/images/ppe_0354_jpg.rf.fe6ff1d1ad089a32b45c4c3087c57de2.jpg"
+        ],
+        "candidate_lineages": [
+          "ppe_siabar:ppe_0354_jpg"
+        ],
+        "component_id": "grp_c99449acd418e113"
+      },
+      {
+        "bench_datasets": [
+          "chv"
+        ],
+        "bench_images": [
+          "datasets/raw/chv/CHV_dataset/images/ppe_0873.jpg"
+        ],
+        "candidate_images": [
+          "datasets/raw/ppe_siabar/train/images/ppe_0873_jpg.rf.3702b3d83b5a6aa17c3829f52f65a9ee.jpg"
+        ],
+        "candidate_lineages": [
+          "ppe_siabar:ppe_0873_jpg"
+        ],
+        "component_id": "grp_caa2336c3f123d92"
+      },
+      {
+        "bench_datasets": [
+          "chv"
+        ],
+        "bench_images": [
+          "datasets/raw/chv/CHV_dataset/images/ppe_1270.jpg"
+        ],
+        "candidate_images": [
+          "datasets/raw/ppe_siabar/train/images/ppe_1270_jpg.rf.85d71b3f4e0dd6cbba158dddf708677a.jpg"
+        ],
+        "candidate_lineages": [
+          "ppe_siabar:ppe_1270_jpg"
+        ],
+        "component_id": "grp_cc5940c482316eab"
+      },
+      {
+        "bench_datasets": [
+          "chv"
+        ],
+        "bench_images": [
+          "datasets/raw/chv/CHV_dataset/images/ppe_0185.jpg"
+        ],
+        "candidate_images": [
+          "datasets/raw/ppe_siabar/train/images/ppe_0185_jpg.rf.bdecf0d3ba18f85dc80845db082476e6.jpg",
+          "datasets/raw/ppe_siabar/valid/images/ppe_0185_jpg.rf.a0a93a99216a384078efbc4c289edf8c.jpg"
+        ],
+        "candidate_lineages": [
+          "ppe_siabar:ppe_0185_jpg"
+        ],
+        "component_id": "grp_d1f9edaa662c0dcc"
+      },
+      {
+        "bench_datasets": [
+          "chv"
+        ],
+        "bench_images": [
+          "datasets/raw/chv/CHV_dataset/images/ppe_0374.jpg"
+        ],
+        "candidate_images": [
+          "datasets/raw/ppe_siabar/train/images/ppe_0374_jpg.rf.b93a4e19f745cb55e5937b0658f5b1e4.jpg",
+          "datasets/raw/ppe_siabar/train/images/ppe_0374_jpg.rf.bd0fedf569a8266146cbb51bc5defdef.jpg"
+        ],
+        "candidate_lineages": [
+          "ppe_siabar:ppe_0374_jpg"
+        ],
+        "component_id": "grp_d36bbfeb2b67ec2d"
+      },
+      {
+        "bench_datasets": [
+          "chv"
+        ],
+        "bench_images": [
+          "datasets/raw/chv/CHV_dataset/images/ppe_0771.jpg"
+        ],
+        "candidate_images": [
+          "datasets/raw/ppe_siabar/test/images/ppe_0771_jpg.rf.cd0a48d608b12b79248f94b27b5de6bc.jpg",
+          "datasets/raw/ppe_siabar/train/images/ppe_0771_jpg.rf.bd2f5f835f6919fe79bc89cdeedd6d1a.jpg"
+        ],
+        "candidate_lineages": [
+          "ppe_siabar:ppe_0771_jpg"
+        ],
+        "component_id": "grp_d6629cc1047c2892"
+      },
+      {
+        "bench_datasets": [
+          "chv"
+        ],
+        "bench_images": [
+          "datasets/raw/chv/CHV_dataset/images/ppe_0255.jpg"
+        ],
+        "candidate_images": [
+          "datasets/raw/ppe_siabar/train/images/9417812-serious-male-construction-worker-in-safety-vest-and-hard-hat_jpg.rf.e37464bbfb5dcc6e91bd79e00fc14628.jpg"
+        ],
+        "candidate_lineages": [
+          "ppe_siabar:9417812-serious-male-construction-worker-in-safety-vest-and-hard-hat_jpg@288070d2e2d2"
+        ],
+        "component_id": "grp_d6f49c575da0e55f"
+      },
+      {
+        "bench_datasets": [
+          "chv"
+        ],
+        "bench_images": [
+          "datasets/raw/chv/CHV_dataset/images/ppe_0320.jpg"
+        ],
+        "candidate_images": [
+          "datasets/raw/ppe_siabar/test/images/ppe_0320_jpg.rf.9dcc7b0f00f56a956a443bca7f14c151.jpg",
+          "datasets/raw/ppe_siabar/valid/images/ppe_0320_jpg.rf.13cd72aed9357c1da3e0b9ea3a08eaf1.jpg"
+        ],
+        "candidate_lineages": [
+          "ppe_siabar:ppe_0320_jpg"
+        ],
+        "component_id": "grp_daa8e11c82c98c1a"
+      },
+      {
+        "bench_datasets": [
+          "chv"
+        ],
+        "bench_images": [
+          "datasets/raw/chv/CHV_dataset/images/ppe_0311.jpg"
+        ],
+        "candidate_images": [
+          "datasets/raw/ppe_siabar/train/images/ppe_0311_jpg.rf.1dad792c85a60d6766d43f2d6b0cc9d8.jpg"
+        ],
+        "candidate_lineages": [
+          "ppe_siabar:ppe_0311_jpg@70e9e4516d41"
+        ],
+        "component_id": "grp_e79c89aca07b8b4d"
+      },
+      {
+        "bench_datasets": [
+          "chv"
+        ],
+        "bench_images": [
+          "datasets/raw/chv/CHV_dataset/images/ppe_0511.jpg"
+        ],
+        "candidate_images": [
+          "datasets/raw/ppe_siabar/test/images/ppe_0511_jpg.rf.52039af25d3d067572b8574dc6eb31ae.jpg",
+          "datasets/raw/ppe_siabar/valid/images/ppe_0511_jpg.rf.f07e5152b52e447b04f3ffcafa11c443.jpg"
+        ],
+        "candidate_lineages": [
+          "ppe_siabar:ppe_0511_jpg"
+        ],
+        "component_id": "grp_e848ed8618305816"
+      },
+      {
+        "bench_datasets": [
+          "chv"
+        ],
+        "bench_images": [
+          "datasets/raw/chv/CHV_dataset/images/ppe_0137.jpg"
+        ],
+        "candidate_images": [
+          "datasets/raw/ppe_siabar/test/images/ppe_0137_jpg.rf.a95866795f3f89d79d453ef1f7b79f68.jpg",
+          "datasets/raw/ppe_siabar/train/images/ppe_0137_jpg.rf.bd291dd61c61b71d47f03de50c1a14ec.jpg"
+        ],
+        "candidate_lineages": [
+          "ppe_siabar:ppe_0137_jpg"
+        ],
+        "component_id": "grp_f1010a7bae3e5146"
+      }
+    ]
+  },
+  "benchmark": {
+    "images": 6477,
+    "sha256": "4557024ecc4ee497ab1fad01d6819206395c10fd794010ed8c1d9198b19a4462",
+    "unchanged": true
+  },
+  "candidates": {
+    "by_source": {
+      "construction_site_safety/train": {
+        "class_instances": {
+          "bare_head": 2318,
+          "helmet": 3362,
+          "person": 9691,
+          "vest": 3156
+        },
+        "images": 2603,
+        "lineages": 514
+      },
+      "ppe_siabar/test": {
+        "class_instances": {
+          "bare_head": 0,
+          "helmet": 144,
+          "person": 138,
+          "vest": 191
+        },
+        "images": 161,
+        "lineages": 155
+      },
+      "ppe_siabar/train": {
+        "class_instances": {
+          "bare_head": 0,
+          "helmet": 969,
+          "person": 1002,
+          "vest": 1355
+        },
+        "images": 1120,
+        "lineages": 752
+      },
+      "ppe_siabar/val": {
+        "class_instances": {
+          "bare_head": 0,
+          "helmet": 273,
+          "person": 302,
+          "vest": 398
+        },
+        "images": 326,
+        "lineages": 291
+      }
+    },
+    "class_instances": {
+      "bare_head": 2318,
+      "helmet": 4748,
+      "person": 11133,
+      "vest": 5100
+    },
+    "components": 1220,
+    "images": 4210,
+    "lineages": 1394
+  },
+  "eligible_after_bench_guard": {
+    "class_instances": {
+      "bare_head": 2308,
+      "helmet": 4581,
+      "person": 10918,
+      "vest": 4999
+    },
+    "components": 1186,
+    "images": 4129,
+    "lineages": 1360
+  },
+  "inputs": {
+    "bench_json": "datasets/processed/coco/bench/curated/bench_v3.json",
+    "bench_manifest": "datasets/processed/coco/bench/curated/bench_v3_manifest.json",
+    "candidate_sources": [
+      "construction_site_safety/train",
+      "ppe_siabar/train",
+      "ppe_siabar/val",
+      "ppe_siabar/test"
+    ],
+    "source_contracts": {
+      "construction_site_safety": {
+        "license_spdx": "CC-BY-4.0",
+        "source_url": "https://universe.roboflow.com/roboflow-universe-projects/construction-site-safety",
+        "source_version": "27"
+      },
+      "ppe_siabar": {
+        "license_spdx": "CC-BY-4.0",
+        "source_url": "https://universe.roboflow.com/siabar/ppe-plsuk",
+        "source_version": "1"
+      }
+    }
+  },
+  "parameters": {
+    "ahash": "average_hash_64",
+    "ahash_max_hamming_distance": 2,
+    "dhash": "difference_hash_64",
+    "dhash_max_hamming_distance": 2,
+    "gray_pixel_mae_max_0_255": 2.0,
+    "gray_thumbnail": "16x16_luma_lanczos",
+    "perceptual_match_rule": "both_hash_distances_and_pixel_mae_must_pass",
+    "pillow_version": "12.2.0",
+    "ppe_lineage_refinement": {
+      "ahash_max_hamming_distance": 4,
+      "dhash_max_hamming_distance": 4,
+      "gray_pixel_mae_max_0_255": 5.0,
+      "rule": "split reused source stems into visually compatible components"
+    }
+  },
+  "schema_version": "eovrt.finetuning-audit.v1",
+  "source_annotation_conflicts": {
+    "ppe_siabar": {
+      "images": 447,
+      "lineage_ids": [
+        "ppe_siabar:00014_jpg",
+        "ppe_siabar:00016_jpg",
+        "ppe_siabar:00041_jpg",
+        "ppe_siabar:00048_jpg",
+        "ppe_siabar:00060_jpg",
+        "ppe_siabar:00087_jpg",
+        "ppe_siabar:00091_jpg",
+        "ppe_siabar:00095_jpg",
+        "ppe_siabar:00096_jpg",
+        "ppe_siabar:00100_jpg",
+        "ppe_siabar:00103_jpg",
+        "ppe_siabar:00107_jpg",
+        "ppe_siabar:00148_jpg",
+        "ppe_siabar:00173_jpg",
+        "ppe_siabar:00176_jpg",
+        "ppe_siabar:00271_jpg",
+        "ppe_siabar:00273_jpg",
+        "ppe_siabar:00275_jpg",
+        "ppe_siabar:00350_jpg",
+        "ppe_siabar:20220721_162229_jpg",
+        "ppe_siabar:52_JPG_jpg",
+        "ppe_siabar:AightOne0832_jpg",
+        "ppe_siabar:AightSird0207_jpg",
+        "ppe_siabar:AightSird0434_jpg",
+        "ppe_siabar:Aitin0586_jpg",
+        "ppe_siabar:Aitin0937_jpg",
+        "ppe_siabar:Aitin0942_jpg",
+        "ppe_siabar:Aitin1170_jpg",
+        "ppe_siabar:Aitin1410_jpg",
+        "ppe_siabar:Aitin2331_jpg",
+        "ppe_siabar:Aitin3205_jpg",
+        "ppe_siabar:Aitin3626_jpg",
+        "ppe_siabar:Image_ipg-1381-_jpg",
+        "ppe_siabar:KakaoTalk_20221018_001312059_02_jpg@7acb0bc46baa",
+        "ppe_siabar:KakaoTalk_20221018_001425789_07_jpg@c3f1700184e0",
+        "ppe_siabar:KakaoTalk_20221018_001605157_29_jpg@3d38c90f462d",
+        "ppe_siabar:KakaoTalk_20221018_001726988_01_jpg@14461c7e959b",
+        "ppe_siabar:KakaoTalk_20221018_001836614_12_jpg@175d7a9c5ad5",
+        "ppe_siabar:Photin0001_jpg",
+        "ppe_siabar:Photin0124_jpg",
+        "ppe_siabar:Photin0648_jpg",
+        "ppe_siabar:Photin0971_jpg",
+        "ppe_siabar:Tan0156_jpg",
+        "ppe_siabar:Tan0365365_jpg",
+        "ppe_siabar:Tan0500500_jpg",
+        "ppe_siabar:Tan0532532_jpg",
+        "ppe_siabar:Tan0639639_jpg",
+        "ppe_siabar:ThavantinDuo0848_jpg",
+        "ppe_siabar:TsirinOne0027_jpg",
+        "ppe_siabar:TsirinOne0031_jpg",
+        "ppe_siabar:TsirinOne0044_jpg",
+        "ppe_siabar:TsirinTu0019_jpg",
+        "ppe_siabar:TsirinTu0046_jpg",
+        "ppe_siabar:Twalv0995_jpg",
+        "ppe_siabar:Twalv1139_jpg",
+        "ppe_siabar:Video1_0_jpg",
+        "ppe_siabar:Video1_15_jpg",
+        "ppe_siabar:Video1_164_jpg",
+        "ppe_siabar:Video1_165_jpg",
+        "ppe_siabar:Video1_173_jpg",
+        "ppe_siabar:Video1_178_jpg",
+        "ppe_siabar:Video1_180_jpg",
+        "ppe_siabar:Video1_190_jpg",
+        "ppe_siabar:Video1_194_jpg",
+        "ppe_siabar:Video1_200_jpg",
+        "ppe_siabar:Video1_216_jpg",
+        "ppe_siabar:Video1_217_jpg",
+        "ppe_siabar:Video1_218_jpg",
+        "ppe_siabar:Video1_232_jpg",
+        "ppe_siabar:Video1_31_jpg",
+        "ppe_siabar:Video1_34_jpg",
+        "ppe_siabar:Video1_3_jpg",
+        "ppe_siabar:Video1_40_jpg",
+        "ppe_siabar:Video1_41_jpg",
+        "ppe_siabar:Video1_44_jpg",
+        "ppe_siabar:Video1_47_jpg",
+        "ppe_siabar:Video1_49_jpg",
+        "ppe_siabar:Video1_55_jpg",
+        "ppe_siabar:Video1_57_jpg",
+        "ppe_siabar:Video1_58_jpg",
+        "ppe_siabar:Video2_0_jpg",
+        "ppe_siabar:Video2_10_jpg",
+        "ppe_siabar:Video2_132_jpg",
+        "ppe_siabar:Video2_136_jpg",
+        "ppe_siabar:Video2_143_jpg",
+        "ppe_siabar:Video2_146_jpg",
+        "ppe_siabar:Video2_147_jpg",
+        "ppe_siabar:Video2_150_jpg",
+        "ppe_siabar:Video2_151_jpg",
+        "ppe_siabar:Video2_15_jpg",
+        "ppe_siabar:Video2_172_jpg",
+        "ppe_siabar:Video2_173_jpg",
+        "ppe_siabar:Video2_175_jpg",
+        "ppe_siabar:Video2_180_jpg",
+        "ppe_siabar:Video2_183_jpg",
+        "ppe_siabar:Video2_184_jpg",
+        "ppe_siabar:Video2_188_jpg",
+        "ppe_siabar:Video2_192_jpg",
+        "ppe_siabar:Video2_1_jpg",
+        "ppe_siabar:Video2_20_jpg",
+        "ppe_siabar:Video2_21_jpg",
+        "ppe_siabar:Video2_22_jpg",
+        "ppe_siabar:Video2_34_jpg",
+        "ppe_siabar:Video2_35_jpg",
+        "ppe_siabar:Video2_39_jpg",
+        "ppe_siabar:Video2_3_jpg",
+        "ppe_siabar:Video2_44_jpg",
+        "ppe_siabar:Video2_48_jpg",
+        "ppe_siabar:Video2_50_jpg",
+        "ppe_siabar:Video2_51_jpg",
+        "ppe_siabar:Video2_5_jpg",
+        "ppe_siabar:Video2_85_jpg",
+        "ppe_siabar:Video2_8_jpg",
+        "ppe_siabar:Video3_113_jpg",
+        "ppe_siabar:Video3_115_jpg",
+        "ppe_siabar:Video3_126_jpg",
+        "ppe_siabar:Video3_129_jpg",
+        "ppe_siabar:Video3_143_jpg",
+        "ppe_siabar:Video3_147_jpg",
+        "ppe_siabar:Video3_222_jpg",
+        "ppe_siabar:Video3_228_jpg",
+        "ppe_siabar:Video3_22_jpg",
+        "ppe_siabar:Video3_23_jpg",
+        "ppe_siabar:Video3_24_jpg",
+        "ppe_siabar:Video3_273_jpg",
+        "ppe_siabar:Video3_279_jpg",
+        "ppe_siabar:Video3_285_jpg",
+        "ppe_siabar:Video3_28_jpg",
+        "ppe_siabar:Video3_32_jpg",
+        "ppe_siabar:Video3_35_jpg",
+        "ppe_siabar:Video3_38_jpg",
+        "ppe_siabar:Video3_42_jpg",
+        "ppe_siabar:Video4_0_jpg",
+        "ppe_siabar:Video4_12_jpg",
+        "ppe_siabar:Video4_13_jpg",
+        "ppe_siabar:Video4_16_jpg",
+        "ppe_siabar:Video4_18_jpg",
+        "ppe_siabar:Video4_20_jpg",
+        "ppe_siabar:Video4_222_jpg",
+        "ppe_siabar:Video4_224_jpg",
+        "ppe_siabar:Video4_235_jpg",
+        "ppe_siabar:Video4_238_jpg",
+        "ppe_siabar:Video4_239_jpg",
+        "ppe_siabar:Video4_240_jpg",
+        "ppe_siabar:Video4_241_jpg",
+        "ppe_siabar:Video4_243_jpg",
+        "ppe_siabar:Video4_247_jpg",
+        "ppe_siabar:Video4_249_jpg",
+        "ppe_siabar:Video4_251_jpg",
+        "ppe_siabar:Video4_253_jpg",
+        "ppe_siabar:Video4_273_jpg",
+        "ppe_siabar:Video4_278_jpg",
+        "ppe_siabar:Video4_30_jpg",
+        "ppe_siabar:Video4_37_jpg",
+        "ppe_siabar:Video4_3_jpg",
+        "ppe_siabar:Video4_40_jpg",
+        "ppe_siabar:Video4_48_jpg",
+        "ppe_siabar:Video4_49_jpg",
+        "ppe_siabar:Video4_4_jpg",
+        "ppe_siabar:Video4_51_jpg",
+        "ppe_siabar:Video4_58_jpg",
+        "ppe_siabar:Video4_74_jpg",
+        "ppe_siabar:Video4_80_jpg",
+        "ppe_siabar:Video4_8_jpg",
+        "ppe_siabar:Video4_9_jpg",
+        "ppe_siabar:image_108_jpg",
+        "ppe_siabar:image_150_jpg@6c083811674b",
+        "ppe_siabar:image_161_jpg@53f95d70f4ff",
+        "ppe_siabar:image_163_jpg@8d84dd0a7170",
+        "ppe_siabar:image_164_jpg@bab1f2825d80",
+        "ppe_siabar:image_166_jpg@b44411cccb44",
+        "ppe_siabar:image_168_jpg@0fee07d6795f",
+        "ppe_siabar:image_176_jpg@aee8fd1bf6fa",
+        "ppe_siabar:image_183_jpg@1bd80ef52099",
+        "ppe_siabar:image_185_jpg@2c64d814157f",
+        "ppe_siabar:image_187_jpg",
+        "ppe_siabar:image_192_jpg@508737134902",
+        "ppe_siabar:image_193_jpg@58a2b0c1751b",
+        "ppe_siabar:image_200_jpg@cb3b11292bec",
+        "ppe_siabar:image_203_jpg@9041cae0ab6e",
+        "ppe_siabar:image_209_jpg@71a72ec262cf",
+        "ppe_siabar:image_211_jpg",
+        "ppe_siabar:image_212_jpg@86b5f18b89ef",
+        "ppe_siabar:image_213_jpg@7f9049a665bc",
+        "ppe_siabar:image_224_jpg",
+        "ppe_siabar:image_225_jpg@9d209ee0cf68",
+        "ppe_siabar:image_242-1-_jpg",
+        "ppe_siabar:image_255_jpg",
+        "ppe_siabar:image_264_jpg",
+        "ppe_siabar:image_293_jpg",
+        "ppe_siabar:image_310_jpg",
+        "ppe_siabar:image_4_jpg",
+        "ppe_siabar:image_70_jpg",
+        "ppe_siabar:ppe_0218_jpg",
+        "ppe_siabar:ppe_0511_jpg",
+        "ppe_siabar:ppe_1211_jpg",
+        "ppe_siabar:r107_jpg@2481ca3f7f35",
+        "ppe_siabar:r107_jpg@cb744ab9383c",
+        "ppe_siabar:r110_jpg@f02af2b68c7a",
+        "ppe_siabar:r113_jpg",
+        "ppe_siabar:r124_jpg",
+        "ppe_siabar:r129_jpg",
+        "ppe_siabar:r142_jpg",
+        "ppe_siabar:r151_jpg",
+        "ppe_siabar:r15_jpg@2238d7f6e8b6",
+        "ppe_siabar:r168_jpg",
+        "ppe_siabar:sic5242_jpg",
+        "ppe_siabar:thumb0923_jpg",
+        "ppe_siabar:thumb0939_jpg",
+        "ppe_siabar:thumb2435_jpg",
+        "ppe_siabar:thumb2444_jpg"
+      ],
+      "lineages": 211
+    }
+  },
+  "source_split_overlap": {
+    "construction_site_safety": {
+      "affected_images": 0,
+      "affected_images_by_split": {},
+      "shared_lineages": 0
+    },
+    "ppe_siabar": {
+      "affected_images": 693,
+      "affected_images_by_split": {
+        "test": 134,
+        "train": 338,
+        "val": 221
+      },
+      "shared_lineages": 305
+    }
+  }
+}

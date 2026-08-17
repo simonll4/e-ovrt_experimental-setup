@@ -20,6 +20,10 @@ def _build_media_run_dir(tmp_path, run_id="media-run-1"):
     _write(media_run_dir / "effective_config.yaml", "modelo: gdino\n")
     _write(media_run_dir / "summary.json", json.dumps({"status": "succeeded"}))
     _write(media_run_dir / "metrics.jsonl", '{"unit_id": "u1"}\n')
+    _write(
+        media_run_dir / "eval_perception.json",
+        json.dumps({"type": "perception", "mAP50": 0.7}),
+    )
     # detections.jsonl "pesado": no debe copiarse, solo referenciarse.
     _write(media_run_dir / "detections.jsonl", '{"unit_id": "u1", "boxes": []}\n' * 100)
     return media_run_dir
@@ -55,6 +59,10 @@ def test_consolidate_experiment_copia_livianos_y_referencia_detections(tmp_path)
     assert (result / "media" / "summary.json").exists()
     assert (result / "media" / "effective_config.yaml").exists()
     assert (result / "media" / "metrics.jsonl").exists()
+    assert json.loads((result / "media" / "eval_perception.json").read_text()) == {
+        "type": "perception",
+        "mAP50": 0.7,
+    }
     assert (result / "control" / "summary.json").exists()
     assert (result / "control" / "effective_config.yaml").exists()
     assert (result / "control" / "metrics.jsonl").exists()

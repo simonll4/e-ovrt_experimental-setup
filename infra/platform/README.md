@@ -97,6 +97,17 @@ lanza el distribuidor suscripto a `:5558` y recién después dispara media. En r
 espera media y control, consolida, ejecuta el distribuidor sobre
 `control/alerts.jsonl` y finalmente genera el reporte.
 
+La consola dockerizada NO ve el repo hermano `e-ovrt_alert-distribution` por
+defecto: para orquestar distribución desde el contenedor, es obligatorio
+montar el binario en un path visible y setear
+`EOVRT_DISTRIBUTION_EXECUTABLE`.
+
+Este acople por **subproceso local** es el tercer patrón de la plataforma —los otros dos
+son HTTP config-driven a los dos planos y el bus ZeroMQ— y desde el 2026-08-15 está
+registrado como decisión: **ADR-018** (`docs/decisiones/adr-018-acople-bff-subproceso-distribucion.md`,
+serie del proyecto). El requisito de `EOVRT_DISTRIBUTION_EXECUTABLE` no es una
+recomendación operativa: es parte de esa decisión.
+
 ## Seguridad
 
 El socket de Docker montado en la consola es **root-equivalente en el host**. Aceptado

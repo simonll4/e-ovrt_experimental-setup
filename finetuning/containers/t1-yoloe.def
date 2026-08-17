@@ -1,0 +1,33 @@
+Bootstrap: docker
+From: pytorch/pytorch:2.6.0-cuda12.4-cudnn9-runtime
+
+%labels
+    org.eovrt.component "finetuning-t1-yoloe"
+    org.eovrt.ultralytics "8.4.86"
+    org.eovrt.torch "2.6.0"
+    org.eovrt.cuda "12.4"
+
+%files
+    requirements-t1.txt /opt/eovrt/requirements-t1.txt
+
+%post
+    apt-get update
+    apt-get install -y --no-install-recommends git libgl1 libglib2.0-0
+    rm -rf /var/lib/apt/lists/*
+    python -m pip install --no-cache-dir -r /opt/eovrt/requirements-t1.txt
+    mkdir -p /opt/eovrt/ultralytics
+    YOLO_CONFIG_DIR=/opt/eovrt/ultralytics python -c \
+        "from ultralytics.utils.checks import check_font; check_font('Arial.ttf')"
+    python -c \
+        "import torch, ultralytics; assert torch.__version__.startswith('2.6.0'); assert ultralytics.__version__ == '8.4.86'"
+    python -m pip freeze | sort > /opt/eovrt/pip-freeze.txt
+    chmod -R a+rX /opt/eovrt
+
+%environment
+    export PYTHONUNBUFFERED=1
+    export YOLO_CONFIG_DIR=/opt/eovrt/ultralytics
+    export TORCH_HOME=/tmp/eovrt-torch
+
+%runscript
+    exec python "$@"
+

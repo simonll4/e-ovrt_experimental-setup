@@ -1,0 +1,22 @@
+ingest:
+  plugin: video_file
+  config:
+    path: ${EOVRT_WORKSPACE}/e-ovrt_datasets/datasets-videos/clips/${EOVRT_CLIP_ID}.mp4
+prompts:
+  set_inline:
+    id: cr01_cr02_v2_short
+    classes:
+      - id: person
+        phrasings:
+          default: [person]
+      - id: helmet
+        phrasings:
+          default: [helmet]
+      - id: vest
+        phrasings:
+          default: [vest]
+  active_ids: [person, helmet, vest]
+run:
+  name: talert_integrated_${EOVRT_CLIP_ID}
+  stride: 15
+  save_previews: false

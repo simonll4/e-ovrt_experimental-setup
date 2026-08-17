@@ -1,0 +1,58 @@
+{
+  "checkpoint": {
+    "filename": "best.pt",
+    "sha256": "22fc034b797eace9cca35b936984dab66a59e92f246dd64e6f985fc0134cf68a",
+    "size_bytes": 20319673
+  },
+  "created_at": "2026-08-13T22:12:25.958696+00:00",
+  "media_plane": {
+    "dirty": true,
+    "revision": "94660e6cadff825a383d5026b067d7e0b6b7cdce",
+    "source_sha256": {
+      "src/eovrt_media/config/schemas.py": "a81c51df53102c5a25ac375e12a7c9673e517e784287d2c3047cb0b1e8743703",
+      "src/eovrt_media/models/__init__.py": "6ecc0b3d9c55dcd18556e369093631ae9fe607a49a1737a83dfbe4b59c7be4f8",
+      "src/eovrt_media/models/yoloe_adapter.py": "9eb5ec05cf98f9a186dd6ecc2dfbd2ed596ae5e9d79b515988344fbb8ee74142",
+      "src/eovrt_media/service/app.py": "c7e18c106ccb8cd2bd99a3d106d6623519bfe191f0e524b340696176efa60592"
+    }
+  },
+  "sample": {
+    "filename": "-I1-MS09uaqsLdGTFkgnS0Rcg1mmPyAj95ySg_eckoM_jpeg_jpg.rf.0e23fd5243f3dab695ef8c6768c49ef0.jpg",
+    "sha256": "9eabc4413b5202c367d0785a3b53d3b80b6eba78baa240f406eacf54e1f9afa0"
+  },
+  "schema_version": "eovrt.t1-media-plane-serving-smoke.v1",
+  "service": {
+    "detection_prompt_ids": [],
+    "detections": 0,
+    "dynamic_prompt_cache_untouched": true,
+    "inference_seconds": 0.2757174389989814,
+    "model_ref": "yoloe/t1-smoke",
+    "ordered_vocabulary": [
+      {
+        "class_id": 0,
+        "id": "person",
+        "text": "person"
+      },
+      {
+        "class_id": 1,
+        "id": "helmet",
+        "text": "helmet"
+      },
+      {
+        "class_id": 2,
+        "id": "vest",
+        "text": "vest"
+      },
+      {
+        "class_id": 3,
+        "id": "bare_head",
+        "text": "bare head"
+      }
+    ],
+    "ready": true,
+    "resolved_device": "cpu",
+    "set_classes_forbidden_during_inference": true,
+    "startup_warmup_enabled": false,
+    "warmup_and_load_seconds": 2.3708485800016206
+  },
+  "status": "fixed_vocabulary_serving_passed"
+}

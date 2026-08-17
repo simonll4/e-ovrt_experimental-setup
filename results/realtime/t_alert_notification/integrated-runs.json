@@ -1,0 +1,90 @@
+{
+  "admissions": [
+    {
+      "clip_id": "a_p1_c08",
+      "control_run_id": "control_talert_integrated_a_p1_c08_20260813T051644Z_275fb5",
+      "delivered": 1,
+      "delivered_ids": [
+        "ca8f11aa8f08da42"
+      ],
+      "experiment_id": "exp_20260813T051644827375Z_talert_admission-1",
+      "label": "admission-1",
+      "latency_p95_ms": 109.328125,
+      "media_run_id": "run_20260813_051644_dbe_grounding_dino_3399b8",
+      "report_metric": {
+        "cause": null,
+        "name": "t_alert-notification",
+        "status": "computed",
+        "unit": "ms",
+        "value": 109.328125
+      },
+      "status": "succeeded"
+    }
+  ],
+  "included_in_primary_aggregate": false,
+  "repetitions": [
+    {
+      "clip_id": "a_p1_c08",
+      "control_run_id": "control_talert_integrated_a_p1_c08_20260813T051703Z_21e369",
+      "delivered": 1,
+      "delivered_ids": [
+        "3352d1c344268afb"
+      ],
+      "experiment_id": "exp_20260813T051703399915Z_talert_repetition-1",
+      "label": "repetition-1",
+      "latency_p95_ms": 116.8388671875,
+      "media_run_id": "run_20260813_051703_dbe_grounding_dino_1d5e83",
+      "report_metric": {
+        "cause": null,
+        "name": "t_alert-notification",
+        "status": "computed",
+        "unit": "ms",
+        "value": 116.8388671875
+      },
+      "status": "succeeded"
+    },
+    {
+      "clip_id": "a_p1_c08",
+      "control_run_id": "control_talert_integrated_a_p1_c08_20260813T051718Z_362334",
+      "delivered": 1,
+      "delivered_ids": [
+        "66f81ce3870de5a5"
+      ],
+      "experiment_id": "exp_20260813T051718284240Z_talert_repetition-2",
+      "label": "repetition-2",
+      "latency_p95_ms": 152.9013671875,
+      "media_run_id": "run_20260813_051718_dbe_grounding_dino_5135ac",
+      "report_metric": {
+        "cause": null,
+        "name": "t_alert-notification",
+        "status": "computed",
+        "unit": "ms",
+        "value": 152.9013671875
+      },
+      "status": "succeeded"
+    },
+    {
+      "clip_id": "a_p1_c08",
+      "control_run_id": "control_talert_integrated_a_p1_c08_20260813T051736Z_200a27",
+      "delivered": 1,
+      "delivered_ids": [
+        "eb0fd88b5644ee5d"
+      ],
+      "experiment_id": "exp_20260813T051736306649Z_talert_repetition-3",
+      "label": "repetition-3",
+      "latency_p95_ms": 91.587890625,
+      "media_run_id": "run_20260813_051736_dbe_grounding_dino_6fac85",
+      "report_metric": {
+        "cause": null,
+        "name": "t_alert-notification",
+        "status": "computed",
+        "unit": "ms",
+        "value": 91.587890625
+      },
+      "status": "succeeded"
+    }
+  ],
+  "schema_version": "talert_notification_integrated_video.v1",
+  "selected_clip": "a_p1_c08",
+  "status": "succeeded"
+}
