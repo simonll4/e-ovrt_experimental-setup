@@ -1,0 +1,332 @@
+prompt_set:
+  id: coco_val2017_80
+  description: >
+    Vocabulario COCO val2017 (80 categorías) para medir RETENCIÓN
+    open-vocabulary del checkpoint T2 (D-FT-04/T-FT-062). Generado por
+    finetuning/scripts/build_coco_retention_harness.py — no editar a mano.
+    El id de cada clase es el nombre COCO EXACTO: el evaluador congelado
+    matchea prompt_id contra el nombre de la categoría.
+  language: en
+  status: frozen
+  track: retention
+  classes:
+    - id: "person"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["person"] }
+    - id: "bicycle"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["bicycle"] }
+    - id: "car"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["car"] }
+    - id: "motorcycle"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["motorcycle"] }
+    - id: "airplane"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["airplane"] }
+    - id: "bus"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["bus"] }
+    - id: "train"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["train"] }
+    - id: "truck"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["truck"] }
+    - id: "boat"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["boat"] }
+    - id: "traffic light"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["traffic light"] }
+    - id: "fire hydrant"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["fire hydrant"] }
+    - id: "stop sign"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["stop sign"] }
+    - id: "parking meter"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["parking meter"] }
+    - id: "bench"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["bench"] }
+    - id: "bird"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["bird"] }
+    - id: "cat"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["cat"] }
+    - id: "dog"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["dog"] }
+    - id: "horse"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["horse"] }
+    - id: "sheep"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["sheep"] }
+    - id: "cow"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["cow"] }
+    - id: "elephant"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["elephant"] }
+    - id: "bear"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["bear"] }
+    - id: "zebra"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["zebra"] }
+    - id: "giraffe"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["giraffe"] }
+    - id: "backpack"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["backpack"] }
+    - id: "umbrella"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["umbrella"] }
+    - id: "handbag"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["handbag"] }
+    - id: "tie"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["tie"] }
+    - id: "suitcase"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["suitcase"] }
+    - id: "frisbee"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["frisbee"] }
+    - id: "skis"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["skis"] }
+    - id: "snowboard"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["snowboard"] }
+    - id: "sports ball"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["sports ball"] }
+    - id: "kite"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["kite"] }
+    - id: "baseball bat"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["baseball bat"] }
+    - id: "baseball glove"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["baseball glove"] }
+    - id: "skateboard"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["skateboard"] }
+    - id: "surfboard"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["surfboard"] }
+    - id: "tennis racket"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["tennis racket"] }
+    - id: "bottle"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["bottle"] }
+    - id: "wine glass"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["wine glass"] }
+    - id: "cup"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["cup"] }
+    - id: "fork"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["fork"] }
+    - id: "knife"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["knife"] }
+    - id: "spoon"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["spoon"] }
+    - id: "bowl"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["bowl"] }
+    - id: "banana"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["banana"] }
+    - id: "apple"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["apple"] }
+    - id: "sandwich"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["sandwich"] }
+    - id: "orange"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["orange"] }
+    - id: "broccoli"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["broccoli"] }
+    - id: "carrot"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["carrot"] }
+    - id: "hot dog"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["hot dog"] }
+    - id: "pizza"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["pizza"] }
+    - id: "donut"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["donut"] }
+    - id: "cake"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["cake"] }
+    - id: "chair"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["chair"] }
+    - id: "couch"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["couch"] }
+    - id: "potted plant"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["potted plant"] }
+    - id: "bed"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["bed"] }
+    - id: "dining table"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["dining table"] }
+    - id: "toilet"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["toilet"] }
+    - id: "tv"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["tv"] }
+    - id: "laptop"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["laptop"] }
+    - id: "mouse"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["mouse"] }
+    - id: "remote"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["remote"] }
+    - id: "keyboard"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["keyboard"] }
+    - id: "cell phone"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["cell phone"] }
+    - id: "microwave"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["microwave"] }
+    - id: "oven"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["oven"] }
+    - id: "toaster"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["toaster"] }
+    - id: "sink"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["sink"] }
+    - id: "refrigerator"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["refrigerator"] }
+    - id: "book"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["book"] }
+    - id: "clock"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["clock"] }
+    - id: "vase"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["vase"] }
+    - id: "scissors"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["scissors"] }
+    - id: "teddy bear"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["teddy bear"] }
+    - id: "hair drier"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["hair drier"] }
+    - id: "toothbrush"
+      role: coco_generalist
+      strategy: canonical_positive
+      phrasings: { default: ["toothbrush"] }

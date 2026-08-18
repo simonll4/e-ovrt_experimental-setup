@@ -1,0 +1,63 @@
+# Brazo BASE del arnés de retención OV sobre COCO val2017 (T-FT-062, D-FT-04).
+#
+# Es la vara contra la que se medirá la erosión open-vocabulary del checkpoint T2. Se
+# corre y se CONGELA antes de que T2 exista: una vara elegida después de ver el resultado
+# no es una vara.
+#
+# Los parámetros de inferencia son los mismos que usan los dos brazos de `bench_v3`
+# (image_size 640, conf 0.25, iou 0.5, half_precision, warmup, postproceso, stride 1,
+# seed 42): así la retención se mide con el mismo instrumento que la ganancia, y la única
+# diferencia entre este brazo y el tuned será el modelo.
+#
+# `save_previews: false` a propósito: 5.000 previews no aportan evidencia acá y el disco
+# de esta máquina está ajustado.
+
+run:
+  scenario: DBE
+  seed: 42
+  warmup_units: 0
+  max_units: null
+
+model:
+  ref: yoloe/yoloe-26s
+  device: cuda
+
+source:
+  type: image_folder
+  path: /home/simonll4/projects/e-ovrt_datasets/datasets/raw/coco_val2017/val2017
+  extensions: [.jpg, .jpeg, .png]
+  fps: 10
+  resolution: 1080p
+  orientation: normal
+  warmup_frames: 0
+
+prompts:
+  ref: coco_val2017_80
+
+postprocess:
+  min_box_area_px: 100.0
+  min_confidence: 0.25
+  normalize_boxes: true
+
+rate_control:
+  policy: deterministic
+  stride: 1
+  max_queue_size: 8
+  overflow: fail_run
+
+outputs:
+  base_dir: /home/simonll4/projects/e-ovrt_experimental-setup/finetuning/runs/staging_t062_base
+  save_detections_jsonl: true
+  save_metrics_jsonl: true
+  save_errors_jsonl: true
+  save_previews: false
+  preview_max: null
+
+topology:
+  mode: single_host
+
+transport:
+  backend: memory
+
+bus:
+  enabled: false

@@ -1,0 +1,83 @@
+schema_version: eovrt.finetuning-config.v1
+experiment_id: t2_yoloe26s_full
+decision: D-FT-14/D-FT-15
+
+# T2 — full fine-tuning del detector, con la interfaz open-vocabulary PRESERVADA.
+#
+# Por qué existe este tier (D-FT-14, enmienda del 2026-08-17): T1 cerró con NO-GO y deja
+# abierta una objeción concreta — "entrenaste 3.096 parámetros, claro que no alcanzó". T2
+# la responde midiendo, no argumentando: mismo dato, mismo protocolo, misma vara, y como
+# ÚNICA variable el alcance entrenable (x3.343 más capacidad).
+#
+# Diferencia estructural con T1, verificada en el código de ultralytics 8.4.86:
+#   T1 usó YOLOEPETrainer, que hace `del savpe` + `model.model[-1].fuse(model.pe)` —
+#   FUSIONA los embeddings de texto en el head. De ahí el vocabulario fijo de D-FT-08.
+#   T2 usa YOLOETrainer, que NO fusiona: el checkpoint conserva `reprta`/`savpe` y sigue
+#   aceptando `set_classes` con vocabulario arbitrario. Sin eso, la retención OV sobre
+#   COCO (D-FT-04) sería indefinible, no sólo difícil.
+#   Verificado además que un head construido con nc=4 acepta re-setear a 80 clases.
+#
+# Alcance entrenable: TODO el detector menos las dos rutas de prompt (`reprta`, la
+# proyección de texto, y `savpe`, la de prompt visual). Se congelan a propósito: así la
+# erosión OV que mida COCO es DERIVA DE FEATURES y no colapso de la proyección hacia 4
+# clases — que es una confusión distinta y no la que T2 pregunta. Entrenar también
+# `reprta` sería otro experimento (fuera de alcance; no se ejerce).
+
+model:
+  architecture: yoloe-26s.yaml
+  base_weight: weights/base/yoloe-26s-seg.pt
+  text_encoder: weights/base/mobileclip2_b.ts
+  # T2 NO declara fixed_vocabulary: su checkpoint no hereda el contrato D-FT-08.
+  # Sirve por set_classes con las frases congeladas del protocolo, igual que la baseline.
+  training_classes:
+    0: person
+    1: helmet
+    2: vest
+    3: bare head
+
+data:
+  manifest: manifests/finetuning_v1.summary.json
+  yaml: data/finetuning_v1/data.yaml
+  train_images: 2946
+  val_images: 483
+
+trainer:
+  implementation: ultralytics.models.yolo.yoloe.YOLOETrainer
+  scope_guard: eovrt.full_detector_ov_preserved.v1
+  # Contrato de alcance: se verifica por preflight ANTES del RUN (--check-scope), igual
+  # que el freeze guard de T1. El inventario completo son 466 nombres: se congela por
+  # sha256 de la lista ordenada en vez de enumerarla.
+  frozen_prefixes:
+    - model.23.reprta.
+    - model.23.savpe.
+  # Inventario del modelo DETECT (`yoloe-26s.yaml`), que es el que construye el trainer.
+  # Una primera versión de este contrato se derivó del yaml SEG del checkpoint y declaraba
+  # 466/11.836.520: el guard la rechazó en preflight (los heads de segmentación —`proto`,
+  # `cv5`, `one2one_cv5`— no existen en la tarea detect). Queda registrado porque es
+  # justamente lo que el guard existe para impedir: entrenar otro experimento sin notarlo.
+  expected_trainable_tensors: 390
+  expected_trainable_parameters: 10350308
+  expected_trainable_names_sha256: 57a6a3787ec72194eb07473875470dc17ed2e972135ebd0e44a94a7ddcb399a8
+  expected_frozen_tensors: 42
+  expected_frozen_parameters: 3426528
+  expected_frozen_names_sha256: 989ce3ffc54521ec54b96cd11fa700cb9937e8de69a2f038715d8c39cd831a42
+  # Contrato de comparabilidad con T1 (D-FT-15): todo lo de abajo es IDÉNTICO al perfil
+  # t1_yoloe26s_lp.yaml. Cambiar cualquiera de estos valores rompe la única-variable.
+  ultralytics: 8.4.86
+  epochs: 10
+  batch: 8
+  workers: 2
+  imgsz: 640
+  seed: 100
+  deterministic: true
+  device: 0
+  val: true
+  plots: false
+  save: true
+  save_period: 1
+  checkpoint_policy: best_metrics_mAP50-95_B_all_four_val_classes
+  retain_last: true
+
+smoke:
+  epochs: 1
+  fraction: 0.05

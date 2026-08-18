@@ -1,0 +1,85 @@
+{
+  "schema_version": "eovrt.t2-coco-retention-baseline.v1",
+  "task_id": "T-FT-062",
+  "decision": "D-FT-04 (subset y métrica de retención OV), habilitada por D-FT-14",
+  "status": "frozen_before_t2_training",
+  "frozen_at": "2026-08-17T03:23:57+00:00",
+  "why_this_matters": "Es la vara contra la que se medirá la erosión open-vocabulary del checkpoint T2. Se corrió y se congeló ANTES de que el checkpoint T2 existiera: una vara elegida después de ver el resultado no es una vara. Al 2026-08-17 no hay ningún job de entrenamiento T2 enviado — sólo el smoke técnico 1167862, que no produce cifra citable.",
+  "arm": "base",
+  "model": {
+    "ref": "yoloe/yoloe-26s",
+    "lineage": "original",
+    "weights": "models/yoloe/original/yoloe-26s-seg.pt",
+    "note": "mismo peso base del que parte T1 y T2"
+  },
+  "execution": {
+    "run_id": "run_20260817_031948_dbe_yoloe_deterministic",
+    "run_directory": "finetuning/runs/t2_coco_retention_base",
+    "date": "2026-08-17",
+    "device": "cuda (RTX 4060 Laptop)",
+    "units_processed": 5000,
+    "units_failed": 0,
+    "units_dropped": 0,
+    "total_detections": 33125,
+    "wall_seconds": 149.8,
+    "coverage": "5000/5000 verificada por el comando congelado (aborta si falta una)"
+  },
+  "inference": {
+    "image_size": 640,
+    "confidence_threshold": 0.25,
+    "iou_threshold": 0.5,
+    "half_precision": true,
+    "warmup": true,
+    "postprocess": { "min_box_area_px": 100.0, "min_confidence": 0.25, "normalize_boxes": true },
+    "rate_control": { "policy": "deterministic", "stride": 1 },
+    "seed": 42,
+    "note": "idénticos a los dos brazos de bench_v3: retención y ganancia se miden con el mismo instrumento"
+  },
+  "headline_results": {
+    "mAP50": 0.434676,
+    "classes_scored": 80,
+    "classes_total": 80,
+    "per_class_examples": {
+      "person": 0.6469,
+      "car": 0.4196,
+      "dog": 0.67,
+      "traffic light": 0.3152,
+      "chair": 0.3616,
+      "hair drier": 0.0152
+    },
+    "best": ["train 0.796", "cat 0.793", "zebra 0.791", "giraffe 0.787"],
+    "worst": ["knife 0.136", "sports ball 0.091", "book 0.091", "hair drier 0.015"]
+  },
+  "gate": {
+    "rule": "caída relativa <= 10 % del mAP50 tuned respecto de este valor (D-FT-15 §3)",
+    "no_go_threshold_map50": 0.391208,
+    "note": "una erosión mayor implica NO-GO y es a la vez la medición central del tier: se reporta con el mismo peso que un GO"
+  },
+  "artifacts_sha256": {
+    "protocol": {
+      "path": "finetuning/manifests/t2_coco_retention_protocol.json",
+      "sha256": "e8a287b02efa0a4e3776f99c63da57aee28dd9fa6ccf6ddb6e14b0518ebf329b"
+    },
+    "prompts": {
+      "path": "prompts/coco_val2017_80.yaml",
+      "sha256": "074558773ae33f08d48031f2998929a0d1d897c0ae298e6b04f73ebbc9714bfc"
+    },
+    "coco_annotations": {
+      "path": "e-ovrt_datasets/datasets/raw/coco_val2017/annotations/instances_val2017.json",
+      "sha256": "e8c7f7908f1d7278341fae127d0da654f102f11bd7b21d8aeefa635b8c810b6f"
+    },
+    "eval_aggregate": {
+      "path": "finetuning/runs/t2_coco_retention_base/eval/eval_retention.aggregate.json",
+      "sha256": "4710f60a32637652cc1e56a6a850c41aec19e16a04b6abaa1868458a38468162"
+    },
+    "eval_artifact_index": {
+      "path": "finetuning/runs/t2_coco_retention_base/eval/artifact.sha256",
+      "sha256": "6f914fdff4331272ef735766f74b0adb35fff94523ca481cf368468ebfd5d479"
+    }
+  },
+  "reporting_caveats": [
+    "NO comparar con benchmarks COCO publicados: el vocabulario se sirve por prompts, los umbrales son los del proyecto y el protocolo no es el oficial de COCO. Es una vara INTERNA de retención, no una cifra de estado del arte.",
+    "El mAP50 es la media de los AP50 no nulos, mismo criterio que el protocolo de bench_v3.",
+    "Las imágenes de COCO no se versionan (git-ignored): se citan por el sha256 del GT y el del inventario de basenames."
+  ]
+}

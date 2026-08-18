@@ -1,0 +1,160 @@
+{
+  "schema_version": "eovrt.t2-protocol.v1",
+  "protocol_id": "t2_yoloe26s_full_v1",
+  "task_id": "T-FT-063",
+  "status": "frozen_pre_result",
+  "prepared_at": "2026-08-17T03:26:21+00:00",
+  "decision": "D-FT-14 (enmienda de escalera) + D-FT-15 (márgenes, firmada 2026-08-17)",
+  "tier": "T2",
+  "question": "El NO-GO de T1 deja abierta una objeción concreta: '3.096 parámetros, claro que no alcanzó'. T2 la responde midiendo — ¿el fallo es artefacto de capacidad del linear probing o el trade-off ganancia/retención es estructural?",
+  "provenance_of_this_amendment": {
+    "t1_result": "NO-GO (docs/operacion/123), intacto y no re-corrido",
+    "amendment_signed_at": "2026-08-17",
+    "margins_signed_at": "2026-08-17",
+    "ordering_claim": "la enmienda es POSTERIOR al resultado de T1 (se declara, no se disimula) y ANTERIOR a todo resultado T2 (que es lo que la valida)",
+    "t2_jobs_before_margins_signature": "sólo el smoke técnico 1167862, que no produce cifra citable"
+  },
+  "training": {
+    "trainer": "ultralytics.models.yolo.yoloe.YOLOETrainer",
+    "why_not_pe_trainer": "YOLOEPETrainer hace `del savpe` + `fuse(model.pe)`: fusiona los embeddings de texto en el head y destruye la interfaz OV. Con eso la retención de D-FT-04 sería indefinible, no sólo difícil.",
+    "scope_guard": "eovrt.full_detector_ov_preserved.v1",
+    "trainable_tensors": 390,
+    "trainable_parameters": 10350308,
+    "frozen_prefixes": ["model.23.reprta.", "model.23.savpe."],
+    "frozen_tensors": 42,
+    "frozen_parameters": 3426528,
+    "capacity_ratio_vs_t1": 3343.1,
+    "why_freeze_prompt_paths": "así la erosión que mida COCO es deriva de features y no colapso de la proyección de texto hacia 4 clases, que es una confusión distinta y no la que T2 pregunta",
+    "comparability_contract": {
+      "note": "todo idéntico a T1; la ÚNICA variable es el alcance entrenable",
+      "dataset": "finetuning_v1 (2.946 train / 483 val)",
+      "epochs": 10,
+      "batch": 8,
+      "imgsz": 640,
+      "seed": 100,
+      "deterministic": true,
+      "ultralytics": "8.4.86",
+      "checkpoint_policy": "best_metrics_mAP50-95_B_all_four_val_classes (D-FT-01)"
+    },
+    "technical_smoke": {
+      "slurm_job_id": "1167862",
+      "state": "COMPLETED",
+      "elapsed": "00:01:45",
+      "evidence": "contrato de alcance exacto, optimizador podado a 10.350.308, open_vocabulary_preserved",
+      "note": "smoke técnico: NO consume el brazo one-shot ni produce cifra citable"
+    }
+  },
+  "serving": {
+    "mode": "open_vocabulary con set_classes y las frases congeladas del protocolo",
+    "inherits_d_ft_08": false,
+    "why": "el contrato de vocabulario fijo D-FT-08 es específico del head fusionado de T1. El checkpoint T2 conserva la interfaz de texto y se sirve como la baseline.",
+    "required_ov_evidence": "open_vocabulary_check.json del run debe declarar open_vocabulary_preserved antes de promover"
+  },
+  "arms": {
+    "in_domain": {
+      "benchmark": "bench_v3",
+      "images": 6477,
+      "baseline_reference": {
+        "source": "finetuning/manifests/t1_yoloe26s_bench_v3_protocol.json",
+        "run_directory": "finetuning/runs/t1_yoloe26s_baseline_bench_v3",
+        "mAP50": 0.419275,
+        "per_class_AP50": { "person": 0.7843, "helmet": 0.6286, "vest": 0.2642, "bare_head": 0.0 },
+        "cr01_recall_count_weighted": 0.0002
+      },
+      "t1_reference": {
+        "note": "T1 no es una vara, es el punto medio de la curva de capacidad",
+        "mAP50": 0.417075,
+        "per_class_AP50": { "person": 0.6932, "helmet": 0.6004, "vest": 0.3292, "bare_head": 0.0455 },
+        "cr01_recall_count_weighted": 0.2089
+      },
+      "evaluation_command": "finetuning/scripts/evaluate_t1_bench_v3.py --arm tuned",
+      "one_shot": true
+    },
+    "open_vocabulary_retention": {
+      "benchmark": "coco_val2017",
+      "images": 5000,
+      "classes": 80,
+      "baseline_frozen": {
+        "path": "finetuning/manifests/t2_coco_retention_base_frozen.json",
+        "sha256": "04e8c93389f63186001456bfa8788a90af497c87ab87ea414d882793f1f89c20",
+        "mAP50": 0.434676,
+        "frozen_before_t2_training": true
+      },
+      "evaluation_command": "finetuning/scripts/evaluate_t2_coco_retention.py --arm tuned",
+      "one_shot": true
+    }
+  },
+  "go_no_go": {
+    "decision_id": "D-FT-15",
+    "signed_by_user_at": "2026-08-17",
+    "signed_before_any_tuned_result": true,
+    "primary_target_class": "bare_head",
+    "gain_gate": {
+      "rule": "either",
+      "min_target_ap50_delta_absolute": 0.05,
+      "or_recall_rescue": { "metric": "cr01_recall", "from_below": 0.1, "to_above": 0.5 },
+      "reference": "contra la baseline zero-shot, NO contra T1"
+    },
+    "retention_in_domain_gate": {
+      "max_relative_regression": 0.1,
+      "applies_to": ["person", "helmet", "vest", "mAP50 agregado"],
+      "scope": "bench_v3"
+    },
+    "retention_open_vocabulary_gate": {
+      "max_relative_regression": 0.1,
+      "baseline_map50": 0.434676,
+      "no_go_threshold_map50": 0.391208,
+      "scope": "coco_val2017, 80 clases",
+      "note": "una erosión mayor implica NO-GO y es A LA VEZ la medición central del tier (completa la Tabla 32): se reporta con el mismo peso que un GO"
+    },
+    "latency_gate": {
+      "max_relative_degradation": 0.05,
+      "method": "pareada, los tres brazos en una sesión, con corriente, post-warmup",
+      "note": "ahora sí medible: no arrastra la trampa F-120.1 del brazo baseline de T1"
+    },
+    "preregistered_expectation": {
+      "gain_gate": "probablemente PASA",
+      "retention_in_domain": "en riesgo — T1 rompió person moviendo sólo el head; full FT mueve más",
+      "retention_open_vocabulary": "erosión probablemente sustancial",
+      "overall": "NO-GO probable",
+      "declared_value": "la curva capacidad/retención de tres puntos y el cierre de la objeción de capacidad contra T1 — no el GO",
+      "why_recorded": "se firma la expectativa junto con los márgenes para que nadie pueda afirmar que se persiguió un GO"
+    }
+  },
+  "one_shot_rule": {
+    "tuned": "evaluar best.pt exactamente una vez por brazo con este protocolo idéntico",
+    "excluded_candidate": "last.pt se conserva para auditoría y nunca se evalúa como segundo candidato",
+    "last_arm_against_bench_v3": true,
+    "forbidden_after_observation": [
+      "cambiar prompts u orden de clases",
+      "cambiar umbrales, NMS, image size o postproceso",
+      "elegir otro checkpoint",
+      "re-correr por las métricas",
+      "renegociar cualquier margen de D-FT-15"
+    ]
+  },
+  "frozen_inputs_sha256": {
+    "configs/t2_yoloe26s_full.yaml": "99c830f7c5eef37e81efa83ec344460cc0f3df5656322846ce1948260551fed7",
+    "scripts/train_t2.py": "6456279ac77df9e19a18d000b7c6dbbaf8db8a46a272036926037388e041e7dc",
+    "scripts/evaluate_t2_coco_retention.py": "46536f1cdc0edb26bc0298dd684a16feaa571a87b0c054909ec641b21a454835",
+    "manifests/t2_coco_retention_protocol.json": "e8a287b02efa0a4e3776f99c63da57aee28dd9fa6ccf6ddb6e14b0518ebf329b",
+    "manifests/t2_coco_retention_base_frozen.json": "04e8c93389f63186001456bfa8788a90af497c87ab87ea414d882793f1f89c20",
+    "manifests/finetuning_v1.summary.json": "0d9ae94062c3197fc6b059895085c090b875a8f6b6541a63d56f3307b793c7a5",
+    "prompts/coco_val2017_80.yaml": "074558773ae33f08d48031f2998929a0d1d897c0ae298e6b04f73ebbc9714bfc",
+    "prompts/cr01_cr02_bench_v2.yaml": "98f6e4636e3e5afdaf99566a77e8255da41926411626debebe32e7a88686bad5"
+  },
+  "pre_result_guards": {
+    "margins_signed": true,
+    "ov_retention_baseline_frozen": true,
+    "technical_smoke_passed": true,
+    "bench_used_for_training_or_validation": false,
+    "tuned_checkpoint_observed": false,
+    "tuned_evaluation_executed": false
+  },
+  "reporting_caveats": [
+    "Rama comparativa: estas cifras no se funden con el núcleo zero-shot ni van a results/.",
+    "No se comparan con la tabla histórica del doc 64 (protocolo distinto).",
+    "La retención OV es una vara INTERNA: no se compara con benchmarks COCO publicados.",
+    "Al redactar, declarar la secuencia real: NO-GO de T1 → enmienda D-FT-14 → márgenes D-FT-15 → RUN. Nunca presentar T2 como reintento de T1."
+  ]
+}
