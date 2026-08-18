@@ -42,6 +42,10 @@ class ConsoleSettings:
     # Segundo backend (control-plane :8081, spec 44b tarea 1): target fijo, no
     # depende del swap de fleet del modo orquestado (ese swap es solo media-plane).
     control_service_url: str = "http://localhost:8081"
+    # Servicio de distribucion de alertas (e-ovrt_alert-distribution, spec 44b
+    # tarea 7): HTTP es el default (ADR-020); el subproceso queda como fallback
+    # via EOVRT_CONSOLE_DISTRIBUTION_TRANSPORT=subprocess (ver experiment/runner.py).
+    distribution_service_url: str = "http://localhost:8082"
     # Orquestación de plataforma (None = modo static, la consola opera como cliente
     # de un único EOVRT_CONSOLE_SERVICE_URL fijo, sin tocar Docker).
     compose_dir: Path | None = None
@@ -133,6 +137,9 @@ class ConsoleSettings:
             frozen_set_ids=frozen,
             control_service_url=env.get(
                 "EOVRT_CONSOLE_CONTROL_SERVICE_URL", "http://localhost:8081"
+            ).rstrip("/"),
+            distribution_service_url=env.get(
+                "EOVRT_CONSOLE_DISTRIBUTION_SERVICE_URL", "http://localhost:8082"
             ).rstrip("/"),
             hydration_limit=int(env.get("EOVRT_CONSOLE_HYDRATION_LIMIT", "50")),
             protected_groups=protected,

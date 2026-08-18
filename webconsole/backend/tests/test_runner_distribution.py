@@ -477,7 +477,13 @@ async def test_default_distribution_replay_runs_the_sibling_service(tmp_path: Pa
 async def test_replay_runner_generates_report_with_real_distribution_outcomes(
     tmp_path: Path, monkeypatch
 ) -> None:
-    """Smoke DBE completo: runner -> CLI real -> consolidado -> report.json."""
+    """Smoke DBE completo: runner -> CLI real -> consolidado -> report.json.
+
+    Sin `run_distribution` inyectado, ejercita el fallback por subproceso
+    explicitamente (ADR-020: HTTP es el default desde `_resolve_distribution_caller`,
+    asi que este smoke -- que quiere el subprocesso real -- tiene que pedirlo).
+    """
+    monkeypatch.setenv("EOVRT_CONSOLE_DISTRIBUTION_TRANSPORT", "subprocess")
     projects_root = Path(__file__).resolve().parents[4]
     executable = (
         projects_root

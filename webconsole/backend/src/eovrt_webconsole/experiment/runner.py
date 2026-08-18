@@ -498,6 +498,41 @@ async def _default_run_distribution(
     return _parse_distribution_summary((stdout or b"").decode(errors="replace"))
 
 
+def _resolve_distribution_caller(run_distribution: RunDistribution | None) -> RunDistribution:
+    """Selecciona la implementacion de `RunDistribution` a usar.
+
+    Default (ADR-020): cliente HTTP del servicio de distribucion
+    (`distribution_http.run_distribution_http`), con `base_url` tomado de
+    `ConsoleSettings.distribution_service_url` -- HTTP es el acople de la
+    distribucion, igual que con los otros dos planos (ADR-008/009).
+
+    Salvo que:
+    - el llamador ya haya inyectado un `run_distribution` explicito (tests, u
+      otro caller), que siempre gana sobre el switch de transporte; o
+    - no haya inyeccion Y la variable de entorno
+      `EOVRT_CONSOLE_DISTRIBUTION_TRANSPORT=subprocess` este seteada (comparacion
+      estricta: "SUBPROCESS", "1", "true", etc. NO activan el fallback), en cuyo
+      caso se usa el subproceso local (`_default_run_distribution`, spec 44 SS
+      B4) como bandera de contingencia operativa -- ADR-018 quedo derogada como
+      patron de acople, pero el codigo se conserva como fallback.
+
+    Extraida como funcion propia (en vez de resolverse inline en
+    `run_experiment`) para poder testear el switch de transporte de forma
+    aislada, sin tener que orquestar un experimento completo.
+    """
+    if run_distribution is not None:
+        return run_distribution
+    if os.environ.get("EOVRT_CONSOLE_DISTRIBUTION_TRANSPORT") == "subprocess":
+        return _default_run_distribution
+
+    from eovrt_webconsole.experiment.distribution_http import run_distribution_http
+    from eovrt_webconsole.settings import ConsoleSettings
+
+    return functools.partial(
+        run_distribution_http, base_url=ConsoleSettings.from_env().distribution_service_url
+    )
+
+
 def _distribution_summary_is_valid(summary: dict, out_dir: Path) -> bool:
     if not isinstance(summary, dict):
         return False
@@ -686,7 +721,7 @@ async def run_experiment(
     loader = load_config or _default_load_config
     resolver = resolve_run_dir or _default_resolve_run_dir
     resolved_dest_root = Path(dest_root) if dest_root is not None else _default_dest_root()
-    distribution_caller: RunDistribution = run_distribution or _default_run_distribution
+    distribution_caller: RunDistribution = _resolve_distribution_caller(run_distribution)
 
     _validate_planes_present(manifest.runs)
     control_run = manifest.runs["control"]

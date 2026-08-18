@@ -2,6 +2,7 @@
 POST /api/experiments/run cuando la plataforma no está lista."""
 from __future__ import annotations
 
+import httpx
 import yaml
 
 
@@ -124,7 +125,10 @@ def test_run_experimento_gateado_503_si_media_no_listo(
 def test_run_experimento_falla_preflight_por_distributor_executable_inaccesible(
     two_plane_client, repo, fake_state, control_state, monkeypatch
 ):
+    """El chequeo de binario local solo corre en el fallback por subproceso
+    (ADR-020: HTTP es el default) -- seleccionarlo explicitamente."""
     _write_distribution_manifest(repo, slug="pf_dist_exec")
+    monkeypatch.setenv("EOVRT_CONSOLE_DISTRIBUTION_TRANSPORT", "subprocess")
     monkeypatch.setenv("EOVRT_DISTRIBUTION_EXECUTABLE", "/no/existe/bin")
 
     r = two_plane_client.post("/api/experiments/run", json={"slug": "pf_dist_exec"})
@@ -139,7 +143,11 @@ def test_run_experimento_falla_preflight_por_distributor_executable_inaccesible(
 def test_run_experimento_falla_preflight_por_broker_live_inalcanzable(
     two_plane_client, repo, fake_state, control_state, monkeypatch
 ):
+    """Chequeo de broker MQTT, agnostico del transporte -- se fija el fallback
+    por subproceso (ADR-020: HTTP es el default) para no depender del
+    healthz real del servicio de distribucion, que es un gate aparte."""
     _write_distribution_manifest(repo, slug="pf_dist_broker", broker_host="127.0.0.1", broker_port=1883)
+    monkeypatch.setenv("EOVRT_CONSOLE_DISTRIBUTION_TRANSPORT", "subprocess")
     monkeypatch.setenv("EOVRT_DISTRIBUTION_EXECUTABLE", "/bin/true")
 
     def _refuse(*_args, **_kwargs):
@@ -156,9 +164,88 @@ def test_run_experimento_falla_preflight_por_broker_live_inalcanzable(
     assert control_state.launched == []
 
 
+# --- I3: con EOVRT_CONSOLE_DISTRIBUTION_TRANSPORT=http (ADR-019) el gate NO
+# debe exigir el binario local -- el distribuidor puede vivir en otro host o
+# contenedor. En su lugar sondea /healthz contra distribution_service_url. ---
+
+
+class _FakeHealthzResponse:
+    def __init__(self, status_code: int) -> None:
+        self.status_code = status_code
+
+
+def test_run_experimento_transporte_http_no_exige_binario_pero_chequea_healthz(
+    two_plane_client, repo, fake_state, control_state, monkeypatch
+):
+    """No pasar EOVRT_DISTRIBUTION_EXECUTABLE (ni tenerlo en PATH): con
+    transporte http eso ya no debe bloquear. El servicio de distribucion
+    inalcanzable si debe bloquear, y con un blocker distinto al del binario."""
+    _write_distribution_manifest(
+        repo, slug="pf_dist_http_down", distribution_channel_mode="dry_run"
+    )
+    monkeypatch.delenv("EOVRT_DISTRIBUTION_EXECUTABLE", raising=False)
+    monkeypatch.setenv("EOVRT_CONSOLE_DISTRIBUTION_TRANSPORT", "http")
+
+    class _RefusingClient:
+        def __init__(self, *args, **kwargs) -> None:
+            pass
+
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, *exc) -> None:
+            return None
+
+        async def get(self, url):
+            raise httpx.ConnectError("connection refused", request=None)
+
+    monkeypatch.setattr("eovrt_webconsole.preflight.httpx.AsyncClient", _RefusingClient)
+
+    r = two_plane_client.post("/api/experiments/run", json={"slug": "pf_dist_http_down"})
+    assert r.status_code == 503
+    body = r.json()
+    blockers = body["preflight"]["blockers"]
+    assert not any("binario eovrt-distribute" in blocker for blocker in blockers)
+    assert any("no es alcanzable" in blocker for blocker in blockers)
+    assert fake_state.launched == []
+    assert control_state.launched == []
+
+
+def test_run_experimento_transporte_http_con_servicio_ok_no_gatea_por_distribucion(
+    two_plane_client, repo, fake_state, control_state, monkeypatch
+):
+    _write_distribution_manifest(
+        repo, slug="pf_dist_http_ok", distribution_channel_mode="dry_run"
+    )
+    monkeypatch.delenv("EOVRT_DISTRIBUTION_EXECUTABLE", raising=False)
+    monkeypatch.setenv("EOVRT_CONSOLE_DISTRIBUTION_TRANSPORT", "http")
+
+    class _HealthyClient:
+        def __init__(self, *args, **kwargs) -> None:
+            pass
+
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, *exc) -> None:
+            return None
+
+        async def get(self, url):
+            return _FakeHealthzResponse(200)
+
+    monkeypatch.setattr("eovrt_webconsole.preflight.httpx.AsyncClient", _HealthyClient)
+
+    r = two_plane_client.post("/api/experiments/run", json={"slug": "pf_dist_http_ok"})
+    assert r.status_code == 202
+
+
 def test_run_experimento_skips_broker_check_with_dry_run(
     two_plane_client, repo, fake_state, control_state, monkeypatch
 ):
+    """dry_run salta el chequeo de broker MQTT, agnostico del transporte -- se
+    fija el fallback por subproceso (ADR-020: HTTP es el default) para no
+    depender del healthz real del servicio de distribucion, que es un gate
+    aparte no relacionado con lo que este test verifica."""
     _write_distribution_manifest(
         repo,
         slug="pf_dist_dryrun",
@@ -166,6 +253,7 @@ def test_run_experimento_skips_broker_check_with_dry_run(
         broker_host="localhost",
         broker_port=0,
     )
+    monkeypatch.setenv("EOVRT_CONSOLE_DISTRIBUTION_TRANSPORT", "subprocess")
     monkeypatch.setenv("EOVRT_DISTRIBUTION_EXECUTABLE", "/bin/true")
 
     def _no_se_llama(*_args, **_kwargs):
