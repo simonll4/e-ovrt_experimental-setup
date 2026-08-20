@@ -1,0 +1,95 @@
+# T2 v2 — full fine-tuning con optimizador EXPLÍCITO, desde el PESO BASE (D-FT-16).
+#
+# Reemplaza al job 1167864 (10 épocas, `optimizer: auto`), que quedó submuestreado.
+# Causa verificada en el código instalado (ultralytics 8.4.86, BaseTrainer.build_optimizer):
+#
+#     if name == "auto":
+#         nc = self.data.get("nc", 10)
+#         lr_fit = round(0.002 * 5 / (4 + nc), 6)
+#         name, lr, momentum = ("MuSGD", 0.01, 0.9) if iterations > 10000 else ("AdamW", lr_fit, 0.9)
+#
+# El LR de `auto` sale SÓLO de `nc`, nunca del conteo de parámetros entrenables: con nc=4
+# dio el mismo AdamW(lr=0,00125) para T1 (3.096 params) y T2 (10.350.308, ×3.343).
+#
+# POR QUÉ DESDE EL PESO BASE Y NO CONTINUANDO DESDE best.pt DE 1167864:
+# la curva de 1167864 muestra que ese checkpoint es un punto de partida PEOR que el peso
+# base. Ambos tiers arrancan del mismo peso; en la época 1, T1 (que sólo entrena 3.096
+# params sobre features congeladas) ya daba mAP50 0,1507, mientras T2 daba 0,0490 — tres
+# veces peor — y en la época 2 CAYÓ a 0,0255, con trayectoria oscilante (0,049/0,026/
+# 0,047/0,029/0,032/…) frente a la subida monótona de T1. Eso no es "aprender lento": es
+# el full FT dañando las features preentrenadas desde el primer paso. Continuar desde ahí
+# obligaría a SGD a deshacer el daño antes de aprender, y además dejaría un checkpoint con
+# historia de optimización en dos fases (AdamW + SGD) que hay que explicar en un párrafo.
+# Arrancar de cero cuesta ~90 min de GPU del clúster y compra un experimento describible
+# en una frase: "60 épocas de SGD explícito desde el peso base".
+#
+# El `best.pt` de 1167864 se conserva como evidencia del hallazgo del LR — que es un
+# resultado en sí mismo y va al informe: documenta que `optimizer=auto` es ciego al
+# conteo de parámetros entrenables.
+
+schema_version: eovrt.finetuning-config.v1
+experiment_id: t2_yoloe26s_full_v2
+decision: D-FT-16 (enmienda pre-resultado de D-FT-14/D-FT-15)
+
+model:
+  architecture: yoloe-26s.yaml
+  base_weight: weights/base/yoloe-26s-seg.pt
+  text_encoder: weights/base/mobileclip2_b.ts
+  # T2 NO declara fixed_vocabulary: su checkpoint no hereda el contrato D-FT-08.
+  # Sirve por set_classes con las frases congeladas, igual que la baseline.
+  training_classes:
+    0: person
+    1: helmet
+    2: vest
+    3: bare head
+
+data:
+  manifest: manifests/finetuning_v1.summary.json
+  yaml: data/finetuning_v1/data.yaml
+  train_images: 2946
+  val_images: 483
+
+supersedes:
+  run_id: "1167864"
+  reason: "optimizer=auto submuestreó el full FT; ese checkpoint es peor punto de partida que el peso base"
+  evidence: "results.csv de 1167864 vs 1167640 — T2 ep1 mAP50 0,0490 vs T1 ep1 0,1507, con caída a 0,0255 en ep2"
+  retained_as: "weights/finetuned/full-1167864/ (evidencia del hallazgo del LR, no candidato)"
+
+trainer:
+  implementation: ultralytics.models.yolo.yoloe.YOLOETrainer
+  scope_guard: eovrt.full_detector_ov_preserved.v1
+  frozen_prefixes:
+    - model.23.reprta.
+    - model.23.savpe.
+  expected_trainable_tensors: 390
+  expected_trainable_parameters: 10350308
+  expected_trainable_names_sha256: 57a6a3787ec72194eb07473875470dc17ed2e972135ebd0e44a94a7ddcb399a8
+  expected_frozen_tensors: 42
+  expected_frozen_parameters: 3426528
+  expected_frozen_names_sha256: 989ce3ffc54521ec54b96cd11fa700cb9937e8de69a2f038715d8c39cd831a42
+  # Optimizador EXPLÍCITO — la razón de ser de esta corrida. NO "auto".
+  # lr0=0,01 y momentum=0,937 son los defaults DOCUMENTADOS de ultralytics (verificado
+  # contra get_cfg()), no valores elegidos a mano; con nbs=64 y batch=8 el acumulado da
+  # batch efectivo 64, que es el punto de diseño de ese LR. warmup_epochs=3 (default)
+  # rampea desde casi cero, que es la protección que el camino AdamW no tuvo.
+  optimizer: SGD
+  lr0: 0.01
+  momentum: 0.937
+  # Techo y criterio de parada, decididos ANTES de observar ningún resultado tuned.
+  # patience=15: Ultralytics corta solo al converger; no lo decide un humano mirando el
+  # número final. Si toca el techo de 60, el resultado se lee "todavía subiendo".
+  epochs: 60
+  patience: 15
+  ultralytics: 8.4.86
+  batch: 8
+  workers: 2
+  imgsz: 640
+  seed: 100
+  deterministic: true
+  device: 0
+  val: true
+  plots: false
+  save: true
+  save_period: 1
+  checkpoint_policy: best_metrics_mAP50-95_B_all_four_val_classes
+  retain_last: true
