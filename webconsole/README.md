@@ -1,8 +1,11 @@
 # E-OVRT Web Console
 
 Consola web de la plataforma E-OVRT-VDP: BFF FastAPI (`backend/`) + SPA React (`frontend/`),
-**cliente** del servicio media-plane (Spec B). No ejecuta el pipeline: habla HTTP/WS con la
-instancia del servicio (`EOVRT_CONSOLE_SERVICE_URL`, default `http://localhost:8080`).
+**cliente de los TRES servicios HTTP config-driven** (ADR-019): media-plane
+(`EOVRT_CONSOLE_SERVICE_URL`, default `http://localhost:8080`), control-plane
+(`EOVRT_CONSOLE_CONTROL_SERVICE_URL`, default `:8081`) y distribución de alertas
+(`EOVRT_CONSOLE_DISTRIBUTION_SERVICE_URL`, default `:8082`). No ejecuta el pipeline ni
+consume el bus ZeroMQ: habla HTTP/WS con cada servicio.
 
 Funciones: componer y lanzar corridas, ver el detalle en vivo (WS), **evaluar un run
 BENCH contra el GT de seguridad** (AP@0.5 por clase, CR-01 recall, mAP@0.5) y **comparar
@@ -43,9 +46,19 @@ make smoke                         # curl /api/health + /api/target contra :8090
 ```
 
 Requiere el servicio media-plane corriendo (p.ej. `EOVRT_MODEL_REF=mock make serve`
-en `../e-ovrt_media-plane`). Env vars: `EOVRT_CONSOLE_SERVICE_URL`,
-`EOVRT_CONSOLE_REPO_ROOT` (default: autodescubierto), `EOVRT_CONSOLE_FROZEN_SETS`
-(default vacío — el `status` propio de cada YAML ya basta; ver `settings.py`).
+en `../e-ovrt_media-plane`); si la distribución está habilitada, también el servicio
+de distribución en `:8082`. Env vars:
+
+- `EOVRT_CONSOLE_SERVICE_URL` — servicio media-plane (default `http://localhost:8080`).
+- `EOVRT_CONSOLE_CONTROL_SERVICE_URL` — servicio control-plane (default `http://localhost:8081`).
+- `EOVRT_CONSOLE_DISTRIBUTION_SERVICE_URL` — servicio de distribución de alertas
+  (default `http://localhost:8082`).
+- `EOVRT_CONSOLE_DISTRIBUTION_TRANSPORT` — transporte runner→distribución: `http`
+  (default, ADR-020) o `subprocess` (**fallback operativo**, invoca la CLI
+  `eovrt-distribute` como subproceso; ya no es un patrón de acople).
+- `EOVRT_CONSOLE_REPO_ROOT` (default: autodescubierto).
+- `EOVRT_CONSOLE_FROZEN_SETS` (default vacío — el `status` propio de cada YAML ya basta;
+  ver `settings.py`).
 
 ## Gestión de prompt sets
 

@@ -22,3 +22,12 @@ defensa/trabajo/
 
 __pycache__/
 *.pyc
+
+# artefactos temporales de tests del backend (p. ej. tmp-run-dbe-test)
+webconsole/backend/tmp-*/
+
+# caches de herramientas
+.pytest_cache/
+.ruff_cache/
+.superpowers/
+.claude/

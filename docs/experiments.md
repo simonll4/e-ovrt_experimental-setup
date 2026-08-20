@@ -43,6 +43,79 @@ Solo `run`, `source`, `model`, `prompts` son obligatorios; el resto toma default
 | `video_annotated.yaml` | yoloe/yoloe-26s | video_sample (stride 3) | cr01_cr02_v2_short | DBE sobre video local (`recorte-1.mp4`) con salida de video anotado |
 | `video_annotated_gdino.yaml` | grounding-dino/gdino-tiny (cuda) | video_sample (stride 3) | cr01_cr02_v2_short | DBE sobre video local (`recorte-1.mp4`) con GDINO-tiny y salida de video anotado |
 
+Además de estos manifiestos sueltos, la mayor parte de los directorios de `experiments/`
+son **tripletas `experiment.manifest.v1`** que componen varios servicios — ver §2 bis.
+
+> `realt-time-safety_vest.yaml` (formato viejo de un solo plano, IP de cámara hardcodeada)
+> fue archivado el 2026-08-19 en `experiments/_archive/`.
+
+## 2 bis. Tripletas `experiment.manifest.v1` (multi-servicio)
+
+10 de los 11 directorios de `experiments/` usan el formato **`experiment.manifest.v1`**
+(ADR-004 / spec 44 §2): un manifiesto "paraguas" que compone los servicios de la corrida
+— el único que no lo usa es `bench_v2/` (manifiestos planos de catálogo, §3).
+
+```yaml
+schema_version: experiment.manifest.v1
+slug: <slug>                     # = nombre del directorio
+experiment_id: <id> | null       # provenance opcional
+runs:
+  media:
+    service: media-plane
+    config: /ruta/absoluta/al/media.yaml      # payload de run (ingesta + prompts inline + run)
+    mode: run                                  # el runner hace POST /api/runs al servicio
+  control:
+    service: control-plane
+    config: /ruta/absoluta/al/control.yaml
+    mode: live                                 # consume el bus de detecciones (:5557)
+  distribution:                  # opcional — sólo la campaña t_alert_notification lo declara
+    service: alert-distribution
+    config: /ruta/absoluta/a/distribution-live.yaml
+    mode: live                                 # consume el bus de alertas (:5558)
+    endpoint: tcp://127.0.0.1:5558
+    idle_timeout_ms: 30000
+sequencing: control_first
+report: {}                       # se completa al cerrar la corrida
+frozen: {}
+clip_id: <clip> | null           # provenance de GT temporal (opcional)
+ground_truth: <ruta> | null
+derives_from: <slug origen>      # linaje entre experimentos (opcional)
+changes: "<qué cambia respecto del origen>"
+```
+
+Reglas del formato, verificadas contra los manifiestos reales:
+
+- **Rutas absolutas** en `runs.*.config` (ADR-009): los servicios reciben el payload por
+  referencia de archivo, sin supuestos de CWD.
+- **`mode`**: `run` = disparo de una corrida del media-plane (`POST /api/runs`);
+  `live` = el servicio consume su bus ZeroMQ en vivo; `replay` = camino offline (relee
+  artefactos JSONL, p.ej. `distribution-replay.yaml` de la campaña t_alert).
+- **`sequencing: control_first` NO es opcional**: PUB/SUB pierde todo lo publicado antes
+  de la suscripción. El runner dispara primero los consumidores (si hay distribución,
+  primero `POST :8082/api/runs`; después el control con `mode: live`, cuyo OK implica
+  `subscribed=True`) y **recién al final** el media con `bus.enabled: true`.
+- **Dos buses ZeroMQ**: detecciones en `:5557` (media XPUB → control SUB) y alertas en
+  `:5558` (control XPUB → distribución SUB). Ojo: `alert_bus.enabled` del control-plane
+  es `False` por default — sin habilitarlo, la distribución lee 0 alertas.
+- **El runner inyecta solo** `control.input: {type: bus}` y `media.bus: {enabled: true}`
+  — no declararlos en los payloads.
+- El `media.yaml` de una tripleta es un **payload de run** (plugin de ingesta, prompt set
+  inline, `run`), no un manifiesto de catálogo: el **modelo** es el que cargó la instancia
+  del servicio media-plane (`EOVRT_MODEL_REF`), no se declara en el payload.
+
+### Inventario de tripletas
+
+| Directorio | Compone | Propósito |
+|---|---|---|
+| `ebe_oakd_live/` | media + control | corrida EBE live 1:1 con la OAK-D — base de la familia (las demás derivan de ella) |
+| `ebe_p1_live/` | media + control | P1 toma B live — CR-01, 14 s sin casco |
+| `ebe_p2_live/` | media + control | P2 toma B live — CR-02, 22 s sin chaleco fuera de cuadro |
+| `ebe_p3_live/` | media + control | P3 toma B live — transitorio 2 s, NO debe alertar |
+| `yoloe_p1_live/` … `yoloe_p3_live/` | media + control | mismas tomas P1–P3 con yoloe-26x (comparación vs gdino-tiny-560) |
+| `rt-01/` | media + control | variante de `cr01_cr02_v2_short` con un solo cambio de phrasing, sobre la toma live |
+| `diag_riesgo_activo/` | media + control | DIAGNÓSTICO (no es material de tesis): verifica el bloque `patterns` de `/api/runs/current` con el clip P1 grabado |
+| `t_alert_notification/` | media + control + **distribución** | campaña `t_alert` (2026-08-13): templates `video/` y `camera/` + `campaign.yaml` (broker MQTT amqtt 0.11.3, QoS 1, bus `:5558`) |
+
 ## 3. Matriz BENCH v2 (`experiments/bench_v2/`)
 
 12 manifiestos = **6 modelos × 2 splits** (val/test), todos sobre el set congelado

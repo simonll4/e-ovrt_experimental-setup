@@ -80,7 +80,10 @@ class PromptSetModel(BaseModel):
     description: str | None = None
     language: str | None = None
     status: Status = "exploratory"
-    track: Literal["core", "demo", "comparative"] | None = None
+    # core | demo (carril demostrativo) | comparative (carril E-DIR) | retention =
+    # conjuntos para medir retención de vocabulario abierto en fine-tuning (arnés T2,
+    # ADR-017), no son prompts de riesgo CR-01/CR-02.
+    track: Literal["core", "demo", "comparative", "retention"] | None = None
     derives_from: str | None = None
     changes: str | None = None
     frozen_sha256: str | None = None
@@ -91,7 +94,10 @@ class PromptSetModel(BaseModel):
         ids = [c.id for c in self.classes]
         if len(ids) != len(set(ids)):
             raise ValueError("ids de clase duplicados")
-        if self.status == "frozen" and not self.frozen_sha256:
+        # `frozen_sha256` lo calcula la consola al congelar. Los sets del track
+        # `retention` no pasan por ese camino: los emite el arnés de fine-tuning y su
+        # freeze se ancla por sha256 del ARCHIVO en `finetuning/manifests/`.
+        if self.status == "frozen" and self.track != "retention" and not self.frozen_sha256:
             raise ValueError("un set frozen requiere frozen_sha256")
         return self
 

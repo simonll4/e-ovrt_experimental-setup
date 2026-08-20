@@ -1,5 +1,10 @@
 # Revisión exhaustiva del workspace — 2026-07-06
 
+> ⚠️ **DOCUMENTO HISTÓRICO (2026-07-06)** — describe el mundo de dos repos/dos servicios
+> previo a ADR-016…020 (hoy son tres servicios HTTP config-driven: media `:8080`,
+> control `:8081`, distribución `:8082`); los conteos de tests y composes ya no son
+> actuales. **Manda esta nota, no el cuerpo.**
+
 Auditoría de pies a cabeza de los dos repos activos del proyecto (`e-ovrt_media-plane`,
 rama `feature/inference-service`, y `e-ovrt_experimental-setup`, rama `feature/webconsole`),
 ejecutada con 4 auditores independientes en paralelo (legacy/configs por repo, alineación

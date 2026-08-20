@@ -94,6 +94,9 @@ sobre el bloque `classes` **crudo** del YAML (tal como lo parsea `yaml.safe_load
   prefijo `demo_` para el carril demostrativo. El `id` sigue siendo == nombre de archivo.
 - Carril demostrativo: campo `track: demo` — explicita que el set no participa del protocolo
   comparativo ni del time-box del núcleo.
+- Fuera de los carriles de prompt: `track: retention` = conjuntos para medir retención de
+  vocabulario abierto en fine-tuning (arnés T2, ADR-017), no son prompts de riesgo
+  CR-01/CR-02. Vocabulario completo de `track`: `docs/prompt-sets.md` §2.1.
 
 ### 3.3 Regla de promoción
 

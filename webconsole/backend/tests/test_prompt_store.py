@@ -6,6 +6,7 @@ from pathlib import Path
 
 import pytest
 import yaml
+from pydantic import ValidationError
 
 from eovrt_webconsole import prompt_store as ps
 
@@ -155,11 +156,34 @@ def test_get_set_on_corrupt_yaml_raises_prompt_set_invalid(prompts_dir: Path):
         ps.get_set(prompts_dir, "corrupto")
 
 
+def test_track_retention_es_valido_y_se_congela_fuera_de_la_consola():
+    """`retention` es un track válido: arnés de retención de vocabulario abierto (T2).
+
+    Sus sets los genera y congela `finetuning/scripts/build_coco_retention_harness.py`, y
+    su freeze se ancla por sha256 del ARCHIVO en `finetuning/manifests/`, no por el hash
+    del bloque `classes` que calcula la consola al congelar. Por eso un `retention` frozen
+    es válido sin `frozen_sha256`; el resto de los tracks lo sigue exigiendo.
+    """
+    frozen_retention = {**EXPLORATORY, "id": "coco_like", "track": "retention",
+                        "status": "frozen"}
+    assert ps.PromptSetModel.model_validate(frozen_retention).track == "retention"
+
+    with pytest.raises(ValidationError):  # track fuera del vocabulario
+        ps.PromptSetModel.model_validate({**EXPLORATORY, "track": "inventado"})
+    with pytest.raises(ValidationError):  # frozen de consola: el hash sigue siendo obligatorio
+        ps.PromptSetModel.model_validate({**EXPLORATORY, "status": "frozen"})
+
+
 def test_repo_frozen_sets_integrity():
-    """Contrato sobre los sets REALES del repo: todo frozen tiene hash válido."""
+    """Contrato sobre los sets REALES del repo: todo frozen tiene hash válido.
+
+    Excepción declarada: los sets del track `retention` no pasan por el congelamiento de
+    la consola (los emite el arnés de fine-tuning y los ancla por sha256 de archivo en
+    `finetuning/manifests/`), así que no llevan `frozen_sha256`.
+    """
     repo_prompts = Path(__file__).resolve().parents[3] / "prompts"
     for path in sorted(repo_prompts.glob("*.yaml")):
         data = yaml.safe_load(path.read_text())["prompt_set"]
         ps.PromptSetModel.model_validate(data)  # el espejo acepta todos los sets reales
-        if data.get("status") == "frozen":
+        if data.get("status") == "frozen" and data.get("track") != "retention":
             assert data["frozen_sha256"] == ps.classes_sha256(data["classes"]), path.name

@@ -25,10 +25,10 @@ prompt_set:
   description: "..."
   language: en
   status: exploratory       # exploratory | frozen_pending_review | frozen (ver docs/prompt-strategy.md)
-  track: core               # core | demo (demo = carril demostrativo, fuera del protocolo comparativo)
+  track: core               # core | demo | comparative | retention (ver §2.1)
   derives_from: <id>        # opcional: set del que deriva (lineage)
   changes: "..."            # opcional: qué cambió respecto de derives_from y por qué
-  frozen_sha256: "<hex>"    # solo en frozen: sha256 del bloque classes (lo calcula la webconsole al congelar)
+  frozen_sha256: "<hex>"    # solo en frozen: sha256 del bloque classes (lo calcula la webconsole al congelar; ver §2.1)
   classes:
     - id: helmet                # clave estable → Detection.prompt_id; la referencian manifiestos y patterns
       canonical: helmet         # clase de evaluación (canonical_v2); opcional, default = id
@@ -41,6 +41,20 @@ prompt_set:
         gdino:   ["hard hat", "safety helmet"]   # sinónimos descriptivos cortos
         yoloe:   ["helmet"]      #   nominal corto (varias frases = ensembling)
 ```
+
+### 2.1 Vocabulario de `track`
+
+| `track` | Qué agrupa |
+|---|---|
+| `core` | Carril núcleo del protocolo (E-IND): vocabulario positivo canónico de CR-01/CR-02. |
+| `demo` | Carril demostrativo, fuera del protocolo comparativo. |
+| `comparative` | Carril E-DIR: un prompt por eje pre-registrado, para comparar formulaciones. |
+| `retention` | Conjuntos para medir retención de vocabulario abierto en fine-tuning (arnés T2, ADR-017); **no** son prompts de riesgo CR-01/CR-02. |
+
+Los sets `retention` los **genera y congela el arnés de fine-tuning**
+(`finetuning/scripts/build_coco_retention_harness.py`), no la webconsole: su freeze se
+ancla por sha256 del **archivo** en `finetuning/manifests/*.json` y por eso son los únicos
+`frozen` sin `frozen_sha256` (el hash del bloque `classes` que calcula la consola).
 
 ### Reglas de resolución
 - `id`: único en el set. Es la **clave estable** de la clase — no cambia aunque cambie el fraseo.
@@ -99,6 +113,7 @@ referenciar por `ref`:
 | `eind_v1` | **`frozen`** | person, helmet, vest | Carril 1 (núcleo E-IND): vocabulario positivo canónico, `canonical_positive`, phrasings idénticos ambos backends. Deriva de `cr01_cr02_v2_short`. Congelado 2026-07-29 por acta (`docs/operacion/76` del repo docs); `frozen_sha256: 7a0126f4…`. |
 | `edir_v1` | **`frozen`** | 8 formulaciones (4 por condición) | Carril E-DIR (`track: comparative`): un prompt por eje pre-registrado (negación sintáctica, especificidad, estado observable, template diagnóstico `enabled_by_default: false`) para CR-01 y CR-02, literal de doc 12 §2.2. Congelado 2026-07-29 por la misma acta (doc 76); `frozen_sha256: a1278d0c…`. Nada se reformula post-freeze. |
 | `cr01_cr02_v2_safety_vest` | `exploratory` | person, helmet, vest | A/B del phrasing de `vest` → "safety vest" (hipótesis anti sobre-marca F-G2.1, docs/operacion/67). Deriva de `cr01_cr02_v2_short`; solo cambia vest. |
+| `coco_val2017_80` | **`frozen`** | 80 categorías COCO | `track: retention` (§2.1): arnés de retención de vocabulario abierto del tier T2 (T-FT-062 / D-FT-04). Generado por `finetuning/scripts/build_coco_retention_harness.py` — **no editar a mano**; el `id` de cada clase es el nombre COCO exacto. Congelado por archivo: `sha256: 074558773ae3…` en `finetuning/manifests/t2_coco_retention_protocol.json` y en el brazo base congelado, así que no lleva `frozen_sha256`. |
 
 **Archivados** (2026-07-18, `prompts/_archive/`) — candidatos exploratorios del Carril 2
 (E-DIR) previos al set congelado `edir_v1`; fuera del catálogo activo (ver

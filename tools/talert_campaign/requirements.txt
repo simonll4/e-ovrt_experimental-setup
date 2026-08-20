@@ -1,2 +1,4 @@
+# SUPERADO 2026-08-15 por requirements-dev.txt (F-119.1) — se conserva como provenance
+# de la campaña t_alert del 2026-08-13 (versiones exactas de broker y cliente MQTT).
 amqtt==0.11.3
 paho-mqtt==2.1.0
