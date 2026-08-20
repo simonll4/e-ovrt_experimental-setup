@@ -1,6 +1,15 @@
-# Plataforma E-OVRT (DBE single-host): consola + fleet de instancias del servicio
-# media-plane (una por modelo, apagadas; la consola las orquesta vía este mismo
-# compose). Bootstrap: ver README.md.
+# Plataforma E-OVRT completa (single-host): consola + control-plane + distribución
+# + broker MQTT + fleet de instancias del servicio media-plane (una por modelo,
+# apagadas por default; la consola las orquesta vía este mismo compose).
+# Bootstrap y topología: ver README.md.
+#
+# Regla central — PARIDAD DE RUTAS: el workspace de repos hermanos se monta en
+# consola/control/distribución EN LA MISMA ruta absoluta del host
+# (${EOVRT_WORKSPACE}:${EOVRT_WORKSPACE}). Los contratos de la plataforma exigen
+# rutas absolutas compartidas (ADR-009 para los manifiestos; ADR-019 §3 para el
+# out_dir del distribuidor), así que host y contenedores tienen que ver los
+# mismos paths. Eso hace el deploy reproducible en cualquier host: solo cambia
+# EOVRT_WORKSPACE en .env.
 name: eovrt
 
 x-mp-common: &mp-common
@@ -10,12 +19,18 @@ x-mp-common: &mp-common
     dockerfile: infra/docker/Dockerfile
   networks: [eovrt]
   profiles: [models]
+  # Sin restart: el ciclo de vida de las instancias lo maneja la consola.
   volumes:
     - ${EOVRT_WORKSPACE}/e-ovrt_media-plane/models:/app/models:ro
-    - ${EOVRT_WORKSPACE}/e-ovrt_media-plane/mobileclip2_b.ts:/app/mobileclip2_b.ts:ro
+    # cache del text-encoder de YOLOE (evita descarga en runtime; se coloca a
+    # mano en models/yoloe/original/ — ver models/README.md del media-plane)
+    - ${EOVRT_WORKSPACE}/e-ovrt_media-plane/models/yoloe/original/mobileclip2_b.ts:/app/mobileclip2_b.ts:ro
     - ${EOVRT_WORKSPACE}/e-ovrt_media-plane/runs:/data/runs
     - ${EOVRT_WORKSPACE}/e-ovrt_datasets:/e-ovrt_datasets:ro
     - weights-cache:/data/weights
+  # El bus de detecciones (ZeroMQ XPUB :5557, bus.enabled por corrida) NO se
+  # publica al host: el control-plane lo consume por la red interna
+  # (tcp://<servicio-mp>:5557).
 
 x-gpu: &gpu
   deploy:
@@ -27,15 +42,13 @@ x-gpu: &gpu
             capabilities: [gpu]
 
 services:
-  # Broker MQTT del modulo de distribucion de alertas (spec 45 / ADR-016).
-  # NO es el camino que usamos hoy en este workspace (ver README): la
-  # integracion WSL de Docker Desktop no esta activa y el resto de los
-  # servicios (control-plane, distribuidor) tampoco corren en contenedor.
-  # Este bloque queda declarado para cuando SI se dockerice el deploy;
-  # mientras tanto, `mosquitto`/`amqtt` corre como proceso comun del host,
-  # igual que el control-plane.
+  # Broker MQTT de la distribución de alertas (spec 45 / ADR-016). Desde el
+  # deploy integral 2026-08-19 este ES el broker canónico del stack; la
+  # alternativa como proceso del host (amqtt, ver README §broker) queda para
+  # el camino sin Docker.
   mosquitto:
     image: eclipse-mosquitto:2
+    restart: unless-stopped
     ports: ["127.0.0.1:1883:1883"]
     networks: [eovrt]
     volumes:
@@ -47,25 +60,98 @@ services:
       retries: 3
       start_period: 5s
 
+  # Motor de patrones CR-01/CR-02 (servicio HTTP :8081, ADR-0008 del repo).
+  # Publica el bus de alertas (ZeroMQ XPUB :5558) cuando la corrida lo habilita
+  # (alert_bus.enabled — default false, ojo: sin habilitarlo la distribución lee
+  # 0 alertas). Se publica en loopback para consumidores del host (CLI offline).
+  control-plane:
+    image: eovrt/control-plane:latest
+    build:
+      context: ${EOVRT_WORKSPACE}/e-ovrt_control-plane
+      dockerfile: infra/docker/Dockerfile
+    restart: unless-stopped
+    networks: [eovrt]
+    ports:
+      - "8081:8081"
+      - "127.0.0.1:5558:5558"
+    environment:
+      # Paridad de rutas: los artefactos quedan donde el host (y el BFF) los esperan.
+      EOVRT_CONTROL_RUNS_DIR: ${EOVRT_WORKSPACE}/e-ovrt_control-plane/runs
+    volumes:
+      - ${EOVRT_WORKSPACE}:${EOVRT_WORKSPACE}
+    stop_grace_period: 30s
+
+  # Distribuidor de alertas (servicio HTTP :8082, ADR-019; acople default del
+  # runner por HTTP, ADR-020). El out_dir de cada corrida es una ruta absoluta
+  # que el BFF elige — por eso el mount con paridad de rutas (ADR-019 §3).
+  # En configs containerizadas el canal MQTT debe apuntar a `host: mosquitto`.
+  distribution:
+    image: eovrt/distribution:latest
+    build:
+      context: ${EOVRT_WORKSPACE}/e-ovrt_alert-distribution
+      dockerfile: infra/docker/Dockerfile
+    restart: unless-stopped
+    networks: [eovrt]
+    ports: ["8082:8082"]
+    environment:
+      # Credenciales MQTT solo por env (nunca en YAML); vacío = anónimo.
+      EOVRT_MQTT_USERNAME: ${EOVRT_MQTT_USERNAME:-}
+      EOVRT_MQTT_PASSWORD: ${EOVRT_MQTT_PASSWORD:-}
+    volumes:
+      - ${EOVRT_WORKSPACE}:${EOVRT_WORKSPACE}
+    depends_on:
+      mosquitto:
+        condition: service_healthy
+    stop_grace_period: 30s
+
   console:
     image: eovrt/console:latest
     build:
       context: ${EOVRT_WORKSPACE}/e-ovrt_experimental-setup
       dockerfile: infra/console/Dockerfile
+    restart: unless-stopped
     ports: ["8090:8090"]
     networks: [eovrt]
     environment:
-      EOVRT_CONSOLE_COMPOSE_DIR: /repo/infra/platform
-      EOVRT_CONSOLE_REPO_ROOT: /repo
+      EOVRT_CONSOLE_COMPOSE_DIR: ${EOVRT_WORKSPACE}/e-ovrt_experimental-setup/infra/platform
+      EOVRT_CONSOLE_REPO_ROOT: ${EOVRT_WORKSPACE}/e-ovrt_experimental-setup
+      EOVRT_CONSOLE_CONTROL_SERVICE_URL: http://control-plane:8081
+      EOVRT_CONSOLE_DISTRIBUTION_SERVICE_URL: http://distribution:8082
+      # El transporte del runner hacia la distribución es HTTP por default
+      # (ADR-020). El fallback subprocess NO existe dentro del contenedor
+      # (la imagen no instala eovrt-distribute): no setear
+      # EOVRT_CONSOLE_DISTRIBUTION_TRANSPORT=subprocess en este deploy.
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - ${EOVRT_WORKSPACE}/e-ovrt_experimental-setup:/repo:ro
-      - ${EOVRT_WORKSPACE}/e-ovrt_experimental-setup/experiments:/repo/experiments:rw
+      # Workspace completo en solo-lectura, con remounts rw únicamente donde
+      # el BFF escribe (prompts/cámaras/experimentos/corridas del repo).
+      - ${EOVRT_WORKSPACE}:${EOVRT_WORKSPACE}:ro
+      - ${EOVRT_WORKSPACE}/e-ovrt_experimental-setup/experiments:${EOVRT_WORKSPACE}/e-ovrt_experimental-setup/experiments:rw
+      - ${EOVRT_WORKSPACE}/e-ovrt_experimental-setup/prompts:${EOVRT_WORKSPACE}/e-ovrt_experimental-setup/prompts:rw
+      - ${EOVRT_WORKSPACE}/e-ovrt_experimental-setup/cameras:${EOVRT_WORKSPACE}/e-ovrt_experimental-setup/cameras:rw
+      - ${EOVRT_WORKSPACE}/e-ovrt_experimental-setup/runs:${EOVRT_WORKSPACE}/e-ovrt_experimental-setup/runs:rw
+    depends_on:
+      control-plane:
+        condition: service_healthy
+      distribution:
+        condition: service_healthy
 
   mp-mock:
     <<: *mp-common
     environment: { EOVRT_MODEL_REF: mock, EOVRT_DATASETS_ROOT: /e-ovrt_datasets }
     labels: { eovrt.instance: "true", eovrt.model_ref: mock }
+
+  # Campeón de selección S1/S2 (doc 64): variante image_size 560 del tiny.
+  mp-gdino-tiny-560:
+    <<: [*gpu, *mp-common]
+    environment: { EOVRT_MODEL_REF: grounding-dino/gdino-tiny-560, EOVRT_DATASETS_ROOT: /e-ovrt_datasets }
+    labels: { eovrt.instance: "true", eovrt.model_ref: grounding-dino/gdino-tiny-560 }
+
+  # Especialista CR-01/bare_head (doc 64), candidato secundario.
+  mp-gdino-base-560:
+    <<: [*gpu, *mp-common]
+    environment: { EOVRT_MODEL_REF: grounding-dino/gdino-base-560, EOVRT_DATASETS_ROOT: /e-ovrt_datasets }
+    labels: { eovrt.instance: "true", eovrt.model_ref: grounding-dino/gdino-base-560 }
 
   mp-gdino-tiny:
     <<: [*gpu, *mp-common]
