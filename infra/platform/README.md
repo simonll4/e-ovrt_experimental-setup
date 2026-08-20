@@ -153,10 +153,30 @@ finalmente genera el reporte.
 - 2026-07-05: consola + fleet media verificados end-to-end (imágenes 13.2GB/399MB;
   mp-mock demo_v2 succeeded; switch a gdino-tiny; BENCH corto mAP50=0.6762 sobre
   10 imgs). Detalle en `.superpowers/sdd/progress-plataforma-docker.md` (Task 10).
-- 2026-08-19: se agregan control-plane, distribution, mosquitto como camino canónico
-  y paridad de rutas; `docker compose config` validado (13 servicios). **Los builds de
-  las imágenes nuevas y el smoke integral 1–5 quedan pendientes de ejecución** (el
-  daemon de Docker estaba apagado en la sesión que escribió esto).
+- 2026-08-19/20: se agregan control-plane, distribution, mosquitto como camino canónico
+  y paridad de rutas. **Los builds y el smoke integral 1–5 quedan pendientes por
+  decisión** — se ejecutan cuando se cierren los repos, no ahora.
+
+  **Verificado estáticamente** (sin daemon, todo client-side) para que el build futuro
+  no falle por algo evitable:
+  - `docker compose config` valida los **13 servicios**.
+  - Los tres Dockerfiles (`media-plane`, `control-plane`, `alert-distribution`):
+    `[build-system]` declarado, `packages.find where=["src"]` (o sea que copiar `src/`
+    alcanza), y los entrypoints existen como console scripts —
+    `eovrt-control`, `eovrt-distribute`— o son `uvicorn --factory` en el media-plane.
+  - Ningún `pyproject.toml` declara `readme`, así que excluir `docs/` en el
+    `.dockerignore` **no** rompe el build (es el footgun clásico de este patrón).
+  - Todo lo que los Dockerfiles hacen `COPY` existe en su contexto de build.
+  - Los `HEALTHCHECK` en forma exec son JSON válido y los snippets de Python parsean;
+    el del media-plane usa `curl`, que su imagen sí instala (línea 8 de su Dockerfile).
+    Los tres servicios que otros esperan con `condition: service_healthy` tienen
+    healthcheck propio — sin eso, compose aborta el arranque de la consola.
+  - **Todos los bind mounts resuelven y con el tipo correcto**: `mobileclip2_b.ts` y
+    `mosquitto.conf` como ARCHIVO (si faltaran, Docker crearía un directorio en su
+    lugar y el fallo sería silencioso), el resto como directorios.
+
+  Lo único no verificable sin daemon: que las imágenes efectivamente compilen (resolución
+  de dependencias, ruedas de CUDA) y el comportamiento en runtime.
 
 ## Seguridad
 
