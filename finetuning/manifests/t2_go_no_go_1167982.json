@@ -1,0 +1,109 @@
+{
+  "schema_version": "eovrt.t2-go-no-go.v1",
+  "task_id": "T-FT-066",
+  "created_at": "2026-08-21T15:20:00+00:00",
+  "decision_id": "D-FT-15",
+  "protocol": {
+    "path": "finetuning/manifests/t2_yoloe26s_protocol.json",
+    "protocol_id": "t2_yoloe26s_full_v1",
+    "margins_signed_at": "2026-08-17",
+    "signed_before_any_tuned_result": true,
+    "amendment_applied": "D-FT-16 (2026-08-18, pre-resultado): optimizador explicito SGD lr0=0.01 desde el peso base, techo 60 epocas / patience 15; mismo scope guard y mismos 4 gates sin tocar"
+  },
+  "checkpoint": {
+    "slurm_job_id": "1167982",
+    "filename": "best.pt",
+    "sha256": "a3c482acdca1ad5f6ce03978b0e4737e307f47b3a42f3ac3b8271ac4d9c16eea",
+    "training_caveat": "EarlyStopping en la epoca 16/60 con best_epoch=1: el checkpoint evaluado es el modelo tras UNA epoca a LR de warmup (~0.0033). El entrenamiento degrado desde la epoca 2 (val mAP50-95 0.084 -> 0.018) y la recuperacion que siguio al decay del LR se estanco en ~0.03 sin pendiente de retorno. Junto al run 1167864 (optimizer=auto, submuestreado), los dos regimenes de full FT probados quedan acotados por ambos lados y ninguno se acerca al linear probing de T1 (0.190 interno) sobre los mismos datos."
+  },
+  "arms_evaluated": {
+    "in_domain": {
+      "run": "finetuning/runs/t2_yoloe26s_tuned_bench_v3",
+      "run_id": "run_20260821_150015_dbe_yoloe_deterministic",
+      "coverage": "6477/6477 imagenes, 0 drops, 0 errores, 41729 detecciones, 197 s",
+      "evaluation": "finetuning/runs/t2_yoloe26s_tuned_bench_v3/eval (evaluate_t1_bench_v3.py --arm tuned, insumos congelados verificados por sha256)",
+      "one_shot_consumed": true,
+      "last_arm_against_bench_v3": true
+    },
+    "open_vocabulary_retention": {
+      "run": "finetuning/runs/t2_coco_retention_tuned",
+      "run_id": "run_20260821_150437_dbe_yoloe_deterministic",
+      "coverage": "5000/5000 imagenes, 80/80 clases, 0 drops, 0 errores, 20511 detecciones, 117 s",
+      "evaluation": "finetuning/runs/t2_coco_retention_tuned/eval (evaluate_t2_coco_retention.py --arm tuned, GT y prompt set verificados por sha256)",
+      "one_shot_consumed": true
+    }
+  },
+  "gates": {
+    "gain": {
+      "rule": "either",
+      "reference": "baseline zero-shot (NO T1)",
+      "target_class": "bare_head",
+      "ap50_delta": {
+        "baseline": 0.0,
+        "tuned": 0.0909,
+        "delta_absolute": 0.0909,
+        "threshold": 0.05,
+        "passes": true
+      },
+      "recall_rescue": {
+        "metric": "cr01_recall_count_weighted",
+        "baseline": 0.0002,
+        "tuned": 0.0055,
+        "required": "de <0.1 a >0.5",
+        "passes": false
+      },
+      "verdict": "PASA (por la via del delta AP50; la regla es either)",
+      "caveat_per_stratum": "la ganancia vive SOLO en shel5k (AP50 0.0909, n_det 99 sobre 6181 GT); en bench_obra_test y bench_obra_val bare_head quedo en 0.0 y CR-01 bench_obra detecto 0/60 violadores"
+    },
+    "retention_in_domain": {
+      "max_relative_regression": 0.1,
+      "scope": "bench_v3 agregado",
+      "series": {
+        "person": { "baseline": 0.7843, "tuned": 0.3943, "relative": -0.4973, "passes": false },
+        "helmet": { "baseline": 0.6286, "tuned": 0.3734, "relative": -0.406, "passes": false },
+        "vest":   { "baseline": 0.2642, "tuned": 0.0909, "relative": -0.6559, "passes": false },
+        "mAP50":  { "baseline": 0.419275, "tuned": 0.237375, "relative": -0.4338, "passes": false }
+      },
+      "verdict": "FALLA en las cuatro series protegidas"
+    },
+    "retention_open_vocabulary": {
+      "baseline_map50": 0.434676,
+      "no_go_threshold_map50": 0.391208,
+      "tuned_map50": 0.124731,
+      "relative_erosion": -0.713,
+      "passes": false,
+      "verdict": "FALLA — erosion del 71.3%, siete veces el tope del 10%",
+      "note": "es A LA VEZ la medicion central del tier (completa la curva): una epoca de full FT a LR de warmup ya erosiona el 71% del mAP50 open-vocabulary"
+    },
+    "latency": {
+      "measured": false,
+      "reason": "dos gates de retencion ya fallan y la latencia no puede revertir el veredicto (mismo criterio que en T1). Medible a pedido como dato descriptivo: sesion pareada de los tres brazos con corriente, post-warmup (el protocolo la declara ahora si medible)."
+    }
+  },
+  "verdict": {
+    "result": "NO-GO",
+    "failed_gates": ["retention_in_domain", "retention_open_vocabulary"],
+    "passed_gates": ["gain"],
+    "preregistered_expectation_was": "gain probablemente PASA - retencion in-domain en riesgo - erosion OV probablemente sustancial - overall NO-GO probable",
+    "expectation_confirmed": true,
+    "checkpoint_adopted": false,
+    "checkpoint_disposition": "catalogo yoloe-26s-ft-t2 y peso promovido se conservan SOLO para reproducir la evaluacion; el modelo de servicio sigue siendo el campeon zero-shot"
+  },
+  "capacity_retention_curve": {
+    "note": "el valor declarado del tier (D-FT-14/15): tres puntos, mas capacidad entrenable compra mas bare_head pagando destruccion in-domain y OV creciente. El punto T2 se reporta SIEMPRE con el caveat de entrenamiento colapsado (best_epoch=1).",
+    "points": [
+      { "arm": "baseline", "trainable_params": 0, "bare_head_ap50": 0.0, "bench_map50": 0.419275, "coco_ov_map50": 0.434676, "cr01_recall": 0.0002 },
+      { "arm": "T1 (linear probing)", "trainable_params": 3096, "bare_head_ap50": 0.0455, "bench_map50": 0.417075, "coco_ov_map50": null, "coco_ov_note": "no medible: head fusionado D-FT-08 sin interfaz de texto", "cr01_recall": 0.2089, "person_regression": -0.1162 },
+      { "arm": "T2 (full FT, best=ep1)", "trainable_params": 10350308, "bare_head_ap50": 0.0909, "bench_map50": 0.237375, "coco_ov_map50": 0.124731, "cr01_recall": 0.0055, "person_regression": -0.4973 }
+    ],
+    "answer_to_preregistered_question": "el fallo de T1 NO es artefacto de capacidad del linear probing: con x3343 de capacidad, dos regimenes de optimizador (auto submuestreado en 1167864; SGD estandar en 1167982) empeoran el resultado en toda linea salvo bare_head. El trade-off ganancia/retencion es estructural, dominado por el volumen de datos (2.946 imagenes de train para 10.35M parametros)."
+  },
+  "reporting_caveats": [
+    "Rama comparativa: estas cifras no se funden con el nucleo zero-shot ni van a results/.",
+    "No se comparan con la tabla historica del doc 64 (protocolo distinto).",
+    "La retencion OV es una vara INTERNA: no compararla con benchmarks COCO publicados.",
+    "Reportar bare_head por estrato: la ganancia agregada proviene integramente de shel5k.",
+    "Declarar la secuencia real: NO-GO de T1 -> enmienda D-FT-14 -> margenes D-FT-15 -> submuestreo de 1167864 -> enmienda D-FT-16 (pre-resultado) -> RUN 1167982 -> NO-GO. Nunca presentar T2 como reintento de T1.",
+    "Un resultado negativo es resultado, no fracaso (ADR-017); las tres expectativas pre-registradas se confirmaron."
+  ]
+}

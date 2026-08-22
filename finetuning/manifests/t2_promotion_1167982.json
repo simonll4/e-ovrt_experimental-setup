@@ -1,0 +1,91 @@
+{
+  "schema_version": "eovrt.t2-promotion.v1",
+  "task_id": "T-FT-065",
+  "created_at": "2026-08-21T15:05:00+00:00",
+  "status": "promoted_to_media_plane",
+  "decision_reference": "D-FT-14 (enmienda de escalera) + D-FT-15 (márgenes, 2026-08-17) + D-FT-16 (optimizador explícito desde peso base, 2026-08-18)",
+  "source": {
+    "cluster": "Mendieta (CCAD-UNC), cluster ivb, particion multi, nodo ivb14",
+    "slurm_job_id": "1167982",
+    "job_state": "COMPLETED",
+    "elapsed": "00:26:10",
+    "epochs_completed": 16,
+    "epoch_evidence": {
+      "early_stopped": true,
+      "hit_ceiling": false,
+      "max_epochs": 60,
+      "patience": 15,
+      "best_epoch": 1,
+      "best_metric": "metrics/mAP50-95(B)",
+      "best_value": 0.08436,
+      "reading": "EarlyStopping en 16/60: ninguna epoca supero a la 1 en 15 epocas de patience. El mejor checkpoint es el MENOS entrenado (1 epoca, LR todavia en warmup ~0.0033): el full FT a lr0=0.01 degrada desde la epoca 2 y la recuperacion que sigue al decay del LR se estanca en ~0.03, sin pendiente hacia el 0.084 de la epoca 1."
+    },
+    "remote_run_directory": "~/eovrt-finetuning/t2-yoloe26s-20260817/runs_v2/v2-1167982",
+    "local_backup": "finetuning/weights/finetuned/full-1167982/",
+    "local_backup_manifest": "finetuning/weights/finetuned/full-1167982/MANIFEST.sha256 (27 archivos, sha256sum -c limpio)",
+    "remote_run_manifest": {
+      "path": "finetuning/weights/finetuned/full-1167982/eovrt_run_manifest.json",
+      "schema_version": "eovrt.t2-v2-run.v1",
+      "status": "succeeded",
+      "open_vocabulary_check": "open_vocabulary_preserved (savpe presente, text path presente, probe 6 clases)",
+      "trainable_contract": "390 tensores / 10.350.308 params entrenados; congelados model.23.reprta.*+savpe.* (42 / 3.426.528) — contrato exacto del protocolo"
+    }
+  },
+  "checkpoint": {
+    "filename": "best.pt",
+    "sha256": "a3c482acdca1ad5f6ce03978b0e4737e307f47b3a42f3ac3b8271ac4d9c16eea",
+    "size_bytes": 28029823,
+    "selected_by": "mejor mAP50-95 sobre finetuning_v1/val (epoca 1, 0.08436; seleccion automatica de ultralytics, politica D-FT-01)",
+    "excluded_candidate": "last.pt (sha256 2b70ba8ba00d06bbff19119e3d996e63315b41f5ce487ae63aa9fd7bc0f9b3d1) se conserva para auditoria y NUNCA se evalua como segundo candidato",
+    "license_spdx": "AGPL-3.0",
+    "license_note": "heredada del peso base y del trainer; uso local/academico, sin redistribucion (license_registry.md, 2026-08-15)"
+  },
+  "destination": {
+    "repository": "e-ovrt_media-plane",
+    "repository_relative_path": "models/yoloe/finetuned/t2/best.pt",
+    "sha256_after_copy": "a3c482acdca1ad5f6ce03978b0e4737e307f47b3a42f3ac3b8271ac4d9c16eea",
+    "sha256_preserved": true,
+    "git_ignored_by": ".gitignore models/**/*.pt"
+  },
+  "catalog": {
+    "repository": "e-ovrt_media-plane",
+    "repository_relative_path": "configs/models/yoloe/yoloe-26s-ft-t2.yaml",
+    "sha256": "e66ba1bc9da82de941facf5f6b45dd430d85795beb0c88a5a7da350c2a6bf23f",
+    "model_ref": "yoloe/yoloe-26s-ft-t2",
+    "serving_contract": "open-vocabulary via set_classes con las frases congeladas del protocolo (t2_yoloe26s_protocol.json §serving, inherits_d_ft_08=false) — espejo del brazo baseline, SIN fixed_vocabulary"
+  },
+  "prerequisites": {
+    "note": "regla 7 de finetuning/README.md: no promover sin integridad, binding de clases y serving smoke",
+    "integrity": {
+      "passed": true,
+      "evidence": "sha256 y size_bytes de best.pt/last.pt/results.csv coinciden con eovrt_run_manifest.json emitido por el postcheck remoto; re-verificados tras la transferencia local (tar sha256 73a9a8224c0770ea9d59ab81924c85fb514c70b08a7aeaa5fbaec7e38d01a4a0 identico en ambos extremos)"
+    },
+    "class_binding": {
+      "passed": true,
+      "checkpoint_names_ordered": ["person", "helmet", "vest", "bare head"],
+      "required_by_protocol": ["person", "helmet", "vest", "bare head"],
+      "evidence": "torch.load del checkpoint; names == {0: person, 1: helmet, 2: vest, 3: bare head}; train_args confirma optimizer=SGD lr0=0.01; interfaz OV presente en el state_dict (68 tensores savpe, 4 reprta)"
+    },
+    "serving_smoke": {
+      "passed": true,
+      "mode": "run offline DBE single-host via run_pipeline (mismo camino que los brazos del protocolo)",
+      "run_id": "run_20260821_145928_dbe_yoloe_deterministic",
+      "resolved_device": "cuda",
+      "images": 2,
+      "detections": 4,
+      "detection_prompt_ids": ["helmet", "person"],
+      "errors": 0,
+      "prompts": "cr01_cr02_bench_v2 (sha256 98f6e4636e3e5afdaf99566a77e8255da41926411626debebe32e7a88686bad5, identico al congelado del protocolo), active_ids [person, helmet, vest, bare_head] via set_classes",
+      "note": "smoke tecnico sobre 2 imagenes: NO consume el brazo one-shot ni produce cifra citable"
+    },
+    "media_plane_revision": "ee7a6af0e753e4c6a58d274fdb7362a1c8dc77cf",
+    "media_plane_dirty": true,
+    "media_plane_dirty_detail": "unico cambio: configs/models/yoloe/yoloe-26s-ft-t2.yaml (el catalogo de esta promocion, untracked)"
+  },
+  "next": {
+    "task_id": "T-FT-066",
+    "action": "corrida unica del brazo tuned sobre bench_v3 (6.477 imgs) + evaluate_t1_bench_v3.py --arm tuned; corrida unica de retencion OV sobre COCO val2017 (5.000 imgs) + evaluate_t2_coco_retention.py --arm tuned; go/no-go D-FT-15",
+    "one_shot": true,
+    "gate": "D-FT-15 (margenes firmados 2026-08-17, antes de cualquier resultado tuned; expectativa pre-registrada: NO-GO probable)"
+  }
+}
