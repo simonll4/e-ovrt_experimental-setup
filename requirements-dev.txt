@@ -18,6 +18,7 @@
 #   .venv/bin/python -m pytest tests/                 ->  88 passed
 #   .venv/bin/python -m pytest finetuning/tests/      ->  46 passed
 #   cd webconsole/backend && ../../.venv/bin/python -m pytest  ->  643 passed
+#       (✎ 2026-08-28: 668 recolectados con --collect-only; 643 era la foto del 08-15 — docs/operacion/130)
 #
 # Los tres hermanos van en editable: la suite ejercita el código vivo de cada plano,
 # no una copia. Asume el layout de repos hermanos en disco (ver CLAUDE.md del workspace).

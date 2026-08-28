@@ -86,6 +86,19 @@ probado.
 † Las latencias p50 provienen de la matriz sobre el BENCH v2 (196 imgs, doc 64), no
 se re-midieron sobre `bench_v3`.
 
+> ✎ **2026-08-28 — dos precisiones sobre esta tabla (`docs/operacion/130`, R-04 y R-11).**
+> (a) **El `n=5.313` del recall CR-01 es el del GT del 2026-07-23**; con el GT vigente
+> `person_gt_bench_obra.json` (fix del 2026-07-29: 60 violadores en `bench_obra` en vez de
+> 65) el denominador sería 5.308. La medición **no se repitió**: la cifra se cita fechada.
+> (b) **La comparación de resolución S1/S2 en `tiny` no está a umbral igual**: `gdino-tiny`
+> (800 px) corrió a `box_threshold` 0,35 y `gdino-tiny-560` a 0,30 (catálogos
+> `configs/models/grounding-dino/gdino-tiny.yaml` y `gdino-tiny-560.yaml` del media-plane;
+> así en todas las corridas). El par `gdino-base`/`gdino-base-560` sí está a 0,30 en ambos.
+> Por eso "560 px iguala o mejora el mAP de 800 px" en `tiny` está **confundido con el
+> umbral** (léase "560 @0,30 ≥ 800 @0,35"); el mAP50 0,551 del campeón sigue siendo el dato
+> de la combinación (560 · 0,30 · text 0,25), y el **−24 % de latencia no depende del
+> umbral**.
+
 **El campeón se sostiene en las dos escalas** — `gdino-tiny-560` gana mAP50 tanto en
 el núcleo curado (147) como en el bench completo (6.477): **es robusto a la fuente**,
 no un artefacto del denominador chico.
@@ -115,7 +128,9 @@ no un artefacto del denominador chico.
 2. **`gdino-base-560` es el especialista, con rol acotado, en dos ejes:**
    **`bare_head` (evidencia de CR-01)** — casi empate en `bench_obra` (0,400 vs
    0,369, n=65) que **se separa con claridad al sumar `shel5k`** (0,599 vs 0,308,
-   n=5.313): no era ruido de denominador chico, es un efecto real — **y `vest`
+   n=5.313 — ✎ 2026-08-28: GT del 2026-07-23; con el GT vigente `person_gt_bench_obra.json`
+   del 07-29 el denominador es 5.308; la medición no se repitió, `docs/operacion/130`): no
+   era ruido de denominador chico, es un efecto real — **y `vest`
    (CR-02)** (0,582 vs 0,520 en `bench_obra`; en video, SDR CR-02 0,281→0,920 — T2).
    (✎ 2026-08-06: *la etiqueta anterior "especialista CR-02/`bare_head`" mezclaba
    los dos ejes* — `bare_head` es evidencia de CR-01, no de CR-02.)

@@ -19,6 +19,33 @@ sólo para reproducir la evaluación. Negativo **pre-registrado**: es resultado,
 (ADR-017). Artefactos: `runs/t1_yoloe26s_tuned_bench_v3/eval/` y
 `manifests/t1_{promotion,go_no_go}_1167640.json`.
 
+> ✎ **2026-08-28 — la jornada E-04 está COMPLETA: T2 NO-GO (2026-08-21) y T3 cerrado con causa
+> técnica** (`docs/operacion/127` y `128`; anotado acá porque este encabezado cerraba en T1 —
+> `docs/operacion/130`). **T2** (full fine-tuning YOLOE-26s, job `1167982`, enmienda **D-FT-16**:
+> SGD lr0=0,01 explícito tras el submuestreo `1167864` con AdamW auto — no es un reintento)
+> **colapsó en entrenamiento**: `EarlyStopping` en la época **16/60** con `best_epoch = 1`. Con
+> firma del usuario se consumieron los dos one-shot contra `bench_v3` y COCO val2017:
+> **ganancia PASA** (`bare_head` AP50 0,0000 → **0,0909**, sólo en `shel5k`; el rescate de recall
+> falla, 0,0055), **retención in-domain FALLA ×4** (`person` **−49,7 %**, `helmet` −40,6 %,
+> `vest` −65,6 %, mAP50 −43,4 %, tope 10 %) y **retención OV FALLA** (mAP50 COCO 0,4347 →
+> 0,1247, **−71,3 %**). Checkpoint **no adoptado**; constancia en
+> `manifests/t2_{promotion,go_no_go}_1167982.json`. **F-127.1: el fallo de T1 no era de
+> capacidad, es estructural — 2.946 imágenes de train frente a 10,35 M de parámetros**; la
+> curva capacidad/retención queda **completa con 3 puntos** (base · T1 · T2) y es el valor
+> declarado de la jornada. T3 quedó cerrado con causa técnica (doc `117` §2). No hay más brazos
+> contra `bench_v3` sin pre-registración nueva (acta `128` §5). Trampa de cita: T1 gana por
+> recall CR-01 (0,2089) y T2 por AP (0,0909) — no es una métrica única.
+>
+> ✎ **2026-08-28 — desviación declarada respecto de la Tabla 28 del protocolo (§17.1).** La
+> Tabla 28 acotaba el split de entrenamiento a **500–2.000 imágenes**; `finetuning_v1` usa
+> **2.946 train / 483 val** (`manifests/finetuning_v1.summary.json`), +47 % sobre el techo.
+> Causa: se tomó el **100 % de los linajes elegibles** de `construction_site_safety` (2.203) +
+> `ppe_siabar` (743) tras la deduplicación perceptual y la exclusión íntegra de las fuentes del
+> banco (`chv` excluido: sus 1.330 imágenes son estrato de `bench_v3`), sin submuestrear al
+> techo de 2.000. F-127.1 muestra que aun ese volumen es insuficiente. No estaba
+> justificada por escrito en ADR-017 / doc 100 / D-FT-11 hasta esta nota (`docs/operacion/130`,
+> R-03).
+
 > **Dos «NO-GO» distintos.** El de arriba es el **veredicto** de D-FT-12. El del histórico que
 > sigue era la **puerta de autorización** previa al envío, levantada el 2026-08-15.
 

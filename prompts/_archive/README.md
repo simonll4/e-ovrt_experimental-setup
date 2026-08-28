@@ -5,8 +5,12 @@ Sets exploratorios del **Carril 2 (E-DIR)** que no ejecuta ningún manifiesto de
 (`prompts/*.yaml`) solo con lo que está en uso o a punto de usarse:
 
 - `cr01_cr02_bench_v2` — **frozen**, protocolo BENCH v2 (12 manifiestos).
+  ✎ 2026-08-28: el YAML dice `status: exploratory` — **no está congelado**
+  (`docs/operacion/130`).
 - `cr01_cr02_v2_short` — **frozen**, demos/smoke (7 manifiestos).
 - `eind_v1` — **frozen_pending_review**, núcleo E-IND, espera acta para congelarse.
+  ✎ 2026-08-28: **`frozen`** desde el 2026-07-29 por acta (`docs/operacion/76`); el YAML
+  ya lo dice (`docs/operacion/130`).
 
 `prompt_store` (BFF) y la resolución de `prompts.ref` del media-plane leen solo el
 top-level de `prompts/`, así que estos archivados **no aparecen en el catálogo ni son

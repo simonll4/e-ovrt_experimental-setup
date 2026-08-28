@@ -36,9 +36,13 @@ self-contained, y este repo es la única fuente de verdad de los experimentos.
 
 ```
 prompts/                         # prompt sets — el vocabulario open-vocabulary del experimento
-  cr01_cr02_v2_short.yaml         # exploratory: 3 clases (person/helmet/vest)
+  cr01_cr02_v2_short.yaml         # frozen (✎ 2026-08-28; antes decía exploratory): 3 clases (person/helmet/vest)
   cr01_cr02_bench_v2.yaml         # exploratory BENCH v2: 4 clases (+ bare_head)
-  eind_v1.yaml                    # frozen_pending_review: núcleo E-IND, deriva de v2_short
+  eind_v1.yaml                    # frozen (✎ 2026-08-28; antes frozen_pending_review): núcleo E-IND, deriva de v2_short
+  edir_v1.yaml                    # frozen: carril comparativo E-DIR (✎ 2026-08-28: faltaba en este layout)
+  cr01_cr02_v2_safety_vest.yaml   # exploratory: A/B del phrasing de vest (✎ 2026-08-28)
+  clase_nueva_v1.yaml             # exploratory (✎ 2026-08-28)
+  coco_val2017_80.yaml            # frozen: 80 clases COCO para retención OV del tier T2 (✎ 2026-08-28)
   _archive/                       # sets exploratorios sin manifiesto activo (ver README propio)
 experiments/                     # manifiestos de corrida (un experimento por archivo o carpeta)
   mock.yaml  mock_chv.yaml         # smoke / dev (detector mock, sin pesos)
@@ -69,6 +73,9 @@ README.md
 ```
 
 - `webconsole/` — consola web (BFF FastAPI + SPA React), cliente del servicio media-plane. Ver `webconsole/README.md`.
+  ✎ 2026-08-28: cliente HTTP de **los tres servicios** — media-plane `:8080`, control-plane
+  `:8081` y distribución `:8082` (como ya dice §4; `docs/operacion/130`). Nunca consume el bus
+  ZeroMQ directamente.
 
 Detalle profundo de cada pieza en [`docs/prompt-sets.md`](docs/prompt-sets.md) y
 [`docs/experiments.md`](docs/experiments.md).
@@ -114,6 +121,10 @@ solo intérprete** — que era justamente lo que faltaba:
 .venv/bin/python -m pytest finetuning/tests/                 #  46 passed
 cd webconsole/backend && ../../.venv/bin/python -m pytest    # 643 passed
 ```
+
+✎ 2026-08-28: el "643 passed" del BFF es la foto del 2026-08-15; hoy se recolectan **668**
+tests (`--collect-only`, +25 tras `14f9e01` y `288c5dd`; `docs/operacion/130`). Los otros dos
+conteos (88 / 46) siguen vigentes.
 
 `requirements-dev.txt` instala **en editable**: `e-ovrt_alert-distribution` (extra
 `mqtt`), `e-ovrt_control-plane` y el backend de la webconsole
@@ -187,7 +198,9 @@ Las salidas (`detections.jsonl`, `summary.json`, `metrics.jsonl`, previews) se e
 
 ## 5. Qué hay desarrollado actualmente
 
-**Prompt sets — catálogo activo (5)** — metodología, taxonomía de ejes y ciclo de vida en
+**Prompt sets — catálogo activo (5)** (✎ 2026-08-28: son **7** YAML activos en `prompts/` — a
+los 5 listados abajo se suman `clase_nueva_v1` (`exploratory`) y `coco_val2017_80` (`frozen`,
+retención OV del tier T2); `docs/operacion/130`) — metodología, taxonomía de ejes y ciclo de vida en
 [`docs/prompt-strategy.md`](docs/prompt-strategy.md); formato y detalle de cada set en
 [`docs/prompt-sets.md`](docs/prompt-sets.md) §4 (actualizado 2026-07-29):
 - **`cr01_cr02_v2_short`: `frozen`** (set del rodaje y del bench, `frozen_sha256` en el YAML).
@@ -208,7 +221,11 @@ actualizada; resumen:
 - 2 corridas sobre video local con salida de video anotado (`video_annotated` con YOLOE-26s,
   `video_annotated_gdino` con GDINO-tiny).
 - Matriz **`bench_v2/`**: 6 modelos (GDINO t/b, MM-GDINO t/b, YOLOE 26s/26l) × 2 splits (val/test)
-  = 12 manifiestos, para evaluación contra el BENCH v2.
+  = 12 manifiestos, para evaluación contra el BENCH v2. ✎ 2026-08-28: **MM-GDINO está
+  archivado** en el media-plane (`configs/_archive/`, 2026-08-19), así que los 4 manifiestos
+  `*mmgdino*` ya no resuelven; la matriz queda como registro histórico del Sprint 2. Ídem
+  `mock_chv` y `video_annotated*` (datasets `chv`/`video_sample` retirados del catálogo);
+  ver `docs/experiments.md` §"Catálogos disponibles" (`docs/operacion/130`).
 
 Estado validado (2026-06-30): corridas reales two-node con YOLOE-26s (1330 imgs) y GDINO-tiny,
 0 errores, binding canónico correcto.
@@ -242,7 +259,10 @@ patrones de riesgo en el control-plane (hoy CR-01/CR-02, set `cr01_cr02_v2`).
 ## 9. Versionado
 
 Se commitean prompt sets, manifiestos y documentación (texto). **No** se commitean los directorios
-originales de corridas (`runs/`, que viven en los planos hermanos). La única excepción es el
+originales de corridas (`runs/`, que viven en los planos hermanos). ✎ 2026-08-28: matiz — este
+repo **sí tiene su propio `runs/`** (gitignorado): el consolidado por experimento de ADR-014
+(`runs/exp_<id>/…`, 339 directorios al 2026-08-28), que agrupa por referencia lo que los planos
+escriben. Sigue sin versionarse (`docs/operacion/130`). La única excepción es el
 archivo generado [`results/evidence-runs/`](results/evidence-runs/README.md): contiene solo la
 copia textual curada de los runs citados por resultados DBE/EBE y excluye imágenes, video,
 previews, presets y secretos. Su inventario canónico está en

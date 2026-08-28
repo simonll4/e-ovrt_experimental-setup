@@ -69,6 +69,17 @@ en la config del control, la distribución lee 0 alertas aunque el control produ
 El orden de suscripción se conserva (distribución antes que control, control antes
 que media — PUB/SUB pierde lo anterior a la suscripción).
 
+> ✎ **2026-08-28 — corrección del orden (`docs/operacion/130`, R-01).** El orden literal
+> del párrafo anterior **no es el que ejecuta el runner**
+> (`webconsole/backend/src/eovrt_webconsole/experiment/runner.py:1095-1149`): lanza
+> **primero el control** (con `alert_bus.enabled: true` y `wait_for_subscriber_ms ≥ 10 s`),
+> **después la distribución** (`POST :8082/api/runs`, que necesita el `control_run_id`) y
+> **al final el media**. La no-pérdida en `:5558` no la garantiza la secuencia sino el
+> handshake XPUB del publicador (`wait_for_subscriber` en el control-plane: no publica
+> hasta ver al suscriptor o agotar la espera). Lo que sigue siendo obligatorio es que el
+> consumidor del bus de detecciones (`:5557`, el control) esté suscripto **antes** de
+> disparar el media.
+
 ## Operación
 
 - La consola ejecuta `docker compose --project-name eovrt up -d --no-build <instancia>`

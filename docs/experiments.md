@@ -94,6 +94,14 @@ Reglas del formato, verificadas contra los manifiestos reales:
   de la suscripción. El runner dispara primero los consumidores (si hay distribución,
   primero `POST :8082/api/runs`; después el control con `mode: live`, cuyo OK implica
   `subscribed=True`) y **recién al final** el media con `bus.enabled: true`.
+  ✎ **2026-08-28 (`docs/operacion/130`, R-01): el paréntesis anterior está vencido.** El
+  orden que ejecuta el runner (`runner.py:1095-1149`) es **control → distribución →
+  media**: primero el control con `mode: live`, `alert_bus.enabled: true` y
+  `wait_for_subscriber_ms ≥ 10 s`; después la distribución (`POST :8082/api/runs`, que
+  necesita el `control_run_id` recién creado); al final el media. La no-pérdida de alertas
+  en `:5558` la garantiza el handshake XPUB del publicador (el control espera al suscriptor
+  antes de publicar), no la secuencia literal. Lo invariante es "control antes que media"
+  (bus de detecciones `:5557`).
 - **Dos buses ZeroMQ**: detecciones en `:5557` (media XPUB → control SUB) y alertas en
   `:5558` (control XPUB → distribución SUB). Ojo: `alert_bus.enabled` del control-plane
   es `False` por default — sin habilitarlo, la distribución lee 0 alertas.
@@ -120,6 +128,10 @@ Reglas del formato, verificadas contra los manifiestos reales:
 
 12 manifiestos = **6 modelos × 2 splits** (val/test), todos sobre el set congelado
 `cr01_cr02_bench_v2` (4 clases) y device `cuda`. Sirven para evaluar percepción contra el BENCH v2.
+✎ 2026-08-28: `cr01_cr02_bench_v2` tiene `status: exploratory` en su YAML — **no está
+congelado**; y los 4 manifiestos `b2_g_e{5,6}_mmgdino_*` ya no resuelven (MM-GDINO archivado
+en el media-plane el 2026-08-19). Esta matriz es **registro histórico** del Sprint 2, no una
+matriz ejecutable hoy (`docs/operacion/130`).
 
 ### Convención de naming
 
@@ -199,3 +211,13 @@ decisión en Fase 2 (docker-compose de dos nodos).
   `mm-grounding-dino/*`, `yoloe/{yoloe-26s,-26m,-26l,-26x}`, `mock`.
 - **Datasets** (`configs/datasets/`): `demo_v2`, `chv`, `bench_v2_val`, `bench_v2_test`,
   `video_sample`. (Apuntan a `../e-ovrt_datasets/...`; correr desde la raíz del media-plane.)
+
+> ✎ **2026-08-28 — catálogo vigente vs manifiestos huérfanos (`docs/operacion/130`).**
+> Hoy el media-plane tiene en `configs/models/` `grounding-dino/{gdino-tiny,gdino-base,
+> gdino-tiny-560,gdino-base-560}`, `yoloe/*` y `mock`; **`mm-grounding-dino/*` está
+> archivado** (`configs/_archive/`, 2026-08-19). En `configs/datasets/` sólo quedan
+> `bench_v2_test`, `bench_v2_val` y `demo_v2`: **`chv` y `video_sample` ya no existen**.
+> Por eso los manifiestos `experiments/mock_chv.yaml` (`source.ref: chv`),
+> `experiments/video_annotated.yaml` y `video_annotated_gdino.yaml` (`video_sample`) y los
+> 4 `experiments/bench_v2/b2_g_e{5,6}_mmgdino_*.yaml` **no resuelven contra el catálogo**:
+> son registro histórico de sus corridas, no manifiestos ejecutables.
