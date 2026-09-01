@@ -69,6 +69,17 @@ acá con sus números, para que la exclusión no sea una afirmación sin dato:
 Fuente: doc 64 (BENCH v2, 196 imgs — sin `metrics.json` mecánico; verificado a mano
 2026-08-14).
 
+> ✎ **2026-09-01 (`docs/operacion/131`): dos celdas de "Por qué no siguió" quedan
+> precisadas; los descartes SIGUEN VÁLIDOS.** (a) `mm-gdino-large` **no** "reproduce el
+> bug" de la tiny: sus cajas tienen geometría normal (las 2–3 del sanity-check son
+> casi-degeneradas de lado ≤3 px y no explican el mAP 0,017) y están **mal ubicadas y
+> apaisadas** — es **otra falla** (mislocalización), verificada sobre los `detections.jsonl`
+> supervivientes de estas mismas corridas. (b) `mm-gdino-tiny` **sí se re-midió** el
+> 2026-09-01 (geometría, fuera del banco): la degeneración **reproduce** con `transformers`
+> puro, sin código del proyecto y con hash verificado contra el hub — el defecto es **del
+> checkpoint publicado**, no de un adaptador propio. Redacción segura para el informe:
+> `operacion/131` §5.
+
 **Lectura de esta tabla, en una línea:** de los 6 descartes, **3 son por dominancia
 medida** dentro de su propia familia (las dos variantes 800 y las tallas menores de YOLOE),
 **2 por defecto técnico verificado** (MM-GDINO large y tiny, bboxes degeneradas) y **1 por
