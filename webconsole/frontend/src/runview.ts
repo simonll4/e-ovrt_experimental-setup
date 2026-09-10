@@ -1,4 +1,4 @@
-import type { BadgeTone } from './types'
+import type { BadgeTone, RunSummary } from './types'
 
 export function isLive(run: { status: string; live?: boolean }): boolean {
   // live=true solo lo emite el servicio para SU run activo en memoria — el único
@@ -7,9 +7,8 @@ export function isLive(run: { status: string; live?: boolean }): boolean {
   return run.status === 'running' && run.live === true
 }
 
-export function topologyBadge(summary: Record<string, unknown> | undefined): string | null {
-  const desc = summary?.run_descriptor as Record<string, unknown> | undefined
-  const topo = desc?.topology
+export function topologyBadge(summary: RunSummary | undefined): string | null {
+  const topo = summary?.run_descriptor?.topology
   if (topo === 'two_node') return 'dos equipos'
   if (topo === 'single_host') return 'un solo equipo'
   return null
@@ -76,10 +75,20 @@ export function parseRunIdDate(runId: string): Date | null {
  * Normalizar a número es obligatorio antes de ordenar: comparados como texto,
  * `"run_2026…"` queda por encima de `"2026-07-25T…"` —empieza con 'r'— y las
  * corridas más nuevas terminan enterradas en la última página.
+ *
+ * `created_at` viaja siempre desde el BFF y es la fuente preferida; el propio
+ * backend lo reconstruye del identificador cuando la corrida no llegó a
+ * persistir su `started_at`. Los otros dos caminos quedan como respaldo para
+ * respuestas viejas en caché.
  */
-export function createdAtMs(run: { run_id: string; started_at?: string | null }): number | null {
-  if (run.started_at) {
-    const t = new Date(run.started_at).getTime()
+export function createdAtMs(run: {
+  run_id: string
+  created_at?: string | null
+  started_at?: string | null
+}): number | null {
+  for (const iso of [run.created_at, run.started_at]) {
+    if (!iso) continue
+    const t = new Date(iso).getTime()
     if (Number.isFinite(t)) return t
   }
   return parseRunIdDate(run.run_id)?.getTime() ?? null
@@ -87,7 +96,7 @@ export function createdAtMs(run: { run_id: string; started_at?: string | null })
 
 /** Antigüedad legible. `now` es inyectable para que los tests no dependan del reloj. */
 export function hace(
-  run: { run_id: string; started_at?: string | null },
+  run: { run_id: string; created_at?: string | null; started_at?: string | null },
   now: number = Date.now(),
 ): string {
   const ms = createdAtMs(run)
