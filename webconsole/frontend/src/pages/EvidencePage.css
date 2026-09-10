@@ -1,0 +1,8 @@
+.eo-evidence { min-width: 0; overflow-wrap: anywhere; }
+.eo-evidence__indices { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); }
+.eo-evidence .eo-table { table-layout: fixed; }
+.eo-evidence .eo-card { margin-bottom: var(--space-4); min-width: 0; }
+.eo-evidence pre { white-space: pre-wrap; overflow-wrap: anywhere; max-height: 600px; overflow-y: auto; }
+.eo-evidence details { margin: var(--space-3) 0; }
+.eo-evidence summary { cursor: pointer; }
+@media (max-width: 1000px) { .eo-evidence__indices { grid-template-columns: minmax(0, 1fr); } }

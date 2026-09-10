@@ -12,12 +12,16 @@ import PlatformPage from './pages/PlatformPage'
 import PromptSetsPage from './pages/PromptSetsPage'
 import RunDetailPage from './pages/RunDetailPage'
 import RunsPage from './pages/RunsPage'
+import EvidencePage from './pages/EvidencePage'
 
 export default function App() {
   return (
     <Shell>
       <Routes>
         <Route path="/" element={<RunsPage />} />
+        <Route path="/evidencia" element={<EvidencePage />} />
+        <Route path="/evidencia/resultado" element={<EvidencePage />} />
+        <Route path="/evidencia/run" element={<EvidencePage />} />
         <Route path="/compose" element={<ComposePage />} />
         <Route path="/catalog" element={<CatalogPage />} />
         <Route path="/compare" element={<ComparePage />} />

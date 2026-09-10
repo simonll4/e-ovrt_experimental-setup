@@ -16,6 +16,7 @@ cameras/
 # copia de evidencia (120 MB): excepción de versionado declarada en README §Runs de evidencia
 results/evidence-runs/*
 !results/evidence-runs/consola.yaml
+!results/evidence-runs/titulos.yaml
 
 # videos de defensa: media derivada, se regenera con defensa/armar_videos.py
 defensa/videos/

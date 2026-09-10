@@ -120,3 +120,32 @@ Tres garantías, no negociables:
 La consola nunca commitea: todos los cambios (crear, editar, borrar, freeze, derive)
 quedan como working tree del repo — para revisión y `git commit` del usuario, no
 automático.
+
+## Vista Evidencia
+
+`/evidencia` es el primer destino de Trabajo; `/` sigue abriendo Corridas.
+El índice agrupa los resultados por el prefijo de `result_id`, con una página de
+corridas por resultado ordenada por rol y un detalle del summary congelado.
+La sección y su barra lateral no consultan servicios de los planos.
+
+El BFF lee `results/evidence-runs/collections/*.csv`, el archivo textual bajo
+`artifacts/` y los motivos de `resolved-runs.json`. Los documentos de procedencia
+se toman del manifiesto canónico y de las campañas, sin usarlos para cambiar la
+selección ni los conteos de los CSV. `shared` conserva pertenencias múltiples;
+nunca se convierte en un índice.
+
+- `GET /api/evidencia`: índices y resultados con conteos.
+- `GET /api/evidencia/resultado?id=clip_bench%2F…&page=1&page_size=25`:
+  relaciones paginadas, con rol, fuente, estado y disponibilidad del original.
+- `GET /api/evidencia/run?plane=media-plane&run_id=…`: summary preservado.
+  Para `archived_only`, muestra el motivo y los sustitutos; si un sustituto
+  conserva un summary con la identidad exacta, lo muestra sin recalcularlo.
+
+`result_id` siempre viaja por query. El original se verifica sólo en disco.
+Los enlaces vivos de medios salen de la vista curada y requieren el servicio.
+
+El usuario redacta los títulos en `results/evidence-runs/titulos.yaml`:
+35 entradas iniciales con `titulo:` vacío y etiqueta mecánica. Un título vacío
+usa la etiqueta derivada. Reiniciar la consola carga cambios del registro y de
+los títulos. Si falta la copia curada, la pantalla indica su ubicación y la capa
+de evidencia del backup (`docs/operacion/126`) desde donde restaurarla.

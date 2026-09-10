@@ -6,10 +6,10 @@ describe('NAV_GROUPS', () => {
     expect(NAV_GROUPS.map((g) => g.title)).toEqual(['Trabajo', 'Definiciones', 'Sistema'])
   })
 
-  it('cubre los 8 destinos y NO incluye /compose (es acción, no destino)', () => {
+  it('cubre los 9 destinos y NO incluye /compose (es acción, no destino)', () => {
     const tos = NAV_GROUPS.flatMap((g) => g.items.map((i) => i.to))
     expect(tos).toEqual([
-      '/', '/experiments', '/compare', '/prompts', '/catalog', '/platform', '/cameras', '/clips',
+      '/evidencia', '/', '/experiments', '/compare', '/prompts', '/catalog', '/platform', '/cameras', '/clips',
     ])
     expect(tos).not.toContain('/compose')
   })
@@ -26,6 +26,11 @@ describe('NAV_GROUPS', () => {
 })
 
 describe('crumbsFor', () => {
+  it('/evidencia resuelve por NAV_GROUPS', () => {
+    const item = NAV_GROUPS.flatMap((group) => group.items).find((entry) => entry.to === '/evidencia')!
+    expect(crumbsFor('/evidencia')).toEqual([{ to: item.to, label: item.label }])
+  })
+
   it('raíz devuelve solo Corridas', () => {
     expect(crumbsFor('/')).toEqual([{ to: '/', label: 'Corridas' }])
   })

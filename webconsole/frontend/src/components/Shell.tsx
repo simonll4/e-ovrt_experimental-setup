@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactNode } from 'react'
-import { Link, NavLink } from 'react-router-dom'
+import { Link, NavLink, useLocation } from 'react-router-dom'
 import { NAV_GROUPS } from '../nav'
 import { IconNavExperimentNew, IconPlus } from './ui/icons'
 import Breadcrumbs from './Breadcrumbs'
@@ -11,10 +11,12 @@ import { useServiceHealth, type ServiceStatus } from '../api/queries/platform'
 const COLLAPSE_KEY = 'eovrt-sidebar-collapsed'
 
 export default function Shell({ children }: { children: ReactNode }) {
+  const { pathname } = useLocation()
+  const archive = pathname === '/evidencia' || pathname.startsWith('/evidencia/')
   const [open, setOpen] = useState(false)
   const [collapsed, setCollapsed] = useState(() => localStorage.getItem(COLLAPSE_KEY) === '1')
-  const counts = useSidebarCounts()
-  const health = useServiceHealth()
+  const counts = useSidebarCounts(!archive)
+  const health = useServiceHealth(!archive)
   const close = () => setOpen(false)
 
   useEffect(() => {
@@ -114,8 +116,8 @@ export default function Shell({ children }: { children: ReactNode }) {
             </div>
           ))}
         </nav>
-        <LiveRunPill onNavigate={close} />
-        <div className="eo-sidebar__services" role="group" aria-label="Estado de los servicios">
+        {!archive && <LiveRunPill onNavigate={close} />}
+        {archive ? <div className="eo-sidebar__services">Archivo local · servicios no consultados</div> : <div className="eo-sidebar__services" role="group" aria-label="Estado de los servicios">
           <div className="eo-service" title={mediaTip}>
             <span
               className="eo-service__dot"
@@ -152,7 +154,7 @@ export default function Shell({ children }: { children: ReactNode }) {
             <code>:8082</code>
             <span className="eo-tip" aria-hidden="true" data-tip={distributionTip} />
           </div>
-        </div>
+        </div>}
       </aside>
       <div className="eo-main">
         {/* La barra superior es exclusiva de pantallas chicas: ahí la lateral se
@@ -178,7 +180,7 @@ export default function Shell({ children }: { children: ReactNode }) {
               las acompaña porque perdió su lugar al esconderse la barra. */}
           <div className="eo-crumbsbar">
             <Breadcrumbs />
-            <TargetBadge />
+            {!archive && <TargetBadge />}
           </div>
           {children}
         </main>

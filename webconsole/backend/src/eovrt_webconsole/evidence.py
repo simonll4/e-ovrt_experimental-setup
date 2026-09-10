@@ -47,6 +47,10 @@ class EvidenceRegistry:
     def es_evidencia(self, run_id: str) -> bool:
         return run_id in self._rows
 
+    def filas(self) -> list[dict]:
+        """Relaciones completas del CSV; preserva los roles y las pertenencias múltiples."""
+        return [dict(row) for rows in self._rows.values() for row in rows]
+
     def relaciones(self, run_id: str) -> list[dict]:
         keys = ("collection", "result_id", "role", "source_ref")
         return [dict(zip(keys, values)) for values in sorted({

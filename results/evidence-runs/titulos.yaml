@@ -1,0 +1,107 @@
+# El usuario redacta los títulos de defensa. Vacío usa la etiqueta derivada.
+resultados:
+  - result_id: bench_imagenes/clase_nueva
+    etiqueta: "clase nueva"
+    titulo:
+  - result_id: bench_imagenes/confirmacion_b5
+    etiqueta: "confirmacion b5"
+    titulo:
+  - result_id: bench_imagenes/gdino560
+    etiqueta: "gdino560"
+    titulo:
+  - result_id: bench_imagenes/modelos_crudos
+    etiqueta: "modelos crudos"
+    titulo:
+  - result_id: bench_imagenes/seleccion_s1
+    etiqueta: "seleccion s1"
+    titulo:
+  - result_id: bench_nivel_a/d1_gdinotiny560_edir_vs_eind
+    etiqueta: "d1 gdinotiny560 edir vs eind"
+    titulo:
+  - result_id: bench_nivel_a/edir_vs_eind
+    etiqueta: "edir vs eind"
+    titulo:
+  - result_id: bench_nivel_a/na1_gdinotiny560_v2short_video
+    etiqueta: "na1 gdinotiny560 v2short video"
+    titulo:
+  - result_id: bench_nivel_a/replica_base560
+    etiqueta: "replica base560"
+    titulo:
+  - result_id: clip_bench/b1_gdinobase560_barehead_scene
+    etiqueta: "b1 gdinobase560 barehead scene"
+    titulo:
+  - result_id: clip_bench/d1_gdinotiny560_edirpair_scene
+    etiqueta: "d1 gdinotiny560 edirpair scene"
+    titulo:
+  - result_id: clip_bench/g1_gdinotiny560_v2short_subject
+    etiqueta: "g1 gdinotiny560 v2short subject"
+    titulo:
+  - result_id: clip_bench/h1_gdinotiny560_hybor_scene
+    etiqueta: "h1 gdinotiny560 hybor scene"
+    titulo:
+  - result_id: clip_bench/i1_gdinotiny560_v2short_scene_internet
+    etiqueta: "i1 gdinotiny560 v2short scene internet"
+    titulo:
+  - result_id: clip_bench/i2_gdinotiny560_v2short_subject_internet
+    etiqueta: "i2 gdinotiny560 v2short subject internet"
+    titulo:
+  - result_id: clip_bench/r1_gdinotiny560_v2short_scene_s7
+    etiqueta: "r1 gdinotiny560 v2short scene s7"
+    titulo:
+  - result_id: clip_bench/r2_gdinotiny560_v2short_subject_s7
+    etiqueta: "r2 gdinotiny560 v2short subject s7"
+    titulo:
+  - result_id: clip_bench/r3_gdinotiny560_v2short_scene_s15
+    etiqueta: "r3 gdinotiny560 v2short scene s15"
+    titulo:
+  - result_id: clip_bench/r4_gdinotiny560_v2short_subject_s15
+    etiqueta: "r4 gdinotiny560 v2short subject s15"
+    titulo:
+  - result_id: clip_bench/r5_gdinotiny560_v2short_scene_s26
+    etiqueta: "r5 gdinotiny560 v2short scene s26"
+    titulo:
+  - result_id: clip_bench/r6_gdinotiny560_v2short_subject_s26
+    etiqueta: "r6 gdinotiny560 v2short subject s26"
+    titulo:
+  - result_id: clip_bench/t1_gdinotiny560_v2short_scene
+    etiqueta: "t1 gdinotiny560 v2short scene"
+    titulo:
+  - result_id: clip_bench/t2_gdinobase560_v2short_scene
+    etiqueta: "t2 gdinobase560 v2short scene"
+    titulo:
+  - result_id: realtime/bus_live_paridad
+    etiqueta: "bus live paridad"
+    titulo:
+  - result_id: realtime/claqueta_reloj_externo
+    etiqueta: "claqueta reloj externo"
+    titulo:
+  - result_id: realtime/decimado_empirico
+    etiqueta: "decimado empirico"
+    titulo:
+  - result_id: realtime/descarte_irregular
+    etiqueta: "descarte irregular"
+    titulo:
+  - result_id: realtime/frt5_roundtrip_pil
+    etiqueta: "frt5 roundtrip pil"
+    titulo:
+  - result_id: realtime/g2a_single_host
+    etiqueta: "g2a single host"
+    titulo:
+  - result_id: realtime/gdino560
+    etiqueta: "gdino560"
+    titulo:
+  - result_id: realtime/l0
+    etiqueta: "l0"
+    titulo:
+  - result_id: realtime/matriz_modelo_fuente
+    etiqueta: "matriz modelo fuente"
+    titulo:
+  - result_id: realtime/regresion_g1_live
+    etiqueta: "regresion g1 live"
+    titulo:
+  - result_id: realtime/rodaje_seis_corridas
+    etiqueta: "rodaje seis corridas"
+    titulo:
+  - result_id: realtime/t_alert_notification
+    etiqueta: "t alert notification"
+    titulo:

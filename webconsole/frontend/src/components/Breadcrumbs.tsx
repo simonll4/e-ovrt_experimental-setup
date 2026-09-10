@@ -2,8 +2,8 @@ import { Link, useLocation } from 'react-router-dom'
 import { crumbsFor } from '../nav'
 
 export default function Breadcrumbs() {
-  const { pathname } = useLocation()
-  const crumbs = crumbsFor(pathname)
+  const { pathname, search } = useLocation()
+  const crumbs = crumbsFor(pathname, search)
   if (crumbs.length === 0) return null
   return (
     <nav className="eo-crumbs" aria-label="Ruta de navegación">

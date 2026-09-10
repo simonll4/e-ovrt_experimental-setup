@@ -1,7 +1,7 @@
 import type { ComponentType } from 'react'
 import {
   IconNavRuns, IconNavExperiments, IconNavCompare, IconNavPrompts,
-  IconNavCatalog, IconNavPlatform, IconNavCameras, IconNavClips,
+  IconNavCatalog, IconNavEvidence, IconNavPlatform, IconNavCameras, IconNavClips,
 } from './components/ui/icons'
 
 export type NavItem = {
@@ -20,6 +20,7 @@ export const NAV_GROUPS: NavGroup[] = [
   {
     title: 'Trabajo',
     items: [
+      { to: '/evidencia', label: 'Evidencia', icon: IconNavEvidence },
       { to: '/', label: 'Corridas', icon: IconNavRuns, countKey: 'runs' },
       { to: '/experiments', label: 'Experimentos', icon: IconNavExperiments, countKey: 'experiments' },
       { to: '/compare', label: 'Comparar', icon: IconNavCompare },
@@ -48,7 +49,15 @@ const STANDALONE: Record<string, string> = {
   '/experiments/new': 'Nuevo experimento',
 }
 
-export function crumbsFor(pathname: string): NavItem[] {
+export function crumbsFor(pathname: string, search = ''): NavItem[] {
+  if (pathname === '/evidencia/resultado' || pathname === '/evidencia/run') {
+    const params = new URLSearchParams(search)
+    const id = params.get('id')
+    const crumbs = [{ to: '/evidencia', label: 'Evidencia' }]
+    if (id) crumbs.push({ to: `/evidencia/resultado?${new URLSearchParams({ id })}`, label: id })
+    if (pathname === '/evidencia/run') crumbs.push({ to: pathname + search, label: params.get('run_id') ?? 'Corrida' })
+    return crumbs
+  }
   if (STANDALONE[pathname]) return [{ to: pathname, label: STANDALONE[pathname] }]
   const runMatch = pathname.match(/^\/runs\/(.+)$/)
   if (runMatch) {

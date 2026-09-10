@@ -550,3 +550,47 @@ export interface GenerateClipResult {
   regenerated: boolean
   invalidated: string[]
 }
+export interface ArchiveState {
+  available: boolean
+  message: string | null
+}
+export interface EvidenceResult {
+  result_id: string
+  index: string
+  etiqueta: string
+  titulo: string | null
+  n_runs: number
+  n_rows: number
+  roles: Record<string, number>
+  documents: string[]
+  source_refs: string[]
+}
+export interface EvidenceIndex extends ArchiveState {
+  collections: Array<{ id: string; n_results: number; n_rows: number; results: EvidenceResult[] }>
+}
+export interface ArchivedRun {
+  run_id: string
+  plane: 'media-plane' | 'control-plane'
+  result_id: string
+  role: string
+  status: 'copied' | 'archived_only'
+  source_ref: string
+  artifact_path: string
+  reason: string | null
+  tiene_detalle_vivo: boolean
+}
+export interface EvidenceResultPage extends ArchiveState {
+  result: EvidenceResult | null
+  items: ArchivedRun[]
+  total: number
+  page: number
+  page_size: number
+}
+export interface ArchivedRunDetail extends ArchiveState {
+  run: ArchivedRun | null
+  summary: Record<string, unknown> | null
+  summary_source?: string | null
+  substitutes: Array<{ name: string; data: unknown }>
+  relations?: ArchivedRun[]
+  notice: string | null
+}

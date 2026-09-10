@@ -76,13 +76,14 @@ export function useRunsPaged(filtros: RunsFiltros, hayCorridaViva: boolean) {
  *  y lo manda en `X-Total-Count`. De acá salen la píldora de la barra lateral,
  *  su contador y el banner del listado, con una sola petición liviana.
  */
-export function useRunsEnCurso() {
+export function useRunsEnCurso(enabled = true) {
   return useQuery({
+    enabled,
     queryKey: qk.runs.list({ estado: 'running' }),
     queryFn: () => listRunsPaged({ estado: 'running', pageSize: 5 }),
     // Mientras haya alguna, se sigue mirando; con cero, el historial está quieto
     // y el próximo lanzamiento invalida la clave por su cuenta.
-    refetchInterval: (query) => (query.state.data?.total ? POLL.enCurso : false),
+    refetchInterval: (query) => (enabled && query.state.data?.total ? POLL.enCurso : false),
   })
 }
 

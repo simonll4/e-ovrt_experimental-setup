@@ -160,6 +160,15 @@ export function IconNavCatalog() {
   )
 }
 
+export function IconNavEvidence() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden="true">
+      <path d="M9.5 2.2H4a1 1 0 0 0-1 1v9.6a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V5.7zM9.5 2.2v3.5H13" />
+      <path d="M5 10l1.8 1.8L10.5 8" />
+    </svg>
+  )
+}
+
 export function IconNavPlatform() {
   return (
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden="true">

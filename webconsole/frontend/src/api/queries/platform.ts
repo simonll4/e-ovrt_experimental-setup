@@ -47,16 +47,18 @@ export interface ServiceHealth {
  *  mismo endpoint se consultaba desde tres lugares. Ahora comparte caché con
  *  ellos y las tres pantallas se sirven de una sola petición.
  */
-export function useServiceHealth(): ServiceHealth {
+export function useServiceHealth(enabled = true): ServiceHealth {
   const target = useQuery({
+    enabled,
     queryKey: qk.target,
     queryFn: getTarget,
-    refetchInterval: POLL.salud,
+    refetchInterval: enabled ? POLL.salud : false,
   })
   const preflight = useQuery({
+    enabled,
     queryKey: qk.preflight,
     queryFn: getPreflight,
-    refetchInterval: POLL.salud,
+    refetchInterval: enabled ? POLL.salud : false,
   })
 
   const estado = (cargando: boolean, sano: boolean | undefined): ServiceStatus =>

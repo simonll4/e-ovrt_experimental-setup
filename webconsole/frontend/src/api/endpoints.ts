@@ -6,6 +6,7 @@ import type {
   PreflightStatus, PreviewStartBody, PreviewStatus, PromptSet, PromptSetDetail, PromptSetSummary,
   RecordingStatus, RunDetail, RunRow, StartRecordingBody, TargetStatus, TracePage,
   ArtifactEntry, ConditionInfo, RunComparison, TraceIndex, EvidenceListingMeta, EvidenceView,
+  EvidenceIndex, EvidenceResultPage, ArchivedRunDetail,
 } from '../types'
 
 export class ApiError extends Error {
@@ -16,6 +17,12 @@ export class ApiError extends Error {
     super(`API ${status}`)
   }
 }
+
+export const getEvidenceIndex = () => request<EvidenceIndex>('/api/evidencia')
+export const getEvidenceResult = (id: string, page: number, pageSize = 25) =>
+  request<EvidenceResultPage>(`/api/evidencia/resultado?${new URLSearchParams({ id, page: String(page), page_size: String(pageSize) })}`)
+export const getArchivedRun = (plane: string, runId: string) =>
+  request<ArchivedRunDetail>(`/api/evidencia/run?${new URLSearchParams({ plane, run_id: runId })}`)
 
 async function request<T>(path: string, init?: RequestInit, onResponse?: (r: Response) => void): Promise<T> {
   const response = await fetch(path, {

@@ -25,24 +25,26 @@ export interface SidebarCounts {
  *  Un contador en `null` no se muestra: es "todavía no sé", que no es lo mismo
  *  que cero.
  */
-export function useSidebarCounts(): SidebarCounts {
-  const runs = useRunsEnCurso()
+export function useSidebarCounts(enabled = true): SidebarCounts {
+  const runs = useRunsEnCurso(enabled)
 
   const experiments = useQuery({
+    enabled,
     queryKey: qk.experiments.manifests,
     queryFn: () => getExperimentManifests(),
     staleTime: 60_000,
   })
 
   const promptSets = useQuery({
+    enabled,
     queryKey: qk.promptSets.list,
     queryFn: listPromptSets,
     staleTime: 60_000,
   })
 
   return {
-    runs: runs.data ? runs.data.total : null,
-    experiments: experiments.data?.length ?? null,
-    promptSets: promptSets.data?.length ?? null,
+    runs: enabled && runs.data ? runs.data.total : null,
+    experiments: enabled ? experiments.data?.length ?? null : null,
+    promptSets: enabled ? promptSets.data?.length ?? null : null,
   }
 }
