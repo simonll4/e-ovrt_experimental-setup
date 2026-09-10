@@ -2,11 +2,11 @@
 
 ## Cierre vigente del punch-list — 2026-09-10
 
-P-2, P-1, P-3 y P-5 cerrados. P-4 queda cerrado como registro explícito de
-**dos decisiones de alcance pendientes del usuario**, no como aprobación de las
-capacidades. Se ejecutó en ese orden; no se iniciaron los tramos 6 ni 7.
+P-2, P-1, P-3 y P-5 cerrados. Las **dos ampliaciones de P-4 fueron aprobadas
+por el usuario el 10 de septiembre de 2026**, con los motivos registrados abajo.
+El punch-list se ejecutó en ese orden; no incluyó los tramos 6 ni 7.
 
-Rama: `feature/webconsole-adopcion-front-design`. Hay **seis commits**, uno por
+Rama: `feature/webconsole-adopcion-front-design`. El punch-list produjo **seis commits**, uno por
 tramo desde `50b666b`, con los mensajes establecidos. El último incorpora esta
 actualización documental. No hubo merge ni push; `main`, la rama operativa y
 los cambios ajenos en `defensa/README.md` y `results/bench_imagenes/index.md`
@@ -79,21 +79,22 @@ para reconstruirlo. El backend del corte 1 usó `PYTHONPATH` hacia ese árbol y
 repos hermanos enlazados; el primer intento con 15 skips por rutas ausentes se
 reemplazó por la ejecución final de 761/761.
 
-Para obtener los seis SHA y mensajes vigentes:
+Para obtener los seis SHA y mensajes del punch-list:
 
 ```bash
-git log --reverse --format='%h %s' 50b666b..feature/webconsole-adopcion-front-design
+git log --reverse --format='%h %s' 50b666b..22a4021
 ```
 
-### P-4: decisiones pendientes de alcance — NO APROBADAS
+### P-4: ampliaciones APROBADAS por el usuario — 2026-09-10
 
-| Capacidad conservada | Evidencia técnica | Decisión pendiente |
+| Capacidad | Evidencia técnica | Decisión y motivo |
 | --- | --- | --- |
-| Compatibilidad del índice de artefactos con un media-plane sin endpoint de inventario | `test_artifacts_legacy_service.py`: 404/307/308, sondeo de archivos y aviso de inventario parcial. | El usuario debe aceptar o excluir esta ampliación; las pruebas verdes no la aprueban. |
-| Navegación de evidencia histórica tras reiniciar el BFF | `test_experiment_history.py`: identidad, reporte y alertas persistidas; errores y contención de rutas. | El usuario debe aceptar o excluir esta ampliación; su utilidad para la defensa no equivale a autorización de alcance. |
+| Índice de artefactos mediante sondeo de archivos conocidos | `test_artifacts_legacy_service.py`: 404/307/308, sondeo y aviso de inventario parcial. | **APROBADA.** El servicio media-plane sólo expone `/runs/{run_id}/artifacts/{artifact_path:path}` y no expone índice de artefactos: ninguna versión lo hace. El endpoint del BFF `GET /api/runs/{id}/artifacts` introducido por `d042ad1` asumía un upstream inexistente. El sondeo es la ruta primaria que funciona contra el servicio real; sin él, la pestaña de artefactos está siempre rota. No es un respaldo defensivo ni compatibilidad con versiones anteriores. |
+| Navegación de evidencia de experimentos tras reiniciar la consola | `test_experiment_history.py`: identidad, reporte y alertas persistidas; errores y contención de rutas. | **APROBADA.** El código anterior resolvía detalle y alertas desde el `experiment_manager` en memoria. Reiniciar la consola volvía inaccesible un experimento terminado. La lectura persistida es precondición de la vitrina de evidencia. |
 
-Ambas implementaciones y sus pruebas quedan en el commit del tramo 5 para poder
-revisarlas. La inclusión en Git no cambia su condición de **pendientes**.
+Ambas implementaciones y sus pruebas quedaron en el commit del tramo 5. Esta
+aprobación posterior y la precisión del comentario de `run_backend.list_artifacts`
+se registran en un commit propio, sin alterar su comportamiento.
 La lectura histórica del 10 de septiembre agregó doce tests y explica el paso
 del backend de **772 a 784** después del cierre anterior.
 
@@ -121,7 +122,8 @@ marcados explícitamente como tales.
 
 > Las afirmaciones de gateo global, 772 pruebas de backend y ausencia de commits
 > de esta sección describen ese momento. D-8 revierte el gateo global; P-1 crea
-> la historia por tramos y P-4 deja las dos ampliaciones pendientes de decisión.
+> la historia por tramos. Las dos ampliaciones de P-4 fueron aprobadas después,
+> el 10 de septiembre, según el registro vigente de arriba.
 
 Fecha: 2026-09-09. Rama: `feature/webconsole-adopcion-front-design`.
 Base de trabajo: `50b666b`. Referencia conservada: `.worktrees/front-design`, commit `3500923`.

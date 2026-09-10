@@ -158,8 +158,10 @@ class RunBackend:
         try:
             return await self._get_json(f"/api/runs/{run_id}/artifacts")
         except UnknownRun:
-            # Servicios anteriores sólo exponen /artifacts/{path}; el índice
-            # da 404 (o redirige al path vacío). Validar el run por separado.
+            # El servicio media-plane no expone índice de artefactos: ninguna
+            # versión lo hace; sólo ofrece /artifacts/{artifact_path:path}.
+            # El sondeo de abajo es la ruta primaria contra ese servicio,
+            # no un fallback para versiones anteriores. Validar el run aparte.
             pass
         except httpx.HTTPStatusError as exc:
             if exc.response.status_code not in {307, 308}:
