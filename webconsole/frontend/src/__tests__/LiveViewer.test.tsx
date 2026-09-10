@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from '@testing-library/react'
+import { cleanup, render, screen } from '../test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import LiveViewer from '../components/LiveViewer'
 import type { PreviewFrameHeader } from '../types'
@@ -80,14 +80,32 @@ describe('LiveViewer', () => {
     expect(ctx.strokeRect).toHaveBeenCalledTimes(2)
   })
 
-  it('muestra los indicadores en vivo: conectado, fps, resolución y modo', () => {
+  it('muestra los indicadores en vivo: conectado, cuadros/s, resolución y modo', () => {
     render(
       <LiveViewer frameUrl="blob:frame-1" header={header} connected fps={12} mode="detect" />,
     )
     expect(screen.getByText('conectado')).toBeTruthy()
-    expect(screen.getByText(/12 fps/)).toBeTruthy()
+    expect(screen.getByText(/12 cuadros\/s/)).toBeTruthy()
     expect(screen.getByText('640×480')).toBeTruthy()
-    expect(screen.getByText(/modo: detect/)).toBeTruthy()
+    // El modo se nombra como en «Qué mostrar», no con el valor de la API.
+    expect(screen.getByText(/modo: con detecciones/)).toBeTruthy()
+    expect(screen.queryByText(/modo: detect$/)).toBeNull()
+  })
+
+  // El tipo de `mode` es cerrado, así que este caso no debería ocurrir; el cast
+  // fuerza el que ocurriría si el backend agregara un modo sin avisar. Se
+  // prefiere mostrarlo crudo antes que dejar la etiqueta vacía.
+  it('un modo desconocido cae crudo en vez de dejar la etiqueta vacía', () => {
+    render(
+      <LiveViewer
+        frameUrl="blob:frame-1"
+        header={{ ...header, mode: 'lo_que_sea' as 'raw' }}
+        connected
+        fps={1}
+        mode="raw"
+      />,
+    )
+    expect(screen.getByText(/modo: lo_que_sea/)).toBeTruthy()
   })
 
   it('descarta un frame viejo que termina de decodificar después de uno más nuevo', () => {

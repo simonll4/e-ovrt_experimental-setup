@@ -1,5 +1,5 @@
 import { describe, test, it, expect, vi } from 'vitest'
-import { deleteRun, getMasters, generateClip, masterMediaUrl, clipMediaUrl } from './api'
+import { deleteRun, getMasters, generateClip, masterMediaUrl, clipMediaUrl } from '../api'
 
 describe('deleteRun', () => {
   test('deleteRun hace DELETE al endpoint del run', async () => {

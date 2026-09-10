@@ -1,18 +1,5 @@
 import { niceTicks } from './layout'
-
-// Paleta categórica de 8 slots (skill dataviz), stepped para superficie oscura #1a1a19.
-// Validada: banda L, croma, CVD adyacente (peor ΔE 8.4 protan), visión normal (19.3), contraste >=3:1.
-// El ORDEN es el mecanismo de seguridad CVD, no cosmética: no reordenar sin re-validar.
-export const SERIES_COLORS = [
-  '#3987e5', // azul
-  '#008300', // verde
-  '#d55181', // magenta
-  '#c98500', // amarillo
-  '#199e70', // aqua
-  '#d95926', // naranja
-  '#9085e9', // violeta
-  '#e66767', // rojo
-]
+import { SERIES_COLORS } from '../../palette'
 
 export interface BarRect {
   x: number

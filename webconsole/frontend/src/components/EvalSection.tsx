@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react'
-import { ApiError, evaluateRun, getEvaluation } from '../api'
+import { useState } from 'react'
+import { ApiError } from '../api'
+import { useEvaluateRun, useEvaluation } from '../api/queries/runs'
 import { Card, ErrorBanner } from './ui'
-import type { EvalResult } from '../types'
 
 function errorMessage(e: unknown): string {
   if (e instanceof ApiError) {
@@ -20,28 +20,24 @@ export default function EvalSection({ runId, benchSplit, evaluated }: {
   benchSplit: string | null | undefined
   evaluated: boolean | undefined
 }) {
-  const [result, setResult] = useState<EvalResult | null>(null)
-  const [busy, setBusy] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [loading, setLoading] = useState(Boolean(benchSplit && evaluated))
+  const [errorAccion, setErrorAccion] = useState<string | null>(null)
 
-  useEffect(() => {
-    if (benchSplit && evaluated)
-      getEvaluation(runId)
-        .then(setResult)
-        .catch((e) => setError(errorMessage(e)))
-        .finally(() => setLoading(false))
-  }, [runId, benchSplit, evaluated])
+  // Solo se relee si el run ya fue evaluado; si no, hay que apretar el botón.
+  const consulta = useEvaluation(runId, Boolean(benchSplit && evaluated))
+  const evaluacion = useEvaluateRun(runId)
+
+  // La mutación siembra el resultado en la misma clave que lee la consulta, así
+  // que evaluar deja los datos a la vista sin una segunda vuelta a la red.
+  const result = consulta.data ?? null
+  const loading = consulta.isPending && Boolean(benchSplit && evaluated)
+  const busy = evaluacion.isPending
+  const error = errorAccion ?? (consulta.error ? errorMessage(consulta.error) : null)
 
   if (!benchSplit) return null
 
   const evaluate = () => {
-    setBusy(true)
-    setError(null)
-    evaluateRun(runId)
-      .then(setResult)
-      .catch((e) => setError(errorMessage(e)))
-      .finally(() => setBusy(false))
+    setErrorAccion(null)
+    evaluacion.mutateAsync().catch((e: unknown) => setErrorAccion(errorMessage(e)))
   }
 
   return (

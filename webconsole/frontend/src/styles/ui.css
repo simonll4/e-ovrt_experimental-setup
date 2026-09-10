@@ -101,6 +101,43 @@
 }
 .eo-timeline__hint { margin: 6px 0 0; font-size: 11px; color: var(--tx4); min-height: 1.4em; }
 
+/* Tres carriles rotulados, no un bloque único. Cada uno responde una pregunta
+   distinta —cuánto se detectó, si llegó al motor de reglas, si disparó alerta—
+   y apilarlos sin rótulo obligaba a deducirlo de la leyenda. */
+.eo-timeline__lanes {
+  display: grid;
+  grid-template-columns: 82px minmax(0, 1fr);
+  gap: 5px 6px;
+  align-items: center;
+  position: relative;
+  cursor: crosshair;
+}
+.eo-timeline__label {
+  font-size: 10px;
+  color: var(--tx4);
+  text-align: right;
+  line-height: 1.25;
+}
+.eo-timeline__det {
+  display: block;
+  width: 100%;
+  height: 42px;
+  background: var(--sunken);
+  border-radius: 4px;
+}
+.eo-timeline__strip { display: block; width: 100%; height: 10px; }
+/* El cursor cruza los tres carriles: es una sola posición en el tiempo. */
+.eo-timeline__overlay { grid-column: 2; grid-row: 1 / -1; position: relative; pointer-events: none; }
+.eo-timeline__cursor { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--ac); }
+/* El eje va en SEGUNDOS: es lo que permite correlacionar con el video. */
+.eo-timeline__axis--secs { margin-left: 88px; }
+@media (max-width: 760px) {
+  .eo-timeline__lanes { grid-template-columns: minmax(0, 1fr); }
+  .eo-timeline__label { display: none; }
+  .eo-timeline__overlay { grid-column: 1; }
+  .eo-timeline__axis--secs { margin-left: 0; }
+}
+
 /* Tira de indicadores del detalle de corrida. */
 .eo-kpis-wrap { padding: 12px 0 0; }
 .eo-kpis__note { margin: 0 0 7px; font-size: 11px; color: var(--tx4); }
@@ -172,6 +209,17 @@
 }
 .eo-runhead__acts { margin-left: auto; display: flex; gap: 7px; align-items: center; }
 .eo-timeline__body { padding: 10px 12px 12px; }
+
+/* Pestaña Resumen: configuración (lo que se pidió) y rendimiento (lo que salió)
+   una al lado de la otra, y las detecciones por clase a lo ancho debajo. */
+.eo-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 12px;
+  align-items: start;
+}
+.eo-summary > .eo-card { margin-bottom: 0; }
+.eo-summary__wide { grid-column: 1 / -1; }
 
 /* Pestañas subrayadas del detalle de corrida. */
 .eo-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--bd); margin: 4px 0 12px; }
@@ -326,11 +374,327 @@
   color: var(--tx3);
 }
 
+/* Fila entera navegable. El enlace del nombre sigue existiendo —es el camino de
+   teclado y el que abre en otra pestaña—; esto solo agranda el blanco del mouse
+   a la fila completa, que es lo que la gente ya intenta hacer. */
+.eo-row--click { cursor: pointer; }
+.eo-row--click:hover { background: var(--s2); }
+
 /* Banda izquierda azul en la fila de la corrida en curso: el estado se lee de un
    vistazo sin buscar el chip. Va con el chip, no en lugar del chip. */
 .eo-row--live > td:first-child { box-shadow: inset 2px 0 0 var(--live); }
 .eo-cell--muted { color: var(--tx4); font-size: 11px; white-space: nowrap; }
 .eo-cell--actions { text-align: right; width: 1%; white-space: nowrap; }
+/* Celda de prosa: los motivos son frases, no valores, y no deben ensanchar la
+   tabla hasta forzar scroll horizontal. */
+.eo-cell--wrap { white-space: normal; color: var(--tx3); font-size: 11.5px; }
+
+/* ── Nueva corrida ────────────────────────────────────────────────────────
+   Pasos a la izquierda, panel de verificación pegajoso a la derecha. El panel
+   se queda a la vista mientras se completan los pasos: sin eso hay que
+   scrollear hasta abajo para enterarse de qué falta. */
+.eo-compose {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 292px;
+  gap: 12px;
+  align-items: start;
+}
+.eo-steps { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.eo-rail { position: sticky; top: 14px; display: flex; flex-direction: column; gap: 10px; }
+@media (max-width: 1100px) {
+  .eo-compose { grid-template-columns: minmax(0, 1fr); }
+  .eo-rail { position: static; }
+}
+
+/* Círculo numerado del paso. Se pinta de violeta al completarse: es el avance
+   del formulario leído de un vistazo, sin barra de progreso aparte. */
+.eo-step__num {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--s3);
+  color: var(--tx3);
+  font-size: 10.5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  font-family: var(--fm);
+}
+.eo-step__num--on { background: var(--ac); color: #150f3d; }
+
+/* Rejilla de fuentes: botones-tarjeta con nombre legible y descripción. Un
+   desplegable obligaba a abrirlo para saber qué hay; acá se ven las cuatro
+   opciones y por qué una no está disponible. */
+.eo-srcgrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(164px, 1fr));
+  gap: 8px;
+}
+.eo-src {
+  border: 1px solid var(--bd);
+  background: var(--s2);
+  border-radius: 8px;
+  padding: 9px 11px;
+  text-align: left;
+  color: var(--tx2);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  cursor: pointer;
+}
+.eo-src:hover:not([disabled]) { border-color: var(--bds); color: var(--tx); }
+.eo-src[aria-pressed="true"] {
+  border-color: var(--ac-bd);
+  background: var(--ac-bg);
+  color: var(--tx);
+}
+.eo-src[disabled] { opacity: 0.45; cursor: not-allowed; }
+.eo-src b { font-weight: 500; font-size: 12.5px; }
+.eo-src span { font-size: 10.5px; color: var(--tx3); line-height: 1.4; }
+
+/* Clases del conjunto como chips que se prenden y apagan. */
+.eo-clsw { display: flex; flex-wrap: wrap; gap: 6px; }
+.eo-cls {
+  border: 1px solid var(--bd);
+  background: var(--s2);
+  color: var(--tx3);
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 11.5px;
+  font-family: var(--fm);
+  cursor: pointer;
+}
+.eo-cls:hover { color: var(--tx2); }
+.eo-cls[aria-pressed="true"] {
+  border-color: var(--ac-bd);
+  background: var(--ac-bg);
+  color: var(--ac-tx);
+}
+
+/* Antes de lanzar: un renglón por requisito, con su estado y el porqué. */
+.eo-chk {
+  display: flex;
+  gap: 9px;
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--bd);
+  font-size: 12px;
+  align-items: flex-start;
+}
+.eo-chk__mark { flex: none; margin-top: 2px; display: flex; color: var(--ok); }
+.eo-chk--no .eo-chk__mark { color: var(--tx4); }
+.eo-chk__text b { font-weight: 400; display: block; color: var(--tx); }
+.eo-chk--no .eo-chk__text b { color: var(--tx3); }
+.eo-chk__text span {
+  font-size: 10.5px;
+  color: var(--tx4);
+  display: block;
+  line-height: 1.45;
+  margin-top: 1px;
+}
+.eo-launch {
+  padding: 11px 12px;
+  border-top: 1px solid var(--bd);
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.eo-launch .eo-btn { width: 100%; justify-content: center; height: 32px; }
+.eo-launch__why { font-size: 10.5px; color: var(--tx4); line-height: 1.45; text-align: center; }
+
+/* Opciones avanzadas: el triángulo nativo del navegador rompe el lenguaje
+   visual, igual que el <select> del sistema operativo. */
+.eo-adv summary {
+  font-size: 12px;
+  color: var(--tx2);
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.eo-adv summary::-webkit-details-marker { display: none; }
+.eo-adv summary::before { content: "›"; color: var(--tx3); font-size: 14px; line-height: 1; }
+.eo-adv[open] summary::before { content: "⌄"; line-height: 0.8; }
+.eo-adv__body { display: flex; flex-direction: column; gap: var(--space-3); padding-top: var(--space-3); }
+
+/* ── Cámaras ──────────────────────────────────────────────────────────────
+   Gestión a la izquierda (alta, listado, grabación), imagen a la derecha. El
+   visor va a la derecha y no a lo ancho arriba porque el guion es mirar la
+   imagen MIENTRAS se toca algo de la izquierda: encuadre, clases, grabación. */
+.eo-cams { display: grid; grid-template-columns: 308px minmax(0, 1fr); gap: 12px; align-items: start; }
+.eo-cams__col { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.eo-cams__col > .eo-card { margin-bottom: 0; }
+@media (max-width: 1040px) { .eo-cams { grid-template-columns: minmax(0, 1fr); } }
+
+/* Estado vacío grande: cuando no hay ninguna cámara, la pantalla explica para
+   qué sirve tenerlas y ofrece crear la primera. Una línea gris no alcanza
+   cuando el vacío es el estado inicial de toda la pantalla. */
+.eo-bigempty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 40px 20px;
+  text-align: center;
+}
+/* El icono viene del kit a tamaño de barra lateral; acá se agranda por CSS para
+   no tener que parametrizar todos los iconos por un solo uso. */
+.eo-bigempty svg { width: 30px; height: 30px; color: var(--tx4); }
+.eo-bigempty h4 { margin: 0; font-size: 15px; font-weight: 500; }
+.eo-bigempty p { margin: 0; font-size: 12.5px; color: var(--tx3); max-width: 430px; line-height: 1.65; }
+
+/* Fila de cámara guardada: nombre arriba, tipo y dirección abajo. La conectada
+   se marca con banda violeta a la izquierda, además del texto del botón. */
+.eo-lrow {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 11px;
+  border-bottom: 1px solid var(--bd);
+  border-left: 2px solid transparent;
+  font-size: 12px;
+}
+.eo-lrow:last-child { border-bottom: none; }
+.eo-lrow:hover { background: var(--s2); }
+.eo-lrow[aria-current="true"] { background: var(--ac-bg); border-left-color: var(--ac); }
+.eo-lrow__main { flex: 1; min-width: 0; }
+.eo-lrow__main b { font-weight: 400; color: var(--tx); display: block; }
+.eo-lrow__main span {
+  font-size: 10.5px;
+  color: var(--tx4);
+  font-family: var(--fm);
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* Las acciones quedan siempre visibles. El prototipo las revela al pasar el
+   mouse (`.lrow .ac .btn{opacity:0}`), pero acá son las dos únicas acciones de
+   la pantalla y así no existirían para teclado ni para una pantalla táctil. */
+.eo-lrow__actions { display: flex; gap: 4px; flex: none; }
+
+/* La tarjeta del listado va a sangre (`flush`), así que el aviso pone su propio
+   margen para alinear con las filas. */
+.eo-cams__note { padding: 9px 11px 0; }
+/* Debajo de la imagen: cortar la prueba y qué se está detectando ahora. */
+.eo-cams__under {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin-top: var(--space-3);
+}
+.eo-cams__dets { display: flex; flex-wrap: wrap; gap: var(--space-1); }
+
+/* Lista de bloqueos de «Antes de ejecutar». Se listan TODOS: mostrar solo el
+   primero obligaba a arreglar uno, reintentar, y recién ahí descubrir el
+   siguiente. */
+.eo-blockers { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 7px; }
+.eo-blockers li { display: flex; align-items: flex-start; gap: 8px; font-size: 12px; color: var(--tx2); }
+.eo-blockers svg { flex: none; margin-top: 1px; color: var(--wn); }
+
+/* ── Conjuntos de prompts ─────────────────────────────────────────────────
+   Lista a la izquierda, detalle a la derecha. Una tabla plana de seis columnas
+   no dejaba lugar para lo que de verdad define a un conjunto: sus frases. */
+.eo-pane { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 12px; align-items: start; }
+.eo-pane__col { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.eo-pane__col > .eo-card { margin-bottom: 0; }
+@media (max-width: 900px) { .eo-pane { grid-template-columns: minmax(0, 1fr); } }
+
+/* Diagrama de ciclo de vida. Es lo que explica por qué un conjunto se puede o
+   no editar: sin él, «Congelado» es un adjetivo sin consecuencia visible. */
+.eo-flow { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+.eo-flow__step {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--bd);
+  background: var(--s2);
+  font-size: 11.5px;
+  color: var(--tx4);
+}
+/* El paso actual en violeta (es una selección) y los ya recorridos en verde
+   (son hechos consumados). Ambos llevan además su marca de texto. */
+.eo-flow__step--on { border-color: var(--ac-bd); background: var(--ac-bg); color: var(--ac-tx); }
+.eo-flow__step--done { border-color: var(--ok-bd); color: var(--ok); }
+.eo-flow__arrow { color: var(--tx4); font-size: 12px; }
+
+/* Clase con sus frases, entre comillas angulares como en el prototipo. */
+.eo-phrases { display: flex; flex-direction: column; gap: 2px; padding: 8px 0; }
+.eo-phrases + .eo-phrases { border-top: 1px solid var(--bd); }
+.eo-phrases b { font-weight: 400; color: var(--tx); font-family: var(--fm); font-size: 12px; }
+.eo-phrases span { font-size: 11.5px; color: var(--tx3); line-height: 1.55; }
+
+/* ── Plataforma ───────────────────────────────────────────────────────────
+   La instancia activa destacada a la izquierda y los dos motores a la derecha.
+   Antes la pantalla arrancaba directo en la tabla, y para saber cuál estaba
+   activa había que leer la columna Estado fila por fila. */
+.eo-hero { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 12px; }
+@media (max-width: 900px) { .eo-hero { grid-template-columns: minmax(0, 1fr); } }
+
+/* Borde violeta: es la única tarjeta de la pantalla que representa una elección
+   activa, y el violeta es justamente eso en este sistema. */
+.eo-target {
+  background: var(--s1);
+  border: 1px solid var(--ac-bd);
+  border-radius: var(--rc);
+  padding: 13px 15px;
+}
+.eo-target__label { font-size: 11px; color: var(--ac-tx); letter-spacing: 0.02em; }
+.eo-target__name {
+  font-size: 20px;
+  font-weight: 500;
+  margin: 3px 0 1px;
+  letter-spacing: -0.015em;
+  font-family: var(--fm);
+}
+.eo-target__chips {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 7px;
+}
+.eo-target__foot {
+  display: flex;
+  gap: 22px;
+  margin-top: 13px;
+  padding-top: 11px;
+  border-top: 1px solid var(--bd);
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+.eo-target__foot > :last-child { margin-left: auto; }
+
+/* Métricas en línea de la tarjeta destacada (adaptador, dispositivo, umbrales). */
+.eo-metric__label { font-size: 10.5px; color: var(--tx3); }
+.eo-metric__value { font-family: var(--fm); font-size: 13px; margin-top: 2px; }
+
+.eo-planes { display: flex; flex-direction: column; gap: 8px; }
+.eo-plane {
+  background: var(--s1);
+  border: 1px solid var(--bd);
+  border-radius: var(--rc);
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.eo-plane__text { flex: 1; min-width: 0; }
+.eo-plane__text b { font-weight: 500; font-size: 12.5px; display: block; }
+.eo-plane__text span { font-size: 11px; color: var(--tx3); font-family: var(--fm); }
+
+/* Campo con un botón pegado al costado (guardar como manifiesto). */
+.eo-inputrow { display: flex; gap: 7px; }
+.eo-inputrow input { flex: 1; min-width: 0; }
+
+/* Nota con icono: el icono no tiene que empujar la primera línea de texto. */
+.eo-note--icon { display: flex; gap: 6px; align-items: flex-start; }
+.eo-note--icon svg { flex: none; margin-top: 1px; }
 
 /* Caption — nota al pie de una tarjeta o un gráfico. */
 .eo-cap { margin: 8px 0 0; font-size: 11px; color: var(--tx4); line-height: 1.5; }
@@ -690,7 +1054,11 @@
   text-align: center;
 }
 .eo-sidebar__action:hover { background: var(--ac-hover); color: var(--ac-text-on); text-decoration: none; }
+/* El icono no se encoge cuando el rótulo es largo ("Nuevo experimento"). */
+.eo-sidebar__action svg { flex: none; }
 .eo-sidebar--collapsed .eo-sidebar__action { width: 38px; padding: 0; }
+/* Se esconde el rótulo y queda el <svg>: es lo único que identifica al botón
+   con la barra colapsada. */
 .eo-sidebar--collapsed .eo-sidebar__action > span:not(.eo-tip) { display: none; }
 
 .eo-sidebar__nav { display: flex; flex-direction: column; gap: 14px; }
@@ -785,43 +1153,6 @@
 .eo-sidebar--collapsed .eo-service__label,
 .eo-sidebar--collapsed .eo-service code { display: none; }
 
-.eo-topbar__menu {
-  display: none;
-  background: none;
-  border: 1px solid var(--bd);
-  border-radius: var(--r);
-  color: var(--tx);
-  width: 30px;
-  height: 30px;
-  cursor: pointer;
-  font-size: var(--text-md);
-}
-
-.eo-sidebar__scrim {
-  display: none;
-}
-
-@media (max-width: 900px) {
-  .eo-topbar__menu { display: inline-flex; align-items: center; justify-content: center; }
-  .eo-sidebar {
-    position: fixed;
-    z-index: 30;
-    left: 0;
-    top: 0;
-    transform: translateX(-100%);
-    transition: transform 0.15s ease;
-    box-shadow: 4px 0 16px rgba(0, 0, 0, 0.4);
-  }
-  .eo-sidebar--open { transform: translateX(0); }
-  .eo-sidebar__scrim {
-    display: block;
-    position: fixed;
-    inset: 0;
-    z-index: 20;
-    background: rgba(0, 0, 0, 0.4);
-  }
-}
-
 /* Live run pill */
 .eo-livepill {
   margin-top: auto;
@@ -848,17 +1179,82 @@
 }
 .eo-livepill__meta { font-size: var(--text-xs); color: var(--tx3); }
 
-.eo-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+@media (min-width: 761px) {
+  .eo-sidebar--collapsed .eo-livepill { justify-content: center; padding: 10px 0; }
+  .eo-sidebar--collapsed .eo-livepill__id,
+  .eo-sidebar--collapsed .eo-livepill__meta { display: none; }
+}
+
+.eo-topbar__menu {
+  display: none;
+  background: none;
+  border: 1px solid var(--bd);
+  border-radius: var(--r);
+  color: var(--tx);
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  font-size: var(--text-md);
+}
+
+.eo-sidebar__scrim {
+  display: none;
+}
+
+/* 760 px y no 900: es el mismo corte en que aparece la barra superior. Con dos
+   cortes distintos, entre 760 y 900 la lateral ya era un cajón cerrado y la
+   barra superior todavía no existía — o sea, ninguna forma de navegar. */
+@media (max-width: 760px) {
+  .eo-topbar__menu { display: inline-flex; align-items: center; justify-content: center; }
+  .eo-sidebar__collapse { display: none; }
+  .eo-sidebar {
+    position: fixed;
+    z-index: 30;
+    left: 0;
+    top: 0;
+    transform: translateX(-100%);
+    transition: transform 0.15s ease;
+    box-shadow: 4px 0 16px rgba(0, 0, 0, 0.4);
+  }
+  .eo-sidebar--open { transform: translateX(0); }
+  .eo-sidebar__scrim {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+    background: rgba(0, 0, 0, 0.4);
+  }
+}
+
+/* Barra superior: existe solo cuando la lateral se esconde (≤760 px). En
+   escritorio no decía nada que la lateral no dijera y le comía alto al
+   contenido, que en una consola de monitoreo es lo escaso. */
 .eo-topbar {
-  display: flex;
+  display: none;
   align-items: center;
   gap: var(--space-4);
   padding: var(--space-3) var(--space-5);
   border-bottom: 1px solid var(--bd);
   background: var(--s1);
 }
-.eo-topbar__right { margin-left: auto; }
+.eo-topbar__brand { font-size: var(--text-md); letter-spacing: 0.02em; }
+@media (max-width: 760px) { .eo-topbar { display: flex; } }
+
 .eo-content { padding: var(--space-5); max-width: var(--content-max); width: 100%; }
+
+/* Migas + instancia activa, dentro del contenido y con su propio borde. A
+   diferencia del prototipo no sangran hasta el borde de la ventana: alinean con
+   el contenido, que dentro de un ancho máximo se lee mejor que una línea suelta. */
+.eo-crumbsbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  padding-bottom: 9px;
+  margin-bottom: var(--space-4);
+  border-bottom: 1px solid var(--bd);
+}
+.eo-crumbsbar > :last-child { margin-left: auto; }
 
 /* Preview con bboxes + zoom al hover */
 .eo-preview { position: relative; display: inline-block; line-height: 0; transition: transform .12s ease; }

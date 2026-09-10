@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { controlTone, controlLabel, controlLabelIsRaw, frameHasActivity, labelColor } from '../traceview'
-import { SERIES_COLORS } from '../components/charts/GroupedBars'
+import { SERIES_COLORS } from '../palette'
 
 describe('controlTone', () => {
   it('received ok, dropped warn, not_received error, n/d neutral', () => {

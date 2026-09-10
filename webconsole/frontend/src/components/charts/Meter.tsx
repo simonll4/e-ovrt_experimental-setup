@@ -1,14 +1,10 @@
-import { TONE_VAR, type ChartTone } from './Sparkline'
-
-export type MeterTone = ChartTone | 'neutral'
+import { toneVar, type MeterTone } from '../../palette'
 
 export interface MeterSegment {
   value: number
   tone: MeterTone
   label: string
 }
-
-const VAR: Record<MeterTone, string> = { ...TONE_VAR, neutral: '--nt' }
 
 /**
  * Barra segmentada horizontal.
@@ -44,7 +40,7 @@ export default function Meter({
           key={s.label}
           className="eo-meter__seg"
           title={`${s.label}: ${s.value}`}
-          style={{ width: `${pct(s.value)}%`, background: `var(${VAR[s.tone]})` }}
+          style={{ width: `${pct(s.value)}%`, background: toneVar(s.tone) }}
         />
       ))}
     </div>

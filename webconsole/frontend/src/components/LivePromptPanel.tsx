@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { createPromptSet, getPromptSetDetail, listPromptSets } from '../api'
 import type { PromptClassSpec, PromptSetDetail, PromptSetSummary } from '../types'
-import { Card, ErrorBanner, Field } from './ui'
+import { Button, Card, ErrorBanner, Field, SegmentedControl } from './ui'
 
 interface Props {
   mode: 'raw' | 'detect'
@@ -66,15 +66,23 @@ export default function LivePromptPanel({
   }
 
   return (
-    <Card title="Detección">
-      <label>
-        <input
-          type="checkbox"
-          checked={mode === 'detect'}
-          onChange={(e) => onModeChange(e.target.checked ? 'detect' : 'raw')}
-        />{' '}
-        Detección (desmarcado = solo video)
-      </label>
+    <Card title="Qué mostrar">
+      {/* Segmento y no un checkbox: son dos modos con nombre propio, no una
+          opción que se prende. "Desmarcado = solo video" obligaba a deducir el
+          otro modo desde la ausencia del primero. */}
+      <SegmentedControl
+        value={mode}
+        options={[
+          { value: 'raw', label: 'Imagen directa' },
+          { value: 'detect', label: 'Con detecciones' },
+        ]}
+        onChange={onModeChange}
+      />
+      {mode === 'raw' && (
+        <p className="eo-cap">
+          La imagen directa no pasa por el modelo: sirve para verificar encuadre, foco y luz.
+        </p>
+      )}
       {mode === 'detect' && (
         <>
           {error && <ErrorBanner>{error}</ErrorBanner>}
@@ -104,8 +112,10 @@ export default function LivePromptPanel({
                     />{' '}
                     {c.id}
                   </label>
+                  {/* `backend` es la clave del modelo en el YAML (gdino, owlv2):
+                      es un dato, no se traduce. */}
                   {Object.entries(c.phrasings).map(([backend, phrases]) => (
-                    <Field key={backend} label={`phrasings.${backend}`}>
+                    <Field key={backend} label={`Frases — ${backend}`}>
                       <textarea
                         rows={3}
                         value={phrases.join('\n')}
@@ -124,7 +134,10 @@ export default function LivePromptPanel({
               ))}
             </div>
           )}
-          <Field label={`score_threshold (${threshold ?? 0})`}>
+          {/* El prototipo lo rotula "Confianza mínima" con el valor al lado, en
+              decimales con coma. `score_threshold` es la clave de la API, no
+              texto de interfaz. */}
+          <Field label={`Confianza mínima — ${(threshold ?? 0).toFixed(2).replace('.', ',')}`}>
             <input
               type="range"
               min={0}
@@ -135,26 +148,26 @@ export default function LivePromptPanel({
             />
           </Field>
           <div className="eo-actions">
-            <button type="button" className="eo-btn--primary" disabled={disabled || !draft} onClick={onApply}>
+            <Button variant="primary" disabled={disabled || !draft} onClick={onApply}>
               Aplicar
-            </button>
+            </Button>
             <input
-              placeholder="id del set nuevo"
+              placeholder="identificador del conjunto nuevo"
               value={newId}
               onChange={(e) => setNewId(e.target.value)}
             />
-            <button type="button" disabled={!draft || !newId} onClick={() => void saveAsNew()}>
-              Guardar como set nuevo
-            </button>
+            <Button disabled={!draft || !newId} onClick={() => void saveAsNew()}>
+              Guardar como conjunto nuevo
+            </Button>
           </div>
           {saveMsg && <small className="eo-note">{saveMsg}</small>}
         </>
       )}
       {mode === 'raw' && (
         <div className="eo-actions">
-          <button type="button" className="eo-btn--primary" disabled={disabled} onClick={onApply}>
+          <Button variant="primary" disabled={disabled} onClick={onApply}>
             Aplicar
-          </button>
+          </Button>
         </div>
       )}
     </Card>

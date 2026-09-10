@@ -1,6 +1,7 @@
 import { cleanup, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it } from 'vitest'
-import GroupedBars, { groupedBarsLayout, SERIES_COLORS } from '../../components/charts/GroupedBars'
+import GroupedBars, { groupedBarsLayout } from '../../components/charts/GroupedBars'
+import { SERIES_COLORS } from '../../palette'
 
 // Sin `globals: true` en vite.config, el auto-cleanup de Testing Library no corre
 // y el DOM se acumula entre tests. Convención del repo: limpiarlo a mano.

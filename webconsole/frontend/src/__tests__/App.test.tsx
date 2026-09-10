@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, afterEach } from 'vitest'
-import { cleanup, render, screen, waitFor } from '@testing-library/react'
+import { cleanup, render, screen, waitFor, within } from '../test-utils'
 import { MemoryRouter } from 'react-router-dom'
 import App from '../App'
 import * as api from '../api'

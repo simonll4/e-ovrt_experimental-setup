@@ -77,7 +77,12 @@ export default function Select({
                 (opt.value === value ? ' eo-select__option--selected' : '') +
                 (opt.disabled ? ' eo-select__option--disabled' : '')
               }
-              onClick={() => pick(opt)}
+              onClick={(event) => {
+                // Field envuelve el selector en un label. Su activación nativa
+                // reenviaría este click al botón y reabriría la lista al elegir.
+                event.preventDefault()
+                pick(opt)
+              }}
             >
               <span>{opt.label}</span>
               {opt.disabled && opt.disabledReason ? (
