@@ -39,6 +39,7 @@ def create_app(
     service_transport: httpx.AsyncBaseTransport | None = None,
     compose_runner: RunCmd | None = None,
     control_transport: httpx.AsyncBaseTransport | None = None,
+    distribution_transport: httpx.AsyncBaseTransport | None = None,
 ) -> FastAPI:
     settings = settings or ConsoleSettings.from_env()
 
@@ -66,6 +67,11 @@ def create_app(
             base_url=settings.control_service_url, transport=control_transport, timeout=30.0
         )
         app.state.control_backend = ControlPlaneBackend(app.state.control_http)
+        app.state.distribution_http = httpx.AsyncClient(
+            base_url=settings.distribution_service_url,
+            transport=distribution_transport,
+            timeout=2.0,
+        )
         # Manager del disparo orquestado (Tarea 3): un experimento activo por vez,
         # corrido como asyncio.Task en este mismo loop (ver run_manager.py).
         app.state.experiment_manager = ExperimentRunManager()
@@ -90,6 +96,7 @@ def create_app(
         await app.state.experiment_manager.aclose()
         await app.state.http.aclose()
         await app.state.control_http.aclose()
+        await app.state.distribution_http.aclose()
 
     app = FastAPI(title="eovrt-webconsole", lifespan=_lifespan)
     app.state.settings = settings

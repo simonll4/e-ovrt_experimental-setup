@@ -40,6 +40,7 @@ export default function Shell({ children }: { children: ReactNode }) {
     s === 'ok' ? 'operativo' : s === 'down' ? 'sin respuesta' : 'verificando…'
   const mediaTip = `Motor de detección — ${statusText(health.media)}`
   const controlTip = `Motor de reglas — ${statusText(health.control)}`
+  const distributionTip = `Distribución de alertas — ${statusText(health.distribution)}`
 
   const sidebarClass = [
     'eo-sidebar',
@@ -138,6 +139,18 @@ export default function Shell({ children }: { children: ReactNode }) {
             <span className="eo-service__label">Motor de reglas</span>
             <code>:8081</code>
             <span className="eo-tip" aria-hidden="true" data-tip={controlTip} />
+          </div>
+          <div className="eo-service" title={distributionTip}>
+            <span
+              className="eo-service__dot"
+              style={{
+                background:
+                  health.distribution === 'ok' ? 'var(--ok)' : health.distribution === 'down' ? 'var(--er)' : 'var(--nt)',
+              }}
+            />
+            <span className="eo-service__label">Distribución de alertas</span>
+            <code>:8082</code>
+            <span className="eo-tip" aria-hidden="true" data-tip={distributionTip} />
           </div>
         </div>
       </aside>

@@ -131,8 +131,14 @@ async def _distribution_http_transport_checks(distribution_service_url: str) -> 
 
 async def platform_preflight(app: FastAPI, manifest: ExperimentManifest | None = None) -> dict:
     settings = app.state.settings
-    (media_healthy, media_ready), (control_healthy, control_ready) = await asyncio.gather(
-        _probe(app.state.http), _probe(app.state.control_http)
+    (
+        (media_healthy, media_ready),
+        (control_healthy, control_ready),
+        (distribution_healthy, distribution_ready),
+    ) = await asyncio.gather(
+        _probe(app.state.http),
+        _probe(app.state.control_http),
+        _probe(app.state.distribution_http),
     )
 
     media: dict = {
@@ -172,4 +178,16 @@ async def platform_preflight(app: FastAPI, manifest: ExperimentManifest | None =
                 await _distribution_http_transport_checks(settings.distribution_service_url)
             )
 
-    return {"ready": not blockers, "blockers": blockers, "media": media, "control": control}
+    # Salud informativa: los bloqueos de distribución siguen dependiendo del manifiesto.
+    distribution = {
+        "service_url": settings.distribution_service_url,
+        "healthy": distribution_healthy,
+        "ready": distribution_ready,
+    }
+    return {
+        "ready": not blockers,
+        "blockers": blockers,
+        "media": media,
+        "control": control,
+        "distribution": distribution,
+    }

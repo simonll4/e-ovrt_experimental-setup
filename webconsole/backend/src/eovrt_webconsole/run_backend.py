@@ -4,6 +4,7 @@ Fase 1: una instancia (SERVICE_URL). Fase 2: N instancias/nodos detrás de esta 
 """
 from __future__ import annotations
 
+import asyncio
 from typing import Any
 
 import httpx
@@ -154,7 +155,60 @@ class RunBackend:
 
     async def list_artifacts(self, run_id: str) -> dict:
         """Inventario de archivos de la corrida (nombre, tamaño, qué es)."""
-        return await self._get_json(f"/api/runs/{run_id}/artifacts")
+        try:
+            return await self._get_json(f"/api/runs/{run_id}/artifacts")
+        except UnknownRun:
+            # Servicios anteriores sólo exponen /artifacts/{path}; el índice
+            # da 404 (o redirige al path vacío). Validar el run por separado.
+            pass
+        except httpx.HTTPStatusError as exc:
+            if exc.response.status_code not in {307, 308}:
+                raise
+        await self.status(run_id)
+        names = {
+            "summary.json": "Métricas de la corrida",
+            "run_manifest.json": "Manifiesto efectivo",
+            "run_provenance.json": "Procedencia de la corrida",
+            "detections.jsonl": "Detecciones por unidad",
+            "metrics.jsonl": "Métricas por unidad",
+            "errors.jsonl": "Errores de procesamiento",
+            "dropped.jsonl": "Unidades descartadas",
+            "eval_perception.json": "Evaluación BENCH",
+            "annotated.mp4": "Video con detecciones",
+        }
+        limit = asyncio.Semaphore(4)
+
+        async def probe(name: str, description: str) -> dict | None:
+            async with limit:
+                response = await self.open_artifact(run_id, name, range_header="bytes=0-0")
+                try:
+                    if response.status_code == 404:
+                        return None
+                    if response.status_code not in {200, 206, 416}:
+                        raise ServiceUnavailable(f"artefacto {name}: HTTP {response.status_code}")
+                    # Range evita descargar videos o JSONL completos. Un archivo
+                    # vacío puede responder 416 con Content-Range: bytes */0.
+                    raw_size = (
+                        response.headers.get("content-range", "").rsplit("/", 1)[-1]
+                        if response.status_code in {206, 416}
+                        else response.headers.get("content-length", "")
+                    )
+                    if not raw_size.isdigit():
+                        raise ServiceUnavailable(f"artefacto {name}: tamaño no disponible")
+                    if response.status_code == 416 and raw_size != "0":
+                        raise ServiceUnavailable(f"artefacto {name}: rango no disponible")
+                    return {"path": name, "name": name, "size_bytes": int(raw_size),
+                            "n_files": None, "description": description}
+                finally:
+                    await response.aclose()
+
+        items = await asyncio.gather(*(probe(name, desc) for name, desc in names.items()))
+        return {
+            "run_id": run_id, "items": [item for item in items if item is not None],
+            "complete": False,
+            "notice": "El servicio no publica un inventario completo; se muestran los archivos "
+                      "estándar disponibles. Las vistas previas se consultan en la traza.",
+        }
 
     async def open_artifact(
         self, run_id: str, artifact_path: str, range_header: str | None = None

@@ -418,19 +418,36 @@ def _is_safe_experiment_id(experiment_id: str) -> bool:
 
 @router.get("/{experiment_id}/alerts")
 async def get_experiment_alerts(experiment_id: str, request: Request) -> list[dict]:
-    """Proxya GET /api/runs/{control_run_id}/alerts del control-plane.
+    """Lee alertas históricas consolidadas o consulta el control-plane en vivo.
 
     Resuelve el control_run_id desde el resultado guardado en el manager
     (ExperimentResult.control_run_id, vacio si el media fallo antes de
     disparar el control). Sin control_run_id no hay nada que proxyar: 404
     (no se distingue de "experimento desconocido", mismo shape de error).
 
-    Esta ruta solo usa experiment_id como clave de dict (manager.get), nunca
-    para armar un path, pero se valida igual por consistencia con /report."""
+    Tras reiniciar el BFF, recupera la identidad del reporte y prefiere la copia
+    consolidada de las alertas. Si falta, consulta el servicio por control_run_id.
+    Los paths históricos tienen las mismas guardas de contención que el reporte.
+    """
     if not _is_safe_experiment_id(experiment_id):
         raise HTTPException(status_code=404, detail=f"Experimento desconocido: {experiment_id}")
     manager = request.app.state.experiment_manager
     state = manager.get(experiment_id)
+    if state is None:
+        state = _persisted_experiment_state(experiment_id, request)
+        if state is not None:
+            alerts_path = _consolidated_file(experiment_id, request, "control/alerts.jsonl")
+            if alerts_path.is_file():
+                try:
+                    alerts = [
+                        json.loads(line) for line in alerts_path.read_text(encoding="utf-8").splitlines()
+                        if line.strip()
+                    ]
+                    if not all(isinstance(alert, dict) for alert in alerts):
+                        raise ValueError("alerta inválida")
+                    return alerts
+                except (OSError, ValueError) as exc:
+                    raise HTTPException(500, "No se pudieron leer las alertas consolidadas") from exc
     control_run_id = state.get("control_run_id") if state else None
     if not control_run_id:
         raise HTTPException(
@@ -481,6 +498,51 @@ def _resolve_consolidated_dir(experiment_id: str, request: Request) -> Path:
     return candidate
 
 
+def _consolidated_file(experiment_id: str, request: Request, relative: str) -> Path:
+    directory = _resolve_consolidated_dir(experiment_id, request).resolve()
+    path = directory / relative
+    if not path.resolve().is_relative_to(directory):
+        raise HTTPException(404, "Artefacto fuera del directorio consolidado")
+    return path
+
+
+def _persisted_experiment_state(experiment_id: str, request: Request) -> dict | None:
+    """Recupera el detalle histórico del reporte, sin relanzar ni modificar evidencia.
+
+    El runner sólo genera el reporte tras completar las corridas correctamente.
+    Un directorio sin reporte no prueba que la ejecución haya terminado bien.
+    El estado del manager siempre tiene prioridad, en particular durante un run.
+    """
+    report_path = _consolidated_file(experiment_id, request, "report/report.json")
+    if not report_path.is_file():
+        return None
+    try:
+        report = json.loads(report_path.read_text(encoding="utf-8"))
+        identity = report.get("identificacion") if isinstance(report, dict) else None
+        if not isinstance(identity, dict) or identity.get("experiment_id") != experiment_id:
+            raise ValueError("identificación del reporte inconsistente")
+        manifest_path = _consolidated_file(experiment_id, request, "manifest.effective.yaml")
+        manifest = (
+            yaml.safe_load(manifest_path.read_text(encoding="utf-8"))
+            if manifest_path.is_file() else {}
+        )
+        if not isinstance(manifest, dict):
+            raise TypeError("manifiesto efectivo inválido")
+    except (OSError, ValueError, TypeError, yaml.YAMLError) as exc:
+        raise HTTPException(500, "No se pudo leer la evidencia consolidada del experimento") from exc
+    return {
+        "experiment_id": experiment_id,
+        "status": "succeeded",
+        "ok": True,
+        "slug": manifest.get("slug"),
+        "media_run_id": identity.get("media_run_id"),
+        "control_run_id": identity.get("control_run_id"),
+        "started_at": identity.get("fecha_inicio"),
+        "consolidated_dir": str(report_path.parent.parent),
+        "report_path": str(report_path),
+    }
+
+
 def _is_non_temporal(report: dict[str, Any]) -> bool:
     """Deteccion ADR-013 de fuente no temporal (dataset de imagenes).
 
@@ -524,6 +586,8 @@ async def get_experiment_report(experiment_id: str, request: Request) -> dict:
 async def get_experiment(experiment_id: str, request: Request) -> dict:
     manager = request.app.state.experiment_manager
     state = manager.get(experiment_id)
+    if state is None:
+        state = _persisted_experiment_state(experiment_id, request)
     if state is None:
         raise HTTPException(status_code=404, detail=f"Experimento desconocido: {experiment_id}")
     return state

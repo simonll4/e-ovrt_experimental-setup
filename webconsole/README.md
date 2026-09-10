@@ -11,6 +11,13 @@ Funciones: componer y lanzar corridas, ver el detalle en vivo (WS), **evaluar un
 BENCH contra el GT de seguridad** (AP@0.5 por clase, CR-01 recall, mAP@0.5) y **comparar
 varios runs** (tabla + gráfico) en la página `/compare`.
 
+El detalle de un experimento terminado puede abrirse después de reiniciar la
+consola: recupera su identidad desde `runs/<experiment_id>/report/report.json`
+y sus alertas desde `control/alerts.jsonl` del consolidado. La consulta conserva
+los artefactos originales y no relanza corridas. Si falta el archivo de alertas,
+intenta consultarlas al servicio de control; la ausencia de reporte no se
+interpreta como una ejecución exitosa.
+
 Desde 2026-07-17 el detalle de un run terminado incluye la **vista correlacionada
 media↔control** ("Evaluación del control-plane"): el BFF compone un trace por-frame
 (`GET /api/runs/{id}/trace`) uniendo por `unit_id` las detecciones (con bboxes dibujadas
