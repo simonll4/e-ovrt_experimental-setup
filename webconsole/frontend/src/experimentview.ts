@@ -10,7 +10,12 @@ export function alertSeverityTone(severity: string): BadgeTone {
   return 'ok'
 }
 
-export function experimentStatusLabel(state: ExperimentRunState | null): string {
+/** Lo único que estas dos funciones miran de un estado. Se pide esto y no
+ *  `ExperimentRunState` completo para poder rotular también el `last_status` de
+ *  una fila de manifiesto, que es un estado sin ejecución asociada. */
+export type EstadoRotulable = Pick<ExperimentRunState, 'status'> & { ok?: boolean }
+
+export function experimentStatusLabel(state: EstadoRotulable | null): string {
   if (state === null) return '—'
   if (state.status === 'running') return 'en curso'
   if (state.status === 'succeeded' || state.ok === true) return 'completada'
@@ -20,7 +25,7 @@ export function experimentStatusLabel(state: ExperimentRunState | null): string 
   return state.status
 }
 
-export function experimentStatusTone(state: ExperimentRunState | null): BadgeTone {
+export function experimentStatusTone(state: EstadoRotulable | null): BadgeTone {
   if (state === null) return 'neutral'
   if (state.status === 'running') return 'live'
   if (state.status === 'succeeded' || state.ok === true) return 'ok'

@@ -1,26 +1,41 @@
-import { useEffect, useState } from 'react'
-import { getDatasets, getIngestPlugins, getPromptSets } from '../api'
 import { Badge, Card, EmptyState, MonoCell, PageHeader, Table } from '../components/ui'
-import type { DatasetEntry, IngestPlugin, PromptSet } from '../types'
-import { useTarget } from '../useTarget'
+import { useTarget } from '../api/queries/platform'
+import { useCatalogPromptSets, useDatasets, useIngestPlugins } from '../api/queries/catalog'
+import { sourceLabel } from '../runview'
+
+/** Nombre legible de cada umbral del modelo. Las claves son de la API. */
+const UMBRAL_LABEL: Record<string, string> = {
+  confidence: 'Confianza mínima',
+  iou: 'Solapamiento máximo',
+  box: 'Umbral de caja',
+  text: 'Umbral de texto',
+}
+
+/** Una fuente acotada termina sola; una en vivo no. */
+const KIND_LABEL: Record<string, string> = {
+  bounded: 'Acotado',
+  live: 'En vivo',
+}
+
+const dec2 = (v: number): string => v.toFixed(2).replace('.', ',')
+
+function Metrica({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <div className="eo-metric__label">{label}</div>
+      <div className="eo-metric__value">{children}</div>
+    </div>
+  )
+}
 
 export default function CatalogPage() {
   const target = useTarget()
-  const [plugins, setPlugins] = useState<IngestPlugin[]>([])
-  const [datasets, setDatasets] = useState<DatasetEntry[]>([])
-  const [sets, setSets] = useState<PromptSet[]>([])
-  // Re-fetchea los catálogos cuando cambia el modelo activo del target (p.ej. tras un
-  // restart del servicio con otro EOVRT_MODEL_REF), así no quedan stale.
-  const modelRef = target?.model?.ref
-  useEffect(() => {
-    let alive = true
-    getIngestPlugins().then((v) => alive && setPlugins(v)).catch(() => alive && setPlugins([]))
-    getDatasets().then((v) => alive && setDatasets(v)).catch(() => alive && setDatasets([]))
-    getPromptSets().then((v) => alive && setSets(v)).catch(() => alive && setSets([]))
-    return () => {
-      alive = false
-    }
-  }, [modelRef])
+  // Los catálogos llevan la referencia del modelo en su clave de caché, así que
+  // se recargan solos si el servicio reinicia con otro modelo. Antes eso era un
+  // efecto keyado en `modelRef` repetido acá y en Nueva corrida.
+  const plugins = useIngestPlugins().data ?? []
+  const datasets = useDatasets().data ?? []
+  const sets = useCatalogPromptSets().data ?? []
   return (
     <>
       <PageHeader
@@ -28,63 +43,58 @@ export default function CatalogPage() {
         meta="Lo que la instancia activa ofrece hoy — solo lectura"
       />
 
-      <Card title="Modelo de la instancia activa" meta="No se puede cambiar acá" flush>
-        {target?.model ? (
-          <>
-            <Table>
-              <thead>
-                <tr>
-                  <th>Modelo</th>
-                  <th>Adaptador</th>
-                  <th>Dispositivo</th>
-                  <th>Umbrales</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <MonoCell>{target.model.ref}</MonoCell>
-                  <MonoCell>{target.model.adapter}</MonoCell>
-                  <MonoCell>{target.model.device}</MonoCell>
-                  <MonoCell>
-                    {Object.entries(target.model.thresholds)
-                      .filter(([, v]) => v != null)
-                      .map(([k, v]) => `${k}=${v}`)
-                      .join(', ') || '—'}
-                  </MonoCell>
-                </tr>
-              </tbody>
-            </Table>
-            <p className="eo-cap eo-cap--inset">
-              Son fijos por instancia: cambiar de modelo significa activar otra instancia
-              desde Plataforma.
-            </p>
-          </>
-        ) : (
+      {/* Tarjeta destacada y no una tabla de una fila: el modelo en uso es el
+          contexto de todo lo demás de la pantalla, no un registro más. */}
+      {target?.model ? (
+        <section className="eo-target">
+          <div className="eo-target__label">Modelo en uso</div>
+          <div className="eo-target__name">{target.model.ref}</div>
+          <div className="eo-target__foot">
+            <Metrica label="Adaptador">{target.model.adapter ?? '—'}</Metrica>
+            <Metrica label="Dispositivo">{target.model.device ?? '—'}</Metrica>
+            {Object.entries(target.model.thresholds)
+              .filter(([, v]) => v != null)
+              .map(([k, v]) => (
+                <Metrica key={k} label={UMBRAL_LABEL[k] ?? k}>
+                  {dec2(Number(v))}
+                </Metrica>
+              ))}
+          </div>
+          <p className="eo-cap">
+            Estos valores son fijos por instancia. Para usar otro modelo hay que activar otra
+            instancia desde Plataforma.
+          </p>
+        </section>
+      ) : (
+        <Card title="Modelo en uso" flush>
           <EmptyState hint="El motor de detección todavía no respondió.">
             Servicio no listo
           </EmptyState>
-        )}
-      </Card>
+        </Card>
+      )}
 
-      <Card title="Fuentes de ingesta" meta={`${plugins.length}`} flush>
+      <Card
+        title="Orígenes de imágenes"
+        meta={`${plugins.filter((p) => p.enabled).length} de ${plugins.length} disponibles`}
+        flush
+      >
         {plugins.length === 0 ? (
-          <EmptyState>Sin fuentes de ingesta</EmptyState>
+          <EmptyState>Sin orígenes de imágenes</EmptyState>
         ) : (
           <Table>
             <thead>
               <tr>
-                <th>Fuente</th>
+                <th>Origen</th>
                 <th>Tipo</th>
-                <th>Descripción</th>
-                <th>Estado</th>
+                <th>Disponibilidad</th>
+                <th>Por qué</th>
               </tr>
             </thead>
             <tbody>
               {plugins.map((p) => (
                 <tr key={p.id}>
-                  <MonoCell>{p.id}</MonoCell>
-                  <MonoCell>{p.kind}</MonoCell>
-                  <td>{p.description}</td>
+                  <td>{sourceLabel(p.id)}</td>
+                  <td>{KIND_LABEL[p.kind] ?? p.kind}</td>
                   <td>
                     {!p.available ? (
                       <Badge tone="neutral">No disponible</Badge>
@@ -94,6 +104,9 @@ export default function CatalogPage() {
                       <Badge tone="ok">Disponible</Badge>
                     )}
                   </td>
+                  {/* El motivo del backend gana sobre la descripción genérica:
+                      dice por qué NO se puede usar, que es lo que se busca acá. */}
+                  <td className="eo-cell--wrap">{p.disabled_reason ?? p.description}</td>
                 </tr>
               ))}
             </tbody>
@@ -101,15 +114,15 @@ export default function CatalogPage() {
         )}
       </Card>
 
-      <Card title="Datasets" meta={`${datasets.length}`} flush>
+      <Card title="Conjuntos de imágenes" meta={`${datasets.length}`} flush>
         {datasets.length === 0 ? (
-          <EmptyState>Sin datasets disponibles</EmptyState>
+          <EmptyState>Sin conjuntos de imágenes</EmptyState>
         ) : (
           <Table>
             <thead>
               <tr>
-                <th>Dataset</th>
-                <th>Descripción</th>
+                <th>Conjunto</th>
+                <th>Por qué</th>
                 <th>Estado</th>
               </tr>
             </thead>
@@ -141,7 +154,8 @@ export default function CatalogPage() {
               <tr>
                 <th>Conjunto</th>
                 <th>Estado</th>
-                <th>Clases</th>
+                <th className="eo-th--numeric">Clases</th>
+                <th>Clases que define</th>
               </tr>
             </thead>
             <tbody>
@@ -151,6 +165,7 @@ export default function CatalogPage() {
                   <td>
                     {s.frozen ? <Badge tone="ok">Congelado</Badge> : <Badge tone="neutral">Abierto</Badge>}
                   </td>
+                  <td className="eo-num">{s.classes.length}</td>
                   <MonoCell>{s.classes.map((c) => c.id).join(', ')}</MonoCell>
                 </tr>
               ))}

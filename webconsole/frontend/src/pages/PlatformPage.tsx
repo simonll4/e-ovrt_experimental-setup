@@ -1,16 +1,51 @@
-import { useEffect, useState } from 'react'
-import { ApiError, activateInstance, getInstances, stopPlatform } from '../api'
-import type { PlatformInstance } from '../types'
+import { useState } from 'react'
+import { ApiError } from '../api'
+import {
+  useActivateInstance, useInstances, usePreflight, useStopPlatform,
+} from '../api/queries/platform'
+import type { PlaneStatus } from '../types'
 import {
   Badge,
   Button,
   Card,
   EmptyState,
   ErrorBanner,
+  IconStop,
   MonoCell,
   PageHeader,
   Table,
 } from '../components/ui'
+
+/** Un motor con su estado y su puerto. Repite lo que dice el pie de la barra
+ *  lateral, a propósito: acá es donde se viene a mirar el estado del sistema. */
+function Plano({ nombre, estado }: { nombre: string; estado: PlaneStatus | null }) {
+  return (
+    <section className="eo-plane">
+      {!estado ? (
+        <Badge tone="neutral">verificando…</Badge>
+      ) : !estado.healthy ? (
+        <Badge tone="error">Sin respuesta</Badge>
+      ) : estado.ready ? (
+        <Badge tone="ok">Operativo</Badge>
+      ) : (
+        <Badge tone="warn">No listo</Badge>
+      )}
+      <span className="eo-plane__text">
+        <b>{nombre}</b>
+        <span>{estado ? hostDe(estado.service_url) : '—'}</span>
+      </span>
+    </section>
+  )
+}
+
+/** `http://127.0.0.1:8080` → `127.0.0.1:8080`. El esquema es ruido acá. */
+function hostDe(url: string): string {
+  try {
+    return new URL(url).host
+  } catch {
+    return url
+  }
+}
 
 function errorMessage(e: unknown): string {
   if (e instanceof ApiError) {
@@ -23,38 +58,28 @@ function errorMessage(e: unknown): string {
 }
 
 export default function PlatformPage() {
-  const [rows, setRows] = useState<PlatformInstance[] | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState<string | null>(null) // instancia activándose/deteniéndose
-  const [notEnabled, setNotEnabled] = useState(false)
 
-  const refresh = () =>
-    getInstances()
-      .then((r) => {
-        setRows(r)
-        setNotEnabled(false)
-      })
-      .catch((e) => {
-        if (e instanceof ApiError && e.status === 501) setNotEnabled(true)
-        else setError(errorMessage(e))
-      })
+  const { data: rows, error: loadError } = useInstances()
+  const preflight = usePreflight()
+  const activateMutation = useActivateInstance()
+  const stopMutation = useStopPlatform()
 
-  useEffect(() => {
-    refresh()
-    const timer = setInterval(refresh, 5000)
-    return () => clearInterval(timer)
-  }, [])
+  // El 501 no es un fallo: es "esta consola apunta a una instancia fija y la
+  // orquestación no está habilitada". Se distingue del resto para poder mostrar
+  // un estado de interfaz en vez de un error.
+  const notEnabled = loadError instanceof ApiError && loadError.status === 501
 
   const activate = async (name: string) => {
     setBusy(name)
     setError(null)
     try {
-      await activateInstance(name)
+      await activateMutation.mutateAsync(name)
     } catch (e) {
       setError(errorMessage(e))
     } finally {
       setBusy(null)
-      refresh()
     }
   }
 
@@ -62,12 +87,11 @@ export default function PlatformPage() {
     setBusy('__stop__')
     setError(null)
     try {
-      await stopPlatform()
+      await stopMutation.mutateAsync()
     } catch (e) {
       setError(errorMessage(e))
     } finally {
       setBusy(null)
-      refresh()
     }
   }
 
@@ -87,13 +111,58 @@ export default function PlatformPage() {
         </EmptyState>
       </>
     )
-  if (error && !rows) return <ErrorBanner>Error: {error}</ErrorBanner>
+  // `error` es de las acciones (activar/apagar); `loadError` es del listado. Si
+  // el listado nunca cargó no hay tabla que mostrar, así que ese gana.
+  if (loadError && !rows) return <ErrorBanner>Error: {errorMessage(loadError)}</ErrorBanner>
   if (!rows) return <p className="eo-empty">Cargando…</p>
+
+  const activa = rows.find((r) => r.is_target) ?? null
 
   return (
     <>
       <PageHeader title="Plataforma" meta={`${rows.length} instancias del servicio`} />
       {error && <ErrorBanner>{error}</ErrorBanner>}
+
+      <div className="eo-hero">
+        {activa ? (
+          <section className="eo-target">
+            <div className="eo-target__label">Instancia activa</div>
+            <div className="eo-target__name">{activa.name}</div>
+            <div className="eo-target__chips">
+              {activa.ready ? (
+                <Badge tone="ok">Operativa</Badge>
+              ) : (
+                <Badge tone="warn">Cargando el modelo</Badge>
+              )}
+              <span className="eo-mono eo-note">{activa.model_ref}</span>
+            </div>
+            {/* El prototipo muestra acá encendida-hace, memoria de GPU y
+                corridas-hoy. El backend no expone ninguno de los tres, y tres
+                casilleros en «sin dato» ocupan lugar sin informar: se muestra el
+                pie solo con la acción hasta que existan. */}
+            <div className="eo-target__foot">
+              <Button variant="danger" onClick={stop} disabled={busy !== null}>
+                <IconStop />
+                Apagar
+              </Button>
+            </div>
+          </section>
+        ) : (
+          <section className="eo-target">
+            <div className="eo-target__label">Instancia activa</div>
+            <div className="eo-target__name">—</div>
+            <p className="eo-note">
+              Ninguna instancia está activa. Activá una desde la tabla para poder lanzar corridas.
+            </p>
+          </section>
+        )}
+
+        <div className="eo-planes">
+          <Plano nombre="Motor de detección" estado={preflight?.media ?? null} />
+          <Plano nombre="Motor de reglas" estado={preflight?.control ?? null} />
+        </div>
+      </div>
+
       <Card title="Instancias del servicio" meta="Solo una puede estar activa" flush>
         <Table>
           <thead>

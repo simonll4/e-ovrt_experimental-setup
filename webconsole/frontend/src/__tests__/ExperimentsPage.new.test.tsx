@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { cleanup, render, screen, waitFor, fireEvent } from '@testing-library/react'
+import { cleanup, render, screen, waitFor, fireEvent } from '../test-utils'
 import { MemoryRouter } from 'react-router-dom'
 import ExperimentsPage from '../pages/ExperimentsPage'
 import * as api from '../api'
@@ -121,13 +121,13 @@ describe('ExperimentsPage - crear nuevo experimento (/experiments/new)', () => {
     )
 
     await waitFor(() => expect(screen.getAllByText('d1').length).toBeGreaterThan(0))
-    fireEvent.click(screen.getAllByRole('button', { name: 'Derivar' })[0])
+    fireEvent.click(screen.getAllByRole('button', { name: 'Partir de este' })[0])
 
     await waitFor(() => expect(screen.getByText('Derivar de d1')).toBeTruthy())
     expect(screen.queryByRole('button', { name: 'Basado en' })).toBeNull()
     // El modo "derivar" no cambia: sigue habiendo botones "Derivar" (uno por
     // fila + el de submit del formulario) y ninguno "Crear".
-    expect(screen.getAllByRole('button', { name: 'Derivar' }).length).toBeGreaterThan(0)
+    expect(screen.getAllByRole('button', { name: 'Partir de este' }).length).toBeGreaterThan(0)
     expect(screen.queryByText('Nuevo experimento')).toBeNull()
     expect(screen.queryByRole('button', { name: 'Crear' })).toBeNull()
   })

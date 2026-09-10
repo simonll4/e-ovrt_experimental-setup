@@ -1,4 +1,4 @@
-import { act, cleanup, render, screen } from '@testing-library/react'
+import { act, cleanup, render, screen } from '../test-utils'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import ExperimentDetailPage from '../pages/ExperimentDetailPage'
@@ -22,16 +22,25 @@ function renderPage(id = 'exp_1') {
   )
 }
 
-// Deja correr todos los .then encolados de las promesas ya resueltas (fetch
-// mocks) sin avanzar el reloj falso -- lo que hace falta para que el efecto
-// de poll inicial (llamada inmediata, sin setTimeout de por medio) termine de
-// asentarse en el estado de React antes de asertar.
+// Deja correr los .then encolados de las promesas ya resueltas (los mocks de
+// fetch) para que el estado termine de asentarse antes de asertar.
+//
+// Avanza 1 ms además de drenar microtasks: TanStack Query no notifica a los
+// observadores en el mismo tick en que resuelve la petición, lo agenda. Con
+// solo `await Promise.resolve()` la caché ya tiene el dato pero el componente
+// todavía no se re-renderizó, y la pantalla sigue diciendo "Cargando…".
+// Dos rondas porque las peticiones están encadenadas: la del estado vivo del
+// motor de reglas solo se habilita una vez que se sabe que el experimento está
+// corriendo, o sea después de que resolvió la primera.
 async function flush() {
-  await act(async () => {
-    await Promise.resolve()
-    await Promise.resolve()
-    await Promise.resolve()
-  })
+  for (let ronda = 0; ronda < 2; ronda++) {
+    await act(async () => {
+      await Promise.resolve()
+      await Promise.resolve()
+      await Promise.resolve()
+      await vi.advanceTimersByTimeAsync(1)
+    })
+  }
 }
 
 const CR01_PATTERN = {

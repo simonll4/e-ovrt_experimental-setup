@@ -170,7 +170,7 @@ export function DeriveExperimentForm({
           onChange={(e) => setField('warmup_frames', e.target.value)}
         />
       </Field>
-      <Field label="fps">
+      <Field label="Cuadros por segundo">
         <input value={values.fps} onChange={(e) => setField('fps', e.target.value)} />
       </Field>
       <Field label="cámara">
@@ -192,10 +192,10 @@ export function DeriveExperimentForm({
           ))}
         </select>
       </Field>
-      <Field label="stride">
+      <Field label="Procesar uno de cada N cuadros">
         <input value={values.stride} onChange={(e) => setField('stride', e.target.value)} />
       </Field>
-      <Field label="max_units">
+      <Field label="Máximo de unidades a procesar">
         <input value={values.max_units} onChange={(e) => setField('max_units', e.target.value)} />
       </Field>
       <Field label="pattern set" hint="ruta absoluta al pattern set file">

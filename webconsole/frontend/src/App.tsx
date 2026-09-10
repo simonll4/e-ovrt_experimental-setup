@@ -7,6 +7,7 @@ import ComparePage from './pages/ComparePage'
 import ComposePage from './pages/ComposePage'
 import ExperimentDetailPage from './pages/ExperimentDetailPage'
 import ExperimentsPage from './pages/ExperimentsPage'
+import NotFoundPage from './pages/NotFoundPage'
 import PlatformPage from './pages/PlatformPage'
 import PromptSetsPage from './pages/PromptSetsPage'
 import RunDetailPage from './pages/RunDetailPage'
@@ -31,6 +32,9 @@ export default function App() {
         <Route path="/prompts" element={<PromptSetsPage />} />
         <Route path="/cameras" element={<CamerasPage />} />
         <Route path="/clips" element={<ClipsPage />} />
+        {/* Última: cualquier ruta que no matcheó antes. Sin esto, una URL vieja
+            dejaba el armazón dibujado y el contenido en blanco. */}
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Shell>
   )

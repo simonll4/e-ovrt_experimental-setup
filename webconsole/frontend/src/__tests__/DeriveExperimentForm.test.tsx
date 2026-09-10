@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest'
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, waitFor } from '../test-utils'
 import { DeriveExperimentForm } from '../components/DeriveExperimentForm'
 
 const derive = vi.fn()
@@ -48,13 +48,13 @@ describe('DeriveExperimentForm', () => {
     render(<DeriveExperimentForm source="base" onDone={() => {}} onCancel={() => {}} />)
     await esperarPrecarga()
     expect(deriveDefaults).toHaveBeenCalledWith('base')
-    expect((screen.getByLabelText('fps') as HTMLInputElement).value).toBe('')
+    expect((screen.getByLabelText('Cuadros por segundo') as HTMLInputElement).value).toBe('')
     expect((screen.getByLabelText('cámara') as HTMLSelectElement).value).toBe('oak_d_lab')
     expect((screen.getByLabelText('Conjunto de prompts') as HTMLSelectElement).value).toBe(
       'cr01_cr02_v2_short',
     )
-    expect((screen.getByLabelText('stride') as HTMLInputElement).value).toBe('2')
-    expect((screen.getByLabelText('max_units') as HTMLInputElement).value).toBe('')
+    expect((screen.getByLabelText('Procesar uno de cada N cuadros') as HTMLInputElement).value).toBe('2')
+    expect((screen.getByLabelText('Máximo de unidades a procesar') as HTMLInputElement).value).toBe('')
     // el <label> incluye el hint, por eso el prefijo en vez de igualdad exacta
     expect((screen.getByLabelText(/^pattern setruta absoluta/) as HTMLInputElement).value).toBe(
       '/p/v2.yaml',

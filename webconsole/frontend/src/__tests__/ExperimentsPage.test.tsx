@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { cleanup, render, screen, waitFor, fireEvent } from '@testing-library/react'
+import { cleanup, render, screen, waitFor, fireEvent } from '../test-utils'
 import { MemoryRouter } from 'react-router-dom'
 import ExperimentsPage from '../pages/ExperimentsPage'
 import * as api from '../api'
@@ -44,7 +44,7 @@ describe('ExperimentsPage', () => {
     vi.mocked(api.runExperiment).mockResolvedValue({ experiment_id: 'exp_9' })
     render(<MemoryRouter><ExperimentsPage /></MemoryRouter>)
     await waitFor(() => expect(screen.getAllByText('d1').length).toBeGreaterThan(0))
-    const button = screen.getByRole('button', { name: /lanzar/i }) as HTMLButtonElement
+    const button = screen.getByRole('button', { name: 'Ejecutar' }) as HTMLButtonElement
     await waitFor(() => expect(button.disabled).toBe(false))
     fireEvent.click(button)
     await waitFor(() => expect(vi.mocked(api.runExperiment)).toHaveBeenCalled())
@@ -62,7 +62,7 @@ describe('ExperimentsPage', () => {
       // "control-plane" en pantalla, y menos cuando algo se cayó.
       expect(screen.getByText(/el motor de reglas no responde/)).toBeTruthy(),
     )
-    const button = screen.getByRole('button', { name: /lanzar/i }) as HTMLButtonElement
+    const button = screen.getByRole('button', { name: 'Ejecutar' }) as HTMLButtonElement
     expect(button.disabled).toBe(true)
     expect(vi.mocked(api.runExperiment)).not.toHaveBeenCalled()
   })
@@ -75,49 +75,36 @@ describe('ExperimentsPage', () => {
     vi.mocked(api.runExperiment).mockRejectedValue(err)
     render(<MemoryRouter><ExperimentsPage /></MemoryRouter>)
     await waitFor(() => expect(screen.getAllByText('d1').length).toBeGreaterThan(0))
-    const button = screen.getByRole('button', { name: /lanzar/i }) as HTMLButtonElement
+    const button = screen.getByRole('button', { name: 'Ejecutar' }) as HTMLButtonElement
     await waitFor(() => expect(button.disabled).toBe(false))
     fireEvent.click(button)
     await waitFor(() => expect(screen.getByText(/Plataforma no lista/)).toBeTruthy())
   })
 
-  it('espera la recarga de manifiestos antes de seleccionar el slug derivado', async () => {
-    // Sin esperar la recarga, el <select> queda por un instante con un value sin
-    // <option> que lo matchee y el browser muestra la primera opción — justo
-    // cuando el operador quiere confirmar qué va a lanzar.
-    let resolveReload: (rows: any[]) => void = () => {}
-    vi.mocked(api.getExperimentManifests)
-      .mockResolvedValueOnce([{ slug: 'd1', experiment_id: null } as any])
-      .mockReturnValueOnce(new Promise((res) => { resolveReload = res as any }) as any)
+  // Antes esto protegía al desplegable global de mostrar un manifiesto y lanzar
+  // otro mientras la recarga estaba en vuelo. Con el lanzamiento por fila esa
+  // divergencia ya no puede existir —la fila ES el manifiesto—, así que lo que
+  // queda por comprobar es que derivar recarga la lista y que cada botón lanza
+  // el suyo, incluso con varias filas en pantalla.
+  it('derivar recarga los manifiestos, y cada fila lanza el suyo', async () => {
+    vi.mocked(api.getExperimentManifests).mockResolvedValue([
+      { slug: 'd1', experiment_id: null } as any,
+      { slug: 'd2', experiment_id: null } as any,
+    ])
     vi.mocked(api.getCurrentExperiment).mockResolvedValue(null)
     vi.mocked(api.getPreflight).mockResolvedValue(PREFLIGHT_OK)
     vi.mocked(api.runExperiment).mockResolvedValue({ experiment_id: 'exp_9' })
     render(<MemoryRouter><ExperimentsPage /></MemoryRouter>)
 
     await waitFor(() => expect(screen.getAllByText('d1').length).toBeGreaterThan(0))
-    fireEvent.click(screen.getByRole('button', { name: 'Derivar' }))
+    fireEvent.click(screen.getAllByRole('button', { name: 'Partir de este' })[0])
     fireEvent.click(screen.getByText('fake-derive-done'))
-
-    // El desplegable es propio (no <select> nativo): lo elegido se lee del texto
-    // del control, que es justamente lo que ve el operador.
-    const shown = () =>
-      (document.querySelector('.eo-select__control span') as HTMLElement).textContent?.trim()
     await waitFor(() => expect(vi.mocked(api.getExperimentManifests)).toHaveBeenCalledTimes(2))
 
-    // Mientras la recarga está en vuelo, el slug nuevo todavía no es una opción, así
-    // que el desplegable MUESTRA 'd1'. Lo que se lanza tiene que ser eso mismo: si el
-    // estado ya fuera 'nuevo', el operador vería una cosa y lanzaría otra.
-    expect(screen.queryByRole('option', { name: 'nuevo' })).toBeNull()
-    expect(shown()).toBe('d1')
-    fireEvent.click(screen.getByRole('button', { name: /lanzar experimento/i }))
+    // El segundo botón lanza el segundo manifiesto, no el preseleccionado.
+    fireEvent.click(screen.getAllByRole('button', { name: 'Ejecutar' })[1])
     await waitFor(() => expect(vi.mocked(api.runExperiment)).toHaveBeenCalled())
-    expect(vi.mocked(api.runExperiment)).toHaveBeenCalledWith({ slug: shown() })
-
-    resolveReload([
-      { slug: 'd1', experiment_id: null } as any,
-      { slug: 'nuevo', experiment_id: null } as any,
-    ])
-    await waitFor(() => expect(shown()).toBe('nuevo'))
+    expect(vi.mocked(api.runExperiment)).toHaveBeenCalledWith({ slug: 'd2' })
   })
 
   it('muestra 409 con el experimento activo', async () => {
@@ -128,7 +115,7 @@ describe('ExperimentsPage', () => {
     vi.mocked(api.runExperiment).mockRejectedValue(err)
     render(<MemoryRouter><ExperimentsPage /></MemoryRouter>)
     await waitFor(() => expect(screen.getAllByText('d1').length).toBeGreaterThan(0))
-    const button = screen.getByRole('button', { name: /lanzar/i }) as HTMLButtonElement
+    const button = screen.getByRole('button', { name: 'Ejecutar' }) as HTMLButtonElement
     await waitFor(() => expect(button.disabled).toBe(false))
     fireEvent.click(button)
     await waitFor(() => expect(screen.getByText(/exp_prev/)).toBeTruthy())

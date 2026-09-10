@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest'
-import { cleanup, fireEvent, render } from '@testing-library/react'
+import { cleanup, fireEvent, render } from '../test-utils'
 import PreviewWithBoxes from '../components/PreviewWithBoxes'
 import type { TraceDetection } from '../types'
 

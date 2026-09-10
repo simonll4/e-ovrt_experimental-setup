@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 
 import { ApiError, getRecording, nextTake, startRecording, stopRecording } from '../api'
+import { sourceLabel } from '../runview'
 import type { CameraPreset, RecordingStatus } from '../types'
 
 const SCENARIOS = ['P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7', 'P8', 'P9']
@@ -143,7 +144,7 @@ export default function RecordPanel({
 
   return (
     <section className="record-panel">
-      <h3>Grabar toma</h3>
+      <h3>Grabar una toma</h3>
 
       <label htmlFor="rec-camera">Cámara</label>
       <select
@@ -154,7 +155,7 @@ export default function RecordPanel({
       >
         <option value="">— elegir cámara —</option>
         {cameras.map((c) => (
-          <option key={c.id} value={c.id}>{c.name} ({c.plugin})</option>
+          <option key={c.id} value={c.id}>{c.name} — {sourceLabel(c.plugin)}</option>
         ))}
       </select>
 

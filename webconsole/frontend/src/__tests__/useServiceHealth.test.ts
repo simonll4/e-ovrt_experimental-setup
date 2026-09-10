@@ -1,6 +1,6 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
-import { renderHook, waitFor, cleanup } from '@testing-library/react'
-import { useServiceHealth } from '../useServiceHealth'
+import { renderHook, waitFor, cleanup } from '../test-utils'
+import { useServiceHealth } from '../api/queries/platform'
 import * as api from '../api'
 
 vi.mock('../api', async (importOriginal) => ({

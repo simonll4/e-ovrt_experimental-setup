@@ -3,7 +3,7 @@
 // (con detección de fuente no-temporal, ADR-013) en ExperimentDetailPage. La api se
 // mockea; no hay backend real involucrado.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { cleanup, render, screen, waitFor, fireEvent } from '@testing-library/react'
+import { cleanup, render, screen, waitFor, fireEvent } from '../test-utils'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import ExperimentsPage from '../pages/ExperimentsPage'
 import ExperimentDetailPage from '../pages/ExperimentDetailPage'
@@ -57,7 +57,7 @@ describe('spec44c gate: flujo de experimentos por la UI', () => {
     await waitFor(() => expect(screen.getAllByText('gate-slug').length).toBeGreaterThan(0))
 
     // El botón se habilita recién cuando el preflight de servicios da verde.
-    const launch = screen.getByRole('button', { name: /lanzar experimento/i }) as HTMLButtonElement
+    const launch = screen.getByRole('button', { name: 'Ejecutar' }) as HTMLButtonElement
     await waitFor(() => expect(launch.disabled).toBe(false))
     fireEvent.click(launch)
 

@@ -1,9 +1,13 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { ApiError, getCurrentExperiment, getExperimentManifests, runExperiment } from '../api'
-import type { ExperimentManifestSummary, ExperimentRunState } from '../types'
+import { useQueryClient } from '@tanstack/react-query'
+import { ApiError } from '../api'
+import { qk } from '../api/keys'
+import {
+  useCurrentExperiment, useExperimentManifests, useRunExperiment,
+} from '../api/queries/experiments'
 import { experimentStatusLabel, experimentStatusTone } from '../experimentview'
-import { usePreflight } from '../usePreflight'
+import { usePreflight } from '../api/queries/platform'
 import PlatformStatus from '../components/PlatformStatus'
 import { DeriveExperimentForm } from '../components/DeriveExperimentForm'
 import {
@@ -14,13 +18,28 @@ import {
   EmptyState,
   ErrorBanner,
   Field,
+  IconWarn,
   MonoCell,
   PageHeader,
   RowNameCell,
+  SearchInput,
   Select,
   Table,
 } from '../components/ui'
 import { applyPlaneGlossary } from '../labels'
+
+/** Antigüedad legible de la última ejecución. */
+function cuando(iso: string | null | undefined): string {
+  if (!iso) return '—'
+  const ms = new Date(iso).getTime()
+  if (!Number.isFinite(ms)) return '—'
+  const min = Math.floor((Date.now() - ms) / 60000)
+  if (min < 1) return 'recién'
+  if (min < 60) return `hace ${min} min`
+  const h = Math.floor(min / 60)
+  if (h < 24) return `hace ${h} h`
+  return `hace ${Math.floor(h / 24)} d`
+}
 
 // Formulario abierto: `selectable` distingue el "Derivar" de una fila (fuente
 // fija, como siempre) del formulario de /experiments/new (fuente elegible via
@@ -45,13 +64,19 @@ export default function ExperimentsPage() {
   const location = useLocation()
   const isNewRoute = location.pathname === '/experiments/new'
   const preflight = usePreflight()
-  const [rows, setRows] = useState<ExperimentManifestSummary[] | null>(null)
-  const [error, setError] = useState<string | null>(null)
-  const [current, setCurrent] = useState<ExperimentRunState | null>(null)
   const [slug, setSlug] = useState('')
-  const [busy, setBusy] = useState(false)
+  const [filtro, setFiltro] = useState('')
   const [runError, setRunError] = useState<string | null>(null)
   const [formMode, setFormMode] = useState<FormMode>(null)
+  const qc = useQueryClient()
+
+  const consultaManifiestos = useExperimentManifests()
+  const rows = consultaManifiestos.data ?? null
+  const error = consultaManifiestos.error ? String(consultaManifiestos.error) : null
+  // Solo se repregunta mientras hay un experimento corriendo (ver la query).
+  const current = useCurrentExperiment().data ?? null
+  const lanzamiento = useRunExperiment()
+  const busy = lanzamiento.isPending
 
   // Cierra el formulario. /experiments/new es una ruta dedicada: al salir del
   // formulario ahí, se navega de vuelta a /experiments — si no, la ruta sigue
@@ -62,28 +87,16 @@ export default function ExperimentsPage() {
     if (isNewRoute) navigate('/experiments')
   }
 
-  const reloadManifests = () =>
-    getExperimentManifests()
-      .then((r) => {
-        setRows(r)
-        setError(null)
-        return r
-      })
-      .catch((e) => {
-        setError(String(e))
-        return null
-      })
+  const reloadManifests = async () => {
+    await qc.invalidateQueries({ queryKey: qk.experiments.manifests })
+  }
 
+  // Preselección del desplegable con el primer manifiesto disponible. Sigue
+  // siendo un efecto porque es estado de formulario derivado de datos que
+  // llegan asincrónicos, no una petición.
   useEffect(() => {
-    let alive = true
-    reloadManifests().then((r) => {
-      if (alive && r && r.length > 0 && !slug) setSlug(r[0].slug)
-    })
-    return () => {
-      alive = false
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+    if (rows && rows.length > 0 && !slug) setSlug(rows[0].slug)
+  }, [rows, slug])
 
   // /experiments/new abre el formulario apenas hay manifiestos para elegir
   // "basado en" (precargado con el primero, como pide el spec).
@@ -94,54 +107,41 @@ export default function ExperimentsPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isNewRoute, rows])
 
-  useEffect(() => {
-    let alive = true
-    let timer: ReturnType<typeof setTimeout>
-    const tick = () =>
-      getCurrentExperiment()
-        .then((c) => {
-          if (!alive) return
-          setCurrent(c)
-          if (c?.status === 'running') timer = setTimeout(tick, 4000)
-        })
-        .catch(() => {
-          /* banner de estado activo: silencioso si falla el poll */
-        })
-    tick()
-    return () => {
-      alive = false
-      clearTimeout(timer)
-    }
-  }, [])
-
-  const trigger = async () => {
-    if (!slug) return
-    setBusy(true)
+  const trigger = async (elegido: string) => {
+    if (!elegido) return
+    setSlug(elegido)
     setRunError(null)
     try {
-      const { experiment_id } = await runExperiment({ slug })
+      const { experiment_id } = await lanzamiento.mutateAsync(elegido)
       navigate(`/experiments/${experiment_id}`)
     } catch (e) {
       setRunError(errorMessage(e))
-    } finally {
-      setBusy(false)
     }
+    // `busy` lo lleva la mutación (`lanzamiento.isPending`): no hay que
+    // acordarse de bajarlo en un `finally`.
   }
 
   // Gate de lanzamiento: sin preflight verde no se lanza (el BFF igualmente lo
   // rechaza con 503; acá se corta antes y con el motivo a la vista).
   const experimentRunning = current?.status === 'running'
   const blocked = !preflight?.ready || experimentRunning
-  const blockedReason = experimentRunning
-    ? 'hay un experimento en curso'
-    : preflight === null
-      ? 'verificando servicios…'
-      : preflight.blockers[0]
+  // Todos los bloqueos, no el primero: `preflight.blockers` siempre fue un
+  // array y mostrar `[0]` obligaba a arreglar uno, reintentar, y descubrir el
+  // siguiente. Se listan juntos para poder resolverlos de una.
+  const bloqueos: string[] = [
+    ...(experimentRunning ? ['Hay un experimento en curso'] : []),
+    ...(preflight === null ? ['Verificando servicios…'] : preflight.blockers),
+  ]
 
   if (error) return <ErrorBanner>Error listando experimentos: {error}</ErrorBanner>
   if (!rows) return <p className="eo-empty">Cargando…</p>
 
   const options = rows.map((r) => ({ value: r.slug, label: r.slug }))
+
+  const aguja = filtro.trim().toLowerCase()
+  const visibles = aguja
+    ? rows.filter((r) => `${r.slug} ${r.group ?? ''}`.toLowerCase().includes(aguja))
+    : rows
 
   return (
     <>
@@ -160,18 +160,28 @@ export default function ExperimentsPage() {
         </Banner>
       )}
 
-      <Card title="Lanzar un experimento">
-        <div className="eo-launchbar">
-          <PlatformStatus status={preflight} />
-          <Select value={slug} options={options} onChange={setSlug} placeholder="Elegí un manifiesto" />
-          <Button variant="primary" onClick={trigger} disabled={busy || !slug || blocked}>
-            {busy ? 'Lanzando…' : 'Lanzar experimento'}
-          </Button>
-        </div>
-        {blocked && !busy && (
-          <p className="eo-note eo-note--warn">
-            No se puede lanzar: {applyPlaneGlossary(String(blockedReason ?? 'servicios no listos'))}.
+      <Card
+        title="Antes de ejecutar"
+        meta={
+          bloqueos.length
+            ? `${bloqueos.length} bloqueo${bloqueos.length > 1 ? 's' : ''}`
+            : 'Todo listo'
+        }
+      >
+        {bloqueos.length === 0 ? (
+          <p className="eo-note">
+            <PlatformStatus status={preflight} /> Los dos motores responden y no hay ningún
+            experimento en curso.
           </p>
+        ) : (
+          <ul className="eo-blockers">
+            {bloqueos.map((b) => (
+              <li key={b}>
+                <IconWarn />
+                <span>{applyPlaneGlossary(b)}</span>
+              </li>
+            ))}
+          </ul>
         )}
         {runError && <ErrorBanner>{applyPlaneGlossary(runError)}</ErrorBanner>}
       </Card>
@@ -214,38 +224,94 @@ export default function ExperimentsPage() {
           Sin manifiestos todavía
         </EmptyState>
       ) : (
-        <Card title="Manifiestos" meta={`${rows.length}`} flush>
-          <Table>
-            <thead>
-              <tr>
-                <th>Manifiesto</th>
-                <th>Grupo</th>
-                <th>Última ejecución</th>
-                <th aria-label="Acciones" />
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((r) => (
-                <tr key={r.slug}>
-                  <RowNameCell title={<span className="eo-mono">{r.slug}</span>} subtitle={r.description ?? undefined} />
-                  <td>{r.group ?? '—'}</td>
-                  <MonoCell>
-                    {r.experiment_id ? (
-                      <Link to={`/experiments/${r.experiment_id}`}>{r.experiment_id}</Link>
-                    ) : (
-                      '—'
-                    )}
-                  </MonoCell>
-                  <td className="eo-cell--actions">
-                    <Button onClick={() => setFormMode({ source: r.slug, selectable: false })}>
-                      Derivar
-                    </Button>
-                  </td>
+        <>
+          <div className="eo-toolbar">
+            <SearchInput
+              value={filtro}
+              onChange={setFiltro}
+              placeholder="Buscar por manifiesto o grupo"
+              ariaLabel="Buscar manifiestos por nombre o grupo"
+            />
+            <span className="eo-toolbar__count eo-mono">
+              {visibles.length} de {rows.length}
+            </span>
+          </div>
+
+          <Card title="Manifiestos" meta={`${rows.length}`} flush>
+            <Table>
+              <thead>
+                <tr>
+                  <th>Manifiesto</th>
+                  <th>Grupo</th>
+                  <th>Última ejecución</th>
+                  <th>Estado</th>
+                  <th className="eo-th--numeric">Corridas</th>
+                  <th>Cuándo</th>
+                  <th aria-label="Acciones" />
                 </tr>
-              ))}
-            </tbody>
-          </Table>
-        </Card>
+              </thead>
+              <tbody>
+                {visibles.map((r) => {
+                  const ultima = r.last_experiment_id ?? r.experiment_id ?? null
+                  return (
+                    <tr key={r.slug}>
+                      <RowNameCell
+                        title={<span className="eo-mono">{r.slug}</span>}
+                        subtitle={r.description ?? undefined}
+                      />
+                      <td>{r.group ?? '—'}</td>
+                      {/* Un manifiesto que nunca se ejecutó no tiene resultado
+                          que ver: se muestra apagado y sin enlace en vez de un
+                          guion que no explica nada. */}
+                      <MonoCell>
+                        {ultima ? (
+                          <Link to={`/experiments/${ultima}`}>{ultima}</Link>
+                        ) : (
+                          <span
+                            className="eo-cell--muted"
+                            title="Todavía no se ejecutó, no hay resultado que ver"
+                          >
+                            Nunca se ejecutó
+                          </span>
+                        )}
+                      </MonoCell>
+                      <td>
+                        {r.last_status ? (
+                          <Badge tone={experimentStatusTone({ status: r.last_status })}>
+                            {experimentStatusLabel({ status: r.last_status })}
+                          </Badge>
+                        ) : (
+                          <Badge tone="neutral">Sin ejecutar</Badge>
+                        )}
+                      </td>
+                      <td className="eo-num">{r.n_runs || '—'}</td>
+                      <td className="eo-cell--muted">{cuando(r.last_run_at)}</td>
+                      <td className="eo-cell--actions">
+                        <Button onClick={() => setFormMode({ source: r.slug, selectable: false })}>
+                          Partir de este
+                        </Button>{' '}
+                        {/* Lanzar desde la fila evita elegir el manifiesto dos
+                            veces: una en el desplegable y otra con la vista. */}
+                        <Button
+                          variant="primary"
+                          disabled={busy || blocked}
+                          onClick={() => void trigger(r.slug)}
+                        >
+                          {busy && slug === r.slug ? 'Lanzando…' : 'Ejecutar'}
+                        </Button>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </Table>
+            {visibles.length === 0 && (
+              <EmptyState hint="Probá con otro texto.">
+                Ningún manifiesto coincide con la búsqueda
+              </EmptyState>
+            )}
+          </Card>
+        </>
       )}
     </>
   )

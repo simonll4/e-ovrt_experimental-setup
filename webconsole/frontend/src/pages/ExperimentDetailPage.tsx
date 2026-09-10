@@ -1,12 +1,12 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import { ApiError } from '../api'
 import {
-  ApiError,
-  getControlCurrent,
-  getExperiment,
-  getExperimentAlerts,
-  getExperimentReport,
-} from '../api'
+  useControlCurrent,
+  useExperiment,
+  useExperimentAlerts,
+  useExperimentReport,
+} from '../api/queries/experiments'
 import ExperimentSummary, { readMetricRow, type MetricRow } from '../components/ExperimentSummary'
 import {
   alertSeverityTone,
@@ -176,111 +176,33 @@ const readSkippedInvalidAlerts = (
 
 export default function ExperimentDetailPage() {
   const { id = '' } = useParams()
-  const [experiment, setExperiment] = useState<ExperimentRunState | null>(null)
-  const [error, setError] = useState<string | null>(null)
-  const [alerts, setAlerts] = useState<ExperimentAlert[] | null>(null)
-  const [alertsError, setAlertsError] = useState<string | null>(null)
-  const [alertsPending, setAlertsPending] = useState(false)
-  const [report, setReport] = useState<ExperimentReport | null>(null)
-  const [reportError, setReportError] = useState<string | null>(null)
-  /** El reporte todavía no se consolidó. No es un error: no va en rojo. */
-  const [reportPending, setReportPending] = useState(false)
-  const [activePatterns, setActivePatterns] = useState<ActiveRiskPattern[]>([])
+
+  // El estado del experimento se repregunta solo mientras está en curso.
+  const consultaExperimento = useExperiment(id)
+  const experiment = consultaExperimento.data ?? null
+  const error = consultaExperimento.error ? errorMessage(consultaExperimento.error) : null
   const running = experiment?.status === 'running'
 
-  const refresh = () =>
-    getExperiment(id)
-      .then((e) => {
-        setExperiment(e)
-        setError(null)
-      })
-      .catch((e) => setError(errorMessage(e)))
+  // Alertas y reporte: un 404 acá es "todavía no se consolidó", no una falla —
+  // por eso se separa del error rojo y se muestra como pendiente.
+  const consultaAlertas = useExperimentAlerts(id, Boolean(id), running)
+  const alerts: ExperimentAlert[] | null = consultaAlertas.data ?? null
+  const alertsPending = Boolean(consultaAlertas.error && isNotFound(consultaAlertas.error))
+  const alertsError =
+    consultaAlertas.error && !alertsPending ? errorMessage(consultaAlertas.error) : null
 
-  useEffect(() => {
-    void refresh()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id])
+  const consultaReporte = useExperimentReport(id, Boolean(id), running)
+  const report: ExperimentReport | null = consultaReporte.data ?? null
+  const reportPending = Boolean(consultaReporte.error && isNotFound(consultaReporte.error))
+  const reportError =
+    consultaReporte.error && !reportPending ? errorMessage(consultaReporte.error) : null
 
-  useEffect(() => {
-    if (!running) return
-    const timer = setInterval(refresh, 4000)
-    return () => clearInterval(timer)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [running])
-
-  useEffect(() => {
-    let alive = true
-    getExperimentAlerts(id)
-      .then((a) => {
-        if (!alive) return
-        setAlerts(a)
-        setAlertsError(null)
-        setAlertsPending(false)
-      })
-      .catch((e) => {
-        if (!alive) return
-        // Un 404 acá es "todavía no hay archivo de alertas", no una falla.
-        if (isNotFound(e)) {
-          setAlertsPending(true)
-          setAlertsError(null)
-        } else {
-          setAlertsError(errorMessage(e))
-        }
-      })
-    return () => {
-      alive = false
-    }
-  }, [id])
-
-  useEffect(() => {
-    let alive = true
-    getExperimentReport(id)
-      .then((r) => {
-        if (!alive) return
-        setReport(r)
-        setReportError(null)
-      })
-      .catch((e) => {
-        if (!alive) return
-        if (isNotFound(e)) {
-          setReportPending(true)
-          setReportError(null)
-        } else {
-          setReportError(errorMessage(e))
-        }
-      })
-    return () => {
-      alive = false
-    }
-  }, [id])
-
-  // Poll independiente (2s) del estado vivo del motor de reglas, solo mientras el
-  // experimento está en curso: es lo que mantiene al día el banner de riesgo activo
-  // entre la confirmación y la resolución del patrón. Un 404 (sin corrida activa)
-  // resuelve a null y no muestra banner; un error transitorio de red se traga acá y
-  // deja el último estado conocido, a la espera del próximo poll.
-  useEffect(() => {
-    if (!running) {
-      setActivePatterns([])
-      return
-    }
-    let alive = true
-    const poll = () =>
-      getControlCurrent()
-        .then((snapshot) => {
-          if (alive) setActivePatterns(snapshot?.patterns ?? [])
-        })
-        .catch(() => {
-          /* transitorio: no tocar la página, se reintenta */
-        })
-    poll()
-    const timer = setInterval(poll, CONTROL_CURRENT_POLL_MS)
-    return () => {
-      alive = false
-      clearInterval(timer)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [running, id])
+  // Estado vivo del motor de reglas, solo mientras el experimento está en curso:
+  // es lo que mantiene al día el banner de riesgo activo entre la confirmación y
+  // la resolución del patrón. Un 404 (sin corrida activa) resuelve a null y no
+  // muestra banner; un error transitorio deja el último estado conocido.
+  const activePatterns: ActiveRiskPattern[] =
+    useControlCurrent(Boolean(running)).data?.patterns ?? []
 
   const metrics: MetricRow[] = useMemo(
     () => (Array.isArray(report?.resultados) ? report.resultados.map(readMetricRow) : []),
