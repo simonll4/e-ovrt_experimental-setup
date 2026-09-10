@@ -838,6 +838,57 @@ def _observaciones(source_clock: str, anti_drift: dict) -> list[str]:
     return notas
 
 
+def apply_thresholds(
+    resultados: list[MetricResult], criterios: dict | None
+) -> list[MetricResult]:
+    """Adjunta a cada métrica el criterio de aceptación del manifiesto.
+
+    Se hace en una sola pasada al final y no en cada sitio que arma un
+    `MetricResult` (son quince) por dos razones: no hay que enhebrar el
+    manifiesto por toda la construcción del reporte, y el umbral queda declarado
+    en un solo lugar del YAML en vez de repetido.
+
+    Forma esperada en el manifiesto, bajo `report.criterios`:
+
+        report:
+          criterios:
+            far_per_hour:   {max: 2.0}
+            "recall CR-01": {min: 0.85}
+
+    Una métrica sin criterio queda con `threshold=None`, que la interfaz muestra
+    como "—": declarar el umbral es opcional y su ausencia no es un fallo.
+    """
+    if not criterios:
+        return resultados
+    salida = []
+    for metrica in resultados:
+        criterio = criterios.get(metrica.name)
+        if not isinstance(criterio, dict):
+            salida.append(metrica)
+            continue
+        if "max" in criterio:
+            umbral, direccion = criterio["max"], "max"
+        elif "min" in criterio:
+            umbral, direccion = criterio["min"], "min"
+        else:
+            salida.append(metrica)
+            continue
+        # Se revalida (en vez de model_copy) para que el validador vuelva a
+        # correr y derive `passed`: con el umbral recién puesto, en el original
+        # todavía no existía.
+        salida.append(
+            MetricResult.model_validate(
+                {
+                    **metrica.model_dump(),
+                    "threshold": float(umbral),
+                    "threshold_direction": direccion,
+                    "passed": None,
+                }
+            )
+        )
+    return salida
+
+
 def generate_report(consolidated_dir: str | Path) -> dict:
     """Arma el `report.json` (dict) de un experimento consolidado (ADR-014).
 
@@ -925,6 +976,12 @@ def generate_report(consolidated_dir: str | Path) -> dict:
         consolidated_dir, media_summary, control_summary, join_results,
         source_clock=source_clock, two_node=two_node, temporal_eval=temporal_eval,
         distribution_detail=distribution_detail,
+    )
+    # Criterios de aceptación del manifiesto: sin esto el reporte dice cuánto
+    # midió cada métrica pero no contra qué, que es lo que decide si el
+    # experimento pasa.
+    resultados = apply_thresholds(
+        resultados, (manifest_effective.get("report") or {}).get("criterios")
     )
 
     return {

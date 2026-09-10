@@ -14,6 +14,50 @@ from __future__ import annotations
 from collections import Counter
 from typing import Any
 
+# Vocabulario CERRADO del estado de entrega al motor de reglas.
+#
+# `control` viaja como cadena (`received`, `not_received`, `n/d`,
+# `dropped:<motivo>`) y la interfaz la parseaba por prefijo, con un fallback que
+# mostraba el motivo crudo en inglés si no lo reconocía. O sea: un motivo nuevo
+# del media-plane se filtraba a la pantalla sin traducir.
+#
+# Acá se resuelve del lado del servidor: el estado sale de un conjunto cerrado y
+# la etiqueta ya viene lista para renderizar. Un motivo desconocido cae en
+# `otro` con su texto genérico, y el motivo crudo queda en `control_reason` para
+# poder diagnosticarlo sin ensuciar la interfaz.
+CONTROL_DROP_LABELS: dict[str, str] = {
+    "rate_gate": "límite de tasa",
+    "queue_full": "sobrecarga",
+    "staleness_timeout": "llegó tarde",
+    "channel_closed": "canal cerrado",
+}
+
+_CONTROL_LABELS = {
+    "received": "recibido",
+    "not_received": "no recibido",
+    "unknown": "sin dato",
+}
+
+
+def resolve_control(control: str) -> dict[str, Any]:
+    """Traduce la cadena `control` a estado cerrado + motivo + etiqueta."""
+    if control.startswith("dropped:"):
+        reason = control[len("dropped:") :]
+        conocido = reason in CONTROL_DROP_LABELS
+        return {
+            "control_state": "dropped",
+            "control_reason": reason if conocido else "otro",
+            "control_reason_raw": reason,
+            "control_label": CONTROL_DROP_LABELS.get(reason, "descartado"),
+        }
+    estado = control if control in ("received", "not_received") else "unknown"
+    return {
+        "control_state": estado,
+        "control_reason": None,
+        "control_reason_raw": None,
+        "control_label": _CONTROL_LABELS[estado],
+    }
+
 
 def _index_by_unit(rows: list[dict]) -> dict[str, list[dict]]:
     by_unit: dict[str, list[dict]] = {}
@@ -112,6 +156,9 @@ def compose_trace(
     open_episodes: dict[tuple[str, str], dict] = {}
     frames = []
     for row in sorted(rows.values(), key=_sort_key):
+        # `control` se conserva tal cual (contrato vigente); al lado viajan el
+        # estado cerrado y la etiqueta ya resuelta.
+        row.update(resolve_control(row["control"]))
         row["progress"] = progress_by_unit.get(row["unit_id"], [])
         row["alert"] = alerts_by_unit.get(row["unit_id"], [])
         for ev in pattern_events_by_unit.get(row["unit_id"], []):
@@ -147,4 +194,63 @@ def compose_trace(
         "topology": topology,
         "totals": totals,
         "frames": frames,
+    }
+
+
+def frame_tiene_actividad(frame: dict) -> bool:
+    """Si en este cuadro pasó algo que valga la pena mirar.
+
+    Mismo criterio que usaba la consola para el filtro "solo con actividad", pero
+    acá: filtrar en el cliente obligaba a tener la traza entera en memoria, que
+    es justo lo que la paginación viene a evitar.
+    """
+    return bool(
+        (frame.get("detections") or [])
+        or frame.get("control_state") in ("dropped", "not_received")
+        or frame.get("progress")
+        or frame.get("alert")
+        or frame.get("active_patterns")
+    )
+
+
+def filtrar_frames(frames: list[dict], solo: str | None) -> list[dict]:
+    """Aplica el filtro de la lista de cuadros ANTES de paginar.
+
+    Sin esto el filtro solo podía verse sobre lo ya descargado: con una traza de
+    miles de cuadros, "solo alertas" mostraba las alertas de la página actual y
+    no las de la corrida, que es lo contrario de lo que alguien espera.
+    """
+    if solo == "actividad":
+        return [f for f in frames if frame_tiene_actividad(f)]
+    if solo == "alertas":
+        return [f for f in frames if f.get("alert")]
+    return frames
+
+
+def build_trace_index(composed: dict[str, Any]) -> dict[str, Any]:
+    """Índice de actividad de la corrida COMPLETA para la línea de tiempo.
+
+    La línea de tiempo necesita ver la corrida entera de un saque, pero `/trace`
+    solo pagina: la consola terminaba bajando hasta 40 páginas de 500 cuadros
+    para dibujar tres carriles. Este índice trae lo mismo en una sola respuesta.
+
+    Va en arrays paralelos y no en una lista de objetos a propósito: repetir
+    cinco nombres de clave por cuadro multiplica por varias veces el tamaño de
+    la respuesta, y acá el caso normal son miles de cuadros. El i-ésimo elemento
+    de cada array es el i-ésimo cuadro, en el mismo orden que `/trace`.
+    """
+    frames = composed["frames"]
+    return {
+        "control_run_id": composed["control_run_id"],
+        "topology": composed["topology"],
+        "totals": composed["totals"],
+        "total": len(frames),
+        "unit_id": [f["unit_id"] for f in frames],
+        "frame_index": [f["frame_index"] for f in frames],
+        "timestamp_ms": [f["timestamp_ms"] for f in frames],
+        "detections": [0 if f["detections"] is None else len(f["detections"]) for f in frames],
+        "control_state": [f["control_state"] for f in frames],
+        # 1/0 en vez de booleano: la línea de tiempo solo marca si hubo alerta,
+        # y así el array comprime mejor.
+        "alert": [1 if f["alert"] else 0 for f in frames],
     }

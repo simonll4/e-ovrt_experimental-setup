@@ -725,6 +725,9 @@ def test_t_alert_system_y_clasificacion_se_proyectan_desde_evaluacion_temporal(t
         "unit": "s",
         "status": "computed",
         "cause": None,
+        "passed": None,
+        "threshold": None,
+        "threshold_direction": None,
     }
     assert resultados_by_name["precision_alertas"]["value"] == 0.9
     assert resultados_by_name["recall_alertas"]["value"] == 0.75

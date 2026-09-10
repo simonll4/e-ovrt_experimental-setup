@@ -131,7 +131,7 @@ def _read(prompts_dir: Path, set_id: str) -> dict:
     if not path.is_file():
         raise PromptSetNotFound(set_id)
     try:
-        data = yaml.safe_load(path.read_text())
+        data = yaml.safe_load(path.read_text(encoding="utf-8"))
     except yaml.YAMLError as exc:
         raise PromptSetInvalid([{"msg": f"YAML ilegible: {path.name}"}]) from exc
     prompt_set = (data or {}).get("prompt_set")
@@ -153,7 +153,7 @@ def list_sets(prompts_dir: Path) -> list[dict]:
         if not path.is_file():
             continue
         try:
-            data = yaml.safe_load(path.read_text())
+            data = yaml.safe_load(path.read_text(encoding="utf-8"))
         except yaml.YAMLError:
             continue  # archivo ilegible: se omite del listado
         prompt_set = (data or {}).get("prompt_set") if isinstance(data, dict) else None
@@ -172,6 +172,73 @@ def list_sets(prompts_dir: Path) -> list[dict]:
             ),
         })
     return out
+
+
+def _frases_por_clase(prompt_set: dict) -> dict[str, set[str]]:
+    """Aplana las frases de un conjunto a {clase: {frases}}.
+
+    Une todos los backends de `phrasings`: hoy los conjuntos en disco solo usan
+    `default`, pero el modelo permite más de uno y un diff que mirara solo
+    `default` se perdería cambios reales sin avisar.
+    """
+    salida: dict[str, set[str]] = {}
+    for clase in prompt_set.get("classes") or []:
+        frases: set[str] = set()
+        for lista in (clase.get("phrasings") or {}).values():
+            frases.update(lista or [])
+        salida[clase.get("id")] = frases
+    return salida
+
+
+def diff_sets(padre: dict, hijo: dict) -> dict:
+    """Qué cambió entre un conjunto y aquel del que deriva.
+
+    `derives_from` dice de dónde viene un conjunto y `changes` es una nota que
+    escribe una persona, así que podía decir cualquier cosa (o nada). Esto
+    calcula el cambio real, que es lo que hay que poder auditar cuando un
+    conjunto congelado se usa como evidencia.
+    """
+    frases_padre = _frases_por_clase(padre)
+    frases_hijo = _frases_por_clase(hijo)
+    clases_padre, clases_hijo = set(frases_padre), set(frases_hijo)
+
+    frases_agregadas: dict[str, list[str]] = {}
+    frases_quitadas: dict[str, list[str]] = {}
+    for clase in sorted(clases_padre & clases_hijo):
+        agregadas = sorted(frases_hijo[clase] - frases_padre[clase])
+        quitadas = sorted(frases_padre[clase] - frases_hijo[clase])
+        if agregadas:
+            frases_agregadas[clase] = agregadas
+        if quitadas:
+            frases_quitadas[clase] = quitadas
+
+    return {
+        "from": padre.get("id"),
+        "classes_added": sorted(clases_hijo - clases_padre),
+        "classes_removed": sorted(clases_padre - clases_hijo),
+        # Solo de las clases que están en los dos: en una clase nueva, "todas sus
+        # frases son nuevas" es ruido, ya lo dice `classes_added`.
+        "phrases_added": frases_agregadas,
+        "phrases_removed": frases_quitadas,
+    }
+
+
+def get_set_with_diff(prompts_dir: Path, set_id: str) -> dict:
+    """El conjunto más el diff contra su padre, cuando deriva de alguno.
+
+    `diff` es None si el conjunto no deriva de nadie o si el padre ya no está en
+    el repositorio (se borró o se renombró): no tener con qué comparar no es un
+    error, la pantalla simplemente no muestra la tarjeta de cambios.
+    """
+    hijo = get_set(prompts_dir, set_id)
+    padre_id = hijo.get("derives_from")
+    diff = None
+    if padre_id:
+        try:
+            diff = diff_sets(get_set(prompts_dir, padre_id), hijo)
+        except PromptStoreError:
+            diff = None
+    return {**hijo, "diff": diff}
 
 
 def get_set(prompts_dir: Path, set_id: str) -> dict:

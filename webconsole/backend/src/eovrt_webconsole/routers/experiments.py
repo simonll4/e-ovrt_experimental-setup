@@ -6,7 +6,7 @@ from __future__ import annotations
 import json
 import logging
 import re
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -73,27 +73,89 @@ def _iter_umbrella_manifests(experiments_dir):
             manifest = load_manifest(path)
         except (ValidationError, ValueError, OSError, yaml.YAMLError):
             continue
-        yield manifest
+        yield path, manifest
+
+
+def _ejecuciones_por_slug(runs_dir) -> dict[str, list[tuple[str, float]]]:
+    """Ejecuciones consolidadas en disco, agrupadas por slug del manifiesto.
+
+    El listado necesita decir cuántas veces se ejecutó cada experimento y cuándo
+    fue la última; hasta ahora solo mostraba el `experiment_id` de la última,
+    sin fecha ni conteo, así que no se podía distinguir un manifiesto que se
+    corrió veinte veces de uno que se corrió una.
+
+    Cada directorio consolidado trae su `manifest.effective.yaml`, que es lo que
+    ata la ejecución a su manifiesto. Se lee una vez por ejecución: son pocas y
+    el archivo es chico.
+    """
+    por_slug: dict[str, list[tuple[str, float]]] = {}
+    if not runs_dir.is_dir():
+        return por_slug
+    for run_dir in runs_dir.iterdir():
+        efectivo = run_dir / "manifest.effective.yaml"
+        if not efectivo.is_file():
+            continue
+        try:
+            datos = yaml.safe_load(efectivo.read_text(encoding="utf-8")) or {}
+            slug = datos.get("slug")
+            if slug:
+                por_slug.setdefault(slug, []).append((run_dir.name, run_dir.stat().st_mtime))
+        except (yaml.YAMLError, OSError):
+            continue
+    for ejecuciones in por_slug.values():
+        ejecuciones.sort(key=lambda e: e[1], reverse=True)
+    return por_slug
+
+
+def _estado_de(consolidated_dir) -> str | None:
+    """Estado de una ejecución, deducido de lo que dejó en disco.
+
+    El estado en memoria del manager se pierde al reiniciar el BFF, así que para
+    el listado se usa el rastro persistente: si hay reporte consolidado, terminó;
+    si el directorio existe pero no hay reporte, quedó a medias.
+    """
+    if (consolidated_dir / "report" / "report.json").is_file():
+        return "succeeded"
+    return "failed" if consolidated_dir.is_dir() else None
 
 
 @router.get("/manifests")
 async def list_manifests(request: Request) -> list[dict]:
     settings = request.app.state.settings
-    return [
-        {
-            "slug": manifest.slug,
-            "experiment_id": manifest.experiment_id,
-            "sequencing": manifest.sequencing,
-            "runs": sorted(manifest.runs.keys()),
-        }
-        for manifest in _iter_umbrella_manifests(settings.experiments_dir)
-    ]
+    runs_dir = settings.repo_root / "runs"
+    ejecuciones = _ejecuciones_por_slug(runs_dir)
+    filas = []
+    for path, manifest in _iter_umbrella_manifests(settings.experiments_dir):
+        # El grupo es la carpeta que lo contiene dentro de experiments/ (los que
+        # están en la raíz no tienen grupo).
+        relativo = path.parent.relative_to(settings.experiments_dir)
+        grupo = str(relativo).replace("\\", "/") if relativo != Path(".") else None
+        propias = ejecuciones.get(manifest.slug, [])
+        ultima_id, ultima_ts = propias[0] if propias else (manifest.experiment_id, None)
+        filas.append(
+            {
+                "slug": manifest.slug,
+                "group": grupo,
+                "experiment_id": manifest.experiment_id,
+                "sequencing": manifest.sequencing,
+                "runs": sorted(manifest.runs.keys()),
+                "last_experiment_id": ultima_id,
+                "last_run_at": (
+                    datetime.fromtimestamp(ultima_ts, tz=UTC).isoformat()
+                    if ultima_ts
+                    else None
+                ),
+                "last_status": _estado_de(runs_dir / ultima_id) if ultima_id else None,
+                "n_runs": len(propias),
+            }
+        )
+    return filas
 
 
 @router.get("/manifests/{slug}")
 async def get_manifest(slug: str, request: Request) -> dict:
     settings = request.app.state.settings
-    for manifest in _iter_umbrella_manifests(settings.experiments_dir):
+    for _path, manifest in _iter_umbrella_manifests(settings.experiments_dir):
         if manifest.slug == slug:
             return manifest.model_dump(mode="json")
     raise HTTPException(status_code=404, detail=f"Manifiesto paraguas desconocido: {slug}")
@@ -107,7 +169,7 @@ def _load_source_payloads(slug: str, settings) -> tuple[ExperimentManifest, dict
     a leer — no dos lecturas que puedan desincronizarse.
     """
     source = None
-    for manifest in _iter_umbrella_manifests(settings.experiments_dir):
+    for _path, manifest in _iter_umbrella_manifests(settings.experiments_dir):
         if manifest.slug == slug:
             source = manifest
             break
@@ -280,7 +342,7 @@ def _resolve_manifest_from_body(body: dict, experiments_dir: Path) -> Experiment
     slug = body.get("slug")
     if not slug:
         raise HTTPException(status_code=422, detail="body debe incluir 'slug' o 'manifest'")
-    for manifest in _iter_umbrella_manifests(experiments_dir):
+    for _path, manifest in _iter_umbrella_manifests(experiments_dir):
         if manifest.slug == slug:
             return manifest
     raise HTTPException(status_code=422, detail=f"Manifiesto paraguas desconocido: {slug}")
@@ -313,7 +375,7 @@ async def run_experiment_route(body: dict, request: Request) -> dict:
             manifest,
             media_backend=request.app.state.backend,
             control_backend=request.app.state.control_backend,
-            now=datetime.now(timezone.utc),
+            now=datetime.now(UTC),
         )
     except ExperimentBusy as exc:
         # Mismo shape que RunBusy en routers/runs.py: detail + el id activo como

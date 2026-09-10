@@ -12,7 +12,7 @@ from __future__ import annotations
 
 from typing import Literal, get_args
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, model_validator
 
 ApplicabilityStatus = Literal[
     "computed",
@@ -37,6 +37,46 @@ class MetricResult(BaseModel):
     unit: str | None = None
     status: ApplicabilityStatus
     cause: str | None = None
+
+    # Criterio de aceptación de la métrica, cuando el manifiesto lo declara.
+    #
+    # Sin esto, el reporte decía cuánto midió pero no contra qué: la consola
+    # mostraba "4,2 falsos positivos por hora" sin poder decir si eso pasa o no
+    # pasa, que es lo único que se le pregunta a un experimento. El prototipo lo
+    # muestra en su propia columna, al lado del valor medido.
+    #
+    # `threshold_direction` dice de qué lado está el aprobado: `max` es "no debe
+    # superar" (falsos positivos, latencia) y `min` es "debe alcanzar"
+    # (exhaustividad, precisión). Sin esa dirección el número solo no alcanza
+    # para decidir.
+    threshold: float | None = None
+    threshold_direction: Literal["max", "min"] | None = None
+    # None cuando no hay umbral declarado o la métrica no se pudo medir: no es
+    # lo mismo que "no cumple".
+    passed: bool | None = None
+
+    @model_validator(mode="after")
+    def _evaluar_umbral(self) -> "MetricResult":
+        """Deriva `passed` del valor y el umbral.
+
+        Se calcula acá y no en cada sitio que arma un MetricResult para que la
+        comparación exista una sola vez: repartida, es cuestión de tiempo que
+        alguien invierta el signo en uno de los quince lugares.
+        """
+        if self.passed is not None:
+            return self
+        if self.value is None or self.threshold is None or self.status != "computed":
+            return self
+        cumple = (
+            self.value <= self.threshold
+            if self.threshold_direction == "max"
+            else self.value >= self.threshold
+            if self.threshold_direction == "min"
+            else None
+        )
+        if cumple is not None:
+            object.__setattr__(self, "passed", cumple)
+        return self
 
 
 def _get(alert: dict, key: str):

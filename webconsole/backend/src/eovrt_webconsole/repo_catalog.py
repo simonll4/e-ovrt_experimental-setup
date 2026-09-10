@@ -8,7 +8,7 @@ import yaml
 
 def _load_yaml(path: Path) -> dict | None:
     try:
-        data = yaml.safe_load(path.read_text())
+        data = yaml.safe_load(path.read_text(encoding="utf-8"))
     except (yaml.YAMLError, OSError):
         return None
     return data if isinstance(data, dict) else None
