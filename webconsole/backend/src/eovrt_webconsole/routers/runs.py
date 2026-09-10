@@ -9,6 +9,7 @@ from fastapi import APIRouter, HTTPException, Query, Request
 from fastapi.responses import JSONResponse, Response, StreamingResponse
 from starlette.background import BackgroundTask
 
+from eovrt_webconsole.evidence import Vista, coincide_vista
 from eovrt_webconsole.experiment.control_backend import (
     RunActive as ControlRunActive,
     ServiceUnavailable as ControlServiceUnavailable,
@@ -161,6 +162,7 @@ async def list_runs(
     direccion: str = Query(default="desc", pattern="^(asc|desc)$"),
     pagina: int = Query(default=1, ge=1),
     page_size: int = Query(default=25, ge=1, le=200),
+    vista: Vista = "todas",
 ) -> list[dict]:
     """Listado de corridas, filtrado, ordenado y paginado del lado del servidor.
 
@@ -181,6 +183,14 @@ async def list_runs(
         logger.warning("list_runs: servicio inaccesible: %s", exc)
         raise HTTPException(status_code=502, detail=str(exc)) from exc
 
+    registry = request.app.state.evidence
+    evidence = {r["run_id"]: registry.describe([r["run_id"]]) for r in base}
+    response.headers["X-Evidence-Available"] = str(registry.available).lower()
+    response.headers["X-Archived-Count"] = str(sum(
+        not evidence[r["run_id"]]["is_evidence"] for r in base
+    ))
+    base = [r for r in base if coincide_vista(evidence[r["run_id"]], vista)]
+
     if estado:
         base = [r for r in base if r.get("status") == estado]
     if q:
@@ -199,7 +209,8 @@ async def list_runs(
             fila.setdefault("created_at", _created_at(fila))
         _ordenar(base, campo, direccion)
         seleccion = base[inicio : inicio + page_size]
-        return [await _hidratar(backend, item) for item in seleccion]
+        return [dict(await _hidratar(backend, item), evidence=evidence[item["run_id"]])
+                for item in seleccion]
 
     # Orden por una métrica: hay que hidratar antes de poder comparar. Se acota
     # con `hydration_limit` para no disparar una lectura por corrida sobre un
@@ -207,7 +218,8 @@ async def list_runs(
     hidratadas = [await _hidratar(backend, item) for item in base[: settings.hydration_limit]]
     resto = [_fila_flaca(item) for item in base[settings.hydration_limit :]]
     _ordenar(hidratadas, campo, direccion)
-    return (hidratadas + resto)[inicio : inicio + page_size]
+    return [dict(row, evidence=evidence[row["run_id"]])
+            for row in (hidratadas + resto)[inicio : inicio + page_size]]
 
 
 def _fila_flaca(item: dict) -> dict:

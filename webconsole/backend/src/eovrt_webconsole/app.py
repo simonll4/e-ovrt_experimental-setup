@@ -8,6 +8,7 @@ import httpx
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
+from eovrt_webconsole.evidence import EvidenceRegistry
 from eovrt_webconsole.experiment.control_backend import ControlPlaneBackend
 from eovrt_webconsole.experiment.run_manager import ExperimentRunManager
 from eovrt_webconsole.orchestrator import ComposeOrchestrator, RunCmd, TargetManager
@@ -100,6 +101,9 @@ def create_app(
 
     app = FastAPI(title="eovrt-webconsole", lifespan=_lifespan)
     app.state.settings = settings
+    # Estado local sin recursos que cerrar: disponible también cuando se usan
+    # las rutas de catálogo sin abrir clientes HTTP mediante el lifespan.
+    app.state.evidence = EvidenceRegistry(settings.repo_root / "results" / "evidence-runs")
     app.include_router(meta.router)
     app.include_router(catalog.router)
     app.include_router(compare.router)

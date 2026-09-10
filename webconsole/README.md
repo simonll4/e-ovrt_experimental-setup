@@ -18,6 +18,24 @@ los artefactos originales y no relanza corridas. Si falta el archivo de alertas,
 intenta consultarlas al servicio de control; la ausencia de reporte no se
 interpreta como una ejecución exitosa.
 
+Corridas y Experimentos abren la vista **Evidencia**; el selector permite ver
+**Archivadas** o **Todas** y recuerda la elección en el navegador. Archivar sólo
+oculta filas. La API conserva `vista=todas` por defecto tanto en `GET /api/runs`
+como en `GET /api/experiments/manifests`; las pantallas solicitan la vista explícita.
+
+El registro se carga una vez al crear la consola desde los cuatro CSV de
+`results/evidence-runs/collections/`. Si falta, se informa en pantalla y Todas
+permite consultar el historial. `results/evidence-runs/consola.yaml` contiene las
+excepciones de experimentos revisadas por el usuario; reiniciar el BFF carga los
+cambios del registro y de las excepciones.
+
+La clasificación de los paraguas descubre `manifest.effective.yaml` a cualquier
+profundidad dentro de `runs/` y busca identidades en todo el consolidado. Los
+conteos históricos de ejecución se mantienen; los enlaces de evidencia se
+presentan aparte y también abren consolidaciones anidadas después de reiniciar.
+La tabla de clasificación se reproduce desde la raíz del repo con
+`webconsole/backend/.venv/bin/python webconsole/tools/classify_evidence.py`.
+
 Desde 2026-07-17 el detalle de un run terminado incluye la **vista correlacionada
 media↔control** ("Evaluación del control-plane"): el BFF compone un trace por-frame
 (`GET /api/runs/{id}/trace`) uniendo por `unit_id` las detecciones (con bboxes dibujadas

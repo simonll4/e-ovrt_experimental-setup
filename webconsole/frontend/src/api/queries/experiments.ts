@@ -8,15 +8,21 @@ import { qk } from '../keys'
 import { POLL } from '../queryClient'
 import type {
   ControlCurrentSnapshot, DeriveDefaults, ExperimentAlert, ExperimentManifestSummary,
-  ExperimentReport, ExperimentRunState,
+  ExperimentReport, ExperimentRunState, EvidenceListingMeta, EvidenceView,
 } from '../../types'
 
-export function useExperimentManifests() {
-  return useQuery<ExperimentManifestSummary[]>({
-    queryKey: qk.experiments.manifests,
-    queryFn: getExperimentManifests,
+export function useExperimentManifests(vista: EvidenceView = 'todas') {
+  const query = useQuery({
+    queryKey: [...qk.experiments.manifests, 'visibility', vista],
+    queryFn: async () => {
+      let visibility: EvidenceListingMeta | undefined
+      const items: ExperimentManifestSummary[] = await getExperimentManifests(vista, meta => { visibility = meta })
+      return { items, visibility }
+    },
+    placeholderData: previous => previous,
     staleTime: 60_000,
   })
+  return { ...query, data: query.data?.items, visibility: query.data?.visibility }
 }
 
 /** Experimento activo, o `null` si no hay ninguno (el BFF contesta 404 y el

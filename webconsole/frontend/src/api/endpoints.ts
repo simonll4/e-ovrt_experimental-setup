@@ -5,7 +5,7 @@ import type {
   FieldError, GenerateClipBody, GenerateClipResult, IngestPlugin, MasterEntry, PlatformInstance,
   PreflightStatus, PreviewStartBody, PreviewStatus, PromptSet, PromptSetDetail, PromptSetSummary,
   RecordingStatus, RunDetail, RunRow, StartRecordingBody, TargetStatus, TracePage,
-  ArtifactEntry, ConditionInfo, RunComparison, TraceIndex,
+  ArtifactEntry, ConditionInfo, RunComparison, TraceIndex, EvidenceListingMeta, EvidenceView,
 } from '../types'
 
 export class ApiError extends Error {
@@ -17,7 +17,7 @@ export class ApiError extends Error {
   }
 }
 
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
+async function request<T>(path: string, init?: RequestInit, onResponse?: (r: Response) => void): Promise<T> {
   const response = await fetch(path, {
     headers: { 'Content-Type': 'application/json' },
     ...init,
@@ -31,6 +31,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     }
     throw new ApiError(response.status, payload)
   }
+  onResponse?.(response)
   if (response.status === 204) return undefined as T
   return (await response.json()) as T
 }
@@ -119,8 +120,12 @@ export const activateInstance = (name: string) =>
 export const stopPlatform = () =>
   request<{ target: null }>('/api/platform/stop', { method: 'POST' })
 
-export const getExperimentManifests = () =>
-  request<ExperimentManifestSummary[]>('/api/experiments/manifests')
+export const getExperimentManifests = (
+  vista?: EvidenceView, onMetadata?: (meta: EvidenceListingMeta) => void,
+) => request<ExperimentManifestSummary[]>(
+  `/api/experiments/manifests${vista ? `?vista=${vista}` : ''}`, undefined,
+  response => onMetadata?.(evidenceMetadata(response)),
+)
 export const runExperiment = (body: { slug: string }) =>
   request<{ experiment_id: string }>('/api/experiments/run', {
     method: 'POST',
@@ -215,6 +220,7 @@ export const getConditions = () => request<ConditionInfo[]>('/api/catalog/condit
  *  El total viaja en la cabecera `X-Total-Count`, así que hace falta leer la
  *  respuesta cruda en vez de pasar por `request()`. */
 export interface RunsQuery {
+  vista?: EvidenceView
   estado?: string
   q?: string
   orden?: string
@@ -225,8 +231,9 @@ export interface RunsQuery {
 
 export async function listRunsPaged(
   filtros: RunsQuery = {},
-): Promise<{ items: RunRow[]; total: number }> {
+): Promise<{ items: RunRow[]; total: number; visibility?: EvidenceListingMeta }> {
   const params = new URLSearchParams()
+  if (filtros.vista) params.set('vista', filtros.vista)
   if (filtros.estado) params.set('estado', filtros.estado)
   if (filtros.q) params.set('q', filtros.q)
   if (filtros.orden) params.set('orden', filtros.orden)
@@ -250,7 +257,21 @@ export async function listRunsPaged(
   // Sin la cabecera (proxy que la filtra, fixture vieja) se cae a la cantidad
   // de la página: es un total incorrecto pero acotado, mejor que romper.
   const total = Number(response.headers.get('X-Total-Count') ?? items.length)
-  return { items, total: Number.isFinite(total) ? total : items.length }
+  return { items, total: Number.isFinite(total) ? total : items.length,
+    ...(response.headers.has('X-Evidence-Available') ? { visibility: evidenceMetadata(response) } : {}) }
+}
+
+function evidenceMetadata(response: Response): EvidenceListingMeta {
+  const available = response.headers.get('X-Evidence-Available')
+  const count = (name: string) => {
+    const value = response.headers.get(name)
+    return value != null && Number.isFinite(Number(value)) ? Number(value) : undefined
+  }
+  return {
+    available: available == null ? undefined : available === 'true',
+    archived: count('X-Archived-Count'),
+    archivedExecutions: count('X-Archived-Executions-Count'),
+  }
 }
 
 export const getTrace = (

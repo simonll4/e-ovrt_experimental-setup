@@ -1,0 +1,6 @@
+# Excepciones de visibilidad de la consola; no borran ni mueven evidencia.
+# Agregar un slug o un id de ejecución sólo tras la revisión del usuario.
+# Una excepción por id es más específica que una por slug. Reiniciar el BFF
+# para cargar cambios. No incluir el mismo identificador en ambas listas.
+forzar_evidencia: []
+forzar_archivado: []

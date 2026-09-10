@@ -13,6 +13,7 @@ import { getTrace } from '../api'
 import { qk } from '../api/keys'
 import { useDeleteRun, useRunsEnCurso, useRunsPaged, useRunsTotal } from '../api/queries/runs'
 import type { RunRow } from '../types'
+import EvidenceViewControl, { EvidenceBadge, useEvidenceView } from '../components/EvidenceViewControl'
 import {
   Badge,
   Banner,
@@ -104,7 +105,7 @@ function columnas(
         // columna de fecha y la repartió entre acá y la celda de acción.
         <RowName
           title={<Link to={`/runs/${r.run_id}`}>{r.name ?? r.run_id}</Link>}
-          subtitle={r.name ? r.run_id : hace(r)}
+          subtitle={<>{r.name ? r.run_id : hace(r)} <EvidenceBadge evidence={r.evidence} /></>}
         />
       ),
     },
@@ -187,6 +188,7 @@ function columnas(
 
 export default function RunsPage() {
   const nav = useNavigate()
+  const [vista, setVista] = useEvidenceView('runs')
   const [deleteError, setDeleteError] = useState<string | null>(null)
   const [confirmId, setConfirmId] = useState<string | null>(null)
   const [query, setQuery] = useState('')
@@ -212,6 +214,7 @@ export default function RunsPage() {
 
   const listado = useRunsPaged(
     {
+      vista,
       estado: segment === 'all' ? undefined : segment,
       q: busqueda.trim() || undefined,
       ...orden,
@@ -335,6 +338,12 @@ export default function RunsPage() {
         </Banner>
       )}
 
+      <EvidenceViewControl
+        view={vista}
+        onChange={(v) => { setVista(v); resetView() }}
+        meta={listado.data?.visibility}
+        noun="corridas"
+      />
       <div className="eo-toolbar">
         <SearchInput
           value={query}
@@ -428,7 +437,11 @@ export default function RunsPage() {
           </tbody>
         </Table>
         {totalFiltrado === 0 &&
-          (hayFiltro ? (
+          (listado.data?.visibility && vista !== 'todas' ? (
+            <EmptyState hint="Elegí Todas para consultar el historial completo.">
+              No hay corridas en esta vista
+            </EmptyState>
+          ) : hayFiltro ? (
             <EmptyState hint="Probá con otro texto o volvé a «Todas».">
               Ninguna corrida coincide con el filtro
             </EmptyState>

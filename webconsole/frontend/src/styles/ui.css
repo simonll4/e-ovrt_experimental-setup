@@ -20,6 +20,14 @@
 .eo-badge--error { color: var(--er); }
 .eo-badge--neutral { color: var(--nt); }
 
+.eo-evidence-badge > .eo-badge {
+  display: inline-block;
+  max-width: 18ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+}
+
 /* Punto que late — único elemento animado del sistema. */
 .eo-badge__pulse {
   width: 6px;

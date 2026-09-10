@@ -8,7 +8,7 @@ import { POLL } from '../queryClient'
 import { isRunning } from '../../runview'
 import type {
   Composition, EvalResult, RunComparison, RunDetail, RunRow, TraceFrame,
-  TraceIndex, TraceTotals,
+  TraceIndex, TraceTotals, EvidenceView,
 } from '../../types'
 
 /** Historial completo de corridas.
@@ -34,6 +34,7 @@ export function useRuns() {
 
 /** Filtros del listado, tal como viajan al servidor. */
 export interface RunsFiltros {
+  vista?: EvidenceView
   /** `running | succeeded | failed | stopped`, o nada para todas. */
   estado?: string
   q?: string

@@ -125,7 +125,22 @@ export interface FieldError {
   field: string
   message: string
 }
+export type EvidenceView = 'evidencia' | 'archivadas' | 'todas'
+export interface EvidenceInfo {
+  is_evidence: boolean
+  result_ids: string[]
+  collections: string[]
+  reason?: string
+  n_executions?: number
+  executions?: string[]
+}
+export interface EvidenceListingMeta {
+  available?: boolean
+  archived?: number
+  archivedExecutions?: number
+}
 export interface RunRow {
+  evidence?: EvidenceInfo
   run_id: string
   /** Instante de creación, siempre presente: el backend lo reconstruye del
    *  `run_id` cuando la corrida no llegó a persistir `started_at`. */
@@ -243,6 +258,7 @@ export interface PlatformInstance {
   is_target: boolean
 }
 export interface ExperimentManifestSummary {
+  evidence?: EvidenceInfo
   slug: string
   experiment_id?: string | null
   description?: string | null

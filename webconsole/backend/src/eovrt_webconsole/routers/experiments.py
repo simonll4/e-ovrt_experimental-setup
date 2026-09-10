@@ -11,10 +11,13 @@ from pathlib import Path
 from typing import Any
 
 import yaml
-from fastapi import APIRouter, HTTPException, Query, Request
+from fastapi import APIRouter, HTTPException, Query, Request, Response
 from fastapi.responses import JSONResponse
 from pydantic import ValidationError
 
+from eovrt_webconsole.evidence import (
+    Vista, clasificar_ejecuciones, coincide_vista, directorios_consolidados,
+)
 from eovrt_webconsole.experiment.control_backend import ServiceUnavailable, UnknownRun
 from eovrt_webconsole.experiment.manifest import ExperimentManifest, load_manifest
 from eovrt_webconsole.experiment.run_manager import ExperimentBusy
@@ -120,12 +123,29 @@ def _estado_de(consolidated_dir) -> str | None:
 
 
 @router.get("/manifests")
-async def list_manifests(request: Request) -> list[dict]:
+async def list_manifests(request: Request, response: Response, vista: Vista = "todas") -> list[dict]:
     settings = request.app.state.settings
     runs_dir = settings.repo_root / "runs"
     ejecuciones = _ejecuciones_por_slug(runs_dir)
+    registry = request.app.state.evidence
+    classification = clasificar_ejecuciones(runs_dir, registry)
+    response.headers["X-Evidence-Available"] = str(registry.available).lower()
+    response.headers["X-Archived-Executions-Count"] = str(sum(
+        not execution["evidence"]["is_evidence"] for execution in classification
+    ))
+    archived = 0
     filas = []
     for path, manifest in _iter_umbrella_manifests(settings.experiments_dir):
+        classified = [e for e in classification if e["slug"] == manifest.slug]
+        evidence = registry.manifiesto(manifest.slug, [e["evidence"] for e in classified])
+        evidence["n_executions"] = len(classified)
+        evidence["executions"] = sorted(
+            [e["experiment_id"] for e in classified if e["evidence"]["is_evidence"]],
+            reverse=True,
+        )
+        archived += not evidence["is_evidence"]
+        if not coincide_vista(evidence, vista):
+            continue
         # El grupo es la carpeta que lo contiene dentro de experiments/ (los que
         # están en la raíz no tienen grupo).
         relativo = path.parent.relative_to(settings.experiments_dir)
@@ -147,8 +167,10 @@ async def list_manifests(request: Request) -> list[dict]:
                 ),
                 "last_status": _estado_de(runs_dir / ultima_id) if ultima_id else None,
                 "n_runs": len(propias),
+                "evidence": evidence,
             }
         )
+    response.headers["X-Archived-Count"] = str(archived)
     return filas
 
 
@@ -491,6 +513,15 @@ def _resolve_consolidated_dir(experiment_id: str, request: Request) -> Path:
         candidate = Path(state["consolidated_dir"])
     else:
         candidate = settings.repo_root / "runs" / experiment_id
+        if not candidate.exists():
+            # La evidencia de campañas se consolida a profundidad variable.
+            # Se resuelve por id exacto, sin cambiar el listado por slug.
+            matches = [p for p in directorios_consolidados(settings.repo_root / "runs")
+                       if p.name == experiment_id]
+            if len(matches) > 1:
+                raise HTTPException(409, "Identificador de ejecución consolidada ambiguo")
+            if matches:
+                candidate = matches[0]
 
     base = (settings.repo_root / "runs").resolve()
     if not candidate.resolve().is_relative_to(base):

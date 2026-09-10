@@ -30,7 +30,7 @@ export function useSidebarCounts(): SidebarCounts {
 
   const experiments = useQuery({
     queryKey: qk.experiments.manifests,
-    queryFn: getExperimentManifests,
+    queryFn: () => getExperimentManifests(),
     staleTime: 60_000,
   })
 

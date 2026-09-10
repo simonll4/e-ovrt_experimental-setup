@@ -9,6 +9,7 @@ import {
 import { experimentStatusLabel, experimentStatusTone } from '../experimentview'
 import { usePreflight } from '../api/queries/platform'
 import PlatformStatus from '../components/PlatformStatus'
+import EvidenceViewControl, { EvidenceBadge, useEvidenceView } from '../components/EvidenceViewControl'
 import { DeriveExperimentForm } from '../components/DeriveExperimentForm'
 import {
   Badge,
@@ -69,8 +70,9 @@ export default function ExperimentsPage() {
   const [runError, setRunError] = useState<string | null>(null)
   const [formMode, setFormMode] = useState<FormMode>(null)
   const qc = useQueryClient()
+  const [vista, setVista] = useEvidenceView('experiments')
 
-  const consultaManifiestos = useExperimentManifests()
+  const consultaManifiestos = useExperimentManifests(vista)
   const rows = consultaManifiestos.data ?? null
   const error = consultaManifiestos.error ? String(consultaManifiestos.error) : null
   // Solo se repregunta mientras hay un experimento corriendo (ver la query).
@@ -149,6 +151,8 @@ export default function ExperimentsPage() {
           barra lateral, y repetirlo acá chocaba con el título de la tarjeta del
           formulario, que también dice "Nuevo experimento". */}
       <PageHeader title="Experimentos" meta={`${rows.length} manifiestos`} />
+      <EvidenceViewControl view={vista} onChange={setVista}
+        meta={consultaManifiestos.visibility} noun="ejecuciones" />
 
       {current && (
         <Banner tone={current.status === 'running' ? 'live' : 'warn'}>
@@ -220,9 +224,15 @@ export default function ExperimentsPage() {
         </>
       )}
       {rows.length === 0 ? (
-        <EmptyState hint="Los manifiestos viven en experiments/ del repositorio.">
-          Sin manifiestos todavía
-        </EmptyState>
+        vista !== 'todas' && consultaManifiestos.visibility ? (
+          <EmptyState hint="Elegí Todas para consultar las recetas del catálogo.">
+            No hay manifiestos en esta vista
+          </EmptyState>
+        ) : (
+          <EmptyState hint="Los manifiestos viven en experiments/ del repositorio.">
+            Sin manifiestos todavía
+          </EmptyState>
+        )
       ) : (
         <>
           <div className="eo-toolbar">
@@ -257,14 +267,21 @@ export default function ExperimentsPage() {
                     <tr key={r.slug}>
                       <RowNameCell
                         title={<span className="eo-mono">{r.slug}</span>}
-                        subtitle={r.description ?? undefined}
+                        subtitle={<>{r.description} <EvidenceBadge evidence={r.evidence} /></>}
                       />
                       <td>{r.group ?? '—'}</td>
                       {/* Un manifiesto que nunca se ejecutó no tiene resultado
                           que ver: se muestra apagado y sin enlace en vez de un
                           guion que no explica nada. */}
                       <MonoCell>
-                        {ultima ? (
+                        {r.evidence?.executions?.length ? (
+                          <div style={{ maxWidth: '36ch' }}>
+                            <span className="eo-cell--muted">{r.evidence.executions.length} ejecuciones de evidencia</span>
+                            {r.evidence.executions.map(id => (
+                              <div key={id}><Link style={{ overflowWrap: 'anywhere' }} to={`/experiments/${id}`}>{id}</Link></div>
+                            ))}
+                          </div>
+                        ) : ultima ? (
                           <Link to={`/experiments/${ultima}`}>{ultima}</Link>
                         ) : (
                           <span
@@ -281,7 +298,7 @@ export default function ExperimentsPage() {
                             {experimentStatusLabel({ status: r.last_status })}
                           </Badge>
                         ) : (
-                          <Badge tone="neutral">Sin ejecutar</Badge>
+                          <Badge tone="neutral">{r.evidence?.executions?.length ? 'Con evidencia' : 'Sin ejecutar'}</Badge>
                         )}
                       </td>
                       <td className="eo-num">{r.n_runs || '—'}</td>
