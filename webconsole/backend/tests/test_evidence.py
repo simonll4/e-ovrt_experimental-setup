@@ -109,7 +109,9 @@ def test_filters_partition_before_hydration_and_keep_default(client, repo, order
 ])
 def test_exceptions_override_derived_in_both_directions(tmp_path, force_evidence, force_archived):
     directory = archive(tmp_path)
-    (directory / 'consola.yaml').write_text(yaml.safe_dump({
+    vista = directory.parent / 'evidence-vista'
+    vista.mkdir(parents=True, exist_ok=True)
+    (vista / 'consola.yaml').write_text(yaml.safe_dump({
         'forzar_evidencia': force_evidence, 'forzar_archivado': force_archived,
     }))
     registry = EvidenceRegistry(directory)
@@ -123,9 +125,26 @@ def test_exceptions_override_derived_in_both_directions(tmp_path, force_evidence
 
 def test_contradictory_exception_is_explicit(tmp_path):
     directory = archive(tmp_path)
-    (directory / 'consola.yaml').write_text('forzar_evidencia: [x]\nforzar_archivado: [x]\n')
+    vista = directory.parent / 'evidence-vista'
+    vista.mkdir(parents=True, exist_ok=True)
+    (vista / 'consola.yaml').write_text('forzar_evidencia: [x]\nforzar_archivado: [x]\n')
     with pytest.raises(ValueError, match='contradictoria'):
         EvidenceRegistry(directory)
+
+
+def test_la_config_de_la_vista_vive_fuera_del_archivo_congelado(tmp_path):
+    """El archivo congelado tiene integridad por hash: nada mutable adentro.
+
+    `consola.yaml` dentro de `evidence-runs/` rompía
+    `tools/evidence_runs.py --check` en cada edición. Este test existe para que
+    no vuelva a caer ahí por descuido.
+    """
+    directory = archive(tmp_path)
+    (directory / 'consola.yaml').write_text('forzar_evidencia: [x]\nforzar_archivado: []\n')
+    registry = EvidenceRegistry(directory)
+    assert registry.config_dir == directory.parent / 'evidence-vista'
+    # Se ignora lo que esté dentro del archivo congelado: no altera el veredicto.
+    assert registry.ejecucion('exp_x', 'x', [])['is_evidence'] is False
 
 
 def test_persisted_identity_without_opening_ref_target(tmp_path):

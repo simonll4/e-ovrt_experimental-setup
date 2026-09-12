@@ -112,7 +112,9 @@ def test_ambiguous_nested_ids_are_not_silently_chosen(client, repo):
 
 def test_explicit_overrides_filter_both_directions(client, repo, campaign):
     path = repo / 'results/evidence-runs'
-    (path / 'consola.yaml').write_text('forzar_evidencia: [recipe]\nforzar_archivado: [campaign]\n')
+    vista = repo / 'results/evidence-vista'
+    vista.mkdir(parents=True, exist_ok=True)
+    (vista / 'consola.yaml').write_text('forzar_evidencia: [recipe]\nforzar_archivado: [campaign]\n')
     client.app.state.evidence = EvidenceRegistry(path)
     assert [r['slug'] for r in client.get('/api/experiments/manifests?vista=evidencia').json()] == ['recipe']
     assert [r['slug'] for r in client.get('/api/experiments/manifests?vista=archivadas').json()] == ['campaign']

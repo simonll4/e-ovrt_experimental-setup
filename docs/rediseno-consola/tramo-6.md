@@ -68,7 +68,7 @@ motor.
 
 El registro no cubre las ejecuciones de `runs/`. Regla, en este orden:
 
-1. **Excepción explícita.** `results/evidence-runs/consola.yaml`, con
+1. **Excepción explícita.** `results/evidence-vista/consola.yaml`, con
    `forzar_evidencia:` y `forzar_archivado:` (listas de slug o de id de
    ejecución). Si algo aparece ahí, manda.
 2. **Regla derivada.** Una ejecución es evidencia si al menos una de las corridas

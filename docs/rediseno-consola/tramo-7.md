@@ -128,7 +128,7 @@ Reglas de la pantalla:
 `clip_bench/t1_gdinotiny560_v2short_scene` nos sirve a nosotros; **no es un
 rótulo de defensa**.
 
-Generá `results/evidence-runs/titulos.yaml` con las **35** entradas, cada una con
+Generá `results/evidence-vista/titulos.yaml` con las **35** entradas, cada una con
 el `result_id`, una etiqueta derivada mecánicamente y un campo `titulo:` **vacío**.
 La vista usa `titulo` cuando está y cae a la etiqueta derivada cuando no.
 

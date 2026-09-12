@@ -118,7 +118,7 @@ ejecuciones de experimento** de `runs/`, así que necesitan regla propia.
 que consolidó aparece en el registro. Un manifiesto es evidencia si tiene al
 menos una ejecución de evidencia.
 
-**Excepciones explícitas:** un archivo chico y versionado —`results/evidence-runs/consola.yaml`—
+**Excepciones explícitas:** un archivo chico y versionado —`results/evidence-vista/consola.yaml`—
 con dos listas, `forzar_evidencia` y `forzar_archivado`, por slug o por id de
 ejecución. La regla derivada es el default; la lista manda cuando aparece.
 

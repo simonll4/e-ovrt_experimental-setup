@@ -25,7 +25,7 @@ como en `GET /api/experiments/manifests`; las pantallas solicitan la vista expl�
 
 El registro se carga una vez al crear la consola desde los cuatro CSV de
 `results/evidence-runs/collections/`. Si falta, se informa en pantalla y Todas
-permite consultar el historial. `results/evidence-runs/consola.yaml` contiene las
+permite consultar el historial. `results/evidence-vista/consola.yaml` contiene las
 excepciones de experimentos revisadas por el usuario; reiniciar el BFF carga los
 cambios del registro y de las excepciones.
 
@@ -144,7 +144,7 @@ nunca se convierte en un índice.
 `result_id` siempre viaja por query. El original se verifica sólo en disco.
 Los enlaces vivos de medios salen de la vista curada y requieren el servicio.
 
-El usuario redacta los títulos en `results/evidence-runs/titulos.yaml`:
+El usuario redacta los títulos en `results/evidence-vista/titulos.yaml`:
 35 entradas iniciales con `titulo:` vacío y etiqueta mecánica. Un título vacío
 usa la etiqueta derivada. Reiniciar la consola carga cambios del registro y de
 los títulos. Si falta la copia curada, la pantalla indica su ubicación y la capa

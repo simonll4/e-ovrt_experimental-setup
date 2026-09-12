@@ -37,6 +37,21 @@ agregadas, nunca solo el agregado.** El agregado de `bench_v3` está dominado po
 
 ## 2. Fase S — selección de modelos (docs 61/64/66)
 
+> ⚠️ ✎ **2026-09-07 — qué mide la columna «recall CR-01» de las tres tablas de esta sección.**
+> Mide la **formulación DIRECTA**: el evaluador (`evaluate_bench.evaluate_cr01`) cuenta únicamente
+> detecciones de `bare_head` dentro de la región de cabeza del violador. **El núcleo validable no
+> usa esa vía**: opera con la formulación INDIRECTA, que deriva la ausencia desde `person` y
+> `helmet`. Por eso un 0,000 acá **no** significa incapacidad para la condición, y por eso el
+> campeón `gdino-tiny-560` se retuvo con 0,308 sin que eso lo descalifique. La capacidad del núcleo
+> para CR-01 se mide en el **Nivel A** (`results/bench_nivel_a/`), donde E-IND y E-DIR se comparan
+> sobre el mismo material y E-IND gana (F1 0,546 vs 0,188 en imágenes).
+>
+> **Consecuencia para YOLOE:** su descarte SIGUE VÁLIDO, pero por `vest` (AP 0,182 en obra curada
+> frente a 0,520 del campeón) y por mAP50 agregado, **no por CR-01**. En las dos clases que la vía
+> indirecta necesita mide `person` 0,785 y `helmet` 0,715 sobre `shel5k`, contra 0,770 y 0,707 del
+> campeón. **El Nivel A nunca se corrió con YOLOE**, de modo que no hay medición de su rendimiento
+> en la condición por la vía que el núcleo usa, y no debe afirmarse ninguna.
+
 ### S1/S2 sobre el núcleo curado `bench_obra` (147 imgs)
 
 | Configuración | mAP50 obra | recall CR-01 obra | vest AP obra |
@@ -64,7 +79,7 @@ acá con sus números, para que la exclusión no sea una afirmación sin dato:
 | `mm-gdino-base` | 0,360 | 0,029 | 0,39 | **0,00** | 213 ms | **Mediocre sin ventaja en nada** (hallazgo 5 del doc 64): recall CR-01 0,029 y `bare_head` 0,00 |
 | `mm-gdino-large` | 0,017 | — | — | — | 723 ms | **Roto**: reproduce el bug de bboxes degeneradas (sanity-check pre-planificado: 2–3 degeneradas) |
 | `mm-gdino-tiny` | — | — | — | — | — | **Excluido a priori** en Sprint 2 por bboxes degeneradas; no se re-midió |
-| `yoloe-26l` / `26m` / `26s` | 0,407 (26x, campeón de la familia) | 0,049 (`26s`) | — | **0,000 en las 4** | 43 ms (`26x`) | **La familia entera es ciega a la condición.** `26x` es el campeón YOLOE y **el único tabulado arriba** por eso: representa a la familia en su mejor talla, no en la más rápida |
+| `yoloe-26l` / `26m` / `26s` | 0,407 (26x, campeón de la familia) | 0,049 (`26s`) | — | **0,000 en las 4** | 43 ms (`26x`) | **La familia entera es ciega a `bare_head`, la evidencia de la vía directa** (✎ 2026-09-07: antes decía «ciega a la condición», que es más de lo que el dato sostiene). `26x` es el campeón YOLOE y **el único tabulado arriba** por eso: representa a la familia en su mejor talla, no en la más rápida |
 
 Fuente: doc 64 (BENCH v2, 196 imgs — sin `metrics.json` mecánico; verificado a mano
 2026-08-14).

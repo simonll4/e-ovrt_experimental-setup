@@ -53,6 +53,22 @@ orden de magnitud menor que el G2A live del modelo que detecta (630–890 ms) y 
 menor que la persistencia deliberada del patrón (4–7 s). La cadena vidrio→notificación de
 un evento se describe cualitativamente con los cuatro tramos citados por separado.
 
+## Ejes de lectura (✎ 2026-09-10)
+
+Esta página organiza por **material**. Para leer la misma evidencia por otros ejes
+—los que hacen falta para explicar el trabajo— está [`ejes/`](ejes/00-indice.md),
+que **no agrega ni una medición**: son vistas sobre estas mismas cifras.
+
+| Eje | Documento |
+|---|---|
+| Escenario de despliegue: qué se midió offline y qué en vivo | [`ejes/01-dbe-vs-ebe.md`](ejes/01-dbe-vs-ebe.md) |
+| El día de rodaje: qué salió de él y qué no lo es aunque lo parezca | [`ejes/02-rodaje.md`](ejes/02-rodaje.md) |
+| Modelo: zero-shot y la jornada de fine-tuning | [`ejes/03-baseline-vs-finetuning.md`](ejes/03-baseline-vs-finetuning.md) |
+
+**Todas las cifras de estos cuatro índices son zero-shot.** El fine-tuning es una
+línea aparte, cerrada, que vive en `finetuning/` y **no aportó un modelo de
+servicio**; su valor declarado es una curva de tres puntos.
+
 ## Runs de evidencia
 
 El [`inventario canónico generado`](evidence-runs.md) enumera, sin globs ni IDs abreviados,

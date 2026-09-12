@@ -47,6 +47,29 @@ G1: 1/0/0 ⇒ su única alerta es la correcta).
 - `videos/` y `trabajo/` están gitignorados (media derivada, se regenera); este
   README + los dos scripts son la fuente de verdad.
 
+## Un segundo intento fallido: el fotograma de CR-02 (2026-09-07)
+
+**Se descartó, y por la misma razón que V2: auditar antes de afirmar.** El informe pedía una
+figura que cubriera también la condición de chaleco, y el mejor candidato era `a_p6_c01`, el
+escenario donde CR-01 y CR-02 se confirman sobre el mismo sujeto. Se renderizó con este mismo
+pipeline y **el fotograma resultó inservible**: sobre la espalda del actor, que viste buzo negro,
+el detector dibuja una caja `vest 0,41`, de modo que la imagen muestra una alerta de «persona sin
+chaleco» junto a una caja de chaleco sobre esa misma persona.
+
+No es del clip. Medido sobre el episodio de chaleco de los siete clips del rodaje que lo tienen,
+el detector propone un chaleco en el **70 % al 96 % de los cuadros**, con el anotador declarando
+que no lo hay. Es el falso positivo de `vest` sobre ropa oscura ya documentado en `operacion/70`,
+más el sujeto fantasma sobre el cuadro colgado de `operacion/71`.
+
+Lo que sostiene el acierto de CR-02 en el rodaje no es que el detector no vea un chaleco, sino la
+geometría de la asociación —el centro de la caja tiene que caer en la franja del torso— y la
+ventana de resolución de 3 s, que impide que un falso intermitente apague la condición. En el
+cuadro renderizado el centro caía **dentro** de la región por 0,7 px, y el patrón seguía en
+`sustained` por la histéresis. Todo correcto, y todo imposible de contar en un epígrafe.
+
+**Conclusión:** ningún clip de CR-02 del rodaje da un fotograma limpio. Si alguna vez se quiere
+evidencia visual de esa condición, lo honesto es que ilustre el falso positivo, no el acierto.
+
 ## V2 — pendiente, y el intento fallido queda documentado
 
 **El intento con `gloves` se descartó: era falso.** Corrida
