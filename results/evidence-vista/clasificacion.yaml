@@ -1,0 +1,42 @@
+# La clase de cada rol del registro. Son 21 roles para 1.436 corridas: se
+# clasifica el rol, no la corrida, y se propaga solo.
+#
+# El test `test_todo_rol_tiene_clase` falla si aparece un rol nuevo sin
+# clasificar. Eso es deliberado: preferimos romper el build antes que mostrar
+# una corrida nueva como "Resultado" por descarte.
+roles:
+  resultado:
+    - campaign_media
+    - campaign_control
+    - control_replay_empirico
+    - distribucion_live
+    - benchmark_realtime
+    - nivel_a_primaria
+    - nivel_a_replica
+    - seleccion_modelos
+    - rodaje_ebe_final
+    - contraste_resolucion
+    - benchmark_modelos
+    - confirmacion_estratos
+    - extensibilidad_y_contraste_negativo
+  instrumento:
+    - claqueta_y_guards_negativos
+    - control_live_y_replay
+    - instrumentacion_g2a
+    - bloques_ab
+  ensayo:
+    - ensayo_ebe_1a1
+    - smoke_ebe_post_cambios
+    - media_live_e2e
+    - validacion_integrada_distribucion
+  plataforma: []
+
+# Excepciones para lo que NO tiene rol en el registro. El default de todo lo
+# demás es `sin_clasificar`: nada sube de clase por heurística de nombre.
+excepciones:
+  plataforma:
+    - orq_1
+    - orq_2a
+    - orq_alerts
+    - orq_alerts_502
+    - gate_orq

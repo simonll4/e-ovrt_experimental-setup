@@ -8,7 +8,15 @@ router = APIRouter(prefix="/api/evidencia")
 
 @router.get("")
 def index(request: Request) -> dict:
-    return request.app.state.evidence_archive.index()
+    return request.app.state.evidence_archive.recorrido()
+
+
+@router.get("/paso")
+def paso(request: Request, n: Annotated[int, Query(ge=1)]) -> dict:
+    try:
+        return request.app.state.evidence_archive.paso(n)
+    except KeyError as exc:
+        raise HTTPException(404, "Ese paso del recorrido no existe") from exc
 
 
 @router.get("/resultado")

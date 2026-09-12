@@ -9,6 +9,7 @@ import * as api from '../api'
 vi.mock('../api', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../api')>()),
   listRunsPaged: vi.fn(),
+  listRunGroups: vi.fn(),
   deleteRun: vi.fn(),
   getTrace: vi.fn(),
 }))
@@ -45,6 +46,11 @@ beforeEach(() => {
   vi.clearAllMocks()
   corridas = []
   servidor()
+  // Task 7 agrupa por resultado por defecto: este archivo prueba el listado
+  // individual (sort/paginación/borrado), no la agrupación (ver
+  // RunsClases.test.tsx), así que `renderPage()` apaga el toggle apenas monta.
+  // Sin datos de grupos que mostrar mientras tanto (irrelevantes acá).
+  vi.mocked(api.listRunGroups).mockResolvedValue({ items: [] })
   vi.mocked(api.getTrace).mockResolvedValue({
     control_run_id: null,
     totals: { frames: 0, detections: 0, dropped_by_reason: {}, alerts: 0, received: null, not_received: null },
@@ -57,8 +63,11 @@ function Detalle() {
   return <p>detalle de {id}</p>
 }
 
-const renderPage = () =>
-  render(
+/** Monta la pantalla y apaga "Agrupar por resultado": este archivo cubre el
+ *  listado individual (Task 7 lo dejó como vista alternativa, no la de
+ *  arranque). La agrupación tiene su propia cobertura en RunsClases.test.tsx. */
+const renderPage = () => {
+  const utils = render(
     <MemoryRouter initialEntries={['/']}>
       <Routes>
         <Route path="/" element={<RunsPage />} />
@@ -66,6 +75,9 @@ const renderPage = () =>
       </Routes>
     </MemoryRouter>,
   )
+  fireEvent.click(screen.getByRole('button', { name: /Agrupar por resultado/ }))
+  return utils
+}
 
 const row = (over: Partial<RunRow> = {}): RunRow =>
   ({ run_id: 'r_1', status: 'succeeded', model: 'gdino', ...over }) as RunRow
@@ -218,16 +230,18 @@ describe('RunsPage', () => {
   it('anuncia cuántas corridas hay en total y cuántas en curso', async () => {
     corridas = [row({ run_id: 'r_run', status: 'running', live: true }), row({ run_id: 'r_ok' })]
     renderPage()
-    await waitFor(() => expect(screen.getByText(/2 en total/)).toBeTruthy())
+    // Task 7: el encabezado dice "N corridas del plano de medios" (mismo
+    // texto que el mockup), no "N en total".
+    await waitFor(() => expect(screen.getByText(/2 corridas del plano de medios/)).toBeTruthy())
     expect(screen.getByText(/1 en curso/)).toBeTruthy()
   })
 
   // El total viene de `X-Total-Count`, no de contar filas: contando la página,
-  // un historial de 60 corridas diría "25 en total".
+  // un historial de 60 corridas diría "25 corridas del plano de medios".
   it('el total es el del servidor, no la cantidad de filas de la página', async () => {
     corridas = Array.from({ length: 60 }, (_, i) => row({ run_id: `r_${i}` }))
     renderPage()
-    await waitFor(() => expect(screen.getByText(/60 en total/)).toBeTruthy())
+    await waitFor(() => expect(screen.getByText(/60 corridas del plano de medios/)).toBeTruthy())
   })
 
   it('estado vacío cuando no hay corridas', async () => {

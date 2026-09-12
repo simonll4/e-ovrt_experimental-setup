@@ -13,26 +13,86 @@ import yaml
 logger = logging.getLogger(__name__)
 Vista = Literal["evidencia", "archivadas", "todas"]
 CSV_FILES = ("dbe-datasets.csv", "dbe-video.csv", "ebe-realtime.csv", "shared.csv")
+CLASES: tuple[str, ...] = ("resultado", "instrumento", "ensayo", "plataforma", "sin_clasificar")
 
 
 def coincide_vista(evidence: dict, vista: Vista) -> bool:
     return vista == "todas" or evidence["is_evidence"] == (vista == "evidencia")
 
 
+def cabeceras_de_disponibilidad(registry: EvidenceRegistry) -> dict[str, str]:
+    """Los dos archivos de los que depende toda clasificación, declarados.
+
+    Sin ellos la pantalla sigue armando frases perfectas —"472 corridas
+    agrupadas en 1 resultados", chip "Fuera del registro 472"— construidas
+    enteras sobre un archivo ausente. Son dos estados distintos: el archivo
+    CONGELADO (`available`, los cuatro CSV) y la configuración MUTABLE
+    (`clasificacion.yaml`, que una persona edita a mano y cuya ausencia no baja
+    `available`). Los dos viajan, y la pantalla los declara.
+
+    Los dos miran CONTENIDO, no sólo existencia (R-31): un archivo presente pero
+    vacío —cuatro CSV sin una sola fila, o un `roles:` renombrado o vaciado a
+    mano— carga sin excepción, deja TODO en `sin_clasificar` y era el último
+    camino por el que la pantalla afirmaba una clasificación sin advertir nada.
+
+    Un booleano no alcanza para el estado INTERMEDIO: con 1 de 21 roles
+    declarados la clasificación está disponible —hay una clasificación, y es
+    real— pero 1.435 corridas se muestran «Fuera del registro» sin que nada lo
+    diga. Por eso viaja también el CONTEO (`X-Clasificacion-Roles`, "N/M" =
+    roles sin clasificar sobre roles del registro): no hace falta un tercer
+    umbral arbitrario, alcanza con que la pantalla pueda decir cuántos son.
+    `roles_sin_clasificar()` ya devolvía la lista; lo que faltaba era exponerla.
+    """
+    sin_clasificar = registry.roles_sin_clasificar()
+    return {
+        "X-Evidence-Available": str(registry.available).lower(),
+        "X-Clasificacion-Available": str(registry.clasificacion_disponible).lower(),
+        "X-Clasificacion-Roles": f"{len(sin_clasificar)}/{len(registry.roles())}",
+    }
+
+
+def clase_mas_fuerte(clases) -> str:
+    """La primera clase presente en el orden de precedencia de `CLASES`.
+
+    Una corrida puede cumplir dos roles y un manifiesto agrupar ejecuciones de
+    clases distintas: la regla es siempre la misma —si algo es Resultado en
+    algún lado, es Resultado— y vive acá una sola vez para que Corridas,
+    Experimentos y `describe()` no la reimplementen cada uno a su manera.
+    Un conjunto vacío es `sin_clasificar`: el default, nunca una heurística.
+    """
+    presentes = set(clases)
+    return next((c for c in CLASES if c in presentes), "sin_clasificar")
+
+
 class EvidenceRegistry:
-    def __init__(self, archive_dir: Path):
-        self.available = all((archive_dir / "collections" / name).is_file() for name in CSV_FILES)
+    def __init__(self, archive_dir: Path, config_dir: Path | None = None):
+        # `archive_dir` es el archivo CONGELADO: tiene integridad por hash
+        # (`files.sha256`) y `tools/evidence_runs.py --check` la verifica. La
+        # configuración de la vista es MUTABLE —`titulos.yaml` lo edita una
+        # persona— así que vive fuera, en `results/evidence-vista/`. Meterla
+        # adentro rompía el check en cada edición.
+        self.config_dir = config_dir or archive_dir.parent / "evidence-vista"
+        presentes = all((archive_dir / "collections" / name).is_file() for name in CSV_FILES)
         self._rows: dict[str, list[dict]] = defaultdict(list)
         self._force: dict[str, bool] = {}
-        if self.available:
+        if presentes:
             for name in CSV_FILES:
                 with (archive_dir / "collections" / name).open(encoding="utf-8", newline="") as src:
                     for row in csv.DictReader(src):
                         self._rows[row["run_id"]].append(row)
-        else:
-            logger.warning("Registro de evidencia ausente o incompleto: %s/collections", archive_dir)
+        # CONTENIDO, no existencia (R-31): cuatro CSV con encabezado y ninguna
+        # fila cargan sin error y dejan cada corrida fuera del registro. Que eso
+        # NO baje `available` era el único camino que quedaba para afirmar una
+        # clasificación —"Fuera del registro 472"— sin una sola advertencia.
+        self.available = presentes and bool(self._rows)
+        if not self.available:
+            logger.warning(
+                "Registro de evidencia %s: %s/collections",
+                "ausente o incompleto" if not presentes else "presente pero sin filas",
+                archive_dir,
+            )
 
-        overrides = archive_dir / "consola.yaml"
+        overrides = self.config_dir / "consola.yaml"
         if overrides.is_file():
             data = yaml.safe_load(overrides.read_text(encoding="utf-8")) or {}
             for key, verdict in (("forzar_evidencia", True), ("forzar_archivado", False)):
@@ -44,8 +104,79 @@ class EvidenceRegistry:
                         raise ValueError(f"consola.yaml: excepción contradictoria para {entry}")
                     self._force[entry] = verdict
 
+        # La clase se declara por ROL, no por corrida: 21 decisiones en vez de
+        # 1.436, y una corrida nueva hereda la clase de su rol sin tocar nada.
+        self._clase_de_rol: dict[str, str] = {}
+        self._clase_forzada: dict[str, str] = {}
+        clasificacion = self.config_dir / "clasificacion.yaml"
+        # `clasificacion.yaml` es MUTABLE y lo edita una persona: si falta, el
+        # registro carga igual (`available` sigue en True) y TODO cae a
+        # `sin_clasificar` en silencio. Eso se DECLARA en la pantalla, así que
+        # el estado tiene que viajar — de ahí este flag, separado de `available`.
+        if clasificacion.is_file():
+            data = yaml.safe_load(clasificacion.read_text(encoding="utf-8")) or {}
+            for clase, roles in (data.get("roles") or {}).items():
+                if clase not in CLASES:
+                    raise ValueError(f"clasificacion.yaml: clase desconocida {clase}")
+                for rol in roles:
+                    if rol in self._clase_de_rol:
+                        raise ValueError(f"clasificacion.yaml: {rol} declarado dos veces")
+                    self._clase_de_rol[rol] = clase
+            for clase, entradas in (data.get("excepciones") or {}).items():
+                if clase not in CLASES:
+                    raise ValueError(f"clasificacion.yaml: clase desconocida {clase}")
+                for entrada in entradas:
+                    self._clase_forzada[entrada] = clase
+
+        # Disponibilidad por CONTENIDO (R-31). El archivo existe justamente
+        # porque lo edita una persona: si `roles:` se renombra o se vacía a
+        # mano, el YAML carga, no salta ninguna excepción y todas las corridas
+        # caen a `sin_clasificar` sin que nada lo advierta. El detector ya
+        # existía sin cablear: `roles_sin_clasificar()`. La clasificación está
+        # disponible cuando declara roles Y alcanza a ALGUNO de los que el
+        # registro realmente trae — declarar roles que ya nadie usa clasifica
+        # tan poco como no declarar ninguno. Con el registro vacío no hay roles
+        # que alcanzar y el aviso lo da `available`, que ya está en False.
+        alcanza_al_registro = (
+            not self.roles() or len(self.roles_sin_clasificar()) < len(self.roles())
+        )
+        self.clasificacion_disponible = bool(self._clase_de_rol) and alcanza_al_registro
+
     def es_evidencia(self, run_id: str) -> bool:
         return run_id in self._rows
+
+    def clase_de_rol(self, rol: str) -> str:
+        return self._clase_de_rol.get(rol, "sin_clasificar")
+
+    def clase_de(self, run_id: str) -> str:
+        """La clase MÁS FUERTE entre los roles de la corrida.
+
+        Una corrida puede cumplir dos roles (es evidencia de dos resultados). El
+        orden de `CLASES` es la precedencia: si algo es Resultado en algún lado,
+        es Resultado.
+        """
+        if run_id in self._clase_forzada:
+            return self._clase_forzada[run_id]
+        return clase_mas_fuerte(
+            self.clase_de_rol(row["role"]) for row in self._rows.get(run_id, []))
+
+    def clase_de_slug(self, slug: str, default: str = "sin_clasificar") -> str:
+        """La excepción explícita del slug, o lo que decida el llamador.
+
+        Los slugs no tienen rol en el registro (no producen corridas de
+        evidencia), así que su clase sale sólo de `clasificacion.yaml`.
+        """
+        return self._clase_forzada.get(slug, default)
+
+    def roles(self) -> list[str]:
+        """Los roles que el registro realmente trae — el denominador de todo
+        conteo de clasificación. No son los roles DECLARADOS en
+        `clasificacion.yaml`: declarar un rol que ya nadie usa no clasifica
+        nada."""
+        return sorted({row["role"] for rows in self._rows.values() for row in rows})
+
+    def roles_sin_clasificar(self) -> list[str]:
+        return [rol for rol in self.roles() if rol not in self._clase_de_rol]
 
     def filas(self) -> list[dict]:
         """Relaciones completas del CSV; preserva los roles y las pertenencias múltiples."""
@@ -81,6 +212,11 @@ class EvidenceRegistry:
                     row["result_id"].split("/", 1)[0], row["collection"]
                 ) for row in rows
             }),
+            # La MÁS FUERTE entre los roles de las corridas pedidas (Task 7): un
+            # `run_ids` de una sola corrida usa la precedencia de `clase_de`
+            # directo; describir varias a la vez (como en `resultados()`) toma
+            # la más fuerte del conjunto, con la misma regla de precedencia.
+            "clase": clase_mas_fuerte(self.clase_de(run_id) for run_id in run_ids),
         }
 
     def ejecucion(self, experiment_id: str, slug: str, run_ids: list[str]) -> dict:

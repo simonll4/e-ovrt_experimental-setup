@@ -64,6 +64,17 @@ export function IconChevron() {
   )
 }
 
+/** Tres barras de ancho decreciente: el toggle "Agrupar por resultado" de
+ *  Corridas (Task 7) — no es un ícono de navegación, va en icons.tsx igual
+ *  que el resto para no repetir SVG crudo dentro de la página. */
+export function IconGroup() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+      <path d="M2.8 4h10.4M4.6 8h8.6M6.4 12h6.8" strokeLinecap="round" />
+    </svg>
+  )
+}
+
 export function IconSearch() {
   return (
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
@@ -156,6 +167,19 @@ export function IconNavCatalog() {
       <path d="M8 3.4L2.4 6 8 8.6 13.6 6z" />
       <path d="M2.4 9.2L8 11.8l5.6-2.6" />
       <path d="M2.4 12.2L8 14.8l5.6-2.6" />
+    </svg>
+  )
+}
+
+/** Documentación: un libro abierto. Propio, no reutiliza el de Evidencia (una
+ *  hoja con tilde) ni el de Catálogos: son el primer y el segundo ítem del
+ *  mismo grupo y con el mismo dibujo serían indistinguibles con la barra
+ *  colapsada, que es justo cuando el icono es lo único que queda. */
+export function IconNavDocs() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden="true">
+      <path d="M8 4.3C6.9 3.3 5.5 2.9 3 2.9v8.9c2.5 0 3.9.4 5 1.4 1.1-1 2.5-1.4 5-1.4V2.9c-2.5 0-3.9.4-5 1.4z" />
+      <path d="M8 4.3v8.9" />
     </svg>
   )
 }

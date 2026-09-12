@@ -1,13 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   deleteRun, evaluateRun, getArtifacts, getEvaluation, getRun, getRunComparison, getTrace,
-  getTraceIndex, launchRun, listRuns, listRunsPaged, stopRun,
+  getTraceIndex, launchRun, listRuns, listRunGroups, listRunsPaged, stopRun,
 } from '..'
 import { qk } from '../keys'
 import { POLL } from '../queryClient'
 import { isRunning } from '../../runview'
 import type {
-  Composition, EvalResult, RunComparison, RunDetail, RunRow, TraceFrame,
+  Clase, Composition, EvalResult, RunComparison, RunDetail, RunGroup, RunRow, TraceFrame,
   TraceIndex, TraceTotals, EvidenceView,
 } from '../../types'
 
@@ -42,6 +42,10 @@ export interface RunsFiltros {
   direccion: 'asc' | 'desc'
   pagina: number
   pageSize: number
+  /** Sólo una clase (Task 7): filtra del lado del servidor, como el resto. */
+  clase?: Clase
+  /** Sólo las corridas del resultado que se está expandiendo (Task 7). */
+  resultId?: string
 }
 
 /** Una página del listado, filtrada y ordenada por el servidor.
@@ -54,10 +58,11 @@ export interface RunsFiltros {
  *  `placeholderData` conserva la página anterior mientras llega la nueva. Sin
  *  eso, cada cambio de orden o de página vacía la tabla y el encabezado salta.
  */
-export function useRunsPaged(filtros: RunsFiltros, hayCorridaViva: boolean) {
+export function useRunsPaged(filtros: RunsFiltros, hayCorridaViva: boolean, enabled = true) {
   return useQuery({
     queryKey: qk.runs.list({ ...filtros }),
     queryFn: () => listRunsPaged(filtros),
+    enabled,
     placeholderData: (anterior) => anterior,
     // Se sigue pidiendo mientras haya una corrida viva en cualquier lado (sus
     // métricas cambian) o mientras quede una en pantalla: esto último es lo que
@@ -98,6 +103,29 @@ export function useRunsTotal() {
     queryKey: [...qk.runs.list(), 'total'],
     queryFn: async () => (await listRunsPaged({ pageSize: 1 })).total,
   })
+}
+
+/** Las corridas de la pantalla, colapsadas en sus resultados de respaldo
+ *  (Task 7): 472 corridas son ~32 grupos, y eso es lo que hace legible la
+ *  pantalla, no el filtro de clase. `clase` filtra del lado del servidor.
+ *
+ *  Los conteos de `ClaseChips` y la disponibilidad del registro viajan en
+ *  cabeceras de esta misma respuesta, calculados por el servidor sobre corridas
+ *  DISTINTAS: el cliente no agrega nada por su cuenta. Sumar `n_runs` sobre los
+ *  grupos contaba citaciones —693 donde el filtro devuelve 412— y ponía un
+ *  número mayor que el total dos líneas más arriba. Son globales aunque se pida
+ *  una clase: elegir un chip no puede hacer desaparecer al resto. */
+export function useRunGroups(clase?: Clase) {
+  const q = useQuery({
+    queryKey: qk.runs.groups(clase),
+    queryFn: () => listRunGroups(clase),
+  })
+  return {
+    ...q,
+    data: q.data?.items,
+    conteos: q.data?.conteos,
+    visibility: q.data?.visibility,
+  }
 }
 
 export function useRun(id: string) {

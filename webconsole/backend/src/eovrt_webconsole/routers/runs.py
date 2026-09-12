@@ -9,15 +9,30 @@ from fastapi import APIRouter, HTTPException, Query, Request
 from fastapi.responses import JSONResponse, Response, StreamingResponse
 from starlette.background import BackgroundTask
 
-from eovrt_webconsole.evidence import Vista, coincide_vista
+from eovrt_webconsole.evidence import (
+    CLASES,
+    Vista,
+    cabeceras_de_disponibilidad,
+    coincide_vista,
+)
+from eovrt_webconsole.evidence_archive import etiqueta
 from eovrt_webconsole.experiment.control_backend import (
     RunActive as ControlRunActive,
+)
+from eovrt_webconsole.experiment.control_backend import (
     ServiceUnavailable as ControlServiceUnavailable,
+)
+from eovrt_webconsole.experiment.control_backend import (
     UnknownRun as ControlUnknownRun,
 )
 from eovrt_webconsole.routers.compose import validate_composition
 from eovrt_webconsole.run_backend import (
-    RunActive, RunBusy, RunNotFinished, ServiceRejected, ServiceUnavailable, UnknownRun,
+    RunActive,
+    RunBusy,
+    RunNotFinished,
+    ServiceRejected,
+    ServiceUnavailable,
+    UnknownRun,
 )
 from eovrt_webconsole.trace import build_trace_index, compose_trace, filtrar_frames
 from eovrt_webconsole.translation import Composition, composition_to_run_request
@@ -163,6 +178,10 @@ async def list_runs(
     pagina: int = Query(default=1, ge=1),
     page_size: int = Query(default=25, ge=1, le=200),
     vista: Vista = "todas",
+    clase: str | None = Query(
+        default=None, description="resultado | instrumento | ensayo | plataforma | sin_clasificar"
+    ),
+    result_id: str | None = Query(default=None, description="Sólo las corridas que citan este resultado"),
 ) -> list[dict]:
     """Listado de corridas, filtrado, ordenado y paginado del lado del servidor.
 
@@ -185,11 +204,15 @@ async def list_runs(
 
     registry = request.app.state.evidence
     evidence = {r["run_id"]: registry.describe([r["run_id"]]) for r in base}
-    response.headers["X-Evidence-Available"] = str(registry.available).lower()
+    response.headers.update(cabeceras_de_disponibilidad(registry))
     response.headers["X-Archived-Count"] = str(sum(
         not evidence[r["run_id"]]["is_evidence"] for r in base
     ))
     base = [r for r in base if coincide_vista(evidence[r["run_id"]], vista)]
+    if clase:
+        base = [r for r in base if evidence[r["run_id"]]["clase"] == clase]
+    if result_id:
+        base = [r for r in base if result_id in evidence[r["run_id"]]["result_ids"]]
 
     if estado:
         base = [r for r in base if r.get("status") == estado]
@@ -220,6 +243,105 @@ async def list_runs(
     _ordenar(hidratadas, campo, direccion)
     return [dict(row, evidence=evidence[row["run_id"]])
             for row in (hidratadas + resto)[inicio : inicio + page_size]]
+
+
+# `/grupos` tiene que registrarse ANTES de `GET /{run_id}`: Starlette matchea en
+# el orden de alta, y un segmento estático después de uno dinámico de un solo
+# path param nunca se alcanza (`/{run_id}` se comería `/grupos` con
+# run_id="grupos"). Por eso vive acá y no más abajo, cerca de `run_comparison`.
+def _cifra_de_grupo(archive, result_id: str | None) -> dict:
+    """La cifra del paso que cita `result_id`, o declarada ausente.
+
+    Nunca se calcula una cifra propia acá: instrumento, ensayo, plataforma y
+    los resultados que sólo sostienen el respaldo (no un paso del argumento) no
+    tienen paso -> no tienen cifra, y eso se DICE (`None`), no se dibuja como
+    cero ni se inventa.
+    """
+    info = archive.paso_de(result_id) if result_id else None
+    if info is None:
+        return {"cifra": None, "cifra_label": None, "cifra_origen": None, "fuente": None, "paso": None}
+    return {"cifra": info["cifra"], "cifra_label": info["cifra_label"],
+            "cifra_origen": info["cifra_origen"], "fuente": info["fuente"], "paso": info["n"]}
+
+
+@router.get("/grupos")
+async def list_grupos(
+    request: Request, response: Response, clase: str | None = None
+) -> list[dict]:
+    """Las corridas colapsadas en sus resultados de respaldo.
+
+    El filtro de clase casi no reduce el LISTADO plano (412 de 472 corridas son
+    'resultado'): lo que lo hace legible es agrupar, no filtrar. Acá 472
+    corridas quedan en unas pocas decenas de grupos.
+
+    Una corrida que es evidencia de DOS resultados aparece en los DOS grupos:
+    la suma de `n_runs` es mayor al total de corridas, y ese total nunca se
+    deriva sumando esta lista — se lee de `X-Total-Count` en `GET /api/runs`.
+
+    Por lo mismo viaja `X-Class-Counts`: los conteos por clase son de corridas
+    DISTINTAS —exactamente lo que devuelve `GET /api/runs?clase=…`—, y sumarlos
+    del lado del cliente sobre `n_runs` cuenta CITACIONES (693 contra 412 en la
+    plataforma real, un número mayor que el total). Se calculan acá, en el mismo
+    handler, sobre el listado completo: un chip tiene que decir cuántas filas
+    trae su filtro, no cuántas veces se las cita.
+    """
+    registry = request.app.state.evidence
+    archive = request.app.state.evidence_archive
+    backend = request.app.state.backend
+    try:
+        base = await backend.list_runs()
+    except ServiceUnavailable as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+    # Antes de filtrar: los chips son siempre globales. Se emiten las cinco
+    # clases, cero incluido — un cero medido es un dato, no un dato ausente.
+    conteos = dict.fromkeys(CLASES, 0)
+    response.headers.update(cabeceras_de_disponibilidad(registry))
+
+    grupos: dict[str | None, dict] = {}
+    for fila in base:
+        descripcion = registry.describe([fila["run_id"]])
+        conteos[descripcion["clase"]] += 1
+        claves = descripcion["result_ids"] or [None]
+        for clave in claves:
+            # `if clave not in grupos` en vez de `grupos.setdefault(clave, {...})`:
+            # el segundo argumento de `setdefault` se evalúa SIEMPRE, en cada
+            # corrida del grupo — incluida `_cifra_de_grupo`, que para una cifra
+            # leída abre y parsea `metrics.json` sin caché. Con esto se abre una
+            # sola vez por grupo, no una por corrida.
+            if clave not in grupos:
+                grupos[clave] = {
+                    "result_id": clave,
+                    "titulo": archive.titles.get(clave) if clave else "Fuera del registro de evidencia",
+                    # El fallback de nombre lo calcula el backend, con la ÚNICA
+                    # `etiqueta()` que existe (`evidence_archive.py`): antes el
+                    # frontend tenía una segunda copia que partía por el ÚLTIMO
+                    # `/` en vez del primero, y las dos se desviaban en cuanto
+                    # un result_id tuviera más de un separador.
+                    "etiqueta": etiqueta(clave) if clave else None,
+                    "clase": descripcion["clase"],
+                    "n_runs": 0,
+                    "last_run_at": None,
+                    **_cifra_de_grupo(archive, clave),
+                }
+            grupo = grupos[clave]
+            # La clase del grupo es la MÁS FUERTE entre TODAS las corridas que lo
+            # citan, con la misma precedencia de `CLASES` que usa `EvidenceRegistry`
+            # en `describe()`/`ejecucion()` — no la de la primera corrida procesada
+            # (`descripcion["clase"]` es la clase de la corrida entera, no de su rol
+            # específico en `clave`, así que puede variar de una corrida a otra).
+            if CLASES.index(descripcion["clase"]) < CLASES.index(grupo["clase"]):
+                grupo["clase"] = descripcion["clase"]
+            grupo["n_runs"] += 1
+            creado = _created_at(fila)
+            if creado and (grupo["last_run_at"] is None or creado > grupo["last_run_at"]):
+                grupo["last_run_at"] = creado
+
+    response.headers["X-Class-Counts"] = ",".join(f"{c}={n}" for c, n in conteos.items())
+    filas = list(grupos.values())
+    if clase:
+        filas = [g for g in filas if g["clase"] == clase]
+    return sorted(filas, key=lambda g: (g["last_run_at"] or ""), reverse=True)
 
 
 def _fila_flaca(item: dict) -> dict:

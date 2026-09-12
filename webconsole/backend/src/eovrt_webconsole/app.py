@@ -8,6 +8,7 @@ import httpx
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
+from eovrt_webconsole.documentacion import Documentacion
 from eovrt_webconsole.evidence import EvidenceRegistry
 from eovrt_webconsole.evidence_archive import EvidenceArchive
 from eovrt_webconsole.experiment.control_backend import ControlPlaneBackend
@@ -22,6 +23,7 @@ from eovrt_webconsole.routers import (
     compare,
     compose,
     control,
+    documentacion,
     evidencia,
     experiments,
     manifests,
@@ -107,6 +109,10 @@ def create_app(
     # las rutas de catálogo sin abrir clientes HTTP mediante el lifespan.
     app.state.evidence = EvidenceRegistry(settings.repo_root / "results" / "evidence-runs")
     app.state.evidence_archive = EvidenceArchive(settings.repo_root, app.state.evidence)
+    # Los conteos de la tabla «qué aporta cada cosa» salen del registro, no del
+    # YAML: un número escrito a mano envejece en cuanto el inventario crece.
+    app.state.documentacion = Documentacion(settings.repo_root, app.state.evidence_archive)
+    app.include_router(documentacion.router)
     app.include_router(evidencia.router)
     app.include_router(meta.router)
     app.include_router(catalog.router)

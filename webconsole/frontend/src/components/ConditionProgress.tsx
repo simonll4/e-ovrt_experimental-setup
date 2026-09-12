@@ -1,5 +1,6 @@
 import Meter from './charts/Meter'
 import { conditionLabel } from '../labels'
+import Termino from './Glosario'
 import type { TraceFrame } from '../types'
 
 /**
@@ -20,7 +21,9 @@ export default function ConditionProgress({ frame }: { frame: TraceFrame | null 
         const pct = Math.round(Math.min(1, Math.max(0, p.progress ?? 0)) * 100)
         return (
           <li key={p.condition_id}>
-            <span className="eo-condprog__name">{conditionLabel(p.condition_id)}</span>
+            <span className="eo-condprog__name">
+              <Termino id={p.condition_id}>{conditionLabel(p.condition_id)}</Termino>
+            </span>
             <Meter
               total={100}
               segments={[{ value: pct, tone: pct >= 100 ? 'alert' : 'warn', label: 'avance' }]}

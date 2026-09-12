@@ -1,0 +1,118 @@
+/* Documentación. Todo el color sale de `tokens.css`: acá no hay un solo hex.
+   La pantalla es larga y se lee de arriba abajo, así que la jerarquía la dan el
+   tamaño y el aire, no cajas de colores. */
+.eo-doc { min-width: 0; overflow-wrap: anywhere; max-width: 1100px; }
+.eo-doc .eo-card { margin-bottom: var(--space-4); min-width: 0; }
+
+.eo-doc__h2 {
+  font-size: var(--text-lg);
+  font-weight: 500;
+  color: var(--tx);
+  margin: var(--space-6) 0 var(--space-2);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--bd);
+}
+.eo-doc__intro { font-size: var(--text-sm); color: var(--tx2); margin: 0 0 var(--space-4); line-height: 1.6; }
+
+/* Los cinco pasos: número grande a la izquierda, y adentro el qué / por qué /
+   qué quedó como lista de definición — la etiqueta es lo que hace que el
+   «por qué» no se lea como un párrafo más. */
+.eo-doc__pasos { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-3); }
+.eo-doc__paso {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  gap: var(--space-4);
+  background: var(--s1);
+  border: 1px solid var(--bd);
+  border-radius: var(--rc);
+  padding: var(--space-4);
+}
+.eo-doc__n {
+  font-family: var(--fm);
+  font-size: var(--text-xl);
+  color: var(--tx4);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.eo-doc__cuerpo { min-width: 0; }
+.eo-doc__t { font-size: var(--text-md); font-weight: 500; color: var(--tx); margin: 0 0 var(--space-3); }
+.eo-doc__qpq { margin: 0; display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 4px var(--space-4); }
+.eo-doc__qpq dt {
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: var(--tx4);
+  padding-top: 2px;
+}
+.eo-doc__qpq dd { margin: 0; font-size: var(--text-sm); color: var(--tx2); line-height: 1.6; }
+/* El POR QUÉ es el que justifica la pantalla entera: se lee primero dentro del
+   bloque, así que va en la tinta del cuerpo y no en la secundaria. */
+.eo-doc__qpq dt:nth-of-type(2) { color: var(--tx2); }
+.eo-doc__qpq dd:nth-of-type(2) { color: var(--tx); }
+
+.eo-doc__chips { display: flex; flex-wrap: wrap; gap: var(--space-2); margin: var(--space-3) 0 0; }
+.eo-doc__ev { margin: var(--space-3) 0 0; font-size: var(--text-sm); }
+
+/* Un término marcado, en esta pantalla y en cualquier otra: la MISMA
+   convención que una cifra citada (`.eo-cifra--cit`) — subrayado punteado y la
+   definición en el `title`. Lo que no tiene definición no llega acá: se
+   renderiza como texto plano. */
+.eo-termino {
+  color: inherit;
+  text-decoration: underline dotted var(--tx3);
+  text-underline-offset: 3px;
+  cursor: help;
+}
+.eo-termino:hover { color: var(--ac-tx); text-decoration: underline dotted var(--ac-bd); }
+/* Dentro de la lista de un paso se leen como fichas, no como prosa subrayada. */
+.eo-doc__chips .eo-termino {
+  font-family: var(--fm);
+  font-size: var(--text-xs);
+  background: var(--s2);
+  border: 1px solid var(--bd);
+  border-radius: var(--r);
+  padding: 2px 7px;
+  text-decoration: none;
+  border-bottom-style: dotted;
+  border-bottom-color: var(--tx3);
+  color: var(--tx2);
+}
+.eo-doc__chips .eo-termino:hover { border-color: var(--ac-bd); color: var(--ac-tx); }
+
+.eo-doc__n2 { display: block; font-family: var(--fm); font-size: var(--text-xs); color: var(--tx4); margin-top: 3px; }
+
+/* Las colisiones, una al lado de la otra: la comparación es el punto. `auto-fit`
+   y no `repeat(3,…)`: cuántas hay lo decide el YAML, y con tres columnas fijas
+   una cuarta quedaba sola en una fila de un tercio de ancho. */
+.eo-doc__cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: var(--space-3); }
+.eo-doc__cols .eo-card { margin-bottom: 0; }
+.eo-doc__sentidos { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-2); }
+.eo-doc__sentidos li { font-size: var(--text-sm); color: var(--tx2); line-height: 1.55; }
+.eo-doc__sentidos .eo-mono { color: var(--tx); margin-right: 4px; }
+.eo-doc__aqui {
+  font-size: var(--text-xs);
+  color: var(--tx3);
+  margin: var(--space-3) 0 0;
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--bd);
+  line-height: 1.55;
+}
+
+.eo-doc__nota { font-size: var(--text-sm); color: var(--tx3); margin: 0 0 var(--space-4); line-height: 1.6; }
+.eo-doc__voc { margin: 0; display: grid; gap: var(--space-3); }
+.eo-doc__voci { display: grid; grid-template-columns: 190px minmax(0, 1fr); gap: var(--space-4); align-items: start; }
+.eo-doc__voci dt { font-size: var(--text-sm); color: var(--tx); font-weight: 500; scroll-margin-top: var(--space-6); }
+.eo-doc__voci dd { margin: 0; font-size: var(--text-sm); color: var(--tx2); line-height: 1.6; }
+.eo-doc__nivel { display: block; font-family: var(--fm); font-size: var(--text-xs); color: var(--tx4); font-weight: 400; margin-top: 2px; }
+.eo-doc__rids { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: 5px; }
+.eo-doc__rids a { font-size: var(--text-xs); }
+
+@media (max-width: 1000px) {
+  .eo-doc__cols { grid-template-columns: minmax(0, 1fr); }
+  .eo-doc__voci { grid-template-columns: minmax(0, 1fr); gap: 3px; }
+  .eo-doc__qpq { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+  .eo-doc__qpq dd { margin-bottom: var(--space-2); }
+}
+@media (max-width: 760px) {
+  .eo-doc__paso { grid-template-columns: minmax(0, 1fr); gap: var(--space-2); }
+}

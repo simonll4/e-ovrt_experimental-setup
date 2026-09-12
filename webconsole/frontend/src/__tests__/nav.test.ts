@@ -6,12 +6,17 @@ describe('NAV_GROUPS', () => {
     expect(NAV_GROUPS.map((g) => g.title)).toEqual(['Trabajo', 'Definiciones', 'Sistema'])
   })
 
-  it('cubre los 9 destinos y NO incluye /compose (es acción, no destino)', () => {
+  it('cubre los 10 destinos y NO incluye /compose (es acción, no destino)', () => {
     const tos = NAV_GROUPS.flatMap((g) => g.items.map((i) => i.to))
     expect(tos).toEqual([
-      '/evidencia', '/', '/experiments', '/compare', '/prompts', '/catalog', '/platform', '/cameras', '/clips',
+      '/documentacion', '/evidencia', '/', '/experiments', '/compare', '/prompts', '/catalog', '/platform', '/cameras', '/clips',
     ])
     expect(tos).not.toContain('/compose')
+  })
+
+  it('Documentación abre el grupo Trabajo: se lee antes que todo lo demás', () => {
+    const trabajo = NAV_GROUPS.find((g) => g.title === 'Trabajo')!
+    expect(trabajo.items[0].to).toBe('/documentacion')
   })
 
   it('ningún destino aparece dos veces', () => {
@@ -61,5 +66,25 @@ describe('crumbsFor', () => {
 
   it('ruta desconocida no rompe', () => {
     expect(crumbsFor('/nope')).toEqual([])
+  })
+
+  it('/documentacion tiene miga propia: se llega desde cualquier término marcado', () => {
+    expect(crumbsFor('/documentacion')).toEqual([
+      { to: '/documentacion', label: 'Documentación' },
+    ])
+  })
+
+  it('un paso del recorrido encadena Evidencia > Paso N, no queda vacío', () => {
+    expect(crumbsFor('/evidencia/paso', '?n=3')).toEqual([
+      { to: '/evidencia', label: 'Evidencia' },
+      { to: '/evidencia/paso?n=3', label: 'Paso 3' },
+    ])
+  })
+
+  it('el respaldo instrumental encadena Evidencia > Respaldo instrumental', () => {
+    expect(crumbsFor('/evidencia/respaldo')).toEqual([
+      { to: '/evidencia', label: 'Evidencia' },
+      { to: '/evidencia/respaldo', label: 'Respaldo instrumental' },
+    ])
   })
 })

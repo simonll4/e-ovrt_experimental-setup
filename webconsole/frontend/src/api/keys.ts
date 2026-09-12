@@ -24,6 +24,8 @@ export const qk = {
      *  cada combinación es una respuesta distinta. */
     list: (filtros?: Record<string, unknown>) =>
       filtros ? (['runs', 'list', filtros] as const) : (['runs', 'list'] as const),
+    /** Los grupos por resultado (Task 7), por clase filtrada (o sin filtrar). */
+    groups: (clase?: string) => ['runs', 'groups', clase ?? null] as const,
     detail: (id: string) => ['runs', 'detail', id] as const,
     trace: (id: string, pagina?: number) =>
       pagina == null ? (['runs', 'trace', id] as const) : (['runs', 'trace', id, pagina] as const),
@@ -34,6 +36,11 @@ export const qk = {
   },
 
   compare: (ids: string[]) => ['compare', [...ids].sort()] as const,
+
+  /** La documentación y su vocabulario. Una sola clave para las dos consumidoras
+   *  —la pantalla y los términos marcados del resto de la consola— para que
+   *  entre todas haya una única petición. */
+  documentacion: ['documentacion'] as const,
 
   catalog: {
     all: ['catalog'] as const,

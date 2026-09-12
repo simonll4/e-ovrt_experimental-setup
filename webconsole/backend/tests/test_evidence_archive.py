@@ -48,23 +48,113 @@ def archive_client(settings):
     (root / 'results/evidence-runs.yaml').write_text(yaml.safe_dump({'structured_sources': [{
         'result_id': 'bench_imagenes/example', 'document': '../docs/medicion.md',
     }]}))
+    # El recorrido (Task 2) vive fuera del archivo congelado, en evidence-vista/.
+    # No lo siembra ningún test viejo: sin esto, todo test que espere los 4
+    # pasos del recorrido fallaría siempre. `bench_imagenes/example` queda
+    # deliberadamente SIN título acá: `test_title_fallback_override_and_...`
+    # necesita un resultado sin título previo para probar el fallback.
+    vista = directory.parent / 'evidence-vista'
+    vista.mkdir(parents=True, exist_ok=True)
+    (vista / 'titulos.yaml').write_text(yaml.safe_dump({'resultados': [
+        {'result_id': 'realtime/example', 'titulo': 'Título de ejemplo (realtime)',
+         'reclamo': 'Reclamo de ejemplo para realtime.'},
+        {'result_id': 'clip_bench/campaign', 'titulo': 'Título de ejemplo (campaña)',
+         'reclamo': 'Reclamo de ejemplo para la campaña.'},
+    ]}, allow_unicode=True))
+    (vista / 'recorrido.yaml').write_text(yaml.safe_dump({
+        'pasos': [
+            {'n': 1, 'titulo': 'Paso uno', 'claim': 'Relato sintético del paso uno.',
+             'cifra': '0,500', 'cifra_label': 'cifra citada de ejemplo',
+             'fuente': 'results/evidence-runs.yaml', 'resultados': ['bench_imagenes/example']},
+            {'n': 2, 'titulo': 'Paso dos', 'claim': 'Relato sintético del paso dos.',
+             'cifra_label': 'cifra leída de ejemplo', 'cifra_nota': 'nota del paso dos',
+             'leer': [{'result_id': 'clip_bench/campaign', 'campo': 'inexistente'}],
+             'resultados': ['realtime/example']},
+            {'n': 3, 'titulo': 'Paso tres', 'claim': 'Relato sintético del paso tres.',
+             'cifra': '0,750', 'fuente': 'results/evidence-runs.yaml',
+             'resultados': ['clip_bench/campaign']},
+            {'n': 4, 'titulo': 'Paso cuatro', 'claim': 'Relato sintético del paso cuatro.',
+             'cifra_label': 'cifra leída de ejemplo',
+             'leer': [{'result_id': 'bench_imagenes/example', 'campo': 'otro_inexistente'}],
+             'resultados': []},
+        ],
+        'respaldo_instrumental': {
+            'titulo': 'Respaldo instrumental de ejemplo',
+            'claim': 'Relato sintético del respaldo.',
+            'resultados': [],
+        },
+    }, allow_unicode=True))
     app = create_app(settings)
     # Sin entrar al lifespan, ni siquiera existen clientes de planos en app.state.
     return TestClient(app), directory
 
 
-def test_index_comes_from_rows_and_shared_stays_in_both_results(archive_client):
+def test_index_comes_from_the_recorrido_and_indices_stay_reachable(archive_client):
     client, _ = archive_client
     assert not hasattr(client.app.state, 'http')
     data = client.get('/api/evidencia').json()
     assert data['available'] is True
-    assert [(g['id'], g['n_results'], g['n_rows']) for g in data['collections']] == [
-        ('bench_imagenes', 1, 1), ('clip_bench', 1, 6), ('realtime', 1, 1),
+    # La forma nueva del índice es el recorrido, no las colecciones.
+    assert [p['n'] for p in data['pasos']] == [1, 2, 3, 4]
+    # Los cuatro índices por material siguen alcanzables, como acceso secundario.
+    assert [(i['id'], i['n_results']) for i in data['indices']] == [
+        ('bench_imagenes', 1), ('clip_bench', 1), ('realtime', 1),
     ]
     for rid in ['bench_imagenes/example', 'realtime/example']:
         response = client.get('/api/evidencia/resultado', params={'id': rid})
         assert response.status_code == 200
         assert response.json()['items'][0]['run_id'] == 'm1'
+
+
+def test_index_devuelve_el_recorrido_no_las_colecciones(archive_client):
+    client, _ = archive_client
+    data = client.get('/api/evidencia').json()
+    assert [p['n'] for p in data['pasos']] == [1, 2, 3, 4]
+    assert data['pasos'][0]['titulo']
+    assert data['respaldo']['resultados'] is not None
+    # Los cuatro índices por material siguen alcanzables, como acceso secundario.
+    assert data['indices']
+
+
+def test_paso_lista_sus_resultados_con_titulo_y_reclamo(archive_client):
+    client, _ = archive_client
+    data = client.get('/api/evidencia/paso?n=3').json()
+    assert data['paso']['n'] == 3
+    for fila in data['resultados']:
+        assert fila['titulo'], 'un resultado sin título redactado llegó a la API'
+        assert 'reclamo' in fila
+
+
+def test_paso_declara_cuantos_pasos_hay(archive_client):
+    """La pantalla decía "paso N de 4" con el 4 hardcodeado: cuántos pasos hay
+    lo decide `recorrido.yaml`, y un paso nuevo dejaba a la plantilla mintiendo."""
+    client, _ = archive_client
+    data = client.get('/api/evidencia/paso?n=3').json()
+    recorrido = client.get('/api/evidencia').json()
+    assert data['n_pasos'] == len(recorrido['pasos'])
+
+
+def test_paso_inexistente_es_404(archive_client):
+    client, _ = archive_client
+    assert client.get('/api/evidencia/paso?n=9').status_code == 404
+
+
+def test_resultado_trae_el_desglose(archive_client):
+    client, _ = archive_client
+    data = client.get('/api/evidencia/resultado?id=clip_bench/campaign').json()
+    # La fixture no tiene metrics.json: la clave existe y vale None, y la
+    # pantalla tiene que renderizar igual. Es el mismo contrato que en disco.
+    assert 'metricas' in data['result']
+    assert data['result']['metricas'] is None
+
+
+def test_cifra_del_paso_leida_marca_su_origen(archive_client):
+    client, _ = archive_client
+    data = client.get('/api/evidencia').json()
+    for paso in data['pasos']:
+        assert paso['cifra_origen'] in {'leida', 'citada'}
+        if paso['cifra_origen'] == 'citada':
+            assert paso['fuente']
 
 
 def test_pagination_orders_by_role_and_does_not_lose_runs(archive_client):
@@ -121,7 +211,8 @@ def test_archived_nested_summary_selects_only_the_requested_identity(archive_cli
 
 def test_absent_archive_returns_explanatory_empty_at_all_levels(settings):
     client = TestClient(create_app(settings))
-    for url in ['/api/evidencia', '/api/evidencia/resultado?id=clip_bench/x',
+    for url in ['/api/evidencia', '/api/evidencia/paso?n=1',
+                '/api/evidencia/resultado?id=clip_bench/x',
                 '/api/evidencia/run?plane=media-plane&run_id=x']:
         response = client.get(url)
         assert response.status_code == 200
@@ -133,7 +224,10 @@ def test_absent_archive_returns_explanatory_empty_at_all_levels(settings):
 def test_archive_removed_after_start_is_not_served_from_stale_cache(archive_client):
     client, directory = archive_client
     directory.rename(directory.with_name('temporarily-absent'))
-    assert client.get('/api/evidencia').json()['collections'] == []
+    data = client.get('/api/evidencia').json()
+    assert data['available'] is False
+    assert data['pasos'] == []
+    assert data['indices'] == []
 
 
 def test_title_fallback_override_and_document_provenance(archive_client):
@@ -142,8 +236,10 @@ def test_title_fallback_override_and_document_provenance(archive_client):
     assert before['titulo'] is None
     assert before['etiqueta'] == 'example'
     assert before['documents'] == ['../docs/medicion.md']
-    (directory / 'titulos.yaml').write_text('resultados:\n  - result_id: bench_imagenes/example\n'
-                                          '    titulo: Título escrito por el usuario\n')
+    vista = directory.parent / 'evidence-vista'
+    vista.mkdir(parents=True, exist_ok=True)
+    (vista / 'titulos.yaml').write_text('resultados:\n  - result_id: bench_imagenes/example\n'
+                                        '    titulo: Título escrito por el usuario\n')
     restarted = TestClient(create_app(client.app.state.settings))
     after = restarted.get('/api/evidencia/resultado?id=bench_imagenes/example').json()['result']
     assert after['titulo'] == 'Título escrito por el usuario'
@@ -170,3 +266,29 @@ def test_summary_symlink_cannot_escape_archive(archive_client, tmp_path):
 @pytest.mark.parametrize('query', ['page=0', 'page_size=201'])
 def test_invalid_pagination_is_rejected(archive_client, query):
     assert archive_client[0].get('/api/evidencia/resultado?id=clip_bench/campaign&' + query).status_code == 422
+
+
+def test_el_remedio_distingue_archivo_ausente_de_archivo_vacio(tmp_path):
+    """R-31, arrastre: desde que `registry.available` mira CONTENIDO, este
+    mensaje también sale con los cuatro CSV en disco — y «restauralo desde el
+    backup» manda a reponer algo que no falta. El estado que se dice y el
+    remedio que se da tienen que ser el mismo."""
+    from eovrt_webconsole.evidence import EvidenceRegistry
+    from eovrt_webconsole.evidence_archive import EvidenceArchive
+
+    ausente = tmp_path / 'ausente'
+    sin_archivo = EvidenceArchive(ausente, EvidenceRegistry(ausente / 'results/evidence-runs'))
+    assert 'Restauralo desde la capa de evidencia del backup' in sin_archivo.availability()['message']
+
+    presente = tmp_path / 'presente'
+    collections = presente / 'results/evidence-runs/collections'
+    collections.mkdir(parents=True)
+    (presente / 'results/evidence-runs/artifacts').mkdir()
+    for name in CSV_FILES:
+        (collections / name).write_text(','.join(FIELDS) + '\n', encoding='utf-8')
+    sin_filas = EvidenceArchive(presente, EvidenceRegistry(presente / 'results/evidence-runs'))
+    estado = sin_filas.availability()
+    assert estado['available'] is False
+    assert 'no trae una sola fila' in estado['message']
+    assert 'tools/evidence_runs.py sync' in estado['message']
+    assert 'Restauralo' not in estado['message'], 'no hay nada que restaurar: está en disco'

@@ -6,6 +6,7 @@ from __future__ import annotations
 import json
 import logging
 import re
+from collections import Counter
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -15,22 +16,27 @@ from fastapi import APIRouter, HTTPException, Query, Request, Response
 from fastapi.responses import JSONResponse
 from pydantic import ValidationError
 
+from eovrt_webconsole import camera_store as cs
 from eovrt_webconsole.evidence import (
-    Vista, clasificar_ejecuciones, coincide_vista, directorios_consolidados,
+    Vista,
+    cabeceras_de_disponibilidad,
+    clase_mas_fuerte,
+    clasificar_ejecuciones,
+    coincide_vista,
+    directorios_consolidados,
 )
 from eovrt_webconsole.experiment.control_backend import ServiceUnavailable, UnknownRun
 from eovrt_webconsole.experiment.manifest import ExperimentManifest, load_manifest
 from eovrt_webconsole.experiment.run_manager import ExperimentBusy
-from eovrt_webconsole.preflight import platform_preflight
+from eovrt_webconsole.experiment_deriver import DeriveError, derive_payloads
 from eovrt_webconsole.manifest_writer import (
     ManifestExistsError,
     ProtectedManifestError,
     write_manifest,
     write_manifest_dir,
 )
-from eovrt_webconsole.experiment_deriver import DeriveError, derive_payloads
+from eovrt_webconsole.preflight import platform_preflight
 from eovrt_webconsole.repo_catalog import get_prompt_set
-from eovrt_webconsole import camera_store as cs
 
 logger = logging.getLogger(__name__)
 
@@ -129,10 +135,26 @@ async def list_manifests(request: Request, response: Response, vista: Vista = "t
     ejecuciones = _ejecuciones_por_slug(runs_dir)
     registry = request.app.state.evidence
     classification = clasificar_ejecuciones(runs_dir, registry)
-    response.headers["X-Evidence-Available"] = str(registry.available).lower()
+    response.headers.update(cabeceras_de_disponibilidad(registry))
     response.headers["X-Archived-Executions-Count"] = str(sum(
         not execution["evidence"]["is_evidence"] for execution in classification
     ))
+    # El TOTAL en disco (evidencia + archivadas), no sólo lo archivado: la
+    # proporción de plataforma se cuenta contra esto — "de todo lo que hay",
+    # no "de lo que ya archivamos" (eso último es casi tautológico, porque lo
+    # archivado es casi todo smoke por definición).
+    response.headers["X-Total-Executions-Count"] = str(len(classification))
+    # Las ejecuciones sin manifiesto son la máquina probándose: 5 slugs que
+    # escribe la suite de tests. Viajan en cabeceras, NO en un endpoint nuevo,
+    # porque esta pantalla está montada por el contrato congelado y su arnés
+    # falla ante cualquier ruta imprevista.
+    plataforma = Counter(
+        e["slug"] for e in classification
+        if registry.clase_de_slug(e["slug"], "") == "plataforma"
+    )
+    response.headers["X-Platform-Test-Count"] = str(sum(plataforma.values()))
+    response.headers["X-Platform-Test-Slugs"] = ",".join(
+        f"{slug}={n}" for slug, n in plataforma.most_common())
     archived = 0
     filas = []
     for path, manifest in _iter_umbrella_manifests(settings.experiments_dir):
@@ -142,6 +164,22 @@ async def list_manifests(request: Request, response: Response, vista: Vista = "t
         evidence["executions"] = sorted(
             [e["experiment_id"] for e in classified if e["evidence"]["is_evidence"]],
             reverse=True,
+        )
+        # La clase sale de los ROLES de las corridas de sus ejecuciones, con la
+        # misma precedencia que usa Corridas — que no es heurística, es la
+        # declaración por rol de `clasificacion.yaml`. Sin ejecuciones,
+        # `sin_clasificar`: el default del spec §3, donde nada sube de clase por
+        # heurística de nombre ni por ser evidencia. La excepción explícita del
+        # slug sigue mandando sobre todo lo demás (ruling R-26).
+        #
+        # Antes decía `"resultado" if evidence["is_evidence"] else "ensayo"`, y
+        # eso mostraba `talert_integrated_video` como "Resultado" cuando el rol
+        # declarado de sus corridas (`validacion_integrada_distribucion`) es
+        # Ensayo, y etiquetaba "Ensayo" a 7 manifiestos sin una sola ejecución
+        # en disco.
+        evidence["clase"] = registry.clase_de_slug(
+            manifest.slug,
+            clase_mas_fuerte(e["evidence"]["clase"] for e in classified),
         )
         archived += not evidence["is_evidence"]
         if not coincide_vista(evidence, vista):

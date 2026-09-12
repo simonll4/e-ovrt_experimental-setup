@@ -372,6 +372,81 @@
 }
 .eo-toolbar__count { margin-left: auto; font-size: 11px; color: var(--tx3); }
 
+/* Chips de clase (`ClaseChips`, Task 7/8): clase propia, NO `.eo-chip` — ese
+ * es el chip de detección (punto de color + label), otra cosa. La clase se
+ * lee por etiqueta y posición, nunca por color: sólo el chip SELECCIONADO usa
+ * el acento, porque eso es selección, no una condición de la corrida. */
+.eo-cchips { display: flex; gap: 6px; flex-wrap: wrap; }
+.eo-cchip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 29px;
+  padding: 0 11px;
+  background: var(--s2);
+  border: 1px solid var(--bd);
+  border-radius: 999px;
+  font: inherit;
+  font-size: 12.5px;
+  color: var(--tx2);
+  cursor: pointer;
+}
+.eo-cchip:hover { background: var(--s3); }
+.eo-cchip b {
+  font-family: var(--fm);
+  font-size: 11.5px;
+  font-weight: 400;
+  color: var(--tx3);
+  font-variant-numeric: tabular-nums;
+}
+.eo-cchip--on { background: var(--ac-bg); border-color: var(--ac-bd); color: var(--tx); }
+.eo-cchip--on b { color: var(--ac-tx); }
+
+/* Toggle "Agrupar por resultado" (Corridas, Task 7): encendido por defecto,
+ * mismo tratamiento visual que un chip seleccionado — es una elección de
+ * vista, no un estado de la corrida. */
+.eo-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 29px;
+  padding: 0 11px;
+  border-radius: var(--r);
+  font: inherit;
+  font-size: 12.5px;
+  color: var(--tx2);
+  background: var(--s2);
+  border: 1px solid var(--bd);
+  cursor: pointer;
+}
+.eo-toggle[aria-pressed="true"] { background: var(--ac-bg); border-color: var(--ac-bd); color: var(--tx); }
+.eo-toggle svg { flex: none; }
+
+/* Corridas agrupadas por resultado (Task 7): fila de grupo + sub-filas al
+ * expandir. */
+.eo-grp { display: flex; align-items: center; gap: 9px; min-width: 0; }
+.eo-grp__icon { flex: none; color: var(--tx3); transition: transform 0.15s; }
+.eo-grp__icon--open { transform: rotate(90deg); color: var(--ac-tx); }
+.eo-grp__n { display: flex; flex-direction: column; gap: 0; min-width: 0; }
+.eo-grp__n b { font-weight: 500; color: var(--tx); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.eo-grp__n span { font-size: 11px; color: var(--tx4); font-family: var(--fm); }
+.eo-paso {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  background: var(--s2);
+  border: 1px solid var(--bd);
+  font-family: var(--fm);
+  font-size: 11px;
+  color: var(--tx2);
+}
+.eo-sub td { background: var(--sunken); }
+.eo-sub td:first-child { box-shadow: inset 2px 0 0 var(--ac-bd); }
+.eo-sub--mas td { color: var(--tx3); font-size: 11.5px; }
+
 .eo-pager {
   display: flex;
   align-items: center;
@@ -525,6 +600,9 @@
 .eo-adv summary::before { content: "›"; color: var(--tx3); font-size: 14px; line-height: 1; }
 .eo-adv[open] summary::before { content: "⌄"; line-height: 0.8; }
 .eo-adv__body { display: flex; flex-direction: column; gap: var(--space-3); padding-top: var(--space-3); }
+/* Un desglose largo plegado dentro de una tarjeta `flush`: la tabla va a
+   sangre, así que el `summary` necesita su propio padding lateral. */
+.eo-adv--inset > summary { padding: 10px 12px; }
 
 /* ── Cámaras ──────────────────────────────────────────────────────────────
    Gestión a la izquierda (alta, listado, grabación), imagen a la derecha. El
@@ -1575,4 +1653,126 @@ th.eo-th--numeric { text-align: right; }
   font-size: 11.5px;
   color: var(--tx2);
   white-space: nowrap;
+}
+
+/* Evidencia — Entrada: los cuatro pasos del recorrido, no un índice de carpetas. */
+.eo-steps { display: flex; flex-direction: column; gap: var(--space-2); margin: var(--space-4) 0 0; }
+.eo-step {
+  display: grid;
+  grid-template-columns: 46px minmax(0, 1fr) 210px;
+  align-items: center;
+  gap: var(--space-4);
+  background: var(--s1);
+  border: 1px solid var(--bd);
+  border-radius: var(--rc);
+  padding: var(--space-3) var(--space-4);
+  color: inherit;
+  text-decoration: none;
+}
+.eo-step:hover { border-color: var(--ac-bd); background: var(--s2); text-decoration: none; }
+.eo-step__n {
+  font-family: var(--fm);
+  font-size: 26px;
+  color: var(--tx4);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.eo-step__t { font-size: 15px; font-weight: 500; color: var(--tx); }
+.eo-step__c { font-size: var(--text-sm); color: var(--tx2); margin: var(--space-1) 0 0; max-width: 76ch; }
+.eo-step__m { font-size: 11px; color: var(--tx3); margin: 5px 0 0; font-family: var(--fm); }
+
+.eo-fig { text-align: right; }
+.eo-fig__l { font-size: 10.5px; color: var(--tx3); }
+.eo-fig__v {
+  font-size: 23px;
+  font-weight: 600;
+  font-family: var(--fm);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -.01em;
+  color: var(--tx);
+}
+.eo-fig__u { font-size: var(--text-sm); color: var(--tx3); margin-top: 2px; }
+
+/* Una cifra citada nunca se disfraza de leída: subrayado punteado y la fuente
+ * viaja en el `title` (ver Entrada.tsx / Paso.tsx). */
+.eo-cifra--cit { text-decoration: underline dotted var(--tx3); text-underline-offset: 3px; cursor: help; }
+
+.eo-side3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-3); margin: var(--space-4) 0 0; }
+.eo-mini { display: block; background: var(--s1); border: 1px solid var(--bd); border-radius: var(--rc); padding: var(--space-3) var(--space-4); color: inherit; text-decoration: none; }
+a.eo-mini:hover { border-color: var(--ac-bd); text-decoration: none; }
+/* «Por material» es informativa, no un link: sin hover de acento y cursor normal. */
+.eo-mini--static { cursor: default; }
+.eo-mini__h { font-size: var(--text-sm); font-weight: 500; color: var(--tx); }
+.eo-mini__d { font-size: 11.5px; color: var(--tx3); margin: 6px 0 0; line-height: 1.5; }
+.eo-mini__n { font-family: var(--fm); font-size: 11px; color: var(--tx4); margin: 7px 0 0; }
+.eo-mini__list { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 3px; }
+.eo-mini__list li { display: flex; justify-content: space-between; gap: var(--space-2); font-size: 11.5px; color: var(--tx2); }
+
+/* Evidencia — Paso: el hallazgo del paso + su tabla de resultados. La misma
+ * tabla la reusa el respaldo instrumental (`/evidencia/respaldo`, servido
+ * inline desde EvidencePage.tsx). */
+.eo-cifra { font-family: var(--fm); font-size: var(--text-md); color: var(--tx); font-variant-numeric: tabular-nums; }
+.eo-cifra i { font-style: normal; font-size: 10.5px; color: var(--tx3); margin-right: 5px; }
+/* La unidad de la cifra (`nota` del adaptador): sin ella «p95 control→MQTT
+   64,534» queda en una columna donde el resto son F1 entre 0 y 1. */
+.eo-cifra u { text-decoration: none; font-size: 10.5px; color: var(--tx3); margin-left: 4px; }
+.eo-comb { font-size: 11.5px; color: var(--tx3); font-family: var(--fm); }
+/* Lo declarado en vez de medido. Nunca se parte a mitad de palabra: la
+   celda vive en una columna angosta y el navegador cortaba «sin episodios
+   evaluable/s», que se lee como un dato truncado en vez de como una
+   declaración. Se desborda la celda antes que romper la palabra. */
+.eo-na { color: var(--tx4); font-style: italic; hyphens: none; overflow-wrap: normal; word-break: normal; }
+
+/* Evidencia — Resultado: el agregado con su desglose, nunca sólo el agregado
+ * (limitación L5). Los desgloses van en dos columnas (`.eo-cols`). La barra de
+ * una celda es magnitud, no identidad: una sola tinta (`SERIES_COLORS[0]` de
+ * `palette.ts`, aplicada inline desde `Desglose.tsx` — el violeta es acción,
+ * nunca condición); acá sólo va la estructura, en tokens de superficie/texto. */
+.eo-cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); align-items: start; margin: var(--space-4) 0 0; }
+.eo-barcell { display: flex; align-items: center; gap: 9px; }
+.eo-track { flex: 1; height: 6px; background: var(--sunken); border-radius: 3px; overflow: hidden; }
+.eo-bar { display: block; height: 100%; border-radius: 0 3px 3px 0; }
+.eo-barval {
+  font-family: var(--fm);
+  font-size: 12px;
+  color: var(--tx);
+  font-variant-numeric: tabular-nums;
+  width: 40px;
+  text-align: right;
+  flex: none;
+}
+
+@media (max-width: 1000px) {
+  .eo-side3 { grid-template-columns: minmax(0, 1fr); }
+  .eo-cols { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 760px) {
+  .eo-step { grid-template-columns: 32px minmax(0, 1fr); }
+  .eo-fig { grid-column: 1 / -1; text-align: left; }
+}
+
+/* Bloque de pruebas de plataforma (Experimentos, Task 8): la máquina
+ * probándose a sí misma, separada del lump «N ejecuciones archivadas». Un
+ * número grande + el relato + los slugs que lo componen — nunca sólo el
+ * número, porque el total crece solo con cada corrida de la suite. */
+.eo-machine { display: flex; align-items: flex-start; gap: var(--space-4); flex-wrap: wrap; }
+.eo-machine__n {
+  font-family: var(--fm);
+  font-size: 26px;
+  font-weight: 600;
+  color: var(--tx2);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+  flex: none;
+}
+.eo-machine__t { font-size: 12.5px; color: var(--tx2); max-width: 92ch; text-wrap: pretty; margin: 0; flex: 1 1 260px; }
+.eo-slugs { display: flex; gap: 6px; margin: var(--space-2) 0 0; flex-wrap: wrap; }
+.eo-slug {
+  font-family: var(--fm);
+  font-size: 11px;
+  color: var(--tx3);
+  background: var(--s2);
+  border: 1px solid var(--bd);
+  border-radius: 4px;
+  padding: 1px 7px;
 }

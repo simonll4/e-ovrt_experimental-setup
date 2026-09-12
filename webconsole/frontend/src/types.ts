@@ -126,18 +126,82 @@ export interface FieldError {
   message: string
 }
 export type EvidenceView = 'evidencia' | 'archivadas' | 'todas'
+/** El rol MÁS FUERTE que cumple una corrida (o una ejecución) entre los
+ *  resultados que cita — precedencia de `EvidenceRegistry.CLASES` en el
+ *  backend. `sin_clasificar` cubre dos casos distintos: un rol del registro
+ *  sin clase declarada, y una corrida que no cita ningún resultado. */
+export type Clase = 'resultado' | 'instrumento' | 'ensayo' | 'plataforma' | 'sin_clasificar'
 export interface EvidenceInfo {
   is_evidence: boolean
   result_ids: string[]
   collections: string[]
+  clase: Clase
   reason?: string
   n_executions?: number
   executions?: string[]
 }
+/** Un slug del desglose de `X-Platform-Test-Slugs` (Task 8): cuántas
+ *  ejecuciones sin manifiesto escribió ese slug del orquestador. */
+export interface PlatformTestSlug {
+  slug: string
+  n: number
+}
 export interface EvidenceListingMeta {
   available?: boolean
+  /** `X-Clasificacion-Available`: si cargó `clasificacion.yaml`, la config
+   *  MUTABLE de la taxonomía. Distinta de `available` a propósito — cuando
+   *  falta, el registro carga bien y TODO cae a «Fuera del registro» en
+   *  silencio, que es la falla peor porque no se nota. `undefined` (cabecera
+   *  ausente, p. ej. la fixture del contrato congelado) no afirma nada. */
+  clasificacionAvailable?: boolean
+  /** `X-Clasificacion-Roles` ("N/M"): roles del registro SIN clase sobre el
+   *  total de roles del registro. Un booleano no distingue "no hay
+   *  clasificación" de "hay una y es parcial": con 1 de 21 roles declarados
+   *  `clasificacionAvailable` dice `true` y 1.435 corridas se muestran «Fuera
+   *  del registro» sin que nada lo diga. Opcional como todas: la fixture del
+   *  contrato congelado no manda ninguna cabecera. */
+  rolesSinClasificar?: number
+  rolesDelRegistro?: number
   archived?: number
   archivedExecutions?: number
+  /** `X-Platform-Test-Count` / `X-Platform-Test-Slugs` (Task 8): ejecuciones
+   *  sin manifiesto que la suite de tests escribe en `runs/` — la máquina
+   *  probándose, no experimentos del catálogo. Ausentes en la fixture del
+   *  contrato congelado, así que SIEMPRE opcionales: la pantalla tiene que
+   *  renderizar bien sin ellas. */
+  platformTestCount?: number
+  platformTestSlugs?: PlatformTestSlug[]
+  /** `X-Total-Executions-Count` (Task 8, ronda de arreglo 1): TODO lo que hay
+   *  en disco (evidencia + archivadas) — el denominador correcto de "qué
+   *  proporción es la máquina probándose". `archivedExecutions` por sí solo
+   *  es casi tautológico (lo archivado es casi todo smoke por definición). */
+  totalExecutions?: number
+}
+/** Una fila de `GET /api/runs/grupos` (Task 7): las corridas de un resultado,
+ *  colapsadas. `result_id: null` es el ÚNICO grupo de las corridas que no
+ *  citan ningún resultado ("Fuera del registro de evidencia").
+ *
+ *  `cifra`/`cifra_origen`/`fuente`/`paso` son del paso del recorrido que cita
+ *  el resultado — mismo patrón que `EvidenceStep` (Entrada.tsx/Paso.tsx). Un
+ *  grupo que no sostiene ningún paso del argumento (instrumento, ensayo,
+ *  plataforma, sin_clasificar, o un resultado que sólo está en el respaldo)
+ *  los trae en `null`: se DECLARA sin cifra, nunca se dibuja un cero. */
+export interface RunGroup {
+  result_id: string | null
+  titulo: string | null
+  /** Fallback de nombre para un grupo sin `titulo` redactado, derivado por la
+   *  ÚNICA `etiqueta()` del proyecto (`evidence_archive.py`). `null` en el
+   *  grupo de las corridas fuera del registro, que no tiene `result_id` del
+   *  que derivar nada. */
+  etiqueta: string | null
+  cifra: string | null
+  cifra_label: string | null
+  cifra_origen: 'leida' | 'citada' | null
+  fuente: string | null
+  paso: number | null
+  clase: Clase
+  n_runs: number
+  last_run_at: string | null
 }
 export interface RunRow {
   evidence?: EvidenceInfo
@@ -554,19 +618,57 @@ export interface ArchiveState {
   available: boolean
   message: string | null
 }
+export interface EvidenceMetricRow {
+  nombre: string
+  no_aplica: string | null
+  [campo: string]: unknown
+}
+export interface EvidenceMetrics {
+  esquema: string
+  cabecera: Array<{ label: string; valor: number | null; nota?: string; entero?: boolean }>
+  desgloses: Array<{
+    id: string; titulo: string; nota: string | null
+    columnas: string[]; filas: EvidenceMetricRow[]
+  }>
+}
 export interface EvidenceResult {
   result_id: string
   index: string
   etiqueta: string
   titulo: string | null
+  reclamo: string | null
   n_runs: number
   n_rows: number
   roles: Record<string, number>
   documents: string[]
   source_refs: string[]
+  metricas: EvidenceMetrics | null
 }
-export interface EvidenceIndex extends ArchiveState {
-  collections: Array<{ id: string; n_results: number; n_rows: number; results: EvidenceResult[] }>
+export interface EvidenceStep {
+  n: number
+  titulo: string
+  claim: string
+  cifra: string | null
+  cifra_label: string | null
+  cifra_nota: string | null
+  cifra_origen: 'leida' | 'citada'
+  fuente: string | null
+  n_resultados: number
+  indices: string[]
+}
+export interface EvidenceRecorrido extends ArchiveState {
+  pasos: EvidenceStep[]
+  // La API suma `resultados` al `respaldo` (no hay ruta `/paso` propia para él):
+  // sin ruta propia, no habría de dónde leer su desglose completo.
+  respaldo: { titulo: string; claim: string; n_resultados: number; resultados: EvidenceResult[] } | null
+  indices: Array<{ id: string; n_results: number }>
+}
+export interface EvidenceStepPage extends ArchiveState {
+  paso: EvidenceStep | null
+  resultados: EvidenceResult[]
+  /** Cuántos pasos declara `recorrido.yaml`. Opcional: una respuesta vieja no
+   *  lo trae y la pantalla dice «paso N» a secas, nunca un total inventado. */
+  n_pasos?: number
 }
 export interface ArchivedRun {
   run_id: string
@@ -593,4 +695,64 @@ export interface ArchivedRunDetail extends ArchiveState {
   substitutes: Array<{ name: string; data: unknown }>
   relations?: ArchivedRun[]
   notice: string | null
+}
+
+/** La documentación de la consola (`/api/documentacion`), leída del disco: no
+ *  consulta ningún servicio y funciona con los tres planos apagados. */
+export interface TerminoDef {
+  id: string
+  termino: string
+  definicion: string
+  /** Se muestra en monoespaciada: es un identificador, no una palabra. */
+  mono: boolean
+  nivel: string | null
+  result_ids: string[]
+  familia: string
+  familia_titulo: string
+}
+export interface DocPaso {
+  n: number
+  titulo: string
+  hizo: string
+  porque: string
+  quedo: string
+  evidencia_href: string | null
+  evidencia_label: string | null
+  /** Sólo los ids que EXISTEN en el vocabulario: el servidor descarta el
+   *  resto para que la pantalla no dibuje un término mudo. */
+  terminos: string[]
+}
+export interface DocAporte {
+  id: string
+  termino: string
+  identificador: string | null
+  que_es: string
+  que_suma: string
+  donde: string | null
+  href: string | null
+  /** Del registro de evidencia, nunca del YAML. `null` = no hay registro, y
+   *  entonces no se muestra número. */
+  conteo: number | null
+  conteo_de: string | null
+}
+export interface DocFamilia {
+  id: string
+  titulo: string
+  nota: string | null
+  terminos: TerminoDef[]
+}
+export interface DocColision {
+  simbolo: string
+  en_la_consola: string
+  sentidos: Array<{ de: string; es: string }>
+}
+export interface Documentacion extends ArchiveState {
+  titulo: string | null
+  bajada: string | null
+  metodo: DocPaso[]
+  aportes: DocAporte[]
+  vocabulario: DocFamilia[]
+  colisiones: DocColision[]
+  /** Índice plano por id. Es lo ÚNICO que `Termino` consulta. */
+  terminos: Record<string, TerminoDef>
 }

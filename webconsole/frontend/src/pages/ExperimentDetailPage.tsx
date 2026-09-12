@@ -8,6 +8,7 @@ import {
   useExperimentReport,
 } from '../api/queries/experiments'
 import ExperimentSummary, { readMetricRow, type MetricRow } from '../components/ExperimentSummary'
+import Termino from '../components/Glosario'
 import {
   alertSeverityTone,
   experimentStatusLabel,
@@ -378,7 +379,7 @@ export default function ExperimentDetailPage() {
               {alerts.map((a) => (
                 <tr key={a.alert_id}>
                   <td className="eo-mono">{a.alert_id}</td>
-                  <td>{conditionLabel(a.condition_id)}</td>
+                  <td><Termino id={a.condition_id}>{conditionLabel(a.condition_id)}</Termino></td>
                   <td>
                     <Badge tone={alertSeverityTone(a.severity)}>
                       {SEVERITY_LABEL[a.severity] ?? a.severity}

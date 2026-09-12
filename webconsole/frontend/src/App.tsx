@@ -13,13 +13,17 @@ import PromptSetsPage from './pages/PromptSetsPage'
 import RunDetailPage from './pages/RunDetailPage'
 import RunsPage from './pages/RunsPage'
 import EvidencePage from './pages/EvidencePage'
+import DocumentacionPage from './pages/DocumentacionPage'
 
 export default function App() {
   return (
     <Shell>
       <Routes>
         <Route path="/" element={<RunsPage />} />
+        <Route path="/documentacion" element={<DocumentacionPage />} />
         <Route path="/evidencia" element={<EvidencePage />} />
+        <Route path="/evidencia/paso" element={<EvidencePage />} />
+        <Route path="/evidencia/respaldo" element={<EvidencePage />} />
         <Route path="/evidencia/resultado" element={<EvidencePage />} />
         <Route path="/evidencia/run" element={<EvidencePage />} />
         <Route path="/compose" element={<ComposePage />} />

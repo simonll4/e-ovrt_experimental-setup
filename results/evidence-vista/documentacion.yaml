@@ -1,0 +1,845 @@
+# La documentación que lee un tribunal antes de mirar cualquier otra pantalla.
+#
+# Editable sin tocar código, igual que `titulos.yaml` y `recorrido.yaml`, y por
+# la misma razón: lo escribe una persona. Vive fuera del archivo congelado
+# (`results/evidence-runs/`), que tiene integridad por hash.
+#
+# Tres reglas que los tests hacen cumplir:
+#   1. Todo `id` de término citado desde el código o desde otro bloque de este
+#      archivo tiene que estar definido en `vocabulario`. Un término sin
+#      definición se muestra como texto plano, nunca como algo clickeable que
+#      no dice nada.
+#   2. Todo `result_id` que aparezca acá tiene que existir en el registro de
+#      evidencia (`results/evidence-runs/collections/*.csv`).
+#   3. Toda MEDICIÓN en prosa (coma decimal y exactamente 3 decimales) tiene
+#      que coincidir con algún número de algún `metrics.json` de `results/`.
+#      Por eso el mAP50 del campeón NO se escribe acá: `bench_imagenes` no
+#      tiene `metrics.json` en este repositorio y sus cifras se verifican
+#      contra el doc 64. La cifra vive en `/evidencia/paso?n=1`, declarada
+#      como citada y con su fuente al lado.
+
+titulo: Cómo leer esta consola
+bajada: >
+  Qué se hizo, por qué, y qué significa cada nombre que aparece en las otras
+  pantallas. Se lee del disco: funciona con los tres servicios apagados.
+
+# ---------------------------------------------------------------------------
+# Bloque 1 — Cómo se trabajó. El método es la espina: cinco pasos en secuencia,
+# cada uno con qué se hizo, POR QUÉ, y qué quedó.
+# ---------------------------------------------------------------------------
+metodo:
+  - n: 1
+    titulo: De dónde salen los datos
+    hizo: >
+      Se juntaron datasets públicos de obra, se los tradujo a un vocabulario
+      único de cuatro clases y se congeló un banco de imágenes de 6.477 fotos
+      sobre tres fuentes independientes. Aparte se filmó un rodaje guionado y
+      se sumó un lote de video de internet: 47 clips anotados a mano, con el
+      momento exacto en que cada condición empieza y termina.
+    porque: >
+      Cada dataset le pone su propio nombre a la misma cosa. Sin un vocabulario
+      único no se puede comparar un modelo contra otro. Y el banco se estratifica
+      por fuente porque un agregado de una sola fuente mide la fuente, no el
+      modelo: el primer banco resultó un cuarto fuera del dominio de obra
+      —selfies con barbijo, un aeropuerto, un casino— y se auditó y se reemplazó.
+    quedo: >
+      El banco de imágenes congelado con sha256 por estrato, y el banco de clips
+      con 32 positivos, 15 negativos y 37 episodios. Los nombres de clase que se
+      leen en toda la consola salen de ahí.
+    evidencia_href: /evidencia/paso?n=1
+    evidencia_label: Paso 1 — Qué ve el detector sin entrenar
+    terminos: [canonical_v2, bench_v3, estrato, clip_bench, episodio, clip_id]
+
+  - n: 2
+    titulo: Cómo se eligió el modelo
+    hizo: >
+      Primero seis modelos crudos, para tener un punto de partida. Después la
+      matriz de selección: diez combinaciones de modelo y resolución, sobre el
+      banco de imágenes anterior. Ganó gdino-tiny-560. Recién entonces se lo
+      re-midió estrato por estrato sobre el banco vigente, y ahí se confirmó.
+    porque: >
+      El modelo no se elige por reputación: se elige midiéndolo sobre el
+      material propio. Y el agregado solo no alcanza, porque está dominado por
+      el estrato más numeroso — un campeón que gana únicamente ahí estaría
+      ganando la fuente, no la tarea.
+    quedo: >
+      Un campeón robusto a la fuente, y una asimetría que condiciona todo lo que
+      viene después: person y helmet sólidas, vest débil, bare_head fuerte sólo
+      en el especialista. Bajar la resolución a 560 recortó un 24 % la latencia,
+      que es una ganancia limpia; el empate o mejora de mAP contra 800 sólo está
+      medido a umbral igual en el par base.
+    evidencia_href: /evidencia/paso?n=1
+    evidencia_label: Paso 1 — Qué ve el detector sin entrenar
+    terminos: [S1, B5, mAP50, person, helmet, vest, bare_head, OVD]
+
+  - n: 3
+    titulo: Cómo se pregunta por una condición de riesgo
+    hizo: >
+      Se compararon dos maneras de escribir la pregunta. E-IND pregunta por lo
+      que se ve —persona, casco, chaleco— y deduce la ausencia. E-DIR pregunta
+      derecho por la infracción. La comparación se pre-registró, con su criterio
+      de corte escrito antes de mirar los números.
+    porque: >
+      En detección open-vocabulary la pregunta es parte del sistema. Cambiar
+      cómo está redactada cambia el resultado sin tocar el modelo, así que hay
+      que medirla como se mide un componente, no elegirla por gusto.
+    quedo: >
+      Gana E-IND en los dos niveles. A Nivel B el criterio pre-registrado veta a
+      E-DIR por precision: 0,146 contra 0,757 de E-IND. Lo que manda es la
+      formulación, no el mecanismo.
+    evidencia_href: /evidencia/paso?n=2
+    evidencia_label: Paso 2 — Cómo conviene expresar la condición
+    terminos: [E-IND, E-DIR, E-HYB, prompt_set, D1, NA1, precision, nivel_a, nivel_b]
+
+  - n: 4
+    titulo: Qué agrega la plataforma sobre la detección cruda
+    hizo: >
+      Sobre las mismas detecciones se midieron dos capas del motor de reglas: la
+      persistencia temporal, que confirma una condición recién cuando se
+      sostiene, y la identidad por sujeto, que sigue a cada persona en vez de
+      mirar la escena entera.
+    porque: >
+      Un detector de fotogramas no alerta: parpadea. La plataforma es lo que
+      convierte detecciones intermitentes en una alerta con estado. Había que
+      separar cuánto de la mejora es del modelo y cuánto del motor, y la única
+      forma limpia es dejar las detecciones fijas y cambiar sólo la capa.
+    quedo: >
+      La identidad es la capa que más agrega: el F1 pasa de 0,789 a 0,930 con
+      las detecciones bit a bit idénticas. El margen no estaba en el modelo. La
+      persistencia es palanca de doble filo: rescata percepción intermitente y
+      multiplica los falsos positivos.
+    evidencia_href: /evidencia/paso?n=3
+    evidencia_label: Paso 3 — Qué agrega la plataforma sobre la detección cruda
+    terminos: [G0, granularidad_g1, T1, G1, H1, B1, histeresis, PR-01, PR-02, track_id, f1, SDR]
+
+  - n: 5
+    titulo: Qué pasa en tiempo real
+    hizo: >
+      Se repitió el banco decimando la evidencia —uno de cada 7, 15 y 26
+      fotogramas— y se corrió el rodaje en vivo, con cámara y bus de eventos.
+      La entrega por MQTT es otro ejercicio, posterior y con corpus propio: se
+      midió aparte, como el tramo aparte que es.
+    porque: >
+      Offline se procesa cada fotograma; en vivo no. Una ganancia que se evapora
+      al bajar la densidad no sirve para operar. Y los tramos de la cadena
+      tienen cada uno su reloj y su dueño: no se suman percentiles entre tramos.
+    quedo: >
+      La ganancia de la identidad excluye el cero en las cuatro densidades
+      medidas y conserva la dirección bajo el descarte irregular del vivo. La
+      distribución no es el cuello: su p95 es de 64,534 ms, contra los segundos
+      que la persistencia del patrón espera a propósito.
+    evidencia_href: /evidencia/paso?n=4
+    evidencia_label: Paso 4 — Qué sobrevive al tiempo real
+    terminos: [R1, R2, R3, R4, R5, R6, DBE, EBE, G2A, t_alert_notification, bus_envelope, stride]
+
+# ---------------------------------------------------------------------------
+# Bloque 2 — Qué aporta cada cosa. Los cinco términos que la consola usa casi
+# como sinónimos y no lo son. `conteo_de` lo llena el servidor desde el
+# registro: si el registro no está, no se muestra número.
+# ---------------------------------------------------------------------------
+aportes:
+  - id: corrida
+    termino: Corrida
+    identificador: run_id
+    que_es: >
+      Una ejecución de UN plano sobre UNA fuente. El plano de medios escribe sus
+      detecciones; el de control, sus alertas. Es la unidad más chica que deja
+      artefactos en disco.
+    que_suma: >
+      La prueba material. Sin una corrida no hay detecciones que mirar. Lo que
+      NO dice es qué se quiso probar con ella.
+    donde: Corridas
+    href: /
+    conteo_de: corridas
+
+  - id: experimento
+    termino: Experimento
+    identificador: experiment_id
+    que_es: >
+      Una corrida paraguas que dispara los tres servicios en el orden correcto y
+      consolida los artefactos de todos en un solo directorio.
+    que_suma: >
+      Reproducibilidad. El manifiesto declara la combinación entera, así que la
+      misma línea se vuelve a correr sin tener que acordarse de nada.
+    donde: Experimentos
+    href: /experiments
+
+  - id: campana
+    termino: Campaña
+    identificador: null
+    que_es: >
+      Un experimento —o un conjunto de ellos— corrido con una intención de
+      contraste: cambia UNA cosa respecto de la línea de base. T1 es la línea de
+      base; T2 cambia el modelo; G1 cambia la granularidad.
+    que_suma: >
+      El significado. El contraste entre campañas ES el experimento: una
+      campaña sola no prueba nada, y su número no es una nota de aprobación.
+    donde: Evidencia
+    href: /evidencia
+
+  - id: evidencia
+    termino: Evidencia
+    identificador: null
+    que_es: >
+      La copia curada y congelada de las corridas que el informe cita, con hash
+      por archivo. Conserva lo textual y deja afuera imágenes y video.
+    que_suma: >
+      Permanencia. Se lee con los tres servicios apagados y no cambia si mañana
+      se borra un directorio de corridas. Una corrida que no está en el
+      inventario no es evidencia por el solo hecho de existir.
+    donde: Evidencia
+    href: /evidencia
+
+  - id: resultado
+    termino: Resultado
+    identificador: result_id
+    que_es: >
+      La unidad que el informe reporta: una campaña con su metrics.json, su
+      procedencia por corrida y su título. El prefijo del identificador es el
+      índice de results/ al que pertenece.
+    que_suma: >
+      El nivel al que se habla en la defensa. Una corrida es un hecho; un
+      resultado es una afirmación sostenida por corridas.
+    donde: Evidencia
+    href: /evidencia
+    conteo_de: resultados
+
+# ---------------------------------------------------------------------------
+# Bloque 3 — Vocabulario, agrupado por familia.
+# ---------------------------------------------------------------------------
+vocabulario:
+  - id: identificadores
+    titulo: Identificadores
+    nota: >
+      Los nombres que viajan entre los tres servicios. Cada uno identifica una
+      cosa distinta y ninguno reemplaza a otro.
+    terminos:
+      - id: run_id
+        termino: run_id
+        mono: true
+        definicion: >
+          Corrida de un plano. Vive en runs/<run_id>/ del repositorio de ese
+          plano. En vivo la relación es uno a uno: una corrida de control por
+          cada corrida de medios.
+      - id: experiment_id
+        termino: experiment_id
+        mono: true
+        definicion: >
+          Corrida paraguas del experimental-setup. Agrupa las corridas de los
+          dos planos y consolida sus artefactos: lo liviano se copia, el JSONL
+          de detecciones se referencia.
+      - id: unit_id
+        termino: unit_id
+        mono: true
+        definicion: >
+          Identidad de un fotograma dentro de una corrida. Es la clave con la
+          que se cruzan detecciones, descartes, progreso y alertas entre planos;
+          cruzar por número de fotograma colapsa cuando la fuente es una carpeta
+          de imágenes.
+      - id: clip_id
+        termino: clip_id
+        mono: true
+        definicion: >
+          Identidad de un clip del banco de video. Por convención coincide con
+          el identificador de la fuente, y es lo que permite unir una alerta con
+          el episodio anotado que le corresponde.
+      - id: source_id
+        termino: source_id
+        mono: true
+        definicion: >
+          Identidad de la fuente visual de una corrida: la carpeta, el archivo
+          de video, la cámara. En el banco de clips es igual al clip_id.
+      - id: track_id
+        termino: track_id
+        mono: true
+        definicion: >
+          Identidad de una persona a lo largo del tiempo. Se produce con un
+          seguidor por solapamiento de cajas y es lo que habilita la
+          granularidad por sujeto. No hay métricas de seguimiento: quedaron
+          fuera de alcance declaradas.
+      - id: result_id
+        termino: result_id
+        mono: true
+        definicion: >
+          La unidad que reporta el informe. Su prefijo es el índice de results/
+          al que pertenece, y por eso agrupar por prefijo reproduce exactamente
+          los cuatro índices.
+
+  - id: condiciones
+    titulo: Condiciones de riesgo y clases
+    nota: >
+      Qué se busca y con qué palabras. La condición es lo que le importa a la
+      obra; la clase es lo que el detector sabe nombrar.
+    terminos:
+      - id: CR-01
+        termino: CR-01
+        mono: true
+        definicion: >
+          Presencia de persona sin casco. Severidad alta. Es una de las dos
+          condiciones del núcleo validable.
+      - id: CR-02
+        termino: CR-02
+        mono: true
+        definicion: >
+          Presencia de persona sin chaleco. Severidad media. La otra condición
+          del núcleo validable.
+      - id: PR-01
+        termino: PR-01
+        mono: true
+        definicion: >
+          El patrón que operacionaliza CR-01 con persistencia temporal: la
+          condición confirma recién cuando se sostiene 4.000 ms, y se resuelve a
+          los 2.000 ms de dejar de verse. El valor sale de la banda que le
+          corresponde a su SEVERIDAD (alta: 3 a 5 s), declarada antes de medir
+          nada y nunca recalibrada entre corridas de una misma comparación.
+      - id: PR-02
+        termino: PR-02
+        mono: true
+        definicion: >
+          El patrón que operacionaliza CR-02. Confirma a los 7.000 ms y resuelve
+          a los 3.000 ms. Es más lento que PR-01 por SEVERIDAD, no por el
+          detector: su banda es la de severidad media (5 a 10 s), y la de PR-01
+          la de severidad alta (3 a 5 s). Los umbrales quedaron fijados antes de
+          que se midiera ninguna clase — el motor no se ajustó a lo que el
+          detector hace bien o mal, y ésa es la condición para que las campañas
+          se puedan comparar entre sí.
+      - id: person
+        termino: person
+        mono: true
+        definicion: >
+          Persona. Una de las cuatro clases del vocabulario canónico, y la más
+          sólida del detector.
+      - id: helmet
+        termino: helmet
+        mono: true
+        definicion: >
+          Casco puesto. Es evidencia POSITIVA: CR-01 se deduce de que haya una
+          persona y no haya casco, no de un prompt que pregunte por la ausencia.
+      - id: vest
+        termino: vest
+        mono: true
+        definicion: >
+          Chaleco de alta visibilidad. Es la clase DÉBIL del campeón —bastante
+          por debajo de person y helmet— pero no la más floja: esa es bare_head.
+          Nada de esto explica los umbrales de PR-02, que salen de la severidad
+          de la condición y se fijaron antes de medir las clases.
+      - id: bare_head
+        termino: bare_head
+        mono: true
+        definicion: >
+          Cabeza descubierta. Es la vía directa a CR-01 y la clase MÁS FLOJA del
+          campeón, bastante por debajo de vest. Sólo el modelo grande la detecta
+          con algo de solvencia, y ésa es UNA de las dos razones por las que hay
+          un especialista: la otra es vest, donde también rinde mejor. Los
+          modelos de la familia YOLOE son directamente ciegos a esta clase.
+      - id: canonical_v2
+        termino: canonical_v2
+        mono: true
+        definicion: >
+          El vocabulario canónico compartido entre repositorios: person, helmet,
+          vest y bare_head. Todo dataset se traduce a estas cuatro clases antes
+          de entrar a cualquier medición.
+
+  - id: taxonomia
+    titulo: Las cinco clases de corrida
+    nota: >
+      Para qué sirvió cada corrida. Se clasifica el ROL que cumple en el
+      registro, no la corrida una por una, y la clasificación se propaga sola.
+      Si una corrida cumple dos roles, vale el más fuerte.
+    terminos:
+      - id: clase_resultado
+        termino: Resultado
+        definicion: >
+          La corrida sostiene una cifra que el informe reporta. Es la clase más
+          fuerte: si algo es Resultado en algún lado, es Resultado.
+      - id: clase_instrumento
+        termino: Instrumento
+        definicion: >
+          La corrida valida el aparato de medición, no el fenómeno: la claqueta
+          con reloj externo, la paridad entre vivo y archivo, la instrumentación
+          de la latencia.
+      - id: clase_ensayo
+        termino: Ensayo
+        definicion: >
+          Prueba previa a una campaña: verificar que el camino entero anda antes
+          de gastar el material. No sostiene ninguna cifra reportada.
+      - id: clase_plataforma
+        termino: Prueba de plataforma
+        definicion: >
+          La máquina probándose a sí misma. Son los smokes que escribe la suite
+          de tests, y su total crece solo con cada corrida de la suite: se cita
+          la proporción, nunca el número absoluto.
+      - id: clase_sin_clasificar
+        termino: Fuera del registro
+        definicion: >
+          La corrida existe en disco pero su rol no está declarado. Es el
+          default, nunca una conclusión: que algo caiga acá puede significar que
+          es basura o que falta declararlo.
+
+  - id: campanas
+    titulo: Campañas
+    nota: >
+      Cada identificador es una combinación concreta, y el contraste entre filas
+      es el experimento. En el banco de VIDEO hay DOS referencias, una por
+      granularidad: T2, D1, H1, G1, B1 y las densidades de escena (R1, R3, R5)
+      se leen contra T1; las densidades por sujeto (R2, R4, R6) se leen contra
+      G1. I1 e I2 cambian el material y se leen aparte. S1 y B5 son del banco de
+      imágenes y NA1 es de otro nivel: ninguno de los tres se compara contra
+      T1.
+    terminos:
+      - id: T1
+        termino: T1
+        nivel: B
+        result_ids: [clip_bench/t1_gdinotiny560_v2short_scene]
+        definicion: >
+          La línea de base del banco de clips: campeón, prompt set congelado y
+          granularidad de escena. No cambia nada: es la referencia de escena
+          contra la que se leen las campañas que sí cambian algo. Las campañas
+          por sujeto tienen la suya, que es G1.
+      - id: T2
+        termino: T2
+        nivel: B
+        result_ids: [clip_bench/t2_gdinobase560_v2short_scene]
+        definicion: >
+          Cambia el MODELO: el grande en lugar del campeón, con todo lo demás
+          igual. Sirve para separar qué mejora da el modelo y qué da la
+          plataforma.
+      - id: D1
+        termino: D1
+        nivel: A y B
+        result_ids:
+          - bench_nivel_a/d1_gdinotiny560_edir_vs_eind
+          - clip_bench/d1_gdinotiny560_edirpair_scene
+        definicion: >
+          Cambia los PROMPTS: pregunta derecho por la ausencia en vez de deducir
+          la infracción. Ojo, son dos experimentos distintos con el mismo
+          nombre, uno por nivel — ver las colisiones de símbolos.
+      - id: H1
+        termino: H1
+        nivel: B
+        result_ids: [clip_bench/h1_gdinotiny560_hybor_scene]
+        definicion: >
+          Cambia la ESTRATEGIA: fusiona las dos formulaciones de prompt. La
+          fusión por unión quedó refutada.
+      - id: G1
+        termino: G1
+        nivel: B
+        result_ids: [clip_bench/g1_gdinotiny560_v2short_subject]
+        definicion: >
+          Cambia la GRANULARIDAD: por sujeto en vez de por escena, con las
+          detecciones bit a bit idénticas a T1. Es el mejor resultado del banco,
+          y toda la ganancia es del motor.
+      - id: B1
+        termino: B1
+        nivel: B
+        result_ids: [clip_bench/b1_gdinobase560_barehead_scene]
+        definicion: >
+          Cambia el VOCABULARIO: pregunta por cabeza descubierta de forma
+          directa, con el modelo grande. Gana cobertura del episodio y pierde
+          precision.
+      - id: R1
+        termino: R1
+        nivel: B
+        result_ids: [clip_bench/r1_gdinotiny560_v2short_scene_s7]
+        definicion: >
+          Densidad de evidencia: uno de cada 7 fotogramas, por escena. Es el
+          ancla del techo del camino en vivo de hoy.
+      - id: R2
+        termino: R2
+        nivel: B
+        result_ids: [clip_bench/r2_gdinotiny560_v2short_subject_s7]
+        definicion: >
+          Uno de cada 7 fotogramas, por sujeto. Es el par de R1: juntos miden si
+          la ganancia de la identidad sobrevive al decimado.
+      - id: R3
+        termino: R3
+        nivel: B
+        result_ids: [clip_bench/r3_gdinotiny560_v2short_scene_s15]
+        definicion: Uno de cada 15 fotogramas, por escena.
+      - id: R4
+        termino: R4
+        nivel: B
+        result_ids: [clip_bench/r4_gdinotiny560_v2short_subject_s15]
+        definicion: Uno de cada 15 fotogramas, por sujeto. El par de R3.
+      - id: R5
+        termino: R5
+        nivel: B
+        result_ids: [clip_bench/r5_gdinotiny560_v2short_scene_s26]
+        definicion: Uno de cada 26 fotogramas, por escena.
+      - id: R6
+        termino: R6
+        nivel: B
+        result_ids: [clip_bench/r6_gdinotiny560_v2short_subject_s26]
+        definicion: Uno de cada 26 fotogramas, por sujeto. El par de R5.
+      - id: I1
+        termino: I1
+        nivel: B
+        result_ids: [clip_bench/i1_gdinotiny560_v2short_scene_internet]
+        definicion: >
+          Cambia el MATERIAL: obra real no guionada, por escena. Se reporta
+          siempre como fila aparte, nunca fusionada al rodaje.
+      - id: I2
+        termino: I2
+        nivel: B
+        result_ids: [clip_bench/i2_gdinotiny560_v2short_subject_internet]
+        definicion: >
+          Obra real no guionada, por sujeto. El par de I1. Acá el seguidor
+          fragmenta identidades en multitud, y eso explica su precision.
+      - id: NA1
+        termino: NA1
+        nivel: A
+        result_ids: [bench_nivel_a/na1_gdinotiny560_v2short_video]
+        definicion: >
+          Nivel A sobre video: estado por persona, fotograma a fotograma, sin
+          motor temporal. Mide el derrumbe de precision al salir de las
+          imágenes.
+      - id: S1
+        termino: S1
+        result_ids: [bench_imagenes/seleccion_s1]
+        definicion: >
+          La selección del campeón, sobre imágenes: DIEZ combinaciones de modelo
+          y resolución, medidas sobre el banco de imágenes ANTERIOR (las 20
+          corridas del inventario son esas diez por los dos splits). El umbral
+          no fue un eje de diseño, y la única excepción DOCUMENTADA —gdino-tiny a
+          800, que corrió a un umbral distinto del resto— es justamente lo que
+          confunde la comparación de resolución en ese par: está declarado como
+          defecto, no como método.
+      - id: B5
+        termino: B5
+        result_ids: [bench_imagenes/confirmacion_b5]
+        definicion: >
+          La confirmación por estratos, y la única del banco de imágenes que
+          corrió sobre el banco vigente: el campeón sostiene el resultado en
+          cada una de las tres fuentes por separado, no sólo en el agregado.
+
+  - id: metricas
+    titulo: Métricas y bancos
+    nota: >
+      Qué mide cada número, y cuándo NO se puede comparar con otro. Las trampas
+      escritas acá salieron de artefactos cazados antes de reportar.
+    terminos:
+      - id: f1
+        termino: F1
+        definicion: >
+          La media armónica entre precision y recall. Es la cifra de cabecera
+          del banco de clips. Los clips negativos no entran: su métrica son los
+          falsos positivos.
+      - id: precision
+        termino: precision
+        definicion: >
+          De todo lo que el sistema afirmó, qué fracción era cierta. A Nivel B
+          se cuenta sobre alertas contra episodios; a Nivel A, sobre estados por
+          persona. Es el criterio que vetó a los prompts directos de ausencia.
+      - id: recall
+        termino: recall
+        definicion: >
+          De todo lo que había que encontrar, qué fracción se encontró. A Nivel
+          B son episodios anotados; a Nivel A, personas en estado de infracción.
+          Ojo con una intuición que la medición NO sostiene: preguntar derecho
+          por la ausencia no compra recall a cambio de precision. A Nivel A el
+          costo es precision —un brazo directo llega a recuperar un 18,5 % de lo
+          que la formulación indirecta no ve, afirmando de más—, pero a Nivel B
+          caen las DOS: el recall se desploma junto con la precision.
+      - id: mAP50
+        termino: mAP50
+        definicion: >
+          La métrica del banco de IMÁGENES: precisión promedio por clase con
+          medio solapamiento exigido, promediada entre clases. No es comparable
+          con el F1 del banco de video: son niveles distintos.
+      - id: SDR
+        termino: SDR
+        definicion: >
+          Qué fracción del episodio anotado quedó cubierta por detecciones.
+          Trampa: NO se compara entre cadencias — sube al bajar la densidad y
+          esa subida es casi toda artefacto del instrumento.
+      - id: TTFD
+        termino: TTFD
+        definicion: >
+          Cuántos milisegundos pasan entre el inicio del episodio anotado y la
+          primera detección que le corresponde.
+      - id: t_alert_system
+        termino: t_alert-system
+        mono: true
+        definicion: >
+          Del inicio anotado del episodio a la alerta. Está dominado por la
+          persistencia del patrón, no por el transporte: no se encadena
+          aritméticamente con los tramos físicos. Trampa: su promedio no se
+          compara entre densidades sin control de supervivencia, porque los
+          episodios lentos se pierden y su salida baja el promedio justo cuando
+          el costo sube.
+      - id: t_alert_notification
+        termino: t_alert-notification
+        mono: true
+        result_ids: [realtime/t_alert_notification]
+        definicion: >
+          Del bus de alertas al acuse del broker MQTT: p95 de 64,534 ms. Es el
+          último tramo de la cadena y NO es el cuello — queda un orden de
+          magnitud por debajo del G2A del modelo que detecta en vivo. No
+          representa sensor a notificación y se cita separado.
+      - id: G2A
+        termino: G2A
+        definicion: >
+          De la captura al resultado del algoritmo, por fotograma. Arranca en el
+          momento en que el fotograma se saca de la cola en el host, no en el
+          fotón: lo que pasa antes se mide aparte.
+      - id: re_alerts
+        termino: re_alerts
+        mono: true
+        definicion: >
+          Alertas repetidas del mismo episodio, porque el motor emite en cada
+          confirmación. Se cuentan aparte y NO son falsos positivos.
+      - id: bench_v3
+        termino: bench_v3
+        mono: true
+        definicion: >
+          El banco de imágenes vigente: 6.477 imágenes sobre tres fuentes
+          independientes, congelado con hash por estrato. El banco viejo de 196
+          imágenes es un artefacto histórico y no se cita como resultado.
+      - id: estrato
+        termino: estrato
+        definicion: >
+          En el banco de IMÁGENES, la partición del material: son tres, y salen
+          de tres fuentes independientes. Ojo, los NOMBRES de los tres estratos
+          no son los de las tres fuentes: dos coinciden y el tercero es el
+          subconjunto curado internamente de su dataset de origen, no un cuarto
+          dataset. Se reporta siempre por estrato Y agregado, nunca sólo el
+          agregado: uno de los tres es el 77 % de las imágenes y se lleva puesto
+          el promedio.
+          ⚠ La misma palabra nombra otra cosa en el banco de VIDEO: ahí «estrato
+          A» y «estrato B» son los dos bloques de material —el rodaje guionado y
+          el lote de obra real— y son dos, no tres. Al leer «las campañas de
+          estrato B» se habla de video, no de imágenes.
+      - id: clip_bench
+        termino: clip bench
+        definicion: >
+          El banco de video con anotación temporal: 47 clips, 32 positivos y 15
+          negativos, en dos bloques — el rodaje guionado y el lote de obra real.
+      - id: episodio
+        termino: episodio
+        definicion: >
+          Una ventana de tiempo anotada a mano donde una condición está presente
+          y es observable. Son 37 en el banco, y son la unidad contra la que se
+          juzga cada alerta.
+
+  - id: limitaciones
+    titulo: Limitaciones declaradas
+    nota: >
+      Lista canónica y cerrada. Se declaran, no se esconden. Ojo al citar L1: la
+      fase L del plan maestro usa L0 y L1 para sus hitos, que son otra cosa —
+      escribir siempre "limitación L1".
+    terminos:
+      - id: L1
+        termino: L1
+        definicion: >
+          Las falsas alarmas por hora se reportan como conteo crudo y no
+          sostienen ninguna cota. Harían falta 3 horas de cumplimiento anotado y
+          el banco llega a 0,27 h de tiempo negativo. La evidencia principal de
+          falsas alarmas es el control de negativos.
+      - id: L2
+        termino: L2
+        definicion: >
+          Sin doble anotación ni medida de acuerdo entre anotadores. Es una
+          decisión declarada, no una omisión.
+      - id: L3
+        termino: L3
+        definicion: >
+          Los bordes del ground truth se adjudicaron a mano en 6 clips por
+          oclusión, con firma en el archivo del clip. No hubo cambio de estado,
+          sólo de borde.
+      - id: L4
+        termino: L4
+        definicion: >
+          Un solo bloque guionado. El lote de obra real existe, pero después de
+          la revisión ciega quedan 2 episodios evaluables: caracteriza dónde el
+          sistema deja de ser evaluable, no lo valida sobre obra real.
+      - id: L5
+        termino: L5
+        definicion: >
+          Los escenarios están desbalanceados. De ahí sale la regla de reportar
+          siempre por escenario y por estrato.
+      - id: L6
+        termino: L6
+        definicion: >
+          El seguidor no está medido con métricas de seguimiento. En multitud
+          real fragmenta identidades, y esa fragmentación es un dato medido, no
+          un hueco.
+      - id: L7
+        termino: L7
+        definicion: >
+          Una de las tres fuentes del banco de imágenes no tiene licencia
+          formal: uso permitido con cita, sin redistribución.
+      - id: L8
+        termino: L8
+        definicion: >
+          CR-02 a Nivel A no está cerrada: un solo estrato y intervalos de
+          confianza solapados.
+
+  - id: despliegue
+    titulo: Escenarios de despliegue y plataforma
+    nota: >
+      Dónde corre el sistema y cómo se hablan sus partes. Hay dos patrones de
+      acople, no tres: HTTP config-driven en los tres servicios, y bus de
+      eventos.
+    terminos:
+      - id: DBE
+        termino: DBE
+        mono: true
+        definicion: >
+          Evaluación sobre dataset: el escenario offline. El plano de medios
+          escribe sus detecciones en un archivo y el de control lo relee. El
+          archivo es la fuente de verdad.
+      - id: EBE
+        termino: EBE
+        mono: true
+        definicion: >
+          Evaluación sobre entorno: el escenario en vivo. Los planos se acoplan
+          por un bus de eventos y la corrida es uno a uno. Toda corrida en vivo
+          es re-evaluable offline y produce artefactos idénticos.
+      - id: G0
+        termino: G0
+        mono: true
+        definicion: >
+          Granularidad de ESCENA: la condición se juzga sobre el cuadro entero,
+          sin identidad de personas. Es el núcleo validable.
+      # `id` distinto del de la campaña G1 a propósito: el símbolo se repite y
+      # el índice de términos es plano, así que con el mismo id uno pisaba al
+      # otro y un G1 marcado en una tabla de campañas explicaba la granularidad.
+      # El test `test_los_ids_de_termino_no_se_repiten` lo caza.
+      - id: granularidad_g1
+        termino: G1 (granularidad)
+        definicion: >
+          Granularidad de SUJETO: la condición se juzga por persona seguida. Ojo,
+          el mismo símbolo nombra también a la campaña G1, que es justamente la
+          que la mide.
+      - id: OVD
+        termino: OVD
+        mono: true
+        definicion: >
+          Detección de vocabulario abierto: el detector se guía por texto en vez
+          de por un conjunto fijo de clases entrenadas. Es lo que permite pedir
+          una clase nueva sin reentrenar.
+      - id: E-IND
+        termino: E-IND
+        mono: true
+        definicion: >
+          Estrategia indirecta: se detecta la persona y el equipo, y la ausencia
+          se deduce. Es el encuadre adoptado.
+      - id: E-DIR
+        termino: E-DIR
+        mono: true
+        definicion: >
+          Estrategia directa: el prompt describe la infracción. Medida y vetada
+          por precision como núcleo.
+      - id: E-HYB
+        termino: E-HYB
+        mono: true
+        definicion: >
+          Fusión de las dos estrategias. La variante por unión quedó refutada; la
+          variante por intersección no se ejecutó, y eso está declarado con causa.
+      - id: prompt_set
+        termino: prompt set
+        definicion: >
+          El conjunto versionado de prompts con el que corre una campaña. Se
+          congela con hash: una campaña congelada no puede cambiar de pregunta
+          sin cambiar de identidad.
+      - id: pattern_set
+        termino: pattern set
+        definicion: >
+          El conjunto versionado de patrones del motor de reglas: qué condición
+          confirma, cuándo y con qué severidad.
+      - id: histeresis
+        termino: histéresis
+        definicion: >
+          La persistencia temporal del motor: una condición pasa por cinco
+          estados y sólo emite alerta al entrar en confirmada. Es lo que evita
+          alertar por un parpadeo, y también lo que retrasa la alerta a
+          propósito.
+      - id: bus_envelope
+        termino: bus.envelope.v1
+        mono: true
+        definicion: >
+          El sobre de los eventos del bus, con número de secuencia monótono. Un
+          hueco en la secuencia se cuenta como evento perdido y degrada la
+          corrida: nunca se silencia.
+      - id: stride
+        termino: stride
+        definicion: >
+          Cada cuántos fotogramas se procesa uno. Stride 7 significa uno de cada
+          siete: es la palanca con la que se simula la densidad del camino en
+          vivo sobre material offline.
+      - id: nivel_a
+        termino: Nivel A
+        definicion: >
+          Se juzga el estado de cada persona —por imagen o por fotograma, según
+          el material— sin motor temporal en el medio. Mide percepción.
+      - id: nivel_b
+        termino: Nivel B
+        definicion: >
+          Se juzga la alerta contra el episodio anotado, con el motor temporal
+          en el medio. Mide la plataforma.
+
+# ---------------------------------------------------------------------------
+# Los símbolos que significan más de una cosa. Es lo que más confusión ahorra:
+# un lector que no estuvo los pisa sí o sí si no se los avisan.
+#
+# R1, D1 y A1 son las colisiones canónicas del glosario. T1/T2 va PRIMERA porque
+# es la más peligrosa de todas y no estaba declarada en ninguna parte: sus dos
+# sentidos viven a un click en `results/` —la de ajuste fino está enlazada desde
+# el índice— y sus veredictos son OPUESTOS (T1 es la línea de base que todo
+# supera en una serie, y un NO-GO en la otra).
+#
+# El número de entradas NO está hardcodeado en la pantalla ni en los tests: el
+# título y el conteo salen de esta lista. Agregar una quinta no rompe nada.
+# ---------------------------------------------------------------------------
+colisiones:
+  - simbolo: T1 / T2
+    en_la_consola: >
+      En esta consola T1 y T2 son SIEMPRE campañas del banco de clips. El otro
+      sentido vive en la carpeta de ajuste fino, que no aporta ninguna cifra a
+      los cuatro índices de resultados. T3 no existe como campaña: si se lee un
+      T3, es ajuste fino sí o sí.
+    sentidos:
+      - de: T1 y T2 (campañas)
+        es: >
+          La línea de base del banco de clips y su contraste de modelo. T1 es la
+          línea de base de escena; G1 es la referencia de las campañas por
+          sujeto.
+      - de: T1, T2 y T3 (ajuste fino)
+        es: >
+          Los tres brazos de la jornada de ajuste fino: sonda lineal y ajuste
+          completo, los dos con veredicto NO-GO, y un tercero que quedó cerrado
+          con causa técnica sin llegar a veredicto. Ninguno se adoptó como
+          modelo de servicio.
+  - simbolo: R1
+    en_la_consola: >
+      En esta consola R1 a R6 son SIEMPRE las campañas de densidad del banco de
+      clips.
+    sentidos:
+      - de: R1 a R4
+        es: Los cuatro resultados defendibles del plan de trabajo.
+      - de: R1 a R6
+        es: Las seis campañas de densidad del banco de clips.
+      - de: R-01 a R-26
+        es: Los redlines del informe, con guion — "dice hoy / debe decir / evidencia".
+  - simbolo: D1
+    en_la_consola: >
+      En esta consola D1 es una campaña, y hay DOS con ese nombre: una de Nivel
+      A y otra de Nivel B. El result_id las distingue.
+    sentidos:
+      - de: D1
+        es: La primera dimensión de decisión del tablero — estrategia de detección.
+      - de: D1 de Nivel A
+        es: La comparación de formulaciones por sujeto, sobre imágenes.
+      - de: D1 de Nivel B
+        es: La campaña del banco de clips con los prompts directos de ausencia.
+  - simbolo: A1
+    en_la_consola: >
+      En esta consola A1 no aparece como campaña. Si se lo lee en un documento,
+      hay que decir cuál de los tres es.
+    sentidos:
+      - de: A1
+        es: El primer argumento de defensa de la detección de vocabulario abierto.
+      - de: Piloto A1
+        es: El piloto de clase nueva, el que mide qué cuesta agregar una clase.
+      - de: Gate A1
+        es: La compuerta que censura episodios demasiado cortos para juzgarlos.

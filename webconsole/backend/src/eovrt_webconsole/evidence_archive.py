@@ -8,6 +8,7 @@ from pathlib import Path
 import yaml
 
 from eovrt_webconsole.evidence import CSV_FILES, EvidenceRegistry
+from eovrt_webconsole.evidence_metrics import campo_de, leer_metricas
 
 
 def etiqueta(result_id: str) -> str:
@@ -51,13 +52,21 @@ class EvidenceArchive:
         if resolved.is_file():
             for run in json.loads(resolved.read_text())["runs"]:
                 self.metadata[run["plane"], run["run_id"]] = run
-        self.titles = {}
-        titles_path = self.directory / "titulos.yaml"
+        self.titles: dict[str, str | None] = {}
+        self.reclamos: dict[str, str | None] = {}
+        # Fuera del archivo congelado, por la misma razón que `consola.yaml`:
+        # lo edita una persona y `self.directory` tiene integridad por hash.
+        titles_path = registry.config_dir / "titulos.yaml"
         if titles_path.is_file():
-            self.titles = {
-                row["result_id"]: row.get("titulo")
-                for row in (yaml.safe_load(titles_path.read_text()) or {}).get("resultados", [])
-            }
+            for row in (yaml.safe_load(titles_path.read_text()) or {}).get("resultados", []):
+                self.titles[row["result_id"]] = row.get("titulo")
+                self.reclamos[row["result_id"]] = row.get("reclamo")
+        # El recorrido del argumento del informe: 4 pasos + respaldo instrumental,
+        # también fuera del archivo congelado (lo edita una persona).
+        self.recorrido_cfg: dict = {}
+        recorrido_path = registry.config_dir / "recorrido.yaml"
+        if recorrido_path.is_file():
+            self.recorrido_cfg = yaml.safe_load(recorrido_path.read_text()) or {}
         # Sólo procedencia documental del manifiesto, nunca selección ni conteos.
         self.documents: dict[str, set[str]] = defaultdict(set)
         manifest = repo_root / "results/evidence-runs.yaml"
@@ -72,15 +81,28 @@ class EvidenceArchive:
                 self.documents[result_id].add(campaign)
 
     def availability(self) -> dict:
-        available = self.registry.available and (self.directory / "artifacts").is_dir() and all(
+        archivos = (self.directory / "artifacts").is_dir() and all(
             (self.directory / "collections" / name).is_file() for name in CSV_FILES
+        )
+        available = self.registry.available and archivos
+        # El remedio depende de CUÁL de los dos estados es (R-31): desde que
+        # `registry.available` mira contenido, esto también dispara con los
+        # cuatro CSV presentes y sin una sola fila — y ahí "restauralo del
+        # backup" manda a reponer algo que no falta. Con los archivos presentes
+        # el único estado que queda es "sin filas", porque el registro lee de
+        # ESTE mismo directorio. Se dice el estado que se midió y el remedio que
+        # le corresponde, nunca uno por el otro.
+        remedio = (
+            "Los archivos están pero el inventario no trae una sola fila: regeneralo con "
+            "`python3 tools/evidence_runs.py sync`"
+            if archivos else
+            "Restauralo desde la capa de evidencia del backup (docs/operacion/126)"
         )
         return {
             "available": available,
             "message": None if available else (
                 f"Archivo de evidencia no disponible o incompleto: {self.directory}. "
-                "Restauralo desde la capa de evidencia del backup (docs/operacion/126) "
-                "y reiniciá la consola."
+                f"{remedio} y reiniciá la consola."
             ),
         }
 
@@ -91,25 +113,86 @@ class EvidenceArchive:
             "index": result_id.split("/", 1)[0],
             "etiqueta": etiqueta(result_id),
             "titulo": self.titles.get(result_id) or None,
+            "reclamo": self.reclamos.get(result_id) or None,
             "n_runs": len({(r["plane"], r["run_id"]) for r in rows}),
             "n_rows": len(rows),
             "roles": dict(sorted(Counter(r["role"] for r in rows).items())),
             "documents": sorted(self.documents[result_id]),
             "source_refs": sorted({r["source_ref"] for r in rows}),
+            "metricas": leer_metricas(self.root / f"results/{result_id}/metrics.json"),
         }
 
-    def index(self) -> dict:
+    def _cifra(self, paso: dict) -> dict:
+        """Leída del metrics.json, o citada con su fuente. Nunca otra cosa."""
+        if paso.get("leer"):
+            valores = [campo_de(self.root / f"results/{item['result_id']}/metrics.json",
+                                item["campo"]) for item in paso["leer"]]
+            texto = " → ".join(f"{v:.3f}".replace(".", ",") if v is not None else "—"
+                               for v in valores)
+            return {"cifra": texto, "cifra_origen": "leida", "fuente": None}
+        return {"cifra": paso.get("cifra"), "cifra_origen": "citada",
+                "fuente": paso.get("fuente")}
+
+    def paso_de(self, result_id: str) -> dict | None:
+        """El paso del recorrido que cita este resultado, con su cifra — o
+        `None` si el resultado no sostiene ninguno de los 4 pasos del argumento
+        (instrumento, ensayo, plataforma, o un resultado que sólo aparece en el
+        respaldo instrumental).
+
+        Usado por `GET /api/runs/grupos` (Task 7): la cifra de un grupo es
+        siempre la del paso que lo cita, nunca una que se recalcule acá.
+        """
+        paso = next((p for p in self.recorrido_cfg.get("pasos", [])
+                     if result_id in p.get("resultados", [])), None)
+        if paso is None:
+            return None
+        return {"n": paso["n"], "cifra_label": paso.get("cifra_label"), **self._cifra(paso)}
+
+    def recorrido(self) -> dict:
         state = self.availability()
-        groups: dict[str, list[dict]] = defaultdict(list)
-        if state["available"]:
-            for result_id in sorted(self.by_result):
-                info = self.result_info(result_id)
-                groups[info["index"]].append(info)
-        return {**state, "collections": [
-            {"id": name, "n_results": len(results), "results": results,
-             "n_rows": sum(r["n_rows"] for r in results)}
-            for name, results in sorted(groups.items())
-        ]}
+        if not state["available"]:
+            return {**state, "pasos": [], "respaldo": None, "indices": []}
+        pasos = [{
+            "n": paso["n"], "titulo": paso["titulo"], "claim": paso["claim"],
+            "cifra_label": paso.get("cifra_label"), "cifra_nota": paso.get("cifra_nota"),
+            "n_resultados": len(paso["resultados"]),
+            "indices": sorted({r.split("/", 1)[0] for r in paso["resultados"]}),
+            **self._cifra(paso),
+        } for paso in self.recorrido_cfg.get("pasos", [])]
+        respaldo_cfg = self.recorrido_cfg.get("respaldo_instrumental", {})
+        # El respaldo no tiene una ruta `/paso` propia: a diferencia de los cuatro
+        # pasos del argumento (que se detallan vía `/api/evidencia/paso?n=`), su
+        # desglose completo viaja acá mismo, o no hay dónde pedirlo.
+        respaldo_resultados = [self.result_info(r) for r in respaldo_cfg.get("resultados", [])
+                                if r in self.by_result]
+        indices: dict[str, int] = defaultdict(int)
+        for result_id in self.by_result:
+            indices[result_id.split("/", 1)[0]] += 1
+        return {**state, "pasos": pasos, "respaldo": {
+            "titulo": respaldo_cfg.get("titulo"), "claim": respaldo_cfg.get("claim"),
+            "n_resultados": len(respaldo_resultados), "resultados": respaldo_resultados,
+        }, "indices": [{"id": k, "n_results": v} for k, v in sorted(indices.items())]}
+
+    def paso(self, n: int) -> dict:
+        # Igual que `recorrido()` y `result()`: primero la disponibilidad del
+        # archivo. Si `recorrido.yaml` no cargó (config ausente o mal apuntada),
+        # `recorrido_cfg` está vacío y CUALQUIER `n` daría "no encontrado" — hay
+        # que decir "el archivo no está disponible", no "ese paso no existe".
+        state = self.availability()
+        if not state["available"]:
+            return {**state, "paso": None, "resultados": [], "n_pasos": 0}
+        pasos = self.recorrido_cfg.get("pasos", [])
+        paso = next((p for p in pasos if p["n"] == n), None)
+        if paso is None:
+            raise KeyError(n)
+        # Cuántos pasos hay lo decide `recorrido.yaml`: la pantalla decía "paso
+        # N de 4" con el 4 hardcodeado, y un paso nuevo la dejaba mintiendo.
+        return {**state, "n_pasos": len(pasos), "paso": {
+            "n": paso["n"], "titulo": paso["titulo"], "claim": paso["claim"],
+            "cifra_label": paso.get("cifra_label"), "cifra_nota": paso.get("cifra_nota"),
+            **self._cifra(paso),
+        }, "resultados": [self.result_info(r) for r in paso["resultados"]
+                          if r in self.by_result]}
 
     def run_info(self, row: dict) -> dict:
         plane, run_id = row["plane"], row["run_id"]

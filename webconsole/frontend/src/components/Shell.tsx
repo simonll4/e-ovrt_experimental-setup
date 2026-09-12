@@ -3,6 +3,7 @@ import { Link, NavLink, useLocation } from 'react-router-dom'
 import { NAV_GROUPS } from '../nav'
 import { IconNavExperimentNew, IconPlus } from './ui/icons'
 import Breadcrumbs from './Breadcrumbs'
+import { GlosarioProvider } from './Glosario'
 import TargetBadge from './TargetBadge'
 import LiveRunPill from './LiveRunPill'
 import { useSidebarCounts } from '../api/queries/sidebar'
@@ -182,7 +183,10 @@ export default function Shell({ children }: { children: ReactNode }) {
             <Breadcrumbs />
             {!archive && <TargetBadge />}
           </div>
-          {children}
+          {/* El vocabulario compartido de la consola. No pide nada hasta que
+              una pantalla monta su primer término marcado, así que una pantalla
+              sin términos no agrega una sola petición. */}
+          <GlosarioProvider>{children}</GlosarioProvider>
         </main>
       </div>
     </div>

@@ -9,7 +9,10 @@ import {
 import { experimentStatusLabel, experimentStatusTone } from '../experimentview'
 import { usePreflight } from '../api/queries/platform'
 import PlatformStatus from '../components/PlatformStatus'
-import EvidenceViewControl, { EvidenceBadge, useEvidenceView } from '../components/EvidenceViewControl'
+import { AvisoRegistro, EvidenceBadge } from '../components/EvidenceViewControl'
+import ClaseChips, { ETIQUETA_CLASE } from '../components/ClaseChips'
+import Termino from '../components/Glosario'
+import { TERMINO_DE_CLASE } from '../terminos'
 import { DeriveExperimentForm } from '../components/DeriveExperimentForm'
 import {
   Badge,
@@ -28,6 +31,7 @@ import {
   Table,
 } from '../components/ui'
 import { applyPlaneGlossary } from '../labels'
+import type { Clase } from '../types'
 
 /** Antigüedad legible de la última ejecución. */
 function cuando(iso: string | null | undefined): string {
@@ -67,13 +71,18 @@ export default function ExperimentsPage() {
   const preflight = usePreflight()
   const [slug, setSlug] = useState('')
   const [filtro, setFiltro] = useState('')
+  const [clase, setClase] = useState<Clase | null>(null)
   const [runError, setRunError] = useState<string | null>(null)
   const [formMode, setFormMode] = useState<FormMode>(null)
   const qc = useQueryClient()
-  const [vista, setVista] = useEvidenceView('experiments')
 
-  const consultaManifiestos = useExperimentManifests(vista)
+  // Siempre "todas": la separación evidencia/archivada la reemplazó la clase
+  // (chips), que filtra del lado del cliente sobre esta misma lista — no hay
+  // un segundo pedido por clase, a diferencia de Corridas (Task 7), porque
+  // acá no hace falta paginar del lado del servidor.
+  const consultaManifiestos = useExperimentManifests()
   const rows = consultaManifiestos.data ?? null
+  const meta = consultaManifiestos.visibility
   const error = consultaManifiestos.error ? String(consultaManifiestos.error) : null
   // Solo se repregunta mientras hay un experimento corriendo (ver la query).
   const current = useCurrentExperiment().data ?? null
@@ -140,10 +149,37 @@ export default function ExperimentsPage() {
 
   const options = rows.map((r) => ({ value: r.slug, label: r.slug }))
 
+  // Conteos SIEMPRE sobre el listado completo (nunca sobre lo ya filtrado):
+  // si no, elegir un chip haría desaparecer al resto de los chips.
+  const conteos: Partial<Record<Clase, number>> = {}
+  for (const r of rows) {
+    const c = r.evidence?.clase ?? 'sin_clasificar'
+    conteos[c] = (conteos[c] ?? 0) + 1
+  }
+
   const aguja = filtro.trim().toLowerCase()
-  const visibles = aguja
-    ? rows.filter((r) => `${r.slug} ${r.group ?? ''}`.toLowerCase().includes(aguja))
-    : rows
+  const visibles = rows.filter((r) => {
+    if (clase && (r.evidence?.clase ?? 'sin_clasificar') !== clase) return false
+    if (!aguja) return true
+    return `${r.slug} ${r.group ?? ''}`.toLowerCase().includes(aguja)
+  })
+
+  // Ausentes en la fixture del contrato congelado: la pantalla tiene que
+  // renderizar bien sin ellas (de ahí desarmar `meta` en variables sueltas,
+  // en vez de encadenar `meta?.…` adentro del JSX).
+  const platformTestCount = meta?.platformTestCount
+  const platformTestSlugs = meta?.platformTestSlugs
+  const totalExecutions = meta?.totalExecutions
+  // La proporción, nunca el número absoluto como si fuera estable: el total
+  // crece solo (la suite escribe ejecuciones nuevas en cada corrida
+  // completa). El denominador es TODO lo que hay en disco (evidencia +
+  // archivadas, `X-Total-Executions-Count`) — no lo ya archivado, que sería
+  // casi tautológico (lo archivado es casi todo smoke por definición). Sólo
+  // se muestra si ese denominador está y no es cero; sin él, el bloque igual
+  // se ve, sin la proporción.
+  const proporcionPlataforma = platformTestCount != null && totalExecutions
+    ? Math.round((platformTestCount / totalExecutions) * 100)
+    : null
 
   return (
     <>
@@ -151,8 +187,11 @@ export default function ExperimentsPage() {
           barra lateral, y repetirlo acá chocaba con el título de la tarjeta del
           formulario, que también dice "Nuevo experimento". */}
       <PageHeader title="Experimentos" meta={`${rows.length} manifiestos`} />
-      <EvidenceViewControl view={vista} onChange={setVista}
-        meta={consultaManifiestos.visibility} noun="ejecuciones" />
+
+      {/* Antes de cualquier clase en pantalla: sin el registro o sin la
+          taxonomía, la columna Clase y los chips son una clasificación
+          fabricada sobre un archivo ausente. */}
+      <AvisoRegistro meta={meta} noun="ejecuciones" />
 
       {current && (
         <Banner tone={current.status === 'running' ? 'live' : 'warn'}>
@@ -224,15 +263,9 @@ export default function ExperimentsPage() {
         </>
       )}
       {rows.length === 0 ? (
-        vista !== 'todas' && consultaManifiestos.visibility ? (
-          <EmptyState hint="Elegí Todas para consultar las recetas del catálogo.">
-            No hay manifiestos en esta vista
-          </EmptyState>
-        ) : (
-          <EmptyState hint="Los manifiestos viven en experiments/ del repositorio.">
-            Sin manifiestos todavía
-          </EmptyState>
-        )
+        <EmptyState hint="Los manifiestos viven en experiments/ del repositorio.">
+          Sin manifiestos todavía
+        </EmptyState>
       ) : (
         <>
           <div className="eo-toolbar">
@@ -242,6 +275,7 @@ export default function ExperimentsPage() {
               placeholder="Buscar por manifiesto o grupo"
               ariaLabel="Buscar manifiestos por nombre o grupo"
             />
+            <ClaseChips valor={clase} onChange={setClase} conteos={conteos} />
             <span className="eo-toolbar__count eo-mono">
               {visibles.length} de {rows.length}
             </span>
@@ -253,6 +287,7 @@ export default function ExperimentsPage() {
                 <tr>
                   <th>Manifiesto</th>
                   <th>Grupo</th>
+                  <th>Clase</th>
                   <th>Última ejecución</th>
                   <th>Estado</th>
                   <th className="eo-th--numeric">Corridas</th>
@@ -270,6 +305,13 @@ export default function ExperimentsPage() {
                         subtitle={<>{r.description} <EvidenceBadge evidence={r.evidence} /></>}
                       />
                       <td>{r.group ?? '—'}</td>
+                      <td>
+                        <Badge tone="neutral">
+                          <Termino id={TERMINO_DE_CLASE[r.evidence?.clase ?? 'sin_clasificar']}>
+                            {ETIQUETA_CLASE[r.evidence?.clase ?? 'sin_clasificar']}
+                          </Termino>
+                        </Badge>
+                      </td>
                       {/* Un manifiesto que nunca se ejecutó no tiene resultado
                           que ver: se muestra apagado y sin enlace en vez de un
                           guion que no explica nada. */}
@@ -323,11 +365,50 @@ export default function ExperimentsPage() {
               </tbody>
             </Table>
             {visibles.length === 0 && (
-              <EmptyState hint="Probá con otro texto.">
+              <EmptyState hint="Probá con otro texto o quitá el filtro de clase.">
                 Ningún manifiesto coincide con la búsqueda
               </EmptyState>
             )}
           </Card>
+
+          {/* Sólo si la cabecera está y cuenta algo: la fixture del contrato
+              congelado no la manda, y el bloque tiene que desaparecer, no
+              romperse ni mostrar un cero. */}
+          {platformTestCount != null && platformTestCount > 0 && (
+            <Card title="Pruebas de plataforma" meta="no son experimentos">
+              <div className="eo-machine">
+                <div className="eo-machine__n">{platformTestCount}</div>
+                <div>
+                  <p className="eo-machine__t">
+                    <b>Ejecuciones sin manifiesto escritas por la suite de tests</b>
+                    {/* Nunca "0 slugs" cuando el desglose faltó o llegó corrupto: eso
+                        sería fabricar un cero para un dato ausente. Si no hay desglose,
+                        se declara así, sin inventar una cantidad. */}
+                    {platformTestSlugs && platformTestSlugs.length > 0 ? (
+                      <>, repartidas en {platformTestSlugs.length} slugs del orquestador. </>
+                    ) : (
+                      <>. El desglose por slug no está disponible. </>
+                    )}
+                    No corresponden a ningún manifiesto del catálogo y no respaldan ninguna
+                    cifra: son la máquina probándose a sí misma. El total crece solo —la suite
+                    escribe ejecuciones nuevas en cada corrida completa de la suite—, así que
+                    {proporcionPlataforma != null ? (
+                      <> se cita la proporción (<b>{proporcionPlataforma} % de las {totalExecutions} ejecuciones en disco</b>) y nunca el número absoluto como si fuera estable.</>
+                    ) : (
+                      ' nunca se cita el número absoluto como si fuera estable.'
+                    )}
+                  </p>
+                  {platformTestSlugs && platformTestSlugs.length > 0 && (
+                    <div className="eo-slugs">
+                      {platformTestSlugs.map((s) => (
+                        <span key={s.slug} className="eo-slug">{`${s.slug} · ${s.n}`}</span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </Card>
+          )}
         </>
       )}
     </>

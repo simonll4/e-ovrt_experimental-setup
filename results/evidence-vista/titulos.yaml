@@ -1,0 +1,180 @@
+# Los títulos y reclamos que ve el tribunal. Redactados desde el `description` de
+# cada campaign.yaml y desde results/index.md. Editables sin tocar código.
+resultados:
+  - result_id: bench_imagenes/modelos_crudos
+    etiqueta: "modelos crudos"
+    titulo: Los seis modelos crudos, sin adaptar
+    reclamo: El punto de partida, antes de elegir nada.
+  - result_id: bench_imagenes/seleccion_s1
+    etiqueta: "seleccion s1"
+    titulo: La selección del campeón (S1)
+    # ✎ Corregido: decía «Veinte combinaciones sobre bench_v3». Son DIEZ
+    # configuraciones (las 20 corridas del inventario son esas diez por los dos
+    # splits) y corrieron sobre el BENCH v2, no sobre bench_v3— el único
+    # resultado de imágenes medido sobre bench_v3 es la confirmación B5, que es
+    # además de donde sale «robusto a la fuente».
+    reclamo: Diez configuraciones sobre el BENCH v2; gana gdino-tiny-560.
+  - result_id: bench_imagenes/confirmacion_b5
+    etiqueta: "confirmacion b5"
+    titulo: Confirmación por estratos (B5)
+    reclamo: El campeón sostiene el resultado en cada una de las tres fuentes por separado.
+  - result_id: bench_imagenes/gdino560
+    etiqueta: "gdino560"
+    titulo: El contraste de resolución, 560 contra 800
+    # ✎ Acotado: la comparación de mAP 560 contra 800 está confundida con el
+    # umbral en el par `tiny` (bench_imagenes/index.md:119-126, R-04). El −24 %
+    # de latencia no depende del umbral y se dice plano; el empate de mAP, no.
+    reclamo: >-
+      560 baja la latencia un 24 %; el empate de mAP contra 800 sólo está
+      medido a umbral igual en el par base.
+  - result_id: bench_imagenes/clase_nueva
+    etiqueta: "clase nueva"
+    titulo: El costo de agregar una clase nueva
+    reclamo: Cuánto cuesta extender el vocabulario sin reentrenar.
+  - result_id: bench_nivel_a/d1_gdinotiny560_edir_vs_eind
+    etiqueta: "d1 gdinotiny560 edir vs eind"
+    titulo: E-DIR contra E-IND por sujeto (D1)
+    reclamo: La comparación pre-registrada entre las dos formulaciones, a nivel de persona.
+  - result_id: bench_nivel_a/edir_vs_eind
+    etiqueta: "edir vs eind"
+    titulo: E-DIR contra E-IND, la fuente estructurada
+    reclamo: El artefacto de medición del que sale la comparación de formulaciones.
+  - result_id: bench_nivel_a/replica_base560
+    etiqueta: "replica base560"
+    titulo: La réplica con base-560
+    reclamo: La misma comparación con el modelo grande, para separar formulación de capacidad.
+  - result_id: bench_nivel_a/na1_gdinotiny560_v2short_video
+    etiqueta: "na1 gdinotiny560 v2short video"
+    titulo: Estado por persona sobre video (NA1)
+    reclamo: "Nivel A sobre los clips: el derrumbe de precision al salir de las imágenes."
+  - result_id: clip_bench/t1_gdinotiny560_v2short_scene
+    etiqueta: "t1 gdinotiny560 v2short scene"
+    titulo: Línea de base del Nivel B
+    # ✎ Acotado: decía «Toda campaña posterior se compara contra ésta». Hay DOS
+    # referencias — clip_bench/index.md:246 dice «variable única contra T1/G1» y
+    # los deltas de densidad por sujeto (R2/R4/R6) se publican contra G1.
+    reclamo: >-
+      Primera campaña sobre GT temporal humano. Es una de las dos referencias:
+      contra ella se leen las campañas de escena; las densidades por sujeto se
+      leen contra G1.
+  - result_id: clip_bench/g1_gdinotiny560_v2short_subject
+    etiqueta: "g1 gdinotiny560 v2short subject"
+    titulo: La identidad por sujeto
+    reclamo: El F1 sube de 0,789 a 0,930 con las detecciones bit a bit idénticas.
+  - result_id: clip_bench/t2_gdinobase560_v2short_scene
+    etiqueta: "t2 gdinobase560 v2short scene"
+    titulo: Contraste de modelo, base-560
+    reclamo: "El modelo grande sobre el mismo banco: no alcanza a la identidad."
+  - result_id: clip_bench/b1_gdinobase560_barehead_scene
+    etiqueta: "b1 gdinobase560 barehead scene"
+    titulo: El especialista de bare_head
+    reclamo: "El prompt set de banco con el modelo base: gana SDR y pierde precision."
+  - result_id: clip_bench/h1_gdinotiny560_hybor_scene
+    etiqueta: "h1 gdinotiny560 hybor scene"
+    # ✎ Corregido: decía «La histéresis, palanca de doble filo / Rescata
+    # percepción intermitente y multiplica los falsos positivos». Los números
+    # eran correctos y la ATRIBUCIÓN estaba invertida entera: el rescate de la
+    # percepción intermitente es F-81.1 y es de T1 (CR-02 recall 1,000 con SDR
+    # 0,281); la amplificación de falsos positivos es F-85.3 y es de D1. H1 es
+    # la fusión E-HYB-or, y su resultado es el OPUESTO del que se le atribuía:
+    # predicción pre-registrada REFUTADA, el recall se derrumba. Lo que H1 sí
+    # midió es F-87.2 (clip_bench/index.md:29 y :166).
+    titulo: La unión de evidencia (E-HYB-or)
+    reclamo: >-
+      Predicción pre-registrada refutada: el recall se derrumba de 0,824 a
+      0,353. En una clasificación por frame un OR sólo puede agregar positivos;
+      en un motor temporal no, porque se confirman episodios con ventana —
+      sumar evidencia más temprana corre la alerta que ya había fuera de la
+      suya.
+  - result_id: clip_bench/d1_gdinotiny560_edirpair_scene
+    etiqueta: "d1 gdinotiny560 edirpair scene"
+    titulo: Los prompts directos de ausencia (E-DIR)
+    reclamo: "Precision 0,146: el veto pre-registrado la descarta como núcleo."
+  - result_id: clip_bench/i1_gdinotiny560_v2short_scene_internet
+    etiqueta: "i1 gdinotiny560 v2short scene internet"
+    titulo: Obra real no guionada, por escena
+    reclamo: Dos episodios evaluables. Acotado por la limitación L4.
+  - result_id: clip_bench/i2_gdinotiny560_v2short_subject_internet
+    etiqueta: "i2 gdinotiny560 v2short subject internet"
+    titulo: Obra real no guionada, por sujeto
+    reclamo: La fragmentación de identidades en multitud, medida.
+  - result_id: clip_bench/r1_gdinotiny560_v2short_scene_s7
+    etiqueta: "r1 gdinotiny560 v2short scene s7"
+    titulo: Densidad stride 7, por escena
+    reclamo: Un frame de cada siete; el banco sigue evaluable.
+  - result_id: clip_bench/r2_gdinotiny560_v2short_subject_s7
+    etiqueta: "r2 gdinotiny560 v2short subject s7"
+    titulo: Densidad stride 7, por sujeto
+    reclamo: La ganancia de la identidad sobrevive al primer nivel de decimado.
+  - result_id: clip_bench/r3_gdinotiny560_v2short_scene_s15
+    etiqueta: "r3 gdinotiny560 v2short scene s15"
+    titulo: Densidad stride 15, por escena
+    reclamo: Un frame de cada quince.
+  - result_id: clip_bench/r4_gdinotiny560_v2short_subject_s15
+    etiqueta: "r4 gdinotiny560 v2short subject s15"
+    titulo: Densidad stride 15, por sujeto
+    reclamo: La ganancia se conserva a la mitad de la densidad.
+  - result_id: clip_bench/r5_gdinotiny560_v2short_scene_s26
+    etiqueta: "r5 gdinotiny560 v2short scene s26"
+    titulo: Densidad stride 26, por escena
+    # ✎ Corregido: decía «El ancla del techo live de hoy». Es al revés —
+    # clip_bench/index.md:255-262 asigna el techo live a stride 7 (R1/R2,
+    # 4,29 fps nominales) y el peor caso a stride 26 (R5/R6, 1,15 nominales /
+    # 1,16 medidos a las 20:10 del rodaje).
+    reclamo: El ancla del peor caso medido, 1,16 fps.
+  - result_id: clip_bench/r6_gdinotiny560_v2short_subject_s26
+    etiqueta: "r6 gdinotiny560 v2short subject s26"
+    titulo: Densidad stride 26, por sujeto
+    reclamo: "La cuarta densidad: la ganancia sigue excluyendo el cero."
+  - result_id: realtime/decimado_empirico
+    etiqueta: "decimado empirico"
+    titulo: El decimado empírico
+    reclamo: Las mismas detecciones decimadas, para separar el efecto del instrumento.
+  - result_id: realtime/descarte_irregular
+    etiqueta: "descarte irregular"
+    titulo: El descarte irregular del camino en vivo
+    reclamo: La ganancia de la identidad conserva el signo bajo el descarte real.
+  - result_id: realtime/matriz_modelo_fuente
+    etiqueta: "matriz modelo fuente"
+    titulo: La matriz modelo por fuente en vivo
+    reclamo: Qué combinación sostiene el vivo y a qué fps.
+  - result_id: realtime/t_alert_notification
+    etiqueta: "t alert notification"
+    titulo: Del bus de alertas al PUBACK MQTT
+    # ✎ Acotado: decía «un orden de magnitud menos que el G2A», a secas. Contra
+    # el G2A single-host (31,8 ms p95) la distribución es MAYOR, no menor: el
+    # orden de magnitud es contra el G2A live del modelo que detecta (630–890
+    # ms), que es como lo dice results/index.md.
+    reclamo: "La distribución no es el cuello: un orden de magnitud menos que el G2A del modelo en vivo."
+  - result_id: realtime/rodaje_seis_corridas
+    etiqueta: "rodaje seis corridas"
+    titulo: Las seis corridas del rodaje en vivo
+    reclamo: La plataforma completa, de cámara a alerta, con hardware real.
+  - result_id: realtime/g2a_single_host
+    etiqueta: "g2a single host"
+    titulo: El G2A en un solo host
+    reclamo: Captura a alerta por frame, sin red de por medio.
+  - result_id: realtime/gdino560
+    etiqueta: "gdino560"
+    titulo: 560 en tiempo real
+    reclamo: Lo que la resolución del campeón cuesta en el camino vivo.
+  - result_id: realtime/claqueta_reloj_externo
+    etiqueta: "claqueta reloj externo"
+    titulo: La claqueta con reloj externo
+    reclamo: El G2A se mide desde el dequeue, no desde el fotón. Valida el reloj.
+  - result_id: realtime/bus_live_paridad
+    etiqueta: "bus live paridad"
+    titulo: Paridad vivo contra archivo del bus
+    reclamo: Toda corrida live es re-evaluable offline y produce artefactos idénticos.
+  - result_id: realtime/frt5_roundtrip_pil
+    etiqueta: "frt5 roundtrip pil"
+    titulo: El round-trip PIL (F-RT5)
+    reclamo: De dónde salían los fps perdidos en la ingesta.
+  - result_id: realtime/regresion_g1_live
+    etiqueta: "regresion g1 live"
+    titulo: Regresión de G1 en vivo
+    reclamo: Verificación de que la identidad no se rompió en el camino vivo.
+  - result_id: realtime/l0
+    etiqueta: "l0"
+    titulo: El ensayo previo al rodaje (L0)
+    reclamo: La corrida de preparación que habilitó el día de rodaje.

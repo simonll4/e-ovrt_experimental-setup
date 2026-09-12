@@ -3,6 +3,7 @@ import ConditionProgress from './ConditionProgress'
 import PreviewWithBoxes from './PreviewWithBoxes'
 import { Badge, Banner, Button, Card, EmptyState } from './ui'
 import { conditionLabel } from '../labels'
+import Termino from './Glosario'
 import { controlLabel, controlTone } from '../traceview'
 import type { TraceFrame } from '../types'
 
@@ -44,7 +45,7 @@ export default function FrameInspector({
       {/* TraceAlert solo trae `condition_id` y `severity`: no hay alert_id. */}
       {alerts.map((a) => (
         <Banner key={`${a.condition_id}-${a.severity}`} tone="warn">
-          <b>Alerta confirmada — {conditionLabel(a.condition_id)}</b>
+          <b>Alerta confirmada — <Termino id={a.condition_id}>{conditionLabel(a.condition_id)}</Termino></b>
           <div>Se disparó en el cuadro {frame.frame_index ?? position}.</div>
         </Banner>
       ))}

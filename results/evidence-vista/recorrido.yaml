@@ -1,0 +1,115 @@
+# El recorrido del argumento del informe. La partición de los 35 result_id entre
+# los cuatro pasos y `respaldo_instrumental` es TOTAL y DISYUNTA: el test
+# `test_recorrido_particiona_los_resultados` falla si alguno queda afuera o en dos.
+pasos:
+  - n: 1
+    titulo: Qué ve el detector sin entrenar
+    claim: >
+      El campeón zero-shot sobre 6.477 imágenes de tres fuentes independientes.
+      La asimetría es estructural: person y helmet sólidas, vest débil, y
+      bare_head floja incluso en el especialista, que es donde menos mal rinde.
+    cifra: "0,551"
+    cifra_label: mAP50, bench_v3 completo
+    cifra_nota: gdino-tiny-560 · 560 / 0,30
+    fuente: results/bench_imagenes/index.md
+    resultados:
+      - bench_imagenes/seleccion_s1
+      - bench_imagenes/confirmacion_b5
+      - bench_imagenes/gdino560
+      - bench_imagenes/modelos_crudos
+      - bench_imagenes/clase_nueva
+
+  - n: 2
+    titulo: Cómo conviene expresar la condición
+    claim: >
+      Evidencia positiva más inferencia (E-IND) le gana a los prompts directos de
+      ausencia (E-DIR) en los dos niveles. A Nivel B decide el criterio
+      pre-registrado: el veto de precisión descarta E-DIR como núcleo. Lo que
+      manda es la formulación, no el mecanismo. El Nivel A sobre video entra acá
+      por familia y no por comparación: corre una sola formulación, y su
+      hallazgo propio es el derrumbe de precision al salir de las imágenes.
+    cifra_label: precision de E-DIR (veto < 0,5)
+    cifra_nota: contra 0,757 de E-IND
+    leer:
+      - result_id: clip_bench/d1_gdinotiny560_edirpair_scene
+        campo: precision_micro
+    resultados:
+      - bench_nivel_a/d1_gdinotiny560_edir_vs_eind
+      - bench_nivel_a/edir_vs_eind
+      - bench_nivel_a/replica_base560
+      - bench_nivel_a/na1_gdinotiny560_v2short_video
+      - clip_bench/d1_gdinotiny560_edirpair_scene
+
+  - n: 3
+    titulo: Qué agrega la plataforma sobre la detección cruda
+    claim: >
+      La histéresis rescata percepción intermitente, pero es palanca de doble
+      filo. La capa que más agrega SOBRE EL BANCO DEL RODAJE es la identidad: el
+      F1 sube con las detecciones bit a bit idénticas, y el margen no estaba en
+      el modelo. En obra real no guionada esa ventaja no se reproduce — no hay
+      una granularidad mejor, hay una correcta para cada régimen de densidad.
+    cifra_label: F1, escena → sujeto
+    cifra_nota: mismas detecciones
+    leer:
+      - result_id: clip_bench/t1_gdinotiny560_v2short_scene
+        campo: f1_micro
+      - result_id: clip_bench/g1_gdinotiny560_v2short_subject
+        campo: f1_micro
+    resultados:
+      - clip_bench/t1_gdinotiny560_v2short_scene
+      - clip_bench/g1_gdinotiny560_v2short_subject
+      - clip_bench/t2_gdinobase560_v2short_scene
+      - clip_bench/b1_gdinobase560_barehead_scene
+      - clip_bench/h1_gdinotiny560_hybor_scene
+      - clip_bench/i1_gdinotiny560_v2short_scene_internet
+      - clip_bench/i2_gdinotiny560_v2short_subject_internet
+
+  - n: 4
+    titulo: Qué sobrevive al tiempo real
+    claim: >
+      La ganancia de la identidad excluye el cero en las cuatro densidades
+      medidas, y conserva la dirección bajo el descarte irregular del camino en
+      vivo. Es la única palanca del banco significativa bajo esa restricción.
+    # La cifra es el par a stride 7, LEÍDO. El "4/4" vive en el claim, que es
+    # prosa editorial: no se muestra como cifra porque el índice lo escribe con
+    # letras ("las cuatro densidades") y no pasaría la verificación literal.
+    cifra_label: F1 escena → sujeto, stride 7
+    cifra_nota: la ganancia sobrevive al decimado
+    leer:
+      - result_id: clip_bench/r1_gdinotiny560_v2short_scene_s7
+        campo: f1_micro
+      - result_id: clip_bench/r2_gdinotiny560_v2short_subject_s7
+        campo: f1_micro
+    resultados:
+      - clip_bench/r1_gdinotiny560_v2short_scene_s7
+      - clip_bench/r2_gdinotiny560_v2short_subject_s7
+      - clip_bench/r3_gdinotiny560_v2short_scene_s15
+      - clip_bench/r4_gdinotiny560_v2short_subject_s15
+      - clip_bench/r5_gdinotiny560_v2short_scene_s26
+      - clip_bench/r6_gdinotiny560_v2short_subject_s26
+      - realtime/decimado_empirico
+      - realtime/descarte_irregular
+      - realtime/matriz_modelo_fuente
+      - realtime/t_alert_notification
+      - realtime/rodaje_seis_corridas
+      - realtime/frt5_roundtrip_pil
+      - realtime/gdino560
+
+respaldo_instrumental:
+  titulo: Respaldo instrumental
+  claim: >
+    Lo que valida el aparato de medición, no el fenómeno: la claqueta con reloj
+    externo, la paridad vivo contra archivo del bus, la instrumentación del G2A.
+  resultados:
+    # ✎ Intercambio 2026-09-12: el claim prometía «la instrumentación del G2A»
+    # y el G2A estaba en el paso 4, mientras acá figuraba F-RT5 — que es una
+    # palanca APLICADA con efecto medido (+18 % de fps, p = 0,0195), o sea
+    # fenómeno, justo lo que este bloque dice no ser. `g2a_single_host` es
+    # instrumentación pura (doc 39, 20 unidades con el modelo mock) y F-RT5
+    # sostiene el ancla de stride 7 del paso 4. Los dos roles ya eran de clase
+    # `instrumento`: el intercambio no mueve ninguna clasificación.
+    - realtime/claqueta_reloj_externo
+    - realtime/bus_live_paridad
+    - realtime/g2a_single_host
+    - realtime/regresion_g1_live
+    - realtime/l0

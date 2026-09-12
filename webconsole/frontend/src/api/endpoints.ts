@@ -1,12 +1,13 @@
 import type {
-  CameraPreset, ClipEntry, CompareResult, ControlCurrentSnapshot, Composition, DatasetEntry,
+  CameraPreset, ClipEntry, Clase, CompareResult, ControlCurrentSnapshot, Composition, DatasetEntry,
   DeriveDefaults, DetectionsPage, EvalResult,
   Experiment, ExperimentAlert, ExperimentManifestSummary, ExperimentReport, ExperimentRunState,
   FieldError, GenerateClipBody, GenerateClipResult, IngestPlugin, MasterEntry, PlatformInstance,
   PreflightStatus, PreviewStartBody, PreviewStatus, PromptSet, PromptSetDetail, PromptSetSummary,
-  RecordingStatus, RunDetail, RunRow, StartRecordingBody, TargetStatus, TracePage,
+  RecordingStatus, RunDetail, RunGroup, RunRow, StartRecordingBody, TargetStatus, TracePage,
   ArtifactEntry, ConditionInfo, RunComparison, TraceIndex, EvidenceListingMeta, EvidenceView,
-  EvidenceIndex, EvidenceResultPage, ArchivedRunDetail,
+  EvidenceRecorrido, EvidenceStepPage, EvidenceResultPage, ArchivedRunDetail, PlatformTestSlug,
+  Documentacion,
 } from '../types'
 
 export class ApiError extends Error {
@@ -18,7 +19,13 @@ export class ApiError extends Error {
   }
 }
 
-export const getEvidenceIndex = () => request<EvidenceIndex>('/api/evidencia')
+/** La documentación de la consola. Como la evidencia, sale del disco local: no
+ *  toca ningún servicio y contesta con los tres planos apagados. */
+export const getDocumentacion = () => request<Documentacion>('/api/documentacion')
+
+export const getEvidenceRecorrido = () => request<EvidenceRecorrido>('/api/evidencia')
+export const getEvidenceStep = (n: number) =>
+  request<EvidenceStepPage>(`/api/evidencia/paso?${new URLSearchParams({ n: String(n) })}`)
 export const getEvidenceResult = (id: string, page: number, pageSize = 25) =>
   request<EvidenceResultPage>(`/api/evidencia/resultado?${new URLSearchParams({ id, page: String(page), page_size: String(pageSize) })}`)
 export const getArchivedRun = (plane: string, runId: string) =>
@@ -234,6 +241,11 @@ export interface RunsQuery {
   direccion?: 'asc' | 'desc'
   pagina?: number
   pageSize?: number
+  /** Sólo las corridas de esta clase (Task 7). */
+  clase?: Clase
+  /** Sólo las corridas que citan este resultado — así se piden las de un
+   *  grupo al expandirlo (Task 7). */
+  resultId?: string
 }
 
 export async function listRunsPaged(
@@ -247,6 +259,8 @@ export async function listRunsPaged(
   if (filtros.direccion) params.set('direccion', filtros.direccion)
   if (filtros.pagina) params.set('pagina', String(filtros.pagina))
   if (filtros.pageSize) params.set('page_size', String(filtros.pageSize))
+  if (filtros.clase) params.set('clase', filtros.clase)
+  if (filtros.resultId) params.set('result_id', filtros.resultId)
 
   const response = await fetch(`/api/runs?${params.toString()}`, {
     headers: { 'Content-Type': 'application/json' },
@@ -268,16 +282,96 @@ export async function listRunsPaged(
     ...(response.headers.has('X-Evidence-Available') ? { visibility: evidenceMetadata(response) } : {}) }
 }
 
+/** Las corridas colapsadas por resultado (Task 7): la granularidad que hace
+ *  legible la pantalla de Corridas, no el filtro de clase.
+ *
+ *  Los conteos por clase vienen en `X-Class-Counts` y NO se derivan sumando
+ *  `n_runs` sobre los grupos: eso cuenta CITACIONES (una corrida citada por dos
+ *  resultados está en los dos grupos), y daba 693 donde el filtro devuelve 412
+ *  — un número mayor que el total de corridas. El servidor los calcula sobre
+ *  corridas distintas, en el mismo handler.
+ *
+ *  Sin la cabecera (proxy que la filtra, fixture vieja) `conteos` queda
+ *  `undefined`: la pantalla no dibuja chips, en vez de dibujar un número
+ *  inventado. */
+export async function listRunGroups(
+  clase?: Clase,
+): Promise<{ items: RunGroup[]; conteos?: Partial<Record<Clase, number>>; visibility?: EvidenceListingMeta }> {
+  const response = await fetch(`/api/runs/grupos${clase ? `?${new URLSearchParams({ clase })}` : ''}`, {
+    headers: { 'Content-Type': 'application/json' },
+  })
+  if (!response.ok) {
+    let payload: unknown = null
+    try {
+      payload = await response.json()
+    } catch {
+      /* cuerpo no-JSON */
+    }
+    throw new ApiError(response.status, payload)
+  }
+  const items = (await response.json()) as RunGroup[]
+  return {
+    items,
+    conteos: parseClassCounts(response.headers.get('X-Class-Counts')),
+    ...(response.headers.has('X-Evidence-Available') ? { visibility: evidenceMetadata(response) } : {}),
+  }
+}
+
+/** `clave=n,clave=n,…` -> pares, descartando cualquiera que no matchee el
+ *  formato (cabecera ausente, vacía, o corrupta en tránsito). Lo comparten
+ *  `X-Platform-Test-Slugs` y `X-Class-Counts`. */
+function parsePares(raw: string | null): Array<{ clave: string; n: number }> {
+  if (!raw) return []
+  return raw.split(',').map((par) => {
+    const [clave, n] = par.split('=')
+    return { clave, n: Number(n) }
+  }).filter((p) => Boolean(p.clave) && Number.isFinite(p.n))
+}
+
+function parsePlatformTestSlugs(raw: string | null): PlatformTestSlug[] | undefined {
+  const pares = parsePares(raw).map(({ clave, n }): PlatformTestSlug => ({ slug: clave, n }))
+  return pares.length ? pares : undefined
+}
+
+const CLASES: readonly Clase[] = ['resultado', 'instrumento', 'ensayo', 'plataforma', 'sin_clasificar']
+
+/** `X-Class-Counts` -> conteos por clase. Una clave que no es una clase del
+ *  vocabulario se descarta: la pantalla no inventa una sexta clase porque la
+ *  cabecera llegó con algo raro. */
+function parseClassCounts(raw: string | null): Partial<Record<Clase, number>> | undefined {
+  const pares = parsePares(raw).filter((p): p is { clave: Clase; n: number } =>
+    (CLASES as readonly string[]).includes(p.clave))
+  if (!pares.length) return undefined
+  return Object.fromEntries(pares.map(({ clave, n }) => [clave, n]))
+}
+
 function evidenceMetadata(response: Response): EvidenceListingMeta {
   const available = response.headers.get('X-Evidence-Available')
+  // Ausente se queda en `undefined` y no afirma nada: sólo un 'false' explícito
+  // dispara la advertencia. La fixture del contrato congelado no manda ninguna
+  // de las dos cabeceras.
+  const clasificacion = response.headers.get('X-Clasificacion-Available')
   const count = (name: string) => {
     const value = response.headers.get(name)
     return value != null && Number.isFinite(Number(value)) ? Number(value) : undefined
   }
+  // "N/M" y nada más: cualquier otra forma —ausente, vacía, un solo número,
+  // texto— deja las DOS cifras en `undefined` y la pantalla no dice nada sobre
+  // la cobertura de la clasificación. Nunca un 0 fabricado.
+  const roles = (response.headers.get('X-Clasificacion-Roles') ?? '').split('/')
+  const [sinClase, totalRoles] = roles.length === 2
+    ? roles.map((v) => (v.trim() !== '' && Number.isFinite(Number(v)) ? Number(v) : undefined))
+    : [undefined, undefined]
   return {
     available: available == null ? undefined : available === 'true',
+    clasificacionAvailable: clasificacion == null ? undefined : clasificacion === 'true',
+    rolesSinClasificar: totalRoles == null ? undefined : sinClase,
+    rolesDelRegistro: sinClase == null ? undefined : totalRoles,
     archived: count('X-Archived-Count'),
     archivedExecutions: count('X-Archived-Executions-Count'),
+    platformTestCount: count('X-Platform-Test-Count'),
+    platformTestSlugs: parsePlatformTestSlugs(response.headers.get('X-Platform-Test-Slugs')),
+    totalExecutions: count('X-Total-Executions-Count'),
   }
 }
 

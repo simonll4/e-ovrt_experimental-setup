@@ -20,7 +20,7 @@ export { default as InlineDeleteConfirm } from './InlineDeleteConfirm'
 
 export {
   IconStop, IconPlay, IconWarn, IconCheck, IconDownload, IconClose, IconInfo,
-  IconChevron, IconSearch, IconCircle, IconNavRuns, IconNavExperiments,
+  IconChevron, IconGroup, IconSearch, IconCircle, IconNavRuns, IconNavExperiments,
   IconNavCompare, IconNavPrompts, IconNavCatalog, IconNavPlatform,
-  IconNavCameras, IconNavClips,
+  IconNavCameras, IconNavClips, IconNavDocs,
 } from './icons'
