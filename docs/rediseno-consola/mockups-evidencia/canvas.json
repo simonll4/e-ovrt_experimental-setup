@@ -1,0 +1,32 @@
+{
+  "pages": [
+    { "id": "page-1", "name": "Recorrido de evidencia" },
+    { "id": "page-2", "name": "Corridas y Experimentos" }
+  ],
+  "artboards": [
+    { "file": "Main.dc.html", "x": 0, "y": 0, "w": 1440, "h": 980, "page": "page-1", "title": "Entrada · /evidencia" },
+    { "file": "Paso.dc.html", "x": 1560, "y": 0, "w": 1440, "h": 860, "page": "page-1", "title": "Un número del recorrido" },
+    { "file": "Resultado.dc.html", "x": 3120, "y": 0, "w": 1440, "h": 980, "page": "page-1", "title": "Un resultado y su desglose" },
+    { "file": "Corridas.dc.html", "x": 0, "y": 0, "w": 1440, "h": 820, "page": "page-2", "title": "Corridas · agrupadas por resultado" },
+    { "file": "Experimentos.dc.html", "x": 1560, "y": 0, "w": 1440, "h": 840, "page": "page-2", "title": "Experimentos · por clase" }
+  ],
+  "annotations": [
+    {
+      "id": "brief-recorrido",
+      "x": 0,
+      "y": -190,
+      "w": 620,
+      "page": "page-1",
+      "text": "El recorrido, en tres capas.\n\nEl problema no era el volumen: son 35 filas. Era que cada fila mostraba un slug y el único número en pantalla era la cantidad de corridas.\n\nAcá el eje de entrada es el argumento del informe, no la carpeta del archivo. Cada cifra se lee del metrics.json de la campaña; las que no tienen artefacto en el repo se marcan como citadas."
+    },
+    {
+      "id": "brief-taxonomia",
+      "x": 0,
+      "y": -190,
+      "w": 620,
+      "page": "page-2",
+      "text": "La misma taxonomía en las tres pantallas.\n\nLa clase sale del rol que cada corrida cumple en el resultado que la cita: 21 roles clasificados una vez, no 1.436 corridas.\n\nEn Corridas el arreglo real es la granularidad: 472 corridas son 32 grupos por resultado. En Experimentos, separar los 445 smokes del orquestador de los 11 ensayos reales."
+    }
+  ],
+  "launch": { "view": "canvas", "page": "page-1" }
+}

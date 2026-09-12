@@ -1,0 +1,191 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    :root {
+      --bg: #121211; --s1: #1a1a19; --s2: #212120; --s3: #2a2a28; --sunken: #0d0d0c;
+      --bd: rgba(255,255,255,.09); --bds: rgba(255,255,255,.17);
+      --tx: #f2f1ed; --tx2: #b3b1a8; --tx3: #82807a; --tx4: #5c5b56;
+      --ac: #7d6ef2; --ac-tx: #a89df6; --ac-bg: rgba(125,110,242,.14); --ac-bd: rgba(125,110,242,.42); --ac-text-on: #150f3d;
+      --ok: #35b45a; --ok-bd: rgba(53,180,90,.4); --wn: #e0a217; --nt: #8a8880;
+      --fs: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      --fm: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      --r: 6px; --rc: 10px;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--tx); font-family: var(--fs); font-size: 14px; line-height: 1.5; }
+    a { color: var(--ac); text-decoration: none; }
+    a:hover { color: #8b7df4; text-decoration: underline; }
+    h1 { margin: 0; font-weight: 600; }
+
+    .eo-frame { width: 1440px; height: 840px; padding-left: 214px; }
+    .eo-pageheader { display: flex; align-items: flex-start; gap: 12px; padding: 14px 20px 12px; border-bottom: 1px solid var(--bd); }
+    .eo-pageheader h1 { font-size: 20px; font-weight: 500; letter-spacing: -.015em; line-height: 1.2; }
+    .eo-pageheader__meta { display: flex; align-items: center; gap: 8px; margin-top: 5px; font-size: 11.5px; color: var(--tx3); }
+    .eo-sep { color: var(--tx4); }
+    .eo-body { padding: 12px 20px 0; }
+    .eo-cap { margin: 9px 0 0; font-size: 11px; color: var(--tx4); line-height: 1.5; }
+
+    .eo-card { background: var(--s1); border: 1px solid var(--bd); border-radius: var(--rc); overflow: hidden; }
+    .eo-card__title { padding: 9px 12px; color: var(--tx2); font-size: 12px; font-weight: 500;
+      border-bottom: 1px solid var(--bd); display: flex; align-items: center; gap: 8px; }
+    .eo-card__meta { margin-left: auto; font-weight: 400; color: var(--tx3); font-size: 11px; font-family: var(--fm); }
+    .eo-card__body { padding: 12px; }
+
+    .eo-toolbar { display: flex; align-items: center; gap: 10px; padding: 12px 0 10px; flex-wrap: wrap; }
+    .eo-search { display: flex; align-items: center; gap: 7px; height: 29px; padding: 0 10px; background: var(--sunken);
+      border: 1px solid var(--bds); border-radius: var(--r); color: var(--tx4); font-size: 12.5px; width: 240px; }
+    .eo-chips { display: flex; gap: 6px; }
+    .eo-chip { display: inline-flex; align-items: center; gap: 7px; height: 29px; padding: 0 11px; background: var(--s2);
+      border: 1px solid var(--bd); border-radius: 999px; font-size: 12.5px; color: var(--tx2); }
+    .eo-chip b { font-family: var(--fm); font-size: 11.5px; color: var(--tx3); font-weight: 400; font-variant-numeric: tabular-nums; }
+    .eo-chip--on { background: var(--ac-bg); border-color: var(--ac-bd); color: var(--tx); }
+    .eo-chip--on b { color: var(--ac-tx); }
+    .eo-count { margin-left: auto; font-size: 11px; color: var(--tx3); font-family: var(--fm); }
+
+    .eo-table { border-collapse: collapse; width: 100%; font-size: 13px; }
+    .eo-table th, .eo-table td { padding: 0 12px; border-bottom: 1px solid var(--bd); text-align: left; height: 42px; vertical-align: middle; }
+    .eo-table th { background: var(--s2); color: var(--tx3); font-size: 11px; font-weight: 400; letter-spacing: .05em; height: 28px; }
+    .eo-table tbody tr:hover { background: var(--s2); }
+    .eo-table tr:last-child td { border-bottom: none; }
+    .eo-num { text-align: right; font-variant-numeric: tabular-nums; font-family: var(--fm); }
+    .eo-mono { font-family: var(--fm); font-size: 12px; font-variant-numeric: tabular-nums; }
+    .eo-rowname { display: flex; flex-direction: column; gap: 1px; }
+    .eo-rowname b { font-weight: 400; color: var(--tx); font-size: 12.5px; font-family: var(--fm); }
+    .eo-rowname span { font-size: 11px; color: var(--tx4); }
+
+    .eo-badge { display: inline-flex; align-items: center; gap: 4px; padding: 1px 8px; border-radius: 999px;
+      font-size: 11.5px; font-weight: 500; white-space: nowrap; border: 1px solid currentColor; color: var(--nt); }
+    .eo-badge::before { content: '●'; font-size: .7em; }
+    .eo-badge--ac { color: var(--ac-tx); }
+    .eo-badge--ok { color: var(--ok); }
+    .eo-btn { display: inline-flex; align-items: center; gap: 6px; height: 27px; padding: 0 11px; background: var(--s2);
+      color: var(--tx); border: 1px solid var(--bds); border-radius: var(--r); font-size: 12.5px; }
+    .eo-btn--pri { background: var(--ac); border-color: var(--ac); color: var(--ac-text-on); font-weight: 500; }
+    .eo-acts { display: flex; gap: 7px; justify-content: flex-end; }
+    .eo-pre { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .eo-pre span.eo-badge { border-color: var(--ok-bd); }
+    .eo-pre p { margin: 0; font-size: 12.5px; color: var(--tx2); }
+
+    .eo-machine { display: flex; align-items: flex-start; gap: 12px; }
+    .eo-machine__n { font-family: var(--fm); font-size: 26px; font-weight: 600; color: var(--tx2); font-variant-numeric: tabular-nums; line-height: 1.1; }
+    .eo-machine__t { font-size: 12.5px; color: var(--tx2); max-width: 92ch; text-wrap: pretty; margin: 0; }
+    .eo-slugs { display: flex; gap: 6px; margin: 8px 0 0; flex-wrap: wrap; }
+    .eo-slug { font-family: var(--fm); font-size: 11px; color: var(--tx3); background: var(--s2);
+      border: 1px solid var(--bd); border-radius: 4px; padding: 1px 7px; }
+  </style>
+</helmet>
+
+<div class="eo-frame">
+  <header class="eo-pageheader">
+    <div>
+      <h1>Experimentos</h1>
+      <div class="eo-pageheader__meta">
+        <span>11 manifiestos</span><span class="eo-sep">·</span>
+        <span>459 ejecuciones en disco</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="eo-body">
+    <div class="eo-card">
+      <div class="eo-card__title">Antes de ejecutar<span class="eo-card__meta">todo listo</span></div>
+      <div class="eo-card__body">
+        <div class="eo-pre">
+          <span class="eo-badge eo-badge--ok">Motor de detección operativo</span>
+          <span class="eo-badge eo-badge--ok">Motor de reglas operativo</span>
+          <p>Los dos motores responden y no hay ningún experimento en curso.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="eo-toolbar">
+      <span class="eo-search">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="4.2"></circle><path d="m10.3 10.3 3 3" stroke-linecap="round"></path></svg>
+        Buscar por manifiesto o grupo
+      </span>
+      <div class="eo-chips">
+        <span class="eo-chip eo-chip--on">Resultado <b>1</b></span>
+        <span class="eo-chip">Ensayo <b>1</b></span>
+        <span class="eo-chip">Prueba de plataforma <b>1</b></span>
+        <span class="eo-chip">Sin ejecutar <b>8</b></span>
+      </div>
+      <span class="eo-count">3 de 11</span>
+    </div>
+
+    <div class="eo-card">
+      <div class="eo-card__title">Manifiestos<span class="eo-card__meta">Resultado · Ensayo · Prueba de plataforma</span></div>
+      <table class="eo-table">
+        <thead>
+          <tr>
+            <th style="width: 22%;">Manifiesto</th>
+            <th style="width: 20%;">Grupo</th>
+            <th style="width: 17%;">Clase</th>
+            <th style="width: 24%;">Qué respalda</th>
+            <th class="eo-num" style="width: 8%;">Ejec.</th>
+            <th style="width: 9%;"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><div class="eo-rowname"><b>talert_integrated_video</b><span>vigente</span></div></td>
+            <td style="color: var(--tx2); font-size: 12.5px;">t_alert_notification/video</td>
+            <td><span class="eo-badge eo-badge--ac">Resultado</span></td>
+            <td>
+              <div class="eo-rowname"><b style="color: var(--ac);">realtime/t_alert_notification</b><span>p95 64,534 ms · n = 460</span></div>
+            </td>
+            <td class="eo-num" style="color: var(--tx);">3<span style="color: var(--tx4);"> / 4</span></td>
+            <td><div class="eo-acts"><span class="eo-btn">Partir de este</span><span class="eo-btn eo-btn--pri">Ejecutar</span></div></td>
+          </tr>
+          <tr>
+            <td><div class="eo-rowname"><b>diag_riesgo_activo</b><span>diagnóstico</span></div></td>
+            <td style="color: var(--tx2); font-size: 12.5px;">—</td>
+            <td><span class="eo-badge">Ensayo</span></td>
+            <td><span style="font-size: 12px; color: var(--tx3);">Verificación del banner de riesgo activo; no reporta cifra.</span></td>
+            <td class="eo-num" style="color: var(--tx2);">5</td>
+            <td><div class="eo-acts"><span class="eo-btn">Partir de este</span></div></td>
+          </tr>
+          <tr>
+            <td><div class="eo-rowname"><b>talert_camera_smoke</b><span>smoke de cámara</span></div></td>
+            <td style="color: var(--tx2); font-size: 12.5px;">—</td>
+            <td><span class="eo-badge">Prueba de plataforma</span></td>
+            <td><span style="font-size: 12px; color: var(--tx3);">Excepción explícita en <b>clasificacion.yaml</b>: es la máquina probándose.</span></td>
+            <td class="eo-num" style="color: var(--tx4);">0</td>
+            <td><div class="eo-acts"><span class="eo-btn">Partir de este</span></div></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="eo-card" style="margin-top: 12px;">
+      <div class="eo-card__title">Ejecuciones sin manifiesto<span class="eo-card__meta">no son experimentos</span></div>
+      <div class="eo-card__body">
+        <div class="eo-machine">
+          <div class="eo-machine__n">445</div>
+          <div>
+            <p class="eo-machine__t"><b>Pruebas de plataforma escritas por la suite de tests</b>, repartidas en cinco slugs del orquestador. No corresponden a ningún manifiesto del catálogo y no respaldan ninguna cifra: son la máquina probándose a sí misma. El total <b>crece solo</b> —cinco ejecuciones nuevas por cada corrida completa de la suite—, así que se cita la proporción (<b>97 % de las 459</b>) y nunca el número absoluto.</p>
+            <div class="eo-slugs">
+              <span class="eo-slug">orq_1 · 90</span>
+              <span class="eo-slug">orq_2a · 90</span>
+              <span class="eo-slug">orq_alerts_502 · 89</span>
+              <span class="eo-slug">orq_alerts · 89</span>
+              <span class="eo-slug">gate_orq · 87</span>
+            </div>
+          </div>
+          <span class="eo-btn" style="margin-left: auto; flex: none;">Ver las 445</span>
+        </div>
+      </div>
+    </div>
+
+    <p class="eo-cap">Antes esta pantalla decía «456 ejecuciones archivadas» en un solo número, mezclando los 445 smokes del orquestador con los 11 ensayos reales. La clase separa las dos cosas y deja el conteo del sidebar mostrando lo que la vista muestra.</p>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

@@ -1,0 +1,256 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    :root {
+      --bg: #121211; --s1: #1a1a19; --s2: #212120; --s3: #2a2a28; --sunken: #0d0d0c;
+      --bd: rgba(255,255,255,.09); --bds: rgba(255,255,255,.17);
+      --tx: #f2f1ed; --tx2: #b3b1a8; --tx3: #82807a; --tx4: #5c5b56;
+      --ac: #7d6ef2; --ac-tx: #a89df6; --ac-bg: rgba(125,110,242,.14);
+      --ac-bd: rgba(125,110,242,.42); --ac-text-on: #150f3d;
+      --live: #4b95e8; --ok: #35b45a; --wn: #e0a217; --nt: #8a8880;
+      --fs: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      --fm: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      --r: 6px; --rc: 10px;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--tx); font-family: var(--fs); font-size: 14px; line-height: 1.5; }
+    a { color: var(--ac); text-decoration: none; }
+    a:hover { color: #8b7df4; text-decoration: underline; }
+    h1, h3 { margin: 0; font-weight: 600; }
+
+    .eo-shell { display: flex; width: 1440px; height: 980px; }
+    .eo-sidebar { width: 214px; flex: none; background: var(--s1); border-right: 1px solid var(--bd);
+      padding: 12px 9px; display: flex; flex-direction: column; gap: 14px; }
+    .eo-brand { display: flex; align-items: center; gap: 8px; padding: 0 4px; }
+    .eo-brand b { font-weight: 500; font-size: 14px; letter-spacing: -.01em; }
+    .eo-brand span { font-size: 10px; color: var(--tx3); font-family: var(--fm); }
+    .eo-acts { display: flex; flex-direction: column; gap: 6px; }
+    .eo-act { display: flex; align-items: center; justify-content: center; gap: 6px; height: 31px;
+      border-radius: var(--r); background: var(--ac); color: var(--ac-text-on); font-weight: 500; font-size: 12.5px; }
+    .eo-nav { display: flex; flex-direction: column; gap: 2px; }
+    .eo-nav__group { font-size: 10px; color: var(--tx4); text-transform: none; padding: 10px 6px 3px; letter-spacing: .04em; }
+    .eo-nav__item { display: flex; align-items: center; gap: 8px; height: 28px; padding: 0 7px;
+      border-radius: var(--r); color: var(--tx2); font-size: 12.5px; }
+    .eo-nav__item--on { background: var(--ac-bg); color: var(--tx); box-shadow: inset 2px 0 0 var(--ac); }
+    .eo-nav__item svg { flex: none; color: var(--tx3); }
+    .eo-nav__n { margin-left: auto; font-family: var(--fm); font-size: 11px; color: var(--tx3); font-variant-numeric: tabular-nums; }
+    .eo-nav__item--on svg { color: var(--ac-tx); }
+    .eo-foot { margin-top: auto; font-size: 11px; color: var(--tx3); padding: 8px 6px 2px; border-top: 1px solid var(--bd); }
+
+    .eo-main { flex: 1; min-width: 0; overflow: hidden; }
+    .eo-pageheader { display: flex; align-items: flex-start; gap: 12px; padding: 14px 20px 12px; border-bottom: 1px solid var(--bd); }
+    .eo-pageheader h1 { font-size: 20px; font-weight: 500; letter-spacing: -.015em; line-height: 1.2; }
+    .eo-pageheader__meta { display: flex; align-items: center; gap: 8px; margin-top: 5px; font-size: 11.5px; color: var(--tx3); }
+    .eo-sep { color: var(--tx4); }
+    .eo-body { padding: 16px 20px 0; }
+    .eo-note { font-size: 12px; color: var(--tx3); margin: 0; }
+    .eo-cap { margin: 10px 0 0; font-size: 11px; color: var(--tx4); line-height: 1.5; }
+
+    .eo-steps { display: flex; flex-direction: column; gap: 8px; margin: 14px 0 0; }
+    .eo-step { display: grid; grid-template-columns: 46px minmax(0, 1fr) 210px 18px; align-items: center;
+      gap: 14px; background: var(--s1); border: 1px solid var(--bd); border-radius: var(--rc); padding: 14px 16px; }
+    .eo-step:hover { border-color: var(--ac-bd); background: #1c1c1b; }
+    .eo-step__n { font-family: var(--fm); font-size: 26px; color: var(--tx4); text-align: center; font-variant-numeric: tabular-nums; }
+    .eo-step__t { font-size: 15px; font-weight: 500; color: var(--tx); }
+    .eo-step__c { font-size: 12.5px; color: var(--tx2); margin: 3px 0 0; max-width: 76ch; text-wrap: pretty; }
+    .eo-step__m { font-size: 11px; color: var(--tx3); margin: 5px 0 0; font-family: var(--fm); }
+    .eo-fig { text-align: right; }
+    .eo-fig__l { font-size: 10.5px; color: var(--tx3); }
+    .eo-fig__v { font-size: 23px; font-weight: 600; font-family: var(--fm); font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+    .eo-fig__u { font-size: 11.5px; color: var(--tx3); margin-top: 2px; }
+    .eo-chev { color: var(--tx4); }
+
+    .eo-side3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 16px 0 0; }
+    .eo-mini { background: var(--s1); border: 1px solid var(--bd); border-radius: var(--rc); padding: 12px 14px; }
+    .eo-mini:hover { border-color: var(--ac-bd); }
+    .eo-mini__h { display: flex; align-items: center; gap: 7px; font-size: 12.5px; font-weight: 500; color: var(--tx); }
+    .eo-mini__h svg { color: var(--tx3); flex: none; }
+    .eo-mini__d { font-size: 11.5px; color: var(--tx3); margin: 6px 0 0; line-height: 1.5; }
+    .eo-mini__n { font-family: var(--fm); font-size: 11px; color: var(--tx4); margin: 7px 0 0; }
+  </style>
+</helmet>
+
+<div class="eo-shell">
+
+  <aside class="eo-sidebar">
+    <div class="eo-brand">
+      <b>E-OVRT</b><span>consola</span>
+      <svg style="margin-left: auto; color: var(--tx3);" width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2.4" y="3.2" width="11.2" height="9.6" rx="1.4"></rect><path d="M6.4 3.2v9.6"></path></svg>
+    </div>
+    <div class="eo-acts">
+      <div class="eo-act">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 3.5v9M3.5 8h9" stroke-linecap="round"></path></svg>
+        Nueva corrida
+      </div>
+      <div class="eo-act">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="6" cy="5.5" r="2.3"></circle><path d="M2.2 13c.4-2.2 1.9-3.4 3.8-3.4S9.4 10.8 9.8 13" stroke-linecap="round"></path><path d="M12 4.5v4M10 6.5h4" stroke-linecap="round"></path></svg>
+        Nuevo experimento
+      </div>
+    </div>
+    <nav class="eo-nav">
+      <div class="eo-nav__group">Trabajo</div>
+      <div class="eo-nav__item eo-nav__item--on">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M4 2.5h5.5L12 5v8.5H4z"></path><path d="M6 7.5h4M6 10h2.5" stroke-linecap="round"></path></svg>
+        Evidencia
+      </div>
+      <div class="eo-nav__item">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2.8 4.5h10.4M2.8 8h7.4M2.8 11.5h4.4" stroke-linecap="round"></path></svg>
+        Corridas
+      </div>
+      <div class="eo-nav__item">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M6.2 2.5h3.6v3.2l2.7 5.6a1.4 1.4 0 0 1-1.3 2H4.8a1.4 1.4 0 0 1-1.3-2l2.7-5.6z"></path></svg>
+        Experimentos
+        <span class="eo-nav__n">11</span>
+      </div>
+      <div class="eo-nav__item">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 13V7.5M6.7 13V4M10.4 13V9M14 13V6" stroke-linecap="round"></path></svg>
+        Comparar
+      </div>
+      <div class="eo-nav__group">Definiciones</div>
+      <div class="eo-nav__item">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2.6 4.2h10.8v6.2a1.2 1.2 0 0 1-1.2 1.2H3.8a1.2 1.2 0 0 1-1.2-1.2z"></path><path d="M5.5 4.2V2.8h5v1.4" stroke-linecap="round"></path></svg>
+        Conjuntos
+        <span class="eo-nav__n">7</span>
+      </div>
+      <div class="eo-nav__item">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M8 2.6 14 5.6 8 8.6 2 5.6z"></path><path d="M2 8.6 8 11.6l6-3" stroke-linecap="round"></path></svg>
+        Catálogos
+      </div>
+      <div class="eo-nav__group">Sistema</div>
+      <div class="eo-nav__item">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2.6" y="3.2" width="10.8" height="4" rx="1"></rect><rect x="2.6" y="8.8" width="10.8" height="4" rx="1"></rect></svg>
+        Plataforma
+      </div>
+      <div class="eo-nav__item">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2.4" y="4.6" width="11.2" height="7.4" rx="1.2"></rect><circle cx="8" cy="8.3" r="1.9"></circle></svg>
+        Cámaras
+      </div>
+      <div class="eo-nav__item">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2.4" y="3.6" width="11.2" height="8.8" rx="1.2"></rect><path d="M2.4 6.4h11.2M6 3.6v8.8" stroke-linecap="round"></path></svg>
+        Clips
+      </div>
+    </nav>
+    <div class="eo-foot">Archivo local · servicios no consultados</div>
+  </aside>
+
+  <main class="eo-main">
+    <header class="eo-pageheader">
+      <div>
+        <h1>Evidencia</h1>
+        <div class="eo-pageheader__meta">
+          <span>30 resultados reportados</span><span class="eo-sep">·</span>
+          <span>1.436 corridas de respaldo</span><span class="eo-sep">·</span>
+          <span>lectura del archivo curado</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="eo-body">
+      <p class="eo-note">El recorrido del argumento del informe. Cada número abre los resultados que lo sostienen; cada resultado, su desglose y las corridas que lo respaldan.</p>
+
+      <div class="eo-steps">
+
+        <div class="eo-step">
+          <div class="eo-step__n">1</div>
+          <div>
+            <div class="eo-step__t">Qué ve el detector sin entrenar</div>
+            <p class="eo-step__c">El campeón zero-shot sobre 6.477 imágenes de tres fuentes independientes. La asimetría es estructural: <b>person</b> y <b>helmet</b> sólidas, <b>vest</b> débil, <b>bare_head</b> fuerte sólo en el especialista.</p>
+            <div class="eo-step__m">5 resultados · bench_imagenes/</div>
+          </div>
+          <div class="eo-fig">
+            <div class="eo-fig__l">mAP50, bench_v3 completo</div>
+            <div class="eo-fig__v">0,551</div>
+            <div class="eo-fig__u">gdino-tiny-560 · 560 / 0,30</div>
+          </div>
+          <svg class="eo-chev" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m6.2 4 4 4-4 4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        </div>
+
+        <div class="eo-step">
+          <div class="eo-step__n">2</div>
+          <div>
+            <div class="eo-step__t">Cómo conviene expresar la condición</div>
+            <p class="eo-step__c">Evidencia positiva más inferencia (E-IND) le gana a los prompts directos de ausencia (E-DIR) en los dos niveles. A Nivel B decide el criterio pre-registrado: el veto de precisión descarta E-DIR como núcleo. Lo que manda es la formulación, no el mecanismo.</p>
+            <div class="eo-step__m">5 resultados · bench_nivel_a/ + clip_bench/</div>
+          </div>
+          <div class="eo-fig">
+            <div class="eo-fig__l">precision de E-DIR (veto &lt; 0,5)</div>
+            <div class="eo-fig__v">0,146</div>
+            <div class="eo-fig__u">contra 0,757 de E-IND</div>
+          </div>
+          <svg class="eo-chev" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m6.2 4 4 4-4 4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        </div>
+
+        <div class="eo-step">
+          <div class="eo-step__n">3</div>
+          <div>
+            <div class="eo-step__t">Qué agrega la plataforma sobre la detección cruda</div>
+            <p class="eo-step__c">La histéresis rescata percepción intermitente, pero es palanca de doble filo. La capa que más agrega es la identidad: el F1 sube con las detecciones bit a bit idénticas. El margen no estaba en el modelo.</p>
+            <div class="eo-step__m">7 resultados · clip_bench/</div>
+          </div>
+          <div class="eo-fig">
+            <div class="eo-fig__l">F1, escena → sujeto</div>
+            <div class="eo-fig__v">0,789 → 0,930</div>
+            <div class="eo-fig__u">mismas detecciones</div>
+          </div>
+          <svg class="eo-chev" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m6.2 4 4 4-4 4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        </div>
+
+        <div class="eo-step">
+          <div class="eo-step__n">4</div>
+          <div>
+            <div class="eo-step__t">Qué sobrevive al tiempo real</div>
+            <p class="eo-step__c">La ganancia de la identidad excluye el cero en las cuatro densidades medidas, y conserva la dirección bajo el descarte irregular del camino en vivo. Es la única palanca del banco significativa bajo esa restricción.</p>
+            <div class="eo-step__m">13 resultados · clip_bench/ densidad + realtime/</div>
+          </div>
+          <div class="eo-fig">
+            <div class="eo-fig__l">densidades que excluyen el cero</div>
+            <div class="eo-fig__v">4 / 4</div>
+            <div class="eo-fig__u">stride 1 · 7 · 15 · 26</div>
+          </div>
+          <svg class="eo-chev" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m6.2 4 4 4-4 4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+        </div>
+
+      </div>
+
+      <div class="eo-side3">
+        <div class="eo-mini">
+          <div class="eo-mini__h">
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M8 2.4v3.1M8 10.5v3.1M2.4 8h3.1M10.5 8h3.1"></path><circle cx="8" cy="8" r="2.4"></circle></svg>
+            Respaldo instrumental
+          </div>
+          <p class="eo-mini__d">Lo que valida el aparato de medición, no el fenómeno: la claqueta con reloj externo, la paridad vivo↔archivo del bus, la instrumentación del G2A.</p>
+          <div class="eo-mini__n">5 mediciones</div>
+        </div>
+        <div class="eo-mini">
+          <div class="eo-mini__h">
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2.5" y="2.5" width="4.6" height="4.6" rx=".8"></rect><rect x="8.9" y="2.5" width="4.6" height="4.6" rx=".8"></rect><rect x="2.5" y="8.9" width="4.6" height="4.6" rx=".8"></rect><rect x="8.9" y="8.9" width="4.6" height="4.6" rx=".8"></rect></svg>
+            Por material
+          </div>
+          <p class="eo-mini__d">La organización canónica de <b>results/</b>, que es la fuente de las cifras: imágenes, Nivel A por sujeto, banco de clips y tiempo real.</p>
+          <div class="eo-mini__n">4 índices · 35 resultados</div>
+        </div>
+        <div class="eo-mini">
+          <div class="eo-mini__h">
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2.6 11.4 6 6.9l2.6 2.2 4.8-5.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+            Ejes de lectura
+          </div>
+          <p class="eo-mini__d">La misma evidencia cortada por otros ejes, sin agregar mediciones: offline contra vivo, el día de rodaje, y zero-shot contra la jornada de ajuste.</p>
+          <div class="eo-mini__n">3 vistas · results/ejes/</div>
+        </div>
+      </div>
+
+      <p class="eo-cap">Las cifras de esta pantalla se leen del <b>metrics.json</b> de cada campaña al abrirla; las que no tienen artefacto en este repositorio se muestran citadas, con la fuente al lado. Nada de esto consulta a los servicios: funciona con los tres planos apagados.</p>
+    </div>
+  </main>
+
+</div>
+</x-dc>
+</body>
+</html>

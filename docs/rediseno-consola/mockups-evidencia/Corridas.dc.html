@@ -1,0 +1,281 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    :root {
+      --bg: #121211; --s1: #1a1a19; --s2: #212120; --s3: #2a2a28; --sunken: #0d0d0c;
+      --bd: rgba(255,255,255,.09); --bds: rgba(255,255,255,.17);
+      --tx: #f2f1ed; --tx2: #b3b1a8; --tx3: #82807a; --tx4: #5c5b56;
+      --ac: #7d6ef2; --ac-tx: #a89df6; --ac-bg: rgba(125,110,242,.14); --ac-bd: rgba(125,110,242,.42);
+      --ok: #35b45a; --wn: #e0a217; --er: #f0625f; --nt: #8a8880;
+      --fs: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      --fm: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      --r: 6px; --rc: 10px;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--tx); font-family: var(--fs); font-size: 14px; line-height: 1.5; }
+    a { color: var(--ac); text-decoration: none; }
+    a:hover { color: #8b7df4; text-decoration: underline; }
+    h1 { margin: 0; font-weight: 600; }
+
+    .eo-frame { width: 1440px; height: 820px; padding-left: 214px; }
+    .eo-pageheader { display: flex; align-items: flex-start; gap: 12px; padding: 14px 20px 12px; border-bottom: 1px solid var(--bd); }
+    .eo-pageheader h1 { font-size: 20px; font-weight: 500; letter-spacing: -.015em; line-height: 1.2; }
+    .eo-pageheader__meta { display: flex; align-items: center; gap: 8px; margin-top: 5px; font-size: 11.5px; color: var(--tx3); }
+    .eo-sep { color: var(--tx4); }
+    .eo-body { padding: 0 20px; }
+    .eo-cap { margin: 9px 0 0; font-size: 11px; color: var(--tx4); line-height: 1.5; }
+
+    .eo-toolbar { display: flex; align-items: center; gap: 10px; padding: 12px 0 10px; flex-wrap: wrap; }
+    .eo-search { display: flex; align-items: center; gap: 7px; height: 29px; padding: 0 10px; background: var(--sunken);
+      border: 1px solid var(--bds); border-radius: var(--r); color: var(--tx4); font-size: 12.5px; width: 208px; }
+    .eo-chips { display: flex; gap: 6px; }
+    .eo-chip { display: inline-flex; align-items: center; gap: 7px; height: 29px; padding: 0 11px; background: var(--s2);
+      border: 1px solid var(--bd); border-radius: 999px; font-size: 12.5px; color: var(--tx2); }
+    .eo-chip b { font-family: var(--fm); font-size: 11.5px; color: var(--tx3); font-weight: 400; font-variant-numeric: tabular-nums; }
+    .eo-chip--on { background: var(--ac-bg); border-color: var(--ac-bd); color: var(--tx); }
+    .eo-chip--on b { color: var(--ac-tx); }
+    .eo-toggle { display: inline-flex; align-items: center; gap: 7px; height: 29px; padding: 0 11px; background: var(--ac-bg);
+      border: 1px solid var(--ac-bd); border-radius: var(--r); font-size: 12.5px; color: var(--tx); }
+    .eo-count { margin-left: auto; font-size: 11px; color: var(--tx3); font-family: var(--fm); }
+
+    .eo-card { background: var(--s1); border: 1px solid var(--bd); border-radius: var(--rc); overflow: hidden; }
+    .eo-table { border-collapse: collapse; width: 100%; font-size: 13px; }
+    .eo-table th, .eo-table td { padding: 0 12px; border-bottom: 1px solid var(--bd); text-align: left; height: 40px; vertical-align: middle; }
+    .eo-table th { background: var(--s2); color: var(--tx3); font-size: 11px; font-weight: 400; letter-spacing: .05em; height: 28px; }
+    .eo-table tbody tr:hover { background: var(--s2); }
+    .eo-num { text-align: right; font-variant-numeric: tabular-nums; font-family: var(--fm); }
+    .eo-mono { font-family: var(--fm); font-size: 12px; font-variant-numeric: tabular-nums; }
+
+    .eo-grp { display: flex; align-items: center; gap: 9px; }
+    .eo-grp svg { flex: none; color: var(--tx3); }
+    .eo-grp__n { display: flex; flex-direction: column; gap: 0; min-width: 0; }
+    .eo-grp__n b { font-weight: 500; color: var(--tx); font-size: 13px; }
+    .eo-grp__n span { font-size: 11px; color: var(--tx4); font-family: var(--fm); }
+    .eo-cifra { font-family: var(--fm); font-size: 12.5px; color: var(--tx2); font-variant-numeric: tabular-nums; }
+    .eo-cifra i { font-style: normal; font-size: 10px; color: var(--tx4); margin-right: 4px; }
+    /* Cifra CITADA (no hay metrics.json en este repo): se marca, no se disfraza de leída. */
+    .eo-cifra--cit { border-bottom: 1px dotted var(--tx4); padding-bottom: 1px; }
+    .eo-paso { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px;
+      border-radius: 4px; background: var(--s2); border: 1px solid var(--bd); font-family: var(--fm); font-size: 11px; color: var(--tx2); }
+    .eo-badge { display: inline-flex; align-items: center; gap: 4px; padding: 1px 8px; border-radius: 999px;
+      font-size: 11.5px; font-weight: 500; white-space: nowrap; border: 1px solid currentColor; color: var(--nt); }
+    .eo-badge::before { content: '●'; font-size: .7em; }
+    .eo-badge--ac { color: var(--ac-tx); }
+    .eo-badge--ok { color: var(--ok); }
+    .eo-sub td { background: #161615; height: 34px; }
+    .eo-sub td:first-child { box-shadow: inset 2px 0 0 var(--ac-bd); }
+  </style>
+</helmet>
+
+<div class="eo-frame">
+  <header class="eo-pageheader">
+    <div>
+      <h1>Corridas</h1>
+      <div class="eo-pageheader__meta">
+        <span>472 corridas del plano de medios</span><span class="eo-sep">·</span>
+        <span>agrupadas en 32 resultados de respaldo</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="eo-body">
+    <div class="eo-toolbar">
+      <span class="eo-search">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="4.2"></circle><path d="m10.3 10.3 3 3" stroke-linecap="round"></path></svg>
+        Buscar corrida
+      </span>
+      <div class="eo-chips">
+        <span class="eo-chip eo-chip--on">Resultado <b>412</b></span>
+        <span class="eo-chip">Instrumento <b>4</b></span>
+        <span class="eo-chip">Ensayo <b>4</b></span>
+        <span class="eo-chip">Fuera del registro <b>52</b></span>
+      </div>
+      <span class="eo-toggle">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2.8 4h10.4M4.6 8h8.6M6.4 12h6.8" stroke-linecap="round"></path></svg>
+        Agrupar por resultado
+      </span>
+      <span class="eo-count">412 de 472</span>
+    </div>
+
+    <div class="eo-card">
+      <table class="eo-table">
+        <thead>
+          <tr>
+            <th style="width: 34%;">Resultado que la cita</th>
+            <th style="width: 13%;">Cifra</th>
+            <th style="width: 7%;">Paso</th>
+            <th style="width: 12%;">Clase</th>
+            <th style="width: 18%;">Combinación</th>
+            <th class="eo-num" style="width: 8%;">Corridas</th>
+            <th class="eo-num" style="width: 8%;">Última</th>
+          </tr>
+        </thead>
+        <tbody>
+
+          <tr>
+            <td>
+              <div class="eo-grp">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m6.2 4 4 4-4 4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                <span class="eo-grp__n"><b>El descarte irregular del vivo</b><span>realtime/descarte_irregular</span></span>
+              </div>
+            </td>
+            <td><span class="eo-cifra eo-cifra--cit"><i>signo</i>6 / 6</span></td>
+            <td><span class="eo-paso">4</span></td>
+            <td><span class="eo-badge eo-badge--ac">Resultado</span></td>
+            <td class="eo-mono" style="color: var(--tx3);">tiny-560 · EBE</td>
+            <td class="eo-num" style="color: var(--tx2);">76</td>
+            <td class="eo-num" style="color: var(--tx4);">08-05</td>
+          </tr>
+
+          <tr>
+            <td>
+              <div class="eo-grp">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m6.2 4 4 4-4 4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                <span class="eo-grp__n"><b>La histéresis, palanca de doble filo</b><span>clip_bench/h1</span></span>
+              </div>
+            </td>
+            <td><span class="eo-cifra"><i>F1</i>0,296</span></td>
+            <td><span class="eo-paso">3</span></td>
+            <td><span class="eo-badge eo-badge--ac">Resultado</span></td>
+            <td class="eo-mono" style="color: var(--tx3);">tiny-560 · escena</td>
+            <td class="eo-num" style="color: var(--tx2);">68</td>
+            <td class="eo-num" style="color: var(--tx4);">08-04</td>
+          </tr>
+
+          <tr style="background: var(--s2);">
+            <td>
+              <div class="eo-grp">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="var(--ac-tx)" stroke-width="1.5"><path d="m4 6.2 4 4 4-4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                <span class="eo-grp__n"><b>Línea de base del Nivel B</b><span>clip_bench/t1</span></span>
+              </div>
+            </td>
+            <td><span class="eo-cifra" style="color: var(--tx);"><i>F1</i>0,789</span></td>
+            <td><span class="eo-paso">3</span></td>
+            <td><span class="eo-badge eo-badge--ac">Resultado</span></td>
+            <td class="eo-mono" style="color: var(--tx3);">tiny-560 · escena</td>
+            <td class="eo-num" style="color: var(--tx);">34</td>
+            <td class="eo-num" style="color: var(--tx4);">08-03</td>
+          </tr>
+          <tr class="eo-sub">
+            <td class="eo-mono" style="color: var(--tx2); padding-left: 35px;">run_20260803_223323_dbe_grounding_dino_ae4707</td>
+            <td colspan="2"><span style="font-size: 11.5px; color: var(--tx3);">bench_rodaje_a_p9_c08</span></td>
+            <td><span class="eo-badge eo-badge--ok">completada</span></td>
+            <td class="eo-mono" style="color: var(--tx3);">video · 7,08 fps</td>
+            <td class="eo-num" style="color: var(--tx3);">2.057 det</td>
+            <td class="eo-num" style="color: var(--tx4);">22:33</td>
+          </tr>
+          <tr class="eo-sub">
+            <td class="eo-mono" style="color: var(--tx2); padding-left: 35px;">run_20260803_223140_dbe_grounding_dino_9daec7</td>
+            <td colspan="2"><span style="font-size: 11.5px; color: var(--tx3);">bench_rodaje_a_p9_c06</span></td>
+            <td><span class="eo-badge eo-badge--ok">completada</span></td>
+            <td class="eo-mono" style="color: var(--tx3);">video · 7,32 fps</td>
+            <td class="eo-num" style="color: var(--tx3);">2.072 det</td>
+            <td class="eo-num" style="color: var(--tx4);">22:31</td>
+          </tr>
+          <tr class="eo-sub">
+            <td class="eo-mono" style="color: var(--tx2); padding-left: 35px;">run_20260803_222952_dbe_grounding_dino_a5ac2a</td>
+            <td colspan="2"><span style="font-size: 11.5px; color: var(--tx3);">bench_rodaje_a_p9_c03</span></td>
+            <td><span class="eo-badge eo-badge--ok">completada</span></td>
+            <td class="eo-mono" style="color: var(--tx3);">video · 6,62 fps</td>
+            <td class="eo-num" style="color: var(--tx3);">1.399 det</td>
+            <td class="eo-num" style="color: var(--tx4);">22:29</td>
+          </tr>
+          <tr class="eo-sub">
+            <td colspan="7" style="padding-left: 35px;">
+              <span style="font-size: 11.5px; color: var(--tx3);">31 corridas más de este resultado</span>
+              <span style="font-size: 11.5px; color: var(--ac); margin-left: 8px;">Ver todas</span>
+            </td>
+          </tr>
+
+          <tr>
+            <td>
+              <div class="eo-grp">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m6.2 4 4 4-4 4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                <span class="eo-grp__n"><b>La identidad por sujeto</b><span>clip_bench/g1</span></span>
+              </div>
+            </td>
+            <td><span class="eo-cifra"><i>F1</i>0,930</span></td>
+            <td><span class="eo-paso">3</span></td>
+            <td><span class="eo-badge eo-badge--ac">Resultado</span></td>
+            <td class="eo-mono" style="color: var(--tx3);">tiny-560 · sujeto</td>
+            <td class="eo-num" style="color: var(--tx2);">34</td>
+            <td class="eo-num" style="color: var(--tx4);">08-03</td>
+          </tr>
+
+          <tr>
+            <td>
+              <div class="eo-grp">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m6.2 4 4 4-4 4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                <span class="eo-grp__n"><b>Densidad: stride 7, por escena</b><span>clip_bench/r1</span></span>
+              </div>
+            </td>
+            <td><span class="eo-cifra"><i>F1</i>0,794</span></td>
+            <td><span class="eo-paso">4</span></td>
+            <td><span class="eo-badge eo-badge--ac">Resultado</span></td>
+            <td class="eo-mono" style="color: var(--tx3);">tiny-560 · s7</td>
+            <td class="eo-num" style="color: var(--tx2);">34</td>
+            <td class="eo-num" style="color: var(--tx4);">08-06</td>
+          </tr>
+
+          <tr>
+            <td>
+              <div class="eo-grp">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m6.2 4 4 4-4 4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                <span class="eo-grp__n"><b>Selección de modelos S1</b><span>bench_imagenes/seleccion_s1</span></span>
+              </div>
+            </td>
+            <td><span class="eo-cifra"><i>mAP50</i>0,551</span></td>
+            <td><span class="eo-paso">1</span></td>
+            <td><span class="eo-badge eo-badge--ac">Resultado</span></td>
+            <td class="eo-mono" style="color: var(--tx3);">20 combinaciones</td>
+            <td class="eo-num" style="color: var(--tx2);">20</td>
+            <td class="eo-num" style="color: var(--tx4);">07-23</td>
+          </tr>
+
+          <tr>
+            <td>
+              <div class="eo-grp">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m6.2 4 4 4-4 4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                <span class="eo-grp__n"><b>La claqueta con reloj externo</b><span>realtime/claqueta_reloj_externo</span></span>
+              </div>
+            </td>
+            <td><span class="eo-cifra" style="color: var(--tx4);">valida el reloj</span></td>
+            <td><span class="eo-paso" style="color: var(--tx4);">—</span></td>
+            <td><span class="eo-badge">Instrumento</span></td>
+            <td class="eo-mono" style="color: var(--tx3);">OAK-D · EBE</td>
+            <td class="eo-num" style="color: var(--tx2);">4</td>
+            <td class="eo-num" style="color: var(--tx4);">08-05</td>
+          </tr>
+
+          <tr>
+            <td>
+              <div class="eo-grp">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m6.2 4 4 4-4 4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                <span class="eo-grp__n"><b>Fuera del registro de evidencia</b><span>48 exploratorias · 4 fallidas o interrumpidas</span></span>
+              </div>
+            </td>
+            <td><span class="eo-cifra" style="color: var(--tx4);">no reportan cifra</span></td>
+            <td><span class="eo-paso" style="color: var(--tx4);">—</span></td>
+            <td><span class="eo-badge">Sin clasificar</span></td>
+            <td class="eo-mono" style="color: var(--tx3);">probe · health · demo</td>
+            <td class="eo-num" style="color: var(--tx2);">52</td>
+            <td class="eo-num" style="color: var(--tx4);">08-18</td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+
+    <p class="eo-cap">La clase sale del <b>rol</b> que cada corrida cumple en el resultado que la cita: 21 roles clasificados una vez, no 1.436 corridas. Una corrida citada por dos resultados aparece en los dos grupos — por eso los grupos suman más que el total, y el total nunca se deriva sumándolos. Las cifras <span class="eo-cifra--cit" style="font-size: 11px;">con subrayado punteado</span> son <b>citadas</b>: no tienen <b>metrics.json</b> en este repositorio y se muestran con su fuente, nunca disfrazadas de leídas.</p>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>
