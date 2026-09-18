@@ -270,3 +270,12 @@ previews, presets y secretos. Su inventario canónico está en
 (`cr01_cr02_*`) **no se modifican** — su byte-equivalencia garantiza la reproducibilidad del
 BENCH. Bajo `finetuning/` tampoco se versionan pesos, payloads, imágenes Apptainer ni runs: se
 versionan sus recetas, manifiestos, hashes y resúmenes curados.
+
+## Licencia
+
+El código, la documentación, los catálogos de experimento y los índices de resultados de este
+repositorio se distribuyen bajo licencia MIT (ver [`LICENSE`](LICENSE)).
+
+La licencia no alcanza al material de video ni a los conjuntos de datos que los experimentos
+consumen: no se versionan acá y cada fuente conserva sus propios términos, registrados en el
+repositorio de datos del proyecto.
