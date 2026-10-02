@@ -2,7 +2,12 @@
 
 import json
 
+import httpx
 import pytest
+from fastapi.testclient import TestClient
+
+from eovrt_webconsole.app import create_app
+from tests.fake_service import make_fake_service
 
 
 @pytest.fixture
@@ -64,9 +69,28 @@ def test_empty_alert_file_is_valid_evidence(client, historical):
     assert response.json() == []
 
 
-def test_missing_alert_file_is_not_zero_alerts(client, historical):
+def test_missing_alert_file_is_not_zero_alerts(two_plane_client, historical):
+    # Sin la copia consolidada, el BFF consulta al control-plane por control_run_id. Con
+    # el fake inyectado la respuesta no depende de lo que escuche en localhost:8081: el
+    # control-plane no conoce la corrida y eso es un 404, nunca una lista vacía.
     (historical / "control/alerts.jsonl").unlink()
-    assert client.get("/api/experiments/exp_historical/alerts").status_code == 404
+    assert two_plane_client.get("/api/experiments/exp_historical/alerts").status_code == 404
+
+
+def test_missing_alert_file_with_control_down_is_not_zero_alerts(settings, fake_state, historical):
+    # El otro camino del mismo fallback: el control-plane no responde. Tampoco puede
+    # leerse como cero alertas, y la falla tiene que ser inmediata, no esperar al timeout.
+    def caido(request):
+        raise httpx.ConnectError("control-plane caído", request=request)
+
+    app = create_app(
+        settings,
+        service_transport=httpx.ASGITransport(app=make_fake_service(fake_state)),
+        control_transport=httpx.MockTransport(caido),
+    )
+    (historical / "control/alerts.jsonl").unlink()
+    with TestClient(app) as client:
+        assert client.get("/api/experiments/exp_historical/alerts").status_code == 502
 
 
 @pytest.mark.parametrize("payload", ["{", "[]", '{"identificacion": {"experiment_id": "other"}}'])
