@@ -1,0 +1,11 @@
+**
+!webconsole/
+!webconsole/frontend/
+!webconsole/frontend/**
+webconsole/frontend/node_modules/
+webconsole/frontend/dist/
+!webconsole/backend/
+!webconsole/backend/pyproject.toml
+!webconsole/backend/src/
+!webconsole/backend/src/**
+**/__pycache__/

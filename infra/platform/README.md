@@ -31,10 +31,33 @@ cd e-ovrt_experimental-setup/infra/platform
 cp .env.example .env                 # ajustar EOVRT_WORKSPACE (raíz absoluta del workspace)
 mkdir -p ../../cameras               # gitignorado; evitar que el bind lo cree root
 docker compose build                 # 4 imágenes: media-plane, control-plane, distribution, console
-docker compose up -d                 # core: mosquitto + control-plane + distribution + console
+docker compose up -d mosquitto control-plane distribution console
 ```
 
 Abrir http://localhost:8090 → página **Plataforma** → Activar `mp-mock` (o un modelo).
+
+### Windows con Docker Desktop
+
+Usar la ruta Linux del disco compartido en `.env`, por ejemplo:
+
+```dotenv
+EOVRT_WORKSPACE=/run/desktop/mnt/host/c/Users/rocht/Documents/tfg
+COMPOSE_PROFILES=models
+```
+
+Desde PowerShell, `compose.ps1` ejecuta el cliente Compose en un contenedor temporal
+con esa misma ruta. Así los binds que crea la consola también resuelven en el daemon:
+
+```powershell
+cd e-ovrt_experimental-setup/infra/platform
+.\compose.ps1 build console control-plane distribution mp-mock
+.\compose.ps1 up -d --no-build --wait mosquitto control-plane distribution console
+.\compose.ps1 ps -a
+```
+
+Con `COMPOSE_PROFILES=models`, un `up -d` sin nombres intentaría iniciar todos los
+modelos. Indicar siempre los cuatro servicios core y activar un único modelo desde
+**Plataforma**. Todas las instancias media comparten la imagen construida por `mp-mock`.
 
 Requisitos en el host:
 - Repos hermanos clonados bajo `EOVRT_WORKSPACE` (media-plane, control-plane,
@@ -150,7 +173,7 @@ finalmente genera el reporte.
 
 ## Smoke de aceptación
 
-1. `docker compose up -d` → `curl -sf localhost:8081/healthz && curl -sf localhost:8082/healthz`
+1. `docker compose up -d mosquitto control-plane distribution console` → `curl -sf localhost:8081/healthz && curl -sf localhost:8082/healthz`
    responden ok; http://localhost:8090 responde y `/platform` lista el fleet.
 2. Activar `mp-mock` → pasa a TARGET ready; lanzar una corrida `demo_v2` corta → succeeded.
 3. Activar `mp-gdino-tiny-560` (apaga mock solo) → correr un BENCH corto
