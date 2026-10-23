@@ -127,7 +127,10 @@ def resolve_distribution_executable() -> str:
 
 
 def _repo_root() -> Path:
-    """Raiz de e-ovrt_experimental-setup, derivada de la ubicacion de este archivo."""
+    """Raiz configurada del repo; fallback al checkout para desarrollo local."""
+    configured = os.environ.get("EOVRT_CONSOLE_REPO_ROOT")
+    if configured:
+        return Path(configured).resolve()
     # runner.py -> experiment -> eovrt_webconsole -> src -> backend -> webconsole -> repo_root
     return Path(__file__).resolve().parents[5]
 
