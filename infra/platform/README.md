@@ -184,6 +184,15 @@ finalmente genera el reporte.
 5. `docker compose stop` para bajar todo.
 
 **Historial de verificación:**
+- 2026-10-23: deploy integral verificado en Windows con Docker Desktop y RTX 4060.
+  Cuatro imágenes construidas; los cuatro servicios core y `mp-gdino-tiny-560`
+  quedan `healthy`. Inferencia CUDA real: Grounding DINO y YOLOE-26s procesaron
+  tres imágenes cada uno sin fallos. Smoke live con mock: diez eventos recibidos
+  sin pérdidas por control y catorce alertas entregadas por MQTT QoS 1.
+  Experimento DBE desde la consola completado con distribución y reporte
+  consolidado. Corregidos la raíz del runner instalado y la dependencia CLIP
+  de YOLOE; suite del runner: 42 passed, 2 skipped. Las demás variantes tienen
+  sus pesos descargados, pero no se ejecutaron individualmente.
 - 2026-07-05: consola + fleet media verificados end-to-end (imágenes 13.2GB/399MB;
   mp-mock demo_v2 succeeded; switch a gdino-tiny; BENCH corto mAP50=0.6762 sobre
   10 imgs). Detalle en `.superpowers/sdd/progress-plataforma-docker.md` (Task 10).
