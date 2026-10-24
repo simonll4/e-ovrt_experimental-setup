@@ -436,6 +436,7 @@ async def run_experiment_route(body: dict, request: Request) -> dict:
             media_backend=request.app.state.backend,
             control_backend=request.app.state.control_backend,
             now=datetime.now(UTC),
+            poll_interval_s=settings.experiment_poll_interval_s,
         )
     except ExperimentBusy as exc:
         # Mismo shape que RunBusy en routers/runs.py: detail + el id activo como

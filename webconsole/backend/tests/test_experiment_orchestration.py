@@ -82,6 +82,24 @@ def test_run_202_y_polling_hasta_succeeded(two_plane_client, repo, control_state
     assert body["control_status"] == "succeeded"
 
 
+def test_run_usa_el_intervalo_de_poll_del_setting(two_plane_client, repo, settings):
+    """Sin pausa entre consultas el runner hace ~100 GET/s al media-plane durante la
+    corrida y le compite CPU a la inferencia en vivo: el disparo usa el setting, no el
+    0.0 por default de run_experiment."""
+    _write_umbrella_manifest(repo, slug="orq_poll")
+    captured = {}
+
+    def fake_start(manifest, **kwargs):
+        captured.update(kwargs)
+        return "exp_fake"
+
+    two_plane_client.app.state.experiment_manager.start = fake_start
+
+    r = two_plane_client.post("/api/experiments/run", json={"slug": "orq_poll"})
+    assert r.status_code == 202
+    assert captured["poll_interval_s"] == settings.experiment_poll_interval_s == 1.0
+
+
 def test_run_409_mientras_hay_uno_activo(two_plane_client, repo, control_state, fake_state):
     _write_umbrella_manifest(repo, slug="orq_busy")
     # No se resuelve el status a terminal: el primer experimento queda "running".

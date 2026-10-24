@@ -50,6 +50,12 @@ class ConsoleSettings:
     # de un único EOVRT_CONSOLE_SERVICE_URL fijo, sin tocar Docker).
     compose_dir: Path | None = None
     switch_timeout_seconds: float = 300.0
+    # Pausa entre consultas de estado del runner de experimentos a media/control.
+    # Sin pausa (el 0.0 de run_experiment) el BFF hace ~100 GET/s al media-plane
+    # durante toda la corrida y le compite CPU/GIL a la inferencia: con la OAK-D en
+    # vivo la subía de ~150 a ~200 ms por cuadro (2026-10-24). La observación no
+    # tiene que estorbar el flujo operativo.
+    experiment_poll_interval_s: float = 1.0
     # Dist de la SPA embebido en la imagen de la consola; None = repo_root/webconsole/frontend/dist.
     spa_dist: Path | None = None
     # Destino de los masters de rodaje. None = repo hermano e-ovrt_datasets.
@@ -145,6 +151,9 @@ class ConsoleSettings:
             protected_groups=protected,
             compose_dir=Path(env["EOVRT_CONSOLE_COMPOSE_DIR"]) if env.get("EOVRT_CONSOLE_COMPOSE_DIR") else None,
             switch_timeout_seconds=float(env.get("EOVRT_CONSOLE_SWITCH_TIMEOUT", "300")),
+            experiment_poll_interval_s=float(
+                env.get("EOVRT_CONSOLE_EXPERIMENT_POLL_INTERVAL_S", "1.0")
+            ),
             spa_dist=Path(env["EOVRT_CONSOLE_SPA_DIST"]) if env.get("EOVRT_CONSOLE_SPA_DIST") else None,
             recordings_dir=(
                 Path(env["EOVRT_CONSOLE_RECORDINGS_DIR"])

@@ -58,6 +58,14 @@ def test_switch_timeout_default_y_override(tmp_path):
     assert s.switch_timeout_seconds == 45.0
 
 
+def test_experiment_poll_interval_default_y_override(tmp_path):
+    repo = _repo(tmp_path)
+    base = {"EOVRT_CONSOLE_REPO_ROOT": str(repo)}
+    assert ConsoleSettings.from_env(base).experiment_poll_interval_s == 1.0
+    s = ConsoleSettings.from_env({**base, "EOVRT_CONSOLE_EXPERIMENT_POLL_INTERVAL_S": "0.25"})
+    assert s.experiment_poll_interval_s == 0.25
+
+
 def test_spa_dist_override(tmp_path):
     repo = _repo(tmp_path)
     base = {"EOVRT_CONSOLE_REPO_ROOT": str(repo)}
