@@ -217,7 +217,8 @@ camera:
   plugin: oak_d
   config:
     url: 169.254.31.137   # la clave es `url`, NO `ip` (con `ip` el servicio devuelve 422)
-    fps: 30               # con 30 el sensor entrega ~13 fps reales en el laboratorio
+    isp_scale: [1, 2]     # 960x540: 1080p no entra por la red de WSL (ver §Rendimiento)
+    fps: 5                # debajo del ritmo de gdino-tiny-560: sin cola, G2A p50 ~150 ms
 ```
 
 Corrida corta contra `mp-mock`, directo a la API del servicio (30 cuadros, sin GPU):
@@ -230,7 +231,7 @@ docker compose exec -T mp-mock curl -s localhost:8080/api/catalog/ingest-plugins
 
 docker compose exec -T mp-mock curl -s -X POST localhost:8080/api/runs \
   -H 'Content-Type: application/json' -d @- <<'EOF'
-{"ingest": {"plugin": "oak_d", "config": {"url": "169.254.31.137", "fps": 30, "warmup_frames": 20}},
+{"ingest": {"plugin": "oak_d", "config": {"url": "169.254.31.137", "isp_scale": [1, 2], "fps": 5, "warmup_frames": 20}},
  "prompts": {"set_inline": {"id": "smoke", "classes": [{"id": "person", "phrasings": {"default": ["person"]}}]},
              "active_ids": ["person"]},
  "run": {"name": "oakd_docker_smoke", "max_units": 30}}
@@ -255,6 +256,65 @@ con la cámara OAK-D.
 > control-plane consume `tcp://<servicio-mp>:5557` (README §Endpoints y buses). La
 > cadena viva completa —control, distribución y broker— está en el paso 4 del smoke del
 > README y queda fuera de este manual.
+>
+> ✎ 2026-10-24: la cadena viva completa con la OAK-D en Docker se corrió con
+> `experiments/oakd_docker_live` (endpoints con nombres de servicio y MQTT a `mosquitto`),
+> lanzado desde **Experimentos → Ejecutar** en la consola.
+
+## Rendimiento: resolución y fps en Docker
+
+**Config recomendada: 960x540 (`isp_scale: [1, 2]`) a 5 fps**, la del preset del paso 8.
+Medida el 2026-10-24 con gdino-tiny-560 en la RTX 4060, notebook con cargador:
+
+| Cámara | Inferencia p50 | Captura→host p50 | G2A p50 / p95 | Procesados/recibidos |
+|---|---|---|---|---|
+| 1080p @30 (el default de antes) | 193 ms | 961 ms | 435 / 540 ms | 77 % |
+| 960x540 @8 | 150 ms | 77 ms | 334 / 417 ms | 74 % |
+| **960x540 @5** | **147 ms** | **66 ms** | **150–154 / 273–449 ms** | **100 %** |
+| 640x360 @5 | 145 ms | 47 ms | 149 / 472 ms | 100 % |
+| Imágenes (referencia, sin cámara) | 140–145 ms | — | — | — |
+
+Por qué:
+
+- **La red de WSL en modo espejo corta en ~200 Mbit/s.** La misma cámara entrega
+  507 Mbit/s a Windows nativo (1080p a 20 fps) y ~190 Mbit/s al contenedor (7.6 fps);
+  con `--network host` da lo mismo, así que no es la NAT de Docker. 1080p@30 en NV12 pide
+  ~750 Mbit/s: los cuadros se encolan en la cámara y llegan con ~1 s de atraso. 960x540
+  @5 son ~31 Mbit/s.
+- **Mandar más cuadros de los que el modelo procesa no suma:** en vivo el productor lee
+  y prepara cada cuadro aunque después se descarte, y lo que sobra espera en la cola. Con
+  gdino-tiny-560 (~150 ms por cuadro) el techo es ~6 cuadros/s; a 5 fps se procesan todos
+  y el G2A es captura + inferencia. A 8 o 12 fps se procesa casi lo mismo con el doble de
+  G2A. **Para otro modelo, ajustar `fps` a su ritmo:** más bajo para gdino-base, más
+  alto para los YOLOE chicos.
+- **No se pierde resolución útil:** gdino-560 reescala a 560 px de lado largo, así que
+  960x540 y 1080p le llegan igual (560x315). 960 en vez de 640 deja margen para las
+  variantes gdino de 800 px y para la vista previa. La confianza de `person` con persona
+  en cuadro fue 0.78 (960x540) contra 0.77 (1080p).
+- **Con batería todo empeora:** la primera corrida a 1080p@30 dio 330 ms de inferencia a
+  batería y 193 ms con cargador. Medir y demostrar siempre enchufado.
+- **El G2A p95 sigue arriba del presupuesto de 250 ms** (273–449 ms entre corridas
+  iguales): lo fijan la cola de la inferencia (p95 ~200 ms) y picos sueltos, no la cámara.
+- **La observación no le compite a la inferencia** (corregido el 2026-10-24):
+  - El runner de experimentos de la consola consultaba el estado sin pausa: ~100 GET/s
+    al media-plane durante toda la corrida, y la inferencia en vivo subía de ~150 a
+    ~200 ms. Ahora consulta cada 1 s (`EOVRT_CONSOLE_EXPERIMENT_POLL_INTERVAL_S`).
+  - Las previews (`save_previews`) se dibujaban y escribían en el hilo de inferencia
+    antes de publicar la detección al control: ~19 ms por cuadro en el bind mount de
+    Windows. Ahora las escribe un hilo aparte con cola acotada; si se atrasa, descarta
+    la preview y nunca frena la inferencia.
+  - La vista en vivo de la consola en el navegador no afecta (medido: 143 ms con la
+    página abierta).
+
+Para medir el enlace sin modelo (fps que llegan, Mbit/s, antigüedad del cuadro):
+
+```bash
+docker compose run --rm --no-deps -v "$PWD/oakd_throughput.py:/tmp/t.py:ro" mp-mock \
+  python3.11 /tmp/t.py 169.254.31.137 <fps> 1 <divisor isp> 12   # p. ej. 5 1 2
+```
+
+Corre igual con Python en Windows (`depthai==2.32.0.0`, `numpy`, `opencv-python-headless`)
+para comparar contra el nativo.
 
 ---
 
@@ -270,9 +330,11 @@ con la cámara OAK-D.
 | Prueba: `Failed to find device after booting` | IP equivocada (¿la de fábrica, `169.254.1.222`?) o cámara colgada | La IP sale del preset, nunca del ping. Power-cycle: desenchufar el PoE 10 s |
 | Conecta pero no llegan cuadros, o el log muestra `ping was missed, closing the device connection` | La aplicación de la cámara se cayó (F-101.6); el ping sigue respondiendo igual | Power-cycle de la OAK-D |
 | Mensaje con `ALREADY_IN_USE` o `already` | Otro proceso tiene la cámara | Cerrar el otro cliente; una conexión a la vez |
+| Corrida OAK-D con `capture_to_host` ~1 s y la mitad de los cuadros descartados | 1080p (o fps alto) satura la red de WSL, o la notebook está a batería | Preset del paso 8 (960x540 a 5 fps) y cargador; ver §Rendimiento |
 | El media-plane muere (SIGABRT) al detener una corrida OAK-D | F-101.5: segunda corrida OAK-D en la misma vida del servicio | Reiniciar la instancia entre corridas (paso 8) |
 | Cámara OK pero sin internet en el contenedor | DNS, VPN o subred de Docker que pisa la de tu red | Probar `curl` desde WSL; si WSL sale y el contenedor no, cambiar `default-address-pools` (paso 6) |
-| La consola no abre en `localhost:8090` desde Windows | Fricción conocida entre Docker y el modo espejo | Probar `http://127.0.0.1:8090` y reiniciar Docker Desktop; si persiste, avisar |
+| La consola no abre en `localhost:8090` desde Windows | Fricción conocida entre Docker y el modo espejo | Probar `http://127.0.0.1:8090` y reiniciar Docker Desktop; si persiste, ver la fila siguiente |
+| **Ningún** puerto publicado responde (8090, 8081, 8082), y dentro de WSL tampoco anda un servidor cualquiera por `127.0.0.1` | Se cayó el adaptador de Windows que rebota el loopback del modo espejo (`vEthernet (FSE HostVnic)`) | **Inicio → Reiniciar**. Ni `wsl --shutdown`, ni reiniciar Docker, ni **Apagar** (con Inicio rápido reanuda el mismo estado) lo levantan. Ver abajo cómo confirmarlo |
 
 **Prueba del firewall de Hyper-V.** En modo espejo, WSL (y con él el motor de Docker
 Desktop) queda detrás del firewall de Hyper-V. Para descartarlo, en PowerShell como
@@ -286,6 +348,29 @@ Set-NetFirewallHyperVVMSetting -Name '{40E0AC32-46A5-438A-A0B2-2B479E8F2E90}' -D
 
 Si con eso funciona, avisá: hay que reemplazarlo por una regla acotada a la cámara en
 vez de dejar la entrada abierta.
+
+**Loopback del modo espejo caído (adaptador FSE).** En modo espejo, todo el TCP a
+`127.0.0.1` dentro de WSL (incluso de Linux a Linux) sale por `loopback0` hacia Windows
+(`ip route get 127.0.0.1` → `via 169.254.73.152 dev loopback0`) y Windows lo rebota por
+el adaptador oculto `vEthernet (FSE HostVnic)`. Docker Desktop publica los puertos sobre
+ese loopback, así que si el adaptador se cae, no responde ningún puerto, aunque los
+contenedores estén `healthy` y la red interna ande. Para confirmarlo sin permisos de
+administrador:
+
+```powershell
+Get-WinEvent -LogName 'Microsoft-Windows-Hyper-V-VmSwitch-Operational' -MaxEvents 3000 |
+  Where-Object { $_.Message -match 'FSE' -and $_.Id -in 124,125 } |
+  Format-Table TimeCreated, Id -AutoSize
+(Get-CimInstance Win32_OperatingSystem).LastBootUpTime   # fecha del último arranque COMPLETO
+```
+
+Un `124` ("restarted") sin un `125` ("Media connected") después es la falla. El
+2026-10-24 pasó en medio de una sesión: tres reinicios del adaptador en 30 s, justo al
+recrear el contenedor de la consola. Solo lo arregló **Inicio → Reiniciar**. Con
+**Apagar**, el Inicio rápido de Windows hiberna y restaura el núcleo y la red, y
+`LastBootUpTime` no cambia. `Restart-Service hns -Force` (como administrador) debería
+alcanzar, pero no se probó. No es la red de la cámara: con el cable desenchufado y con
+la Ethernet en `/24` falló igual, y después del reinicio anduvo con `169.254.x.x/16`.
 
 ---
 
@@ -363,3 +448,29 @@ respondiendo al ping: ahí depthai falla con `Failed to find device after bootin
     872 ms. `mp-mock` se apagó después de la corrida.
   - No hizo falta tocar el firewall de Hyper-V. **Sin probar:** la cadena viva completa
     (control, distribución, broker) con la OAK-D y una corrida con un modelo GPU.
+- **2026-10-24 — cadena viva completa y config de rendimiento.** `oakd_docker_live` con
+  gdino-tiny-560 a 1080p@30: media, control y distribución `succeeded`, 5 alertas
+  (4 CR-01, 1 CR-02), 2 entregadas por MQTT y 3 suprimidas por cooldown; pero 330 ms de
+  inferencia (a batería), ~1 s de captura→host y 52 % de cuadros descartados. El
+  diagnóstico y la matriz de configs están en §Rendimiento; el preset y el experimento
+  pasan a 960x540 a 5 fps.
+- **2026-10-24 — cadena viva completa con la config nueva y los arreglos.**
+  `oakd_docker_live` (960x540 a 5 fps, gdino-tiny-560, consola con poll de 1 s,
+  previews en hilo aparte), `ok: true`:
+
+  | Corrida | Inferencia p50/p95 | G2A p50/p95 | Captura→host p50 | Procesados |
+  |---|---|---|---|---|
+  | Inicial (1080p@30, a batería) | 330 / 487 ms | 618 / 806 ms | 1020 ms | 121/250 |
+  | Config nueva, sin los arreglos | 193 / 243 ms | 468 / 585 ms | 67 ms | 281/300 |
+  | **Config nueva + arreglos** | **146 / 201 ms** | **148 / 285 ms** | **69 ms** | **300/300** |
+
+  Control: 300 unidades por el bus, 0 perdidas, 3 alertas (2 CR-02, 1 CR-01).
+  Distribución: 3 entregadas por MQTT, notificación p95 15 ms. CPU de la consola
+  durante la corrida: 2 % (antes 50 %); GET al media-plane: ~200 en 3 min (antes ~25.000
+  en 4 min). 300 previews escritas sin errores. El reporte consolidado de las corridas
+  con `isp_scale` fallaba (`effective_config.yaml` con `!!python/tuple`, ilegible para
+  `yaml.safe_load`); corregido en el media-plane. Corrida de verificación con la imagen
+  corregida (`exp_20261024T201936Z_oakd_docker_live`): `ok: true`, reporte consolidado
+  generado con los cuatro hitos en verdadero, 2 alertas, t_capture→alert 5.8 s,
+  notificación 4.5 ms. G2A p50 160 ms / p95 423 ms: la mediana se repite entre corridas,
+  el p95 no (273–449 ms en corridas iguales), por picos sueltos de inferencia.
