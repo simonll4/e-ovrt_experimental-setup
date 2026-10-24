@@ -1,0 +1,46 @@
+# Payload control-plane (POST /api/runs, mode: live) del experimento live con OAK-D en
+# Docker. El runner inyecta `input.type: bus` y, con distribución, habilita alert_bus.
+# El bus de detecciones lo publica la instancia activa del fleet (tcp://<servicio-mp>:5557).
+run:
+  id: null
+  scenario: EBE
+  name: control_oakd_docker_live
+  description: "Corrida live 1:1 con la OAK-D en el deploy Docker, pattern set v2 por sujeto."
+
+input:
+  type: bus
+  track_persons: true
+  bus:
+    endpoint: tcp://mp-gdino-tiny-560:5557
+    topics:
+      - media.detection.v1.
+      - run.lifecycle.v1.
+    hwm: 1000
+    recv_timeout_ms: 1000
+    idle_timeout_s: 300
+    finish:
+      signal: run_lifecycle
+      poll_url: null
+      poll_interval_s: 5
+
+patterns:
+  # CR-01 (sin casco) confirma a los 4 s; CR-02 (sin chaleco) a los 7 s.
+  file: /run/desktop/mnt/host/c/Users/rocht/Documents/tfg/e-ovrt_control-plane/configs/patterns/cr01_cr02_v2_subject.yaml
+  active_ids: [CR-01, CR-02]
+
+outputs:
+  base_dir: /run/desktop/mnt/host/c/Users/rocht/Documents/tfg/e-ovrt_control-plane/runs
+  save_pattern_events_jsonl: true
+  save_alerts_jsonl: true
+  save_metrics_jsonl: true
+  save_errors_jsonl: true
+  save_summary_json: true
+
+logging:
+  level: INFO
+
+alert_bus:
+  enabled: true
+  endpoint: tcp://0.0.0.0:5558
+  hwm: 1000
+  wait_for_subscriber_ms: 10000

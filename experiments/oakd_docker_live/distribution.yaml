@@ -1,0 +1,16 @@
+# Distribución live de las alertas del experimento OAK-D en Docker: broker `mosquitto`
+# de la red `eovrt` (en el camino nativo es 127.0.0.1).
+notification_policy:
+  cooldown_ms: 30000
+  key:
+    - condition_id
+    - source_id
+channel:
+  mode: live
+  host: mosquitto
+  port: 1883
+  topic_prefix: eovrt/alerts
+  qos: 1
+retry:
+  max_attempts: 3
+  wait_ms: 500

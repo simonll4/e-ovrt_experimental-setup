@@ -1,0 +1,29 @@
+# Payload media-plane (POST /api/runs) del experimento live con OAK-D en Docker.
+# El runner inyecta `bus: {enabled: true}` — no declararlo acá.
+# Cámara: cameras/oak_d_lab.yaml (169.254.31.137, 960x540 a 5 fps).
+# 960x540 (isp_scale 1/2) a 5 fps es la config medida para Docker sobre WSL con
+# gdino-tiny-560 (MANUAL-OAKD-WSL.md §Rendimiento): 1080p@30 satura la red de WSL y los
+# cuadros llegan con ~1 s de atraso; a 5 fps se procesan todos sin cola (G2A p50 ~150 ms).
+# max_units cuenta cuadros recibidos: 300 a 5 fps ≈ 60 s.
+ingest:
+  plugin: oak_d
+  config:
+    url: 169.254.31.137
+    isp_scale: [1, 2]
+    fps: 5
+    warmup_frames: 20
+prompts:
+  set_inline:
+    id: cr01_cr02_v2_short
+    classes:
+      - id: person
+        phrasings: { default: ["person"] }
+      - id: helmet
+        phrasings: { default: ["helmet"] }
+      - id: vest
+        phrasings: { default: ["vest"] }
+  active_ids: [person, helmet, vest]
+run:
+  name: oakd_docker_live
+  max_units: 300
+  save_previews: true

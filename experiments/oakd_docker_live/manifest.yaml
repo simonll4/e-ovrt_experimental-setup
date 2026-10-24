@@ -1,0 +1,26 @@
+# Manifiesto paraguas EBE (experiment.manifest.v1) — corrida LIVE con la OAK-D en el
+# deploy Docker (infra/platform): media gdino-tiny-560 → control → distribución MQTT.
+#
+# Variante de ebe_oakd_live para Docker: los endpoints internos usan los nombres de
+# servicio de la red `eovrt` (README de infra/platform §Endpoints y buses) y las rutas
+# son las de Docker Desktop (paridad de rutas, EOVRT_WORKSPACE en infra/platform/.env).
+schema_version: experiment.manifest.v1
+slug: oakd_docker_live
+runs:
+  media:
+    service: media-plane
+    config: /run/desktop/mnt/host/c/Users/rocht/Documents/tfg/e-ovrt_experimental-setup/experiments/oakd_docker_live/media.yaml
+    mode: run
+  control:
+    service: control-plane
+    config: /run/desktop/mnt/host/c/Users/rocht/Documents/tfg/e-ovrt_experimental-setup/experiments/oakd_docker_live/control.yaml
+    mode: live
+  distribution:
+    service: alert-distribution
+    config: /run/desktop/mnt/host/c/Users/rocht/Documents/tfg/e-ovrt_experimental-setup/experiments/oakd_docker_live/distribution.yaml
+    mode: live
+    endpoint: tcp://control-plane:5558
+    idle_timeout_ms: 300000
+sequencing: control_first
+report: {}
+frozen: {}
