@@ -5,10 +5,9 @@ Para quien levanta la plataforma completa (`infra/platform`, los 13 servicios) e
 media-plane, con la red de esos contenedores **saliendo a internet**.
 
 > **Estado (2026-10-24).** Lo que está probado: la OAK-D desde WSL *nativo* en modo
-> espejo (julio–agosto de 2026; ver `docs/operacion/68` §2.1) y que la imagen resuelve
-> `depthai 2.32.0.0` para Python 3.11. **Lo que nadie corrió todavía: la OAK-D desde un
-> contenedor.** El paso 7 de este manual *es* esa verificación. Si da OK, anotalo en el
-> historial del final; si falla, la tabla de diagnóstico dice qué mirar.
+> espejo (julio–agosto de 2026; ver `docs/operacion/68` §2.1) y, desde el 2026-10-24,
+> **la OAK-D desde un contenedor** con Docker Desktop: pasos 2 a 8 OK (ver el historial
+> del final). Si en otra máquina el paso 7 falla, la tabla de diagnóstico dice qué mirar.
 
 ---
 
@@ -344,3 +343,23 @@ respondiendo al ping: ahí depthai falla con `Failed to find device after bootin
   y la pista correctos. **Sin verificar:** el build de la imagen con `edge` y los pasos
   6 a 8 con la cámara. La primera corrida completa de este manual es el **G0** de la spec
   de la demo (`docs/superpowers/specs/2026-10-23-demo-defensa-design.md`).
+- **2026-10-24 — primera vez OK desde un contenedor (G0).** Windows 11 (26200), WSL
+  2.5.9 en modo espejo, Docker Desktop 4.91.0 (motor 29.8.0), RTX 4060 Laptop. Imagen
+  `eovrt/media-plane:latest` construida desde el `main` del media-plane con `.[gpu,edge]`
+  (más el paso de CLIP de YOLOE), `depthai 2.32.0.0` dentro. Compose corrido desde
+  Windows con el wrapper `compose.ps1` (`docker:cli compose`; para el paso 7 se le pasó
+  el script por stdin con `docker run -i`).
+  - Paso 2: Ethernet `Up 1 Gbps` con `169.254.1.100/16` (IP fija, no APIPA: también
+    sirve, está en el mismo `/16`); ping a `169.254.31.137` con `TTL=64`.
+  - Paso 3: `wslinfo` → `mirrored`; `eth1 169.254.1.100/16`; `ip route get` →
+    `169.254.31.137 dev eth1 src 169.254.1.100`, sin `via`; ping `ttl=64`.
+  - Paso 6: `driver=bridge internal=false subred=172.20.0.0/16`; `internet: HTTP 200`.
+  - Paso 7: `conectada en 7.5 s: OAK-D-PRO-POE 194430105168741300` →
+    `OK: cuadro 320x180 recibido.` Con la cámara desenchufada, la misma prueba da
+    `Cannot find any device with given deviceInfo` con la pista de red.
+  - Paso 8: `oak_d` `available:true` en `mp-mock`; corrida
+    `run_20261024_182609_dbe_mock_9cbb5f` (`oakd_docker_smoke`) `succeeded`: 30/30
+    unidades, 0 fallidas, 0 descartadas, 15.7 s, `capture_to_host` p50 795 ms / p95
+    872 ms. `mp-mock` se apagó después de la corrida.
+  - No hizo falta tocar el firewall de Hyper-V. **Sin probar:** la cadena viva completa
+    (control, distribución, broker) con la OAK-D y una corrida con un modelo GPU.
