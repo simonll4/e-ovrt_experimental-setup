@@ -117,6 +117,8 @@ describe('RunDetailPage', () => {
       summary: { fps_effective: 24, total_detections: 100, duration_seconds: 5 },
     } as any)
     renderPage()
+    // Los indicadores viven en la pestaña Resumen: la Traza es la inicial.
+    fireEvent.click(await screen.findByRole('tab', { name: 'Resumen' }))
     await waitFor(() => expect(screen.getByText('Cuadros por segundo')).toBeTruthy())
     expect(screen.getByText('24,00')).toBeTruthy()
     expect(screen.getByText('100')).toBeTruthy()

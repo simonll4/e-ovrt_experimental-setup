@@ -8,7 +8,8 @@ import LiveViewer from '../components/LiveViewer'
 import LivePromptPanel from '../components/LivePromptPanel'
 import RecordPanel from '../components/RecordPanel'
 import {
-  Badge, Button, Card, DetChip, ErrorBanner, IconNavCameras, InlineDeleteConfirm, PageHeader,
+  Button, Card, DetChip, DiscardPrompt, ErrorBanner, IconNavCameras, InlineDeleteConfirm,
+  LoadingState, PageHeader, enfocarCuandoAparezca,
 } from '../components/ui'
 import { usePreviewStream } from '../preview'
 import { useTargetModelRef } from '../api/queries/platform'
@@ -52,8 +53,15 @@ function aggregateByLabel(detections: PreviewDetection[] | undefined): Array<[st
 }
 
 export default function CamerasPage() {
+  // La lista de cámaras con su estado: una lista vacía mientras carga, o
+  // porque falló, no es «todavía no guardaste ninguna cámara».
+  const [lista, setLista] = useState<{ estado: 'cargando' | 'lista' | 'error'; error?: string }>({ estado: 'cargando' })
   const [presets, setPresets] = useState<CameraPreset[]>([])
   const [editing, setEditing] = useState<CameraPreset | null | 'new'>(null)
+  const [formDirty, setFormDirty] = useState(false)
+  // Pedido de abrir otro formulario (o cerrar) mientras el abierto tiene
+  // cambios sin guardar.
+  const [pedido, setPedido] = useState<{ destino: CameraPreset | null | 'new' } | null>(null)
   const [connected, setConnected] = useState<CameraPreset | null>(null)
   // Última cámara elegida por el operador (conectada o simplemente seleccionada
   // para grabar). A diferencia de `connected`, NO se limpia al desconectar el
@@ -70,15 +78,24 @@ export default function CamerasPage() {
   const [resumable, setResumable] = useState(false)
   const [busy, setBusy] = useState<{ reason: string; runId?: string } | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [conectando, setConectando] = useState<string | null>(null)
   // Qué cámara tiene abierta la confirmación de borrado. Reemplaza al
   // `window.confirm()`, que corta el hilo de la pantalla con un diálogo del
   // sistema operativo y no se puede leer con el mismo lenguaje visual.
   const [confirmId, setConfirmId] = useState<string | null>(null)
+  const [borrando, setBorrando] = useState<string | null>(null)
+  const [errorBorrado, setErrorBorrado] = useState<string | null>(null)
   const live = usePreviewStream(streaming)
   const modelRef = useTargetModelRef()
 
   const refreshPresets = () => {
-    void listCameras().then(setPresets).catch(() => setPresets([]))
+    setLista((l) => ({ ...l, estado: l.estado === 'lista' ? 'lista' : 'cargando' }))
+    void listCameras()
+      .then((items) => {
+        setPresets(items)
+        setLista({ estado: 'lista' })
+      })
+      .catch((e) => setLista({ estado: 'error', error: String(e) }))
   }
 
   useEffect(() => { refreshPresets() }, [])
@@ -104,6 +121,7 @@ export default function CamerasPage() {
   }
 
   const connect = async (preset: CameraPreset) => {
+    if (conectando) return
     setError(null)
     setBusy(null)
     const body: PreviewStartBody = {
@@ -114,6 +132,7 @@ export default function CamerasPage() {
       body.prompts = { set_inline: draftToSetInline(promptDraft), active_ids: activeClassIds }
       body.params = { score_threshold: threshold }
     }
+    setConectando(preset.id)
     try {
       await stopPreview().catch(() => undefined)
       setStreaming(false)
@@ -129,6 +148,8 @@ export default function CamerasPage() {
       } else {
         setError(e instanceof Error ? e.message : String(e))
       }
+    } finally {
+      setConectando(null)
     }
   }
 
@@ -149,30 +170,77 @@ export default function CamerasPage() {
   }
 
   const borrar = (p: CameraPreset) => {
+    if (borrando) return
     setConfirmId(null)
-    void deleteCamera(p.id).then(() => {
-      // Sin esto queda una cámara fantasma en el panel de grabación: el botón
-      // sigue habilitado sobre una cámara que ya no existe y falla recién al
-      // grabar.
-      setLastChosen((prev) => (prev?.id === p.id ? null : prev))
-      return refreshPresets()
-    })
+    setErrorBorrado(null)
+    setBorrando(p.id)
+    void deleteCamera(p.id)
+      .then(() => {
+        // Sin esto queda una cámara fantasma en el panel de grabación: el botón
+        // sigue habilitado sobre una cámara que ya no existe y falla recién al
+        // grabar.
+        setLastChosen((prev) => (prev?.id === p.id ? null : prev))
+        if (editing !== 'new' && editing?.id === p.id) {
+          setEditing(null)
+          setFormDirty(false)
+        }
+        refreshPresets()
+      })
+      .catch((e) => setErrorBorrado(`No se pudo eliminar ${p.name || p.id}: ${e instanceof Error ? e.message : String(e)}`))
+      .finally(() => setBorrando(null))
+  }
+
+  /** Abrir otra cámara en el formulario, una nueva, o cerrarlo. Con cambios sin
+   *  guardar se pregunta antes: los campos de una cámara nunca pasan a otra. */
+  const abrirFormulario = (destino: CameraPreset | null | 'new') => {
+    const mismo = destino === editing || (destino !== 'new' && editing !== 'new' && destino?.id === editing?.id)
+    if (mismo) return
+    if (editing !== null && formDirty) {
+      setPedido({ destino })
+      return
+    }
+    setPedido(null)
+    setFormDirty(false)
+    setEditing(destino)
+  }
+
+  // El formulario se va con su botón Cerrar: el foco vuelve a la lista de
+  // cámaras, o al vacío si no hay ninguna.
+  const cerrarFormulario = () => {
+    setFormDirty(false)
+    setEditing(null)
+    enfocarCuandoAparezca('#eo-camaras-guardadas .eo-card__title, .eo-bigempty h2')
   }
 
   const currentDetections = live.header?.detections ?? []
   const totalsByLabel = aggregateByLabel(currentDetections)
   const needsPromptSet = mode === 'detect' && !promptDraft
   const formularioAbierto = editing !== null
-  const sinCamaras = presets.length === 0
+  const sinCamaras = lista.estado === 'lista' && presets.length === 0
 
   const formulario = formularioAbierto && (
-    <Card title={editing === 'new' ? 'Agregar cámara' : 'Editar cámara'}>
+    <>
+      {pedido && (
+        <DiscardPrompt
+          what="la cámara que estás editando"
+          onKeep={() => setPedido(null)}
+          onDiscard={() => {
+            setFormDirty(false)
+            setEditing(pedido.destino)
+            setPedido(null)
+          }}
+        />
+      )}
+      {/* Identidad estable: el formulario de una cámara es otro componente que
+          el de la siguiente, con su propia línea de base. */}
       <CameraPresetForm
+        key={editing === 'new' ? 'camera:new' : `camera:${editing.id}`}
         initial={editing === 'new' ? null : editing}
-        onSaved={() => { setEditing(null); refreshPresets() }}
-        onClose={() => setEditing(null)}
+        onDirtyChange={setFormDirty}
+        onSaved={() => { cerrarFormulario(); refreshPresets() }}
+        onClose={cerrarFormulario}
       />
-    </Card>
+    </>
   )
 
   return (
@@ -185,14 +253,14 @@ export default function CamerasPage() {
             {modelRef && (
               <>
                 <span className="eo-sep">·</span>
-                <Badge tone="neutral">modelo: {modelRef}</Badge>
+                <span>modelo activo <span className="eo-mono">{modelRef}</span></span>
               </>
             )}
           </>
         }
         actions={
-          !sinCamaras && !formularioAbierto ? (
-            <Button variant="primary" onClick={() => setEditing('new')}>Agregar cámara</Button>
+          !sinCamaras && lista.estado === 'lista' && !formularioAbierto ? (
+            <Button variant="primary" onClick={() => abrirFormulario('new')}>Agregar cámara</Button>
           ) : undefined
         }
       />
@@ -211,23 +279,23 @@ export default function CamerasPage() {
         </ErrorBanner>
       )}
       {resumable && !streaming && (
-        <p className="eo-note eo-note--warn">
-          Hay una prueba de cámara en curso.{' '}
-          <Button onClick={resume}>Retomar</Button>{' '}
+        <div className="eo-stale" role="status">
+          <span>Hay una prueba de cámara en curso.</span>
+          <Button onClick={resume}>Retomar</Button>
           <Button onClick={() => void disconnect()}>Detener</Button>
-        </p>
+        </div>
       )}
 
       {sinCamaras && !formularioAbierto ? (
         <Card>
           <div className="eo-bigempty">
             <IconNavCameras />
-            <h4>Todavía no guardaste ninguna cámara</h4>
+            <h2>Todavía no guardaste ninguna cámara</h2>
             <p>
               Una cámara guardada te deja verificar el encuadre antes de lanzar una corrida, y
               después elegirla desde Nueva corrida sin volver a escribir la dirección.
             </p>
-            <Button variant="primary" onClick={() => setEditing('new')}>
+            <Button variant="primary" onClick={() => abrirFormulario('new')}>
               Agregar la primera cámara
             </Button>
           </div>
@@ -237,58 +305,76 @@ export default function CamerasPage() {
           <div className="eo-cams__col">
             {formulario}
 
-            {!sinCamaras && (
-              <Card title="Cámaras guardadas" meta={String(presets.length)} flush>
-                {needsPromptSet && (
-                  <p className="eo-note eo-note--warn eo-cams__note">
-                    Elegí un conjunto de prompts en <b>Qué mostrar</b> para poder probar.
-                  </p>
-                )}
-                {presets.map((p) => (
-                  <div key={p.id} className="eo-lrow" aria-current={connected?.id === p.id}>
-                    <span className="eo-lrow__main">
-                      <b>{p.name}</b>
-                      <span>
-                        {sourceLabel(p.plugin)} · {direccionDe(p.config)}
-                      </span>
+            <Card
+              id="eo-camaras-guardadas"
+              title="Cámaras guardadas"
+              meta={lista.estado === 'lista' ? String(presets.length) : undefined}
+              flush
+            >
+              {lista.estado === 'cargando' && presets.length === 0 && (
+                <LoadingState lines={2}>Cargando las cámaras guardadas…</LoadingState>
+              )}
+              {lista.estado === 'error' && (
+                <ErrorBanner detail={lista.error} onRetry={refreshPresets}>
+                  No se pudo leer la lista de cámaras. No se sabe si hay alguna guardada.
+                </ErrorBanner>
+              )}
+              {errorBorrado && <ErrorBanner>{errorBorrado}</ErrorBanner>}
+              {needsPromptSet && presets.length > 0 && (
+                <p className="eo-note eo-note--warn eo-cams__note">
+                  Elegí un conjunto de prompts en <b>Qué mostrar</b> para poder probar.
+                </p>
+              )}
+              {presets.map((p) => (
+                <div key={p.id} className="eo-lrow" aria-current={connected?.id === p.id}>
+                  <span className="eo-lrow__main">
+                    <b>{p.name}</b>
+                    <span>
+                      {sourceLabel(p.plugin)} · {direccionDe(p.config)}
                     </span>
-                    <span className="eo-lrow__actions">
-                      {confirmId === p.id ? (
-                        <InlineDeleteConfirm
-                          onConfirm={() => borrar(p)}
-                          onCancel={() => setConfirmId(null)}
-                        />
-                      ) : (
-                        <>
-                          {connected?.id === p.id ? (
-                            <Button variant="ghost" onClick={() => void disconnect()}>
-                              Desconectar
-                            </Button>
-                          ) : (
-                            <Button
-                              disabled={Boolean(busy) || needsPromptSet}
-                              onClick={() => void connect(p)}
-                            >
-                              Probar
-                            </Button>
-                          )}
-                          <Button variant="ghost" onClick={() => setEditing(p)}>Editar</Button>
-                          <Button
-                            variant="ghost"
-                            aria-label={`Eliminar ${p.name}`}
-                            onClick={() => setConfirmId(p.id)}
-                          >
-                            Eliminar
+                  </span>
+                  <span className="eo-lrow__actions">
+                    {confirmId === p.id ? (
+                      <InlineDeleteConfirm
+                        onConfirm={() => borrar(p)}
+                        onCancel={() => setConfirmId(null)}
+                      />
+                    ) : (
+                      <>
+                        {connected?.id === p.id ? (
+                          <Button variant="ghost" onClick={() => void disconnect()}>
+                            Desconectar
                           </Button>
-                        </>
-                      )}
-                    </span>
-                  </div>
-                ))}
-              </Card>
-            )}
+                        ) : (
+                          <Button
+                            disabled={Boolean(busy) || needsPromptSet || conectando != null}
+                            aria-busy={conectando === p.id || undefined}
+                            onClick={() => void connect(p)}
+                          >
+                            {conectando === p.id ? 'Conectando…' : 'Probar'}
+                          </Button>
+                        )}
+                        <Button variant="ghost" onClick={() => abrirFormulario(p)}>Editar</Button>
+                        <Button
+                          variant="ghost"
+                          aria-label={`Eliminar ${p.name}`}
+                          disabled={borrando === p.id}
+                          onClick={() => setConfirmId(p.id)}
+                        >
+                          {borrando === p.id ? 'Eliminando…' : 'Eliminar'}
+                        </Button>
+                      </>
+                    )}
+                  </span>
+                </div>
+              ))}
+            </Card>
 
-            <RecordPanel cameras={presets} connectedId={lastChosen?.id ?? null} />
+            {/* Con la lista resuelta, como antes: el panel consulta grabaciones
+                al montarse y no tiene nada que grabar sin cámaras conocidas. */}
+            {lista.estado === 'lista' && (
+              <RecordPanel cameras={presets} connectedId={lastChosen?.id ?? null} />
+            )}
           </div>
 
           <div className="eo-cams__col">

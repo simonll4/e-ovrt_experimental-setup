@@ -87,9 +87,14 @@ const renderCompose = (entrada = '/compose') =>
    que abre una lista de role="option", las fuentes son botones-tarjeta y las
    clases son chips con aria-pressed. */
 
+const empiezaCon = (texto: string) => new RegExp(`^${texto.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`)
+
 /** Abre el desplegable `etiqueta` y elige la opción `opcion`. */
 const elegir = async (etiqueta: string, opcion: string | RegExp) => {
-  fireEvent.click(await screen.findByRole('button', { name: etiqueta }))
+  // El botón se nombra «rótulo + valor elegido»: se lo busca por el rótulo,
+  // entre los que abren una lista (las fuentes también empiezan con «Cámara»).
+  const botones = await screen.findAllByRole('button', { name: empiezaCon(etiqueta) })
+  fireEvent.click(botones.find((b) => b.getAttribute('aria-haspopup') === 'listbox') ?? botones[0])
   fireEvent.click(await screen.findByRole('option', { name: opcion }))
 }
 

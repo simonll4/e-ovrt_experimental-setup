@@ -1,6 +1,6 @@
 import { describe, expect, it, afterEach } from 'vitest'
 import { cleanup, render, screen } from '@testing-library/react'
-import { Card, ErrorBanner, EmptyState, StatTile, Field } from '../../components/ui'
+import { Card, ErrorBanner, EmptyState, StatTile, Field, TextInput } from '../../components/ui'
 
 afterEach(() => cleanup())
 
@@ -49,12 +49,24 @@ describe('StatTile', () => {
 })
 
 describe('Field', () => {
-  it('envuelve el control en un <label>', () => {
-    const { container } = render(<Field label="Stride"><input id="stride" /></Field>)
-    const label = container.querySelector('label')
-    expect(label?.tagName).toBe('LABEL')
-    expect(label?.textContent).toContain('Stride')
-    expect(label?.querySelector('#stride')).toBeTruthy()
+  it('asocia el rótulo con su control por id, sin envolverlo', () => {
+    render(<Field label="Stride"><TextInput /></Field>)
+    const control = screen.getByLabelText('Stride')
+    expect(control.tagName).toBe('INPUT')
+    // La ayuda y el error no forman parte del nombre accesible.
+    expect(control.closest('label')).toBeNull()
+  })
+  it('la ayuda y el error describen al control y el error lo marca inválido', () => {
+    render(<Field label="Fuente" hint="Una carpeta" error="requerido"><TextInput /></Field>)
+    const control = screen.getByLabelText('Fuente')
+    const ids = (control.getAttribute('aria-describedby') ?? '').split(' ')
+    const textos = ids.map((id) => document.getElementById(id)?.textContent)
+    expect(textos).toEqual(['Una carpeta', 'requerido'])
+    expect(control.getAttribute('aria-invalid')).toBe('true')
+  })
+  it('la clave técnica viaja junto al rótulo humano', () => {
+    render(<Field label="Cuadros a descartar" labelKey="warmup_frames"><TextInput /></Field>)
+    expect(screen.getByLabelText(/Cuadros a descartar.*warmup_frames/)).toBeTruthy()
   })
   it('muestra el error cuando lo hay', () => {
     render(<Field label="Fuente" error="requerido"><input /></Field>)

@@ -96,7 +96,9 @@ describe('ExperimentDetailPage', () => {
     renderPage('exp_4')
     // El nombre de la métrica es un identificador: nunca se traduce.
     await waitFor(() => expect(screen.getByText(/t_capture->alert/)).toBeTruthy())
-    expect(screen.getByText(/no aplicable/)).toBeTruthy()
+    // El estado traducido aparece en la fila y en el resumen del grupo plegado
+    // de las no medidas, que repite las mismas cuentas.
+    expect(screen.getAllByText(/no aplicable/).length).toBeGreaterThanOrEqual(1)
     // Aparece en la celda "Por qué" y en el tile de causa más frecuente.
     expect(screen.getAllByText(/sin ground truth/).length).toBeGreaterThanOrEqual(1)
     expect(screen.queryByText('not_applicable')).toBeNull()

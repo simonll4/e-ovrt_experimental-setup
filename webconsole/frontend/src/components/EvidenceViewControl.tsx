@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type { EvidenceInfo, EvidenceListingMeta, EvidenceView } from '../types'
-import { Badge, Banner, SegmentedControl } from './ui'
+import { Banner, SegmentedControl, Tag, Toggletip } from './ui'
 
 export function useEvidenceView(surface: 'runs' | 'experiments') {
   const key = `eo-evidence-view-${surface}`
@@ -27,7 +27,7 @@ export default function EvidenceViewControl({ view, onChange, meta, noun }: {
   const archived = noun === 'ejecuciones' ? meta?.archivedExecutions : meta?.archived
   return (
     <div className="eo-toolbar" role="group" aria-label="Vista de evidencia">
-      <SegmentedControl<EvidenceView> value={view} onChange={onChange} options={[
+      <SegmentedControl<EvidenceView> value={view} onChange={onChange} label="Vista de evidencia" options={[
         { value: 'evidencia', label: 'Evidencia' },
         { value: 'archivadas', label: 'Archivadas' },
         { value: 'todas', label: 'Todas' },
@@ -79,45 +79,60 @@ export function AvisoRegistro({ meta, noun }: {
   meta?: EvidenceListingMeta
   noun: 'corridas' | 'ejecuciones'
 }) {
+  // La condición y su consecuencia, a la vista; la recuperación técnica
+  // (rutas, comandos) completa pero plegada: está para quien la necesita y no
+  // tapa la pantalla para quien sólo quiere saber si puede confiar en la clase.
   if (meta?.available === false) {
-    return <Banner tone="warn">
-      <b>Registro de evidencia no disponible en esta máquina.</b> Ninguna de las {noun} que
-      se listan abajo está clasificada por su evidencia: el archivo curado
-      (<span className="eo-mono">results/evidence-runs/</span>) no se encontró, o está
-      presente y no trae una sola fila. Si falta, restauralo desde la capa de evidencia
-      del backup; si está, regeneralo
+    return <Banner tone="warn" detail={<>
+      El archivo curado (<span className="eo-mono">results/evidence-runs/</span>) no se
+      encontró, o está presente y no trae una sola fila. Si falta, restauralo desde la capa
+      de evidencia del backup; si está, regeneralo
       con <span className="eo-mono">python3 tools/evidence_runs.py sync</span>. Después
       reiniciá la consola.
+    </>}>
+      <b>Registro de evidencia no disponible en esta máquina.</b> Ninguna de las {noun} que
+      se listan abajo está clasificada por su evidencia.
     </Banner>
   }
   if (meta?.clasificacionAvailable === false) {
-    return <Banner tone="warn">
-      <b>Taxonomía de clases no disponible.</b> El archivo de evidencia sí cargó,
+    return <Banner tone="warn" detail={<>
+      El archivo de evidencia sí cargó,
       pero <span className="eo-mono">results/evidence-vista/clasificacion.yaml</span> no
-      está, o está y no declara ningún rol de los que el registro usa: toda clase que se
-      muestre abajo es «Fuera del registro» por ausencia de la declaración, no por una
-      decisión sobre esas {noun}. Abrí el archivo antes de reponerlo: si está ahí, el
-      problema es su contenido, no su falta.
+      está, o está y no declara ningún rol de los que el registro usa. Abrí el archivo antes
+      de reponerlo: si está ahí, el problema es su contenido, no su falta.
+    </>}>
+      <b>Taxonomía de clases no disponible.</b> Toda clase que se muestre abajo es «Fuera del
+      registro» por ausencia de la declaración, no por una decisión sobre esas {noun}.
     </Banner>
   }
   const { rolesSinClasificar: sinClase, rolesDelRegistro: total } = meta ?? {}
   if (sinClase != null && total != null && sinClase > 0) {
-    return <Banner tone="warn">
+    return <Banner tone="warn" detail={<>
+      Nadie declaró la clase de esos roles
+      en <span className="eo-mono">results/evidence-vista/clasificacion.yaml</span>. No son
+      necesariamente todas: una corrida con más de un rol toma la clase más fuerte de los
+      suyos, así que un rol sin declarar puede quedar tapado por otro que sí lo está.
+    </>}>
       <b>Clasificación incompleta: {sinClase} de {total} roles sin clasificar.</b> Puede
-      haber {noun} que se muestren «Fuera del registro» porque nadie declaró la clase de su
-      rol en <span className="eo-mono">results/evidence-vista/clasificacion.yaml</span>, no
-      porque queden fuera del registro. No son necesariamente todas: una corrida con más de
-      un rol toma la clase más fuerte de los suyos, así que un rol sin declarar puede quedar
-      tapado por otro que sí lo está.
+      haber {noun} que se muestren «Fuera del registro» porque falta la declaración de su
+      rol, no porque queden fuera del registro.
     </Banner>
   }
   return null
 }
 
+/** El resultado que cita a la corrida o al manifiesto. Es un identificador,
+ *  no un estado: va como metadato neutro y entero (antes se recortaba a 18
+ *  caracteres). Si lo citan varios, el resto se abre con un toque. */
 export function EvidenceBadge({ evidence }: { evidence?: EvidenceInfo }) {
   if (!evidence?.is_evidence) return null
-  const label = evidence.result_ids[0] ?? 'Evidencia'
-  return <span className="eo-evidence-badge" title={evidence.result_ids.join('\n') || evidence.reason}>
-    <Badge tone="neutral">{label}</Badge>
+  const [label = 'Evidencia', ...resto] = evidence.result_ids
+  return <span className="eo-evidence-badge eo-tags" title={evidence.result_ids.join('\n') || evidence.reason}>
+    <Tag mono>{label}</Tag>
+    {resto.length > 0 && (
+      <Toggletip label={`y ${resto.length} más`} ariaLabel={`Ver los ${evidence.result_ids.length} resultados que la citan`}>
+        {evidence.result_ids.join(' · ')}
+      </Toggletip>
+    )}
   </span>
 }

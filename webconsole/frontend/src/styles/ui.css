@@ -1,41 +1,54 @@
-/* Kit de componentes — clases eo-*. */
+/* Kit de componentes — clases eo-*.
+ *
+ * Escala: texto operativo 14 px (--fz-body), datos de tabla 13 px (--fz-data),
+ * ayudas y metadatos 12 px (--fz-meta) como piso. Controles de 36 px de alto, y
+ * 44 px en pantallas chicas o con puntero grueso (--ctl, ver tokens.css).
+ *
+ * Los anchos de las composiciones de dos columnas se deciden por el ancho del
+ * CONTENIDO (container queries sobre `.eo-content`), no del viewport: con la
+ * barra lateral abierta o colapsada el espacio útil es distinto para el mismo
+ * viewport. */
 
-/* Badge */
+/* ── Estado y metadatos ─────────────────────────────────────────────────── */
+
+/* Badge: sólo estado operativo. El texto lleva el significado; el color y el
+   punto que late (en curso) son apoyos. Sin punto universal: antes cada badge
+   llevaba un «●» generado y uno con pulso mostraba dos. */
 .eo-badge {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-1);
-  padding: 1px var(--space-2);
+  gap: 6px;
+  min-height: 22px;
+  max-width: 100%;
+  padding: 1px 9px;
   border-radius: 999px;
-  font-size: var(--text-sm);
+  font-size: var(--fz-meta);
   font-weight: 500;
-  white-space: nowrap;
+  line-height: 1.3;
   border: 1px solid currentColor;
+  /* `break-word` y no `anywhere`: en una tabla, `anywhere` achica el ancho
+     mínimo de la columna y el texto se parte letra por letra en vez de que la
+     tabla se desplace. */
+  overflow-wrap: break-word;
 }
-.eo-badge::before { content: '●'; font-size: 0.7em; }
 .eo-badge--live { color: var(--live); }
 .eo-badge--ok { color: var(--ok); }
 .eo-badge--warn { color: var(--wn); }
 .eo-badge--alert { color: var(--sr); }
 .eo-badge--error { color: var(--er); }
-.eo-badge--neutral { color: var(--nt); }
+.eo-badge--neutral { color: var(--tx3); }
 
-.eo-evidence-badge > .eo-badge {
-  display: inline-block;
-  max-width: 18ch;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  vertical-align: middle;
-}
-
-/* Punto que late — único elemento animado del sistema. */
+/* Punto que late al aparecer —dos veces, menos de 5 s (WCAG 2.2.2)— y después
+   queda fijo: marca el paso a «en curso» sin movimiento perpetuo en cada
+   pantalla. El estado sigue dicho en texto al lado. */
 .eo-badge__pulse {
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background: var(--live);
   display: inline-block;
-  animation: eo-pulse 2s ease-in-out infinite;
+  flex: none;
+  animation: eo-pulse 2s ease-in-out 2;
 }
 @keyframes eo-pulse {
   0%, 100% { opacity: 1; }
@@ -45,56 +58,251 @@
   .eo-badge__pulse { animation: none; }
 }
 
-/* Banner — aviso de bloque ancho completo. */
+/* Tag: metadato neutro (modelo, topología, clase, identificador). Rectángulo
+   bajo, sin color de estado, que envuelve si no entra. */
+.eo-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 22px;
+  max-width: 100%;
+  padding: 1px 7px;
+  border-radius: 4px;
+  border: 1px solid var(--bd);
+  background: var(--s2);
+  color: var(--tx2);
+  font-size: var(--fz-meta);
+  line-height: 1.3;
+  overflow-wrap: break-word;
+}
+.eo-tag--mono { font-family: var(--fm); }
+/* Dentro de una tabla, estado y metadato no se parten: la columna toma su
+   ancho y, si no entra, la tabla se desplaza en su contenedor. */
+.eo-table .eo-tag, .eo-table .eo-badge { white-space: nowrap; }
+.eo-tags { display: inline-flex; flex-wrap: wrap; gap: 4px; vertical-align: middle; }
+
+/* Banner — aviso de bloque a lo ancho del contenido, sobre el mismo eje que la
+   cabecera (sin margen lateral propio). */
 .eo-banner {
   display: flex;
   align-items: flex-start;
-  gap: 9px;
+  flex-wrap: wrap;
+  gap: 8px 10px;
   border-radius: 8px;
-  padding: 8px 11px;
-  font-size: 12px;
+  padding: 10px 12px;
+  font-size: var(--fz-body);
+  line-height: 1.5;
   border: 1px solid;
-  margin: 0 20px 12px;
+  margin: 0 0 12px;
+  overflow-wrap: break-word;
 }
 .eo-banner--warn { background: color-mix(in srgb, var(--wn) 12%, transparent); border-color: var(--wn); }
 .eo-banner--error { background: color-mix(in srgb, var(--er) 12%, transparent); border-color: var(--er); }
 .eo-banner--live { background: color-mix(in srgb, var(--live) 12%, transparent); border-color: var(--live); }
-.eo-banner__icon { flex: none; margin-top: 1px; color: var(--wn); display: flex; }
+.eo-banner__icon { flex: none; margin-top: 2px; color: var(--wn); display: flex; }
 .eo-banner--error .eo-banner__icon { color: var(--er); }
-.eo-banner--live .eo-banner__icon { padding-top: 4px; }
-.eo-banner__body { flex: 1; color: var(--tx); }
-.eo-banner__body b { color: var(--tx); font-weight: 500; }
+.eo-banner--live .eo-banner__icon { padding-top: 5px; }
+.eo-banner__body { flex: 1 1 240px; min-width: 0; color: var(--tx); }
+.eo-banner__body b { color: var(--tx); font-weight: 600; }
+.eo-banner__action { flex: none; display: flex; gap: 8px; flex-wrap: wrap; }
+.eo-banner__detail { margin-top: 6px; }
+.eo-banner__detail > summary,
+.eo-error__detail > summary {
+  cursor: pointer;
+  color: var(--tx2);
+  font-size: var(--fz-data);
+  width: fit-content;
+  min-height: var(--ctl);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  list-style: none;
+}
+.eo-banner__detail > summary::-webkit-details-marker,
+.eo-error__detail > summary::-webkit-details-marker { display: none; }
+.eo-banner__detail > summary svg,
+.eo-error__detail > summary svg { transform: rotate(-90deg); color: var(--tx3); }
+.eo-banner__detail[open] > summary svg,
+.eo-error__detail[open] > summary svg { transform: none; }
+.eo-banner__detail-body { margin-top: 6px; color: var(--tx2); font-size: var(--fz-data); line-height: 1.55; }
 
-/* Inline group — texto + badge (o similares) con separación consistente */
-.eo-inline { display: inline-flex; align-items: center; gap: var(--space-2); }
+/* Inline group — texto + badge (o similares) con separación consistente. */
+.eo-inline { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 6px 8px; max-width: 100%; }
 
-/* Línea de tiempo de actividad. Las claves de la leyenda tienen FORMA distinta a
+/* Toggletip — ayuda que se abre con toque o teclado. El contenido va en el
+   flujo: no flota, así ninguna tabla con scroll lo recorta. */
+.eo-tt { display: inline; }
+.eo-tt__btn {
+  background: none;
+  border: none;
+  min-height: 0;
+  padding: 0 2px;
+  color: var(--ac-tx);
+  font: inherit;
+  font-size: var(--fz-meta);
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.eo-tt__btn:hover:not(:disabled) { color: var(--tx); border: none; }
+.eo-tt__pop {
+  display: block;
+  margin-top: 6px;
+  padding: 8px 10px;
+  max-width: 48ch;
+  background: var(--s3);
+  border: 1px solid var(--bds);
+  border-radius: var(--r);
+  color: var(--tx);
+  font-family: var(--fs);
+  font-size: var(--fz-meta);
+  font-style: normal;
+  line-height: 1.5;
+  text-align: left;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 767px), (pointer: coarse) {
+  .eo-tt__btn { min-height: 44px; min-width: 44px; padding: 0 6px; }
+}
+
+/* Término marcado del vocabulario: la MISMA convención que una cifra citada
+   — subrayado punteado. La definición describe al enlace (el lector la lee al
+   enfocarlo) y se muestra al enfocarlo con el teclado o al pasar el mouse; un
+   toque abre su entrada en /documentacion. Lo que no tiene definición no llega
+   acá: se renderiza como texto plano. */
+.eo-termino-wrap { position: relative; display: inline; }
+.eo-termino {
+  color: inherit;
+  text-decoration: underline dotted var(--tx3);
+  text-underline-offset: 3px;
+}
+.eo-termino:hover { color: var(--ac-tx); text-decoration: underline dotted var(--ac-bd); }
+.eo-termino__def {
+  display: none;
+  position: absolute;
+  left: 0;
+  top: calc(100% + 4px);
+  z-index: 30;
+  width: max-content;
+  max-width: min(40ch, 80vw);
+  padding: 6px 9px;
+  background: var(--s3);
+  border: 1px solid var(--bds);
+  border-radius: var(--r);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+  color: var(--tx);
+  font-family: var(--fs);
+  font-size: var(--fz-meta);
+  font-weight: 400;
+  font-style: normal;
+  line-height: 1.5;
+  text-align: left;
+  white-space: normal;
+  pointer-events: none;
+}
+.eo-termino:focus-visible + .eo-termino__def,
+.eo-termino-wrap:hover > .eo-termino__def { display: block; }
+
+/* Plegables (`Disclosure` y los <details> del kit). El triángulo del sistema se
+   reemplaza por el chevrón del kit, que gira al abrir. */
+.eo-adv > summary {
+  font-size: var(--fz-body);
+  color: var(--tx2);
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: var(--ctl);
+  width: fit-content;
+  max-width: 100%;
+}
+.eo-adv > summary::-webkit-details-marker { display: none; }
+.eo-adv > summary:hover { color: var(--tx); }
+.eo-adv__chev { display: flex; flex: none; color: var(--tx3); transform: rotate(-90deg); }
+.eo-adv[open] > summary .eo-adv__chev { transform: none; }
+.eo-adv__sum { min-width: 0; }
+.eo-adv__body { display: flex; flex-direction: column; gap: 12px; padding-top: 8px; min-width: 0; }
+/* Un desglose largo plegado dentro de una tarjeta `flush`: la tabla va a
+   sangre, así que el `summary` necesita su propio padding lateral. */
+.eo-adv--inset > summary { padding: 4px 14px; }
+.eo-adv--inset > .eo-adv__body { padding-top: 0; }
+
+/* ── Línea de tiempo de actividad ───────────────────────────────────────── */
+
+/* Dos columnas —rótulos y gráfico— y una fila por carril. Los tres gráficos, el
+   control deslizante y el eje viven en la misma columna: comparten inicio y
+   ancho por construcción. Las claves de la leyenda tienen FORMA distinta a
    propósito: barra alta = área, barra baja = descarte, barra angosta = no
    recibido, triángulo = alerta. El color solo no distingue --sr de --er. */
-.eo-timeline { display: block; }
-.eo-timeline__svg {
-  width: 100%;
-  height: auto;
-  display: block;
-  border-radius: var(--r);
-  cursor: crosshair;
+.eo-timeline { --tl-label: 104px; --tl-gap: 12px; display: block; }
+.eo-timeline__lanes,
+.eo-timeline__scale {
+  display: grid;
+  grid-template-columns: var(--tl-label) minmax(0, 1fr);
+  column-gap: var(--tl-gap);
+  row-gap: 8px;
+  align-items: center;
 }
+.eo-timeline__lanes { cursor: crosshair; }
+.eo-timeline__scale { margin-top: 8px; align-items: start; }
+.eo-timeline__label {
+  font-size: var(--fz-meta);
+  color: var(--tx3);
+  text-align: right;
+  line-height: 1.3;
+}
+.eo-timeline__label--scale { padding-top: 4px; }
+.eo-timeline__plot { position: relative; min-width: 0; }
+.eo-timeline__det {
+  display: block;
+  width: 100%;
+  height: 56px;
+  background: var(--sunken);
+  border-radius: 4px;
+}
+.eo-timeline__strip {
+  display: block;
+  width: 100%;
+  height: 16px;
+  background: var(--sunken);
+  border-radius: 3px;
+}
+/* El cursor va dentro de cada gráfico, en absoluto: es una sola posición en el
+   tiempo y no participa de las filas de la grilla. */
+.eo-timeline__cursor {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--ac);
+  pointer-events: none;
+}
+.eo-timeline__scalebody { min-width: 0; }
+.eo-timeline__range { display: block; width: 100%; margin: 0; min-height: 24px; }
+@media (max-width: 767px), (pointer: coarse) {
+  .eo-timeline__range { min-height: 44px; }
+}
+/* El eje va en SEGUNDOS: es lo que permite correlacionar con el video. */
 .eo-timeline__axis {
   display: flex;
   justify-content: space-between;
-  font-size: 10.5px;
-  color: var(--tx4);
-  padding: 4px 2px 0;
+  gap: 8px;
+  font-size: var(--fz-meta);
+  color: var(--tx3);
+  padding-top: 2px;
 }
 .eo-timeline__legend {
   list-style: none;
-  margin: 6px 0 0;
+  margin: 8px 0 0;
   padding: 0;
   display: flex;
   flex-wrap: wrap;
-  gap: 14px;
-  font-size: 11px;
-  color: var(--tx3);
+  gap: 6px 16px;
+  font-size: var(--fz-meta);
+  color: var(--tx2);
 }
 .eo-timeline__legend li { display: inline-flex; align-items: center; gap: 6px; }
 .eo-timeline__key { display: inline-block; flex: none; }
@@ -107,69 +315,42 @@
   border-right: 5px solid transparent;
   border-bottom: 9px solid var(--sr);
 }
-.eo-timeline__hint { margin: 6px 0 0; font-size: 11px; color: var(--tx4); min-height: 1.4em; }
-
-/* Tres carriles rotulados, no un bloque único. Cada uno responde una pregunta
-   distinta —cuánto se detectó, si llegó al motor de reglas, si disparó alerta—
-   y apilarlos sin rótulo obligaba a deducirlo de la leyenda. */
-.eo-timeline__lanes {
-  display: grid;
-  grid-template-columns: 82px minmax(0, 1fr);
-  gap: 5px 6px;
-  align-items: center;
-  position: relative;
-  cursor: crosshair;
-}
-.eo-timeline__label {
-  font-size: 10px;
-  color: var(--tx4);
-  text-align: right;
-  line-height: 1.25;
-}
-.eo-timeline__det {
-  display: block;
-  width: 100%;
-  height: 42px;
-  background: var(--sunken);
-  border-radius: 4px;
-}
-.eo-timeline__strip { display: block; width: 100%; height: 10px; }
-/* El cursor cruza los tres carriles: es una sola posición en el tiempo. */
-.eo-timeline__overlay { grid-column: 2; grid-row: 1 / -1; position: relative; pointer-events: none; }
-.eo-timeline__cursor { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--ac); }
-/* El eje va en SEGUNDOS: es lo que permite correlacionar con el video. */
-.eo-timeline__axis--secs { margin-left: 88px; }
-@media (max-width: 760px) {
-  .eo-timeline__lanes { grid-template-columns: minmax(0, 1fr); }
-  .eo-timeline__label { display: none; }
-  .eo-timeline__overlay { grid-column: 1; }
-  .eo-timeline__axis--secs { margin-left: 0; }
+.eo-timeline__hint { margin: 6px 0 0; font-size: var(--fz-meta); color: var(--tx3); min-height: 1.5em; }
+.eo-timeline__body { padding: 12px 14px 14px; }
+/* En pantallas chicas el rótulo va arriba de su carril: no se esconde. */
+@media (max-width: 767px) {
+  .eo-timeline__lanes,
+  .eo-timeline__scale { grid-template-columns: minmax(0, 1fr); row-gap: 4px; }
+  .eo-timeline__label { text-align: left; }
+  .eo-timeline__plot + .eo-timeline__label { margin-top: 6px; }
 }
 
-/* Tira de indicadores del detalle de corrida. */
-.eo-kpis-wrap { padding: 12px 0 0; }
-.eo-kpis__note { margin: 0 0 7px; font-size: 11px; color: var(--tx4); }
+/* ── Indicadores ────────────────────────────────────────────────────────── */
+
+.eo-kpis-wrap { padding: 0; }
+.eo-kpis__note { margin: 0 0 8px; font-size: var(--fz-meta); color: var(--tx3); }
 .eo-kpis {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 9px;
-  margin-bottom: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+  margin-bottom: 16px;
 }
 .eo-kpi {
   background: var(--s1);
   border: 1px solid var(--bd);
   border-radius: var(--rc);
-  padding: 11px 13px 12px;
+  padding: 12px 14px;
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 .eo-kpi__label {
-  font-size: 10.5px;
-  color: var(--tx3);
+  font-size: var(--fz-meta);
+  color: var(--tx2);
   display: flex;
   align-items: center;
-  gap: 5px;
-  line-height: 1.3;
+  gap: 6px;
+  line-height: 1.35;
 }
 .eo-kpi__dot { width: 6px; height: 6px; border-radius: 2px; flex: none; display: block; }
 .eo-kpi__value {
@@ -177,224 +358,254 @@
   font-weight: 500;
   letter-spacing: -.025em;
   font-family: var(--fm);
-  line-height: 1.1;
-  margin-top: 2px;
+  line-height: 1.15;
+  margin-top: 4px;
   display: flex;
   align-items: baseline;
-  gap: 7px;
-  flex-wrap: wrap;
-}
-.eo-kpi__value small { font-size: 11px; color: var(--tx3); font-weight: 400; letter-spacing: 0; }
-.eo-kpi__delta { font-size: 10.5px; font-family: var(--fm); color: var(--tx3); }
-.eo-kpi__foot { margin-top: auto; padding-top: 11px; display: grid; gap: 5px; }
-.eo-kpi__sub { font-size: 10.5px; color: var(--tx4); line-height: 1.4; }
-
-/* Encabezado del detalle de corrida. */
-.eo-runhead {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  padding: 14px 0 12px;
-  border-bottom: 1px solid var(--bd);
-  flex-wrap: wrap;
-}
-.eo-runhead h1 {
-  margin: 0;
-  font-size: 20px;
-  font-weight: 500;
-  letter-spacing: -.015em;
-  line-height: 1.2;
-}
-.eo-runhead__meta {
-  display: flex;
-  align-items: center;
   gap: 8px;
-  margin-top: 5px;
   flex-wrap: wrap;
-  font-size: 11.5px;
-  color: var(--tx3);
-  width: 100%;
 }
-.eo-runhead__acts { margin-left: auto; display: flex; gap: 7px; align-items: center; }
-.eo-timeline__body { padding: 10px 12px 12px; }
+.eo-kpi__value small { font-size: var(--fz-meta); color: var(--tx3); font-weight: 400; letter-spacing: 0; }
+.eo-kpi__delta { font-size: var(--fz-meta); font-family: var(--fm); color: var(--tx3); letter-spacing: 0; }
+.eo-kpi__foot { margin-top: auto; padding-top: 12px; display: grid; gap: 6px; }
+.eo-kpi__sub { font-size: var(--fz-meta); color: var(--tx3); line-height: 1.45; }
+.eo-kpi__help { font-size: var(--fz-meta); color: var(--tx3); }
 
-/* Pestaña Resumen: configuración (lo que se pidió) y rendimiento (lo que salió)
-   una al lado de la otra, y las detecciones por clase a lo ancho debajo. */
+/* Pestaña Resumen: indicadores arriba, configuración y rendimiento lado a lado,
+   las detecciones por clase a lo ancho debajo. */
 .eo-summary {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
   gap: 12px;
   align-items: start;
 }
 .eo-summary > .eo-card { margin-bottom: 0; }
 .eo-summary__wide { grid-column: 1 / -1; }
 
-/* Pestañas subrayadas del detalle de corrida. */
-.eo-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--bd); margin: 4px 0 12px; }
-.eo-tabs button {
+/* Saltar al contenido: fuera de la vista hasta que recibe el foco. */
+.eo-skip {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  z-index: 100;
+  transform: translateY(-200%);
+  background: var(--ac);
+  color: var(--ac-text-on);
+  border-color: var(--ac);
+  font-weight: 600;
+}
+.eo-skip:focus-visible { transform: none; outline-color: var(--tx); }
+
+/* ── Pestañas ───────────────────────────────────────────────────────────── */
+
+.eo-tabs {
+  display: flex;
+  gap: 2px;
+  border-bottom: 1px solid var(--bd);
+  margin: 0 0 16px;
+  overflow-x: auto;
+}
+.eo-tabs [role='tab'] {
+  flex: none;
   background: none;
   border: none;
-  padding: 8px 12px;
-  color: var(--tx3);
-  font-size: 13px;
+  border-radius: 0;
   border-bottom: 2px solid transparent;
   margin-bottom: -1px;
+  padding: 0 14px;
+  min-height: max(var(--ctl), 40px);
+  color: var(--tx2);
+  font-size: var(--fz-body);
+  white-space: nowrap;
   cursor: pointer;
 }
-.eo-tabs button:hover { color: var(--tx2); }
-.eo-tabs button[aria-selected='true'] { color: var(--tx); border-bottom-color: var(--ac); }
-.eo-tabs__count { font-size: 10.5px; color: var(--tx4); margin-left: 5px; }
+.eo-tabs [role='tab']:hover { color: var(--tx); }
+.eo-tabs [role='tab'][aria-selected='true'] { color: var(--tx); border-bottom-color: var(--ac); }
+.eo-tabs [role='tab']:focus-visible { outline-offset: -2px; }
+.eo-tabs__count { font-size: var(--fz-meta); color: var(--tx3); margin-left: 2px; }
+.eo-tabpanel { min-width: 0; }
+/* A 390 px las cuatro pestañas de la corrida entran sin desplazar; más angosto
+   la fila se desplaza y las flechas llevan a la pestaña fuera de vista. */
+@media (max-width: 767px) {
+  .eo-tabs [role='tab'] { padding: 0 10px; }
+}
 
-/* Traza en maestro-detalle. Es lo que reemplaza el volcado vertical de cuadros:
-   la lista scrollea sola, con alto fijo, y no crece con la corrida. */
-.eo-trace { display: grid; grid-template-columns: 340px 1fr; gap: 12px; align-items: start; }
-@media (max-width: 980px) { .eo-trace { grid-template-columns: 1fr; } }
+/* ── Traza en maestro-detalle ───────────────────────────────────────────── */
+
+/* La lista scrollea sola, con alto fijo, y no crece con la corrida. */
+.eo-trace { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; align-items: start; }
+@container content (min-width: 980px) {
+  .eo-trace { grid-template-columns: 340px minmax(0, 1fr); }
+}
 .eo-trace__filters {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 9px 12px;
-  font-size: 11.5px;
+  gap: 4px 14px;
+  padding: 6px 14px;
+  font-size: var(--fz-data);
   color: var(--tx2);
   border-bottom: 1px solid var(--bd);
   flex-wrap: wrap;
 }
-.eo-trace__filters label { display: inline-flex; align-items: center; gap: 5px; cursor: pointer; }
-.eo-trace__filters input { accent-color: var(--ac); width: 13px; height: 13px; margin: 0; }
-.eo-trace__filters .eo-mono { margin-left: auto; color: var(--tx4); font-size: 10.5px; }
-.eo-trace__more { padding: 8px 12px; border-bottom: 1px solid var(--bd); }
-.eo-trace__list { list-style: none; margin: 0; padding: 0; max-height: 560px; overflow-y: auto; }
+.eo-trace__filters label { display: inline-flex; align-items: center; gap: 6px; min-height: var(--ctl); cursor: pointer; }
+.eo-trace__filters .eo-mono { margin-left: auto; color: var(--tx3); font-size: var(--fz-meta); }
+.eo-trace__more { padding: 8px 14px; border-bottom: 1px solid var(--bd); }
+/* position: relative contiene el texto .eo-sr (absoluto) de cada fila: sin
+   esto escapa del scroll de la lista y estira el documento. */
+.eo-trace__list { position: relative; list-style: none; margin: 0; padding: 0; max-height: 560px; overflow-y: auto; }
+.eo-trace__list:focus-visible { outline: 2px solid var(--ac); outline-offset: -2px; }
 .eo-trace__list li {
   display: flex;
   align-items: center;
-  gap: 9px;
-  height: var(--row);
-  padding: 0 12px;
+  gap: 10px;
+  min-height: var(--row);
+  padding: 0 14px;
   border-bottom: 1px solid var(--bd);
-  font-size: 11.5px;
+  font-size: var(--fz-data);
   cursor: pointer;
 }
 .eo-trace__list li:hover { background: var(--s2); }
 .eo-trace__list li.is-selected {
   background: var(--ac-bg);
   color: var(--ac-tx);
-  box-shadow: inset 2px 0 0 var(--ac);
+  box-shadow: inset 3px 0 0 var(--ac);
 }
-.eo-trace__idx { color: var(--tx4); min-width: 34px; }
-.eo-trace__unit { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.eo-trace__dets { margin-left: auto; color: var(--tx3); font-family: var(--fm); }
-.eo-trace__dot { width: 6px; height: 6px; border-radius: 50%; flex: none; display: block; }
+.eo-trace__idx { color: var(--tx3); min-width: 38px; }
+.eo-trace__unit { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+/* En el ancho más chico el identificador baja de línea antes que perderse en «…». */
+@media (max-width: 359px) {
+  .eo-trace__unit { white-space: normal; overflow-wrap: anywhere; }
+}
+.eo-trace__dets { margin-left: auto; color: var(--tx2); font-family: var(--fm); }
+.eo-trace__dot { width: 8px; height: 8px; border-radius: 50%; flex: none; display: block; }
+.eo-trace__estado { font-size: var(--fz-meta); color: var(--wn); white-space: nowrap; }
+.eo-trace__detail { min-width: 0; }
+/* La tarjeta maestra no lleva margen inferior: la grilla ya separa las columnas. */
+.eo-trace__master { margin-bottom: 0; align-self: stretch; }
 
-.eo-inspector { display: flex; flex-direction: column; gap: 12px; }
-.eo-inspector__viewer { padding: 12px; display: flex; justify-content: center; }
-.eo-inspector__split { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-@media (max-width: 980px) { .eo-inspector__split { grid-template-columns: 1fr; } }
+.eo-inspector { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.eo-inspector .eo-card { margin-bottom: 0; }
+.eo-inspector__viewer { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.eo-inspector__unit { font-size: var(--fz-meta); color: var(--tx3); overflow-wrap: anywhere; }
+.eo-inspector__split { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 12px; }
 .eo-detlist { list-style: none; margin: 0; padding: 0; }
 .eo-detlist li {
   display: flex;
   align-items: center;
   gap: 8px;
-  height: var(--row);
-  padding: 0 12px;
+  min-height: 36px;
+  padding: 0 14px;
   border-bottom: 1px solid var(--bd);
-  font-size: 12px;
+  font-size: var(--fz-data);
 }
 .eo-detlist li:last-child { border-bottom: none; }
-.eo-detlist__score { margin-left: auto; color: var(--tx3); }
-.eo-condprog { list-style: none; margin: 0; padding: 8px 12px 12px; }
+.eo-detlist__score { margin-left: auto; color: var(--tx2); }
+.eo-condprog { list-style: none; margin: 0; padding: 8px 14px 12px; }
 .eo-condprog li {
   display: grid;
-  grid-template-columns: 1fr 90px 48px;
+  grid-template-columns: minmax(0, 1fr) 90px 52px;
   align-items: center;
   gap: 10px;
   padding: 6px 0;
-  font-size: 12px;
+  font-size: var(--fz-data);
 }
-.eo-condprog__name { color: var(--tx2); }
-.eo-condprog__pct { text-align: right; color: var(--tx3); font-size: 11px; }
-/* La tarjeta maestra no lleva margen inferior: la grilla ya separa las columnas,
-   y el margen la desalineaba respecto del panel de detalle. */
-.eo-trace__master { margin-bottom: 0; align-self: stretch; }
-.eo-trace__detail { min-width: 0; }
+.eo-condprog__name { color: var(--tx2); min-width: 0; }
+.eo-condprog__pct { text-align: right; color: var(--tx2); font-size: var(--fz-meta); }
 .eo-bars { display: block; }
-.eo-cap--inset { padding: 0 12px 12px; }
-.eo-detchips { display: flex; flex-wrap: wrap; gap: var(--space-1); }
+.eo-cap--inset { padding: 0 14px 12px; }
+.eo-detchips { display: flex; flex-wrap: wrap; gap: 6px; }
 
-/* Barra de lanzamiento: estado de servicios + selector + acción. */
-.eo-launchbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+/* ── Comparar ───────────────────────────────────────────────────────────── */
 
-/* Comparar: panel de selección a la izquierda, métricas y gráfico a la derecha. */
-.eo-compare { display: grid; grid-template-columns: 340px 1fr; gap: 12px; align-items: start; }
-@media (max-width: 1040px) { .eo-compare { grid-template-columns: 1fr; } }
+.eo-compare { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; align-items: start; }
+@container content (min-width: 1040px) {
+  .eo-compare { grid-template-columns: 340px minmax(0, 1fr); }
+}
 .eo-compare__right { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
-/* Scroll propio: con 28 corridas evaluadas la lista estiraba la columna a 1900px
-   y el panel de métricas quedaba perdido arriba a la derecha. */
+.eo-compare__right > .eo-card { margin-bottom: 0; }
+/* Scroll propio: con 28 corridas evaluadas la lista estiraba la columna. */
 .eo-picklist { list-style: none; margin: 0; padding: 0; max-height: 520px; overflow-y: auto; }
 .eo-picklist li { border-bottom: 1px solid var(--bd); }
 .eo-picklist label {
   display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 3px 9px;
-  padding: 9px 12px;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 3px 10px;
+  padding: 10px 14px;
+  min-height: var(--ctl);
   cursor: pointer;
   align-items: center;
 }
 .eo-picklist label:hover { background: var(--s2); }
-.eo-picklist input { accent-color: var(--ac); width: 13px; height: 13px; margin: 0; }
-.eo-picklist__name {
-  font-size: 12.5px;
-  color: var(--tx);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  min-width: 0;
-}
+.eo-picklist label.is-blocked { cursor: not-allowed; }
+.eo-picklist label.is-blocked .eo-picklist__name { color: var(--tx3); }
+.eo-picklist__name { font-size: var(--fz-data); color: var(--tx); overflow-wrap: anywhere; min-width: 0; }
 .eo-picklist__meta {
   grid-column: 2;
-  font-size: 10.5px;
+  font-size: var(--fz-meta);
   color: var(--tx3);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow-wrap: anywhere;
   min-width: 0;
 }
+.eo-picklist__limit { margin: 0; padding: 10px 14px; border-bottom: 1px solid var(--bd); font-size: var(--fz-data); color: var(--wn); }
 /* Verde solo para el mejor valor de la fila, acompañado del texto del número:
    no es un estado, es un realce de lectura. */
-.eo-best { color: var(--ok); }
+.eo-best { font-weight: 700; color: var(--ok); }
 
-/* Barra de herramientas de listado: buscador + segmentado + contador. */
+/* Barras agrupadas: el gráfico se dibuja en píxeles reales (sin viewBox que lo
+   achique) y, si no entra, se desplaza dentro de su propio contenedor. */
+.eo-bars__scroll { max-width: 100%; overflow-x: auto; }
+.eo-bars__scroll[role='region']:focus-visible { outline: 2px solid var(--ac); outline-offset: 2px; }
+.eo-bars svg { display: block; }
+.eo-bars__tick { font-size: 12px; fill: var(--tx3); font-family: var(--fm); }
+.eo-bars__value { font-size: 12px; fill: var(--tx2); font-family: var(--fm); }
+.eo-bars__group { font-size: 12px; fill: var(--tx2); font-family: var(--fm); }
+.eo-bars__legend {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  font-size: var(--fz-data);
+  color: var(--tx2);
+}
+.eo-bars__legend li { display: inline-flex; align-items: center; gap: 6px; min-width: 0; overflow-wrap: anywhere; }
+.eo-bars__key { width: 10px; height: 10px; border-radius: 2px; flex: none; display: inline-block; margin-right: 6px; vertical-align: baseline; }
+
+/* ── Barra de herramientas de listado ───────────────────────────────────── */
+
 .eo-toolbar {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 12px 0 10px;
+  gap: 8px 10px;
+  margin: 0 0 12px;
   flex-wrap: wrap;
 }
-.eo-toolbar__count { margin-left: auto; font-size: 11px; color: var(--tx3); }
+.eo-toolbar__count { margin-left: auto; font-size: var(--fz-meta); color: var(--tx3); }
 
-/* Chips de clase (`ClaseChips`, Task 7/8): clase propia, NO `.eo-chip` — ese
- * es el chip de detección (punto de color + label), otra cosa. La clase se
- * lee por etiqueta y posición, nunca por color: sólo el chip SELECCIONADO usa
- * el acento, porque eso es selección, no una condición de la corrida. */
+/* Chips de clase (`ClaseChips`): clase propia, NO `.eo-chip` — ese es el chip de
+ * detección. La clase se lee por etiqueta y posición, nunca por color: sólo el
+ * chip SELECCIONADO usa el acento, porque eso es selección. Envuelven por filas:
+ * los cinco con su conteo no entran en una línea de teléfono. */
 .eo-cchips { display: flex; gap: 6px; flex-wrap: wrap; }
 .eo-cchip {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  height: 29px;
-  padding: 0 11px;
+  min-height: var(--ctl);
+  padding: 0 12px;
   background: var(--s2);
   border: 1px solid var(--bd);
   border-radius: 999px;
   font: inherit;
-  font-size: 12.5px;
+  font-size: var(--fz-data);
   color: var(--tx2);
   cursor: pointer;
 }
 .eo-cchip:hover { background: var(--s3); }
 .eo-cchip b {
   font-family: var(--fm);
-  font-size: 11.5px;
+  font-size: var(--fz-meta);
   font-weight: 400;
   color: var(--tx3);
   font-variant-numeric: tabular-nums;
@@ -402,18 +613,16 @@
 .eo-cchip--on { background: var(--ac-bg); border-color: var(--ac-bd); color: var(--tx); }
 .eo-cchip--on b { color: var(--ac-tx); }
 
-/* Toggle "Agrupar por resultado" (Corridas, Task 7): encendido por defecto,
- * mismo tratamiento visual que un chip seleccionado — es una elección de
- * vista, no un estado de la corrida. */
+/* Toggle "Agrupar por resultado": una elección de vista, no un estado. */
 .eo-toggle {
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  height: 29px;
-  padding: 0 11px;
+  min-height: var(--ctl);
+  padding: 0 12px;
   border-radius: var(--r);
   font: inherit;
-  font-size: 12.5px;
+  font-size: var(--fz-data);
   color: var(--tx2);
   background: var(--s2);
   border: 1px solid var(--bd);
@@ -422,103 +631,146 @@
 .eo-toggle[aria-pressed="true"] { background: var(--ac-bg); border-color: var(--ac-bd); color: var(--tx); }
 .eo-toggle svg { flex: none; }
 
-/* Corridas agrupadas por resultado (Task 7): fila de grupo + sub-filas al
- * expandir. */
-.eo-grp { display: flex; align-items: center; gap: 9px; min-width: 0; }
-.eo-grp__icon { flex: none; color: var(--tx3); transition: transform 0.15s; }
-.eo-grp__icon--open { transform: rotate(90deg); color: var(--ac-tx); }
-.eo-grp__n { display: flex; flex-direction: column; gap: 0; min-width: 0; }
-.eo-grp__n b { font-weight: 500; color: var(--tx); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.eo-grp__n span { font-size: 11px; color: var(--tx4); font-family: var(--fm); }
+/* ── Corridas agrupadas por resultado ───────────────────────────────────── */
+
+.eo-grp { display: flex; align-items: flex-start; gap: 8px; min-width: 0; }
+/* La expansión es un botón real con aria-expanded, no un click en la fila. */
+.eo-grp__toggle {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  min-height: 30px;
+  padding: 0;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: var(--r);
+  color: var(--tx3);
+}
+.eo-grp__toggle:hover:not(:disabled) { background: var(--s3); border-color: var(--bds); color: var(--tx); }
+.eo-grp__toggle[aria-expanded='true'] { color: var(--ac-tx); }
+.eo-grp__toggle svg { transform: rotate(-90deg); }
+.eo-grp__toggle[aria-expanded='true'] svg { transform: none; }
+@media (max-width: 767px), (pointer: coarse) {
+  .eo-grp__toggle { width: 44px; min-height: 44px; }
+}
+.eo-grp__n { display: flex; flex-direction: column; gap: 1px; min-width: 0; padding-top: 4px; }
+.eo-grp__n b { font-weight: 500; color: var(--tx); font-size: var(--fz-data); overflow-wrap: break-word; }
+.eo-grp__n { min-width: 18ch; }
+.eo-grp__n span { font-size: var(--fz-meta); color: var(--tx3); font-family: var(--fm); }
 .eo-paso {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
+  min-width: 22px;
+  height: 22px;
   border-radius: 4px;
   background: var(--s2);
   border: 1px solid var(--bd);
   font-family: var(--fm);
-  font-size: 11px;
+  font-size: var(--fz-meta);
   color: var(--tx2);
 }
-.eo-sub td { background: var(--sunken); }
-.eo-sub td:first-child { box-shadow: inset 2px 0 0 var(--ac-bd); }
-.eo-sub--mas td { color: var(--tx3); font-size: 11.5px; }
+/* Las corridas de un grupo abierto: una sola celda a lo ancho con su propia
+   tabla y sus propios encabezados, en vez de reutilizar las columnas del grupo. */
+.eo-sub > td { background: var(--sunken); padding: 0 0 0 0; }
+.eo-sub > td:first-child { box-shadow: inset 3px 0 0 var(--ac-bd); }
+.eo-sub__inner { padding: 8px 12px 12px 44px; }
+.eo-sub__inner .eo-table th { background: var(--s1); }
+.eo-sub__more { display: flex; align-items: center; gap: 8px 12px; flex-wrap: wrap; padding-top: 8px; font-size: var(--fz-data); color: var(--tx2); }
+@media (max-width: 767px) {
+  .eo-sub__inner { padding-left: 12px; }
+}
 
 .eo-pager {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px 12px;
   justify-content: flex-end;
+  flex-wrap: wrap;
   padding: 4px 0 0;
-  font-size: 11.5px;
-  color: var(--tx3);
+  font-size: var(--fz-data);
+  color: var(--tx2);
 }
 
 /* Fila entera navegable. El enlace del nombre sigue existiendo —es el camino de
-   teclado y el que abre en otra pestaña—; esto solo agranda el blanco del mouse
-   a la fila completa, que es lo que la gente ya intenta hacer. */
+   teclado y el que abre en otra pestaña—; esto solo agranda el blanco del mouse. */
 .eo-row--click { cursor: pointer; }
 .eo-row--click:hover { background: var(--s2); }
 
-/* Banda izquierda azul en la fila de la corrida en curso: el estado se lee de un
-   vistazo sin buscar el chip. Va con el chip, no en lugar del chip. */
-.eo-row--live > td:first-child { box-shadow: inset 2px 0 0 var(--live); }
-.eo-cell--muted { color: var(--tx4); font-size: 11px; white-space: nowrap; }
+/* Banda izquierda azul en la fila de la corrida en curso: va con el chip, no en
+   lugar del chip. */
+.eo-row--live > td:first-child { box-shadow: inset 3px 0 0 var(--live); }
+.eo-cell--muted { color: var(--tx3); font-size: var(--fz-meta); white-space: nowrap; }
 .eo-cell--actions { text-align: right; width: 1%; white-space: nowrap; }
-/* Celda de prosa: los motivos son frases, no valores, y no deben ensanchar la
-   tabla hasta forzar scroll horizontal. */
-.eo-cell--wrap { white-space: normal; color: var(--tx3); font-size: 11.5px; }
+.eo-cell--actions > * + * { margin-left: 6px; }
+/* Celda de prosa: los motivos son frases, no valores. */
+.eo-cell--wrap { white-space: normal; color: var(--tx2); min-width: 24ch; }
 
-/* ── Nueva corrida ────────────────────────────────────────────────────────
-   Pasos a la izquierda, panel de verificación pegajoso a la derecha. El panel
-   se queda a la vista mientras se completan los pasos: sin eso hay que
-   scrollear hasta abajo para enterarse de qué falta. */
+/* ── Nueva corrida ──────────────────────────────────────────────────────────
+   Formulario flexible y panel de verificación de 320 px a la derecha cuando el
+   contenido tiene al menos 1040 px; debajo, una sola columna con el resumen de
+   pendientes arriba y el panel completo después del formulario. */
 .eo-compose {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 292px;
-  gap: 12px;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
   align-items: start;
 }
-.eo-steps { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
-.eo-rail { position: sticky; top: 14px; display: flex; flex-direction: column; gap: 10px; }
-@media (max-width: 1100px) {
-  .eo-compose { grid-template-columns: minmax(0, 1fr); }
-  .eo-rail { position: static; }
+.eo-compose__form { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.eo-compose__form > .eo-card { margin-bottom: 0; }
+.eo-rail { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.eo-rail > .eo-card { margin-bottom: 0; }
+.eo-compose__pending {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  margin: 0 0 16px;
+  padding: 10px 12px;
+  border: 1px solid var(--bds);
+  border-radius: var(--r);
+  background: var(--s1);
+  font-size: var(--fz-body);
+}
+.eo-compose__pending b { font-weight: 600; }
+.eo-compose__pending a { display: inline-flex; align-items: center; min-height: var(--ctl); }
+@container content (min-width: 1040px) {
+  .eo-compose { grid-template-columns: minmax(0, 1fr) 320px; }
+  .eo-rail { position: sticky; top: 16px; }
+  .eo-compose__pending { display: none; }
 }
 
-/* Círculo numerado del paso. Se pinta de violeta al completarse: es el avance
-   del formulario leído de un vistazo, sin barra de progreso aparte. */
+/* Círculo numerado del paso. Se pinta de violeta al completarse. */
 .eo-step__num {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   background: var(--s3);
-  color: var(--tx3);
-  font-size: 10.5px;
+  color: var(--tx2);
+  font-size: var(--fz-meta);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   flex: none;
   font-family: var(--fm);
 }
-.eo-step__num--on { background: var(--ac); color: #150f3d; }
+.eo-step__num--on { background: var(--ac); color: var(--ac-text-on); }
 
-/* Rejilla de fuentes: botones-tarjeta con nombre legible y descripción. Un
-   desplegable obligaba a abrirlo para saber qué hay; acá se ven las cuatro
-   opciones y por qué una no está disponible. */
+/* Rejilla de fuentes: botones-tarjeta con nombre legible y descripción. */
 .eo-srcgrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(164px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
   gap: 8px;
+  margin-bottom: 14px;
 }
 .eo-src {
-  border: 1px solid var(--bd);
+  border: 1px solid var(--bd-ctl);
   background: var(--s2);
   border-radius: 8px;
-  padding: 9px 11px;
+  padding: 10px 12px;
+  min-height: var(--ctl);
   text-align: left;
   color: var(--tx2);
   display: flex;
@@ -528,29 +780,31 @@
 }
 .eo-src:hover:not([disabled]) { border-color: var(--bds); color: var(--tx); }
 .eo-src[aria-pressed="true"] {
-  border-color: var(--ac-bd);
+  border-color: var(--ac);
   background: var(--ac-bg);
   color: var(--tx);
 }
-.eo-src[disabled] { opacity: 0.45; cursor: not-allowed; }
-.eo-src b { font-weight: 500; font-size: 12.5px; }
-.eo-src span { font-size: 10.5px; color: var(--tx3); line-height: 1.4; }
+.eo-src[disabled] { opacity: 1; cursor: not-allowed; background: transparent; border-style: dashed; border-color: var(--bds); }
+.eo-src[disabled] b { color: var(--tx2); }
+.eo-src b { font-weight: 500; font-size: var(--fz-body); }
+.eo-src span { font-size: var(--fz-meta); color: var(--tx3); line-height: 1.45; }
 
 /* Clases del conjunto como chips que se prenden y apagan. */
 .eo-clsw { display: flex; flex-wrap: wrap; gap: 6px; }
 .eo-cls {
-  border: 1px solid var(--bd);
+  border: 1px solid var(--bd-ctl);
   background: var(--s2);
-  color: var(--tx3);
+  color: var(--tx2);
   border-radius: 999px;
-  padding: 3px 10px;
-  font-size: 11.5px;
+  padding: 0 12px;
+  min-height: var(--ctl);
+  font-size: var(--fz-data);
   font-family: var(--fm);
   cursor: pointer;
 }
-.eo-cls:hover { color: var(--tx2); }
+.eo-cls:hover { color: var(--tx); }
 .eo-cls[aria-pressed="true"] {
-  border-color: var(--ac-bd);
+  border-color: var(--ac);
   background: var(--ac-bg);
   color: var(--ac-tx);
 }
@@ -558,64 +812,55 @@
 /* Antes de lanzar: un renglón por requisito, con su estado y el porqué. */
 .eo-chk {
   display: flex;
-  gap: 9px;
-  padding: 9px 12px;
+  gap: 10px;
+  padding: 10px 14px;
   border-bottom: 1px solid var(--bd);
-  font-size: 12px;
+  font-size: var(--fz-body);
   align-items: flex-start;
 }
 .eo-chk__mark { flex: none; margin-top: 2px; display: flex; color: var(--ok); }
-.eo-chk--no .eo-chk__mark { color: var(--tx4); }
+.eo-chk--no .eo-chk__mark { color: var(--tx3); }
+.eo-chk--info .eo-chk__mark { color: var(--wn); }
+.eo-chk__text { min-width: 0; }
 .eo-chk__text b { font-weight: 400; display: block; color: var(--tx); }
-.eo-chk--no .eo-chk__text b { color: var(--tx3); }
+.eo-chk--no .eo-chk__text b { color: var(--tx2); }
 .eo-chk__text span {
-  font-size: 10.5px;
-  color: var(--tx4);
+  font-size: var(--fz-meta);
+  color: var(--tx3);
   display: block;
   line-height: 1.45;
-  margin-top: 1px;
+  margin-top: 2px;
+  overflow-wrap: anywhere;
+}
+.eo-chk__group {
+  margin: 0;
+  padding: 8px 14px 4px;
+  font-size: var(--fz-meta);
+  color: var(--tx3);
+  border-bottom: 1px solid var(--bd);
 }
 .eo-launch {
-  padding: 11px 12px;
+  padding: 12px 14px;
   border-top: 1px solid var(--bd);
   display: flex;
   flex-direction: column;
-  gap: 7px;
+  gap: 8px;
 }
-.eo-launch .eo-btn { width: 100%; justify-content: center; height: 32px; }
-.eo-launch__why { font-size: 10.5px; color: var(--tx4); line-height: 1.45; text-align: center; }
+.eo-launch .eo-btn { width: 100%; justify-content: center; min-height: max(var(--ctl), 40px); }
+.eo-launch__why { font-size: var(--fz-meta); color: var(--tx2); line-height: 1.45; text-align: center; }
 
-/* Opciones avanzadas: el triángulo nativo del navegador rompe el lenguaje
-   visual, igual que el <select> del sistema operativo. */
-.eo-adv summary {
-  font-size: 12px;
-  color: var(--tx2);
-  cursor: pointer;
-  list-style: none;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.eo-adv summary::-webkit-details-marker { display: none; }
-.eo-adv summary::before { content: "›"; color: var(--tx3); font-size: 14px; line-height: 1; }
-.eo-adv[open] summary::before { content: "⌄"; line-height: 0.8; }
-.eo-adv__body { display: flex; flex-direction: column; gap: var(--space-3); padding-top: var(--space-3); }
-/* Un desglose largo plegado dentro de una tarjeta `flush`: la tabla va a
-   sangre, así que el `summary` necesita su propio padding lateral. */
-.eo-adv--inset > summary { padding: 10px 12px; }
-
-/* ── Cámaras ──────────────────────────────────────────────────────────────
-   Gestión a la izquierda (alta, listado, grabación), imagen a la derecha. El
-   visor va a la derecha y no a lo ancho arriba porque el guion es mirar la
-   imagen MIENTRAS se toca algo de la izquierda: encuadre, clases, grabación. */
-.eo-cams { display: grid; grid-template-columns: 308px minmax(0, 1fr); gap: 12px; align-items: start; }
+/* ── Cámaras ────────────────────────────────────────────────────────────────
+   Gestión (360 px) a la izquierda, imagen a la derecha con al menos 1040 px de
+   contenido. El guion es mirar la imagen MIENTRAS se toca algo de la izquierda. */
+.eo-cams { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; align-items: start; }
 .eo-cams__col { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
 .eo-cams__col > .eo-card { margin-bottom: 0; }
-@media (max-width: 1040px) { .eo-cams { grid-template-columns: minmax(0, 1fr); } }
+@container content (min-width: 1040px) {
+  .eo-cams { grid-template-columns: 360px minmax(0, 1fr); }
+}
 
 /* Estado vacío grande: cuando no hay ninguna cámara, la pantalla explica para
-   qué sirve tenerlas y ofrece crear la primera. Una línea gris no alcanza
-   cuando el vacío es el estado inicial de toda la pantalla. */
+   qué sirve tenerlas y ofrece crear la primera. */
 .eo-bigempty {
   display: flex;
   flex-direction: column;
@@ -624,102 +869,164 @@
   padding: 40px 20px;
   text-align: center;
 }
-/* El icono viene del kit a tamaño de barra lateral; acá se agranda por CSS para
-   no tener que parametrizar todos los iconos por un solo uso. */
-.eo-bigempty svg { width: 30px; height: 30px; color: var(--tx4); }
-.eo-bigempty h4 { margin: 0; font-size: 15px; font-weight: 500; }
-.eo-bigempty p { margin: 0; font-size: 12.5px; color: var(--tx3); max-width: 430px; line-height: 1.65; }
+.eo-bigempty svg { width: 30px; height: 30px; color: var(--tx3); }
+.eo-bigempty h2, .eo-bigempty h3 { margin: 0; font-size: var(--fz-panel); font-weight: 500; }
+.eo-bigempty p { margin: 0; font-size: var(--fz-body); color: var(--tx2); max-width: 46ch; line-height: 1.6; }
 
-/* Fila de cámara guardada: nombre arriba, tipo y dirección abajo. La conectada
-   se marca con banda violeta a la izquierda, además del texto del botón. */
+/* Fila de lista (cámaras guardadas, conjuntos de prompts): nombre y metadatos
+   con espacio propio; las acciones bajan a otra fila cuando falta ancho. */
 .eo-lrow {
   display: flex;
   align-items: center;
-  gap: 9px;
-  padding: 8px 11px;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  width: 100%;
+  padding: 10px 14px;
+  border: none;
   border-bottom: 1px solid var(--bd);
-  border-left: 2px solid transparent;
-  font-size: 12px;
+  border-radius: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: var(--fz-data);
+  text-align: left;
 }
 .eo-lrow:last-child { border-bottom: none; }
-.eo-lrow:hover { background: var(--s2); }
-.eo-lrow[aria-current="true"] { background: var(--ac-bg); border-left-color: var(--ac); }
-.eo-lrow__main { flex: 1; min-width: 0; }
-.eo-lrow__main b { font-weight: 400; color: var(--tx); display: block; }
+button.eo-lrow { cursor: pointer; min-height: var(--ctl); }
+button.eo-lrow:hover:not(:disabled) { background: var(--s2); border-color: var(--bd); }
+/* La fila elegida: fondo de selección y una banda interior (sombra, no borde:
+   no desplaza el contenido). */
+.eo-lrow[aria-current="true"],
+button.eo-lrow[aria-current="true"]:hover { background: var(--ac-bg); box-shadow: inset 3px 0 0 var(--ac); }
+.eo-lrow__main { flex: 1 1 180px; min-width: 0; }
+.eo-lrow__main b { font-weight: 500; color: var(--tx); display: block; overflow-wrap: anywhere; }
 .eo-lrow__main span {
-  font-size: 10.5px;
-  color: var(--tx4);
+  font-size: var(--fz-meta);
+  color: var(--tx3);
   font-family: var(--fm);
   display: block;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow-wrap: anywhere;
 }
-/* Las acciones quedan siempre visibles. El prototipo las revela al pasar el
-   mouse (`.lrow .ac .btn{opacity:0}`), pero acá son las dos únicas acciones de
-   la pantalla y así no existirían para teclado ni para una pantalla táctil. */
-.eo-lrow__actions { display: flex; gap: 4px; flex: none; }
+/* Las acciones quedan siempre visibles: revelarlas al pasar el mouse las
+   borraba para el teclado y la pantalla táctil. */
+.eo-lrow__actions { display: flex; flex-wrap: wrap; gap: 4px; flex: none; margin-left: auto; }
 
-/* La tarjeta del listado va a sangre (`flush`), así que el aviso pone su propio
-   margen para alinear con las filas. */
-.eo-cams__note { padding: 9px 11px 0; }
-/* Debajo de la imagen: cortar la prueba y qué se está detectando ahora. */
+/* La tarjeta del listado va a sangre, así que el aviso pone su propio margen. */
+.eo-cams__note { padding: 10px 14px 0; }
 .eo-cams__under {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
+  gap: 12px;
   flex-wrap: wrap;
-  margin-top: var(--space-3);
+  margin-top: 12px;
 }
-.eo-cams__dets { display: flex; flex-wrap: wrap; gap: var(--space-1); }
+.eo-cams__dets { display: flex; flex-wrap: wrap; gap: 4px; }
 
-/* Lista de bloqueos de «Antes de ejecutar». Se listan TODOS: mostrar solo el
-   primero obligaba a arreglar uno, reintentar, y recién ahí descubrir el
-   siguiente. */
-.eo-blockers { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 7px; }
-.eo-blockers li { display: flex; align-items: flex-start; gap: 8px; font-size: 12px; color: var(--tx2); }
-.eo-blockers svg { flex: none; margin-top: 1px; color: var(--wn); }
+/* Lista de bloqueos de «Antes de ejecutar». Se listan TODOS. */
+.eo-blockers { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.eo-blockers li { display: flex; align-items: flex-start; gap: 8px; font-size: var(--fz-body); color: var(--tx2); }
+.eo-blockers svg { flex: none; margin-top: 2px; color: var(--wn); }
 
-/* ── Conjuntos de prompts ─────────────────────────────────────────────────
-   Lista a la izquierda, detalle a la derecha. Una tabla plana de seis columnas
-   no dejaba lugar para lo que de verdad define a un conjunto: sus frases. */
-.eo-pane { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 12px; align-items: start; }
+/* ── Conjuntos de prompts ───────────────────────────────────────────────────
+   Lista de 300 px y detalle flexible con al menos 960 px de contenido. */
+.eo-pane { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; align-items: start; }
 .eo-pane__col { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
-.eo-pane__col > .eo-card { margin-bottom: 0; }
-@media (max-width: 900px) { .eo-pane { grid-template-columns: minmax(0, 1fr); } }
+.eo-pane__col > .eo-card, .eo-pane > .eo-card { margin-bottom: 0; }
+@container content (min-width: 960px) {
+  .eo-pane { grid-template-columns: 300px minmax(0, 1fr); }
+}
 
-/* Diagrama de ciclo de vida. Es lo que explica por qué un conjunto se puede o
-   no editar: sin él, «Congelado» es un adjetivo sin consecuencia visible. */
-.eo-flow { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
-.eo-flow__step {
+/* Ciclo de vida como secuencia textual numerada: explica por qué un conjunto
+   se puede o no editar. Horizontal con espacio, vertical en pantallas chicas.
+   El chevrón separador vive dentro de su etapa: al envolver no queda suelto. */
+.eo-flow { list-style: none; margin: 0 0 8px; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; align-items: stretch; }
+.eo-flow__item { display: flex; align-items: center; gap: 6px; }
+.eo-flow__box {
   display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
-  border-radius: 999px;
+  align-items: baseline;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: var(--r);
   border: 1px solid var(--bd);
   background: var(--s2);
-  font-size: 11.5px;
-  color: var(--tx4);
 }
+.eo-flow__n { font-family: var(--fm); font-size: var(--fz-meta); color: var(--tx3); }
+.eo-flow__step { font-size: var(--fz-data); color: var(--tx2); }
+.eo-flow__state { font-size: var(--fz-meta); color: var(--tx3); }
 /* El paso actual en violeta (es una selección) y los ya recorridos en verde
    (son hechos consumados). Ambos llevan además su marca de texto. */
-.eo-flow__step--on { border-color: var(--ac-bd); background: var(--ac-bg); color: var(--ac-tx); }
-.eo-flow__step--done { border-color: var(--ok-bd); color: var(--ok); }
-.eo-flow__arrow { color: var(--tx4); font-size: 12px; }
+.eo-flow__item--on .eo-flow__box { border-color: var(--ac); background: var(--ac-bg); }
+.eo-flow__step--on { color: var(--tx); font-weight: 600; }
+.eo-flow__item--on .eo-flow__state { color: var(--ac-tx); }
+.eo-flow__item--done .eo-flow__box { border-color: var(--ok-bd); }
+.eo-flow__step--done { color: var(--tx); }
+.eo-flow__item--done .eo-flow__state { color: var(--ok); }
+.eo-flow__sep { display: flex; align-items: center; color: var(--tx3); }
+.eo-flow__sep svg { transform: rotate(-90deg); }
+@media (max-width: 767px) {
+  .eo-flow { flex-direction: column; }
+  .eo-flow__item { flex-direction: column; align-items: flex-start; }
+  .eo-flow__sep { padding-left: 12px; }
+  .eo-flow__sep svg { transform: none; }
+}
 
-/* Clase con sus frases, entre comillas angulares como en el prototipo. */
+/* Clase con sus frases, entre comillas angulares. */
 .eo-phrases { display: flex; flex-direction: column; gap: 2px; padding: 8px 0; }
 .eo-phrases + .eo-phrases { border-top: 1px solid var(--bd); }
-.eo-phrases b { font-weight: 400; color: var(--tx); font-family: var(--fm); font-size: 12px; }
-.eo-phrases span { font-size: 11.5px; color: var(--tx3); line-height: 1.55; }
+.eo-phrases b { font-weight: 500; color: var(--tx); font-family: var(--fm); font-size: var(--fz-data); overflow-wrap: anywhere; }
+.eo-phrases span { font-size: var(--fz-data); color: var(--tx2); line-height: 1.55; overflow-wrap: anywhere; }
 
-/* ── Plataforma ───────────────────────────────────────────────────────────
-   La instancia activa destacada a la izquierda y los dos motores a la derecha.
-   Antes la pantalla arrancaba directo en la tabla, y para saber cuál estaba
-   activa había que leer la columna Estado fila por fila. */
-.eo-hero { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 12px; }
-@media (max-width: 900px) { .eo-hero { grid-template-columns: minmax(0, 1fr); } }
+/* Editor de conjuntos: clases plegables con resumen, pie de acciones fijo al
+   fondo del panel. El pie no tapa el último campo: el cuerpo reserva su alto. */
+.eo-editor { display: flex; flex-direction: column; min-width: 0; }
+.eo-editor__head { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 10px; margin-bottom: 8px; }
+.eo-editor__head h2, .eo-editor__head h3 { font-size: var(--fz-panel); font-weight: 500; overflow-wrap: anywhere; }
+.eo-editor__dirty { font-size: var(--fz-meta); color: var(--wn); }
+.eo-editor__section { margin: 16px 0 8px; font-size: var(--fz-body); font-weight: 600; color: var(--tx); }
+.eo-editor__classes { display: flex; flex-direction: column; gap: 8px; }
+.eo-editor__foot {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  margin: 16px -14px -14px;
+  padding: 10px 14px;
+  border-top: 1px solid var(--bd);
+  background: var(--s1);
+  border-radius: 0 0 var(--rc) var(--rc);
+}
+.eo-editor__foot .eo-actions { margin-top: 0; }
+/* El foco que avanza por el editor no queda tapado por el pie fijo: el
+   desplazamiento del documento reserva su alto abajo. */
+html:has(.eo-editor__foot) { scroll-padding-bottom: 160px; }
+.eo-editor__note { margin: 0 0 8px; font-size: var(--fz-meta); color: var(--tx2); }
+.eo-editor__derive { margin-top: 16px; }
+
+/* Recuadro de clase: plegable, con resumen de id y cantidad de variantes. */
+.eo-classbox {
+  border: 1px solid var(--bd);
+  border-radius: var(--r);
+  background: var(--s1);
+  min-width: 0;
+}
+.eo-classbox > summary { padding: 4px 12px; width: 100%; }
+.eo-classbox > .eo-adv__body { padding: 4px 12px 12px; }
+.eo-classbox__sum { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+.eo-classbox__sum b { font-family: var(--fm); font-weight: 500; color: var(--tx); overflow-wrap: anywhere; }
+.eo-classbox__sum span { font-size: var(--fz-meta); color: var(--tx3); }
+.eo-classbox__sum .eo-field__error { color: var(--er); }
+.eo-classbox--invalid { border-color: var(--er); }
+.eo-classbox fieldset { border: none; margin: 0; padding: 0; min-width: 0; }
+.eo-classbox fieldset[disabled] { opacity: 0.75; }
+/* El panel de «Qué mostrar» usa el recuadro sin plegar. */
+.eo-classbox--plain { padding: 10px 12px; }
+.eo-classbox--plain > label { display: inline-flex; align-items: center; gap: 8px; min-height: var(--ctl); font-family: var(--fm); max-width: 100%; overflow-wrap: anywhere; min-width: 0; }
+
+/* ── Plataforma ─────────────────────────────────────────────────────────────
+   La instancia activa destacada a la izquierda y los dos motores a la derecha. */
+.eo-hero { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; margin-bottom: 16px; }
+@container content (min-width: 900px) {
+  .eo-hero { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); }
+}
 
 /* Borde violeta: es la única tarjeta de la pantalla que representa una elección
    activa, y el violeta es justamente eso en este sistema. */
@@ -727,88 +1034,74 @@
   background: var(--s1);
   border: 1px solid var(--ac-bd);
   border-radius: var(--rc);
-  padding: 13px 15px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+  min-width: 0;
 }
-.eo-target__label { font-size: 11px; color: var(--ac-tx); letter-spacing: 0.02em; }
+.eo-hero .eo-target { margin-bottom: 0; }
+.eo-target__label { font-size: var(--fz-meta); color: var(--ac-tx); letter-spacing: 0.02em; }
 .eo-target__name {
   font-size: 20px;
   font-weight: 500;
-  margin: 3px 0 1px;
+  margin: 4px 0 2px;
   letter-spacing: -0.015em;
   font-family: var(--fm);
+  overflow-wrap: anywhere;
 }
 .eo-target__chips {
   display: flex;
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
-  margin-top: 7px;
+  margin-top: 8px;
 }
 .eo-target__foot {
   display: flex;
-  gap: 22px;
-  margin-top: 13px;
-  padding-top: 11px;
+  gap: 12px 22px;
+  margin-top: 14px;
+  padding-top: 12px;
   border-top: 1px solid var(--bd);
   flex-wrap: wrap;
   align-items: flex-end;
 }
-.eo-target__foot > :last-child { margin-left: auto; }
+.eo-target__foot > .eo-btn:last-child { margin-left: auto; }
 
-/* Métricas en línea de la tarjeta destacada (adaptador, dispositivo, umbrales). */
-.eo-metric__label { font-size: 10.5px; color: var(--tx3); }
-.eo-metric__value { font-family: var(--fm); font-size: 13px; margin-top: 2px; }
+/* Parámetros del modelo como lista de definición. */
+.eo-params { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 160px), 1fr)); gap: 10px 20px; margin: 0; }
+.eo-params dt { font-size: var(--fz-meta); color: var(--tx3); }
+.eo-params dd { margin: 2px 0 0; font-family: var(--fm); font-size: var(--fz-data); overflow-wrap: anywhere; }
 
 .eo-planes { display: flex; flex-direction: column; gap: 8px; }
 .eo-plane {
   background: var(--s1);
   border: 1px solid var(--bd);
   border-radius: var(--rc);
-  padding: 10px 12px;
+  padding: 10px 14px;
   display: flex;
   align-items: center;
   gap: 10px;
   flex-wrap: wrap;
 }
-.eo-plane__text { flex: 1; min-width: 0; }
-.eo-plane__text b { font-weight: 500; font-size: 12.5px; display: block; }
-.eo-plane__text span { font-size: 11px; color: var(--tx3); font-family: var(--fm); }
+.eo-plane__text { flex: 1 1 180px; min-width: 0; }
+.eo-plane__text b { font-weight: 500; font-size: var(--fz-body); display: block; }
+.eo-plane__text span { font-size: var(--fz-meta); color: var(--tx3); font-family: var(--fm); overflow-wrap: anywhere; }
 
 /* Campo con un botón pegado al costado (guardar como manifiesto). */
-.eo-inputrow { display: flex; gap: 7px; }
-.eo-inputrow input { flex: 1; min-width: 0; }
+.eo-inputrow { display: flex; flex-wrap: wrap; gap: 8px; }
+.eo-inputrow > .eo-input, .eo-inputrow > input { flex: 1 1 200px; min-width: 0; width: auto; }
 
 /* Nota con icono: el icono no tiene que empujar la primera línea de texto. */
-.eo-note--icon { display: flex; gap: 6px; align-items: flex-start; }
-.eo-note--icon svg { flex: none; margin-top: 1px; }
+.eo-note--icon { display: flex; gap: 8px; align-items: flex-start; }
+.eo-note--icon svg { flex: none; margin-top: 2px; }
 
 /* Caption — nota al pie de una tarjeta o un gráfico. */
-.eo-cap { margin: 8px 0 0; font-size: 11px; color: var(--tx4); line-height: 1.5; }
-
-/* Barras agrupadas. El texto lleva tokens de TEXTO, nunca el color de la serie:
-   el color vive en la marca, la identidad la nombra la leyenda. */
-.eo-bars__tick { font-size: 10.5px; fill: var(--tx4); font-family: var(--fm); }
-.eo-bars__value { font-size: 11px; fill: var(--tx2); font-family: var(--fm); }
-.eo-bars__group { font-size: 12px; fill: var(--tx2); font-family: var(--fm); }
-.eo-bars__legend {
-  list-style: none;
-  margin: 4px 0 0;
-  padding: 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-  font-size: 11.5px;
-  color: var(--tx2);
-}
-.eo-bars__legend li { display: inline-flex; align-items: center; gap: 6px; }
-.eo-bars__key { width: 10px; height: 10px; border-radius: 2px; flex: none; }
+.eo-cap { margin: 8px 0 0; font-size: var(--fz-meta); color: var(--tx3); line-height: 1.55; }
 
 /* Sparkline — serie de un tile KPI: sin ejes ni leyenda. */
-.eo-spark { display: block; }
+.eo-spark { display: block; max-width: 100%; }
 .eo-spark--empty { display: block; border-bottom: 1px dashed var(--bd); }
 
-/* Meter — barra segmentada. El gap de 2px es el espaciador de superficie entre
-   segmentos que pide la guía de marcas, no decoración. */
+/* Meter — barra segmentada. El gap de 2px es el espaciador entre segmentos. */
 .eo-meter {
   border-radius: 2px;
   background: var(--sunken);
@@ -819,56 +1112,111 @@
 }
 .eo-meter__seg { display: block; height: 100%; border-radius: 2px; }
 
-/* Card — el título es una banda con borde inferior (prototipo §9); el padding
-   vive en __body, que Card envuelve solo cuando NO es `flush`. */
+/* ── Tarjeta ────────────────────────────────────────────────────────────── */
+
 .eo-card {
   background: var(--s1);
   border: 1px solid var(--bd);
   border-radius: var(--rc);
   padding: 0;
-  margin-bottom: var(--space-3);
+  margin-bottom: 16px;
+  min-width: 0;
+}
+/* Título y metadatos son hermanos: cada uno envuelve por su cuenta. */
+.eo-card__head {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--bd);
 }
 .eo-card__title {
   margin: 0;
-  padding: 9px 12px;
-  color: var(--tx2);
-  font-size: 12px;
+  color: var(--tx);
+  font-size: var(--fz-panel);
   font-weight: 500;
-  letter-spacing: 0;
-  border-bottom: 1px solid var(--bd);
+  line-height: 1.35;
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 8px;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 .eo-card__meta {
   margin-left: auto;
   font-weight: 400;
   color: var(--tx3);
-  font-size: 11px;
+  font-size: var(--fz-meta);
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 8px;
+  min-width: 0;
 }
-.eo-card__body { padding: var(--space-3); }
+.eo-card__body { padding: 14px; min-width: 0; }
+/* Contenidos dentro de una tarjeta a sangre: mismo aire interior que el cuerpo. */
+.eo-card--flush > .eo-error,
+.eo-card--flush > .eo-stale,
+.eo-card--flush > .eo-banner,
+.eo-card--flush > .eo-note { margin: 12px 14px; }
 
-/* ErrorBanner */
+/* ── Errores, riesgo y datos viejos ─────────────────────────────────────── */
+
+/* ErrorBanner. El borde izquierdo grueso es semántico (error con role=alert):
+   el detector lo marca como «side-tab» y la auditoría lo clasificó como falso
+   positivo; se conserva. */
 .eo-error {
   border: 1px solid var(--er);
   border-left-width: 3px;
   border-radius: var(--r);
   background: color-mix(in srgb, var(--er) 12%, transparent);
   color: var(--tx);
-  padding: var(--space-2) var(--space-3);
-  margin-bottom: var(--space-3);
+  padding: 10px 12px;
+  margin: 0 0 12px;
+  font-size: var(--fz-body);
+  overflow-wrap: break-word;
+}
+.eo-error__detail { margin-top: 6px; }
+.eo-error__detail pre {
+  margin: 6px 0 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-family: var(--fm);
+  font-size: var(--fz-meta);
+  max-height: 240px;
+  overflow-y: auto;
+}
+.eo-error__actions { margin-top: 8px; display: flex; gap: 8px; flex-wrap: wrap; }
+
+.eo-discard { border-color: var(--wn); }
+.eo-discard__actions { display: flex; flex-wrap: wrap; gap: 8px; margin-left: auto; }
+.eo-stale {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  margin: 0 0 12px;
+  padding: 6px 12px;
+  border: 1px solid var(--wn-bd);
+  border-radius: var(--r);
+  background: var(--wn-bg);
+  font-size: var(--fz-data);
 }
 
-/* RiskActiveBanner — patrones de riesgo confirmed/sustained, en vivo */
-.eo-risk-banner { display: grid; gap: var(--space-2); margin-bottom: var(--space-4); }
+/* RiskActiveBanner — patrones de riesgo confirmed/sustained, en vivo. Mismo
+   criterio que el error: el borde grueso es la semántica de riesgo activo. */
+.eo-risk-banner { display: grid; gap: 8px; margin-bottom: 16px; }
 .eo-risk-banner__item {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
+  flex-wrap: wrap;
+  gap: 8px;
   border: 1px solid var(--wn);
   border-left-width: 4px;
   border-radius: var(--r);
-  padding: var(--space-2) var(--space-3);
+  padding: 8px 12px;
   background: color-mix(in srgb, var(--wn) 14%, transparent);
   font-weight: 600;
 }
@@ -877,119 +1225,190 @@
   background: color-mix(in srgb, var(--er) 18%, transparent);
 }
 
-/* EmptyState */
+/* ── Vacío y espera ─────────────────────────────────────────────────────── */
+
 .eo-empty {
-  color: var(--tx3);
-  padding: var(--space-5);
+  color: var(--tx2);
+  padding: 24px 16px;
   text-align: center;
 }
-.eo-empty__hint { color: var(--tx4); }
+.eo-empty__msg { margin: 0; font-size: var(--fz-body); color: var(--tx); overflow-wrap: anywhere; }
+.eo-empty__hint { margin: 6px auto 0; color: var(--tx3); font-size: var(--fz-data); max-width: 62ch; line-height: 1.55; }
+.eo-empty__action { margin-top: 12px; display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
 
-/* PageHeader */
+.eo-loading { padding: 20px 16px; }
+.eo-loading--inline { padding: 8px 0; }
+.eo-loading__msg { margin: 0 0 10px; color: var(--tx2); font-size: var(--fz-body); }
+.eo-skel { display: grid; gap: 8px; }
+.eo-skel__line {
+  display: block;
+  height: 12px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--s2), var(--s3), var(--s2));
+  background-size: 200% 100%;
+  animation: eo-skel 1.4s ease-in-out infinite;
+}
+.eo-skel__line:nth-child(2) { width: 84%; }
+.eo-skel__line:nth-child(3n) { width: 62%; }
+@keyframes eo-skel {
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .eo-skel__line { animation: none; background: var(--s2); }
+}
+
+/* ── Cabecera de pantalla ───────────────────────────────────────────────── */
+
+/* Sin sangría propia: el título arranca donde arrancan migas, avisos y tablas. */
 .eo-pageheader {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
-  padding: 14px 20px 12px;
+  gap: 12px 16px;
+  padding: 0 0 14px;
+  margin-bottom: 16px;
   border-bottom: 1px solid var(--bd);
   flex-wrap: wrap;
 }
+.eo-pageheader__text { flex: 1 1 320px; min-width: 0; }
 .eo-pageheader h1 {
   margin: 0;
-  font-size: 20px;
+  font-size: var(--fz-h1);
   font-weight: 500;
   letter-spacing: -.015em;
-  line-height: 1.2;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
 }
+.eo-pageheader h1:focus:not(:focus-visible) { outline: none; }
 .eo-pageheader__meta {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-top: 5px;
+  gap: 6px 8px;
+  margin-top: 6px;
   flex-wrap: wrap;
-  font-size: 11.5px;
-  color: var(--tx3);
+  font-size: var(--fz-data);
+  color: var(--tx2);
+  overflow-wrap: anywhere;
 }
-.eo-pageheader__meta .eo-sep { color: var(--tx4); }
-.eo-pageheader__actions { margin-left: auto; display: flex; gap: 7px; align-items: center; }
-@media (max-width: 760px) {
-  .eo-pageheader__actions { margin-left: 0; width: 100%; }
+.eo-pageheader__meta .eo-sep, .eo-sep { color: var(--tx3); }
+.eo-pageheader__actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+/* En pantallas chicas los metadatos envuelven y el separador quedaría suelto
+   al comienzo de una línea: lo reemplaza el espacio entre elementos. */
+@media (max-width: 767px) {
+  .eo-pageheader__meta .eo-sep { display: none; }
 }
 
-/* StatTile */
+/* ── StatTile ───────────────────────────────────────────────────────────── */
+
 .eo-stat {
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
+  gap: 4px;
   background: var(--s2);
   border: 1px solid var(--bd);
   border-radius: var(--r);
-  padding: var(--space-2) var(--space-3);
-  min-width: 96px;
+  padding: 8px 12px;
+  min-width: 110px;
 }
-.eo-stat__label {
-  font-size: 10.5px;
-  color: var(--tx3);
-}
-.eo-stat__value { font-size: var(--text-lg); font-weight: 600; }
+.eo-card .eo-stat { background: none; border: 0; padding: 0; }
+.eo-stat__label { font-size: var(--fz-meta); color: var(--tx2); overflow-wrap: anywhere; }
+.eo-stat__code { display: block; font-family: var(--fm); font-size: var(--fz-meta); color: var(--tx3); }
+.eo-stat__value { font-size: var(--fz-h2); font-weight: 600; }
 .eo-stat__unit {
-  font-size: var(--text-sm);
+  font-size: var(--fz-meta);
   font-weight: 400;
   color: var(--tx3);
-  margin-left: var(--space-1);
+  margin-left: 4px;
 }
-.eo-stats-row { display: flex; gap: var(--space-2); flex-wrap: wrap; margin-bottom: var(--space-4); }
+.eo-stats-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
 
-/* Field */
-.eo-field { display: grid; gap: var(--space-1); margin-bottom: var(--space-3); max-width: 560px; }
-.eo-field__label { font-size: var(--text-sm); color: var(--tx2); }
-.eo-field__hint { font-size: var(--text-sm); color: var(--tx3); }
-.eo-field__error { font-size: var(--text-sm); color: var(--er); }
+/* ── Campos ─────────────────────────────────────────────────────────────── */
 
-/* Inline note — texto chico fuera de un Field (avisos, asides mudos) */
-.eo-note { font-size: var(--text-sm); color: var(--tx3); }
+/* Al ancho de su sección. El rótulo apunta al control por id; ayuda y error le
+   llegan por aria-describedby. */
+.eo-field { display: grid; gap: 6px; margin-bottom: 14px; min-width: 0; }
+.eo-field__label {
+  font-size: var(--fz-body);
+  color: var(--tx2);
+  font-weight: 500;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 2px 8px;
+  width: fit-content;
+  max-width: 100%;
+}
+.eo-field__key { font-family: var(--fm); font-size: var(--fz-meta); color: var(--tx3); font-weight: 400; overflow-wrap: anywhere; }
+.eo-field__hint { margin: 0; font-size: var(--fz-meta); color: var(--tx3); line-height: 1.5; }
+.eo-field__error { margin: 0; font-size: var(--fz-meta); color: var(--er); line-height: 1.5; }
+.eo-field--invalid .eo-input,
+.eo-field--invalid .eo-select__control { border-color: var(--er); }
+.eo-input { width: 100%; }
+.eo-input--area { min-height: 96px; resize: vertical; }
+textarea.eo-input--mono, .eo-input--mono { font-family: var(--fm); font-size: var(--fz-data); }
+.eo-fieldgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 0 16px; }
+.eo-fieldset { border: none; margin: 0 0 8px; padding: 0; min-width: 0; }
+.eo-fieldset > legend { padding: 0; margin: 0 0 10px; font-size: var(--fz-body); font-weight: 600; color: var(--tx); }
+.eo-check { display: inline-flex; align-items: center; gap: 8px; min-height: var(--ctl); font-size: var(--fz-body); color: var(--tx); cursor: pointer; }
+
+/* Inline note — texto fuera de un Field (avisos, asides mudos). */
+.eo-note { font-size: var(--fz-body); color: var(--tx2); margin: 0 0 8px; line-height: 1.5; overflow-wrap: break-word; }
 .eo-note--warn { color: var(--wn); }
 .eo-note--error { color: var(--er); }
+.eo-note--meta { font-size: var(--fz-meta); color: var(--tx3); }
 
-/* Link-like button — affordance de apertura sin ser un <a> */
+/* Link-like button — affordance de apertura sin ser un <a>. */
 .eo-linklike {
   background: none;
   border: none;
   padding: 0;
-  color: var(--ac);
+  min-height: 0;
+  color: var(--ac-tx);
   cursor: pointer;
   font-size: inherit;
   font-family: inherit;
 }
-.eo-linklike:hover { color: var(--ac-hover); text-decoration: underline; }
+.eo-linklike:hover:not(:disabled) { color: var(--tx); text-decoration: underline; }
 
-/* Fila de acciones al pie de un editor — jerarquía primario/normal/peligroso */
+/* ── Acciones ───────────────────────────────────────────────────────────── */
+
 .eo-actions {
   display: flex;
-  gap: var(--space-2);
-  margin-top: var(--space-4);
+  gap: 8px;
+  margin-top: 16px;
   flex-wrap: wrap;
   align-items: center;
 }
 .eo-btn, .eo-btn--primary, .eo-btn--danger {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-1);
-  height: 30px;
-  padding: 0 var(--space-3);
+  justify-content: center;
+  gap: 6px;
+  min-height: var(--ctl);
+  padding: 0 14px;
   border-radius: var(--r);
-  border: 1px solid var(--bd);
+  border: 1px solid var(--bds);
   background: var(--s2);
   color: var(--tx);
-  font-size: var(--text-sm);
+  font-size: var(--fz-body);
   font-weight: 500;
+  line-height: 1.2;
+  text-decoration: none;
   cursor: pointer;
 }
+a.eo-btn:hover, a.eo-btn--primary:hover { text-decoration: none; color: var(--tx); }
 .eo-btn:hover:not(:disabled) { background: var(--s3); }
-.eo-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.eo-btn:disabled { opacity: 0.55; cursor: not-allowed; }
 .eo-btn--secondary { background: var(--s2); }
 .eo-btn--ghost { background: transparent; border-color: transparent; }
-.eo-btn--ghost:hover:not(:disabled) { background: var(--s2); }
+.eo-btn--ghost:hover:not(:disabled) { background: var(--s2); border-color: var(--bds); }
+.eo-btn--icon { padding: 0; width: var(--ctl); flex: none; }
+/* El chevrón del kit apunta hacia abajo; anterior/siguiente lo giran. */
+.eo-chev { display: flex; }
+.eo-chev--prev { transform: rotate(90deg); }
+.eo-chev--next { transform: rotate(-90deg); }
+/* Anterior y siguiente bajan de línea juntos, nunca separados. */
+.eo-inspector__nav { display: inline-flex; gap: 4px; flex: none; }
 /* Texto oscuro sobre el violeta: #f2f1ed sobre #7d6ef2 no llega a 3:1 y el botón
    primario queda lavado. El token existe justo para esto. */
 .eo-btn--primary {
@@ -997,96 +1416,176 @@
   border-color: var(--ac);
   color: var(--ac-text-on);
 }
-.eo-btn--primary:hover:not(:disabled) { background: var(--ac-hover); }
+.eo-btn--primary:hover:not(:disabled) { background: var(--ac-hover); color: var(--ac-text-on); }
+a.eo-btn--primary:hover { color: var(--ac-text-on); }
 .eo-btn--danger {
   color: var(--er);
   border-color: var(--er);
+  background: transparent;
 }
 .eo-actions .eo-btn--danger { margin-left: auto; }
 
-/* Table */
+/* ── Tablas ─────────────────────────────────────────────────────────────── */
+
+/* El desborde horizontal vive acá, no en el documento. */
+.eo-tablewrap { max-width: 100%; overflow-x: auto; overscroll-behavior-x: contain; }
+.eo-tablewrap[role='region']:focus-visible { outline: 2px solid var(--ac); outline-offset: -2px; }
 .eo-table {
   border-collapse: collapse;
   width: 100%;
-  font-size: var(--text-md);
+  font-size: var(--fz-data);
 }
+/* `break-word` y no `anywhere`: una columna nunca se angosta por debajo de su
+   palabra más larga, así que un identificador no se parte letra por letra. Si
+   no entra, la tabla se desplaza dentro de su contenedor. */
 .eo-table th,
 .eo-table td {
-  padding: var(--space-2) var(--space-3);
+  padding: 8px 12px;
   border-bottom: 1px solid var(--bd);
   text-align: left;
   vertical-align: top;
+  overflow-wrap: break-word;
 }
 .eo-table th {
   background: var(--s2);
-  color: var(--tx3);
-  font-size: 11px;
-  font-weight: 400;
-  letter-spacing: 0.05em;
-  position: sticky;
-  top: 0;
+  color: var(--tx2);
+  font-size: var(--fz-meta);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
 }
 .eo-table tbody tr:hover { background: var(--s2); }
-.eo-table td.eo-num { text-align: right; font-variant-numeric: tabular-nums; }
-
-/* Densidad de consola: filas de 32px, no tarjeta por fila. */
-.eo-table--dense th,
-.eo-table--dense td {
-  height: 32px;
-  padding: 0 var(--space-3);
+.eo-table td.eo-num, .eo-table th.eo-num, th.eo-th--numeric {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
-/* Monoespaciada para identificadores literales (run_id, unit_id, rutas, métricas). */
+/* Densidad de consola: filas bajas, no tarjeta por fila. */
+.eo-table--dense th,
+.eo-table--dense td {
+  height: 40px;
+  padding: 6px 12px;
+  vertical-align: middle;
+}
+
+/* Encabezado ordenable: un botón dentro del th, con aria-sort en el th. */
+th.eo-th--sortable { padding-top: 0; padding-bottom: 0; }
+.eo-th__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: var(--ctl);
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: 0;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  cursor: pointer;
+}
+.eo-th__btn:hover:not(:disabled) { color: var(--tx); border: none; }
+th.eo-th--numeric .eo-th__btn { flex-direction: row-reverse; }
+.eo-th__arrow { color: var(--ac-tx); min-width: 0.8em; }
+
+/* Monoespaciada para identificadores literales (run_id, unit_id, rutas). Al
+   tamaño de su contexto: en una tabla no baja de los 13 px de los datos. */
 .eo-mono {
   font-family: var(--fm);
-  font-size: var(--text-sm);
+  font-size: inherit;
   color: var(--tx);
   font-variant-numeric: tabular-nums;
 }
 
-/* (Acá vivían `.eo-timeline { display:flex }` y `.eo-timeline__tick`, de la franja
-   de ticks del TraceTimeline de la rama anterior. Ese componente no existe más: lo
-   reemplazó charts/ActivityTimeline, que usa `.eo-timeline` como bloque contenedor.
-   La regla flex sobreviviente apilaba el eje, la leyenda y la ayuda en una fila al
-   costado del SVG. Se elimina en vez de sobrescribirla.) */
+/* Nombre en dos líneas: el título y su identificador debajo. Sin recortar con
+   puntos suspensivos: envuelve por palabras y la tabla se desplaza si no entra. */
+.eo-rowname { display: flex; flex-direction: column; gap: 2px; min-width: 16ch; padding: 4px 0; }
+.eo-rowname b { font-weight: 500; color: var(--tx); font-size: var(--fz-data); }
+.eo-rowname > .eo-mono { font-size: var(--fz-meta); color: var(--tx2); display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; }
 
-/* Progress bar — traza correlacionada por frame */
-.eo-best { font-weight: 700; color: var(--ok); }
-
-/* Fila de progreso de patrón — condition_id + barra + % en una línea alineada */
-
-/* Celda de frame — preview arriba, identificador siempre debajo (evita zigzag) */
-
-/* Chip de detección — label + confianza/conteo, punto de color = labelColor */
+/* Chip de detección — label + confianza/conteo, punto de color = labelColor. */
 .eo-chip {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-1);
-  font-size: var(--text-sm);
+  gap: 6px;
+  min-height: 24px;
+  font-size: var(--fz-meta);
   background: var(--s2);
   border: 1px solid var(--bd);
   border-radius: 999px;
-  padding: 0 var(--space-2);
+  padding: 0 9px;
 }
 .eo-chip__dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-.eo-chip__conf { color: var(--tx3); font-variant-numeric: tabular-nums; }
+.eo-chip__conf { color: var(--tx2); font-variant-numeric: tabular-nums; }
 
-/* Definition list — summary de run (modelo/prompts/unidades/por label) */
-.eo-deflist { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-5); margin: var(--space-3) 0 0; }
-.eo-deflist dt { font-size: 10.5px; color: var(--tx3); }
-.eo-deflist dd { margin: 0; font-size: var(--text-md); }
+/* Definition list — configuración, rendimiento, trazabilidad. */
+.eo-deflist { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr)); gap: 12px 24px; margin: 0; }
+.eo-deflist dt { font-size: var(--fz-meta); color: var(--tx3); }
+.eo-deflist dd { margin: 2px 0 0; font-size: var(--fz-body); overflow-wrap: anywhere; }
+.eo-deflist--wide { grid-template-columns: minmax(0, 1fr); }
+
+/* Delete confirm en línea. */
+.eo-delete-confirm {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: var(--fz-data);
+  color: var(--tx2);
+}
+
+/* ── Armazón ────────────────────────────────────────────────────────────── */
 
 /* Breadcrumbs */
-.eo-crumbs { font-size: var(--text-md); color: var(--tx3); }
-.eo-crumbs__sep { color: var(--bds); }
+.eo-crumbs { font-size: var(--fz-body); color: var(--tx2); overflow-wrap: anywhere; min-width: 0; }
+.eo-crumbs__sep { color: var(--tx3); }
 .eo-crumbs__current { color: var(--tx); font-weight: 600; }
 
-/* Shell */
 .eo-shell { display: flex; min-height: 100vh; }
 
+/* La columna principal crece desde base cero y puede encogerse: sin esto el
+   contenido se dimensionaba por su ancho intrínseco y la retícula cambiaba al
+   resolver una consulta o cambiar de pestaña. */
+.eo-main {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Contenido: todo el ancho de la columna principal hasta 1600 px, centrado, con
+   el margen lateral del token --gutter. Es el contenedor de las container
+   queries de cada composición. */
+.eo-content {
+  width: 100%;
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: 16px var(--gutter) 40px;
+  container: content / inline-size;
+  min-width: 0;
+}
+
+/* Migas a la izquierda y estado de la instancia en su propio contenedor a la
+   derecha. Con migas largas, el estado baja a otra fila sin empujar nada. */
+.eo-crumbsbar {
+  display: flex;
+  align-items: center;
+  gap: 8px 12px;
+  flex-wrap: wrap;
+  padding-bottom: 10px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--bd);
+  min-height: 34px;
+}
+.eo-crumbsbar__trail { flex: 1 1 auto; min-width: 0; }
+.eo-crumbsbar__status { flex: 0 1 auto; margin-left: auto; min-width: 0; }
+
+/* Barra lateral persistente (≥ 1024 px). Sin transición de ancho: animar el
+   ancho recalculaba el layout de toda la pantalla en cada cuadro. */
 .eo-sidebar {
+  flex: 0 0 var(--sidebar-width);
   width: var(--sidebar-width);
-  flex-shrink: 0;
   background: var(--s1);
   border-right: 1px solid var(--bd);
   padding: 12px 9px;
@@ -1097,63 +1596,71 @@
   top: 0;
   height: 100vh;
   overflow-y: auto;
-  overflow-x: visible;
-  z-index: 50;
-  transition: width 0.16s ease;
+  z-index: 5;
 }
-.eo-sidebar--collapsed { width: var(--sidebar-width-collapsed); overflow: visible; }
+.eo-sidebar--collapsed {
+  flex-basis: var(--sidebar-width-collapsed);
+  width: var(--sidebar-width-collapsed);
+  overflow: visible;
+}
 
-.eo-sidebar__brand { display: flex; align-items: center; gap: 8px; padding: 0 4px; width: 100%; }
-.eo-sidebar__brand b { font-weight: 500; font-size: 14px; letter-spacing: -0.01em; }
-.eo-sidebar__brand-sub { font-size: 10px; color: var(--tx3); font-family: var(--fm); }
+.eo-sidebar__brand { display: flex; align-items: center; gap: 8px; padding: 0 4px; width: 100%; min-height: 32px; }
+.eo-sidebar__brand b { font-weight: 500; font-size: var(--fz-body); letter-spacing: -0.01em; }
+.eo-sidebar__brand-sub { font-size: var(--fz-meta); color: var(--tx3); font-family: var(--fm); }
 .eo-sidebar__collapse {
   margin-left: auto;
   background: none;
-  border: none;
-  color: var(--tx3);
-  padding: 3px;
-  border-radius: 4px;
+  border: 1px solid transparent;
+  color: var(--tx2);
+  padding: 0;
+  width: 32px;
+  min-height: 32px;
+  border-radius: var(--r);
   display: flex;
+  align-items: center;
+  justify-content: center;
   flex: none;
   cursor: pointer;
 }
-.eo-sidebar__collapse:hover { background: var(--s2); color: var(--tx); }
+.eo-sidebar__collapse:hover:not(:disabled) { background: var(--s2); color: var(--tx); border-color: var(--bds); }
 .eo-sidebar--collapsed .eo-sidebar__brand b,
 .eo-sidebar--collapsed .eo-sidebar__brand-sub { display: none; }
 .eo-sidebar--collapsed .eo-sidebar__collapse { margin: 0 auto; }
 
+/* Las dos acciones globales van en tratamiento secundario: la acción primaria
+   de cada pantalla vive en su cabecera, y dos CTA violetas permanentes le
+   quitaban jerarquía. */
+.eo-sidebar__actions { display: flex; flex-direction: column; gap: 6px; }
 .eo-sidebar__action {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 6px;
+  justify-content: flex-start;
+  gap: 8px;
   width: 100%;
-  height: 31px;
-  border: none;
+  min-height: var(--ctl);
+  padding: 0 10px;
+  border: 1px solid var(--bds);
   border-radius: var(--r);
-  background: var(--ac);
-  color: var(--ac-text-on);
+  background: var(--s2);
+  color: var(--tx);
   font-weight: 500;
-  font-size: 12.5px;
+  font-size: var(--fz-data);
   flex: none;
   position: relative;
-  text-align: center;
 }
-.eo-sidebar__action:hover { background: var(--ac-hover); color: var(--ac-text-on); text-decoration: none; }
-/* El icono no se encoge cuando el rótulo es largo ("Nuevo experimento"). */
-.eo-sidebar__action svg { flex: none; }
-.eo-sidebar--collapsed .eo-sidebar__action { width: 38px; padding: 0; }
+.eo-sidebar__action svg { flex: none; color: var(--ac-tx); }
+.eo-sidebar__action:hover { background: var(--s3); color: var(--tx); text-decoration: none; border-color: var(--ac-bd); }
+.eo-sidebar--collapsed .eo-sidebar__action { width: 36px; padding: 0; justify-content: center; margin: 0 auto; }
 /* Se esconde el rótulo y queda el <svg>: es lo único que identifica al botón
-   con la barra colapsada. */
+   con la barra colapsada. El nombre accesible sigue siendo el completo. */
 .eo-sidebar--collapsed .eo-sidebar__action > span:not(.eo-tip) { display: none; }
 
 .eo-sidebar__nav { display: flex; flex-direction: column; gap: 14px; }
 .eo-sidebar__group { display: flex; flex-direction: column; gap: 1px; width: 100%; }
 .eo-sidebar__group-title {
-  font-size: 10.5px;
+  font-size: var(--fz-meta);
   font-weight: 400;
-  color: var(--tx4);
-  text-transform: none;
+  color: var(--tx3);
   letter-spacing: 0.02em;
   margin: 0 0 4px;
   padding: 0 8px;
@@ -1170,14 +1677,15 @@
   display: flex;
   align-items: center;
   gap: 9px;
-  padding: 6px 8px;
+  min-height: 32px;
+  padding: 4px 8px;
   border-radius: 5px;
   color: var(--tx2);
-  font-size: 12.5px;
+  font-size: var(--fz-data);
   position: relative;
   border-left: 2px solid transparent;
 }
-.eo-sidebar__link svg { flex: none; opacity: 0.85; }
+.eo-sidebar__link svg { flex: none; opacity: 0.9; }
 .eo-sidebar__link:hover { background: var(--s2); color: var(--tx); text-decoration: none; }
 .eo-sidebar__link:hover svg { opacity: 1; }
 .eo-sidebar__link--active {
@@ -1186,17 +1694,18 @@
   border-left-color: var(--ac);
   font-weight: 600;
 }
+.eo-sidebar__link--active:hover { color: var(--ac-tx); }
 .eo-sidebar__link--active svg { opacity: 1; }
 .eo-sidebar__link-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.eo-sidebar__count { margin-left: auto; font-family: var(--fm); font-size: 10.5px; color: var(--tx3); }
+.eo-sidebar__count { margin-left: auto; font-family: var(--fm); font-size: var(--fz-meta); color: var(--tx2); }
 .eo-sidebar__link--active .eo-sidebar__count { color: var(--ac-tx); }
 .eo-sidebar--collapsed .eo-sidebar__link { width: 38px; justify-content: center; padding: 7px 0; }
 .eo-sidebar--collapsed .eo-sidebar__link-label,
 .eo-sidebar--collapsed .eo-sidebar__count { display: none; }
 
-/* Tooltip de colapsado — solo visible con la barra lateral colapsada.
-   El texto viene de data-tip vía ::before (no duplica texto en el DOM: evita
-   colisiones con getByText en las páginas que también muestran la misma etiqueta). */
+/* Tooltip de colapsado — solo visible con la barra lateral colapsada. El texto
+   viene de data-tip vía ::before (no duplica texto en el DOM). Es un
+   complemento: el nombre accesible de cada destino es su rótulo completo. */
 .eo-tip {
   display: none;
   position: absolute;
@@ -1212,31 +1721,52 @@
   background: var(--s3);
   border: 1px solid var(--bds);
   color: var(--tx);
-  font-size: 11.5px;
+  font-size: var(--fz-meta);
   padding: 3px 8px;
   border-radius: 5px;
   white-space: nowrap;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
 }
 .eo-sidebar--collapsed .eo-sidebar__link:hover .eo-tip,
+.eo-sidebar--collapsed .eo-sidebar__link:focus-visible .eo-tip,
 .eo-sidebar--collapsed .eo-sidebar__action:hover .eo-tip,
+.eo-sidebar--collapsed .eo-sidebar__action:focus-visible .eo-tip,
 .eo-sidebar--collapsed .eo-service:hover .eo-tip { display: block; }
 
-/* Estado de los motores al pie */
+/* Estado de los motores al pie: nombre, puerto y el estado en texto. */
 .eo-sidebar__services {
   margin-top: auto;
   border-top: 1px solid var(--bd);
-  padding-top: 9px;
+  padding-top: 10px;
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 8px;
   width: 100%;
+  font-size: var(--fz-meta);
+  color: var(--tx3);
 }
-.eo-service { display: flex; align-items: center; gap: 7px; padding: 0 8px; font-size: 11px; color: var(--tx3); position: relative; }
-.eo-service__dot { width: 6px; height: 6px; border-radius: 50%; flex: none; }
-.eo-service code { font-size: 10px; margin-left: auto; color: var(--tx4); }
-.eo-sidebar--collapsed .eo-service { justify-content: center; padding: 2px 0; }
+.eo-service {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  column-gap: 7px;
+  align-items: center;
+  padding: 0 8px;
+  font-size: var(--fz-meta);
+  color: var(--tx2);
+  position: relative;
+}
+.eo-service__dot { width: 7px; height: 7px; border-radius: 50%; flex: none; }
+/* La forma acompaña al color: hueco mientras se verifica, cuadrado si no
+   responde. El texto de estado es el que lleva el significado. */
+.eo-service__dot--checking { background: transparent !important; border: 1.5px solid var(--nt); }
+.eo-service__dot--down { border-radius: 1px; }
+.eo-service__label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.eo-service code { font-size: var(--fz-meta); color: var(--tx3); }
+.eo-service__state { grid-column: 2 / -1; color: var(--tx3); }
+.eo-service__state--down { color: var(--er); }
+.eo-sidebar--collapsed .eo-service { display: flex; justify-content: center; padding: 2px 0; }
 .eo-sidebar--collapsed .eo-service__label,
+.eo-sidebar--collapsed .eo-service__state,
 .eo-sidebar--collapsed .eo-service code { display: none; }
 
 /* Live run pill */
@@ -1244,7 +1774,7 @@
   margin-top: auto;
   display: grid;
   gap: 2px;
-  padding: var(--space-2) var(--space-3);
+  padding: 8px 12px;
   border: 1px solid var(--live);
   border-radius: var(--r);
   background: color-mix(in srgb, var(--live) 12%, transparent);
@@ -1252,132 +1782,127 @@
   min-width: 0;
   max-width: 100%;
 }
-.eo-livepill:hover { text-decoration: none; background: color-mix(in srgb, var(--live) 20%, transparent); }
-.eo-livepill__dot { color: var(--live); font-size: 0.7em; }
+.eo-livepill:hover { text-decoration: none; color: var(--tx); background: color-mix(in srgb, var(--live) 20%, transparent); }
+.eo-livepill__head { display: flex; align-items: center; gap: 6px; font-size: var(--fz-meta); color: var(--tx2); }
 .eo-livepill__id {
   font-family: var(--fm);
-  font-size: var(--text-sm);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  font-size: var(--fz-meta);
+  overflow-wrap: anywhere;
   max-width: 100%;
   display: block;
 }
-.eo-livepill__meta { font-size: var(--text-xs); color: var(--tx3); }
+.eo-livepill__meta { font-size: var(--fz-meta); color: var(--tx3); }
+.eo-sidebar--collapsed .eo-livepill { justify-content: center; padding: 10px 0; }
+.eo-sidebar--collapsed .eo-livepill__id,
+.eo-sidebar--collapsed .eo-livepill__meta,
+.eo-sidebar--collapsed .eo-livepill__label { display: none; }
 
-@media (min-width: 761px) {
-  .eo-sidebar--collapsed .eo-livepill { justify-content: center; padding: 10px 0; }
-  .eo-sidebar--collapsed .eo-livepill__id,
-  .eo-sidebar--collapsed .eo-livepill__meta { display: none; }
-}
-
-.eo-topbar__menu {
-  display: none;
-  background: none;
-  border: 1px solid var(--bd);
-  border-radius: var(--r);
-  color: var(--tx);
-  width: 30px;
-  height: 30px;
-  cursor: pointer;
-  font-size: var(--text-md);
-}
-
-.eo-sidebar__scrim {
-  display: none;
-}
-
-/* 760 px y no 900: es el mismo corte en que aparece la barra superior. Con dos
-   cortes distintos, entre 760 y 900 la lateral ya era un cajón cerrado y la
-   barra superior todavía no existía — o sea, ninguna forma de navegar. */
-@media (max-width: 760px) {
-  .eo-topbar__menu { display: inline-flex; align-items: center; justify-content: center; }
-  .eo-sidebar__collapse { display: none; }
-  .eo-sidebar {
-    position: fixed;
-    z-index: 30;
-    left: 0;
-    top: 0;
-    transform: translateX(-100%);
-    transition: transform 0.15s ease;
-    box-shadow: 4px 0 16px rgba(0, 0, 0, 0.4);
-  }
-  .eo-sidebar--open { transform: translateX(0); }
-  .eo-sidebar__scrim {
-    display: block;
-    position: fixed;
-    inset: 0;
-    z-index: 20;
-    background: rgba(0, 0, 0, 0.4);
-  }
-}
-
-/* Barra superior: existe solo cuando la lateral se esconde (≤760 px). En
-   escritorio no decía nada que la lateral no dijera y le comía alto al
-   contenido, que en una consola de monitoreo es lo escaso. */
+/* Barra superior: existe sólo debajo de 1024 px, donde la lateral pasa a cajón. */
 .eo-topbar {
-  display: none;
-  align-items: center;
-  gap: var(--space-4);
-  padding: var(--space-3) var(--space-5);
-  border-bottom: 1px solid var(--bd);
-  background: var(--s1);
-}
-.eo-topbar__brand { font-size: var(--text-md); letter-spacing: 0.02em; }
-@media (max-width: 760px) { .eo-topbar { display: flex; } }
-
-.eo-content { padding: var(--space-5); max-width: var(--content-max); width: 100%; }
-
-/* Migas + instancia activa, dentro del contenido y con su propio borde. A
-   diferencia del prototipo no sangran hasta el borde de la ventana: alinean con
-   el contenido, que dentro de un ancho máximo se lee mejor que una línea suelta. */
-.eo-crumbsbar {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
-  flex-wrap: wrap;
-  padding-bottom: 9px;
-  margin-bottom: var(--space-4);
+  gap: 12px;
+  padding: 6px var(--gutter);
   border-bottom: 1px solid var(--bd);
+  background: var(--s1);
+  position: sticky;
+  top: 0;
+  z-index: 5;
 }
-.eo-crumbsbar > :last-child { margin-left: auto; }
-
-/* Preview con bboxes + zoom al hover */
-.eo-preview { position: relative; display: inline-block; line-height: 0; transition: transform .12s ease; }
-.eo-preview img { display: block; max-width: 100%; }
-.eo-preview__box { position: absolute; border: 1.5px solid; pointer-events: none; border-radius: 1px; }
-.eo-preview:hover { transform: scale(1.6); transform-origin: left center; z-index: 10; }
-/* Fila con alerta */
-
-/* Recuadro de clase del editor de prompt sets: acotado al contenido (no full-width)
-   y con atenuación visible cuando el set no es editable (frozen / pending review). */
-.eo-classbox {
-  max-width: 640px;
-  border: 1px solid var(--bd);
+.eo-topbar__brand { font-size: var(--fz-body); letter-spacing: 0.02em; }
+.eo-topbar__menu {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 10px;
+  background: none;
+  border: 1px solid var(--bds);
   border-radius: var(--r);
-  padding: var(--space-3) var(--space-4);
-  margin: 0 0 var(--space-3);
-}
-.eo-classbox[disabled] {
-  opacity: 0.6;
+  color: var(--tx);
+  cursor: pointer;
 }
 
-/* Placeholder cuando un frame no tiene preview (descartado / no procesado / archivo ausente):
-   lee como "sin imagen a propósito", no como render roto. */
+/* Cajón de navegación: un <dialog> modal que ocupa la ventana, transparente,
+   con el panel a la izquierda. Tocar fuera del panel es tocar el diálogo. */
+.eo-dialog { color: var(--tx); }
+.eo-drawer {
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+}
+.eo-drawer::backdrop { background: rgba(0, 0, 0, 0.5); }
+.eo-drawer .eo-sidebar {
+  position: relative;
+  width: min(300px, 88vw);
+  height: 100%;
+  flex: none;
+  border-right: 1px solid var(--bds);
+  box-shadow: 4px 0 16px rgba(0, 0, 0, 0.4);
+  animation: eo-drawer-in 0.16s ease-out;
+}
+.eo-drawer .eo-sidebar__link,
+.eo-drawer .eo-sidebar__action { min-height: 44px; }
+.eo-drawer__close { margin-left: auto; }
+@keyframes eo-drawer-in {
+  from { transform: translateX(-100%); }
+  to { transform: none; }
+}
+
+/* Diálogo de ampliación de imagen: la misma vista previa con sus cajas. */
+.eo-zoom {
+  padding: 0;
+  border: 1px solid var(--bds);
+  border-radius: var(--rc);
+  background: var(--s1);
+  max-width: min(1200px, calc(100vw - 32px));
+  max-height: calc(100vh - 32px);
+}
+.eo-zoom::backdrop { background: rgba(0, 0, 0, 0.7); }
+.eo-zoom__head { display: flex; align-items: center; gap: 12px; padding: 8px 8px 8px 14px; border-bottom: 1px solid var(--bd); }
+.eo-zoom__head h2 { font-size: var(--fz-panel); font-weight: 500; min-width: 0; overflow-wrap: anywhere; }
+.eo-zoom__head .eo-btn { margin-left: auto; }
+.eo-zoom__body { padding: 14px; overflow: auto; max-height: calc(100vh - 100px); }
+.eo-zoom__body .eo-preview { width: 100%; }
+.eo-zoom__body .eo-preview img { width: 100%; height: auto; }
+
+/* ── Vista previa con cajas ─────────────────────────────────────────────── */
+
+/* Sin escalado al pasar el mouse: tapaba lo vecino y no existía en una
+   pantalla táctil. La ampliación es un botón explícito (`.eo-zoom`). */
+.eo-preview { position: relative; display: inline-block; line-height: 0; max-width: 100%; }
+.eo-preview img { display: block; max-width: 100%; height: auto; }
+.eo-preview__box { position: absolute; border: 1.5px solid; pointer-events: none; border-radius: 1px; }
+
+/* Placeholder cuando un frame no tiene preview: lee como "sin imagen a
+   propósito", no como render roto. */
 .eo-preview--empty {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   aspect-ratio: 4 / 3;
+  padding: 16px;
   border: 1px dashed var(--bds);
   border-radius: var(--r);
-  color: var(--tx3);
-  font-size: var(--text-xs);
+  color: var(--tx2);
+  font-size: var(--fz-meta);
+  line-height: 1.5;
+  text-align: center;
   background: var(--sunken);
 }
 
-/* Viewer en vivo (ventana Cámaras): canvas responsive, tamaño derivado del
-   aspect-ratio real del frame, con una franja de indicadores superpuesta. */
+/* ── Visor en vivo ──────────────────────────────────────────────────────── */
+
+/* Canvas responsive, tamaño derivado del aspect-ratio real del frame, con una
+   franja de indicadores superpuesta que envuelve. */
 .eo-live-viewer {
   position: relative;
   width: 100%;
@@ -1399,8 +1924,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--tx3);
-  font-size: var(--text-sm);
+  color: var(--tx2);
+  font-size: var(--fz-body);
 }
 .eo-live-viewer__overlay {
   position: absolute;
@@ -1409,28 +1934,47 @@
   right: 0;
   display: flex;
   align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-2) var(--space-3);
-  background: linear-gradient(to bottom, rgba(13, 13, 13, 0.75), transparent);
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  padding: 8px 12px;
+  background: linear-gradient(to bottom, rgba(13, 13, 13, 0.82), rgba(13, 13, 13, 0.4) 70%, transparent);
   color: var(--tx);
-  font-size: var(--text-sm);
+  font-size: var(--fz-meta);
   pointer-events: none;
 }
 
-/* RecordPanel — la marca de los 30 s no es decorativa: es la regla de oro 3 del
-   guion de rodaje (se filma 30-35 s aunque el clip final sea de 20 s). */
+/* ── Grabación ──────────────────────────────────────────────────────────── */
+
+/* La marca de los 30 s no es decorativa: es la regla de oro 3 del guion de
+   rodaje (se filma 30-35 s aunque el clip final sea de 20 s). */
+.eo-record__take { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; margin: 0 0 12px; font-size: var(--fz-body); color: var(--tx2); }
+.eo-record__take strong { font-family: var(--fm); color: var(--tx); overflow-wrap: anywhere; }
+.eo-record__status { margin: 0 0 12px; display: flex; flex-direction: column; gap: 4px; }
+.eo-record__actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.eo-record__summary { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--bd); font-size: var(--fz-body); }
+.eo-record__summary p { margin: 0 0 6px; }
+.eo-rec-dot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--er);
+  margin-right: 2px;
+  vertical-align: baseline;
+}
 .rec-corta {
   color: var(--wn);
   font-weight: 600;
+  margin: 0;
 }
-
 .rec-ok {
   color: var(--ok);
   font-weight: 600;
+  margin: 0;
 }
-
 .record-error {
   color: var(--er);
+  margin: 6px 0 0;
 }
 
 /* Reproductores de video (clips, recorte, corrida). A tamaño intrínseco un clip
@@ -1438,45 +1982,45 @@
 .eo-video {
   display: block;
   width: 100%;
-  max-width: 560px;
-  max-height: 42vh;
+  max-width: 720px;
+  max-height: 46vh;
   border-radius: var(--r);
   background: #000;
 }
 
-/* Filas seleccionables de una lista-biblioteca (masters, clips). Reemplazan a
-   <ul> con viñetas: nombre + metadatos a la izquierda, acción a la derecha. */
+/* ── Biblioteca de clips ────────────────────────────────────────────────── */
+
+/* Filas seleccionables de una lista-biblioteca (masters, clips): nombre +
+   metadatos a la izquierda, acción a la derecha. */
 .eo-rows {
   list-style: none;
   margin: 0;
   padding: 0;
 }
 .eo-rows--scroll {
-  max-height: 34vh;
+  max-height: 40vh;
   overflow-y: auto;
-  /* El scrollbar no debe pisar el borde de selección de la fila. */
-  padding-right: var(--space-1);
 }
 .eo-row {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-2);
-  border: 1px solid transparent;
-  border-radius: var(--r);
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--bd);
 }
-.eo-row + .eo-row { border-top-color: var(--bd); }
+.eo-row:last-child { border-bottom: none; }
 .eo-row:hover { background: var(--s2); }
 .eo-row--active {
-  background: var(--s2);
-  border-color: var(--ac);
+  background: var(--ac-bg);
+  box-shadow: inset 3px 0 0 var(--ac);
 }
 .eo-row__main,
 .eo-row__pick {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  flex: 1;
+  flex: 1 1 180px;
   min-width: 0;
 }
 /* La fila entera es el target de click cuando no hay botón de acción aparte. */
@@ -1484,6 +2028,8 @@
   background: none;
   border: none;
   padding: 0;
+  min-height: var(--ctl);
+  justify-content: center;
   text-align: left;
   color: inherit;
   cursor: pointer;
@@ -1491,198 +2037,239 @@
 .eo-row__pick:hover:not(:disabled) { border-color: transparent; }
 .eo-row__name {
   font-weight: 500;
+  font-size: var(--fz-data);
   overflow-wrap: anywhere;
 }
-.eo-row .eo-note { display: block; }
+.eo-row .eo-note { display: block; margin: 0; font-size: var(--fz-meta); color: var(--tx3); }
+.eo-row .eo-note--warn { color: var(--wn); }
 
-/* Página de clips: biblioteca a la izquierda (con scroll propio) y área de
-   trabajo pegada a la derecha, para no scrollear la página entera al recortar. */
-.eo-toolbar {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  margin-bottom: var(--space-4);
-}
+/* Biblioteca de 340 px y área de trabajo flexible con al menos 1040 px de
+   contenido; debajo, apilados. */
 .eo-clips__grid {
   display: grid;
-  grid-template-columns: minmax(300px, 380px) minmax(0, 1fr);
-  gap: var(--space-4);
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
   align-items: start;
 }
-.eo-clips__work {
-  position: sticky;
-  top: var(--space-4);
-}
-.eo-clips__rail > .eo-card:last-child { margin-bottom: 0; }
-@media (max-width: 1100px) {
-  .eo-clips__grid { grid-template-columns: 1fr; }
-  .eo-clips__work { position: static; }
+.eo-clips__rail { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.eo-clips__rail > .eo-card { margin-bottom: 0; }
+.eo-clips__work { min-width: 0; }
+.eo-clips__work > .eo-card { margin-bottom: 0; }
+@container content (min-width: 1040px) {
+  .eo-clips__grid { grid-template-columns: 340px minmax(0, 1fr); }
+  .eo-clips__work { position: sticky; top: 16px; }
 }
 
-/* Recorte: marcas y acciones en filas compactas, no una pila de bloques. */
+/* Recorte: las marcas en orden, con sus tiempos, y la misma información sobre
+   una barra proporcional a la duración. */
 .eo-trim__marks {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
+  gap: 8px;
   flex-wrap: wrap;
-  margin-top: var(--space-3);
+  margin-top: 12px;
+  list-style: none;
+  padding: 0;
 }
+.eo-trim__mark { display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.eo-trim__mark .eo-mono { color: var(--tx2); }
+.eo-trim__n { font-family: var(--fm); font-size: var(--fz-meta); color: var(--tx3); }
+.eo-trim__track {
+  position: relative;
+  height: 24px;
+  margin: 12px 0 4px;
+  max-width: 720px;
+  background: var(--sunken);
+  border: 1px solid var(--bd);
+  border-radius: 4px;
+}
+.eo-trim__range { position: absolute; top: 0; bottom: 0; background: var(--ac-bg); border-left: 1px solid var(--ac-bd); border-right: 1px solid var(--ac-bd); }
+.eo-trim__pin {
+  position: absolute;
+  top: -1px;
+  bottom: -1px;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--ac);
+}
+.eo-trim__pin span {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 2px;
+  font-family: var(--fm);
+  font-size: var(--fz-meta);
+  color: var(--tx2);
+  line-height: 1.4;
+}
+.eo-trim__trackcap { margin: 20px 0 0; font-size: var(--fz-meta); color: var(--tx3); }
 .eo-trim__fields {
   display: flex;
-  gap: var(--space-4);
+  gap: 0 16px;
   flex-wrap: wrap;
-  margin-top: var(--space-3);
+  margin-top: 12px;
 }
-.eo-trim__fields .eo-field { margin-bottom: 0; }
-.eo-trim__warn { color: var(--wn); font-size: var(--text-sm); }
-.eo-trim__result { color: var(--ok); }
+.eo-trim__fields .eo-field { margin-bottom: 0; flex: 1 1 200px; max-width: 320px; }
+.eo-trim__warn { color: var(--wn); font-size: var(--fz-body); margin: 8px 0 0; }
+.eo-trim__result { color: var(--ok); margin-top: 12px; }
+.eo-trim__result ul { margin: 4px 0 0; padding-left: 18px; color: var(--wn); }
+.eo-trim__status { margin: 8px 0 0; font-size: var(--fz-body); color: var(--tx2); }
+.eo-feedback { display: inline-flex; align-items: flex-start; gap: 6px; }
+.eo-feedback svg { flex: none; margin-top: 2px; }
 
-/* Select — desplegable propio: el <select> nativo rompe el lenguaje visual. */
-.eo-select { position: relative; display: inline-block; min-width: 160px; }
+/* ── Selector propio ────────────────────────────────────────────────────── */
+
+.eo-select { position: relative; display: inline-block; min-width: 160px; max-width: 100%; }
+.eo-field .eo-select { display: block; width: 100%; }
 .eo-select__control {
   width: 100%;
-  height: 30px;
+  min-height: var(--ctl);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-2);
-  padding: 0 var(--space-3);
+  gap: 8px;
+  padding: 4px 10px 4px 12px;
   background: var(--s2);
-  border: 1px solid var(--bd);
+  border: 1px solid var(--bd-ctl);
   border-radius: var(--r);
   color: var(--tx);
-  font-size: var(--text-sm);
+  font-size: var(--fz-body);
+  text-align: left;
   cursor: pointer;
 }
-.eo-select__control:hover { background: var(--s3); }
-.eo-select__caret { color: var(--tx3); font-size: 0.8em; }
+.eo-select__control:hover:not(:disabled) { background: var(--s3); }
+.eo-select__value { min-width: 0; overflow-wrap: anywhere; }
+.eo-select__value--empty { color: var(--tx3); }
+.eo-select__caret { color: var(--tx2); display: flex; flex: none; }
+.eo-select__control[aria-expanded='true'] .eo-select__caret { transform: rotate(180deg); }
+/* La lista va en un portal con posición fija (`style` inline): ninguna tabla o
+   tarjeta con overflow la recorta. */
 .eo-select__list {
-  position: absolute;
-  z-index: 20;
-  top: calc(100% + 4px);
-  left: 0;
-  right: 0;
+  z-index: 100;
   margin: 0;
-  padding: var(--space-1) 0;
+  padding: 4px 0;
   list-style: none;
   background: var(--s3);
   border: 1px solid var(--bds);
   border-radius: var(--r);
-  max-height: 240px;
   overflow-y: auto;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  color: var(--tx);
+  font-family: var(--fs);
 }
+.eo-select__list:focus { outline: none; }
 .eo-select__option {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-2);
-  padding: var(--space-2) var(--space-3);
-  font-size: var(--text-sm);
+  align-items: flex-start;
+  gap: 8px;
+  min-height: var(--ctl);
+  padding: 8px 12px;
+  font-size: var(--fz-body);
   cursor: pointer;
 }
-.eo-select__option:hover { background: var(--s2); }
-.eo-select__option--selected { color: var(--ac); font-weight: 600; }
+.eo-select__option.is-active { background: var(--ac-bg); box-shadow: inset 3px 0 0 var(--ac); }
+.eo-select__option--selected { color: var(--ac-tx); font-weight: 600; }
 .eo-select__option--disabled { color: var(--tx3); cursor: not-allowed; }
-.eo-select__option--disabled:hover { background: transparent; }
-.eo-select__reason { font-size: var(--text-xs); color: var(--tx3); }
+.eo-select__mark { width: 16px; flex: none; display: flex; padding-top: 2px; }
+.eo-select__text { display: flex; flex-direction: column; gap: 2px; min-width: 0; overflow-wrap: anywhere; }
+.eo-select__reason { font-size: var(--fz-meta); color: var(--tx3); font-weight: 400; }
+.eo-select__none { padding: 8px 12px; color: var(--tx3); font-size: var(--fz-body); }
 
-/* Buscador */
-.eo-search { position: relative; flex: 1; min-width: 180px; max-width: 300px; }
+/* ── Buscador ───────────────────────────────────────────────────────────── */
+
+.eo-search { position: relative; flex: 1 1 200px; min-width: 0; max-width: 320px; }
 .eo-search__input {
   width: 100%;
-  height: 30px;
+  min-height: var(--ctl);
   background: var(--s2);
-  border: 1px solid var(--bd);
+  border: 1px solid var(--bd-ctl);
   border-radius: var(--r);
   color: var(--tx);
-  padding: 0 9px 0 30px;
-  font-size: 12px;
+  padding: 0 10px 0 32px;
+  font-size: var(--fz-body);
   font-family: inherit;
 }
 .eo-search__input::placeholder { color: var(--tx4); }
 .eo-search__icon {
   position: absolute;
-  left: 9px;
+  left: 10px;
   top: 50%;
   transform: translateY(-50%);
   color: var(--tx3);
   display: flex;
 }
 
-/* Segmentado de filtro */
+/* ── Segmentado ─────────────────────────────────────────────────────────── */
+
+/* Envuelve por filas en vez de desbordar: cinco estados no entran en 320 px. */
 .eo-segmented {
   display: inline-flex;
+  flex-wrap: wrap;
+  max-width: 100%;
   background: var(--s2);
   border: 1px solid var(--bd);
   border-radius: var(--r);
   padding: 2px;
+  gap: 2px;
 }
 .eo-segmented button {
-  padding: 3px 10px;
+  min-height: calc(var(--ctl) - 6px);
+  padding: 0 12px;
   border-radius: 4px;
-  font-size: 12px;
-  color: var(--tx3);
+  font-size: var(--fz-data);
+  color: var(--tx2);
   border: none;
   background: none;
 }
-.eo-segmented button:hover { color: var(--tx2); }
-.eo-segmented button[aria-pressed="true"] { background: var(--s3); color: var(--tx); }
-
-/* Barra de herramientas: buscador + segmentado + contador */
-
-/* Encabezado ordenable + celda de nombre en dos lineas + confirmacion en linea */
-th.eo-th--sortable { cursor: pointer; user-select: none; }
-th.eo-th--sortable:hover { color: var(--tx2); }
-th.eo-th--numeric { text-align: right; }
-.eo-th__arrow { margin-left: 4px; color: var(--ac-tx); }
-
-.eo-rowname { display: flex; flex-direction: column; gap: 1px; min-width: 0; padding: 5px 0; }
-.eo-rowname b {
-  font-weight: 400;
-  color: var(--tx);
-  font-size: 12px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.eo-segmented button:hover:not(:disabled) { color: var(--tx); }
+.eo-segmented button[aria-pressed="true"] { background: var(--s3); color: var(--tx); box-shadow: inset 0 -2px 0 var(--ac); }
+@media (max-width: 767px), (pointer: coarse) {
+  .eo-segmented button { min-height: 44px; }
 }
 
-.eo-delete-confirm {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 11.5px;
-  color: var(--tx2);
-  white-space: nowrap;
-}
+/* ── Evidencia — Entrada ────────────────────────────────────────────────── */
 
-/* Evidencia — Entrada: los cuatro pasos del recorrido, no un índice de carpetas. */
-.eo-steps { display: flex; flex-direction: column; gap: var(--space-2); margin: var(--space-4) 0 0; }
-.eo-step {
+/* Los cuatro pasos del recorrido, no un índice de carpetas. Clase propia
+   (`eo-evsteps`): compartir `.eo-steps` con Nueva corrida hacía que una regla
+   pisara a la otra. */
+.eo-evsteps { display: flex; flex-direction: column; gap: 8px; margin: 16px 0 0; }
+.eo-evstep {
   display: grid;
-  grid-template-columns: 46px minmax(0, 1fr) 210px;
+  grid-template-columns: 46px minmax(0, 1fr) minmax(180px, 220px);
   align-items: center;
-  gap: var(--space-4);
+  gap: 16px;
   background: var(--s1);
   border: 1px solid var(--bd);
   border-radius: var(--rc);
-  padding: var(--space-3) var(--space-4);
+  padding: 12px 16px;
   color: inherit;
   text-decoration: none;
 }
-.eo-step:hover { border-color: var(--ac-bd); background: var(--s2); text-decoration: none; }
-.eo-step__n {
+/* El enlace del título se estira sobre la tarjeta entera: toda la tarjeta abre
+   el paso, y la fuente de la cifra (su propio botón) queda por encima. */
+.eo-evstep { position: relative; }
+.eo-evstep__link { color: var(--tx); text-decoration: none; }
+.eo-evstep__link::after { content: ''; position: absolute; inset: 0; border-radius: var(--rc); }
+.eo-evstep__link:focus-visible { outline: none; }
+.eo-evstep__link:focus-visible::after { outline: 2px solid var(--ac); outline-offset: 2px; }
+.eo-evstep .eo-tt { position: relative; z-index: 1; }
+.eo-evstep__body { min-width: 0; }
+.eo-evstep:hover { border-color: var(--ac-bd); background: var(--s2); }
+.eo-evstep__n {
   font-family: var(--fm);
   font-size: 26px;
-  color: var(--tx4);
+  color: var(--tx3);
   text-align: center;
   font-variant-numeric: tabular-nums;
 }
-.eo-step__t { font-size: 15px; font-weight: 500; color: var(--tx); }
-.eo-step__c { font-size: var(--text-sm); color: var(--tx2); margin: var(--space-1) 0 0; max-width: 76ch; }
-.eo-step__m { font-size: 11px; color: var(--tx3); margin: 5px 0 0; font-family: var(--fm); }
+.eo-evstep__t { margin: 0; font-size: var(--fz-panel); font-weight: 500; color: var(--tx); }
+.eo-evstep:hover .eo-evstep__link { color: var(--ac-tx); }
+.eo-evstep__c { font-size: var(--fz-body); color: var(--tx2); margin: 4px 0 0; max-width: 76ch; }
+.eo-evstep__m { font-size: var(--fz-meta); color: var(--tx3); margin: 6px 0 0; font-family: var(--fm); overflow-wrap: anywhere; }
 
-.eo-fig { text-align: right; }
-.eo-fig__l { font-size: 10.5px; color: var(--tx3); }
+.eo-fig { text-align: right; min-width: 0; }
+.eo-fig__l { font-size: var(--fz-meta); color: var(--tx2); }
 .eo-fig__v {
   font-size: 23px;
   font-weight: 600;
@@ -1691,71 +2278,63 @@ th.eo-th--numeric { text-align: right; }
   letter-spacing: -.01em;
   color: var(--tx);
 }
-.eo-fig__u { font-size: var(--text-sm); color: var(--tx3); margin-top: 2px; }
+.eo-fig__u { font-size: var(--fz-meta); color: var(--tx3); margin-top: 2px; }
+.eo-fig__src { margin-top: 4px; font-size: var(--fz-meta); color: var(--tx3); }
 
-/* Una cifra citada nunca se disfraza de leída: subrayado punteado y la fuente
- * viaja en el `title` (ver Entrada.tsx / Paso.tsx). */
-.eo-cifra--cit { text-decoration: underline dotted var(--tx3); text-underline-offset: 3px; cursor: help; }
+/* Una cifra citada nunca se disfraza de leída: subrayado punteado, el rótulo
+   «citada» en texto y la fuente a un toque (`Toggletip`), no sólo en `title`. */
+.eo-cifra--cit { text-decoration: underline dotted var(--tx3); text-underline-offset: 3px; }
+.eo-origen { display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: 2px 6px; font-size: var(--fz-meta); color: var(--tx3); font-family: var(--fs); font-style: normal; }
+.eo-cifra > .eo-origen { margin-left: 6px; }
 
-.eo-side3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-3); margin: var(--space-4) 0 0; }
-.eo-mini { display: block; background: var(--s1); border: 1px solid var(--bd); border-radius: var(--rc); padding: var(--space-3) var(--space-4); color: inherit; text-decoration: none; }
-a.eo-mini:hover { border-color: var(--ac-bd); text-decoration: none; }
+.eo-side3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 12px; margin: 16px 0 0; }
+.eo-mini { display: block; background: var(--s1); border: 1px solid var(--bd); border-radius: var(--rc); padding: 12px 16px; color: inherit; text-decoration: none; min-width: 0; }
+a.eo-mini:hover { border-color: var(--ac-bd); text-decoration: none; color: inherit; }
 /* «Por material» es informativa, no un link: sin hover de acento y cursor normal. */
 .eo-mini--static { cursor: default; }
-.eo-mini__h { font-size: var(--text-sm); font-weight: 500; color: var(--tx); }
-.eo-mini__d { font-size: 11.5px; color: var(--tx3); margin: 6px 0 0; line-height: 1.5; }
-.eo-mini__n { font-family: var(--fm); font-size: 11px; color: var(--tx4); margin: 7px 0 0; }
-.eo-mini__list { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 3px; }
-.eo-mini__list li { display: flex; justify-content: space-between; gap: var(--space-2); font-size: 11.5px; color: var(--tx2); }
+.eo-mini__h { font-size: var(--fz-body); font-weight: 500; color: var(--tx); }
+.eo-mini__d { font-size: var(--fz-body); color: var(--tx2); margin: 6px 0 0; line-height: 1.5; }
+.eo-mini__n { font-family: var(--fm); font-size: var(--fz-meta); color: var(--tx3); margin: 8px 0 0; }
+.eo-mini__list { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 4px; }
+.eo-mini__list li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2px 8px; font-size: var(--fz-data); color: var(--tx2); }
+.eo-mini__list li > * { min-width: 0; overflow-wrap: anywhere; }
 
-/* Evidencia — Paso: el hallazgo del paso + su tabla de resultados. La misma
- * tabla la reusa el respaldo instrumental (`/evidencia/respaldo`, servido
- * inline desde EvidencePage.tsx). */
-.eo-cifra { font-family: var(--fm); font-size: var(--text-md); color: var(--tx); font-variant-numeric: tabular-nums; }
-.eo-cifra i { font-style: normal; font-size: 10.5px; color: var(--tx3); margin-right: 5px; }
-/* La unidad de la cifra (`nota` del adaptador): sin ella «p95 control→MQTT
-   64,534» queda en una columna donde el resto son F1 entre 0 y 1. */
-.eo-cifra u { text-decoration: none; font-size: 10.5px; color: var(--tx3); margin-left: 4px; }
-.eo-comb { font-size: 11.5px; color: var(--tx3); font-family: var(--fm); }
-/* Lo declarado en vez de medido. Nunca se parte a mitad de palabra: la
-   celda vive en una columna angosta y el navegador cortaba «sin episodios
-   evaluable/s», que se lee como un dato truncado en vez de como una
-   declaración. Se desborda la celda antes que romper la palabra. */
-.eo-na { color: var(--tx4); font-style: italic; hyphens: none; overflow-wrap: normal; word-break: normal; }
+/* Evidencia — Paso: el hallazgo del paso + su tabla de resultados. */
+.eo-cifra { font-family: var(--fm); font-size: var(--fz-data); color: var(--tx); font-variant-numeric: tabular-nums; }
+.eo-cifra i { font-style: normal; font-size: var(--fz-meta); color: var(--tx2); margin-right: 6px; font-family: var(--fs); }
+/* La unidad de la cifra (`nota` del adaptador). */
+.eo-cifra u { text-decoration: none; font-size: var(--fz-meta); color: var(--tx3); margin-left: 4px; }
+.eo-comb { font-size: var(--fz-data); color: var(--tx2); font-family: var(--fm); }
+/* Lo declarado en vez de medido. Nunca se parte a mitad de palabra: se lee
+   como una declaración, no como un dato truncado. */
+.eo-na { color: var(--tx3); font-style: italic; hyphens: none; overflow-wrap: normal; word-break: normal; }
 
 /* Evidencia — Resultado: el agregado con su desglose, nunca sólo el agregado
- * (limitación L5). Los desgloses van en dos columnas (`.eo-cols`). La barra de
- * una celda es magnitud, no identidad: una sola tinta (`SERIES_COLORS[0]` de
- * `palette.ts`, aplicada inline desde `Desglose.tsx` — el violeta es acción,
- * nunca condición); acá sólo va la estructura, en tokens de superficie/texto. */
-.eo-cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); align-items: start; margin: var(--space-4) 0 0; }
-.eo-barcell { display: flex; align-items: center; gap: 9px; }
-.eo-track { flex: 1; height: 6px; background: var(--sunken); border-radius: 3px; overflow: hidden; }
+ * (limitación L5). La barra de una celda es magnitud, no identidad: una sola
+ * tinta, aplicada inline desde `Desglose.tsx`. */
+.eo-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 16px; align-items: start; margin: 16px 0 0; }
+.eo-cols > .eo-card { margin-bottom: 0; }
+.eo-barcell { display: flex; align-items: center; gap: 9px; min-width: 120px; }
+.eo-track { flex: 1; height: 6px; background: var(--sunken); border-radius: 3px; overflow: hidden; min-width: 40px; }
 .eo-bar { display: block; height: 100%; border-radius: 0 3px 3px 0; }
 .eo-barval {
   font-family: var(--fm);
-  font-size: 12px;
+  font-size: var(--fz-data);
   color: var(--tx);
   font-variant-numeric: tabular-nums;
-  width: 40px;
+  width: 44px;
   text-align: right;
   flex: none;
 }
 
-@media (max-width: 1000px) {
-  .eo-side3 { grid-template-columns: minmax(0, 1fr); }
-  .eo-cols { grid-template-columns: minmax(0, 1fr); }
-}
-@media (max-width: 760px) {
-  .eo-step { grid-template-columns: 32px minmax(0, 1fr); }
+@media (max-width: 767px) {
+  .eo-evstep { grid-template-columns: 32px minmax(0, 1fr); gap: 8px 12px; }
   .eo-fig { grid-column: 1 / -1; text-align: left; }
 }
 
-/* Bloque de pruebas de plataforma (Experimentos, Task 8): la máquina
- * probándose a sí misma, separada del lump «N ejecuciones archivadas». Un
- * número grande + el relato + los slugs que lo componen — nunca sólo el
- * número, porque el total crece solo con cada corrida de la suite. */
-.eo-machine { display: flex; align-items: flex-start; gap: var(--space-4); flex-wrap: wrap; }
+/* Bloque de pruebas de plataforma (Experimentos): la máquina probándose a sí
+ * misma. Un número grande + el relato + los slugs que lo componen. */
+.eo-machine { display: flex; align-items: flex-start; gap: 16px; flex-wrap: wrap; }
 .eo-machine__n {
   font-family: var(--fm);
   font-size: 26px;
@@ -1765,14 +2344,56 @@ a.eo-mini:hover { border-color: var(--ac-bd); text-decoration: none; }
   line-height: 1.1;
   flex: none;
 }
-.eo-machine__t { font-size: 12.5px; color: var(--tx2); max-width: 92ch; text-wrap: pretty; margin: 0; flex: 1 1 260px; }
-.eo-slugs { display: flex; gap: 6px; margin: var(--space-2) 0 0; flex-wrap: wrap; }
+.eo-machine__t { font-size: var(--fz-body); color: var(--tx2); max-width: 72ch; text-wrap: pretty; margin: 0; flex: 1 1 260px; }
+.eo-slugs { display: flex; gap: 6px; margin: 8px 0 0; flex-wrap: wrap; }
 .eo-slug {
   font-family: var(--fm);
-  font-size: 11px;
-  color: var(--tx3);
+  font-size: var(--fz-meta);
+  color: var(--tx2);
   background: var(--s2);
   border: 1px solid var(--bd);
   border-radius: 4px;
   padding: 1px 7px;
+  overflow-wrap: anywhere;
 }
+
+/* Código literal de un rol del registro, al lado de su nombre legible. */
+.eo-rol__code { font-family: var(--fm); font-size: var(--fz-meta); color: var(--tx3); overflow-wrap: anywhere; }
+
+/* Identidad sin resolver (`${EOVRT_EXPERIMENT_ID}`): literal técnico, sin enlace. */
+.eo-unresolved { font-family: var(--fm); color: var(--tx2); overflow-wrap: break-word; }
+.eo-unresolved__why { display: block; font-family: var(--fs); font-size: var(--fz-meta); color: var(--tx3); }
+
+/* Secciones de un detalle (experimento, evidencia): un h2 con su conteo. */
+.eo-section { margin: 0 0 16px; }
+.eo-section__h {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  margin: 24px 0 10px;
+  font-size: var(--fz-h2);
+  font-weight: 500;
+}
+.eo-section__h small { font-size: var(--fz-meta); color: var(--tx3); font-weight: 400; }
+.eo-section__intro { margin: 0 0 12px; font-size: var(--fz-body); color: var(--tx2); max-width: 80ch; }
+
+/* Notas y subtítulos dentro de una tarjeta a sangre: mismo aire que el cuerpo. */
+.eo-cardnote { margin: 0; padding: 12px 14px; }
+.eo-cardnote + .eo-cap--inset { padding-top: 0; }
+.eo-cardhead { margin: 0; padding: 12px 14px 8px; font-size: var(--fz-body); font-weight: 600; }
+
+/* Preformateado (JSON de datos originales). */
+.eo-pre {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-family: var(--fm);
+  font-size: var(--fz-meta);
+  color: var(--tx2);
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+/* Pie sólo para lectores de pantalla y anuncios de estado discretos. */
+.eo-status-line { margin: 0 0 8px; font-size: var(--fz-meta); color: var(--tx3); }

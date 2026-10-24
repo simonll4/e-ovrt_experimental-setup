@@ -1,4 +1,5 @@
-import { fireEvent, screen, waitFor } from '@testing-library/react'
+import { fireEvent, screen, waitFor, within } from '@testing-library/react'
+import { simularVentana } from '../test-utils'
 import { Route, Routes } from 'react-router-dom'
 import { expect, it } from 'vitest'
 import Shell from '../components/Shell'
@@ -7,17 +8,25 @@ import { corrida, instalarHttp, json, montar } from './contrato/soporte'
 
 it('seguir la corrida viva cierra el cajón de navegación móvil', async () => {
   localStorage.setItem('eovrt-sidebar-collapsed', '1')
-  instalarHttp((p) => p.url.pathname === '/api/runs'
-    ? json([{ ...corrida, status: 'running', live: true }]) : undefined)
-  await montar(<Shell>Conjuntos de prompts</Shell>, '/prompts')
-  fireEvent.click(screen.getByRole('button', { name: 'Abrir navegación' }))
-  const sidebar = screen.getByRole('complementary', { name: 'Navegación principal' })
-  expect(sidebar.className).toContain('eo-sidebar--open')
-  expect(sidebar.className).not.toContain('eo-sidebar--collapsed')
-  expect(localStorage.getItem('eovrt-sidebar-collapsed')).toBe('1')
-  fireEvent.click(await screen.findByRole('link', { name: 'Corrida en curso: '+corrida.run_id }))
-  expect(sidebar.className).not.toContain('eo-sidebar--open')
-  expect(sidebar.className).toContain('eo-sidebar--collapsed')
+  const restaurar = simularVentana('compacta')
+  try {
+    instalarHttp((p) => p.url.pathname === '/api/runs'
+      ? json([{ ...corrida, status: 'running', live: true }]) : undefined)
+    await montar(<Shell>Conjuntos de prompts</Shell>, '/prompts')
+    fireEvent.click(screen.getByRole('button', { name: 'Abrir navegación' }))
+    const cajon = screen.getByRole('dialog', { name: 'Navegación principal' })
+    expect(cajon.hasAttribute('open')).toBe(true)
+    // El cajón no hereda el colapso de escritorio: muestra los rótulos.
+    const sidebar = within(cajon).getByRole('complementary', { name: 'Navegación principal' })
+    expect(sidebar.className).not.toContain('eo-sidebar--collapsed')
+    expect(localStorage.getItem('eovrt-sidebar-collapsed')).toBe('1')
+    fireEvent.click(await within(cajon).findByRole('link', { name: 'Corrida en curso: ' + corrida.run_id }))
+    expect(cajon.hasAttribute('open')).toBe(false)
+    // La preferencia de escritorio queda intacta.
+    expect(localStorage.getItem('eovrt-sidebar-collapsed')).toBe('1')
+  } finally {
+    restaurar()
+  }
 })
 
 it('lanzar desde el formulario invalida la lista vacía y muestra la corrida global', async () => {

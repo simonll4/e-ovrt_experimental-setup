@@ -1,8 +1,9 @@
 import { Link, useSearchParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { ApiError, getEvidenceStep } from '../../api'
-import { Card, EmptyState, ErrorBanner, PageHeader, StatTile, Table } from '../../components/ui'
+import { getEvidenceStep } from '../../api'
+import { Card, PageHeader, StatTile, Table, TableScroll } from '../../components/ui'
 import type { EvidenceResult } from '../../types'
+import { ArchivoAusente, Cifra, EstadoDeLectura, Evidencia } from './comun'
 
 /** Una cifra de cabecera de resultado: siempre LEÍDA de metrics.json (a
  *  diferencia de la cifra de un paso, que puede ser citada) — `entero` marca
@@ -34,7 +35,7 @@ function CifraDeCabecera({ fila }: { fila: EvidenceResult }) {
  *  instrumental (`/evidencia/respaldo`, servido inline desde `EvidencePage`
  *  porque no tiene ruta propia en la API — su desglose viaja en `recorrido()`). */
 export function TablaResultados({ resultados, caption, pasoN }: { resultados: EvidenceResult[]; caption: string; pasoN?: number }) {
-  return <Table aria-label={caption}>
+  return <TableScroll label={caption}><Table aria-label={caption}>
     <thead><tr>
       <th>Resultado</th><th>Cifra de cabecera</th><th>Combinación declarada</th>
       <th className="eo-num">Respaldo</th>
@@ -57,32 +58,25 @@ export function TablaResultados({ resultados, caption, pasoN }: { resultados: Ev
       ))}
       {resultados.length === 0 && <tr><td colSpan={4}><span className="eo-na">Sin resultados registrados.</span></td></tr>}
     </tbody>
-  </Table>
+  </Table></TableScroll>
 }
 
 export default function Paso() {
   const [params] = useSearchParams()
   const n = Number(params.get('n') ?? '1')
   const q = useQuery({ queryKey: ['evidencia', 'paso', n], queryFn: () => getEvidenceStep(n) })
-  if (q.isPending) return <EmptyState>Leyendo archivo de evidencia…</EmptyState>
-  if (q.error) {
-    // Un 404 real (ese `n` no tiene paso) es la ÚNICA falla que puede decir
-    // "no existe": cualquier otra (servicio caído, 500, JSON roto) tiene que
-    // hablar como el resto del feature (`Entrada.tsx`, `EvidencePage.tsx`) — si
-    // no, una falla de red durante una demo se leería como que el argumento
-    // del informe tiene un hueco, que es falso.
-    if (q.error instanceof ApiError && q.error.status === 404) {
-      return <ErrorBanner>Ese paso del recorrido no existe.</ErrorBanner>
-    }
-    return <ErrorBanner>No se pudo leer el archivo de evidencia.</ErrorBanner>
+  // Un 404 real (ese `n` no tiene paso) es la ÚNICA falla que puede decir "no
+  // existe": cualquier otra (servicio caído, 500, JSON roto) habla como el
+  // resto del recorrido — una falla de red no se lee como un hueco del
+  // argumento.
+  if (q.isPending || q.error) {
+    return <EstadoDeLectura titulo={`Paso ${n}`} q={q} noExiste="Ese paso del recorrido no existe." />
   }
   const paso = q.data.paso
-  if (!paso) return <EmptyState hint={q.data.message}>Archivo de evidencia no disponible</EmptyState>
-  return <div className="eo-evidence">
-    {/* Cuántos pasos hay lo decide `recorrido.yaml`, no esta plantilla: el
-        «de 4» estaba hardcodeado y un paso nuevo en el YAML lo dejaba mintiendo.
-        Sin `n_pasos` (respuesta vieja) se dice «paso N» a secas, nunca un total
-        inventado. */}
+  if (!paso) return <ArchivoAusente message={q.data.message} />
+  return <Evidencia>
+    {/* Cuántos pasos hay lo decide `recorrido.yaml`, no esta plantilla. Sin
+        `n_pasos` (respuesta vieja) se dice «paso N» a secas. */}
     <PageHeader title={paso.titulo} meta={
       `paso ${paso.n}${q.data.n_pasos ? ` de ${q.data.n_pasos}` : ''} · ${q.data.resultados.length} resultados`
     } />
@@ -91,16 +85,12 @@ export default function Paso() {
       <div className="eo-stats-row">
         <StatTile
           label={paso.cifra_label ?? ''}
-          value={
-            <span className={paso.cifra_origen === 'citada' ? 'eo-cifra--cit' : undefined} title={paso.fuente ?? undefined}>
-              {paso.cifra ?? '—'}
-            </span>
-          }
+          value={<Cifra valor={paso.cifra ?? '—'} origen={paso.cifra_origen} fuente={paso.fuente} />}
         />
       </div>
     </Card>
     <Card title="Los resultados de este paso" flush>
       <TablaResultados resultados={q.data.resultados} caption={`Resultados del paso ${paso.n}`} pasoN={paso.n} />
     </Card>
-  </div>
+  </Evidencia>
 }

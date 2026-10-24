@@ -10,13 +10,13 @@ describe('Select dentro de Field', () => {
     render(<Field label="Fuente"><Select value="a" ariaLabel="Fuente"
       options={[{ value: 'a', label: 'A' }, { value: 'b', label: 'B' }]}
       onChange={onChange} /></Field>)
-    fireEvent.click(screen.getByRole('button', { name: 'Fuente' }))
+    fireEvent.click(screen.getByRole('button', { name: /^Fuente/ }))
     const click = new MouseEvent('click', { bubbles: true, cancelable: true })
     fireEvent(screen.getByRole('option', { name: 'B' }), click)
     expect(click.defaultPrevented).toBe(true)
     expect(onChange).toHaveBeenCalledTimes(1)
     expect(onChange).toHaveBeenCalledWith('b')
     expect(screen.queryByRole('listbox')).toBeNull()
-    expect(screen.getByRole('button', { name: 'Fuente' }).getAttribute('aria-expanded')).toBe('false')
+    expect(screen.getByRole('button', { name: /^Fuente/ }).getAttribute('aria-expanded')).toBe('false')
   })
 })

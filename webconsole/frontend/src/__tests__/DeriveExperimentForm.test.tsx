@@ -39,7 +39,7 @@ beforeEach(() => {
 /** Espera a que la precarga haya aterrizado en los inputs. */
 async function esperarPrecarga() {
   await waitFor(() =>
-    expect((screen.getByLabelText('warmup_frames') as HTMLInputElement).value).toBe('20'),
+    expect((screen.getByLabelText(/warmup_frames/) as HTMLInputElement).value).toBe('20'),
   )
 }
 
@@ -48,18 +48,17 @@ describe('DeriveExperimentForm', () => {
     render(<DeriveExperimentForm source="base" onDone={() => {}} onCancel={() => {}} />)
     await esperarPrecarga()
     expect(deriveDefaults).toHaveBeenCalledWith('base')
-    expect((screen.getByLabelText('Cuadros por segundo') as HTMLInputElement).value).toBe('')
-    expect((screen.getByLabelText('cámara') as HTMLSelectElement).value).toBe('oak_d_lab')
-    expect((screen.getByLabelText('Conjunto de prompts') as HTMLSelectElement).value).toBe(
+    expect((screen.getByLabelText(/fps/) as HTMLInputElement).value).toBe('')
+    expect((screen.getByLabelText(/camera_id/) as HTMLSelectElement).value).toBe('oak_d_lab')
+    expect((screen.getByLabelText(/prompt_set_id/) as HTMLSelectElement).value).toBe(
       'cr01_cr02_v2_short',
     )
-    expect((screen.getByLabelText('Procesar uno de cada N cuadros') as HTMLInputElement).value).toBe('2')
-    expect((screen.getByLabelText('Máximo de unidades a procesar') as HTMLInputElement).value).toBe('')
-    // el <label> incluye el hint, por eso el prefijo en vez de igualdad exacta
-    expect((screen.getByLabelText(/^pattern setruta absoluta/) as HTMLInputElement).value).toBe(
+    expect((screen.getByLabelText(/stride/) as HTMLInputElement).value).toBe('2')
+    expect((screen.getByLabelText(/max_units/) as HTMLInputElement).value).toBe('')
+    expect((screen.getByLabelText(/pattern_set_file/) as HTMLInputElement).value).toBe(
       '/p/v2.yaml',
     )
-    expect((screen.getByLabelText(/^pattern set clases/) as HTMLInputElement).value).toBe(
+    expect((screen.getByLabelText(/pattern_active_ids/) as HTMLInputElement).value).toBe(
       'CR-01, CR-02',
     )
   })
@@ -71,7 +70,7 @@ describe('DeriveExperimentForm', () => {
     render(<DeriveExperimentForm source="base" onDone={() => {}} onCancel={() => {}} />)
     await esperarPrecarga()
 
-    fireEvent.change(screen.getByLabelText('nombre nuevo'), { target: { value: 'nuevo' } })
+    fireEvent.change(screen.getByLabelText(/nombre nuevo/i), { target: { value: 'nuevo' } })
     fireEvent.click(screen.getByText('Derivar'))
 
     await waitFor(() => expect(derive).toHaveBeenCalled())
@@ -83,8 +82,8 @@ describe('DeriveExperimentForm', () => {
     render(<DeriveExperimentForm source="base" onDone={() => {}} onCancel={() => {}} />)
     await esperarPrecarga()
 
-    fireEvent.change(screen.getByLabelText('nombre nuevo'), { target: { value: 'nuevo' } })
-    fireEvent.change(screen.getByLabelText('warmup_frames'), { target: { value: '30' } })
+    fireEvent.change(screen.getByLabelText(/nombre nuevo/i), { target: { value: 'nuevo' } })
+    fireEvent.change(screen.getByLabelText(/warmup_frames/), { target: { value: '30' } })
     fireEvent.click(screen.getByText('Derivar'))
 
     await waitFor(() => expect(derive).toHaveBeenCalled())
@@ -96,7 +95,7 @@ describe('DeriveExperimentForm', () => {
     derive.mockResolvedValue({ slug: 'nuevo' })
     render(<DeriveExperimentForm source="base" onDone={() => {}} onCancel={() => {}} />)
 
-    fireEvent.change(screen.getByLabelText('nombre nuevo'), { target: { value: 'nuevo' } })
+    fireEvent.change(screen.getByLabelText(/nombre nuevo/i), { target: { value: 'nuevo' } })
     fireEvent.click(screen.getByText('Derivar'))
 
     await waitFor(() => expect(derive).toHaveBeenCalled())
@@ -108,8 +107,8 @@ describe('DeriveExperimentForm', () => {
     const onDone = vi.fn()
     render(<DeriveExperimentForm source="base" onDone={onDone} onCancel={() => {}} />)
 
-    fireEvent.change(screen.getByLabelText('nombre nuevo'), { target: { value: 'nuevo' } })
-    fireEvent.change(screen.getByLabelText('warmup_frames'), { target: { value: '30' } })
+    fireEvent.change(screen.getByLabelText(/nombre nuevo/i), { target: { value: 'nuevo' } })
+    fireEvent.change(screen.getByLabelText(/warmup_frames/), { target: { value: '30' } })
     fireEvent.click(screen.getByText('Derivar'))
 
     await waitFor(() => expect(onDone).toHaveBeenCalledWith('nuevo'))
@@ -127,7 +126,7 @@ describe('DeriveExperimentForm', () => {
     )
     render(<DeriveExperimentForm source="base" onDone={() => {}} onCancel={() => {}} />)
 
-    fireEvent.change(screen.getByLabelText('nombre nuevo'), { target: { value: 'nuevo' } })
+    fireEvent.change(screen.getByLabelText(/nombre nuevo/i), { target: { value: 'nuevo' } })
     fireEvent.click(screen.getByText('Derivar'))
 
     await waitFor(() => expect(screen.getByText('Ya existe: nuevo')).toBeTruthy())
@@ -143,7 +142,7 @@ describe('DeriveExperimentForm', () => {
     derive.mockResolvedValue({ slug: 'nuevo' })
     render(<DeriveExperimentForm source="base" onDone={() => {}} onCancel={() => {}} />)
 
-    fireEvent.change(screen.getByLabelText('nombre nuevo'), { target: { value: 'nuevo' } })
+    fireEvent.change(screen.getByLabelText(/nombre nuevo/i), { target: { value: 'nuevo' } })
     fireEvent.click(screen.getByText('Derivar'))
 
     await waitFor(() => expect(derive).toHaveBeenCalled())
@@ -156,8 +155,8 @@ describe('DeriveExperimentForm', () => {
     const onDone = vi.fn()
     render(<DeriveExperimentForm source="base" onDone={onDone} onCancel={() => {}} />)
 
-    fireEvent.change(screen.getByLabelText('nombre nuevo'), { target: { value: 'nuevo' } })
-    fireEvent.change(screen.getByLabelText('warmup_frames'), { target: { value: '3o' } })
+    fireEvent.change(screen.getByLabelText(/nombre nuevo/i), { target: { value: 'nuevo' } })
+    fireEvent.change(screen.getByLabelText(/warmup_frames/), { target: { value: '3o' } })
     fireEvent.click(screen.getByText('Derivar'))
 
     await waitFor(() => expect(screen.getByText(/no es un número válido/)).toBeTruthy())
@@ -169,8 +168,8 @@ describe('DeriveExperimentForm', () => {
     derive.mockResolvedValue({ slug: 'nuevo' })
     render(<DeriveExperimentForm source="base" onDone={() => {}} onCancel={() => {}} />)
 
-    fireEvent.change(screen.getByLabelText('nombre nuevo'), { target: { value: 'nuevo' } })
-    fireEvent.change(screen.getByLabelText(/^pattern set clases/), {
+    fireEvent.change(screen.getByLabelText(/nombre nuevo/i), { target: { value: 'nuevo' } })
+    fireEvent.change(screen.getByLabelText(/pattern_active_ids/), {
       target: { value: 'CR-01,  CR-02 ' },
     })
     fireEvent.click(screen.getByText('Derivar'))
@@ -200,7 +199,7 @@ describe('DeriveExperimentForm', () => {
     derive.mockResolvedValue({ slug: 'nuevo' })
     render(<DeriveExperimentForm source="base" onDone={() => {}} onCancel={() => {}} />)
 
-    fireEvent.change(screen.getByLabelText('nombre nuevo'), { target: { value: 'nuevo' } })
+    fireEvent.change(screen.getByLabelText(/nombre nuevo/i), { target: { value: 'nuevo' } })
     fireEvent.click(screen.getByText('Derivar'))
 
     await waitFor(() => expect(derive).toHaveBeenCalled())

@@ -1,5 +1,5 @@
 import {
-  createContext, useContext, useEffect, useMemo, useState, type ReactNode,
+  createContext, useContext, useEffect, useId, useMemo, useState, type ReactNode,
 } from 'react'
 import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
@@ -63,15 +63,26 @@ export default function Termino({
   id, children, className,
 }: { id: string; children?: ReactNode; className?: string }) {
   const def = useTermino(id)
+  const descId = useId()
   const texto = children ?? def?.termino ?? id
   if (!def) return <>{texto}</>
+  // La definición no depende del hover: se describe el enlace con ella (el
+  // lector la lee al enfocarlo), se muestra al enfocarlo con el teclado, y un
+  // toque abre su entrada completa en /documentacion. `title` queda como
+  // complemento para el mouse.
   return (
-    <Link
-      className={['eo-termino', className].filter(Boolean).join(' ')}
-      to={`/documentacion#${encodeURIComponent(def.id)}`}
-      title={`${def.termino} — ${def.definicion}`}
-    >
-      {texto}
-    </Link>
+    <span className="eo-termino-wrap">
+      <Link
+        className={['eo-termino', className].filter(Boolean).join(' ')}
+        to={`/documentacion#${encodeURIComponent(def.id)}`}
+        title={`${def.termino} — ${def.definicion}`}
+        aria-describedby={descId}
+      >
+        {texto}
+      </Link>
+      <span className="eo-termino__def" id={descId} role="tooltip">
+        {def.termino} — {def.definicion}
+      </span>
+    </span>
   )
 }

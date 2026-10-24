@@ -53,6 +53,27 @@ export function renderHook<Resultado, Props>(
   return renderHookRTL(hook, { wrapper: Envoltorio, ...options })
 }
 
+/** Simula el ancho de la ventana para el armazón: `compacta` es el modo de
+ *  cajón (< 1024 px). jsdom no trae `matchMedia`, y sin él el armazón asume
+ *  escritorio. Devuelve la función que restaura el estado anterior. */
+export function simularVentana(modo: 'escritorio' | 'compacta'): () => void {
+  const anterior = window.matchMedia
+  const coincide = modo === 'escritorio'
+  window.matchMedia = ((query: string) => ({
+    matches: query.includes('min-width: 1024px') ? coincide : false,
+    media: query,
+    onchange: null,
+    addEventListener: () => undefined,
+    removeEventListener: () => undefined,
+    addListener: () => undefined,
+    removeListener: () => undefined,
+    dispatchEvent: () => false,
+  })) as unknown as typeof window.matchMedia
+  return () => {
+    window.matchMedia = anterior
+  }
+}
+
 // El resto se reexporta explícitamente, NO con `export *`: al reexportar todo,
 // el `render` y el `renderHook` de la librería pisaban a los de acá y los tests
 // volvían a renderizar sin el provider — el síntoma era un "No QueryClient set"

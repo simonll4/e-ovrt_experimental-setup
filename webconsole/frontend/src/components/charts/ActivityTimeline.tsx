@@ -8,9 +8,10 @@ const COLOR: Record<LaneKind, string> = {
   alert: 'var(--sr)',
 }
 
-/** Alto del área de detecciones y de los carriles de eventos, en el viewBox. */
-const DET_H = 42
-const STRIP_H = 10
+/** Alto del área de detecciones y de los carriles de eventos, en el viewBox.
+ *  Coinciden con el alto en pantalla (56 y 16 px): así el trazo no se deforma. */
+const DET_H = 56
+const STRIP_H = 16
 
 const dec1 = (v: number): string => v.toFixed(1).replace('.', ',')
 
@@ -24,8 +25,16 @@ const dec1 = (v: number): string => v.toFixed(1).replace('.', ',')
  * significado no dependa del matiz: entre el naranja de "alerta" y el rojo de
  * "no recibido" hay ΔE 8,8 en visión normal, por debajo del piso de 15.
  *
+ * Geometría: una grilla de dos columnas —rótulos y gráfico— donde cada carril
+ * es una fila. Los tres gráficos y el eje viven en la MISMA columna, así que
+ * comparten inicio y ancho por construcción; el cursor va dentro de cada
+ * gráfico, posicionado en absoluto, y no participa de las filas. Antes el
+ * cursor era un ítem más de la grilla y empujaba los carriles a columnas
+ * equivocadas: el gráfico de detecciones quedaba de 82 px.
+ *
  * Es el control de navegación de la traza, no un adorno: tocar la línea de
- * tiempo selecciona el cuadro, y el cursor marca dónde está parada la lista.
+ * tiempo selecciona el cuadro, el control deslizante hace lo mismo con el
+ * teclado, y el cursor marca dónde está parada la lista.
  */
 export default function ActivityTimeline({
   frames,
@@ -76,8 +85,8 @@ export default function ActivityTimeline({
     const s = segundoDe(pos)
     const parts = [`cuadro ${fr.frame_index ?? pos}`]
     if (s != null) parts.push(`${dec1(s)} s`)
-    parts.push(`${dets} detecciones`)
-    if (alerts) parts.push(`${alerts} alertas`)
+    parts.push(`${dets} ${dets === 1 ? 'detección' : 'detecciones'}`)
+    if (alerts) parts.push(`${alerts} ${alerts === 1 ? 'alerta' : 'alertas'}`)
     if (fr.control !== 'received') parts.push(fr.control)
     return parts.join(' · ')
   }
@@ -89,11 +98,15 @@ export default function ActivityTimeline({
   const entrega = marks.filter((m) => m.kind !== 'alert')
   const alertas = marks.filter((m) => m.kind === 'alert')
 
-  const alSeleccionar = (clientX: number) => {
-    const pos = pick(clientX)
+  const elegir = (pos: number) => {
     const fr = frames[pos]
     if (fr && onSelect) onSelect(fr.frame_index ?? pos, pos)
   }
+
+  const haySeleccion = selected != null && selected >= 0 && selected < frames.length
+  const cursor = haySeleccion ? (
+    <span className="eo-timeline__cursor" style={{ left: `${posOf(selected!)}%` }} aria-hidden="true" />
+  ) : null
 
   /** Carril de eventos discretos: una marca por cuadro afectado. */
   const strip = (items: typeof marks, label: string) => (
@@ -124,66 +137,80 @@ export default function ActivityTimeline({
         className="eo-timeline__lanes"
         onMouseMove={(e) => setHover(pick(e.clientX))}
         onMouseLeave={() => setHover(null)}
-        onClick={(e) => alSeleccionar(e.clientX)}
+        onClick={(e) => elegir(pick(e.clientX))}
       >
-        <span className="eo-timeline__label">
-          Detecciones
-          <br />
-          por cuadro
-        </span>
-        <svg
-          ref={detRef}
-          className="eo-timeline__det"
-          viewBox={`0 0 ${width} ${plotHeight}`}
-          preserveAspectRatio="none"
-          role="img"
-          aria-label={`Detecciones por cuadro a lo largo de ${frames.length} cuadros`}
-        >
-          {area && <path d={area} fill="var(--live)" fillOpacity="0.22" />}
-          {line && (
-            <path
-              d={line}
-              fill="none"
-              stroke="var(--live)"
-              strokeWidth="2"
-              vectorEffect="non-scaling-stroke"
-            />
-          )}
-        </svg>
+        <span className="eo-timeline__label">Detecciones por cuadro</span>
+        <div className="eo-timeline__plot">
+          <svg
+            ref={detRef}
+            className="eo-timeline__det"
+            viewBox={`0 0 ${width} ${plotHeight}`}
+            preserveAspectRatio="none"
+            role="img"
+            aria-label={`Detecciones por cuadro a lo largo de ${frames.length} cuadros`}
+          >
+            {area && <path d={area} fill="var(--live)" fillOpacity="0.22" />}
+            {line && (
+              <path
+                d={line}
+                fill="none"
+                stroke="var(--live)"
+                strokeWidth="2"
+                vectorEffect="non-scaling-stroke"
+              />
+            )}
+          </svg>
+          {cursor}
+        </div>
 
-        <span className="eo-timeline__label">
-          Entrega al
-          <br />
-          motor de reglas
-        </span>
-        {strip(entrega, 'Estado de entrega por cuadro')}
+        <span className="eo-timeline__label">Entrega al motor de reglas</span>
+        <div className="eo-timeline__plot">
+          {strip(entrega, 'Estado de entrega por cuadro')}
+          {cursor}
+        </div>
 
         <span className="eo-timeline__label">Alertas</span>
-        {strip(alertas, 'Alertas confirmadas por cuadro')}
-
-        <div className="eo-timeline__overlay">
-          {selected != null && selected >= 0 && selected < frames.length && (
-            <div className="eo-timeline__cursor" style={{ left: `${posOf(selected)}%` }} />
-          )}
+        <div className="eo-timeline__plot">
+          {strip(alertas, 'Alertas confirmadas por cuadro')}
+          {cursor}
         </div>
       </div>
 
-      {/* En segundos y no en cuadros: es lo que permite ir al mismo instante del
-          video. Sin marca de tiempo utilizable se cae a cuadros antes que
-          inventar un eje temporal. */}
-      <div className="eo-timeline__axis eo-timeline__axis--secs">
-        {segundos != null ? (
-          <>
-            <span className="eo-mono">0,0 s</span>
-            <span className="eo-mono">{dec1(segundos / 2)} s</span>
-            <span className="eo-mono">{dec1(segundos)} s</span>
-          </>
-        ) : (
-          <>
-            <span className="eo-mono">0</span>
-            <span className="eo-mono">{frames.length} cuadros</span>
-          </>
-        )}
+      {/* La escala vive en una grilla con las mismas columnas que los carriles:
+          el control deslizante y el eje arrancan y terminan donde los gráficos.
+          El deslizante es la misma selección que el click, con teclado. */}
+      <div className="eo-timeline__scale">
+        <span className="eo-timeline__label eo-timeline__label--scale">Ir a un cuadro</span>
+        <div className="eo-timeline__scalebody">
+          <input
+            type="range"
+            className="eo-timeline__range"
+            min={0}
+            max={Math.max(0, frames.length - 1)}
+            step={1}
+            value={haySeleccion ? selected! : 0}
+            aria-label="Cuadro elegido en la línea de tiempo"
+            aria-valuetext={haySeleccion ? describe(selected!) : 'ningún cuadro elegido'}
+            onChange={(e) => elegir(Number(e.target.value))}
+          />
+          {/* En segundos y no en cuadros: es lo que permite ir al mismo instante
+              del video. Sin marca de tiempo utilizable se cae a cuadros antes
+              que inventar un eje temporal. */}
+          <div className="eo-timeline__axis">
+            {segundos != null ? (
+              <>
+                <span className="eo-mono">0,0 s</span>
+                <span className="eo-mono">{dec1(segundos / 2)} s</span>
+                <span className="eo-mono">{dec1(segundos)} s</span>
+              </>
+            ) : (
+              <>
+                <span className="eo-mono">0</span>
+                <span className="eo-mono">{frames.length} cuadros</span>
+              </>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Leyenda por FORMA además de color, por el mismo ΔE del docstring. */}
@@ -206,10 +233,12 @@ export default function ActivityTimeline({
         </li>
       </ul>
 
-      <p className="eo-timeline__hint" aria-live="polite">
+      <p className="eo-timeline__hint">
         {hover != null && hover >= 0
           ? describe(hover)
-          : 'Tocá la línea de tiempo para ir a un cuadro'}
+          : haySeleccion
+            ? describe(selected!)
+            : 'Tocá la línea de tiempo o usá el control para ir a un cuadro'}
       </p>
     </div>
   )

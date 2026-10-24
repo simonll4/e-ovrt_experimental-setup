@@ -11,15 +11,22 @@
   /* bordes */
   --bd: rgba(255, 255, 255, .09);
   --bds: rgba(255, 255, 255, .17);
+  /* Límite de un control que se reconoce por su borde (campo, selector,
+     casilla): 3,3:1 sobre s1 y 3,1:1 sobre s2. Los bordes de agrupación
+     (--bd, --bds) no identifican un control y siguen siendo sutiles. */
+  --bd-ctl: #6e6d67;
 
-  /* texto */
+  /* texto. Medidos sobre las superficies reales (sRGB): --tx3 da 7,2:1 sobre s1
+     y 6,7:1 sobre s2; --tx4 5,6:1 sobre s1 y 5,2:1 sobre s2 — los dos por encima
+     de 4,5:1, porque son los que llevan motivos, unidades y metadatos. */
   --tx: #f2f1ed;
   --tx2: #b3b1a8;
-  --tx3: #82807a;
-  --tx4: #5c5b56;
+  --tx3: #aaa79e;
+  --tx4: #94928a;
 
   /* acento = acción / selección / foco / navegación activa */
   --ac: #7d6ef2;
+  /* Texto de enlace y de selección: --ac como texto queda en 4,1:1 sobre s2. */
   --ac-tx: #a89df6;
   --ac-bg: rgba(125, 110, 242, .14);
   --ac-bd: rgba(125, 110, 242, .42);
@@ -48,15 +55,31 @@
   --fs: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --fm: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
+  /* Escala de lectura. La densidad de consola la dan el interlineado y el
+     espaciado, no achicar el texto: lo que evita leer mal un dato (motivo,
+     unidad, procedencia) no puede ser lo menos legible de la pantalla. */
+  --fz-body: 14px;   /* texto operativo: controles, prosa, acciones */
+  --fz-data: 13px;   /* celdas de tabla y listas densas */
+  --fz-meta: 12px;   /* ayudas, metadatos, unidades, placeholders — piso */
+  --fz-h1: 22px;
+  --fz-h2: 18px;
+  --fz-panel: 15px;  /* título de tarjeta o panel */
+
   /* forma */
   --r: 6px;
   --rc: 10px;
-  --row: 32px;
+  --row: 36px;
+  /* Alto mínimo de un control. En pantallas chicas o con puntero grueso sube a
+     44 px (ver el bloque de abajo). */
+  --ctl: 36px;
 
   /* layout de armazón */
   --sidebar-width: 214px;
   --sidebar-width-collapsed: 54px;
   --content-max: 1600px;
+  /* Margen lateral del contenido: el MISMO eje para migas, cabecera, avisos,
+     filtros y tablas. Se ajusta por ancho abajo. */
+  --gutter: 24px;
 
   /* --- Tokens legacy conservados: hay consumidores fuera del alcance de este plan ---
      (--space-1..6 y --text-xs..xl se usan todavía en varios componentes/páginas
@@ -68,9 +91,14 @@
   --space-5: 24px;
   --space-6: 32px;
 
-  --text-xs: 11px;
+  --text-xs: 12px;
   --text-sm: 12px;
   --text-md: 14px;
   --text-lg: 18px;
   --text-xl: 22px;
 }
+
+@media (max-width: 1023px) { :root { --gutter: 20px; } }
+@media (max-width: 767px) { :root { --gutter: 16px; --ctl: 44px; --row: 44px; } }
+@media (max-width: 359px) { :root { --gutter: 12px; } }
+@media (pointer: coarse) { :root { --ctl: 44px; --row: 44px; } }

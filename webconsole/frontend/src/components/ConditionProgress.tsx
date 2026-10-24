@@ -13,7 +13,7 @@ import type { TraceFrame } from '../types'
 export default function ConditionProgress({ frame }: { frame: TraceFrame | null }) {
   const rows = frame?.progress ?? []
   if (!rows.length) {
-    return <p className="eo-cap">Ninguna condición en progreso en este cuadro.</p>
+    return <p className="eo-cap eo-cap--inset">Ninguna condición en progreso en este cuadro.</p>
   }
   return (
     <ul className="eo-condprog">

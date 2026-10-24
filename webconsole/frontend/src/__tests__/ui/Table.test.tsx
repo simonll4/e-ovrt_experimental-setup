@@ -1,5 +1,5 @@
 import { describe, expect, it, afterEach, vi } from 'vitest'
-import { cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import { Table, MonoCell, NumCell, SortableHeader, RowNameCell } from '../../components/ui'
 
 afterEach(() => cleanup())
@@ -50,15 +50,28 @@ describe('SortableHeader', () => {
     expect(ths[1].textContent).not.toContain('↓')
   })
 
-  it('clic dispara onSort con la clave de la columna', () => {
+  it('el control es un botón dentro del th: clic y teclado disparan onSort', () => {
     const onSort = vi.fn()
     render(
       <table><thead><tr>
         <SortableHeader label="Corrida" sortKey="nm" sortState={null} onSort={onSort} />
       </tr></thead></table>,
     )
-    fireEvent.click(screen.getByRole('columnheader'))
+    const boton = within(screen.getByRole('columnheader')).getByRole('button', { name: 'Corrida' })
+    fireEvent.click(boton)
     expect(onSort).toHaveBeenCalledWith('nm')
+  })
+
+  it('declara el orden vigente con aria-sort', () => {
+    render(
+      <table><thead><tr>
+        <SortableHeader label="Corrida" sortKey="nm" sortState={{ key: 'nm', dir: 'desc' }} onSort={() => {}} />
+        <SortableHeader label="Cuadros/s" sortKey="fps" sortState={{ key: 'nm', dir: 'desc' }} onSort={() => {}} />
+      </tr></thead></table>,
+    )
+    const [nombre, fps] = screen.getAllByRole('columnheader')
+    expect(nombre.getAttribute('aria-sort')).toBe('descending')
+    expect(fps.getAttribute('aria-sort')).toBe('none')
   })
 })
 

@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import ActivityTimeline from './charts/ActivityTimeline'
-import { Card } from './ui'
+import { Card, ErrorBanner, LoadingState, StaleNotice } from './ui'
 import type { TraceFrame, TraceIndex } from '../types'
 
 /**
@@ -11,17 +11,26 @@ import type { TraceFrame, TraceIndex } from '../types'
  * completa— y no de la traza paginada: para 200 cuadros son 8 KB contra 247, y
  * la diferencia crece con la corrida. La primitiva `ActivityTimeline` no sabe
  * qué es una corrida: recibe cuadros y dibuja. Lo que sabe de corridas vive acá.
+ *
+ * Un índice que falló no es una corrida sin cuadros: se dice que no se pudo
+ * leer, con reintento, en vez de dibujar «todavía no hay cuadros».
  */
 export default function RunTimeline({
   index,
   selected,
   onSelect,
   loading,
+  error = null,
+  onRetry,
+  retrying = false,
 }: {
   index: TraceIndex | null
   selected: number | null
   onSelect: (frameIndex: number, position: number) => void
   loading: boolean
+  error?: unknown
+  onRetry?: () => void
+  retrying?: boolean
 }) {
   // El índice viene en arrays paralelos (así pesa una fracción); acá se rearma
   // lo mínimo que `ActivityTimeline` necesita, sin las cajas de detección ni el
@@ -40,13 +49,22 @@ export default function RunTimeline({
     }))
   }, [index])
 
+  const sinDatos = !index
+
   return (
     // flush: el padding lo pone .eo-timeline__body, no el cuerpo genérico de la
     // tarjeta — si no, se suman los dos.
-    <Card title="Línea de tiempo" meta={loading ? 'leyendo…' : `${frames.length} cuadros`} flush>
+    <Card title="Línea de tiempo" meta={loading ? 'leyendo…' : index ? `${frames.length} cuadros` : undefined} flush>
       <div className="eo-timeline__body">
-        {loading ? (
-          <p className="eo-cap">Leyendo la traza de la corrida…</p>
+        {error != null && index != null && (
+          <StaleNotice what="la línea de tiempo" onRetry={onRetry} retrying={retrying} />
+        )}
+        {loading && sinDatos ? (
+          <LoadingState lines={2} inline>Leyendo la traza de la corrida…</LoadingState>
+        ) : error != null && sinDatos ? (
+          <ErrorBanner detail={String(error)} onRetry={onRetry} retrying={retrying}>
+            No se pudo leer la línea de tiempo de esta corrida.
+          </ErrorBanner>
         ) : (
           <ActivityTimeline frames={frames} selected={selected} onSelect={onSelect} />
         )}

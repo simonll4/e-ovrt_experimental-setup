@@ -64,7 +64,7 @@ describe('Contrato: experimentos y distribución', () => {
     await abrirExperimentos()
     const abrirDerivacion = await screen.findByRole('button', { name: /^(Partir de este|Derivar)$/i })
     fireEvent.click(abrirDerivacion)
-    const warmup = await screen.findByRole('textbox', { name: 'warmup_frames' })
+    const warmup = await screen.findByRole('textbox', { name: /warmup_frames/ })
     await waitFor(() => expect(warmup).toHaveProperty('value', '20'))
     fireEvent.change(screen.getByRole('textbox', { name: /nombre nuevo/i }), {
       target: { value: 'contrato_derivado' },

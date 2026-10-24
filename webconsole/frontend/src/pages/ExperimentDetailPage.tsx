@@ -34,11 +34,14 @@ import {
   Badge,
   Banner,
   Card,
+  Disclosure,
   EmptyState,
   ErrorBanner,
+  LoadingState,
   NumCell,
   PageHeader,
   Table,
+  TableScroll,
 } from '../components/ui'
 import Meter from '../components/charts/Meter'
 
@@ -175,6 +178,70 @@ const readSkippedInvalidAlerts = (
   return null
 }
 
+/** Tabla de métricas: nombre literal, valor con unidad, estado y por qué. */
+function TablaMetricas({ filas, label }: { filas: MetricRow[]; label: string }) {
+  return (
+    <TableScroll label={label}>
+      <Table aria-label={label}>
+        <thead>
+          <tr>
+            <th>Métrica</th>
+            <th className="eo-num">Medido</th>
+            <th>Estado</th>
+            <th>Por qué</th>
+          </tr>
+        </thead>
+        <tbody>
+          {filas.map((m, i) => (
+            <tr key={`${m.name}-${i}`}>
+              {/* El nombre es un identificador del reporte: se muestra tal
+                  cual, también el de una métrica que esta consola no conoce. */}
+              <td className="eo-mono">{m.name}</td>
+              <NumCell>{fmtValue(m)}</NumCell>
+              <td>
+                {m.status === 'computed' ? (
+                  <Badge tone="ok">Medida</Badge>
+                ) : (
+                  <Badge tone="neutral">Sin dato</Badge>
+                )}
+              </td>
+              <td className="eo-cell--wrap">
+                {m.status === 'computed'
+                  ? '—'
+                  : [
+                      applicabilityLabel(m.status, APPLICABILITY_STATUS),
+                      m.cause ? applicabilityLabel(m.cause, APPLICABILITY_CAUSE) : null,
+                    ]
+                      .filter(Boolean)
+                      .join(': ')}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </Table>
+    </TableScroll>
+  )
+}
+
+/** Resumen de las no medidas, por estado y por causa, con las mismas cuentas
+ *  que las filas plegadas: «no aplica» y «no calculada» no se funden. */
+function resumenNoMedidas(filas: MetricRow[]): string {
+  const porEstado = new Map<string, Map<string, number>>()
+  for (const m of filas) {
+    const causas = porEstado.get(m.status) ?? new Map<string, number>()
+    const causa = m.cause ? applicabilityLabel(m.cause, APPLICABILITY_CAUSE) : 'sin causa declarada'
+    causas.set(causa, (causas.get(causa) ?? 0) + 1)
+    porEstado.set(m.status, causas)
+  }
+  return [...porEstado.entries()]
+    .map(([estado, causas]) => {
+      const n = [...causas.values()].reduce((a, b) => a + b, 0)
+      const detalle = [...causas.entries()].map(([c, k]) => `${c} ${k}`).join(', ')
+      return `${applicabilityLabel(estado, APPLICABILITY_STATUS)} ${n} (${detalle})`
+    })
+    .join(' · ')
+}
+
 export default function ExperimentDetailPage() {
   const { id = '' } = useParams()
 
@@ -191,12 +258,14 @@ export default function ExperimentDetailPage() {
   const alertsPending = Boolean(consultaAlertas.error && isNotFound(consultaAlertas.error))
   const alertsError =
     consultaAlertas.error && !alertsPending ? errorMessage(consultaAlertas.error) : null
+  const alertsLoading = consultaAlertas.isPending && !consultaAlertas.data && !consultaAlertas.error
 
   const consultaReporte = useExperimentReport(id, Boolean(id), running)
   const report: ExperimentReport | null = consultaReporte.data ?? null
   const reportPending = Boolean(consultaReporte.error && isNotFound(consultaReporte.error))
   const reportError =
     consultaReporte.error && !reportPending ? errorMessage(consultaReporte.error) : null
+  const reportLoading = consultaReporte.isPending && !consultaReporte.data && !consultaReporte.error
 
   // Estado vivo del motor de reglas, solo mientras el experimento está en curso:
   // es lo que mantiene al día el banner de riesgo activo entre la confirmación y
@@ -209,6 +278,8 @@ export default function ExperimentDetailPage() {
     () => (Array.isArray(report?.resultados) ? report.resultados.map(readMetricRow) : []),
     [report],
   )
+  const medidas = useMemo(() => metrics.filter((m) => m.status === 'computed'), [metrics])
+  const noMedidas = useMemo(() => metrics.filter((m) => m.status !== 'computed'), [metrics])
   const distribution = useMemo(() => readDistributionSummary(report), [report])
   const distributionSegments = useMemo(
     () => (distribution ? distributionOutcomeSegments(distribution) : []),
@@ -241,12 +312,30 @@ export default function ExperimentDetailPage() {
     [distributionMetric],
   )
 
-  if (error) {
-    return <ErrorBanner>Error cargando el experimento {id}: {error}</ErrorBanner>
+  if (!experiment) {
+    return (
+      <>
+        <PageHeader title={id} meta={error ? 'No se pudo leer el experimento' : 'Cargando el experimento…'} />
+        {error ? (
+          <ErrorBanner
+            detail={String(consultaExperimento.error)}
+            onRetry={() => void consultaExperimento.refetch()}
+            retrying={consultaExperimento.isFetching}
+          >
+            Error cargando el experimento {id}: {error}
+          </ErrorBanner>
+        ) : (
+          <LoadingState lines={4}>Cargando experimento {id}…</LoadingState>
+        )}
+      </>
+    )
   }
-  if (!experiment) return <p className="eo-empty">Cargando experimento {id}…</p>
 
   const nonTemporal = isNonTemporal(report)
+  // «No incluida» sólo cuando el reporte lo declara: la métrica de entrega
+  // trae la causa `no_distribution`. Sin esa declaración, una ausencia es sólo
+  // eso — el reporte no trajo el resumen.
+  const distribucionNoIncluida = distributionMetric?.cause === 'no_distribution'
 
   return (
     <>
@@ -281,9 +370,18 @@ export default function ExperimentDetailPage() {
 
       <ExperimentSummary metrics={metrics} alerts={alertsError ? null : alerts} />
 
-      <Card title="Resultados del experimento" meta={`${metrics.length} métricas`} flush>
-        {reportError && <ErrorBanner>No se pudo leer el reporte: {reportError}</ErrorBanner>}
-        {!reportError && metrics.length === 0 && (
+      <Card title="Resultados del experimento" meta={report ? `${metrics.length} métricas` : undefined} flush>
+        {reportError && (
+          <ErrorBanner
+            detail={String(consultaReporte.error)}
+            onRetry={() => void consultaReporte.refetch()}
+            retrying={consultaReporte.isFetching}
+          >
+            No se pudo leer el reporte: {reportError}
+          </ErrorBanner>
+        )}
+        {reportLoading && <LoadingState lines={4}>Leyendo el reporte del experimento…</LoadingState>}
+        {!reportError && !reportLoading && metrics.length === 0 && (
           <EmptyState
             hint={
               !reportPending
@@ -300,41 +398,22 @@ export default function ExperimentDetailPage() {
         )}
         {!reportError && metrics.length > 0 && (
           <>
-            <Table>
-              <thead>
-                <tr>
-                  <th>Métrica</th>
-                  <th className="eo-num">Medido</th>
-                  <th>Estado</th>
-                  <th>Por qué</th>
-                </tr>
-              </thead>
-              <tbody>
-                {metrics.map((m, i) => (
-                  <tr key={`${m.name}-${i}`}>
-                    <td className="eo-mono">{m.name}</td>
-                    <NumCell>{fmtValue(m)}</NumCell>
-                    <td>
-                      {m.status === 'computed' ? (
-                        <Badge tone="ok">Medida</Badge>
-                      ) : (
-                        <Badge tone="neutral">Sin dato</Badge>
-                      )}
-                    </td>
-                    <td className="eo-cell--why">
-                      {m.status === 'computed'
-                        ? '—'
-                        : [
-                            applicabilityLabel(m.status, APPLICABILITY_STATUS),
-                            m.cause ? applicabilityLabel(m.cause, APPLICABILITY_CAUSE) : null,
-                          ]
-                            .filter(Boolean)
-                            .join(': ')}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
+            {/* Lo medido a la vista; lo que no se pudo medir plegado, con su
+                cantidad y el resumen de causas en el rótulo. Ninguna fila se
+                pierde: están todas, sólo cambia lo que se ve primero. */}
+            <h3 className="eo-section__h eo-cardhead">
+              Medidas <small>{medidas.length} de {metrics.length}</small>
+            </h3>
+            {medidas.length > 0 ? (
+              <TablaMetricas filas={medidas} label="Métricas medidas del experimento" />
+            ) : (
+              <p className="eo-note eo-cardnote">Ninguna métrica se pudo medir en este experimento.</p>
+            )}
+            {noMedidas.length > 0 && (
+              <Disclosure className="eo-adv--inset" summary={`Sin medir (${noMedidas.length}) — ${resumenNoMedidas(noMedidas)}`}>
+                <TablaMetricas filas={noMedidas} label="Métricas sin medir del experimento" />
+              </Disclosure>
+            )}
             {/* El backend no expone umbrales: MetricResult es {name, value, unit,
                 status, cause}. Decirlo evita que se lea como un veredicto. */}
             <p className="eo-cap eo-cap--inset">
@@ -347,7 +426,16 @@ export default function ExperimentDetailPage() {
       </Card>
 
       <Card title="Alertas emitidas" meta={alerts ? String(alerts.length) : undefined} flush>
-        {alertsError && <ErrorBanner>No se pudieron leer las alertas: {alertsError}</ErrorBanner>}
+        {alertsError && (
+          <ErrorBanner
+            detail={String(consultaAlertas.error)}
+            onRetry={() => void consultaAlertas.refetch()}
+            retrying={consultaAlertas.isFetching}
+          >
+            No se pudieron leer las alertas: {alertsError}
+          </ErrorBanner>
+        )}
+        {alertsLoading && <LoadingState lines={2}>Leyendo las alertas…</LoadingState>}
         {alertsPending && (
           <EmptyState
             hint={
@@ -359,66 +447,88 @@ export default function ExperimentDetailPage() {
             No hay alertas registradas
           </EmptyState>
         )}
+        {/* Cero alertas es un dato, no un vacío a explicar: una línea. */}
         {!alertsError && !alertsPending && alerts && alerts.length === 0 && (
-          <EmptyState hint="Ninguna condición de riesgo llegó a confirmarse.">
-            Sin alertas
-          </EmptyState>
+          <p className="eo-note eo-cardnote">
+            <b>Sin alertas</b> — ninguna condición de riesgo llegó a confirmarse.
+          </p>
         )}
         {!alertsError && alerts && alerts.length > 0 && (
-          <Table>
-            <thead>
-              <tr>
-                <th>Alerta</th>
-                <th>Condición</th>
-                <th>Severidad</th>
-                <th className="eo-mono">Notificada</th>
-                <th className="eo-num">Momento</th>
-              </tr>
-            </thead>
-            <tbody>
-              {alerts.map((a) => (
-                <tr key={a.alert_id}>
-                  <td className="eo-mono">{a.alert_id}</td>
-                  <td><Termino id={a.condition_id}>{conditionLabel(a.condition_id)}</Termino></td>
-                  <td>
-                    <Badge tone={alertSeverityTone(a.severity)}>
-                      {SEVERITY_LABEL[a.severity] ?? a.severity}
-                    </Badge>
-                  </td>
-                  <td>
-                    {!distributionHasRun ? (
-                      <span
-                        title="el módulo de distribución no corrió para este experimento"
-                        className="eo-mono"
-                      >
-                        —
-                      </span>
-                    ) : (
-                      <DistributionOutcomeCell
-                        report={report}
-                        alert={a}
-                      />
-                    )}
-                  </td>
-                  <NumCell>{fmtMoment(a.timestamp_ms)}</NumCell>
+          <TableScroll label="Alertas emitidas">
+            <Table aria-label="Alertas emitidas">
+              <thead>
+                <tr>
+                  <th>Alerta</th>
+                  <th>Condición</th>
+                  <th>Severidad</th>
+                  <th>Notificada</th>
+                  <th className="eo-num">Momento</th>
                 </tr>
-              ))}
-            </tbody>
-          </Table>
+              </thead>
+              <tbody>
+                {alerts.map((a) => (
+                  <tr key={a.alert_id}>
+                    <td className="eo-mono">{a.alert_id}</td>
+                    <td><Termino id={a.condition_id}>{conditionLabel(a.condition_id)}</Termino></td>
+                    <td>
+                      <Badge tone={alertSeverityTone(a.severity)}>
+                        {SEVERITY_LABEL[a.severity] ?? a.severity}
+                      </Badge>
+                    </td>
+                    <td>
+                      {!distributionHasRun ? (
+                        <span
+                          title="el módulo de distribución no corrió para este experimento"
+                          className="eo-mono"
+                        >
+                          —
+                        </span>
+                      ) : (
+                        <DistributionOutcomeCell
+                          report={report}
+                          alert={a}
+                        />
+                      )}
+                    </td>
+                    <NumCell>{fmtMoment(a.timestamp_ms)}</NumCell>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          </TableScroll>
+        )}
+        {!alertsError && alerts && alerts.length > 0 && !distributionHasRun && (
+          <p className="eo-cap eo-cap--inset">«—» en Notificada: el módulo de distribución no corrió para este experimento.</p>
         )}
       </Card>
 
       <Card title="Distribución de alertas" flush>
-        {distribution === null ? (
+        {reportLoading ? (
+          <LoadingState lines={2}>Leyendo el reporte de distribución…</LoadingState>
+        ) : reportError ? (
+          <p className="eo-note eo-cardnote">
+            No se sabe: el reporte no se pudo leer (ver arriba).
+          </p>
+        ) : reportPending ? (
           <EmptyState
-            hint="Si el experimento no incluyó distribución, este resumen no se genera."
+            hint={running ? 'Se consolida con el reporte, cuando el experimento termina.' : 'El reporte no se consolidó.'}
           >
-            Sin datos de distribución
+            Distribución pendiente
+          </EmptyState>
+        ) : distribution === null ? (
+          <EmptyState
+            hint={
+              distribucionNoIncluida
+                ? `El reporte lo declara: ${distributionMetricLabel || 'sin distribución'}.`
+                : 'El reporte no trae el resumen de distribución.'
+            }
+          >
+            {distribucionNoIncluida ? 'El experimento no incluyó distribución' : 'Sin datos de distribución'}
           </EmptyState>
         ) : (
           <div className="eo-stack">
             {distributionSegments.length > 0 ? (
-              <div>
+              <div className="eo-cardnote">
                 <Meter
                   segments={distributionSegments.map((segment) => ({
                     value: segment.value,
@@ -430,14 +540,14 @@ export default function ExperimentDetailPage() {
                     distributionSegments.reduce((acc, segment) => acc + segment.value, 0),
                   )}
                 />
-                <p className="eo-cap eo-cap--inset">
+                <p className="eo-cap">
                   {distributionSegments
                     .map((segment) => `${segment.label}: ${segment.value}`)
                     .join(' · ')}
                 </p>
               </div>
             ) : (
-              <p className="eo-cap eo-cap--inset">No hay resultados de entregas para graficar aún.</p>
+              <p className="eo-cap eo-cardnote">No hay resultados de entregas para graficar aún.</p>
             )}
 
             <p className="eo-cap eo-cap--inset">
@@ -458,8 +568,16 @@ export default function ExperimentDetailPage() {
         )}
       </Card>
 
-      <Card title="Trazabilidad">
+      <Card title="Identificación y procedencia">
         <dl className="eo-deflist">
+          <div>
+            <dt>Experimento</dt>
+            <dd className="eo-mono">{experiment.experiment_id}</dd>
+          </div>
+          <div>
+            <dt>Manifiesto</dt>
+            <dd className="eo-mono">{experiment.slug ?? '—'}</dd>
+          </div>
           <div>
             <dt>Corrida de video</dt>
             <dd className="eo-mono">
@@ -473,10 +591,6 @@ export default function ExperimentDetailPage() {
           <div>
             <dt>Corrida de reglas</dt>
             <dd className="eo-mono">{experiment.control_run_id ?? '—'}</dd>
-          </div>
-          <div>
-            <dt>Manifiesto</dt>
-            <dd className="eo-mono">{experiment.slug ?? '—'}</dd>
           </div>
         </dl>
       </Card>

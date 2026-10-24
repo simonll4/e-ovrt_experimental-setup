@@ -1,5 +1,5 @@
 import { Fragment, type ReactElement } from 'react'
-import { Card, Table } from '../../components/ui'
+import { Card, Table, TableScroll } from '../../components/ui'
 import { SERIES_COLORS } from '../../palette'
 import type { EvidenceMetricRow, EvidenceMetrics } from '../../types'
 
@@ -213,7 +213,7 @@ function resumenDe(filas: EvidenceMetricRow[]): string {
 
 export default function Desglose({ esquema, desglose }: { esquema: string; desglose: DesgloseData }) {
   const tabla = (
-    <Table aria-label={desglose.titulo}>
+    <TableScroll label={desglose.titulo}><Table aria-label={desglose.titulo}>
       <thead><tr>
         {desglose.columnas.map((c) => <th key={c} className={NUMERICAS.has(c) ? 'eo-num' : undefined}>{c}</th>)}
       </tr></thead>
@@ -225,7 +225,7 @@ export default function Desglose({ esquema, desglose }: { esquema: string; desgl
           <tr><td colSpan={desglose.columnas.length}><span className="eo-na">Sin filas registradas.</span></td></tr>
         )}
       </tbody>
-    </Table>
+    </Table></TableScroll>
   )
   return <Card title={desglose.titulo} flush>
     {desglose.filas.length > PLEGAR_DESDE ? (

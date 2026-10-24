@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 
 import { ApiError, getRecording, nextTake, startRecording, stopRecording } from '../api'
 import { sourceLabel } from '../runview'
+import { Button, Card, Field, NativeSelect } from './ui'
 import type { CameraPreset, RecordingStatus } from '../types'
 
 const SCENARIOS = ['P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7', 'P8', 'P9']
@@ -74,10 +75,13 @@ export default function RecordPanel({
       .catch((e: unknown) => setError(mensajeDeError(e)))
   }, [scenario, variant])
 
+  // Si el estado inicial no se pudo leer, se dice: mostrar «idle» afirmaría
+  // que no hay una toma en curso sin saberlo.
+  const [estadoDesconocido, setEstadoDesconocido] = useState(false)
   useEffect(() => {
     getRecording()
-      .then(setStatus)
-      .catch(() => undefined)
+      .then((r) => { setStatus(r); setEstadoDesconocido(false) })
+      .catch(() => setEstadoDesconocido(true))
   }, [])
 
   // Mientras se graba, se re-consulta el backend en vez de derivar el cronometro
@@ -143,73 +147,79 @@ export default function RecordPanel({
   const seconds = Math.floor(elapsed / 1000)
 
   return (
-    <section className="record-panel">
-      <h3>Grabar una toma</h3>
+    <Card title="Grabar una toma">
+      <Field label="Cámara" id="rec-camera">
+        <NativeSelect
+          value={cameraId}
+          disabled={enCurso}
+          onChange={(e) => setCameraId(e.target.value)}
+        >
+          <option value="">— elegir cámara —</option>
+          {cameras.map((c) => (
+            <option key={c.id} value={c.id}>{c.name} — {sourceLabel(c.plugin)}</option>
+          ))}
+        </NativeSelect>
+      </Field>
 
-      <label htmlFor="rec-camera">Cámara</label>
-      <select
-        id="rec-camera"
-        value={cameraId}
-        disabled={enCurso}
-        onChange={(e) => setCameraId(e.target.value)}
-      >
-        <option value="">— elegir cámara —</option>
-        {cameras.map((c) => (
-          <option key={c.id} value={c.id}>{c.name} — {sourceLabel(c.plugin)}</option>
-        ))}
-      </select>
+      <div className="eo-fieldgrid">
+        <Field label="Escenario" id="rec-scenario">
+          <NativeSelect
+            value={scenario}
+            disabled={enCurso}
+            onChange={(e) => setScenario(e.target.value)}
+          >
+            {SCENARIOS.map((s) => (
+              <option key={s} value={s}>{s}</option>
+            ))}
+          </NativeSelect>
+        </Field>
+        <Field label="Variante" id="rec-variant">
+          <NativeSelect
+            value={variant}
+            disabled={enCurso}
+            onChange={(e) => setVariant(e.target.value)}
+          >
+            {VARIANTS.map((v) => (
+              <option key={v} value={v}>{v}</option>
+            ))}
+          </NativeSelect>
+        </Field>
+      </div>
 
-      <label htmlFor="rec-scenario">Escenario</label>
-      <select
-        id="rec-scenario"
-        value={scenario}
-        disabled={enCurso}
-        onChange={(e) => setScenario(e.target.value)}
-      >
-        {SCENARIOS.map((s) => (
-          <option key={s} value={s}>{s}</option>
-        ))}
-      </select>
+      <p className="eo-record__take">Próxima toma: <strong>{basename ?? '—'}</strong></p>
 
-      <label htmlFor="rec-variant">Variante</label>
-      <select
-        id="rec-variant"
-        value={variant}
-        disabled={enCurso}
-        onChange={(e) => setVariant(e.target.value)}
-      >
-        {VARIANTS.map((v) => (
-          <option key={v} value={v}>{v}</option>
-        ))}
-      </select>
-
-      <p className="record-basename">Próxima toma: <strong>{basename ?? '—'}</strong></p>
-
-      {enCurso ? (
-        <>
-          {starting ? (
+      <div className="eo-record__status" role="status">
+        {estadoDesconocido && !enCurso && (
+          <p className="eo-note eo-note--warn">
+            No se pudo consultar si hay una toma en curso. Grabar vuelve a preguntarlo al servidor.
+          </p>
+        )}
+        {enCurso ? (
+          starting ? (
             <p className="rec-corta">
-              ⏳ Conectando la cámara… <strong>no actúes todavía</strong>: la
+              Conectando la cámara… <strong>no actúes todavía</strong>: la
               OAK-D tarda unos segundos en empezar a capturar.
             </p>
           ) : (
             <p className={elapsed >= MIN_TAKE_MS ? 'rec-ok' : 'rec-corta'}>
-              ● REC {seconds}s, {formatBytes(status.size_bytes ?? 0)}{' '}
+              <span className="eo-rec-dot" aria-hidden="true" /> REC {seconds}s, {formatBytes(status.size_bytes ?? 0)}{' '}
               {elapsed >= MIN_TAKE_MS ? '' : '(no cortar antes de 30 s)'}
             </p>
-          )}
-          <button type="button" onClick={onStop}>Detener</button>
-        </>
-      ) : (
-        <>
-          <button type="button" onClick={onStart} disabled={!cameraId}>
+          )
+        ) : !cameraId ? (
+          <p className="eo-note">Elegí una cámara para poder grabar.</p>
+        ) : null}
+      </div>
+
+      <div className="eo-record__actions">
+        {enCurso ? (
+          <Button variant="danger" onClick={onStop}>Detener</Button>
+        ) : (
+          <Button variant="primary" onClick={onStart} disabled={!cameraId}>
             Grabar
-          </button>
-          {!cameraId && (
-            <p className="eo-note">Elegí una cámara para poder grabar.</p>
-          )}
-        </>
-      )}
+          </Button>
+        )}
+      </div>
 
       {status.state === 'error' && (
         <p className="record-error">
@@ -217,12 +227,12 @@ export default function RecordPanel({
         </p>
       )}
 
-      {error && <p className="record-error">{error}</p>}
+      {error && <p className="record-error" role="alert">{error}</p>}
 
       {last && (
-        <div className="record-summary">
+        <div className="eo-record__summary">
           <p>
-            {last.basename}: {Math.round((last.duration_ms ?? 0) / 1000)}s, {last.resolution ?? '?'},{' '}
+            <span className="eo-mono">{last.basename}</span>: {Math.round((last.duration_ms ?? 0) / 1000)}s, {last.resolution ?? '?'},{' '}
             {last.fps ? `${last.fps.toFixed(2)} fps` : 'fps desconocido'}
           </p>
           {(last.duration_ms ?? 0) < MIN_TAKE_MS && (
@@ -236,6 +246,6 @@ export default function RecordPanel({
           )}
         </div>
       )}
-    </section>
+    </Card>
   )
 }

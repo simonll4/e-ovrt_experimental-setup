@@ -8,18 +8,28 @@ import {
   useCatalogExperiments, useCatalogPromptSets, useDatasets, useIngestPlugins,
 } from '../api/queries/catalog'
 import { useCameras } from '../api/queries/cameras'
-import PlatformStatus from '../components/PlatformStatus'
+import type { PlaneStatus } from '../types'
 import {
-  Badge, Button, Card, ErrorBanner, Field, IconCheck, IconCircle, IconInfo, IconPlay,
-  PageHeader, Select,
+  Button, Card, Disclosure, ErrorBanner, Field, IconCheck, IconCircle, IconInfo, IconPlay,
+  IconWarn, LoadingState, PageHeader, Select, Tag, TextInput,
 } from '../components/ui'
 import { sourceLabel } from '../runview'
 
-/** Un requisito del panel *Antes de lanzar*: si está cumplido, y por qué. */
+/** Un requisito del panel *Antes de lanzar*: si está cumplido, y por qué.
+ *  `corto` es cómo se nombra en el resumen de pendientes de una columna. */
 interface Paso {
   ok: boolean
   label: string
   sub: string
+  corto: string
+}
+
+/** El motor de reglas no bloquea una corrida de medios: se muestra como una
+ *  verificación informativa, con el mismo rótulo que usa el resto de la
+ *  consola para ese estado. */
+function estadoDelPlano(p: PlaneStatus): string {
+  if (!p.healthy) return 'sin respuesta'
+  return p.ready ? 'operativo' : 'no listo'
 }
 
 /** Círculo numerado del encabezado del paso; violeta cuando el paso se completó. */
@@ -59,6 +69,7 @@ export default function ComposePage() {
   const [previewBusy, setPreviewBusy] = useState(false)
   const [saveName, setSaveName] = useState('')
   const [saveMsg, setSaveMsg] = useState<string | null>(null)
+  const [saving, setSaving] = useState(false)
 
   const fieldError = (field: string): string | undefined => {
     const msg = errors.filter((e) => e.field === field).map((e) => e.message).join('; ')
@@ -74,11 +85,18 @@ export default function ComposePage() {
   const target = useTarget()
   const preflight = usePreflight()
   const lanzamiento = useLaunchRun()
-  const plugins = useIngestPlugins().data ?? []
-  const datasets = useDatasets().data ?? []
-  const sets = useCatalogPromptSets().data ?? []
-  const experiments = useCatalogExperiments().data ?? []
-  const cameras = useCameras().data ?? []
+  // Cada catálogo conserva su consulta: una lista vacía mientras carga, o
+  // porque falló, no es lo mismo que una lista vacía de verdad.
+  const pluginsQ = useIngestPlugins()
+  const datasetsQ = useDatasets()
+  const setsQ = useCatalogPromptSets()
+  const experimentsQ = useCatalogExperiments()
+  const camerasQ = useCameras()
+  const plugins = pluginsQ.data ?? []
+  const datasets = datasetsQ.data ?? []
+  const sets = setsQ.data ?? []
+  const experiments = experimentsQ.data ?? []
+  const cameras = camerasQ.data ?? []
 
   const selectedSet = useMemo(() => sets.find((s) => s.id === setId), [sets, setId])
   // Fuente en vivo (cámara) vs acotada (conjunto/archivo): decide qué campos mostrar.
@@ -196,12 +214,17 @@ export default function ComposePage() {
   }
 
   const save = async () => {
+    // Un solo guardado a la vez: el doble click no escribe dos veces.
+    if (saving || !saveName) return
     setSaveMsg(null)
+    setSaving(true)
     try {
       const { path: saved } = await saveManifest({ name: saveName, composition: composition() })
       setSaveMsg(`Guardado en experiments/${saved}`)
     } catch (e) {
       setSaveMsg(`Error: ${e instanceof ApiError ? JSON.stringify(e.payload) : String(e)}`)
+    } finally {
+      setSaving(false)
     }
   }
 
@@ -241,6 +264,7 @@ export default function ComposePage() {
     ? {
         ok: Boolean(selectedCamera || (plugin === 'rtsp' && rtspUrl && !rtspUrl.includes('***'))),
         label: 'Elegiste una cámara',
+        corto: 'cámara',
         sub: selectedCamera
           ? `Cámara guardada ${selectedCamera.name || selectedCamera.id}`
           : rtspUrl.includes('***')
@@ -254,6 +278,7 @@ export default function ComposePage() {
     : {
         ok: Boolean(dataset || path),
         label: 'Elegiste un origen',
+        corto: 'origen de las imágenes',
         sub: dataset
           ? `Conjunto ${dataset}`
           : path
@@ -265,6 +290,7 @@ export default function ComposePage() {
     {
       ok: Boolean(target?.healthy && target?.ready),
       label: 'El motor de detección está listo',
+      corto: 'motor de detección',
       sub: !target
         ? 'Verificando…'
         : !target.healthy
@@ -277,6 +303,7 @@ export default function ComposePage() {
     {
       ok: Boolean(setId),
       label: 'Elegiste un conjunto de prompts',
+      corto: 'conjunto de prompts',
       sub: selectedSet
         ? selectedSet.frozen
           ? 'Congelado, no se puede editar'
@@ -286,6 +313,7 @@ export default function ComposePage() {
     {
       ok: activeIds.length > 0,
       label: 'Activaste al menos una clase',
+      corto: 'clases activas',
       sub: activeIds.length
         ? `${activeIds.length} de ${selectedSet?.classes.length ?? 0} activas`
         : 'Ninguna activa',
@@ -295,6 +323,25 @@ export default function ComposePage() {
   const toggleClase = (id: string) =>
     setActiveIds((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]))
 
+  const pendientes = pasos.filter((p) => !p.ok)
+
+  /** Estado de una consulta de catálogo dentro de su paso: espera y fallo se
+   *  dicen, en vez de mostrar una lista vacía. */
+  const estadoCatalogo = (
+    q: { isPending: boolean; error: unknown; data: unknown; isFetching: boolean; refetch: () => unknown },
+    que: string,
+  ) => {
+    if (q.isPending && !q.data) return <LoadingState lines={1} inline>Cargando {que}…</LoadingState>
+    if (q.error && !q.data) {
+      return (
+        <ErrorBanner detail={String(q.error)} onRetry={() => void q.refetch()} retrying={q.isFetching}>
+          No se pudo leer {que}.
+        </ErrorBanner>
+      )
+    }
+    return null
+  }
+
   return (
     <>
       <PageHeader
@@ -302,39 +349,63 @@ export default function ComposePage() {
         meta="Elegí de dónde salen las imágenes y qué se busca en ellas"
       />
 
+      {/* En una columna el panel de verificación queda después del formulario:
+          esto adelanta qué falta y lleva al panel completo. Con dos columnas el
+          panel está a la vista y el CSS esconde este resumen. */}
+      {pendientes.length > 0 && (
+        <div className="eo-compose__pending">
+          <IconWarn />
+          <span>
+            <b>Pendiente para lanzar ({pendientes.length} de {pasos.length}):</b>{' '}
+            {pendientes.map((p) => p.corto).join(', ')}.
+          </span>
+          <a href="#antes-de-lanzar" onClick={(e) => {
+            // HashRouter usa el fragmento para rutas: se desplaza a mano.
+            e.preventDefault()
+            const destino = document.getElementById('antes-de-lanzar')
+            destino?.scrollIntoView?.({ block: 'start' })
+            destino?.focus()
+          }}>Ver la verificación completa</a>
+        </div>
+      )}
+
       <div className="eo-compose">
-        <div className="eo-steps">
+        <div className="eo-compose__form">
           <Card title={<><NumeroDePaso n={1} ok={origen.ok} />Fuente</>}>
             {/* Botones-tarjeta y no un desplegable: son cuatro opciones fijas y
                 el motivo de una deshabilitada tiene que verse sin abrir nada. */}
-            <div className="eo-srcgrid">
-              {plugins.map((p) => (
-                <button
-                  key={p.id}
-                  type="button"
-                  className="eo-src"
-                  aria-pressed={plugin === p.id}
-                  disabled={!p.enabled}
-                  onClick={() => {
-                    setPlugin(p.id)
-                    setCameraId('')
-                  }}
-                >
-                  <b>{sourceLabel(p.id)}</b>
-                  <span>
-                    {p.enabled
-                      ? p.description
-                      : p.disabled_reason ?? 'No disponible en esta instancia'}
-                  </span>
-                </button>
-              ))}
-            </div>
+            {estadoCatalogo(pluginsQ, 'las fuentes de esta instancia')}
+            {plugins.length > 0 && (
+              <div className="eo-srcgrid" role="group" aria-label="Fuente de las imágenes">
+                {plugins.map((p) => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    className="eo-src"
+                    aria-pressed={plugin === p.id}
+                    disabled={!p.enabled}
+                    onClick={() => {
+                      setPlugin(p.id)
+                      setCameraId('')
+                    }}
+                  >
+                    <b>{sourceLabel(p.id)}</b>
+                    <span>
+                      {p.enabled
+                        ? p.description
+                        : p.disabled_reason ?? 'No disponible en esta instancia'}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
             {fieldError('ingest.plugin') && (
               <p className="eo-field__error">{fieldError('ingest.plugin')}</p>
             )}
 
             {isLive ? (
               <>
+                {estadoCatalogo(camerasQ, 'las cámaras guardadas')}
                 <Field label="Cámara" error={fieldError('ingest.config.url')}>
                   <Select
                     ariaLabel="Cámara"
@@ -350,7 +421,7 @@ export default function ComposePage() {
                     onChange={setCameraId}
                   />
                 </Field>
-                {pluginCameras.length === 0 && (
+                {camerasQ.data && pluginCameras.length === 0 && (
                   <p className="eo-note">
                     No hay cámaras guardadas para esta fuente — se crean (y se prueban) en{' '}
                     <Link to="/cameras">Cámaras</Link>.
@@ -359,8 +430,7 @@ export default function ComposePage() {
                 {plugin === 'rtsp' && !selectedCamera && (
                   <>
                     <Field label="Dirección de la cámara">
-                      <input
-
+                      <TextInput
                         placeholder="rtsp://usuario:clave@192.168.1.50:554/stream1"
                         value={rtspUrl}
                         onChange={(e) => setRtspUrl(e.target.value)}
@@ -377,8 +447,8 @@ export default function ComposePage() {
                   label="Descartar los primeros cuadros (opcional)"
                   hint="La cámara tarda en asentar exposición y enfoque. A 10 cuadros por segundo, 20 son unos 2 s."
                 >
-                  <input
-
+                  <TextInput
+                    inputMode="numeric"
                     placeholder="20"
                     value={warmupFrames}
                     onChange={(e) => setWarmupFrames(e.target.value)}
@@ -387,6 +457,7 @@ export default function ComposePage() {
               </>
             ) : (
               <>
+                {estadoCatalogo(datasetsQ, 'los conjuntos del catálogo')}
                 <Field label="Conjunto del catálogo" error={fieldError('ingest.config.dataset')}>
                   <Select
                     ariaLabel="Conjunto del catálogo"
@@ -410,8 +481,7 @@ export default function ComposePage() {
                     hint="Una carpeta de imágenes o un archivo de video accesible desde el motor de detección."
                     error={fieldError('ingest.config.path')}
                   >
-                    <input
-
+                    <TextInput
                       placeholder="/ruta/a/las/imagenes"
                       value={path}
                       onChange={(e) => setPath(e.target.value)}
@@ -426,10 +496,11 @@ export default function ComposePage() {
             title={<><NumeroDePaso n={2} ok={Boolean(setId) && activeIds.length > 0} />Qué buscar</>}
             meta={
               selectedSet ? (
-                <Badge tone="neutral">{selectedSet.frozen ? 'Congelado' : 'Editable'}</Badge>
+                <Tag>{selectedSet.frozen ? 'Congelado' : 'Editable'}</Tag>
               ) : undefined
             }
           >
+            {estadoCatalogo(setsQ, 'los conjuntos de prompts')}
             <Field label="Conjunto de prompts" error={fieldError('prompts.set_id')}>
               <Select
                 ariaLabel="Conjunto de prompts"
@@ -452,7 +523,7 @@ export default function ComposePage() {
             </Field>
             {selectedSet ? (
               <>
-                <div className="eo-clsw">
+                <div className="eo-clsw" role="group" aria-label="Clases a buscar">
                   {selectedSet.classes.map((c) => (
                     <button
                       key={c.id}
@@ -471,7 +542,7 @@ export default function ComposePage() {
                 </p>
               </>
             ) : (
-              <p className="eo-empty">Elegí un conjunto para ver sus clases.</p>
+              <p className="eo-note">Elegí un conjunto para ver sus clases.</p>
             )}
             {fieldError('prompts.active_ids') && (
               <p className="eo-field__error">{fieldError('prompts.active_ids')}</p>
@@ -483,8 +554,7 @@ export default function ComposePage() {
               label="Nombre de la corrida (opcional)"
               hint="Si lo dejás vacío se usa el identificador generado automáticamente."
             >
-              <input
-
+              <TextInput
                 placeholder="prueba OAK-D laboratorio"
                 value={runName}
                 onChange={(e) => setRunName(e.target.value)}
@@ -497,12 +567,12 @@ export default function ComposePage() {
                   El manifiesto declara el modelo <b className="eo-mono">{manifestModelRef}</b>.
                 </p>
                 {modelError && (
-                  <label className="eo-note eo-note--error">
+                  <label className="eo-check eo-note--error">
                     <input
                       type="checkbox"
                       checked={confirmModel}
                       onChange={(e) => setConfirmModel(e.target.checked)}
-                    />{' '}
+                    />
                     Usar el modelo de la instancia activa de todas formas
                   </label>
                 )}
@@ -512,95 +582,130 @@ export default function ComposePage() {
               </>
             )}
 
-            <details className="eo-adv">
-              <summary>Opciones avanzadas</summary>
-              <div className="eo-adv__body">
-                <p className="eo-note">
-                  Los umbrales son fijos por instancia: se ven en Catálogos.
-                </p>
-                <Field label="Partir de un manifiesto">
-                  <Select
-                    ariaLabel="Partir de un manifiesto"
-                    value={params.get('from') ?? ''}
-                    placeholder="Desde cero"
-                    options={[
-                      { value: '', label: 'Desde cero' },
-                      ...experiments.map((x) => ({
-                        value: x.id,
-                        label: x.group ? `[${x.group}] ${x.id}` : x.id,
-                      })),
-                    ]}
-                    onChange={(v) =>
-                      navigate(v ? `/compose?from=${encodeURIComponent(v)}` : '/compose')
-                    }
-                  />
-                </Field>
+            <Disclosure summary="Opciones avanzadas">
+              <p className="eo-note">
+                Los umbrales son fijos por instancia: se ven en <Link to="/catalog">Catálogos</Link>.
+              </p>
+              {estadoCatalogo(experimentsQ, 'los manifiestos')}
+              <Field label="Partir de un manifiesto">
+                <Select
+                  ariaLabel="Partir de un manifiesto"
+                  value={params.get('from') ?? ''}
+                  placeholder="Desde cero"
+                  options={[
+                    { value: '', label: 'Desde cero' },
+                    ...experiments.map((x) => ({
+                      value: x.id,
+                      label: x.group ? `[${x.group}] ${x.id}` : x.id,
+                    })),
+                  ]}
+                  onChange={(v) =>
+                    navigate(v ? `/compose?from=${encodeURIComponent(v)}` : '/compose')
+                  }
+                />
+              </Field>
+              <div className="eo-fieldgrid">
                 <Field label="Procesar uno de cada N cuadros" error={fieldError('run.stride')}>
-                  <input
-
+                  <TextInput
+                    inputMode="numeric"
                     placeholder="1"
                     value={stride}
                     onChange={(e) => setStride(e.target.value)}
                   />
                 </Field>
                 <Field label="Máximo de unidades a procesar" error={fieldError('run.max_units')}>
-                  <input
-
+                  <TextInput
+                    inputMode="numeric"
                     placeholder="Sin límite"
                     value={maxUnits}
                     onChange={(e) => setMaxUnits(e.target.value)}
                   />
                 </Field>
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={annotated}
-                    onChange={(e) => setAnnotated(e.target.checked)}
-                  />{' '}
-                  Guardar el video con las detecciones dibujadas
-                </label>
-                <Field label="Guardar esta configuración como manifiesto">
-                  <span className="eo-inputrow">
-                    <input
-
-                      placeholder="perimetro_nocturno"
-                      value={saveName}
-                      onChange={(e) => setSaveName(e.target.value)}
-                    />
-                    <Button onClick={save} disabled={!saveName}>
-                      Guardar
-                    </Button>
-                  </span>
-                </Field>
-                {saveMsg && <p className="eo-note">{saveMsg}</p>}
               </div>
-            </details>
+              <label className="eo-check">
+                <input
+                  type="checkbox"
+                  checked={annotated}
+                  onChange={(e) => setAnnotated(e.target.checked)}
+                />
+                Guardar el video con las detecciones dibujadas
+              </label>
+              <Field label="Guardar esta configuración como manifiesto">
+                <span className="eo-inputrow">
+                  <TextInput
+                    placeholder="perimetro_nocturno"
+                    value={saveName}
+                    onChange={(e) => setSaveName(e.target.value)}
+                  />
+                  <Button onClick={() => void save()} disabled={!saveName || saving} aria-busy={saving || undefined}>
+                    {saving ? 'Guardando…' : 'Guardar'}
+                  </Button>
+                </span>
+              </Field>
+              {saveMsg && <p className="eo-note" role="status">{saveMsg}</p>}
+            </Disclosure>
           </Card>
         </div>
 
-        <aside className="eo-rail">
-          <Card title="Antes de lanzar" flush>
+        <aside className="eo-rail" aria-label="Verificación antes de lanzar">
+          <section className="eo-card" id="antes-de-lanzar" tabIndex={-1}>
+            <header className="eo-card__head">
+              <h2 className="eo-card__title">Antes de lanzar</h2>
+              <div className="eo-card__meta">
+                {pendientes.length ? `${pendientes.length} pendiente${pendientes.length > 1 ? 's' : ''}` : 'Todo cumplido'}
+              </div>
+            </header>
             {pasos.map((p) => (
               <div key={p.label} className={p.ok ? 'eo-chk' : 'eo-chk eo-chk--no'}>
-                <span className="eo-chk__mark">{p.ok ? <IconCheck /> : <IconCircle />}</span>
+                <span className="eo-chk__mark" aria-hidden="true">{p.ok ? <IconCheck /> : <IconCircle />}</span>
                 <span className="eo-chk__text">
-                  <b>{p.label}</b>
+                  <b>
+                    <span className="eo-sr">{p.ok ? 'Cumplido: ' : 'Pendiente: '}</span>
+                    {p.label}
+                  </b>
                   <span>{p.sub}</span>
                 </span>
               </div>
             ))}
+            {/* El motor de reglas se verifica pero no bloquea: una corrida de
+                medios no lo necesita. Lo que sí lo necesita es un experimento,
+                y ese bloqueo vive en Experimentos. */}
+            <p className="eo-chk__group">Servicios (informativo)</p>
+            {preflight ? (
+              <div className={preflight.control.healthy && preflight.control.ready ? 'eo-chk' : 'eo-chk eo-chk--info'}>
+                <span className="eo-chk__mark" aria-hidden="true">
+                  {preflight.control.healthy && preflight.control.ready ? <IconCheck /> : <IconWarn />}
+                </span>
+                <span className="eo-chk__text">
+                  <b>Motor de reglas {estadoDelPlano(preflight.control)}</b>
+                  <span>No bloquea esta corrida: la evaluación de reglas sólo hace falta en un experimento.</span>
+                </span>
+              </div>
+            ) : (
+              <div className="eo-chk eo-chk--no">
+                <span className="eo-chk__mark" aria-hidden="true"><IconCircle /></span>
+                <span className="eo-chk__text"><b>Verificando servicios…</b></span>
+              </div>
+            )}
             <div className="eo-launch">
-              <Button variant="primary" onClick={submit} disabled={missingReason !== null || lanzamiento.isPending}>
+              <Button
+                variant="primary"
+                onClick={submit}
+                disabled={missingReason !== null || lanzamiento.isPending}
+                aria-busy={lanzamiento.isPending || undefined}
+              >
                 <IconPlay />
-                Lanzar corrida
+                {lanzamiento.isPending ? 'Lanzando corrida…' : 'Lanzar corrida'}
               </Button>
-              <span className="eo-launch__why">
+              <span className="eo-launch__why" role="status">
                 {missingReason
                   ? `Falta: ${missingReason}`
-                  : 'Todo listo. La corrida arranca en cuanto confirmes.'}
+                  : lanzamiento.isPending
+                    ? 'Pidiendo la corrida al motor de detección…'
+                    : 'Todo listo. La corrida arranca en cuanto confirmes.'}
               </span>
             </div>
-          </Card>
+          </section>
 
           {generalError && <ErrorBanner>{generalError}</ErrorBanner>}
 
@@ -615,8 +720,6 @@ export default function ComposePage() {
               lanzar la corrida.
             </p>
           )}
-
-          <PlatformStatus status={preflight} />
 
           <p className="eo-note eo-note--icon">
             <IconInfo />

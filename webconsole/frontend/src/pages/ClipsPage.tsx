@@ -1,9 +1,13 @@
 import { useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 
 import { clipMediaUrl } from '../api'
 import { useClips, useMasters } from '../api/queries/clips'
 import TrimDialog from '../components/TrimDialog'
-import { Badge, Card, EmptyState, ErrorBanner, PageHeader, SearchInput } from '../components/ui'
+import {
+  Badge, Button, Card, EmptyState, ErrorBanner, IconWarn, LoadingState, PageHeader, SearchInput,
+  StaleNotice,
+} from '../components/ui'
 import type { ClipEntry, MasterEntry } from '../types'
 
 /** Panel derecho: o se recorta un master, o se reproduce un clip, nunca las dos.
@@ -21,8 +25,6 @@ export default function ClipsPage() {
   const consultaClips = useClips()
   const masters: MasterEntry[] = consultaMasters.data ?? []
   const clips: ClipEntry[] = consultaClips.data ?? []
-  const fallo = consultaMasters.error ?? consultaClips.error
-  const error = fallo ? (fallo instanceof Error ? fallo.message : String(fallo)) : null
 
   // El filtro es una sola caja para las dos listas: el operador busca "4.1" o "p7"
   // sin tener que acordarse de si eso es un master o un clip.
@@ -47,136 +49,183 @@ export default function ClipsPage() {
   const clipActivo =
     panel?.kind === 'clip' ? clips.find((c) => c.clip_id === panel.clipId) : undefined
 
+  // Vacío de verdad en las dos listas (las dos respondieron): un solo aviso que
+  // lleva a donde se graba, en vez de tres cajas que dicen lo mismo.
+  const todoVacio =
+    consultaMasters.data != null && consultaClips.data != null && masters.length === 0 && clips.length === 0
+
+  /** Estado de una lista dentro de su tarjeta: espera, fallo o datos viejos. */
+  const estado = (
+    c: { isPending: boolean; error: unknown; data: unknown; isFetching: boolean; refetch: () => unknown },
+    que: string,
+  ) => {
+    if (c.isPending && !c.data) return <LoadingState lines={2}>Cargando {que}…</LoadingState>
+    if (c.error && !c.data) {
+      return (
+        <ErrorBanner detail={String(c.error)} onRetry={() => void c.refetch()} retrying={c.isFetching}>
+          No se pudo leer {que}.
+        </ErrorBanner>
+      )
+    }
+    if (c.error) return <StaleNotice what={que} onRetry={() => void c.refetch()} retrying={c.isFetching} />
+    return null
+  }
+
   return (
-    <div className="eo-clips">
+    <>
       <PageHeader
         title="Clips"
-        meta={`${masters.length} materiales · ${clips.length} clips recortados`}
+        meta={
+          consultaMasters.data && consultaClips.data
+            ? `${masters.length} materiales · ${clips.length} clips recortados`
+            : 'Materiales grabados y clips recortados'
+        }
       />
-      {error && <ErrorBanner>{error}</ErrorBanner>}
 
-      {/* El buscador va en su propia barra, no entre las acciones del
-          encabezado: filtra el contenido de abajo, no la pantalla. */}
-      <div className="eo-toolbar">
-        <SearchInput
-          value={filtro}
-          onChange={setFiltro}
-          placeholder="Buscar en materiales y clips"
-          ariaLabel="Buscar en materiales y clips"
-        />
-      </div>
-
-      <div className="eo-clips__grid">
-        <div className="eo-clips__rail">
-          <Card title={`Materiales (${mastersVisibles.length}/${masters.length})`}>
-            {mastersVisibles.length === 0 ? (
-              <EmptyState>{masters.length === 0 ? 'No hay materiales grabados.' : 'Nada coincide.'}</EmptyState>
-            ) : (
-              <ul className="eo-rows eo-rows--scroll">
-                {mastersVisibles.map((m) => {
-                  const activo = panel?.kind === 'trim' && panel.master.name === m.name
-                  return (
-                    <li
-                      key={m.name}
-                      className={activo ? 'eo-row eo-row--active' : 'eo-row'}
-                    >
-                      <div className="eo-row__main">
-                        <span className="eo-row__name">{m.name}</span>
-                        <small className="eo-note">
-                          {m.scenario ?? 'sin escenario'} · {segundos(m.duration_ms)} ·{' '}
-                          {!m.readable ? (
-                            <Badge tone="error">Ilegible</Badge>
-                          ) : m.clips.length > 0 ? (
-                            m.clips.join(', ')
-                          ) : (
-                            'sin recortar'
-                          )}
-                        </small>
-                      </div>
-                      <button
-                        type="button"
-                        disabled={!m.readable}
-                        onClick={() => setPanel({ kind: 'trim', master: m })}
-                      >
-                        Recortar
-                      </button>
-                    </li>
-                  )
-                })}
-              </ul>
-            )}
-          </Card>
-
-          <Card title={`Clips generados (${clipsVisibles.length}/${clips.length})`}>
-            {clipsVisibles.length === 0 ? (
-              <EmptyState>{clips.length === 0 ? 'Todavía no hay clips.' : 'Nada coincide.'}</EmptyState>
-            ) : (
-              <ul className="eo-rows eo-rows--scroll">
-                {clipsVisibles.map((c) => {
-                  const activo = panel?.kind === 'clip' && panel.clipId === c.clip_id
-                  return (
-                    <li key={c.clip_id} className={activo ? 'eo-row eo-row--active' : 'eo-row'}>
-                      <button
-                        type="button"
-                        className="eo-row__pick"
-                        onClick={() => setPanel({ kind: 'clip', clipId: c.clip_id })}
-                      >
-                        <span className="eo-row__name">{c.clip_id}</span>
-                        <small className="eo-note">
-                          {segundos(c.duration_ms)} · {c.resolution ?? '—'}
-                        </small>
-                        {c.warnings.map((w) => (
-                          <small key={w} className="eo-note eo-note--warn">
-                            ⚠ {w}
-                          </small>
-                        ))}
-                      </button>
-                    </li>
-                  )
-                })}
-              </ul>
-            )}
-          </Card>
-        </div>
-
-        <div className="eo-clips__work">
-          {panel?.kind === 'trim' && (
-            <TrimDialog
-              key={panel.master.name}
-              master={panel.master}
-              onClose={() => setPanel(null)}
-              // `TrimDialog` todavía llama a `generateClip` directo. Cuando pase
-              // a usar `useGenerateClip`, la invalidación es automática y este
-              // callback sobra.
-              onGenerated={() => {
-                void consultaMasters.refetch()
-                void consultaClips.refetch()
-              }}
+      {todoVacio ? (
+        <Card>
+          <EmptyState
+            hint="Los materiales son las grabaciones completas que se hacen desde Cámaras; los clips son recortes con nombre que después sirven como fuente de una corrida."
+            action={<Link className="eo-btn eo-btn--primary" to="/cameras">Ir a Cámaras para grabar</Link>}
+          >
+            Todavía no hay materiales ni clips
+          </EmptyState>
+        </Card>
+      ) : (
+        <>
+          {/* El buscador va en su propia barra, no entre las acciones del
+              encabezado: filtra el contenido de abajo, no la pantalla. */}
+          <div className="eo-toolbar">
+            <SearchInput
+              value={filtro}
+              onChange={setFiltro}
+              placeholder="Buscar en materiales y clips"
+              ariaLabel="Buscar en materiales y clips"
             />
-          )}
-          {panel?.kind === 'clip' && (
-            <Card title={`Reproducir ${panel.clipId}`}>
-              <video controls className="eo-video" src={clipMediaUrl(panel.clipId)} />
-              <p className="eo-note">
-                {segundos(clipActivo?.duration_ms)} · {clipActivo?.resolution ?? '—'} ·{' '}
-                {clipActivo?.fps ?? '—'} fps · master {clipActivo?.master ?? '—'}
-              </p>
-              <div className="eo-actions">
-                <button type="button" onClick={() => setPanel(null)}>
-                  Cerrar
-                </button>
-              </div>
-            </Card>
-          )}
-          {panel == null && (
-            <Card title="Elegí un material o un clip">
-              <EmptyState>
-                Los materiales son las grabaciones completas. Los clips son recortes con nombre, que después podés usar como fuente de una corrida.
-              </EmptyState>
-            </Card>
-          )}
-        </div>
-      </div>
-    </div>
+          </div>
+
+          <div className="eo-clips__grid">
+            <div className="eo-clips__rail">
+              <Card
+                title="Materiales"
+                meta={consultaMasters.data ? `${mastersVisibles.length} de ${masters.length}` : undefined}
+                flush
+              >
+                {estado(consultaMasters, 'los materiales')}
+                {consultaMasters.data && (mastersVisibles.length === 0 ? (
+                  <EmptyState>{masters.length === 0 ? 'No hay materiales grabados.' : 'Nada coincide.'}</EmptyState>
+                ) : (
+                  <ul className="eo-rows eo-rows--scroll">
+                    {mastersVisibles.map((m) => {
+                      const activo = panel?.kind === 'trim' && panel.master.name === m.name
+                      return (
+                        <li
+                          key={m.name}
+                          className={activo ? 'eo-row eo-row--active' : 'eo-row'}
+                        >
+                          <div className="eo-row__main">
+                            <span className="eo-row__name">{m.name}</span>
+                            <small className="eo-note">
+                              {m.scenario ?? 'sin escenario'} · {segundos(m.duration_ms)} ·{' '}
+                              {!m.readable ? (
+                                <Badge tone="error">Ilegible</Badge>
+                              ) : m.clips.length > 0 ? (
+                                m.clips.join(', ')
+                              ) : (
+                                'sin recortar'
+                              )}
+                            </small>
+                          </div>
+                          <Button
+                            disabled={!m.readable}
+                            aria-pressed={activo}
+                            onClick={() => setPanel({ kind: 'trim', master: m })}
+                          >
+                            Recortar
+                          </Button>
+                        </li>
+                      )
+                    })}
+                  </ul>
+                ))}
+              </Card>
+
+              <Card
+                title="Clips generados"
+                meta={consultaClips.data ? `${clipsVisibles.length} de ${clips.length}` : undefined}
+                flush
+              >
+                {estado(consultaClips, 'los clips')}
+                {consultaClips.data && (clipsVisibles.length === 0 ? (
+                  <EmptyState>{clips.length === 0 ? 'Todavía no hay clips.' : 'Nada coincide.'}</EmptyState>
+                ) : (
+                  <ul className="eo-rows eo-rows--scroll">
+                    {clipsVisibles.map((c) => {
+                      const activo = panel?.kind === 'clip' && panel.clipId === c.clip_id
+                      return (
+                        <li key={c.clip_id} className={activo ? 'eo-row eo-row--active' : 'eo-row'}>
+                          <button
+                            type="button"
+                            className="eo-row__pick"
+                            aria-pressed={activo}
+                            onClick={() => setPanel({ kind: 'clip', clipId: c.clip_id })}
+                          >
+                            <span className="eo-row__name">{c.clip_id}</span>
+                            <small className="eo-note">
+                              {segundos(c.duration_ms)} · {c.resolution ?? '—'}
+                            </small>
+                            {c.warnings.map((w) => (
+                              <small key={w} className="eo-note eo-note--warn eo-feedback">
+                                <IconWarn /> <span>{w}</span>
+                              </small>
+                            ))}
+                          </button>
+                        </li>
+                      )
+                    })}
+                  </ul>
+                ))}
+              </Card>
+            </div>
+
+            <div className="eo-clips__work">
+              {panel?.kind === 'trim' && (
+                <TrimDialog
+                  key={panel.master.name}
+                  master={panel.master}
+                  onClose={() => setPanel(null)}
+                  // `TrimDialog` todavía llama a `generateClip` directo. Cuando pase
+                  // a usar `useGenerateClip`, la invalidación es automática y este
+                  // callback sobra.
+                  onGenerated={() => {
+                    void consultaMasters.refetch()
+                    void consultaClips.refetch()
+                  }}
+                />
+              )}
+              {panel?.kind === 'clip' && (
+                <Card title={`Reproducir ${panel.clipId}`}>
+                  <video controls className="eo-video" src={clipMediaUrl(panel.clipId)} />
+                  <p className="eo-note">
+                    {segundos(clipActivo?.duration_ms)} · {clipActivo?.resolution ?? '—'} ·{' '}
+                    {clipActivo?.fps ?? '—'} fps · master {clipActivo?.master ?? '—'}
+                  </p>
+                  <div className="eo-actions">
+                    <Button onClick={() => setPanel(null)}>Cerrar</Button>
+                  </div>
+                </Card>
+              )}
+              {panel == null && (
+                <Card>
+                  <EmptyState hint="Los materiales son las grabaciones completas. Los clips son recortes con nombre, que después podés usar como fuente de una corrida.">
+                    Elegí un material para recortarlo o un clip para reproducirlo
+                  </EmptyState>
+                </Card>
+              )}
+            </div>
+          </div>
+        </>
+      )}
+    </>
   )
 }

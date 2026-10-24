@@ -6,16 +6,23 @@ import { qk } from '../keys'
 import { POLL } from '../queryClient'
 import type { PlatformInstance, PreflightStatus, TargetStatus } from '../../types'
 
-/** Estado del motor de detección. Devuelve `null` mientras no se sabe, igual que
- *  el hook manual al que reemplaza: las pantallas distinguen "todavía no sé" de
- *  "respondió que no está listo". */
-export function useTarget(): TargetStatus | null {
-  const { data } = useQuery({
+/** La consulta del motor de detección, con su estado (pendiente, error,
+ *  refetch). Misma clave e intervalo que `useTarget`: las dos comparten una sola
+ *  petición; ésta sólo expone además el objeto de la consulta, para que una
+ *  pantalla distinga "todavía no respondió" de "falló". */
+export function useTargetQuery() {
+  return useQuery({
     queryKey: qk.target,
     queryFn: getTarget,
     refetchInterval: POLL.salud,
   })
-  return data ?? null
+}
+
+/** Estado del motor de detección. Devuelve `null` mientras no se sabe, igual que
+ *  el hook manual al que reemplaza: las pantallas distinguen "todavía no sé" de
+ *  "respondió que no está listo". */
+export function useTarget(): TargetStatus | null {
+  return useTargetQuery().data ?? null
 }
 
 /** Referencia del modelo activo. Varias pantallas la usan como clave para
@@ -24,13 +31,18 @@ export function useTargetModelRef(): string | undefined {
   return useTarget()?.model?.ref
 }
 
-export function usePreflight(): PreflightStatus | null {
-  const { data } = useQuery({
+/** Igual que `useTargetQuery`: la consulta completa del preflight, con la misma
+ *  clave e intervalo que `usePreflight`. */
+export function usePreflightQuery() {
+  return useQuery({
     queryKey: qk.preflight,
     queryFn: getPreflight,
     refetchInterval: POLL.salud,
   })
-  return data ?? null
+}
+
+export function usePreflight(): PreflightStatus | null {
+  return usePreflightQuery().data ?? null
 }
 
 export type ServiceStatus = 'ok' | 'down' | 'checking'

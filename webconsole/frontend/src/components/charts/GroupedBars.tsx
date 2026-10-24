@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState, type RefObject } from 'react'
 import { niceTicks } from './layout'
 import { SERIES_COLORS } from '../../palette'
 
@@ -50,6 +51,28 @@ export function groupedBarsLayout(
 
 const fmtValue = (v: number) => v.toFixed(2).replace('.', ',')
 
+/** Ancho mínimo de un grupo: 120 px, o 40 px por serie si hay muchas. */
+const anchoMinimoDeGrupo = (series: number) => Math.max(120, 40 * series)
+
+/** Ancho disponible del contenedor, medido: el gráfico se dibuja en píxeles
+ *  reales para que su tipografía no se achique al encoger la pantalla. */
+function useAncho(ref: RefObject<HTMLDivElement>, inicial: number) {
+  const [ancho, setAncho] = useState(inicial)
+  useEffect(() => {
+    const el = ref.current
+    if (!el || typeof ResizeObserver === 'undefined') return
+    const medir = () => {
+      const w = el.clientWidth
+      if (w > 0) setAncho(w)
+    }
+    medir()
+    const ro = new ResizeObserver(medir)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [ref])
+  return ancho
+}
+
 export default function GroupedBars({ groups, series, labels, width = 720, height = 300 }: {
   groups: string[]
   series: Array<Array<number | null>>
@@ -57,66 +80,80 @@ export default function GroupedBars({ groups, series, labels, width = 720, heigh
   width?: number
   height?: number
 }) {
+  const contenedor = useRef<HTMLDivElement>(null)
+  const disponible = useAncho(contenedor, width)
   const axisW = 44
   const bottomH = 34
   const topPad = 18 // aire para la etiqueta de valor sobre la barra
-  const plotWidth = width - axisW
+  // Cada grupo tiene un ancho mínimo; si sobra lugar, se reparte. Si no entra,
+  // el gráfico conserva su tamaño y se desplaza dentro de su contenedor.
+  const grupo = Math.max(anchoMinimoDeGrupo(series.length), (disponible - axisW) / Math.max(1, groups.length))
+  const plotWidth = grupo * Math.max(1, groups.length)
+  const svgWidth = Math.round(plotWidth + axisW)
   const plotHeight = height - bottomH - topPad
   const rects = groupedBarsLayout(groups, series, plotWidth, plotHeight)
   // AP@0.5 vive en [0,1]: dominio fijo, no automático. Un eje que se reescala
   // según los datos hace que dos gráficos no se puedan comparar entre sí.
   const ticks = niceTicks(1)
+  const desborda = svgWidth > disponible + 1
 
   return (
     <div className="eo-bars">
-      <svg
-        width="100%"
-        viewBox={`0 0 ${width} ${height}`}
-        role="img"
-        aria-label={`Precisión por clase, ${labels.join(' contra ')}`}
+      <div
+        ref={contenedor}
+        className="eo-bars__scroll"
+        {...(desborda ? { role: 'region', 'aria-label': 'Gráfico de precisión por clase', tabIndex: 0 } : {})}
       >
-        <g transform={`translate(${axisW}, ${topPad})`}>
-          {ticks.map((t) => {
-            const y = plotHeight - t * plotHeight
-            return (
-              <g key={t}>
-                <line x1={0} y1={y} x2={plotWidth} y2={y} stroke="var(--bd)" />
-                <text x={-8} y={y + 4} textAnchor="end" className="eo-bars__tick">
-                  {fmtValue(t)}
+        <svg
+          width={svgWidth}
+          height={height}
+          viewBox={`0 0 ${svgWidth} ${height}`}
+          role="img"
+          aria-label={`Precisión por clase, ${labels.join(' contra ')}`}
+        >
+          <g transform={`translate(${axisW}, ${topPad})`}>
+            {ticks.map((t) => {
+              const y = plotHeight - t * plotHeight
+              return (
+                <g key={t}>
+                  <line x1={0} y1={y} x2={plotWidth} y2={y} stroke="var(--bd)" />
+                  <text x={-8} y={y + 4} textAnchor="end" className="eo-bars__tick">
+                    {fmtValue(t)}
+                  </text>
+                </g>
+              )
+            })}
+            {rects.map((r) => (
+              <g key={`${r.series}-${r.group}`}>
+                <rect x={r.x} y={r.y} width={r.width} height={r.height} fill={r.color} rx={4}>
+                  <title>{`${labels[r.series]} — ${groups[r.group]}: ${fmtValue(r.value)}`}</title>
+                </rect>
+                {/* Etiqueta directa: el valor va sobre la barra y no hay que
+                    leerlo contra el eje. */}
+                <text
+                  x={r.x + r.width / 2}
+                  y={r.y - 5}
+                  textAnchor="middle"
+                  className="eo-bars__value"
+                >
+                  {fmtValue(r.value)}
                 </text>
               </g>
-            )
-          })}
-          {rects.map((r) => (
-            <g key={`${r.series}-${r.group}`}>
-              <rect x={r.x} y={r.y} width={r.width} height={r.height} fill={r.color} rx={4}>
-                <title>{`${labels[r.series]} — ${groups[r.group]}: ${fmtValue(r.value)}`}</title>
-              </rect>
-              {/* Etiqueta directa: son 2–4 grupos, así que el valor va sobre la
-                  barra y no hay que leerlo contra el eje. */}
+            ))}
+            {groups.map((group, gi) => (
               <text
-                x={r.x + r.width / 2}
-                y={r.y - 5}
+                key={group}
+                x={(gi + 0.5) * (plotWidth / groups.length)}
+                y={plotHeight + 20}
                 textAnchor="middle"
-                className="eo-bars__value"
+                className="eo-bars__group"
               >
-                {fmtValue(r.value)}
+                {group}
               </text>
-            </g>
-          ))}
-          {groups.map((group, gi) => (
-            <text
-              key={group}
-              x={(gi + 0.5) * (plotWidth / groups.length)}
-              y={plotHeight + 20}
-              textAnchor="middle"
-              className="eo-bars__group"
-            >
-              {group}
-            </text>
-          ))}
-        </g>
-      </svg>
+            ))}
+          </g>
+        </svg>
+      </div>
       <ul className="eo-bars__legend">
         {labels.map((label, i) => (
           <li key={label}>

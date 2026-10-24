@@ -107,7 +107,7 @@ describe('RecordPanel', () => {
 
     expect(await screen.findByText(/no act[uú]es todav[ií]a/i)).toBeTruthy()
     // El cronómetro de grabación NO puede estar corriendo todavía.
-    expect(screen.queryByText(/● REC/)).toBeNull()
+    expect(screen.queryByText(/REC \d+s/)).toBeNull()
     // Pero sí se puede cortar, por si el device nunca conecta.
     expect(screen.getByRole('button', { name: /detener/i })).toBeTruthy()
   })
@@ -133,7 +133,7 @@ describe('RecordPanel', () => {
 
     expect(await screen.findByText(/ya hay una grabación activa/)).toBeTruthy()
     // El panel tiene que reflejar la toma que SÍ está corriendo.
-    expect(await screen.findByText(/● REC/)).toBeTruthy()
+    expect(await screen.findByText(/REC \d+s/)).toBeTruthy()
     expect(screen.getByRole('button', { name: /detener/i })).toBeTruthy()
   })
 

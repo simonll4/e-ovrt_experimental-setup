@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { getEvidenceRecorrido } from '../../api'
-import { EmptyState, ErrorBanner, PageHeader } from '../../components/ui'
+import { EmptyState, PageHeader } from '../../components/ui'
+import { ArchivoAusente, Cifra, EstadoDeLectura, Evidencia } from './comun'
 
 /** La entrada de `/evidencia`: los cuatro números del argumento del informe,
  *  no un índice de carpetas. Cada paso abre en `/evidencia/paso?n=`; el
@@ -12,48 +13,45 @@ import { EmptyState, ErrorBanner, PageHeader } from '../../components/ui'
  *  a dónde navegar — mejor una tarjeta honesta que un link muerto. */
 export default function Entrada() {
   const q = useQuery({ queryKey: ['evidencia', 'recorrido'], queryFn: getEvidenceRecorrido })
-  if (q.isPending) return <EmptyState>Leyendo archivo de evidencia…</EmptyState>
-  if (q.error) return <ErrorBanner>No se pudo leer el archivo de evidencia.</ErrorBanner>
-  if (q.data.available === false) return <>
-    <PageHeader title="Evidencia" />
-    <EmptyState hint={q.data.message}>Archivo de evidencia no disponible</EmptyState>
-  </>
+  if (q.isPending || q.error) return <EstadoDeLectura titulo="Evidencia" q={q} />
+  if (q.data.available === false) return <ArchivoAusente message={q.data.message} />
   // Los DOS sumandos del mismo conjunto, nombrados: el recorrido son 30 y el
-  // respaldo instrumental 5. Antes la cabecera decía «30 resultados
-  // reportados» mientras la tarjeta de al lado listaba 35 por material — dos
-  // totales del mismo conjunto, uno al lado del otro, sin explicación. El 35
-  // es el número canónico del proyecto, así que se dice entero y se muestra de
-  // qué se compone.
+  // respaldo instrumental 5. El 35 es el número canónico del proyecto, así que
+  // se dice entero y se muestra de qué se compone.
   const enRecorrido = q.data.pasos.reduce((n, p) => n + p.n_resultados, 0)
   const enRespaldo = q.data.respaldo?.n_resultados ?? null
   const meta = enRespaldo == null
     ? `${enRecorrido} resultados en el recorrido · lectura del archivo curado`
     : `${enRecorrido + enRespaldo} resultados reportados — ${enRecorrido} en el recorrido `
       + `y ${enRespaldo} de respaldo instrumental · lectura del archivo curado`
-  return <div className="eo-evidence">
+  return <Evidencia>
     <PageHeader title="Evidencia" meta={meta} />
     <p className="eo-note">El recorrido del argumento del informe. Cada número abre los
       resultados que lo sostienen; cada resultado, su desglose y las corridas que lo respaldan.</p>
-    <div className="eo-steps">
+    <div className="eo-evsteps">
       {q.data.pasos.map((paso) => (
-        <Link key={paso.n} className="eo-step" to={`/evidencia/paso?n=${paso.n}`}>
-          <div className="eo-step__n">{paso.n}</div>
-          <div className="eo-step__body">
-            <div className="eo-step__t">{paso.titulo}</div>
-            <p className="eo-step__c">{paso.claim}</p>
+        // La tarjeta entera abre el paso (el enlace del título se estira con
+        // CSS), pero la fuente de una cifra citada sigue siendo su propio
+        // control: no hay un botón adentro de un enlace.
+        <article key={paso.n} className="eo-evstep">
+          <div className="eo-evstep__n" aria-hidden="true">{paso.n}</div>
+          <div className="eo-evstep__body">
+            <h2 className="eo-evstep__t">
+              <Link className="eo-evstep__link" to={`/evidencia/paso?n=${paso.n}`}>{paso.titulo}</Link>
+            </h2>
+            <p className="eo-evstep__c">{paso.claim}</p>
             {/* Cada índice con su barra: `join(' + ') + '/'` dejaba
                 «clip_bench + realtime/», como si sólo el último fuera una carpeta. */}
-            <div className="eo-step__m">{paso.n_resultados} resultados · {paso.indices.map((i) => `${i}/`).join(' + ')}</div>
+            <div className="eo-evstep__m">{paso.n_resultados} resultados · {paso.indices.map((i) => `${i}/`).join(' + ')}</div>
           </div>
           <div className="eo-fig">
             <div className="eo-fig__l">{paso.cifra_label}</div>
-            <div
-              className={paso.cifra_origen === 'citada' ? 'eo-fig__v eo-cifra--cit' : 'eo-fig__v'}
-              title={paso.fuente ?? undefined}
-            >{paso.cifra ?? '—'}</div>
+            <div className="eo-fig__v">
+              <Cifra valor={paso.cifra ?? '—'} origen={paso.cifra_origen} fuente={paso.fuente} />
+            </div>
             <div className="eo-fig__u">{paso.cifra_nota}</div>
           </div>
-        </Link>
+        </article>
       ))}
       {q.data.pasos.length === 0 && <EmptyState>No hay pasos registrados en el recorrido.</EmptyState>}
     </div>
@@ -78,14 +76,8 @@ export default function Entrada() {
           ))}
         </ul>
       </div>
-      {/* Los tres ejes se ENLAZAN, no se reimplementan: ya son documentos
-          escritos y duplicarlos crearía una segunda fuente de verdad. Pero el
-          enlace era a GitHub, a una rama sin mergear con archivos sin
-          commitear, en un repo que todavía no es público: un link muerto, y lo
-          único de esta pantalla que necesitaba internet cuando su propiedad
-          declarada es funcionar con los tres planos apagados. Se dice dónde
-          están —son archivos del repositorio— y no se promete abrirlos, igual
-          que «Por material». */}
+      {/* Los tres ejes se nombran, no se enlazan: son archivos del repositorio
+          y esta pantalla funciona sin red ni servicios. */}
       <div className="eo-mini eo-mini--static">
         <div className="eo-mini__h">Ejes de lectura</div>
         <p className="eo-mini__d">La misma evidencia cortada por otros ejes, sin agregar
@@ -96,6 +88,6 @@ export default function Entrada() {
 
     <p className="eo-cap">Las cifras se leen del <b>metrics.json</b> de cada campaña al
       abrirla; las que no tienen artefacto en este repositorio se muestran citadas, con la
-      fuente al lado. Nada de esto consulta a los servicios.</p>
-  </div>
+      fuente a un toque. Nada de esto consulta a los servicios.</p>
+  </Evidencia>
 }

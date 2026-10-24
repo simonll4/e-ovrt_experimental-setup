@@ -2,9 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 
 import { ApiError, generateClip, masterMediaUrl } from '../api'
 import type { GenerateClipResult, MasterEntry } from '../types'
-import Card from './ui/Card'
-import ErrorBanner from './ui/ErrorBanner'
-import Field from './ui/Field'
+import { Button, Card, ErrorBanner, Field, IconCheck, IconWarn, NativeSelect } from './ui'
 
 const SCENARIOS = ['P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7', 'P8', 'P9']
 
@@ -56,6 +54,9 @@ export default function TrimDialog({
   const [busy, setBusy] = useState(false)
   const [result, setResult] = useState<GenerateClipResult | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [duracionVideo, setDuracionVideo] = useState<number | null>(null)
+  // Un solo pedido de generación a la vez: el doble click no corta dos clips.
+  const enviando = useRef(false)
 
   // Al cambiar de escenario (dropdown), reiniciar las marcas: la cantidad de
   // botones puede cambiar (2 <-> 4) y las marcas viejas ya no corresponden.
@@ -71,7 +72,8 @@ export default function TrimDialog({
   const listo = marks.every((m) => m != null) && scenario !== '' && !busy
 
   const generar = async () => {
-    if (!marks.every((m): m is number => m != null)) return
+    if (!marks.every((m): m is number => m != null) || enviando.current) return
+    enviando.current = true
     setBusy(true)
     setError(null)
     setResult(null)
@@ -88,9 +90,16 @@ export default function TrimDialog({
     } catch (e: unknown) {
       setError(mensajeDeError(e))
     } finally {
+      enviando.current = false
       setBusy(false)
     }
   }
+
+  // La duración, para dibujar las marcas sobre una barra proporcional: la del
+  // material si el backend la informó, o la que lee el reproductor.
+  const duracion = master.duration_ms != null ? master.duration_ms / 1000 : duracionVideo
+  const pct = (t: number) => (duracion ? Math.min(100, Math.max(0, (t / duracion) * 100)) : 0)
+  const marcadas = marks.map((m, i) => ({ m, i })).filter((x): x is { m: number; i: number } => x.m != null)
 
   return (
     <Card title={`Recortar ${master.name}`}>
@@ -100,32 +109,70 @@ export default function TrimDialog({
         src={masterMediaUrl(master.name)}
         data-testid="trim-video"
         className="eo-trim__video eo-video"
+        onLoadedMetadata={(e) => {
+          const d = (e.currentTarget as HTMLVideoElement).duration
+          if (Number.isFinite(d) && d > 0) setDuracionVideo(d)
+        }}
       />
 
-      <div className="eo-trim__marks">
+      {/* Las marcas en orden: cada botón toma el instante actual del video.
+          El siguiente se habilita recién cuando el anterior está marcado. */}
+      <ol className="eo-trim__marks" aria-label="Marcas del recorte">
         {labels.map((label, i) => (
-          <span key={label}>
-            <button
-              type="button"
+          <li key={label} className="eo-trim__mark">
+            <span className="eo-trim__n" aria-hidden="true">{i + 1}</span>
+            <Button
               disabled={i > 0 && marks[i - 1] == null}
               onClick={() => marcar(i)}
             >
               {label}
-            </button>
-            <span>{marks[i] != null ? `${marks[i]!.toFixed(1)} s` : 'sin marcar'}</span>
-          </span>
+            </Button>
+            <span className="eo-mono">{marks[i] != null ? `${marks[i]!.toFixed(1)} s` : 'sin marcar'}</span>
+          </li>
         ))}
-      </div>
+      </ol>
+
+      {/* La misma información, sobre la duración: una barra proporcional con
+          el tramo marcado. No se arrastra: sólo muestra. */}
+      {duracion != null && (
+        <>
+          <div
+            className="eo-trim__track"
+            role="img"
+            aria-label={
+              marcadas.length
+                ? `Marcas sobre ${duracion.toFixed(1)} s: ${marcadas.map(({ m, i }) => `${labels[i]} ${m.toFixed(1)} s`).join(', ')}`
+                : `Ninguna marca todavía sobre ${duracion.toFixed(1)} s`
+            }
+          >
+            {marcadas.length >= 2 && (
+              <span
+                className="eo-trim__range"
+                style={{
+                  left: `${pct(marcadas[0].m)}%`,
+                  width: `${pct(marcadas[marcadas.length - 1].m) - pct(marcadas[0].m)}%`,
+                }}
+              />
+            )}
+            {marcadas.map(({ m, i }) => (
+              <span key={i} className="eo-trim__pin" style={{ left: `${pct(m)}%` }}>
+                <span aria-hidden="true">{i + 1}</span>
+              </span>
+            ))}
+          </div>
+          <p className="eo-trim__trackcap">0 s — {duracion.toFixed(1)} s</p>
+        </>
+      )}
 
       <div className="eo-trim__fields">
         {master.scenario == null ? (
           <Field label="Escenario">
-            <select value={scenario} onChange={(e) => setScenario(e.target.value)}>
+            <NativeSelect value={scenario} onChange={(e) => setScenario(e.target.value)}>
               <option value="">elegir…</option>
               {SCENARIOS.map((s) => (
                 <option key={s} value={s}>{s}</option>
               ))}
-            </select>
+            </NativeSelect>
           </Field>
         ) : (
           <p className="eo-note">Escenario {master.scenario} (heredado del master)</p>
@@ -133,40 +180,41 @@ export default function TrimDialog({
 
         {master.clips.length > 0 && (
           <Field label="Regenerar">
-            <select value={regenerate} onChange={(e) => setRegenerate(e.target.value)}>
+            <NativeSelect value={regenerate} onChange={(e) => setRegenerate(e.target.value)}>
               <option value="">(nuevo)</option>
               {master.clips.map((c) => (
                 <option key={c} value={c}>{c}</option>
               ))}
-            </select>
+            </NativeSelect>
           </Field>
         )}
       </div>
       {regenerate !== '' && (
-        <p className="eo-trim__warn">Regenerar invalida la pre-anotación vieja de ese clip.</p>
+        <p className="eo-trim__warn eo-feedback"><IconWarn /><span>Regenerar invalida la pre-anotación vieja de ese clip.</span></p>
       )}
 
       <div className="eo-actions">
-        <button type="button" className="eo-btn--primary" onClick={generar} disabled={!listo}>
+        <Button variant="primary" onClick={() => void generar()} disabled={!listo} aria-busy={busy || undefined}>
           {busy ? 'Generando…' : 'Generar clip'}
-        </button>
-        <button type="button" onClick={onClose}>Cerrar</button>
+        </Button>
+        <Button onClick={onClose} disabled={busy}>Cerrar</Button>
       </div>
+      {/* Pendiente y error junto a la acción, sin tocar las marcas. */}
+      {busy && <p className="eo-trim__status" role="status">Generando el clip: las marcas quedan como están.</p>}
+      {error && <ErrorBanner>{error}</ErrorBanner>}
 
       {result && (
-        <div className="eo-trim__result">
-          <p>✓ {result.clip_id} generado ({result.info.n_frames} frames)</p>
+        <div className="eo-trim__result" role="status">
+          <p className="eo-feedback"><IconCheck /><span>{result.clip_id} generado ({result.info.n_frames} frames)</span></p>
           {result.warnings.length > 0 && (
             <ul>
               {result.warnings.map((w) => (
-                <li key={w}>⚠ {w}</li>
+                <li key={w} className="eo-feedback"><IconWarn /><span>{w}</span></li>
               ))}
             </ul>
           )}
         </div>
       )}
-
-      {error && <ErrorBanner>{error}</ErrorBanner>}
     </Card>
   )
 }

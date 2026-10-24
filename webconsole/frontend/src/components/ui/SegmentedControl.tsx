@@ -7,13 +7,16 @@ export default function SegmentedControl<T extends string>({
   value,
   options,
   onChange,
+  label,
 }: {
   value: T
   options: Array<SegmentedOption<T>>
   onChange: (value: T) => void
+  /** Qué elige el grupo. Sin él los botones se anuncian sueltos. */
+  label?: string
 }) {
   return (
-    <div className="eo-segmented">
+    <div className="eo-segmented" role="group" aria-label={label}>
       {options.map((opt) => (
         <button
           key={opt.value}

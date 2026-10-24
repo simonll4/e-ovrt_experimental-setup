@@ -27,12 +27,17 @@ import {
   IconChevron,
   IconGroup,
   InlineDeleteConfirm,
+  LoadingState,
   PageHeader,
   RowName,
   SearchInput,
   SegmentedControl,
   SortableHeader,
+  StaleNotice,
   Table,
+  TableScroll,
+  Tag,
+  Toggletip,
 } from '../components/ui'
 import { hace, isRunning, runStatusLabel, runStatusTone, sourceLabel } from '../runview'
 
@@ -202,7 +207,7 @@ function columnas(
         // Una corrida en curso no se borra: la celda dice desde cuándo está
         // corriendo, que es el dato que se mira mientras corre.
         isRunning(r) ? (
-          <Badge tone="neutral">{hace(r)}</Badge>
+          <span className="eo-cell--muted">{hace(r)}</span>
         ) : confirmId === r.run_id ? (
           <InlineDeleteConfirm onConfirm={() => borrar(r)} onCancel={() => setConfirmId(null)} />
         ) : (
@@ -237,26 +242,38 @@ function CifraDeGrupo({ g }: { g: RunGroup }) {
   const label = g.cifra_label && g.paso != null
     ? `Paso ${g.paso} — ${g.cifra_label}`
     : g.cifra_label
+  const citada = g.cifra_origen === 'citada'
   return (
-    <span
-      className={g.cifra_origen === 'citada' ? 'eo-cifra eo-cifra--cit' : 'eo-cifra'}
-      title={g.fuente ?? undefined}
-    >
+    <span className="eo-cifra">
       {label && <i>{label}</i>}
-      {g.cifra}
+      <span className={citada ? 'eo-cifra--cit' : undefined} title={g.fuente ?? undefined}>{g.cifra}</span>
+      {/* Citada o leída se dice en texto; la fuente se abre con un toque, no
+          con el mouse encima. */}
+      {citada && (
+        <span className="eo-origen">
+          citada
+          {g.fuente && <Toggletip label="fuente" ariaLabel={`Fuente de la cifra ${g.cifra}`}>{g.fuente}</Toggletip>}
+        </span>
+      )}
     </span>
   )
 }
 
 /** Las corridas de UN grupo expandido, con "Ver todas" cuando quedan afuera
- *  de la primera página — nunca un link que no lleva a nada real. */
+ *  de la primera página — nunca un link que no lleva a nada real.
+ *
+ *  Van en una sola fila a lo ancho con su propia tabla: Corrida, Estado,
+ *  Fuente, Detecciones, Cuándo. Antes reutilizaban las columnas del grupo y el
+ *  nombre de la corrida quedaba bajo «Resultado», el estado bajo «Cifra»… */
 function FilasDeGrupo({
   grupo,
+  id,
   todas,
   onVerTodas,
   onAbrir,
 }: {
   grupo: RunGroup
+  id: string
   todas: boolean
   onVerTodas: () => void
   onAbrir: (runId: string) => void
@@ -272,44 +289,77 @@ function FilasDeGrupo({
     },
     false,
   )
-  if (q.isPending) {
-    return (
-      <tr className="eo-sub">
-        <td colSpan={6}><span className="eo-na">Cargando corridas…</span></td>
-      </tr>
-    )
-  }
-  if (q.error) {
-    return (
-      <tr className="eo-sub">
-        <td colSpan={6}><span className="eo-na">No se pudieron leer las corridas de este grupo.</span></td>
-      </tr>
-    )
-  }
   const filas = q.data?.items ?? []
-  const faltan = grupo.n_runs - filas.length
-  return (
-    <>
-      {filas.map((r) => (
-        <tr key={r.run_id} className="eo-sub eo-row--click" onClick={() => onAbrir(r.run_id)}>
-          <td className="eo-mono" style={{ paddingLeft: 35 }}>{r.name ?? r.run_id}</td>
-          <td colSpan={2}><Badge tone={runStatusTone(r)}>{runStatusLabel(r)}</Badge></td>
-          <td className="eo-mono">{sourceLabel(r.source_type)}</td>
-          <td className="eo-num eo-mono">{r.total_detections ?? '—'}</td>
-          <td className="eo-num eo-mono">{hace(r)}</td>
-        </tr>
-      ))}
-      {faltan > 0 && (
-        <tr className="eo-sub eo-sub--mas">
-          <td colSpan={6} style={{ paddingLeft: 35 }}>
-            {faltan} corrida{faltan === 1 ? '' : 's'} más de este resultado{' '}
-            <Button variant="ghost" onClick={(e) => { e.stopPropagation(); onVerTodas() }}>
-              Ver todas
+  const faltan = q.data ? grupo.n_runs - filas.length : 0
+  let contenido
+  if (q.isPending && !q.data) {
+    contenido = <LoadingState lines={2} inline>Cargando las corridas de este resultado…</LoadingState>
+  } else if (q.error && !q.data) {
+    contenido = (
+      <ErrorBanner detail={String(q.error)} onRetry={() => void q.refetch()} retrying={q.isFetching}>
+        No se pudieron leer las corridas de este grupo.
+      </ErrorBanner>
+    )
+  } else {
+    contenido = (
+      <>
+        {q.error && <StaleNotice what="las corridas del grupo" onRetry={() => void q.refetch()} retrying={q.isFetching} />}
+        <TableScroll label={`Corridas de ${nombreDeGrupo(grupo)}`}>
+          <Table aria-label={`Corridas de ${nombreDeGrupo(grupo)}`}>
+            <thead>
+              <tr>
+                <th>Corrida</th>
+                <th>Estado</th>
+                <th>Fuente</th>
+                <th className="eo-th--numeric">Detecciones</th>
+                <th className="eo-th--numeric">Cuándo</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filas.map((r) => (
+                <tr
+                  key={r.run_id}
+                  className="eo-row--click"
+                  onClick={(e) => {
+                    if ((e.target as HTMLElement).closest('a,button')) return
+                    onAbrir(r.run_id)
+                  }}
+                >
+                  <td>
+                    <RowName
+                      title={<Link to={`/runs/${r.run_id}`}>{r.name ?? r.run_id}</Link>}
+                      subtitle={r.name ? r.run_id : undefined}
+                    />
+                  </td>
+                  <td><Badge tone={runStatusTone(r)} pulse={isRunning(r)}>{runStatusLabel(r)}</Badge></td>
+                  <td>{sourceLabel(r.source_type)}</td>
+                  <td className="eo-num eo-mono">{r.total_detections ?? '—'}</td>
+                  <td className="eo-num eo-mono">{hace(r)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        </TableScroll>
+        {filas.length === 0 && (
+          <EmptyState>Este resultado no tiene corridas en el listado.</EmptyState>
+        )}
+        {faltan > 0 && (
+          <div className="eo-sub__more">
+            <span>{faltan} corrida{faltan === 1 ? '' : 's'} más de este resultado</span>
+            <Button variant="ghost" onClick={onVerTodas} disabled={q.isFetching}>
+              {q.isFetching && todas ? 'Cargando…' : 'Ver todas'}
             </Button>
-          </td>
-        </tr>
-      )}
-    </>
+          </div>
+        )}
+      </>
+    )
+  }
+  return (
+    <tr className="eo-sub" id={id}>
+      <td colSpan={6}>
+        <div className="eo-sub__inner">{contenido}</div>
+      </td>
+    </tr>
   )
 }
 
@@ -473,12 +523,14 @@ export default function RunsPage() {
 
   // El toolbar (buscador, chips, toggle) se ve desde el primer render, sin
   // esperar a que resuelva ninguna consulta: sólo el CONTENIDO de abajo —la
-  // tabla agrupada o la individual— se reemplaza por su propio estado de
-  // carga/error, cada una en su tarjeta. Antes toda la pantalla desaparecía
-  // detrás de un "Cargando…" mientras cargaba, toggle incluido.
-  const cargandoGrupos = gruposFiltrados.isPending
+  // tabla agrupada o la individual— muestra su propio estado de carga, error o
+  // datos viejos, cada una en su tarjeta.
+  const cargandoGrupos = gruposFiltrados.isPending && !gruposFiltrados.data
   const errorGrupos = gruposFiltrados.error && !gruposFiltrados.data
     ? String(gruposFiltrados.error) : null
+  const gruposViejos = Boolean(gruposFiltrados.error && gruposFiltrados.data)
+  const cargandoFlat = listado.isPending && !listado.data
+  const flatViejo = Boolean(listado.error && listado.data)
 
   const hayFiltroFlat = segment !== 'all' || busqueda.trim() !== ''
   const hayFiltroGrupos = clase != null || busqueda.trim() !== ''
@@ -495,8 +547,7 @@ export default function RunsPage() {
               <>
                 <span className="eo-sep">·</span>
                 {/* «Fuera del registro de evidencia» es un grupo de la tabla,
-                    NO un resultado: se descuenta y se nombra aparte, en vez de
-                    inflar el conteo de resultados con él. */}
+                    NO un resultado: se descuenta y se nombra aparte. */}
                 <span>
                   agrupadas en {gruposTodos.data.filter((g) => g.result_id != null).length} resultados
                   de respaldo{gruposTodos.data.some((g) => g.result_id == null) && ' y las de fuera del registro'}
@@ -519,8 +570,6 @@ export default function RunsPage() {
       <AvisoRegistro meta={gruposTodos.visibility} noun="corridas" />
 
       {deleteError && <ErrorBanner>{deleteError}</ErrorBanner>}
-      {agrupar && errorGrupos && <ErrorBanner>{errorGrupos}</ErrorBanner>}
-      {!agrupar && errorFlat && <ErrorBanner>{errorFlat}</ErrorBanner>}
 
       {liveRun && (
         <Banner
@@ -550,6 +599,7 @@ export default function RunsPage() {
         {!agrupar && (
           <SegmentedControl
             value={segment}
+            label="Filtrar por estado"
             options={SEGMENTS as unknown as Array<{ value: Segment; label: string }>}
             onChange={(v) => {
               setSegment(v)
@@ -579,71 +629,107 @@ export default function RunsPage() {
       {agrupar ? (
         <>
           <Card flush>
-            <Table>
-              <thead>
-                <tr>
-                  <th>Resultado que la cita</th>
-                  {/* «del paso», no del resultado: ver `CifraDeGrupo`. */}
-                  <th>Cifra del paso</th>
-                  <th>Paso</th>
-                  <th>Clase</th>
-                  <th className="eo-th--numeric">Corridas</th>
-                  <th className="eo-th--numeric">Última</th>
-                </tr>
-              </thead>
-              <tbody>
-                {gruposVisibles.map((g) => {
-                  const clave = claveDe(g)
-                  const abierto = expandido?.clave === clave
-                  return (
-                    <Fragment key={clave}>
-                      <tr className="eo-row--click" onClick={() => alternarGrupo(g)}>
-                        <td>
-                          <div className="eo-grp">
-                            <span
-                              className={abierto ? 'eo-grp__icon eo-grp__icon--open' : 'eo-grp__icon'}
-                              aria-hidden="true"
-                            >
-                              <IconChevron />
-                            </span>
-                            <span className="eo-grp__n">
-                              <b>{nombreDeGrupo(g)}</b>
-                              <span>{g.result_id ?? 'sin resultado citado'}</span>
-                            </span>
-                          </div>
-                        </td>
-                        <td><CifraDeGrupo g={g} /></td>
-                        <td>{g.paso != null ? <span className="eo-paso">{g.paso}</span> : <span className="eo-na">—</span>}</td>
-                        <td>
-                          <Badge tone="neutral">
-                            <Termino id={TERMINO_DE_CLASE[g.clase]}>{ETIQUETA_CLASE[g.clase]}</Termino>
-                          </Badge>
-                        </td>
-                        <td className="eo-num eo-mono">{g.n_runs}</td>
-                        <td className="eo-num eo-mono">{hace({ run_id: '', created_at: g.last_run_at })}</td>
-                      </tr>
-                      {abierto && (
-                        <FilasDeGrupo
-                          grupo={g}
-                          todas={expandidoTodas}
-                          onVerTodas={() => setExpandidoTodas(true)}
-                          onAbrir={(runId) => nav(`/runs/${runId}`)}
-                        />
-                      )}
-                    </Fragment>
-                  )
-                })}
-              </tbody>
-            </Table>
+            {gruposViejos && (
+              <StaleNotice
+                what="los grupos de corridas"
+                onRetry={() => void gruposFiltrados.refetch()}
+                retrying={gruposFiltrados.isFetching}
+              />
+            )}
+            <TableScroll label="Corridas agrupadas por resultado">
+              <Table aria-label="Corridas agrupadas por resultado">
+                <thead>
+                  <tr>
+                    <th>Resultado que la cita</th>
+                    {/* «del paso», no del resultado: ver `CifraDeGrupo`. */}
+                    <th>Cifra del paso</th>
+                    <th>Paso</th>
+                    <th>Clase</th>
+                    <th className="eo-th--numeric">Corridas</th>
+                    <th className="eo-th--numeric">Última</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {gruposVisibles.map((g, i) => {
+                    const clave = claveDe(g)
+                    const abierto = expandido?.clave === clave
+                    const subId = `eo-grupo-${i}`
+                    const nombre = nombreDeGrupo(g)
+                    return (
+                      <Fragment key={clave}>
+                        <tr
+                          className="eo-row--click"
+                          // Agranda el blanco del mouse a la fila; el camino de
+                          // teclado es el botón de expansión.
+                          onClick={(e) => {
+                            if ((e.target as HTMLElement).closest('a,button')) return
+                            alternarGrupo(g)
+                          }}
+                        >
+                          <td>
+                            <div className="eo-grp">
+                              <button
+                                type="button"
+                                className="eo-grp__toggle"
+                                aria-expanded={abierto}
+                                aria-controls={abierto ? subId : undefined}
+                                aria-label={`${abierto ? 'Ocultar' : 'Mostrar'} las corridas de ${nombre}`}
+                                onClick={() => alternarGrupo(g)}
+                              >
+                                <IconChevron />
+                              </button>
+                              <span className="eo-grp__n">
+                                <b>{nombre}</b>
+                                <span>{g.result_id ?? 'sin resultado citado'}</span>
+                              </span>
+                            </div>
+                          </td>
+                          <td><CifraDeGrupo g={g} /></td>
+                          <td>{g.paso != null ? <span className="eo-paso">{g.paso}</span> : <span className="eo-na">—</span>}</td>
+                          <td>
+                            <Tag>
+                              <Termino id={TERMINO_DE_CLASE[g.clase]}>{ETIQUETA_CLASE[g.clase]}</Termino>
+                            </Tag>
+                          </td>
+                          <td className="eo-num eo-mono">{g.n_runs}</td>
+                          <td className="eo-num eo-mono">{hace({ run_id: '', created_at: g.last_run_at })}</td>
+                        </tr>
+                        {abierto && (
+                          <FilasDeGrupo
+                            grupo={g}
+                            id={subId}
+                            todas={expandidoTodas}
+                            onVerTodas={() => setExpandidoTodas(true)}
+                            onAbrir={(runId) => nav(`/runs/${runId}`)}
+                          />
+                        )}
+                      </Fragment>
+                    )
+                  })}
+                </tbody>
+              </Table>
+            </TableScroll>
             {cargandoGrupos ? (
-              <p className="eo-empty">Cargando…</p>
-            ) : gruposVisibles.length === 0 && !errorGrupos && (
+              <LoadingState>Cargando los grupos de corridas…</LoadingState>
+            ) : errorGrupos ? (
+              <ErrorBanner
+                detail={errorGrupos}
+                onRetry={() => void gruposFiltrados.refetch()}
+                retrying={gruposFiltrados.isFetching}
+              >
+                No se pudieron leer los grupos de corridas. No se sabe si hay corridas: el listado
+                no respondió.
+              </ErrorBanner>
+            ) : gruposVisibles.length === 0 && (
               hayFiltroGrupos ? (
                 <EmptyState hint="Probá con otro texto o quitá el filtro de clase.">
                   Ningún grupo coincide
                 </EmptyState>
               ) : (
-                <EmptyState hint="Empezá por elegir una fuente y un conjunto de prompts.">
+                <EmptyState
+                  hint="Empezá por elegir una fuente y un conjunto de prompts."
+                  action={<Button onClick={() => nav('/compose')}>Ir a Nueva corrida</Button>}
+                >
                   Todavía no hay corridas registradas
                 </EmptyState>
               )
@@ -660,83 +746,107 @@ export default function RunsPage() {
       ) : (
         <>
           <Card flush>
-            <Table>
-              <thead>
-                {table.getHeaderGroups().map((grupo) => (
-                  <tr key={grupo.id}>
-                    {grupo.headers.map((header) => {
-                      const { numeric } = header.column.columnDef.meta ?? {}
-                      // Los encabezados son texto plano, así que se leen del propio
-                      // `columnDef`: `SortableHeader` necesita la etiqueta como
-                      // cadena para poder acomodarle la flecha de orden al lado.
-                      const label = String(header.column.columnDef.header ?? '')
-                      return header.column.getCanSort() ? (
-                        <SortableHeader
-                          key={header.id}
-                          label={label}
-                          sortKey={header.column.id}
-                          sortState={
-                            sorting[0]
-                              ? { key: sorting[0].id, dir: sorting[0].desc ? 'desc' : 'asc' }
-                              : null
-                          }
-                          onSort={() => header.column.toggleSorting()}
-                          numeric={numeric}
-                        />
-                      ) : (
-                        <th
-                          key={header.id}
-                          className={numeric ? 'eo-th--numeric' : undefined}
-                          aria-label={label || (header.column.id === 'acciones' ? 'Acciones' : undefined)}
-                        >
-                          {label}
-                        </th>
-                      )
-                    })}
-                  </tr>
-                ))}
-              </thead>
-              <tbody>
-                {table.getRowModel().rows.map((fila) => {
-                  const r = fila.original
-                  return (
-                    <tr
-                      key={fila.id}
-                      className={isRunning(r) ? 'eo-row--click eo-row--live' : 'eo-row--click'}
-                      onClick={() => nav(`/runs/${r.run_id}`)}
-                    >
-                      {fila.getVisibleCells().map((celda) => {
-                        const { numeric, mono } = celda.column.columnDef.meta ?? {}
-                        const esAccion = celda.column.id === 'acciones'
-                        const clasePlana = esAccion
-                          ? 'eo-cell--actions'
-                          : [numeric && 'eo-num', mono && 'eo-mono'].filter(Boolean).join(' ')
-                        return (
-                          <td
-                            key={celda.id}
-                            className={clasePlana || undefined}
-                            // Borrar no es navegar: sin esto, confirmar el borrado
-                            // abriría el detalle de la corrida que se está borrando.
-                            onClick={esAccion ? (e) => e.stopPropagation() : undefined}
+            {flatViejo && (
+              <StaleNotice
+                what="el listado de corridas"
+                onRetry={() => void listado.refetch()}
+                retrying={listado.isFetching}
+              />
+            )}
+            <TableScroll label="Corridas">
+              <Table aria-label="Corridas">
+                <thead>
+                  {table.getHeaderGroups().map((grupo) => (
+                    <tr key={grupo.id}>
+                      {grupo.headers.map((header) => {
+                        const { numeric } = header.column.columnDef.meta ?? {}
+                        // Los encabezados son texto plano, así que se leen del propio
+                        // `columnDef`: `SortableHeader` necesita la etiqueta como
+                        // cadena para poder acomodarle la flecha de orden al lado.
+                        const label = String(header.column.columnDef.header ?? '')
+                        return header.column.getCanSort() ? (
+                          <SortableHeader
+                            key={header.id}
+                            label={label}
+                            sortKey={header.column.id}
+                            sortState={
+                              sorting[0]
+                                ? { key: sorting[0].id, dir: sorting[0].desc ? 'desc' : 'asc' }
+                                : null
+                            }
+                            onSort={() => header.column.toggleSorting()}
+                            numeric={numeric}
+                          />
+                        ) : (
+                          <th
+                            key={header.id}
+                            className={numeric ? 'eo-th--numeric' : undefined}
+                            aria-label={label || (header.column.id === 'acciones' ? 'Acciones' : undefined)}
                           >
-                            {flexRender(celda.column.columnDef.cell, celda.getContext())}
-                          </td>
+                            {label}
+                          </th>
                         )
                       })}
                     </tr>
-                  )
-                })}
-              </tbody>
-            </Table>
-            {rows === null && !errorFlat ? (
-              <p className="eo-empty">Cargando…</p>
-            ) : totalFiltrado === 0 && !errorFlat && (
+                  ))}
+                </thead>
+                <tbody>
+                  {table.getRowModel().rows.map((fila) => {
+                    const r = fila.original
+                    return (
+                      <tr
+                        key={fila.id}
+                        className={isRunning(r) ? 'eo-row--click eo-row--live' : 'eo-row--click'}
+                        onClick={(e) => {
+                          if ((e.target as HTMLElement).closest('a,button')) return
+                          nav(`/runs/${r.run_id}`)
+                        }}
+                      >
+                        {fila.getVisibleCells().map((celda) => {
+                          const { numeric, mono } = celda.column.columnDef.meta ?? {}
+                          const esAccion = celda.column.id === 'acciones'
+                          const clasePlana = esAccion
+                            ? 'eo-cell--actions'
+                            : [numeric && 'eo-num', mono && 'eo-mono'].filter(Boolean).join(' ')
+                          return (
+                            <td
+                              key={celda.id}
+                              className={clasePlana || undefined}
+                              // Borrar no es navegar: sin esto, confirmar el borrado
+                              // abriría el detalle de la corrida que se está borrando.
+                              onClick={esAccion ? (e) => e.stopPropagation() : undefined}
+                            >
+                              {flexRender(celda.column.columnDef.cell, celda.getContext())}
+                            </td>
+                          )
+                        })}
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </Table>
+            </TableScroll>
+            {cargandoFlat ? (
+              <LoadingState>Cargando las corridas…</LoadingState>
+            ) : errorFlat && !listado.data ? (
+              <ErrorBanner
+                detail={errorFlat}
+                onRetry={() => void listado.refetch()}
+                retrying={listado.isFetching}
+              >
+                No se pudo leer el listado de corridas. No se sabe si hay corridas: el servidor no
+                respondió.
+              </ErrorBanner>
+            ) : totalFiltrado === 0 && (
               hayFiltroFlat ? (
                 <EmptyState hint="Probá con otro texto o quitá el filtro.">
                   Ninguna corrida coincide con el filtro
                 </EmptyState>
               ) : (
-                <EmptyState hint="Empezá por elegir una fuente y un conjunto de prompts.">
+                <EmptyState
+                  hint="Empezá por elegir una fuente y un conjunto de prompts."
+                  action={<Button onClick={() => nav('/compose')}>Ir a Nueva corrida</Button>}
+                >
                   Todavía no lanzaste ninguna corrida
                 </EmptyState>
               )
@@ -748,7 +858,7 @@ export default function RunsPage() {
               <Button disabled={page === 1} onClick={() => setPage(page - 1)}>
                 Anterior
               </Button>
-              <span className="eo-mono">
+              <span className="eo-mono" aria-live="polite">
                 Página {page} de {paginas}
               </span>
               <Button disabled={page === paginas} onClick={() => setPage(page + 1)}>

@@ -64,6 +64,25 @@ export function IconChevron() {
   )
 }
 
+/** Menú de la barra superior en pantallas chicas: reemplaza al «☰» de texto,
+ *  que no compartía trazo ni tamaño con el resto de los iconos. */
+export function IconMenu() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
+      <path d="M2.5 4h11M2.5 8h11M2.5 12h11" strokeLinecap="round" />
+    </svg>
+  )
+}
+
+/** Ampliar una vista previa: cuatro esquinas hacia afuera. */
+export function IconExpand() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true">
+      <path d="M2.5 6V2.5H6M10 2.5h3.5V6M13.5 10v3.5H10M6 13.5H2.5V10" />
+    </svg>
+  )
+}
+
 /** Tres barras de ancho decreciente: el toggle "Agrupar por resultado" de
  *  Corridas (Task 7) — no es un ícono de navegación, va en icons.tsx igual
  *  que el resto para no repetir SVG crudo dentro de la página. */

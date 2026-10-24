@@ -11,9 +11,12 @@ import {
   EmptyState,
   ErrorBanner,
   IconStop,
+  LoadingState,
   MonoCell,
   PageHeader,
+  StaleNotice,
   Table,
+  TableScroll,
 } from '../components/ui'
 
 /** Un motor con su estado y su puerto. Repite lo que dice el pie de la barra
@@ -61,7 +64,8 @@ export default function PlatformPage() {
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState<string | null>(null) // instancia activándose/deteniéndose
 
-  const { data: rows, error: loadError } = useInstances()
+  const instancias = useInstances()
+  const { data: rows, error: loadError } = instancias
   const preflight = usePreflight()
   const activateMutation = useActivateInstance()
   const stopMutation = useStopPlatform()
@@ -112,9 +116,30 @@ export default function PlatformPage() {
       </>
     )
   // `error` es de las acciones (activar/apagar); `loadError` es del listado. Si
-  // el listado nunca cargó no hay tabla que mostrar, así que ese gana.
-  if (loadError && !rows) return <ErrorBanner>Error: {errorMessage(loadError)}</ErrorBanner>
-  if (!rows) return <p className="eo-empty">Cargando…</p>
+  // el listado nunca cargó no hay tabla que mostrar, así que ese gana — con la
+  // cabecera en su lugar y reintento.
+  if (loadError && !rows) {
+    return (
+      <>
+        <PageHeader title="Plataforma" meta="No se pudo leer el estado de las instancias" />
+        <ErrorBanner
+          detail={String(loadError)}
+          onRetry={() => void instancias.refetch()}
+          retrying={instancias.isFetching}
+        >
+          Error: {errorMessage(loadError)}
+        </ErrorBanner>
+      </>
+    )
+  }
+  if (!rows) {
+    return (
+      <>
+        <PageHeader title="Plataforma" meta="Consultando las instancias del servicio…" />
+        <LoadingState lines={4}>Cargando las instancias del servicio…</LoadingState>
+      </>
+    )
+  }
 
   const activa = rows.find((r) => r.is_target) ?? null
 
@@ -122,6 +147,9 @@ export default function PlatformPage() {
     <>
       <PageHeader title="Plataforma" meta={`${rows.length} instancias del servicio`} />
       {error && <ErrorBanner>{error}</ErrorBanner>}
+      {loadError && (
+        <StaleNotice what="el estado de las instancias" onRetry={() => void instancias.refetch()} retrying={instancias.isFetching} />
+      )}
 
       <div className="eo-hero">
         {activa ? (
@@ -141,9 +169,9 @@ export default function PlatformPage() {
                 casilleros en «sin dato» ocupan lugar sin informar: se muestra el
                 pie solo con la acción hasta que existan. */}
             <div className="eo-target__foot">
-              <Button variant="danger" onClick={stop} disabled={busy !== null}>
+              <Button variant="danger" onClick={stop} disabled={busy !== null} aria-busy={busy === '__stop__' || undefined}>
                 <IconStop />
-                Apagar
+                {busy === '__stop__' ? 'Apagando…' : 'Apagar'}
               </Button>
             </div>
           </section>
@@ -164,7 +192,8 @@ export default function PlatformPage() {
       </div>
 
       <Card title="Instancias del servicio" meta="Solo una puede estar activa" flush>
-        <Table>
+        <TableScroll label="Instancias del servicio">
+        <Table aria-label="Instancias del servicio">
           <thead>
             <tr>
               <th>Instancia</th>
@@ -181,7 +210,7 @@ export default function PlatformPage() {
                 <td>
                   <span className="eo-inline">
                     {busy === r.name ? (
-                      <Badge tone="warn">Activando…</Badge>
+                      <Badge tone="warn" pulse>Activando…</Badge>
                     ) : r.is_target && r.ready ? (
                       <Badge tone="ok">Operativa</Badge>
                     ) : r.is_target ? (
@@ -206,6 +235,7 @@ export default function PlatformPage() {
             ))}
           </tbody>
         </Table>
+        </TableScroll>
       </Card>
       <p className="eo-cap">
         Activar otra instancia apaga la actual y espera a que el modelo cargue, lo que puede

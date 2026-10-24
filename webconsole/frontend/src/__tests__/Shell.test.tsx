@@ -1,5 +1,5 @@
-import { afterEach, describe, expect, it, vi } from 'vitest'
-import { cleanup, fireEvent, render, screen, waitFor } from '../test-utils'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { cleanup, fireEvent, render, screen, simularVentana, waitFor, within } from '../test-utils'
 import { MemoryRouter } from 'react-router-dom'
 import Shell from '../components/Shell'
 import * as api from '../api'
@@ -76,48 +76,88 @@ describe('Shell', () => {
     expect(screen.getByText('contenido')).toBeTruthy()
   })
 
-  it('la barra lateral empieza cerrada (modo pantalla chica)', () => {
-    renderShell()
-    const aside = screen.getByRole('complementary')
-    expect(aside.className).not.toContain('eo-sidebar--open')
+  describe('en pantalla compacta (< 1024 px) la navegación es un cajón modal', () => {
+    let restaurar: () => void
+    beforeEach(() => { restaurar = simularVentana('compacta') })
+    afterEach(() => restaurar())
+
+    const cajon = () => screen.queryByRole('dialog', { name: 'Navegación principal' })
+
+    it('empieza cerrado y sin destinos en el orden de foco', () => {
+      renderShell()
+      expect(cajon()?.hasAttribute('open') ?? false).toBe(false)
+      expect(screen.queryByRole('link', { name: 'Experimentos' })).toBeNull()
+    })
+
+    it('el botón de menú abre el cajón, lleva el foco adentro y anuncia el estado', () => {
+      renderShell()
+      const menu = screen.getByRole('button', { name: 'Abrir navegación' })
+      expect(menu.getAttribute('aria-expanded')).toBe('false')
+      fireEvent.click(menu)
+      const dialogo = cajon()!
+      expect(dialogo.hasAttribute('open')).toBe(true)
+      expect(menu.getAttribute('aria-expanded')).toBe('true')
+      expect(dialogo.contains(document.activeElement)).toBe(true)
+      expect(within(dialogo).getByRole('complementary', { name: 'Navegación principal' })).toBeTruthy()
+      expect(within(dialogo).getByRole('button', { name: 'Cerrar navegación' })).toBeTruthy()
+    })
+
+    it('elegir un destino cierra el cajón y enfoca el encabezado del destino', async () => {
+      render(
+        <MemoryRouter initialEntries={['/']}>
+          <Shell><h1>Destino</h1></Shell>
+        </MemoryRouter>,
+      )
+      fireEvent.click(screen.getByRole('button', { name: 'Abrir navegación' }))
+      fireEvent.click(within(cajon()!).getByRole('link', { name: 'Experimentos' }))
+      expect(cajon()).toBeNull() // cerrado, el diálogo no está en el árbol accesible
+      await waitFor(() => expect(document.activeElement?.textContent).toBe('Destino'))
+    })
+
+    it('Escape cierra el cajón y devuelve el foco al botón de menú', () => {
+      renderShell()
+      const menu = screen.getByRole('button', { name: 'Abrir navegación' })
+      menu.focus()
+      fireEvent.click(menu)
+      expect(cajon()?.hasAttribute('open')).toBe(true)
+      fireEvent.keyDown(cajon()!, { key: 'Escape' })
+      expect(cajon()).toBeNull() // cerrado, el diálogo no está en el árbol accesible
+      expect(document.activeElement).toBe(menu)
+    })
+
+    it('tocar el fondo del cajón lo cierra', () => {
+      renderShell()
+      fireEvent.click(screen.getByRole('button', { name: 'Abrir navegación' }))
+      fireEvent.click(cajon()!)
+      expect(cajon()).toBeNull() // cerrado, el diálogo no está en el árbol accesible
+    })
+
+    it('el botón Cerrar navegación cierra y restaura el foco', () => {
+      renderShell()
+      const menu = screen.getByRole('button', { name: 'Abrir navegación' })
+      menu.focus()
+      fireEvent.click(menu)
+      fireEvent.click(within(cajon()!).getByRole('button', { name: 'Cerrar navegación' }))
+      expect(cajon()).toBeNull() // cerrado, el diálogo no está en el árbol accesible
+      expect(document.activeElement).toBe(menu)
+    })
+
+    it('mantiene los mismos destinos, conteos y acciones que la barra persistente', () => {
+      renderShell()
+      fireEvent.click(screen.getByRole('button', { name: 'Abrir navegación' }))
+      const dialogo = within(cajon()!)
+      for (const label of ['Corridas', 'Experimentos', 'Comparar', 'Conjuntos de prompts', 'Catálogos', 'Plataforma']) {
+        expect(dialogo.getByRole('link', { name: label })).toBeTruthy()
+      }
+      expect(dialogo.getByRole('link', { name: /nueva corrida/i })).toBeTruthy()
+      expect(dialogo.getByRole('link', { name: /nuevo experimento/i })).toBeTruthy()
+    })
   })
 
-  it('el botón de menú abre la barra lateral', () => {
+  it('en escritorio no hay barra superior ni cajón: la barra lateral es persistente', () => {
     renderShell()
-    fireEvent.click(screen.getByRole('button', { name: /navegación/i }))
-    expect(screen.getByRole('complementary').className).toContain('eo-sidebar--open')
-  })
-
-  it('elegir un destino de la nav cierra la barra lateral', () => {
-    renderShell()
-    fireEvent.click(screen.getByRole('button', { name: /navegación/i }))
-    fireEvent.click(screen.getByRole('link', { name: 'Experimentos' }))
-    expect(screen.getByRole('complementary').className).not.toContain('eo-sidebar--open')
-  })
-
-  it('Escape cierra la barra lateral abierta', () => {
-    renderShell()
-    fireEvent.click(screen.getByRole('button', { name: /navegación/i }))
-    expect(screen.getByRole('complementary').className).toContain('eo-sidebar--open')
-    fireEvent.keyDown(document, { key: 'Escape' })
-    expect(screen.getByRole('complementary').className).not.toContain('eo-sidebar--open')
-  })
-
-  it('hacer click en el scrim cierra la barra lateral', () => {
-    const { container } = renderShell()
-    fireEvent.click(screen.getByRole('button', { name: /navegación/i }))
-    const scrim = container.querySelector('.eo-sidebar__scrim')
-    expect(scrim).toBeTruthy()
-    fireEvent.click(scrim as Element)
-    expect(screen.getByRole('complementary').className).not.toContain('eo-sidebar--open')
-  })
-
-  it('el botón de menú cambia su etiqueta accesible según el estado', () => {
-    renderShell()
-    const menuButton = screen.getByRole('button', { name: /navegación/i })
-    expect(menuButton.getAttribute('aria-label')).toBe('Abrir navegación')
-    fireEvent.click(menuButton)
-    expect(menuButton.getAttribute('aria-label')).toBe('Cerrar navegación')
+    expect(screen.queryByRole('button', { name: /navegación/i })).toBeNull()
+    expect(screen.getByRole('complementary', { name: 'Navegación principal' }).className).toContain('eo-sidebar')
   })
 
   it('no muestra un contador cuando el conteo es 0 o todavia no cargo', () => {

@@ -7,13 +7,24 @@ export { default as Button } from './Button'
 export { default as Card } from './Card'
 export { default as ErrorBanner } from './ErrorBanner'
 export { default as EmptyState } from './EmptyState'
+export { default as LoadingState } from './LoadingState'
+export { default as StaleNotice } from './StaleNotice'
 export { default as PageHeader } from './PageHeader'
 export { default as StatTile } from './StatTile'
 export { default as Field } from './Field'
+export { TextInput, TextArea, NativeSelect } from './Controls'
+export { default as Tag } from './Tag'
+export { default as Toggletip } from './Toggletip'
+export { default as Disclosure } from './Disclosure'
+export { default as Dialog } from './Dialog'
+export { default as DiscardPrompt } from './DiscardPrompt'
+export { enfocarCuandoAparezca } from './foco'
+export { Tabs, TabPanel } from './Tabs'
+export type { TabItem } from './Tabs'
 export { default as DetChip } from './DetChip'
 export { default as Select } from './Select'
 export type { SelectOption } from './Select'
-export { Table, MonoCell, NumCell, SortableHeader, RowName, RowNameCell } from './Table'
+export { Table, TableScroll, MonoCell, NumCell, SortableHeader, RowName, RowNameCell } from './Table'
 export type { SortState } from './Table'
 export { default as ConditionName } from './ConditionName'
 export { default as InlineDeleteConfirm } from './InlineDeleteConfirm'
@@ -22,5 +33,5 @@ export {
   IconStop, IconPlay, IconWarn, IconCheck, IconDownload, IconClose, IconInfo,
   IconChevron, IconGroup, IconSearch, IconCircle, IconNavRuns, IconNavExperiments,
   IconNavCompare, IconNavPrompts, IconNavCatalog, IconNavPlatform,
-  IconNavCameras, IconNavClips, IconNavDocs,
+  IconNavCameras, IconNavClips, IconNavDocs, IconMenu, IconExpand,
 } from './icons'

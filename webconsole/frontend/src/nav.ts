@@ -87,7 +87,9 @@ export function crumbsFor(pathname: string, search = ''): NavItem[] {
     // Sólo aparece cuando se llegó desde un paso (el query trae `paso`): no se
     // inventa el paso de origen cuando la navegación no lo trajo.
     if (pasoN) crumbs.push({ to: `/evidencia/paso?n=${pasoN}`, label: `Paso ${pasoN}` })
-    if (id) crumbs.push({ to: `/evidencia/resultado?${new URLSearchParams({ id })}`, label: id })
+    // El resultado conserva el paso de origen: volver a él desde la corrida no
+    // pierde la cadena Evidencia > Paso N > resultado.
+    if (id) crumbs.push({ to: `/evidencia/resultado?${new URLSearchParams(pasoN ? { id, paso: pasoN } : { id })}`, label: id })
     if (pathname === '/evidencia/run') crumbs.push({ to: pathname + search, label: params.get('run_id') ?? 'Corrida' })
     return crumbs
   }

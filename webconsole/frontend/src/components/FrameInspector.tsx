@@ -1,7 +1,7 @@
 import { artifactUrl } from '../api'
 import ConditionProgress from './ConditionProgress'
 import PreviewWithBoxes from './PreviewWithBoxes'
-import { Badge, Banner, Button, Card, EmptyState } from './ui'
+import { Badge, Banner, Button, Card, EmptyState, IconChevron } from './ui'
 import { conditionLabel } from '../labels'
 import Termino from './Glosario'
 import { controlLabel, controlTone } from '../traceview'
@@ -51,21 +51,30 @@ export default function FrameInspector({
       ))}
 
       <Card
+        level={3}
         title={`Cuadro ${frame.frame_index ?? position}`}
         meta={
           <>
             <span className="eo-mono">unidad {frame.unit_id ?? '—'}</span>
             <Badge tone={controlTone(frame.control)}>{controlLabel(frame.control)}</Badge>
-            <Button aria-label="Cuadro anterior" disabled={position <= 0} onClick={() => onStep(-1)}>
-              ‹
-            </Button>
-            <Button
-              aria-label="Cuadro siguiente"
-              disabled={position >= total - 1}
-              onClick={() => onStep(1)}
-            >
-              ›
-            </Button>
+            <span className="eo-inspector__nav">
+              <Button
+                className="eo-btn--icon eo-step-prev"
+                aria-label="Cuadro anterior"
+                disabled={position <= 0}
+                onClick={() => onStep(-1)}
+              >
+                <span className="eo-chev eo-chev--prev"><IconChevron /></span>
+              </Button>
+              <Button
+                className="eo-btn--icon eo-step-next"
+                aria-label="Cuadro siguiente"
+                disabled={position >= total - 1}
+                onClick={() => onStep(1)}
+              >
+                <span className="eo-chev eo-chev--next"><IconChevron /></span>
+              </Button>
+            </span>
           </>
         }
       >
@@ -75,13 +84,14 @@ export default function FrameInspector({
             alt={`Cuadro ${frame.frame_index ?? position} de la corrida ${runId}`}
             detections={dets}
             width={560}
+            zoomable
             emptyMessage="Esta corrida se grabó sin vistas previas de cuadro. Las cajas no se pueden dibujar sin la imagen."
           />
         </div>
       </Card>
 
       <div className="eo-inspector__split">
-        <Card title="Detecciones" meta={String(dets.length)} flush>
+        <Card level={3} title="Detecciones" meta={String(dets.length)} flush>
           {dets.length === 0 ? (
             <p className="eo-cap eo-cap--inset">Ninguna detección en este cuadro.</p>
           ) : (
@@ -95,7 +105,7 @@ export default function FrameInspector({
             </ul>
           )}
         </Card>
-        <Card title="Progreso de las condiciones" flush>
+        <Card level={3} title="Progreso de las condiciones" flush>
           <ConditionProgress frame={frame} />
         </Card>
       </div>

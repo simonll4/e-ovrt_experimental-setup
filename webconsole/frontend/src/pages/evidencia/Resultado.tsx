@@ -3,21 +3,24 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { getEvidenceResult } from '../../api'
 import {
-  Badge, Button, Card, EmptyState, ErrorBanner, PageHeader, StatTile, Table,
+  Badge, Button, Card, Disclosure, EmptyState, PageHeader, StatTile, Table, TableScroll, Tag,
 } from '../../components/ui'
 import type { ArchivedRun } from '../../types'
 import { fmt } from './Paso'
 import Desglose from './Desglose'
+import { ArchivoAusente, EstadoDeLectura, Evidencia, Rol, ROL_LABEL } from './comun'
 
-const runUrl = (run: ArchivedRun, id: string) =>
-  `/evidencia/run?${new URLSearchParams({ plane: run.plane, run_id: run.run_id, id })}`
+/** El enlace a una corrida archivada lleva el contexto de la navegación —el
+ *  resultado y, si se vino de un paso, el paso— sin inventar uno que no vino. */
+const runUrl = (run: ArchivedRun, id: string, paso: string | null) =>
+  `/evidencia/run?${new URLSearchParams({
+    plane: run.plane, run_id: run.run_id, id, ...(paso ? { paso } : {}),
+  })}`
 
 /** Agrupa el motivo de conservación de la página actual de corridas: un motivo
  *  compartido por varias filas (típico de un lote archivado en bloque) se
- *  cuenta una vez, no se repite por fila — la misma regla de "declarar, no
- *  repetir" que rige las filas sin dato de un desglose. Sólo cubre la página
- *  cargada (no las 68 corridas si hay más de una página): se rotula "en esta
- *  página" para no implicar un conteo que no se leyó. */
+ *  cuenta una vez, no se repite por fila. Sólo cubre la página cargada: se
+ *  rotula "en esta página" para no implicar un conteo que no se leyó. */
 function motivosDe(items: ArchivedRun[]): Array<[string, number]> {
   const porMotivo = new Map<string, number>()
   for (const item of items) {
@@ -29,33 +32,41 @@ function motivosDe(items: ArchivedRun[]): Array<[string, number]> {
 
 /** El nivel de resultado: el agregado (StatTile por `metricas.cabecera`) Y su
  *  desglose (`metricas.desgloses`, nunca sólo el agregado — limitación L5),
- *  la procedencia y las corridas que lo respaldan. Extraído de EvidencePage.tsx
- *  (que conserva el nivel de corrida inline). */
+ *  la procedencia y las corridas que lo respaldan. */
 export default function Resultado() {
   const [params, setParams] = useSearchParams()
   const id = params.get('id') ?? ''
+  const paso = params.get('paso')
   const requestedPage = Number(params.get('page') ?? '1')
   const page = Number.isInteger(requestedPage) && requestedPage > 0 ? requestedPage : 1
   const result = useQuery({
     queryKey: ['evidencia', 'result', id, page],
     queryFn: () => getEvidenceResult(id, page),
   })
-  if (result.isPending) return <EmptyState>Leyendo archivo de evidencia…</EmptyState>
-  if (result.error) return <ErrorBanner>No se pudo leer esta evidencia. Comprobá la referencia y la copia local del archivo.</ErrorBanner>
-  if (result.data?.available === false) return <>
-    <PageHeader title="Evidencia" />
-    <EmptyState hint={result.data.message}>Archivo de evidencia no disponible</EmptyState>
-  </>
-  if (!result.data?.result) return <EmptyState>No se encontró evidencia para esta referencia.</EmptyState>
+  if (result.isPending || result.error) return <EstadoDeLectura titulo={id || 'Resultado'} q={result} />
+  if (result.data?.available === false) return <ArchivoAusente message={result.data.message} />
+  if (!result.data?.result) {
+    return <Evidencia>
+      <PageHeader title={id || 'Resultado'} />
+      <EmptyState>No se encontró evidencia para esta referencia.</EmptyState>
+    </Evidencia>
+  }
 
   const data = result.data
   const info = result.data.result
   const metricas = info.metricas
   const pages = Math.max(1, Math.ceil(data.total / data.page_size))
-  const changePage = (next: number) => setParams({ id, page: String(next) })
+  // Cambiar de página toca SÓLO la página: `id`, `paso` y cualquier otro
+  // parámetro de la navegación quedan como estaban.
+  const changePage = (next: number) =>
+    setParams((prev) => {
+      const nuevos = new URLSearchParams(prev)
+      nuevos.set('page', String(next))
+      return nuevos
+    })
   const motivos = motivosDe(data.items)
 
-  return <div className="eo-evidence">
+  return <Evidencia>
     <PageHeader
       title={info.titulo || info.etiqueta}
       meta={<>
@@ -63,7 +74,7 @@ export default function Resultado() {
         <span className="eo-sep">·</span>{info.n_runs} corridas
         <span className="eo-sep">·</span>{info.index}
       </>}
-      actions={<Badge tone="neutral">Resultado</Badge>}
+      actions={<Tag>Resultado</Tag>}
     />
     {info.reclamo && <p className="eo-note">{info.reclamo}</p>}
 
@@ -83,47 +94,56 @@ export default function Resultado() {
     )}
 
     <Card title="Procedencia">
-      {info.documents.map((doc) => <p className="eo-mono" key={doc}>{doc}</p>)}
-      <details><summary>Fuentes registradas ({info.source_refs.length})</summary>
-        <ul>{info.source_refs.map((ref) => <li key={ref} className="eo-mono">{ref}</li>)}</ul>
-      </details>
+      {/* Los documentos que lo citan, a la vista; las fuentes registradas,
+          completas, a un click — no en un `title`. */}
+      {info.documents.length > 0 ? (
+        <ul className="eo-mini__list">
+          {info.documents.map((doc) => <li key={doc} className="eo-mono">{doc}</li>)}
+        </ul>
+      ) : (
+        <p className="eo-note">Ningún documento declarado.</p>
+      )}
+      <Disclosure summary={`Fuentes registradas (${info.source_refs.length})`}>
+        <ul className="eo-mini__list">{info.source_refs.map((ref) => <li key={ref} className="eo-mono">{ref}</li>)}</ul>
+      </Disclosure>
     </Card>
 
     <div className="eo-stats-row">{Object.entries(info.roles).map(([role, count]) =>
-      <StatTile key={role} label={role} value={count} />)}</div>
+      <StatTile key={role} label={ROL_LABEL[role] ?? role} value={count} unit={ROL_LABEL[role] ? role : undefined} />)}</div>
 
     {motivos.length > 0 && (
       <Card title="Corridas plegadas" meta={`${data.items.length} en esta página`}>
-        <details className="eo-adv">
-          <summary>{motivos.length === 1 ? '1 motivo de conservación' : `${motivos.length} motivos de conservación`}</summary>
-          <div className="eo-adv__body">
-            <ul className="eo-mini__list">
-              {motivos.map(([motivo, count]) => <li key={motivo}><b>{count}</b> {motivo}</li>)}
-            </ul>
-          </div>
-        </details>
+        <Disclosure summary={motivos.length === 1 ? '1 motivo de conservación' : `${motivos.length} motivos de conservación`}>
+          <ul className="eo-mini__list">
+            {motivos.map(([motivo, count]) => <li key={motivo}><b>{count}</b> {motivo}</li>)}
+          </ul>
+        </Disclosure>
       </Card>
     )}
 
-    <Card title="Corridas por rol" meta={`${data.items.length} de ${data.total}`}>
-      <Table aria-label="Corridas de evidencia">
-        <thead><tr><th>Corrida</th><th>Plano</th><th>Conservación</th><th>Fuente</th></tr></thead>
-        <tbody>{data.items.map((row, i) => <Fragment key={`${row.plane}/${row.run_id}/${row.role}/${row.source_ref}`}>
-          {(i === 0 || data.items[i - 1].role !== row.role) && <tr><th colSpan={4}>{row.role}</th></tr>}
-          <tr>
-            <td><Link to={runUrl(row, id)} className="eo-mono">{row.run_id}</Link></td>
-            <td>{row.plane === 'media-plane' ? 'Medios' : 'Control'}</td>
-            <td><Badge tone="neutral">{row.status === 'archived_only' ? 'Sólo archivo' : 'Copia curada'}</Badge></td>
-            <td className="eo-mono">{row.source_ref}</td>
-          </tr>
-        </Fragment>)}</tbody>
-      </Table>
+    <Card title="Corridas por rol" meta={`${data.items.length} de ${data.total}`} flush>
+      <TableScroll label="Corridas de evidencia">
+        <Table aria-label="Corridas de evidencia">
+          <thead><tr><th>Corrida</th><th>Plano</th><th>Conservación</th><th>Fuente</th></tr></thead>
+          <tbody>{data.items.map((row, i) => <Fragment key={`${row.plane}/${row.run_id}/${row.role}/${row.source_ref}`}>
+            {(i === 0 || data.items[i - 1].role !== row.role) && (
+              <tr><th colSpan={4} scope="colgroup"><Rol role={row.role} /></th></tr>
+            )}
+            <tr>
+              <td><Link to={runUrl(row, id, paso)} className="eo-mono">{row.run_id}</Link></td>
+              <td>{row.plane === 'media-plane' ? 'Medios' : 'Control'}</td>
+              <td><Badge tone="neutral">{row.status === 'archived_only' ? 'Sólo archivo' : 'Copia curada'}</Badge></td>
+              <td className="eo-mono">{row.source_ref}</td>
+            </tr>
+          </Fragment>)}</tbody>
+        </Table>
+      </TableScroll>
       {data.items.length === 0 && <EmptyState>No hay corridas en esta página.</EmptyState>}
     </Card>
-    <div className="eo-toolbar" aria-label="Paginación de evidencia">
-      <Button variant="ghost" disabled={page <= 1} onClick={() => changePage(page - 1)}>Anterior</Button>
-      <span>Página {page} de {pages}</span>
-      <Button variant="ghost" disabled={page >= pages} onClick={() => changePage(page + 1)}>Siguiente</Button>
-    </div>
-  </div>
+    <nav className="eo-pager" aria-label="Paginación de evidencia">
+      <Button disabled={page <= 1} onClick={() => changePage(page - 1)}>Anterior</Button>
+      <span aria-live="polite">Página {page} de {pages}</span>
+      <Button disabled={page >= pages} onClick={() => changePage(page + 1)}>Siguiente</Button>
+    </nav>
+  </Evidencia>
 }

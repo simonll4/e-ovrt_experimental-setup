@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import { ApiError } from '../api'
@@ -8,7 +8,6 @@ import {
 } from '../api/queries/experiments'
 import { experimentStatusLabel, experimentStatusTone } from '../experimentview'
 import { usePreflight } from '../api/queries/platform'
-import PlatformStatus from '../components/PlatformStatus'
 import { AvisoRegistro, EvidenceBadge } from '../components/EvidenceViewControl'
 import ClaseChips, { ETIQUETA_CLASE } from '../components/ClaseChips'
 import Termino from '../components/Glosario'
@@ -19,16 +18,23 @@ import {
   Banner,
   Button,
   Card,
+  Disclosure,
+  DiscardPrompt,
   EmptyState,
   ErrorBanner,
   Field,
+  IconCheck,
   IconWarn,
+  LoadingState,
   MonoCell,
   PageHeader,
   RowNameCell,
   SearchInput,
   Select,
+  StaleNotice,
   Table,
+  TableScroll,
+  Tag,
 } from '../components/ui'
 import { applyPlaneGlossary } from '../labels'
 import type { Clase } from '../types'
@@ -46,10 +52,13 @@ function cuando(iso: string | null | undefined): string {
   return `hace ${Math.floor(h / 24)} d`
 }
 
-// Formulario abierto: `selectable` distingue el "Derivar" de una fila (fuente
-// fija, como siempre) del formulario de /experiments/new (fuente elegible via
-// el selector "basado en").
+// Formulario abierto: `selectable` distingue el "Partir de este" de una fila
+// (fuente fija, como siempre) del formulario de /experiments/new (fuente
+// elegible via el selector "basado en").
 type FormMode = { source: string; selectable: boolean } | null
+
+/** Un cambio de formulario pedido mientras había cambios sin guardar. */
+type Pedido = { tipo: 'cerrar' } | { tipo: 'abrir'; modo: NonNullable<FormMode> }
 
 function errorMessage(e: unknown): string {
   if (e instanceof ApiError) {
@@ -64,6 +73,23 @@ function errorMessage(e: unknown): string {
   return String(e)
 }
 
+/** Una identidad de plantilla sin resolver (`${EOVRT_EXPERIMENT_ID}`) no es
+ *  una ejecución: se muestra literal, consultable, y sin un enlace que no
+ *  llevaría a ningún lado. */
+const sinResolver = (id: string) => /\$\{[^}]*\}/.test(id)
+
+function Ejecucion({ id }: { id: string }) {
+  if (sinResolver(id)) {
+    return (
+      <span className="eo-unresolved">
+        {id}
+        <span className="eo-unresolved__why">identidad sin resolver: no hay una ejecución que abrir</span>
+      </span>
+    )
+  }
+  return <Link style={{ overflowWrap: 'anywhere' }} to={`/experiments/${id}`}>{id}</Link>
+}
+
 export default function ExperimentsPage() {
   const navigate = useNavigate()
   const location = useLocation()
@@ -74,12 +100,13 @@ export default function ExperimentsPage() {
   const [clase, setClase] = useState<Clase | null>(null)
   const [runError, setRunError] = useState<string | null>(null)
   const [formMode, setFormMode] = useState<FormMode>(null)
+  const [formDirty, setFormDirty] = useState(false)
+  const [pedido, setPedido] = useState<Pedido | null>(null)
+  const [creado, setCreado] = useState<string | null>(null)
   const qc = useQueryClient()
 
   // Siempre "todas": la separación evidencia/archivada la reemplazó la clase
-  // (chips), que filtra del lado del cliente sobre esta misma lista — no hay
-  // un segundo pedido por clase, a diferencia de Corridas (Task 7), porque
-  // acá no hace falta paginar del lado del servidor.
+  // (chips), que filtra del lado del cliente sobre esta misma lista.
   const consultaManifiestos = useExperimentManifests()
   const rows = consultaManifiestos.data ?? null
   const meta = consultaManifiestos.visibility
@@ -90,12 +117,26 @@ export default function ExperimentsPage() {
   const busy = lanzamiento.isPending
 
   // Cierra el formulario. /experiments/new es una ruta dedicada: al salir del
-  // formulario ahí, se navega de vuelta a /experiments — si no, la ruta sigue
-  // siendo /experiments/new con formMode en null y el efecto de abajo lo
-  // reabriría solo, con el primer manifiesto de nuevo (perdiendo lo elegido).
+  // formulario ahí, se navega de vuelta a /experiments — si no, el efecto de
+  // abajo lo reabriría solo, con el primer manifiesto de nuevo.
   const closeForm = () => {
     setFormMode(null)
+    setFormDirty(false)
+    setPedido(null)
     if (isNewRoute) navigate('/experiments')
+  }
+
+  const aplicar = (p: Pedido) => {
+    setPedido(null)
+    setFormDirty(false)
+    if (p.tipo === 'cerrar') closeForm()
+    else setFormMode(p.modo)
+  }
+
+  /** Cerrar o cambiar de origen con cambios sin guardar pregunta antes. */
+  const pedir = (p: Pedido) => {
+    if (formMode && formDirty) setPedido(p)
+    else aplicar(p)
   }
 
   const reloadManifests = async () => {
@@ -119,7 +160,7 @@ export default function ExperimentsPage() {
   }, [isNewRoute, rows])
 
   const trigger = async (elegido: string) => {
-    if (!elegido) return
+    if (!elegido || lanzamiento.isPending) return
     setSlug(elegido)
     setRunError(null)
     try {
@@ -128,24 +169,43 @@ export default function ExperimentsPage() {
     } catch (e) {
       setRunError(errorMessage(e))
     }
-    // `busy` lo lleva la mutación (`lanzamiento.isPending`): no hay que
-    // acordarse de bajarlo en un `finally`.
   }
 
   // Gate de lanzamiento: sin preflight verde no se lanza (el BFF igualmente lo
   // rechaza con 503; acá se corta antes y con el motivo a la vista).
   const experimentRunning = current?.status === 'running'
   const blocked = !preflight?.ready || experimentRunning
-  // Todos los bloqueos, no el primero: `preflight.blockers` siempre fue un
-  // array y mostrar `[0]` obligaba a arreglar uno, reintentar, y descubrir el
-  // siguiente. Se listan juntos para poder resolverlos de una.
+  // Todos los bloqueos, no el primero: mostrar `[0]` obligaba a arreglar uno,
+  // reintentar, y descubrir el siguiente.
   const bloqueos: string[] = [
     ...(experimentRunning ? ['Hay un experimento en curso'] : []),
     ...(preflight === null ? ['Verificando servicios…'] : preflight.blockers),
   ]
 
-  if (error) return <ErrorBanner>Error listando experimentos: {error}</ErrorBanner>
-  if (!rows) return <p className="eo-empty">Cargando…</p>
+  const titulo = formMode
+    ? formMode.selectable ? 'Nuevo experimento' : `Derivar de ${formMode.source}`
+    : isNewRoute ? 'Nuevo experimento' : 'Experimentos'
+
+  // Sin listado todavía: la cabecera queda quieta y sólo el contenido espera o
+  // explica el fallo, con reintento.
+  if (!rows) {
+    return (
+      <>
+        <PageHeader title={titulo} meta={error ? 'No se pudo leer el catálogo' : 'Cargando el catálogo de manifiestos…'} />
+        {error ? (
+          <ErrorBanner
+            detail={error}
+            onRetry={() => void consultaManifiestos.refetch()}
+            retrying={consultaManifiestos.isFetching}
+          >
+            Error listando experimentos: el catálogo de manifiestos no respondió.
+          </ErrorBanner>
+        ) : (
+          <LoadingState lines={5}>Cargando el catálogo de manifiestos…</LoadingState>
+        )}
+      </>
+    )
+  }
 
   const options = rows.map((r) => ({ value: r.slug, label: r.slug }))
 
@@ -165,28 +225,198 @@ export default function ExperimentsPage() {
   })
 
   // Ausentes en la fixture del contrato congelado: la pantalla tiene que
-  // renderizar bien sin ellas (de ahí desarmar `meta` en variables sueltas,
-  // en vez de encadenar `meta?.…` adentro del JSX).
+  // renderizar bien sin ellas.
   const platformTestCount = meta?.platformTestCount
   const platformTestSlugs = meta?.platformTestSlugs
   const totalExecutions = meta?.totalExecutions
   // La proporción, nunca el número absoluto como si fuera estable: el total
-  // crece solo (la suite escribe ejecuciones nuevas en cada corrida
-  // completa). El denominador es TODO lo que hay en disco (evidencia +
-  // archivadas, `X-Total-Executions-Count`) — no lo ya archivado, que sería
-  // casi tautológico (lo archivado es casi todo smoke por definición). Sólo
-  // se muestra si ese denominador está y no es cero; sin él, el bloque igual
-  // se ve, sin la proporción.
+  // crece solo. El denominador es TODO lo que hay en disco.
   const proporcionPlataforma = platformTestCount != null && totalExecutions
     ? Math.round((platformTestCount / totalExecutions) * 100)
     : null
 
+  const antesDeEjecutar = (
+    <Card
+      title="Antes de ejecutar"
+      meta={
+        bloqueos.length
+          ? `${bloqueos.length} bloqueo${bloqueos.length > 1 ? 's' : ''}`
+          : 'Todo listo'
+      }
+    >
+      {bloqueos.length === 0 ? (
+        <p className="eo-note">
+          Los dos motores responden y no hay ningún experimento en curso.
+        </p>
+      ) : (
+        <ul className="eo-blockers">
+          {bloqueos.map((b) => (
+            <li key={b}>
+              <IconWarn />
+              <span>{applyPlaneGlossary(b)}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+      {runError && <ErrorBanner>{applyPlaneGlossary(runError)}</ErrorBanner>}
+    </Card>
+  )
+
+  const catalogo: ReactNode = rows.length === 0 ? (
+    <EmptyState hint="Los manifiestos viven en experiments/ del repositorio.">
+      Sin manifiestos todavía
+    </EmptyState>
+  ) : (
+    <>
+      <div className="eo-toolbar">
+        <SearchInput
+          value={filtro}
+          onChange={setFiltro}
+          placeholder="Buscar por manifiesto o grupo"
+          ariaLabel="Buscar manifiestos por nombre o grupo"
+        />
+        <ClaseChips valor={clase} onChange={setClase} conteos={conteos} />
+        <span className="eo-toolbar__count eo-mono">
+          {visibles.length} de {rows.length}
+        </span>
+      </div>
+
+      <Card title="Manifiestos" meta={`${rows.length}`} flush level={formMode ? 3 : 2}>
+        {consultaManifiestos.error && (
+          <StaleNotice
+            what="el catálogo de manifiestos"
+            onRetry={() => void consultaManifiestos.refetch()}
+            retrying={consultaManifiestos.isFetching}
+          />
+        )}
+        <TableScroll label="Manifiestos">
+          <Table aria-label="Manifiestos">
+            <thead>
+              <tr>
+                <th>Manifiesto</th>
+                <th>Grupo</th>
+                <th>Clase</th>
+                <th>Última ejecución</th>
+                <th>Estado</th>
+                <th className="eo-th--numeric">Corridas</th>
+                <th>Cuándo</th>
+                <th aria-label="Acciones" />
+              </tr>
+            </thead>
+            <tbody>
+              {visibles.map((r) => {
+                const ultima = r.last_experiment_id ?? r.experiment_id ?? null
+                return (
+                  <tr key={r.slug}>
+                    <RowNameCell
+                      title={<span className="eo-mono">{r.slug}</span>}
+                      subtitle={<>{r.description} <EvidenceBadge evidence={r.evidence} /></>}
+                    />
+                    <td>{r.group ?? '—'}</td>
+                    <td>
+                      <Tag>
+                        <Termino id={TERMINO_DE_CLASE[r.evidence?.clase ?? 'sin_clasificar']}>
+                          {ETIQUETA_CLASE[r.evidence?.clase ?? 'sin_clasificar']}
+                        </Termino>
+                      </Tag>
+                    </td>
+                    {/* Un manifiesto que nunca se ejecutó no tiene resultado
+                        que ver: se muestra apagado y sin enlace. */}
+                    <MonoCell>
+                      {r.evidence?.executions?.length ? (
+                        <div style={{ maxWidth: '36ch' }}>
+                          <span className="eo-cell--muted">{r.evidence.executions.length} ejecuciones de evidencia</span>
+                          {r.evidence.executions.map(id => (
+                            <div key={id}><Ejecucion id={id} /></div>
+                          ))}
+                        </div>
+                      ) : ultima ? (
+                        <Ejecucion id={ultima} />
+                      ) : (
+                        <span className="eo-cell--muted">Nunca se ejecutó</span>
+                      )}
+                    </MonoCell>
+                    <td>
+                      {r.last_status ? (
+                        <Badge tone={experimentStatusTone({ status: r.last_status })}>
+                          {experimentStatusLabel({ status: r.last_status })}
+                        </Badge>
+                      ) : (
+                        <Badge tone="neutral">{r.evidence?.executions?.length ? 'Con evidencia' : 'Sin ejecutar'}</Badge>
+                      )}
+                    </td>
+                    <td className="eo-num">{r.n_runs || '—'}</td>
+                    <td className="eo-cell--muted">{cuando(r.last_run_at)}</td>
+                    <td className="eo-cell--actions">
+                      <Button onClick={() => pedir({ tipo: 'abrir', modo: { source: r.slug, selectable: false } })}>
+                        Partir de este
+                      </Button>
+                      {/* Lanzar desde la fila evita elegir el manifiesto dos
+                          veces. En tratamiento secundario: once acciones
+                          violetas iguales no dejaban ver la de la pantalla. */}
+                      <Button
+                        disabled={busy || blocked}
+                        aria-busy={(busy && slug === r.slug) || undefined}
+                        onClick={() => void trigger(r.slug)}
+                      >
+                        {busy && slug === r.slug ? 'Lanzando…' : 'Ejecutar'}
+                      </Button>
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </Table>
+        </TableScroll>
+        {visibles.length === 0 && (
+          <EmptyState hint="Probá con otro texto o quitá el filtro de clase.">
+            Ningún manifiesto coincide con la búsqueda
+          </EmptyState>
+        )}
+      </Card>
+
+      {/* Sólo si la cabecera está y cuenta algo: la fixture del contrato
+          congelado no la manda, y el bloque tiene que desaparecer, no
+          romperse ni mostrar un cero. Va al final: es contexto, no catálogo. */}
+      {platformTestCount != null && platformTestCount > 0 && (
+        <Card title="Pruebas de plataforma" meta="no son experimentos" level={formMode ? 3 : 2}>
+          <div className="eo-machine">
+            <div className="eo-machine__n">{platformTestCount}</div>
+            <div>
+              <p className="eo-machine__t">
+                <b>Ejecuciones sin manifiesto escritas por la suite de tests</b>
+                {/* Nunca "0 slugs" cuando el desglose faltó o llegó corrupto. */}
+                {platformTestSlugs && platformTestSlugs.length > 0 ? (
+                  <>, repartidas en {platformTestSlugs.length} slugs del orquestador. </>
+                ) : (
+                  <>. El desglose por slug no está disponible. </>
+                )}
+                No corresponden a ningún manifiesto del catálogo y no respaldan ninguna
+                cifra: son la máquina probándose a sí misma. El total crece solo —la suite
+                escribe ejecuciones nuevas en cada corrida completa de la suite—, así que
+                {proporcionPlataforma != null ? (
+                  <> se cita la proporción (<b>{proporcionPlataforma} % de las {totalExecutions} ejecuciones en disco</b>) y nunca el número absoluto como si fuera estable.</>
+                ) : (
+                  ' nunca se cita el número absoluto como si fuera estable.'
+                )}
+              </p>
+              {platformTestSlugs && platformTestSlugs.length > 0 && (
+                <div className="eo-slugs">
+                  {platformTestSlugs.map((s) => (
+                    <span key={s.slug} className="eo-slug">{`${s.slug} · ${s.n}`}</span>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </Card>
+      )}
+    </>
+  )
+
   return (
     <>
-      {/* Sin acción propia en el encabezado: "+ Nuevo experimento" ya vive en la
-          barra lateral, y repetirlo acá chocaba con el título de la tarjeta del
-          formulario, que también dice "Nuevo experimento". */}
-      <PageHeader title="Experimentos" meta={`${rows.length} manifiestos`} />
+      <PageHeader title={titulo} meta={`${rows.length} manifiestos`} />
 
       {/* Antes de cualquier clase en pantalla: sin el registro o sin la
           taxonomía, la columna Clase y los chips son una clasificación
@@ -203,212 +433,64 @@ export default function ExperimentsPage() {
         </Banner>
       )}
 
-      <Card
-        title="Antes de ejecutar"
-        meta={
-          bloqueos.length
-            ? `${bloqueos.length} bloqueo${bloqueos.length > 1 ? 's' : ''}`
-            : 'Todo listo'
-        }
-      >
-        {bloqueos.length === 0 ? (
-          <p className="eo-note">
-            <PlatformStatus status={preflight} /> Los dos motores responden y no hay ningún
-            experimento en curso.
-          </p>
-        ) : (
-          <ul className="eo-blockers">
-            {bloqueos.map((b) => (
-              <li key={b}>
-                <IconWarn />
-                <span>{applyPlaneGlossary(b)}</span>
-              </li>
-            ))}
-          </ul>
-        )}
-        {runError && <ErrorBanner>{applyPlaneGlossary(runError)}</ErrorBanner>}
-      </Card>
+      {creado && !formMode && (
+        <p className="eo-note eo-feedback" role="status">
+          <IconCheck />
+          <span>Se creó el manifiesto <span className="eo-mono">{creado}</span>: ya está en el catálogo.</span>
+        </p>
+      )}
 
-      {formMode && (
+      {formMode ? (
         <>
+          {/* El formulario primero; el catálogo completo sigue abajo, plegado,
+              para no competir con la creación. */}
+          {pedido && (
+            <DiscardPrompt
+              what="el formulario"
+              onKeep={() => setPedido(null)}
+              onDiscard={() => aplicar(pedido)}
+            />
+          )}
           {formMode.selectable && (
-            <Field label="Basado en">
+            <Field label="Basado en" hint="El manifiesto del que se parte. Cambiarlo vuelve a cargar sus valores.">
               <Select
                 value={formMode.source}
                 options={options}
                 ariaLabel="Basado en"
-                onChange={(v) => setFormMode({ ...formMode, source: v })}
+                onChange={(v) => {
+                  if (v !== formMode.source) pedir({ tipo: 'abrir', modo: { ...formMode, source: v } })
+                }}
               />
             </Field>
           )}
           <DeriveExperimentForm
-            // key: al cambiar la fuente en el selector de arriba, remonta el
-            // formulario entero — mismo mecanismo de precarga que al abrirlo
-            // por primera vez, sin duplicar esa lógica ni arrastrar campos
-            // "tocados" de la fuente anterior.
-            key={formMode.source}
+            // key: al cambiar la fuente remonta el formulario entero — mismo
+            // mecanismo de precarga que al abrirlo por primera vez, sin
+            // arrastrar campos "tocados" de la fuente anterior.
+            key={`${formMode.selectable ? 'nuevo' : 'derivar'}:${formMode.source}`}
             source={formMode.source}
             mode={formMode.selectable ? 'create' : 'derive'}
-            onCancel={closeForm}
+            showTitle={false}
+            onDirtyChange={setFormDirty}
+            onCancel={() => pedir({ tipo: 'cerrar' })}
             onDone={async (newSlug) => {
               // Se espera la recarga ANTES de seleccionar: si no, el desplegable
-              // queda por un instante con un valor que no tiene opción, y muestra
-              // el placeholder — el operador vería una cosa y lanzaría otra, justo
-              // en el momento en que quiere confirmar qué va a correr.
+              // queda por un instante con un valor que no tiene opción.
               await reloadManifests()
               setSlug(newSlug)
+              setCreado(newSlug)
               closeForm()
             }}
           />
+          <Disclosure summary={`Manifiestos existentes (${rows.length})`}>
+            {antesDeEjecutar}
+            {catalogo}
+          </Disclosure>
         </>
-      )}
-      {rows.length === 0 ? (
-        <EmptyState hint="Los manifiestos viven en experiments/ del repositorio.">
-          Sin manifiestos todavía
-        </EmptyState>
       ) : (
         <>
-          <div className="eo-toolbar">
-            <SearchInput
-              value={filtro}
-              onChange={setFiltro}
-              placeholder="Buscar por manifiesto o grupo"
-              ariaLabel="Buscar manifiestos por nombre o grupo"
-            />
-            <ClaseChips valor={clase} onChange={setClase} conteos={conteos} />
-            <span className="eo-toolbar__count eo-mono">
-              {visibles.length} de {rows.length}
-            </span>
-          </div>
-
-          <Card title="Manifiestos" meta={`${rows.length}`} flush>
-            <Table>
-              <thead>
-                <tr>
-                  <th>Manifiesto</th>
-                  <th>Grupo</th>
-                  <th>Clase</th>
-                  <th>Última ejecución</th>
-                  <th>Estado</th>
-                  <th className="eo-th--numeric">Corridas</th>
-                  <th>Cuándo</th>
-                  <th aria-label="Acciones" />
-                </tr>
-              </thead>
-              <tbody>
-                {visibles.map((r) => {
-                  const ultima = r.last_experiment_id ?? r.experiment_id ?? null
-                  return (
-                    <tr key={r.slug}>
-                      <RowNameCell
-                        title={<span className="eo-mono">{r.slug}</span>}
-                        subtitle={<>{r.description} <EvidenceBadge evidence={r.evidence} /></>}
-                      />
-                      <td>{r.group ?? '—'}</td>
-                      <td>
-                        <Badge tone="neutral">
-                          <Termino id={TERMINO_DE_CLASE[r.evidence?.clase ?? 'sin_clasificar']}>
-                            {ETIQUETA_CLASE[r.evidence?.clase ?? 'sin_clasificar']}
-                          </Termino>
-                        </Badge>
-                      </td>
-                      {/* Un manifiesto que nunca se ejecutó no tiene resultado
-                          que ver: se muestra apagado y sin enlace en vez de un
-                          guion que no explica nada. */}
-                      <MonoCell>
-                        {r.evidence?.executions?.length ? (
-                          <div style={{ maxWidth: '36ch' }}>
-                            <span className="eo-cell--muted">{r.evidence.executions.length} ejecuciones de evidencia</span>
-                            {r.evidence.executions.map(id => (
-                              <div key={id}><Link style={{ overflowWrap: 'anywhere' }} to={`/experiments/${id}`}>{id}</Link></div>
-                            ))}
-                          </div>
-                        ) : ultima ? (
-                          <Link to={`/experiments/${ultima}`}>{ultima}</Link>
-                        ) : (
-                          <span
-                            className="eo-cell--muted"
-                            title="Todavía no se ejecutó, no hay resultado que ver"
-                          >
-                            Nunca se ejecutó
-                          </span>
-                        )}
-                      </MonoCell>
-                      <td>
-                        {r.last_status ? (
-                          <Badge tone={experimentStatusTone({ status: r.last_status })}>
-                            {experimentStatusLabel({ status: r.last_status })}
-                          </Badge>
-                        ) : (
-                          <Badge tone="neutral">{r.evidence?.executions?.length ? 'Con evidencia' : 'Sin ejecutar'}</Badge>
-                        )}
-                      </td>
-                      <td className="eo-num">{r.n_runs || '—'}</td>
-                      <td className="eo-cell--muted">{cuando(r.last_run_at)}</td>
-                      <td className="eo-cell--actions">
-                        <Button onClick={() => setFormMode({ source: r.slug, selectable: false })}>
-                          Partir de este
-                        </Button>{' '}
-                        {/* Lanzar desde la fila evita elegir el manifiesto dos
-                            veces: una en el desplegable y otra con la vista. */}
-                        <Button
-                          variant="primary"
-                          disabled={busy || blocked}
-                          onClick={() => void trigger(r.slug)}
-                        >
-                          {busy && slug === r.slug ? 'Lanzando…' : 'Ejecutar'}
-                        </Button>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </Table>
-            {visibles.length === 0 && (
-              <EmptyState hint="Probá con otro texto o quitá el filtro de clase.">
-                Ningún manifiesto coincide con la búsqueda
-              </EmptyState>
-            )}
-          </Card>
-
-          {/* Sólo si la cabecera está y cuenta algo: la fixture del contrato
-              congelado no la manda, y el bloque tiene que desaparecer, no
-              romperse ni mostrar un cero. */}
-          {platformTestCount != null && platformTestCount > 0 && (
-            <Card title="Pruebas de plataforma" meta="no son experimentos">
-              <div className="eo-machine">
-                <div className="eo-machine__n">{platformTestCount}</div>
-                <div>
-                  <p className="eo-machine__t">
-                    <b>Ejecuciones sin manifiesto escritas por la suite de tests</b>
-                    {/* Nunca "0 slugs" cuando el desglose faltó o llegó corrupto: eso
-                        sería fabricar un cero para un dato ausente. Si no hay desglose,
-                        se declara así, sin inventar una cantidad. */}
-                    {platformTestSlugs && platformTestSlugs.length > 0 ? (
-                      <>, repartidas en {platformTestSlugs.length} slugs del orquestador. </>
-                    ) : (
-                      <>. El desglose por slug no está disponible. </>
-                    )}
-                    No corresponden a ningún manifiesto del catálogo y no respaldan ninguna
-                    cifra: son la máquina probándose a sí misma. El total crece solo —la suite
-                    escribe ejecuciones nuevas en cada corrida completa de la suite—, así que
-                    {proporcionPlataforma != null ? (
-                      <> se cita la proporción (<b>{proporcionPlataforma} % de las {totalExecutions} ejecuciones en disco</b>) y nunca el número absoluto como si fuera estable.</>
-                    ) : (
-                      ' nunca se cita el número absoluto como si fuera estable.'
-                    )}
-                  </p>
-                  {platformTestSlugs && platformTestSlugs.length > 0 && (
-                    <div className="eo-slugs">
-                      {platformTestSlugs.map((s) => (
-                        <span key={s.slug} className="eo-slug">{`${s.slug} · ${s.n}`}</span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </Card>
-          )}
+          {antesDeEjecutar}
+          {catalogo}
         </>
       )}
     </>
