@@ -66,6 +66,8 @@ Requisitos en el host:
   `models/yoloe/original/mobileclip2_b.ts` para YOLOE (ver `models/README.md` del
   media-plane).
 - `nvidia-container-toolkit` para instancias GPU (`mp-mock` corre sin GPU).
+- **OAK-D en Docker sobre WSL** (modo espejo, red `eovrt` con salida a internet, prueba
+  desde el contenedor): [`MANUAL-OAKD-WSL.md`](MANUAL-OAKD-WSL.md).
 
 ## Endpoints y buses
 
