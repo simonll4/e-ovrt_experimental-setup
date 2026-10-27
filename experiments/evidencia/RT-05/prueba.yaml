@@ -1,0 +1,59 @@
+schema: prueba.gen2.v1
+id: RT-05
+titulo: "Compromiso en vivo entre familias de modelo y cadencias de cámara"
+informe: ["Tabla 54", "§17.5.5"]
+fase: F7
+familia: rodaje
+pregunta: >
+  Con la misma escena guionada (el guion de la demo: sacarse y ponerse el casco y el chaleco),
+  la OAK-D y la plataforma en contenedores, ¿qué cambia según el motor (Grounding DINO tiny o
+  base, YOLOE-26 s o x) y la cadencia de la cámara (5 o 15 cuadros por segundo, a 960×540)? Por
+  celda: si CR-01 y CR-02 confirman, cuánto tarda de la acción a la alerta, si alerta antes de la
+  acción, cuántos cuadros por segundo procesa, cuántos descarta y la latencia por cuadro.
+gen1:
+  result_id: rodaje del 2026-07-25 (doc 71 §2.1)
+  doc: operacion/71
+  relacion: otra_combinacion
+  motivo: >
+    En julio, misma escena y misma cámara (1080p a 30 fps, en la PC de desarrollo), con el modelo
+    como única variable: Grounding DINO tiny procesó 1,16–1,76 cuadros por segundo con G2A p95 de
+    630–890 ms y CR-01 confiable; YOLOE-26s, 5,1–6,0 cuadros por segundo con G2A p95 de 225–249 ms
+    (el único dentro del presupuesto) y 0 de 3 alertas confiables (una falsa y dos confirmadas antes
+    de cumplirse la ventana, F-RT2). Acá cambian la máquina y la resolución (960×540), se suman dos
+    motores y una segunda cadencia, y la acción la marca el director por voz.
+esperado: >
+  Que se repita el compromiso de julio: YOLOE procesa más cuadros con menos latencia y Grounding
+  DINO alerta de forma más confiable (menos alertas antes de la acción y la ventana de
+  persistencia respetada); que a 15 cuadros por segundo los Grounding DINO no sostengan la cadencia
+  (descartes o latencia que crece) y YOLOE sí. Es una exploración: no cambia la configuración
+  congelada de la demo ni re-elige el modelo, que se eligió en diferido sobre el bench (Tabla 51) y
+  el banco temporal (Tabla 53).
+veredictos_posibles: [otra_combinacion]
+config:
+  motores: >
+    mp-gdino-tiny-560 (campeón), mp-gdino-base-560, mp-yoloe-26s y mp-yoloe-26x, cada uno con su
+    catálogo y sus umbrales de siempre (el modelo cargado queda registrado en cada sesión)
+  prompt_set: cr01_cr02_v2_short (el congelado; el mismo para los cuatro)
+  pattern_set: cr01_cr02_v2 (escena, la de la demo)
+  camara: OAK-D a 960×540, a 5 y a 15 fps (experiments/demo_defensa/exploracion.yaml)
+  escena: DEMO (experiments/evidencia/RT-04/escenas.json)
+como_se_corre: >
+  En la jornada en vivo, después de RT-04. Por celda, `rodaje.ps1 -Escena DEMO -Motor <instancia>
+  -Camara <cámara>` tantas veces como pide `tomas_por_celda`: el script activa la instancia si no
+  es la activa, deja el motor fresco, espera el chequeo previo y dirige la toma por voz (la consola
+  reinicia el motor después de cada una). Conviene agrupar por motor: cambiar de instancia tarda
+  minutos. Las sesiones quedan marcadas como exploración (id con `_exp`) y RT-04 no las cuenta;
+  `evidencia correr RT-05` las importa por celda. Al terminar, volver al campeón
+  (`infra/demo/demo.ps1 up`). Requisito de la preparación: las cuatro instancias creadas con la
+  imagen actual del media-plane (doc 133: crear o recrear un contenedor puede tirar la red de WSL,
+  así que se hace antes de la jornada, nunca durante).
+receta:
+  escenas: ../RT-04/escenas.json
+  escena: DEMO
+  sesiones: defensa/sesiones
+  matriz:
+    motores: [mp-gdino-tiny-560, mp-gdino-base-560, mp-yoloe-26s, mp-yoloe-26x]
+    camaras: ["960x540@5", "960x540@15"]
+    tomas_por_celda: 3
+  timeout_s: 900
+salida: e-ovrt_experimental-setup/results/gen2/RT-05/

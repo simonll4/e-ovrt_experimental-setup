@@ -19,6 +19,14 @@ class PlaneRun(BaseModel):
     mode: str  # media: "run"; control: "live" | "replay"
     endpoint: str | None = None
     idle_timeout_ms: float | None = Field(default=None, gt=0, allow_inf_nan=False)
+    # Reuso de detecciones (generación 2 de la evidencia, doc 134 §5.2). Solo en el
+    # plano de medios y solo con control en replay: el plano de medios NO infiere y el
+    # replay relee las detecciones de esa corrida. `reuse_run_dir` apunta a un
+    # directorio con summary.json + detections.jsonl fuera de los runs/ del media-plane
+    # (p.ej. la fusión de dos corridas); sin él, el directorio sale de la convención
+    # de workspace hermano.
+    reuse_run_id: str | None = None
+    reuse_run_dir: str | None = None
 
 
 class ExperimentManifest(BaseModel):
@@ -50,6 +58,9 @@ class ExperimentManifest(BaseModel):
     # mano no los declaran.
     derives_from: str | None = None
     changes: str | None = None
+    # Tiempo máximo de espera por plano, en segundos. Sin él rige el default del runner
+    # (300 s), que no alcanza para un clip largo procesado cuadro a cuadro.
+    timeout_s: float | None = Field(default=None, gt=0, allow_inf_nan=False)
 
 
 def generate_experiment_id(slug: str, now: datetime) -> str:

@@ -1,0 +1,22 @@
+# Plantilla de la distribución live de la DEMO EN VIVO (igual que
+# t_alert_notification/distribution-live.yaml y oakd_docker_live/distribution.yaml).
+# El broker es `mosquitto` en compose y 127.0.0.1 en nativo: lo decide la consola.
+#
+# Lo medido no se toca: enfriamiento de 30 s por [condition_id, source_id], QoS 1.
+# Sin idle_timeout_ms en el manifiesto (lo arma la consola): la distribución cierra con el
+# run_finished que el control republica en el bus de alertas. Un idle_timeout cortaría la
+# distribución en medio de una demo larga sin alertas.
+notification_policy:
+  cooldown_ms: 30000
+  key:
+    - condition_id
+    - source_id
+channel:
+  mode: live
+  host: ${EOVRT_MQTT_HOST}
+  port: ${EOVRT_MQTT_PORT}
+  topic_prefix: eovrt/alerts
+  qos: 1
+retry:
+  max_attempts: 3
+  wait_ms: 500

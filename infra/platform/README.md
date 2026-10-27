@@ -126,6 +126,10 @@ que media — PUB/SUB pierde lo anterior a la suscripción).
 - Artefactos del control quedan en `e-ovrt_control-plane/runs/` del host
   (`EOVRT_CONTROL_RUNS_DIR` con paridad de rutas); los del distribuidor en el
   `out_dir` que el BFF eligió para la corrida.
+- **Demo en vivo de la defensa** (`/demo`): operación en `infra/demo/README.md`
+  (`demo.ps1` / `demo.sh`). La cámara de ensayo vive en el override
+  `docker-compose.demo.yml` (perfil `ensayo`), que no modifica ningún servicio de este
+  archivo. Para reiniciar el motor la consola usa `docker compose restart` (no recrea).
 
 ## Broker MQTT (distribución de alertas, spec 45 / ADR-016)
 

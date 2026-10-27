@@ -10,6 +10,10 @@ dependencies = [
     "pyyaml",
     "websockets>=12",
     "pydantic>=2",
+    # Demo en vivo de la defensa (spec 2026-10-23 §6.4): el testigo MQTT y el render
+    # post-corrida (el video lo arma ffmpeg, que se instala en la imagen).
+    "paho-mqtt>=2.0",
+    "Pillow>=10",
 ]
 
 [project.optional-dependencies]

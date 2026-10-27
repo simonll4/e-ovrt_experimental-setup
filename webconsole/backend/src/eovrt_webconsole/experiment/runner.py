@@ -9,6 +9,10 @@ planos por HTTP en el orden correcto. Cubre las dos ramas:
   implica que el BusSource ya esta suscripto (PUB/SUB pierde lo publicado
   antes de la suscripcion) -- recien despues se dispara el media-plane con
   el bus habilitado.
+- medios solos (sin `runs.control`, `sequencing: media_first`): una corrida de
+  inferencia sin alertas (bench de imagenes de la generacion 2, doc 134).
+El replay puede reusar detecciones ya escritas (`runs.media.reuse_*`) en vez
+de inferir de nuevo.
 """
 from __future__ import annotations
 
@@ -92,6 +96,49 @@ class ExperimentResult(BaseModel):
     # y la consolidacion + el reporte se generaron sin error.
     consolidated_dir: str | None = None
     report_path: str | None = None
+    # Quien cerro la corrida, cuando no termino sola: "operator" = la cerro el
+    # operador con `RunHooks.ended_by` (demo de la defensa). None = termino sola.
+    ended_by: str | None = None
+
+
+class RunHooks:
+    """Ganchos opcionales de un disparo. Aditivos: sin ellos nada cambia.
+
+    Los agrega la demo de la defensa (spec 2026-10-23 §6.4):
+    - `on_ids` recibe los ids de las corridas APENAS se conocen
+      (`control_run_id`, `media_run_id`), no recien al terminar el experimento.
+    - `ended_by = "operator"` marca que la corrida la cierra el operador: el
+      `stopped` del media-plane pasa a ser el fin NORMAL. El runner no cancela la
+      distribucion y espera el cierre en cascada (el control cierra con el
+      `run_finished` del media; la distribucion, con el que el control republica
+      en el bus de alertas), cada espera con su propio `close_timeout_s`.
+      El "Detener" de la consola no usa esto y conserva su semantica.
+    """
+
+    def __init__(
+        self,
+        on_ids: Callable[[dict[str, str]], None] | None = None,
+        *,
+        close_timeout_s: float = 30.0,
+    ) -> None:
+        self.on_ids = on_ids
+        self.close_timeout_s = close_timeout_s
+        self.ended_by: str | None = None
+
+    def publish_ids(self, **ids: str | None) -> None:
+        if self.on_ids is None:
+            return
+        payload = {key: value for key, value in ids.items() if value}
+        if not payload:
+            return
+        try:
+            self.on_ids(payload)
+        except Exception:  # noqa: BLE001 -- observar no puede tumbar la corrida
+            logger.warning("RunHooks.on_ids fallo con %s", payload, exc_info=True)
+
+    @property
+    def operator_ended(self) -> bool:
+        return self.ended_by == "operator"
 
 
 def _default_load_config(config_path: str) -> dict:
@@ -189,19 +236,101 @@ def _validate_sequencing(sequencing: str, control_mode: str) -> None:
         )
 
 
-def _validate_planes_present(runs: dict[str, Any]) -> None:
-    """Valida que `manifest.runs` tenga las dos claves de plano requeridas.
+def _is_media_only(manifest: ExperimentManifest) -> bool:
+    """Medios solos = sin `runs.control` Y declarado `sequencing: media_first`. La
+    declaracion explicita evita que un manifiesto al que se le olvido el control
+    (default `control_first`) corra como otra cosa en silencio."""
+    return "control" not in manifest.runs and manifest.sequencing == "media_first"
 
-    Sin este chequeo, indexar `runs["media"]` / `runs["control"]` cuando falta
-    una clave levanta un `KeyError` crudo antes de cualquier llamada HTTP. Se
-    valida antes de tocar ningun backend para dar un error claro (que plano
-    falta) en vez de un traceback opaco.
+
+def _validate_planes_present(manifest: ExperimentManifest) -> None:
+    """Valida los planos de `manifest.runs` antes de tocar ningun backend.
+
+    `media` es obligatorio. `control` puede faltar SOLO en un experimento de medios
+    solos (p.ej. el bench de imagenes de la generacion 2, doc 134 §5.2), que lo
+    declara con `sequencing: media_first`: sin control no hay alertas, asi que
+    tampoco puede haber distribucion. Sin este chequeo, indexar un plano faltante
+    levanta un `KeyError` crudo en vez de un error claro.
     """
+    runs = manifest.runs
     faltantes = [plano for plano in ("media", "control") if plano not in runs]
+    if "control" in faltantes and _is_media_only(manifest) and "media" not in faltantes:
+        faltantes.remove("control")
     if faltantes:
         raise ValueError(
-            f"manifiesto invalido: falta(n) el/los plano(s) {faltantes} en manifest.runs"
+            f"manifiesto invalido: falta(n) el/los plano(s) {faltantes} en manifest.runs "
+            "(un experimento de medios solos declara `sequencing: media_first`)"
         )
+    if "control" not in runs and "distribution" in runs:
+        raise ValueError(
+            "manifiesto invalido: hay `distribution` sin `control` (no habria alertas que distribuir)"
+        )
+
+
+def _validate_reuse(runs: dict[str, Any]) -> None:
+    """El reuso de detecciones solo tiene sentido en medios y con control en replay."""
+    for plano, run in runs.items():
+        if plano != "media" and (run.reuse_run_id or run.reuse_run_dir):
+            raise ValueError(f"manifiesto invalido: `reuse_*` solo aplica al plano media (esta en {plano!r})")
+    media_run = runs["media"]
+    if not (media_run.reuse_run_id or media_run.reuse_run_dir):
+        return
+    control_run = runs.get("control")
+    if control_run is None or control_run.mode != "replay":
+        raise ValueError(
+            "manifiesto invalido: reusar detecciones exige un control en modo replay "
+            "(sin replay no hay nada que hacer con ellas)"
+        )
+
+
+def _reused_media_run_id(media_run: Any) -> str | None:
+    if media_run.reuse_run_id:
+        return media_run.reuse_run_id
+    if media_run.reuse_run_dir:
+        return Path(media_run.reuse_run_dir).name
+    return None
+
+
+def _with_reuse_dir(resolver: ResolveRunDir, media_run: Any) -> ResolveRunDir:
+    """Si el manifiesto reusa un directorio explicito, el run de medios se resuelve
+    ahi (consolidacion y evaluacion leen de ese directorio); el resto, igual."""
+    if not media_run.reuse_run_dir:
+        return resolver
+    reused_id = _reused_media_run_id(media_run)
+    reuse_dir = Path(media_run.reuse_run_dir)
+
+    def resolve(plane: str, run_id: str) -> Path:
+        if plane == "media" and run_id == reused_id:
+            return reuse_dir
+        return resolver(plane, run_id)
+
+    return resolve
+
+
+def _read_reused_media_run(media_run_dir: Path) -> dict:
+    """Summary de una corrida de medios ya escrita, para reusar sus detecciones.
+
+    Exige `detections.jsonl`. `summary.json` es opcional (una fusion de dos corridas
+    no lo trae): sin el, la corrida se da por terminada; con el, manda su `status`.
+    """
+    detections = media_run_dir / "detections.jsonl"
+    if not detections.is_file():
+        raise FileNotFoundError(f"reuso de detecciones: no existe {detections}")
+    summary_path = media_run_dir / "summary.json"
+    summary = (
+        json.loads(summary_path.read_text(encoding="utf-8")) if summary_path.is_file() else {}
+    )
+    return {**summary, "status": summary.get("status", "succeeded")}
+
+
+def _replay_input(loaded_input: Any, detections_path: str) -> dict:
+    """`input` del replay: el detections.jsonl de la corrida de medios. Conserva
+    `track_persons` (identidad por sujeto, doc 89) si la config lo declara; sin
+    eso, el pattern set por sujeto correria sin identidad y en silencio."""
+    new_input: dict = {"type": "media_jsonl", "path": detections_path}
+    if isinstance(loaded_input, dict) and "track_persons" in loaded_input:
+        new_input["track_persons"] = loaded_input["track_persons"]
+    return new_input
 
 
 def _inject_source_id(media_config: dict, clip_id: str | None) -> dict:
@@ -224,6 +353,7 @@ def _inject_source_id(media_config: dict, clip_id: str | None) -> dict:
 
 
 _EVALUATE_ALERTS_CMD = ("eovrt-control", "evaluate-alerts")
+_DEFAULT_TIMEOUT_S = 300.0
 _DISTRIBUTION_TIMEOUT_S = 300.0
 _DISTRIBUTION_SUMMARY = "distribution_summary.json"
 _DEFAULT_CONTROL_ALERT_BUS_ENDPOINT = "tcp://0.0.0.0:5558"
@@ -593,11 +723,14 @@ def _consolidate_runs(
     resolve_run_dir: ResolveRunDir,
     dest_root: Path,
     manifest_effective: dict | None = None,
+    media_only: bool = False,
 ) -> Path:
-    if not result.media_run_id or not result.control_run_id:
+    if not result.media_run_id or (not result.control_run_id and not media_only):
         raise RuntimeError("corridas incompletas para consolidar")
     media_run_dir = resolve_run_dir("media", result.media_run_id)
-    control_run_dir = resolve_run_dir("control", result.control_run_id)
+    control_run_dir = (
+        resolve_run_dir("control", result.control_run_id) if result.control_run_id else None
+    )
     if manifest_effective is None:
         raise RuntimeError("manifest_effective es obligatorio para consolidar")
     return consolidate_experiment(
@@ -646,6 +779,7 @@ def _write_report_if_possible(
     dest_root: Path,
     evaluate_temporal: EvaluateTemporal,
     already_consolidated: bool = False,
+    media_only: bool = False,
 ) -> ExperimentResult:
     try:
         if already_consolidated:
@@ -658,10 +792,11 @@ def _write_report_if_possible(
                 resolve_run_dir=resolve_run_dir,
                 dest_root=dest_root,
                 manifest_effective=manifest_effective,
+                media_only=media_only,
             )
         media_run_dir = resolve_run_dir("media", result.media_run_id)
         ground_truth = manifest_effective.get("ground_truth")
-        if ground_truth:
+        if ground_truth and not media_only:
             _run_temporal_evaluation(
                 evaluate_temporal,
                 consolidated_dir=consolidated_dir,
@@ -692,12 +827,13 @@ async def run_experiment(
     control_backend: ControlBackendProtocol,
     now: datetime,
     poll_interval_s: float = 0.0,
-    timeout_s: float = 300.0,
+    timeout_s: float | None = None,
     load_config: LoadConfig | None = None,
     resolve_run_dir: ResolveRunDir | None = None,
     dest_root: Path | str | None = None,
     evaluate_temporal: EvaluateTemporal | None = None,
     run_distribution: RunDistribution | None = None,
+    hooks: RunHooks | None = None,
 ) -> ExperimentResult:
     """Orquesta el experimento paraguas segun el modo del control-plane.
 
@@ -719,14 +855,52 @@ async def run_experiment(
     presencia se interpreta como opt-in y el paso corre siempre que el
     resultado sea exitoso; no hay hoy un flag para desactivarlo). Es un paso
     protegido (`_consolidate_and_report`): si falla no tumba la corrida.
+
+    Medios solos (sin `runs.control`, doc 134 §5.2): una corrida de inferencia,
+    consolidada sin `control/` ni evaluacion temporal. Reuso
+    (`runs.media.reuse_run_id`/`reuse_run_dir`, solo con control en replay): el
+    media-plane no infiere y el replay relee las detecciones de esa corrida.
+
+    `timeout_s` (por plano): el explicito del llamador gana sobre el del
+    manifiesto, y este sobre el default de 300 s.
+
+    `hooks` (opcional, ver `RunHooks`): publica los ids apenas se conocen y,
+    en live, permite el cierre por el operador.
     """
     experiment_id = manifest.experiment_id or generate_experiment_id(manifest.slug, now)
     loader = load_config or _default_load_config
-    resolver = resolve_run_dir or _default_resolve_run_dir
     resolved_dest_root = Path(dest_root) if dest_root is not None else _default_dest_root()
     distribution_caller: RunDistribution = _resolve_distribution_caller(run_distribution)
+    if timeout_s is None:
+        timeout_s = manifest.timeout_s if manifest.timeout_s is not None else _DEFAULT_TIMEOUT_S
 
-    _validate_planes_present(manifest.runs)
+    _validate_planes_present(manifest)
+    _validate_reuse(manifest.runs)
+    resolver = _with_reuse_dir(resolve_run_dir or _default_resolve_run_dir, manifest.runs["media"])
+
+    if _is_media_only(manifest):
+        result = await _run_media_only(
+            manifest,
+            experiment_id,
+            media_backend=media_backend,
+            poll_interval_s=poll_interval_s,
+            timeout_s=timeout_s,
+            loader=loader,
+            hooks=hooks,
+        )
+        if not result.ok:
+            return result
+        manifest_effective = manifest.model_dump(mode="json")
+        manifest_effective["experiment_id"] = experiment_id
+        return _write_report_if_possible(
+            result,
+            manifest_effective=manifest_effective,
+            resolve_run_dir=resolver,
+            dest_root=resolved_dest_root,
+            evaluate_temporal=evaluate_temporal or _default_evaluate_temporal,
+            media_only=True,
+        )
+
     control_run = manifest.runs["control"]
     distribution_run = manifest.runs.get("distribution")
     _validate_distribution_mode(control_run.mode, distribution_run)
@@ -741,6 +915,8 @@ async def run_experiment(
             poll_interval_s=poll_interval_s,
             timeout_s=timeout_s,
             loader=loader,
+            resolve_run_dir=resolver,
+            hooks=hooks,
         )
     elif control_run.mode == "live":
         result = await _run_live(
@@ -754,6 +930,7 @@ async def run_experiment(
             run_distribution=distribution_caller if distribution_run else None,
             distribution_run=distribution_run,
             dest_root=resolved_dest_root,
+            hooks=hooks,
         )
     else:
         raise NotImplementedError(f"modo de control '{control_run.mode}' no soportado")
@@ -979,6 +1156,40 @@ async def _consolidate_and_report(
     )
 
 
+async def _run_media_only(
+    manifest: ExperimentManifest,
+    experiment_id: str,
+    *,
+    media_backend: MediaBackendProtocol,
+    poll_interval_s: float,
+    timeout_s: float,
+    loader: LoadConfig,
+    hooks: RunHooks | None = None,
+) -> ExperimentResult:
+    """Una corrida de medios sin control (p.ej. el bench de imagenes, que se evalua
+    despues contra su GT COCO): no hay alertas que producir."""
+    media_run = manifest.runs["media"]
+    media_config = dict(loader(media_run.config))
+    media_config["experiment_id"] = experiment_id
+    media_config = _inject_source_id(media_config, manifest.clip_id)
+
+    media_run_id = await media_backend.launch(media_config)
+    if hooks is not None:
+        hooks.publish_ids(media_run_id=media_run_id)
+    media_summary = await _poll_until_terminal(
+        media_backend.status, media_run_id, poll_interval_s=poll_interval_s, timeout_s=timeout_s
+    )
+    media_status = media_summary.get("status")
+    return ExperimentResult(
+        experiment_id=experiment_id,
+        media_run_id=media_run_id,
+        control_run_id=None,
+        media_status=media_status,
+        control_status=None,
+        ok=media_status == "succeeded",
+    )
+
+
 async def _run_dbe_replay(
     manifest: ExperimentManifest,
     experiment_id: str,
@@ -988,18 +1199,32 @@ async def _run_dbe_replay(
     poll_interval_s: float,
     timeout_s: float,
     loader: LoadConfig,
+    resolve_run_dir: ResolveRunDir = _default_resolve_run_dir,
+    hooks: RunHooks | None = None,
 ) -> ExperimentResult:
     media_run = manifest.runs["media"]
     control_run = manifest.runs["control"]
 
-    media_config = dict(loader(media_run.config))
-    media_config["experiment_id"] = experiment_id
-    media_config = _inject_source_id(media_config, manifest.clip_id)
+    reused_run_id = _reused_media_run_id(media_run)
+    if reused_run_id is not None:
+        # Reuso: el media-plane no infiere; el replay relee esas detecciones.
+        media_run_id = reused_run_id
+        reused_dir = resolve_run_dir("media", media_run_id)
+        media_summary = _read_reused_media_run(reused_dir)
+        media_summary["detections_path"] = str(reused_dir / "detections.jsonl")
+        if hooks is not None:
+            hooks.publish_ids(media_run_id=media_run_id)
+    else:
+        media_config = dict(loader(media_run.config))
+        media_config["experiment_id"] = experiment_id
+        media_config = _inject_source_id(media_config, manifest.clip_id)
 
-    media_run_id = await media_backend.launch(media_config)
-    media_summary = await _poll_until_terminal(
-        media_backend.status, media_run_id, poll_interval_s=poll_interval_s, timeout_s=timeout_s
-    )
+        media_run_id = await media_backend.launch(media_config)
+        if hooks is not None:
+            hooks.publish_ids(media_run_id=media_run_id)
+        media_summary = await _poll_until_terminal(
+            media_backend.status, media_run_id, poll_interval_s=poll_interval_s, timeout_s=timeout_s
+        )
     media_status = media_summary.get("status")
 
     if media_status != "succeeded":
@@ -1016,11 +1241,13 @@ async def _run_dbe_replay(
     detections_path = _detections_path_for(media_run_id, media_summary)
     control_config = dict(loader(control_run.config))
     control_config["experiment_id"] = experiment_id
-    control_config["input"] = {"type": "media_jsonl", "path": detections_path}
+    control_config["input"] = _replay_input(control_config.get("input"), detections_path)
 
     control_run_id = await control_backend.launch(
         control_config, mode="replay", experiment_id=experiment_id
     )
+    if hooks is not None:
+        hooks.publish_ids(control_run_id=control_run_id)
     control_summary = await _poll_until_terminal(
         control_backend.status,
         control_run_id,
@@ -1060,6 +1287,7 @@ async def _run_live(
     run_distribution: RunDistribution | None,
     distribution_run: Any | None = None,
     dest_root: Path | None = None,
+    hooks: RunHooks | None = None,
 ) -> ExperimentResult:
     """Rama live: control-plane primero, media-plane recien despues.
 
@@ -1068,6 +1296,11 @@ async def _run_live(
     suscripto -- y solo entonces POST al media-plane con bus.enabled=true.
     El control cierra 1:1 con el media (run_finished); se hace poll de
     ambos hasta un estado terminal.
+
+    Cierre por el operador (`hooks.ended_by == "operator"`, demo de la
+    defensa): el `stopped` del media es el fin normal. No se cancela la
+    distribucion; el control y la distribucion se esperan, cada uno con
+    `hooks.close_timeout_s`, y la corrida cuenta como exitosa si cerraron bien.
     """
     dest_root = dest_root or _default_dest_root()
     media_run = manifest.runs["media"]
@@ -1098,6 +1331,8 @@ async def _run_live(
     control_run_id = await control_backend.launch(
         control_config, mode="live", experiment_id=experiment_id
     )
+    if hooks is not None:
+        hooks.publish_ids(control_run_id=control_run_id)
 
     # Confirmacion explícita de la invariante antes de tocar el media: el
     # 201 ya implica suscripto, pero lo verificamos con current() en vez de
@@ -1146,11 +1381,17 @@ async def _run_live(
 
     media_config = dict(loader(media_run.config))
     media_config["experiment_id"] = experiment_id
-    media_config["bus"] = {"enabled": True}
+    # Se conserva lo que la config declare del bus (p.ej. `wait_for_subscriber_ms`): con una
+    # fuente que publica en el primer instante —un video— el primer evento salía antes de
+    # que el control terminara de suscribirse y se contaba como perdido (ensayo RT-02 de la
+    # generación 2, 2026-10-26). Con la OAK-D no se veía porque su arranque tarda ~11 s.
+    media_config["bus"] = {**(media_config.get("bus") or {}), "enabled": True}
     media_config = _inject_source_id(media_config, manifest.clip_id)
 
     try:
         media_run_id = await media_backend.launch(media_config)
+        if hooks is not None:
+            hooks.publish_ids(media_run_id=media_run_id)
         media_summary = await _poll_until_terminal(
             media_backend.status,
             media_run_id,
@@ -1161,8 +1402,13 @@ async def _run_live(
         await _cancel_distribution_task(distribution_task)
         raise
     media_status = media_summary.get("status")
+    # El operador cerro la corrida (finish() de la demo): ese `stopped` es el
+    # fin normal y la cascada sigue; cualquier otro estado no exitoso, no.
+    operator_end = hooks is not None and hooks.operator_ended and media_status == "stopped"
+    media_ok = media_status == "succeeded" or operator_end
+    close_timeout_s = hooks.close_timeout_s if operator_end else timeout_s
 
-    if media_status != "succeeded" and distribution_task is not None:
+    if not media_ok and distribution_task is not None:
         await _cancel_distribution_task(distribution_task)
 
     try:
@@ -1170,7 +1416,7 @@ async def _run_live(
             control_backend.status,
             control_run_id,
             poll_interval_s=poll_interval_s,
-            timeout_s=timeout_s,
+            timeout_s=close_timeout_s,
         )
     except BaseException:
         await _cancel_distribution_task(distribution_task)
@@ -1180,18 +1426,24 @@ async def _run_live(
     if distribution_task is not None and control_status != "succeeded":
         await _cancel_distribution_task(distribution_task)
         distribution_status = "failed"
-    elif distribution_task is not None and media_status != "succeeded":
+    elif distribution_task is not None and not media_ok:
         distribution_status = "failed"
     elif distribution_task is not None:
         try:
-            await distribution_task
+            if operator_end:
+                # Cierra con el run_finished que el control republica en el bus de
+                # alertas; si no llega a tiempo, wait_for cancela la tarea (y el
+                # cliente HTTP avisa al servicio con /cancel).
+                await asyncio.wait_for(distribution_task, timeout=close_timeout_s)
+            else:
+                await distribution_task
             distribution_status = "succeeded"
         except Exception as exc:  # noqa: BLE001
             distribution_summary_error = exc
             distribution_status = "failed"
 
     ok = (
-        media_status == "succeeded"
+        media_ok
         and control_status == "succeeded"
         and distribution_summary_error is None
     )
@@ -1204,4 +1456,5 @@ async def _run_live(
         control_status=control_status,
         distribution_status=distribution_status,
         ok=ok,
+        ended_by="operator" if operator_end else None,
     )

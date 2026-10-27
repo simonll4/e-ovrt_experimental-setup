@@ -1,0 +1,34 @@
+schema: prueba.gen2.v1
+id: INT-03
+titulo: "Pesos de los modelos y configuración congelada"
+informe: ["Anexo E.2", "Tabla B.6"]
+fase: F1
+familia: integridad
+pregunta: "¿Los pesos, los prompt sets y los pattern sets de la Victus son los de la generación 1?"
+gen1:
+  result_id: (huellas tomadas en la PC de desarrollo el 2026-10-26)
+  doc: operacion/134
+esperado: >
+  33/33 archivos de pesos iguales (tiny, base, YOLOE, blob de la OAK-D); el bloque classes de
+  cada prompt set con su frozen_sha256; los 5 pattern sets con la huella registrada.
+veredictos_posibles: [identico]
+receta:
+  lista_modelos: modelos.sha256  # copia de docs/operacion/datos/134-generacion-2/insumos/modelos.sha256
+  prompt_sets:
+    prompts/cr01_cr02_v2_short.yaml: df81fd48b6daf8924b5fb66aa1ce4acc0c880ac6ed8cd1245c6aca1babdb309a
+    prompts/eind_v1.yaml: 7a0126f45eb1362a2cfcc67458caa307357dc3f7684188fae6486486cd5ed770
+    prompts/edir_v1.yaml: a1278d0c34cd13beb759a1fe10b13c7096f147f7be23154f28a79454b5643703
+    prompts/cr01_cr02_bench_v2.yaml: 9775f75b66aea610882075047a640bbc51176373864a0793fdb15e036b5437e8
+    prompts/clase_nueva_v1.yaml: 3871bca9c1d3e663dfd5475725ae5651c6261569f70bf1003ffcc2d8ab327889
+  pattern_sets:
+    cr01_cr02_v2: 4f80f5d3b4e78046f8a033044475a667cd0aed930cfeca05295cf63a323570e8
+    cr01_cr02_v2_subject: 0b88e5cd159ba49676f7723fe34d48c81f1b9a6b2ecb9c973e076570d164a391
+    cr01_cr02_edir_v1: 7200f0874502d0717b0a867eabad566babcef3daffef80e2fb6e0988ccb43141
+    cr01_cr02_hyb_or_v1: 3fecfe517b5a23e0b08ec3db16135e376312c572763b74e703ee450ca0e20565
+    cr01_bare_head_v1: 934e18e1e82ee1c9d37a8aef05a8aa7f1b37fd552723f29ff01a74b1b6066001
+  catalogos_modelo:
+    - configs/models/grounding-dino/gdino-tiny-560.yaml
+    - configs/models/grounding-dino/gdino-base-560.yaml
+    - configs/models/yoloe/yoloe-26x.yaml
+    - configs/models/mock.yaml
+salida: e-ovrt_experimental-setup/results/gen2/INT-03/

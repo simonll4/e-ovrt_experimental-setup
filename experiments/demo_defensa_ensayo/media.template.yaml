@@ -1,0 +1,23 @@
+# Variante de ENSAYO de la demo: igual que experiments/demo_defensa/media.template.yaml,
+# pero la fuente es la cámara de ensayo — un clip retransmitido por RTSP desde mediamtx
+# (infra/platform/docker-compose.demo.yml, perfil `ensayo`). Sirve para el smoke sin
+# hardware (G1) y como plan B de cámara (spec §7.4): se anuncia «la entrada es una
+# grabación; todo lo demás corre en vivo».
+#
+# La fuente `rtsp` usa el reloj de pared, como la OAK-D. Un `video_file` NO sirve: no
+# respeta el tiempo real. Control y distribución son los de demo_defensa.
+# `wait_for_subscriber_ms` es imprescindible acá: el RTSP entrega el primer cuadro antes
+# de que el control termine de suscribirse y, sin la espera, ese evento se pierde.
+ingest:
+  plugin: rtsp
+  config:
+    url: ${EOVRT_ENSAYO_RTSP_URL}
+    warmup_frames: 5
+prompts:
+  ref: cr01_cr02_v2_short
+  active_ids: [person, helmet, vest]
+bus:
+  wait_for_subscriber_ms: 10000
+run:
+  name: demo_defensa_ensayo
+  save_previews: true

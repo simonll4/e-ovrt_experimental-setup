@@ -1,0 +1,32 @@
+# Plantilla del payload media-plane (POST /api/runs) de la DEMO EN VIVO de la defensa
+# (spec docs/superpowers/specs/2026-10-23-demo-defensa-design.md §6.1 y bloque ✎ 2026-10-26).
+#
+# No se lanza a mano: la resuelve la consola al apretar Iniciar en /demo
+# (webconsole/backend/src/eovrt_webconsole/demo/config.py). Al resolverla:
+#   - `prompts.ref` se reemplaza por el prompt set congelado COMPLETO de prompts/
+#     (el mismo dict que manda «Nueva corrida»), previa verificación de su frozen_sha256;
+#   - la config resuelta se guarda en defensa/sesiones/<sesión>/config/media.yaml.
+# El runner agrega `bus.enabled: true` (conserva el resto de la sección `bus`).
+# `wait_for_subscriber_ms`: el publicador espera al suscriptor del control antes del
+# primer evento; sin eso el primero se pierde (slow joiner, bus_dropped_events=1).
+#
+# Cámara: la OAK-D del laboratorio (169.254.31.137). Base: experiments/oakd_docker_live
+# (doc 133): 960x540 (isp_scale 1/2) a 5 fps. NUNCA 1080p: en Docker sobre WSL
+# satura la red y los cuadros llegan con ~1 s de atraso. Sin max_units: la corrida la
+# cierra el operador (F F). save_previews guarda cada cuadro procesado ya anotado: de
+# ahí sale el video del Resultado.
+ingest:
+  plugin: oak_d
+  config:
+    url: 169.254.31.137
+    isp_scale: [1, 2]
+    fps: 5
+    warmup_frames: 20
+prompts:
+  ref: cr01_cr02_v2_short
+  active_ids: [person, helmet, vest]
+bus:
+  wait_for_subscriber_ms: 10000
+run:
+  name: demo_defensa
+  save_previews: true

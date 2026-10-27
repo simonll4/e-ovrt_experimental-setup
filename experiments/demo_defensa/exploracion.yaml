@@ -1,0 +1,24 @@
+# Modo exploración de la demo (prueba RT-05 de la generación 2).
+#
+# La demo de la defensa corre SIEMPRE la configuración congelada (congelado.yaml): el campeón
+# gdino-tiny-560 con la OAK-D a 960x540 y 5 fps. Este archivo habilita, solo por la API y por
+# infra/platform/rodaje.ps1 (`-Motor` / `-Camara`), sesiones de la demo con OTRO motor u otra
+# cadencia de cámara, para medir en vivo el compromiso entre familias de modelo con la misma
+# escena guionada. Una sesión de exploración:
+#   - queda marcada en su session.json (`exploracion`) y su id termina en `_exp`;
+#   - no pasa el chequeo de lo congelado (se registra igual, con `ok: false`) y no cuenta como
+#     ensayo de la demo ni entra a RT-04: la importa RT-05;
+#   - nunca se lanza con la tecla I de /demo.
+# La lista es cerrada: un motor o una cámara que no estén acá no arrancan.
+#
+# Motores: la instancia del fleet de infra/platform y el modelo que tiene que reportar cargado.
+motores:
+  mp-gdino-tiny-560: {modelo: grounding-dino/gdino-tiny-560, familia: Grounding DINO, nota: campeón (la config de la demo)}
+  mp-gdino-base-560: {modelo: grounding-dino/gdino-base-560, familia: Grounding DINO, nota: especialista en CR-01}
+  mp-yoloe-26s: {modelo: yoloe/yoloe-26s, familia: YOLOE, nota: el más chico de YOLOE-26}
+  mp-yoloe-26x: {modelo: yoloe/yoloe-26x, familia: YOLOE, nota: el más grande de YOLOE-26}
+# Cámaras: lo que se pisa en `ingest.config` de la OAK-D. Siempre 960x540 (isp_scale 1/2):
+# 1080p en Docker sobre WSL satura la red (doc 133 §5).
+camaras:
+  "960x540@5": {isp_scale: [1, 2], fps: 5}
+  "960x540@15": {isp_scale: [1, 2], fps: 15}

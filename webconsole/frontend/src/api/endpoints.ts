@@ -7,7 +7,8 @@ import type {
   RecordingStatus, RunDetail, RunGroup, RunRow, StartRecordingBody, TargetStatus, TracePage,
   ArtifactEntry, ConditionInfo, RunComparison, TraceIndex, EvidenceListingMeta, EvidenceView,
   EvidenceRecorrido, EvidenceStepPage, EvidenceResultPage, ArchivedRunDetail, PlatformTestSlug,
-  Documentacion,
+  Documentacion, DemoPreflight, DemoState, DemoSessionDetail, DemoCifra, DemoStack,
+  Gen2Detalle, Gen2Observaciones, Gen2Prueba,
 } from '../types'
 
 export class ApiError extends Error {
@@ -22,6 +23,15 @@ export class ApiError extends Error {
 /** La documentación de la consola. Como la evidencia, sale del disco local: no
  *  toca ningún servicio y contesta con los tres planos apagados. */
 export const getDocumentacion = () => request<Documentacion>('/api/documentacion')
+
+/** La evidencia de la generación 2 (doc 135): pre-registros y resultados, del
+ *  disco local. Tampoco toca servicios. */
+export const getGen2Observaciones = () => request<Gen2Observaciones>('/api/gen2/observaciones')
+export const getGen2Pruebas = () => request<Gen2Prueba[]>('/api/gen2/pruebas')
+export const getGen2Prueba = (id: string) =>
+  request<Gen2Detalle>(`/api/gen2/pruebas/${encodeURIComponent(id)}`)
+export const gen2ArchivoUrl = (id: string, ruta: string) =>
+  `/api/gen2/pruebas/${encodeURIComponent(id)}/archivo?${new URLSearchParams({ ruta })}`
 
 export const getEvidenceRecorrido = () => request<EvidenceRecorrido>('/api/evidencia')
 export const getEvidenceStep = (n: number) =>
@@ -426,3 +436,20 @@ export const masterMediaUrl = (name: string) =>
   `/api/clips/media/master/${encodeURIComponent(name)}`
 export const clipMediaUrl = (clipId: string) =>
   `/api/clips/media/clip/${encodeURIComponent(clipId)}`
+
+// --- Demo en vivo de la defensa (spec 2026-10-23) ---
+export const getDemoPreflight = () => request<DemoPreflight>('/api/demo/preflight')
+export const getDemoState = () => request<DemoState>('/api/demo/state')
+export const startDemo = (variante: 'oakd' | 'ensayo' = 'oakd') =>
+  request<{ session_id: string; experiment_id: string }>('/api/demo/start', {
+    method: 'POST', body: JSON.stringify({ variante }),
+  })
+export const finishDemo = () =>
+  request<{ session_id: string; fase: string }>('/api/demo/finish', { method: 'POST' })
+export const getDemoSession = (id: string) =>
+  request<DemoSessionDetail>(`/api/demo/sessions/${encodeURIComponent(id)}`)
+export const getDemoRespaldo = () => request<{ session_id: string }>('/api/demo/respaldo')
+export const getDemoCifras = () => request<DemoCifra[]>('/api/demo/cifras')
+export const getDemoStack = () => request<DemoStack>('/api/demo/stack')
+export const demoArchivoUrl = (id: string, rel: string) =>
+  `/api/demo/sessions/${encodeURIComponent(id)}/archivo/${rel.split('/').map(encodeURIComponent).join('/')}`

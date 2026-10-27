@@ -168,7 +168,7 @@ describe('RunDetailPage', () => {
     await waitFor(() => expect(screen.getByRole('button', { name: 'Borrar' })).toBeTruthy())
     await deleteRun()
     await waitFor(() => expect(api.deleteRun).toHaveBeenCalledWith('r_1'))
-    await waitFor(() => expect(navigateMock).toHaveBeenCalledWith('/'))
+    await waitFor(() => expect(navigateMock).toHaveBeenCalledWith('/corridas'))
   })
 
   it('borrado parcial muestra el detalle de los planos que fallaron y persiste (no navega)', async () => {

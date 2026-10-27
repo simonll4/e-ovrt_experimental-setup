@@ -1,0 +1,29 @@
+schema: prueba.gen2.v1
+id: DIST-01
+titulo: "Canal de distribución: alerta → PUBACK MQTT QoS 1"
+informe: ["Tabla 54", "§17.5.5"]
+fase: F6
+familia: vivo
+depende_de: [ALR-01, ALR-02, ALR-07, ALR-08, DEN-01, DEN-02, DEN-03, DEN-04, DEN-05, DEN-06]
+pregunta: >
+  Sobre todas las alertas que produjo la generación 2, ¿cuánto tarda la distribución en obtener
+  el PUBACK del broker para cada notificación?
+gen1:
+  result_id: t_alert_notification
+  doc: operacion/118
+  relacion: otra_combinacion
+  motivo: >
+    Corpus distinto: la generación 1 usó 413 corridas de julio–agosto (460 entregas, p95 64,5 ms
+    con amqtt y el ledger en ext4); acá el corpus son las corridas de control de las pruebas de
+    alerta y densidad que se regeneran en la generación 2 (sin los contrastes ALR-03…06, doc 134
+    §13.6), con mosquitto y el ledger en el disco del contenedor
+    (doc 133 §3.4: en el bind mount de Windows una ráfaga llega a 1,6 s).
+esperado: "p95 de decenas de ms; las primeras entregas de cada corrida, ~15 ms (doc 133)."
+veredictos_posibles: [otra_combinacion]
+receta:
+  corpus: [ALR-01, ALR-02, ALR-07, ALR-08, DEN-01, DEN-02, DEN-03, DEN-04, DEN-05, DEN-06]
+  servicio: distribution
+  broker: {host: mosquitto, host_nativo: 127.0.0.1, port: 1883}
+  endpoint: tcp://127.0.0.1:15558
+  ledger_tmp: /tmp/eovrt-dist01
+salida: e-ovrt_experimental-setup/results/gen2/DIST-01/

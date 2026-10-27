@@ -27,26 +27,51 @@ const renderShell = (path = '/') =>
     </MemoryRouter>,
   )
 
+afterEach(() => localStorage.removeItem('eovrt-nav-grupos-abiertos'))
+
+const LABORATORIO = ['Corridas', 'Experimentos', 'Comparar', 'Conjuntos de prompts', 'Catálogos', 'Cámaras', 'Clips']
+
 describe('Shell', () => {
-  it('renderiza los tres títulos de grupo', () => {
+  it('renderiza los dos títulos de grupo (doc 135): Evidencia y Laboratorio', () => {
     renderShell()
-    expect(screen.getByText('Trabajo')).toBeTruthy()
-    expect(screen.getByText('Definiciones')).toBeTruthy()
-    expect(screen.getByText('Sistema')).toBeTruthy()
+    expect(screen.getByText('Evidencia')).toBeTruthy()
+    expect(screen.getByRole('button', { name: 'Laboratorio' })).toBeTruthy()
   })
 
-  it('renderiza los 6 destinos', () => {
+  it('el grupo Evidencia está siempre a la vista, con la entrada «Para el tribunal»', () => {
     renderShell()
-    for (const label of ['Corridas', 'Experimentos', 'Comparar', 'Conjuntos', 'Catálogos', 'Plataforma']) {
-      expect(screen.getAllByText(label).length).toBeGreaterThan(0)
+    for (const label of ['Para el tribunal', 'Resultados', 'Demo en vivo', 'Documentación', 'Plataforma']) {
+      expect(screen.getByRole('link', { name: label })).toBeTruthy()
     }
+    expect(screen.getByRole('link', { name: 'Para el tribunal' }).className).toContain('eo-sidebar__link--active')
+  })
+
+  it('el Laboratorio está plegado por defecto y se abre con su botón, que recuerda la preferencia', () => {
+    renderShell()
+    const toggle = screen.getByRole('button', { name: 'Laboratorio' })
+    expect(toggle.getAttribute('aria-expanded')).toBe('false')
+    expect(screen.queryByRole('link', { name: 'Corridas' })).toBeNull()
+    fireEvent.click(toggle)
+    expect(toggle.getAttribute('aria-expanded')).toBe('true')
+    for (const label of LABORATORIO) expect(screen.getByRole('link', { name: label })).toBeTruthy()
+    expect(JSON.parse(localStorage.getItem('eovrt-nav-grupos-abiertos') ?? '[]')).toEqual(['Laboratorio'])
+    cleanup()
+    renderShell()
+    expect(screen.getByRole('button', { name: 'Laboratorio' }).getAttribute('aria-expanded')).toBe('true')
+  })
+
+  it('una pantalla del Laboratorio lo abre sola: el destino activo nunca queda escondido', () => {
+    renderShell('/runs/r_1')
+    const lateral = within(screen.getByRole('complementary', { name: 'Navegación principal' }))
+    expect(lateral.getByRole('button', { name: 'Laboratorio' }).getAttribute('aria-expanded')).toBe('true')
+    expect(lateral.getByRole('link', { name: 'Corridas' })).toBeTruthy()
   })
 
   // "Conjuntos de prompts" no entra en los 214 px de la barra y se cortaba con
   // puntos suspensivos. Se muestra corto, pero el nombre completo sigue siendo el
   // nombre accesible: quien navega con lector de pantalla no pierde información.
   it('acorta la etiqueta que no entra, sin perder el nombre completo', () => {
-    renderShell()
+    renderShell('/prompts')
     expect(screen.getAllByText('Conjuntos').length).toBeGreaterThan(0)
     expect(screen.getByRole('link', { name: 'Conjuntos de prompts' })).toBeTruthy()
   })
@@ -86,7 +111,7 @@ describe('Shell', () => {
     it('empieza cerrado y sin destinos en el orden de foco', () => {
       renderShell()
       expect(cajon()?.hasAttribute('open') ?? false).toBe(false)
-      expect(screen.queryByRole('link', { name: 'Experimentos' })).toBeNull()
+      expect(screen.queryByRole('link', { name: 'Resultados' })).toBeNull()
     })
 
     it('el botón de menú abre el cajón, lleva el foco adentro y anuncia el estado', () => {
@@ -109,7 +134,7 @@ describe('Shell', () => {
         </MemoryRouter>,
       )
       fireEvent.click(screen.getByRole('button', { name: 'Abrir navegación' }))
-      fireEvent.click(within(cajon()!).getByRole('link', { name: 'Experimentos' }))
+      fireEvent.click(within(cajon()!).getByRole('link', { name: 'Resultados' }))
       expect(cajon()).toBeNull() // cerrado, el diálogo no está en el árbol accesible
       await waitFor(() => expect(document.activeElement?.textContent).toBe('Destino'))
     })
@@ -146,9 +171,12 @@ describe('Shell', () => {
       renderShell()
       fireEvent.click(screen.getByRole('button', { name: 'Abrir navegación' }))
       const dialogo = within(cajon()!)
-      for (const label of ['Corridas', 'Experimentos', 'Comparar', 'Conjuntos de prompts', 'Catálogos', 'Plataforma']) {
+      for (const label of ['Para el tribunal', 'Resultados', 'Demo en vivo', 'Documentación', 'Plataforma']) {
         expect(dialogo.getByRole('link', { name: label })).toBeTruthy()
       }
+      // El Laboratorio se pliega y despliega igual que en la barra persistente.
+      fireEvent.click(dialogo.getByRole('button', { name: 'Laboratorio' }))
+      for (const label of LABORATORIO) expect(dialogo.getByRole('link', { name: label })).toBeTruthy()
       expect(dialogo.getByRole('link', { name: /nueva corrida/i })).toBeTruthy()
       expect(dialogo.getByRole('link', { name: /nuevo experimento/i })).toBeTruthy()
     })
@@ -161,7 +189,7 @@ describe('Shell', () => {
   })
 
   it('no muestra un contador cuando el conteo es 0 o todavia no cargo', () => {
-    renderShell()
+    renderShell('/corridas')
     const runsLink = screen.getByRole('link', { name: 'Corridas' })
     expect(runsLink.querySelector('.eo-sidebar__count')).toBeNull()
   })
@@ -171,7 +199,7 @@ describe('Shell', () => {
       items: [{ run_id: 'r1', status: 'running' }],
       total: 1,
     } as never)
-    renderShell()
+    renderShell('/corridas')
     const runsLink = screen.getByRole('link', { name: 'Corridas' })
     await waitFor(() => expect(runsLink.querySelector('.eo-sidebar__count')?.textContent).toBe('1'))
   })

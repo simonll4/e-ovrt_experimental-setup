@@ -1,0 +1,51 @@
+# Plantilla del payload control-plane (POST /api/runs, mode: live) de la DEMO EN VIVO.
+# La resuelve la consola (eovrt_webconsole/demo/config.py) reemplazando los marcadores
+# EOVRT_* según el despliegue (compose o nativo) y la guarda en la carpeta de la sesión.
+# (En esta plantilla el signo pesos solo puede aparecer en un marcador.)
+#
+# Lo medido no se toca (spec §3.1): pattern set OFICIAL cr01_cr02_v2 (CR-01 4000/2000 ms,
+# CR-02 7000/3000 ms) con granularidad ESCENA — la de la demo, una sola persona en cuadro.
+# No es el `_subject` de oakd_docker_live: la demo muestra la escena.
+run:
+  id: null
+  scenario: EBE
+  name: control_demo_defensa
+  description: "Demo en vivo de la defensa: pattern set oficial cr01_cr02_v2, escena."
+
+input:
+  type: bus
+  bus:
+    endpoint: ${EOVRT_MEDIA_BUS_ENDPOINT}
+    topics:
+      - media.detection.v1.
+      - run.lifecycle.v1.
+    hwm: 1000
+    recv_timeout_ms: 1000
+    idle_timeout_s: 300
+    finish:
+      signal: run_lifecycle
+      poll_url: null
+      poll_interval_s: 5
+
+patterns:
+  file: ${EOVRT_WORKSPACE}/e-ovrt_control-plane/configs/patterns/cr01_cr02_v2.yaml
+  active_ids: [CR-01, CR-02]
+
+outputs:
+  base_dir: ${EOVRT_WORKSPACE}/e-ovrt_control-plane/runs
+  save_pattern_events_jsonl: true
+  save_alerts_jsonl: true
+  save_metrics_jsonl: true
+  save_errors_jsonl: true
+  save_summary_json: true
+
+logging:
+  level: INFO
+
+# Bus de alertas hacia la distribución (default false en el control-plane: sin esto la
+# distribución lee 0 alertas). El runner igual lo fuerza cuando hay distribución.
+alert_bus:
+  enabled: true
+  endpoint: tcp://0.0.0.0:5558
+  hwm: 1000
+  wait_for_subscriber_ms: 10000

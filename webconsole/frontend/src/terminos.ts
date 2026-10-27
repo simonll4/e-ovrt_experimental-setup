@@ -41,6 +41,11 @@ export const TERMINOS_LIMITACIONES = [
 /** Los dos escenarios de despliegue. */
 export const TERMINOS_ESCENARIOS = ['DBE', 'EBE'] as const
 
+/** Los que marca la pantalla de la demo en vivo (`/demo`). */
+export const TERMINOS_DEMO = [
+  'PR-01', 'PR-02', 'G2A', 'capture_to_host', 'testigo_mqtt',
+] as const
+
 /** El alcance completo, que es lo que verifica el test. */
 export const TERMINOS_MARCADOS: readonly string[] = [
   ...TERMINOS_IDENTIFICADORES,
@@ -49,6 +54,7 @@ export const TERMINOS_MARCADOS: readonly string[] = [
   ...TERMINOS_CAMPANAS,
   ...TERMINOS_LIMITACIONES,
   ...TERMINOS_ESCENARIOS,
+  ...TERMINOS_DEMO,
 ]
 
 /** La clase de corrida -> el id de su término. La tabla de `ClaseChips` traduce

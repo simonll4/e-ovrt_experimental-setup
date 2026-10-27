@@ -114,7 +114,7 @@ describe('Comparar: el límite del servidor', () => {
     http((url) => (url.pathname === '/api/runs' ? json([{ run_id: 'a', status: 'succeeded', evaluated: false }], { 'X-Total-Count': '1' }) : undefined))
     render(<MemoryRouter><ComparePage /></MemoryRouter>)
     expect(await screen.findByText('Todavía no hay corridas evaluadas')).toBeTruthy()
-    expect(screen.getByRole('link', { name: 'Ir a Corridas' }).getAttribute('href')).toBe('/')
+    expect(screen.getByRole('link', { name: 'Ir a Corridas' }).getAttribute('href')).toBe('/corridas')
     expect(screen.queryByText('Elegí al menos dos corridas')).toBeNull()
   })
 })

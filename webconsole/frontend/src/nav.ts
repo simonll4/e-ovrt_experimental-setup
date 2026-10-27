@@ -2,7 +2,7 @@ import type { ComponentType } from 'react'
 import {
   IconNavRuns, IconNavExperiments, IconNavCompare, IconNavPrompts,
   IconNavCatalog, IconNavEvidence, IconNavPlatform, IconNavCameras, IconNavClips,
-  IconNavDocs,
+  IconNavDocs, IconNavTribunal, IconNavDemo,
 } from './components/ui/icons'
 
 export type NavItem = {
@@ -15,44 +15,65 @@ export type NavItem = {
   icon?: ComponentType
   countKey?: 'runs' | 'experiments' | 'promptSets'
 }
-export type NavGroup = { title: string; items: NavItem[] }
+export type NavGroup = {
+  title: string
+  items: NavItem[]
+  /** Plegable y plegado por defecto (se recuerda por navegador). Se abre solo
+   *  cuando la pantalla actual es uno de sus destinos. */
+  colapsable?: boolean
+}
+
+/** La lista de corridas: hasta la generación 2 era la entrada (`/`); ahora la
+ *  entrada es «Para el tribunal» y la lista vive acá (doc 135 §3.1). */
+export const RUNS_PATH = '/corridas'
 
 export const NAV_GROUPS: NavGroup[] = [
   {
-    title: 'Trabajo',
+    // Lo que ve primero quien abre la consola —el tribunal incluido—: la
+    // evidencia final y la respuesta a cada observación (doc 135).
+    title: 'Evidencia',
     items: [
-      // Primero del grupo a propósito: es lo que se lee ANTES que todo lo
-      // demás. Sin esto, quien abre la consola por primera vez —el tribunal
-      // incluido— se encuentra con nombres que hay que memorizar en vez de
-      // entender.
+      { to: '/', label: 'Para el tribunal', icon: IconNavTribunal },
+      { to: '/resultados', label: 'Resultados', icon: IconNavEvidence },
+      { to: '/demo', label: 'Demo en vivo', icon: IconNavDemo },
       { to: '/documentacion', label: 'Documentación', icon: IconNavDocs },
-      { to: '/evidencia', label: 'Evidencia', icon: IconNavEvidence },
-      { to: '/', label: 'Corridas', icon: IconNavRuns, countKey: 'runs' },
+      { to: '/platform', label: 'Plataforma', icon: IconNavPlatform },
+    ],
+  },
+  {
+    // Lo operativo sigue existiendo, pero fuera del camino del jurado.
+    title: 'Laboratorio',
+    colapsable: true,
+    items: [
+      { to: RUNS_PATH, label: 'Corridas', icon: IconNavRuns, countKey: 'runs' },
       { to: '/experiments', label: 'Experimentos', icon: IconNavExperiments, countKey: 'experiments' },
       { to: '/compare', label: 'Comparar', icon: IconNavCompare },
-    ],
-  },
-  {
-    title: 'Definiciones',
-    items: [
       { to: '/prompts', label: 'Conjuntos de prompts', short: 'Conjuntos', icon: IconNavPrompts, countKey: 'promptSets' },
       { to: '/catalog', label: 'Catálogos', icon: IconNavCatalog },
-    ],
-  },
-  {
-    title: 'Sistema',
-    items: [
-      { to: '/platform', label: 'Plataforma', icon: IconNavPlatform },
       { to: '/cameras', label: 'Cámaras', icon: IconNavCameras },
       { to: '/clips', label: 'Clips', icon: IconNavClips },
     ],
   },
 ]
 
+/** ¿La pantalla actual es uno de los destinos del grupo (o una de sus hojas)? */
+export function grupoContiene(group: NavGroup, pathname: string): boolean {
+  if (pathname.startsWith('/runs/') || pathname === '/compose') {
+    return group.items.some((i) => i.to === RUNS_PATH)
+  }
+  return group.items.some((i) => i.to !== '/' && (pathname === i.to || pathname.startsWith(`${i.to}/`)))
+}
+
+/** La validación inicial: el recorrido de evidencia de la generación 1. */
+export const GEN1 = { to: '/evidencia/generacion-1', label: 'Validación inicial (generación 1)' }
+
 // Rutas que no viven en la nav pero necesitan crumb propio.
 const STANDALONE: Record<string, string> = {
   '/compose': 'Nueva corrida',
   '/experiments/new': 'Nuevo experimento',
+  // La demo en vivo va a pantalla completa (sin armazón ni migas visibles), pero
+  // su destino se declara igual: no vive en NAV_GROUPS (spec 2026-10-23 §6.5).
+  '/demo': 'Demo en vivo',
 }
 
 export function crumbsFor(pathname: string, search = ''): NavItem[] {
@@ -66,16 +87,18 @@ export function crumbsFor(pathname: string, search = ''): NavItem[] {
   // El nivel intermedio del recorrido: sin esto, `crumbsFor` caía al `[]` del
   // final y las migas quedaban vacías justo en el paso del argumento, que es
   // el corazón de la pantalla de evidencia.
+  // La validación inicial (generación 1) vive en dos URLs: la histórica y la nueva.
+  if (pathname === '/evidencia' || pathname === GEN1.to) return [GEN1]
   if (pathname === '/evidencia/paso') {
     const n = new URLSearchParams(search).get('n')
     return [
-      { to: '/evidencia', label: 'Evidencia' },
+      GEN1,
       { to: pathname + search, label: n ? `Paso ${n}` : 'Paso' },
     ]
   }
   if (pathname === '/evidencia/respaldo') {
     return [
-      { to: '/evidencia', label: 'Evidencia' },
+      GEN1,
       { to: pathname, label: 'Respaldo instrumental' },
     ]
   }
@@ -83,7 +106,7 @@ export function crumbsFor(pathname: string, search = ''): NavItem[] {
     const params = new URLSearchParams(search)
     const id = params.get('id')
     const pasoN = params.get('paso')
-    const crumbs = [{ to: '/evidencia', label: 'Evidencia' }]
+    const crumbs = [GEN1]
     // Sólo aparece cuando se llegó desde un paso (el query trae `paso`): no se
     // inventa el paso de origen cuando la navegación no lo trajo.
     if (pasoN) crumbs.push({ to: `/evidencia/paso?n=${pasoN}`, label: `Paso ${pasoN}` })
@@ -94,11 +117,25 @@ export function crumbsFor(pathname: string, search = ''): NavItem[] {
     return crumbs
   }
   if (STANDALONE[pathname]) return [{ to: pathname, label: STANDALONE[pathname] }]
+  const demoMatch = pathname.match(/^\/demo\/resultado\/(.+)$/)
+  if (demoMatch) {
+    return [
+      { to: '/demo', label: STANDALONE['/demo'] },
+      { to: pathname, label: demoMatch[1] },
+    ]
+  }
   const runMatch = pathname.match(/^\/runs\/(.+)$/)
   if (runMatch) {
     return [
-      { to: '/', label: 'Corridas' },
+      { to: RUNS_PATH, label: 'Corridas' },
       { to: pathname, label: runMatch[1] },
+    ]
+  }
+  const resultadoMatch = pathname.match(/^\/resultados\/(.+)$/)
+  if (resultadoMatch) {
+    return [
+      { to: '/resultados', label: 'Resultados' },
+      { to: pathname, label: resultadoMatch[1] },
     ]
   }
   const expMatch = pathname.match(/^\/experiments\/(.+)$/)

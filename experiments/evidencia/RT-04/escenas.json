@@ -1,0 +1,205 @@
+{
+  "schema": "escenas.rodaje.v1",
+  "nota": "Escenas del rodaje en vivo de la generación 2 (obra simulada, solo tomas en vivo: no se graba ni se anota). Coreografías del doc 69 §6 con los tiempos contados desde el primer cuadro que procesa la plataforma. Lo que se espera sale del guion: 'alerta' = al menos una alerta confirmada de esa condición; 'sin_alerta' = ninguna. Lo lee infra/platform/rodaje.ps1 (lo dice por voz) y el driver (tools/evidencia, RT-04) para comparar.",
+  "escenas": [
+    {
+      "id": "P1",
+      "titulo": "Sin casco (la escena principal)",
+      "personas": 1,
+      "preparacion": "Actor A con casco y chaleco, fuera de cuadro. Actor B fuera de cuadro todo el clip.",
+      "espera": {"CR-01": "alerta", "CR-02": "sin_alerta"},
+      "tomas_sugeridas": 3,
+      "guion": [
+        {"s": 2, "texto": "Entrá a la marca con casco y chaleco puestos", "accion": "entrar"},
+        {"s": 7, "texto": "Sacate el casco y tenelo en la mano", "accion": "sacar_casco", "condicion": "CR-01"},
+        {"s": 21, "texto": "Ponete el casco", "accion": "poner_casco", "condicion": "CR-01"}
+      ],
+      "fin_s": 27
+    },
+    {
+      "id": "P1c",
+      "titulo": "Sin casco con oclusión parcial",
+      "personas": 1,
+      "preparacion": "Igual que P1. Elegir antes un objeto del encuadre que tape al actor 2 a 4 segundos sin que salga del plano.",
+      "espera": {"CR-01": "alerta", "CR-02": "sin_alerta"},
+      "tomas_sugeridas": 1,
+      "guion": [
+        {"s": 2, "texto": "Entrá a la marca con casco y chaleco puestos", "accion": "entrar"},
+        {"s": 7, "texto": "Sacate el casco y tenelo en la mano", "accion": "sacar_casco", "condicion": "CR-01"},
+        {"s": 11, "texto": "Pasá por detrás del objeto y volvé a quedar a la vista", "accion": "ocluir"},
+        {"s": 21, "texto": "Ponete el casco", "accion": "poner_casco", "condicion": "CR-01"}
+      ],
+      "fin_s": 27
+    },
+    {
+      "id": "P2",
+      "titulo": "Sin chaleco",
+      "personas": 1,
+      "preparacion": "Actor A con casco y chaleco, remera lisa y oscura. Nada con franjas o color fluorescente en cuadro.",
+      "espera": {"CR-01": "sin_alerta", "CR-02": "alerta"},
+      "tomas_sugeridas": 3,
+      "guion": [
+        {"s": 2, "texto": "Entrá a la marca con casco y chaleco puestos", "accion": "entrar"},
+        {"s": 7, "texto": "Sacate el chaleco y dejalo fuera de cuadro", "accion": "sacar_chaleco", "condicion": "CR-02"},
+        {"s": 29, "texto": "Ponete el chaleco", "accion": "poner_chaleco", "condicion": "CR-02"}
+      ],
+      "fin_s": 35
+    },
+    {
+      "id": "P3",
+      "titulo": "Transitorio corto: no debe alertar",
+      "personas": 1,
+      "preparacion": "Actor A con casco y chaleco.",
+      "espera": {"CR-01": "sin_alerta", "CR-02": "sin_alerta"},
+      "tomas_sugeridas": 2,
+      "guion": [
+        {"s": 2, "texto": "Entrá a la marca con casco y chaleco puestos", "accion": "entrar"},
+        {"s": 7, "texto": "Sacate el casco", "accion": "sacar_casco", "condicion": "CR-01"},
+        {"s": 9, "texto": "Ponete el casco ya", "accion": "poner_casco", "condicion": "CR-01"}
+      ],
+      "fin_s": 18
+    },
+    {
+      "id": "P4",
+      "titulo": "Se resuelve y sigue en cuadro",
+      "personas": 1,
+      "preparacion": "Actor A con casco y chaleco.",
+      "espera": {"CR-01": "alerta", "CR-02": "sin_alerta"},
+      "tomas_sugeridas": 1,
+      "guion": [
+        {"s": 2, "texto": "Entrá a la marca con casco y chaleco puestos", "accion": "entrar"},
+        {"s": 7, "texto": "Sacate el casco y tenelo en la mano", "accion": "sacar_casco", "condicion": "CR-01"},
+        {"s": 21, "texto": "Ponete el casco y seguí trabajando", "accion": "poner_casco", "condicion": "CR-01"}
+      ],
+      "fin_s": 32
+    },
+    {
+      "id": "P5",
+      "titulo": "Dos personas en regla: no debe alertar",
+      "personas": 2,
+      "preparacion": "Actores A y B con casco y chaleco, fuera de cuadro.",
+      "espera": {"CR-01": "sin_alerta", "CR-02": "sin_alerta"},
+      "tomas_sugeridas": 1,
+      "guion": [
+        {"s": 2, "texto": "Entren los dos con casco y chaleco y trabajen juntos", "accion": "entrar"}
+      ],
+      "fin_s": 24
+    },
+    {
+      "id": "P6",
+      "titulo": "Las dos infracciones a la vez",
+      "personas": 1,
+      "preparacion": "Actor A con casco y chaleco, remera lisa y oscura.",
+      "espera": {"CR-01": "alerta", "CR-02": "alerta"},
+      "tomas_sugeridas": 1,
+      "guion": [
+        {"s": 2, "texto": "Entrá a la marca con casco y chaleco puestos", "accion": "entrar"},
+        {"s": 7, "texto": "Sacate el casco", "accion": "sacar_casco", "condicion": "CR-01"},
+        {"s": 10, "texto": "Sacate el chaleco y dejalo fuera de cuadro", "accion": "sacar_chaleco", "condicion": "CR-02"},
+        {"s": 27, "texto": "Ponete el chaleco", "accion": "poner_chaleco", "condicion": "CR-02"},
+        {"s": 30, "texto": "Ponete el casco", "accion": "poner_casco", "condicion": "CR-01"}
+      ],
+      "fin_s": 36
+    },
+    {
+      "id": "P7a",
+      "titulo": "Dos personas, infringe A",
+      "personas": 2,
+      "preparacion": "Actores A y B con casco y chaleco. B no se saca nada en todo el clip.",
+      "espera": {"CR-01": "alerta", "CR-02": "sin_alerta"},
+      "tomas_sugeridas": 1,
+      "guion": [
+        {"s": 2, "texto": "Entren los dos con casco y chaleco", "accion": "entrar"},
+        {"s": 7, "texto": "Actor A, sacate el casco", "accion": "sacar_casco", "condicion": "CR-01"},
+        {"s": 21, "texto": "Actor A, ponete el casco", "accion": "poner_casco", "condicion": "CR-01"}
+      ],
+      "fin_s": 27
+    },
+    {
+      "id": "P7b",
+      "titulo": "Dos personas con cruces, infringe A",
+      "personas": 2,
+      "preparacion": "Actores A y B con casco y chaleco. B no se saca nada en todo el clip.",
+      "espera": {"CR-01": "alerta", "CR-02": "sin_alerta"},
+      "tomas_sugeridas": 1,
+      "guion": [
+        {"s": 2, "texto": "Entren los dos con casco y chaleco", "accion": "entrar"},
+        {"s": 7, "texto": "Actor A, sacate el casco", "accion": "sacar_casco", "condicion": "CR-01"},
+        {"s": 10, "texto": "Crúcense entre ustedes y frente a la cámara", "accion": "cruzar"},
+        {"s": 20, "texto": "Dejen de cruzarse", "accion": "fin_cruces"},
+        {"s": 22, "texto": "Actor A, ponete el casco", "accion": "poner_casco", "condicion": "CR-01"}
+      ],
+      "fin_s": 28
+    },
+    {
+      "id": "P7c",
+      "titulo": "Dos personas, infringe B (la que faltó en julio)",
+      "personas": 2,
+      "preparacion": "Actores A y B con casco y chaleco. A no se saca nada en todo el clip.",
+      "espera": {"CR-01": "alerta", "CR-02": "sin_alerta"},
+      "tomas_sugeridas": 1,
+      "guion": [
+        {"s": 2, "texto": "Entren los dos con casco y chaleco", "accion": "entrar"},
+        {"s": 7, "texto": "Actor B, sacate el casco", "accion": "sacar_casco", "condicion": "CR-01"},
+        {"s": 21, "texto": "Actor B, ponete el casco", "accion": "poner_casco", "condicion": "CR-01"}
+      ],
+      "fin_s": 27
+    },
+    {
+      "id": "P8",
+      "titulo": "Sale y vuelve a entrar",
+      "personas": 1,
+      "preparacion": "Actor A con casco y chaleco. Ojo: el motor no cierra un episodio cuando el sujeto sale de cuadro (F-101.9); se mide qué hace.",
+      "espera": {"CR-01": "alerta", "CR-02": "sin_alerta"},
+      "tomas_sugeridas": 1,
+      "guion": [
+        {"s": 2, "texto": "Entrá a la marca con casco y chaleco puestos", "accion": "entrar"},
+        {"s": 7, "texto": "Sacate el casco", "accion": "sacar_casco", "condicion": "CR-01"},
+        {"s": 15, "texto": "Salí de cuadro por completo, sin ponerte el casco", "accion": "salir"},
+        {"s": 21, "texto": "Volvé a entrar, todavía sin casco", "accion": "volver_sin_casco", "condicion": "CR-01"},
+        {"s": 29, "texto": "Ponete el casco", "accion": "poner_casco", "condicion": "CR-01"}
+      ],
+      "fin_s": 35
+    },
+    {
+      "id": "P9a",
+      "titulo": "Confusable: gorra en vez de casco",
+      "personas": 1,
+      "preparacion": "Actor A con una gorra común (no casco) y el chaleco puesto. Arranca ya en infracción.",
+      "espera": {"CR-01": "alerta", "CR-02": "sin_alerta"},
+      "tomas_sugeridas": 1,
+      "guion": [
+        {"s": 2, "texto": "Entrá con la gorra y el chaleco, y trabajá normal", "accion": "entrar_con_gorra", "condicion": "CR-01"}
+      ],
+      "fin_s": 18
+    },
+    {
+      "id": "P9b",
+      "titulo": "Confusable: casco en la mano",
+      "personas": 1,
+      "preparacion": "Actor A con el casco en la mano (no en la cabeza) y el chaleco puesto. Arranca ya en infracción.",
+      "espera": {"CR-01": "alerta", "CR-02": "sin_alerta"},
+      "tomas_sugeridas": 1,
+      "guion": [
+        {"s": 2, "texto": "Entrá con el casco en la mano y el chaleco puesto, y trabajá normal", "accion": "entrar_casco_en_mano", "condicion": "CR-01"}
+      ],
+      "fin_s": 18
+    },
+    {
+      "id": "DEMO",
+      "titulo": "El guion de la demo de la defensa",
+      "personas": 1,
+      "preparacion": "Una sola persona, remera lisa y oscura, entra con casco y chaleco; lo que se saca lo deja fuera de cuadro. Cada toma DEMO cuenta como ensayo de la demo (G3 de la spec).",
+      "espera": {"CR-01": "alerta", "CR-02": "alerta"},
+      "tomas_sugeridas": 5,
+      "guion": [
+        {"s": 2, "texto": "Entrá a la marca con casco y chaleco puestos", "accion": "entrar"},
+        {"s": 7, "texto": "Sacate el casco y dejalo fuera de cuadro", "accion": "sacar_casco", "condicion": "CR-01"},
+        {"s": 19, "texto": "Ponete el casco", "accion": "poner_casco", "condicion": "CR-01"},
+        {"s": 27, "texto": "Sacate el chaleco y dejalo fuera de cuadro", "accion": "sacar_chaleco", "condicion": "CR-02"},
+        {"s": 45, "texto": "Ponete el chaleco", "accion": "poner_chaleco", "condicion": "CR-02"}
+      ],
+      "fin_s": 52
+    }
+  ]
+}

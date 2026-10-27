@@ -1,0 +1,30 @@
+schema: prueba.gen2.v1
+id: RT-01
+titulo: "Sobrecarga de la plataforma sin inferencia (G2A con detector simulado)"
+informe: ["Tabla 54", "§17.5.5"]
+fase: F6
+familia: vivo
+pregunta: >
+  Sin el costo del modelo, ¿cuánto agrega la plataforma (lectura, normalización, escritura,
+  bus) entre que un cuadro sale de la cola y su resultado?
+gen1:
+  result_id: g2a_single_host
+  doc: operacion/39
+  relacion: otra_combinacion
+  motivo: >
+    Latencia: no se espera igualdad. La generación 1 midió n = 20 sobre recorte-1.mp4 (p50 14,7 /
+    p95 31,8 ms); la validación en la Victus, n = 300 sobre a_p1_c03 (p50 16,2 / p95 19,7 ms). Se espera el
+    mismo orden y dentro del presupuesto de 50–250 ms.
+esperado: "p95 de decenas de ms, dentro del presupuesto."
+veredictos_posibles: [otra_combinacion]
+receta:
+  instancia: mp-mock
+  modelo: mock
+  clip: a_p1_c03
+  unidades: 300
+  prompts:
+    set_id: cr01_cr02_v2_short
+    fuente: prompts/cr01_cr02_v2_short.yaml
+    clases: [person, helmet, vest]
+    frozen: {prompts/cr01_cr02_v2_short.yaml: df81fd48b6daf8924b5fb66aa1ce4acc0c880ac6ed8cd1245c6aca1babdb309a}
+salida: e-ovrt_experimental-setup/results/gen2/RT-01/

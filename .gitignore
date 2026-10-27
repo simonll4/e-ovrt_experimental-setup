@@ -18,9 +18,24 @@ results/evidence-runs/*
 !results/evidence-runs/consola.yaml
 !results/evidence-runs/titulos.yaml
 
+# generación 2 (doc 134): el candado del driver no es evidencia. Las tomas en vivo guardan
+# solo métricas y marcas (las previews con caras quedan en los runs/ del media-plane).
+results/gen2/.driver.lock
+# Las observaciones del tribunal viven en el repo privado `docs`; una copia local no se sube.
+results/gen2/observaciones.yaml
+
 # videos de defensa: media derivada, se regenera con defensa/armar_videos.py
 defensa/videos/
 defensa/trabajo/
+# sesiones de la demo en vivo (spec 2026-10-23 §6.4): cuadros con caras del equipo y
+# mensajes del broker; nunca a git ni a la carpeta compartida. La carpeta existe en el
+# clon (.gitkeep) porque la consola la monta en escritura en el compose.
+defensa/sesiones/*
+!defensa/sesiones/.gitkeep
+# capturas de pantalla y bitácora de la jornada en vivo (infra/platform/captura.ps1): pueden
+# mostrar caras; solo una captura revisada y sin caras se copia a results/gen2/<ID>/capturas/.
+defensa/capturas/
+defensa/jornada/
 
 __pycache__/
 *.pyc

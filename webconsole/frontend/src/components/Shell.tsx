@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
-import { NAV_GROUPS } from '../nav'
+import { NAV_GROUPS, grupoContiene, type NavGroup } from '../nav'
 import { Dialog, IconClose, IconMenu, enfocarCuandoAparezca } from './ui'
-import { IconNavExperimentNew, IconPlus } from './ui/icons'
+import { IconChevron, IconNavExperimentNew, IconPlus } from './ui/icons'
 import Breadcrumbs from './Breadcrumbs'
 import { GlosarioProvider } from './Glosario'
 import TargetBadge from './TargetBadge'
@@ -11,6 +11,26 @@ import { useSidebarCounts, type SidebarCounts } from '../api/queries/sidebar'
 import { useServiceHealth, type ServiceHealth, type ServiceStatus } from '../api/queries/platform'
 
 const COLLAPSE_KEY = 'eovrt-sidebar-collapsed'
+/** Grupos plegables abiertos a mano (por título). Preferencia de este navegador. */
+const GRUPOS_ABIERTOS_KEY = 'eovrt-nav-grupos-abiertos'
+
+function leerGruposAbiertos(): string[] {
+  try {
+    const crudo = localStorage.getItem(GRUPOS_ABIERTOS_KEY)
+    const lista: unknown = crudo ? JSON.parse(crudo) : []
+    return Array.isArray(lista) ? lista.filter((t): t is string => typeof t === 'string') : []
+  } catch {
+    return []
+  }
+}
+
+function guardarGruposAbiertos(titulos: string[]) {
+  try {
+    localStorage.setItem(GRUPOS_ABIERTOS_KEY, JSON.stringify(titulos))
+  } catch {
+    /* sin almacenamiento (modo privado): la preferencia dura la sesión */
+  }
+}
 /** Desde acá la barra lateral es persistente; debajo pasa a cajón. */
 export const DESKTOP_QUERY = '(min-width: 1024px)'
 
@@ -77,10 +97,24 @@ function Navegacion({
   health: ServiceHealth
   onNavigate: () => void
 }) {
+  const { pathname } = useLocation()
   const countFor = (key?: 'runs' | 'experiments' | 'promptSets') => {
     if (!key) return null
     const v = counts[key]
     return v === null || v === 0 ? null : v
+  }
+  // «Laboratorio» va plegado por defecto (doc 135 §3.1): lo operativo no está en
+  // el camino del jurado. Se abre solo si la pantalla actual es uno de sus
+  // destinos, para que el destino activo nunca quede escondido.
+  const [abiertos, setAbiertos] = useState<string[]>(leerGruposAbiertos)
+  const estaAbierto = (group: NavGroup) =>
+    !group.colapsable || abiertos.includes(group.title) || grupoContiene(group, pathname)
+  const alternar = (group: NavGroup) => {
+    const siguiente = estaAbierto(group)
+      ? abiertos.filter((t) => t !== group.title)
+      : [...abiertos, group.title]
+    setAbiertos(siguiente)
+    guardarGruposAbiertos(siguiente)
   }
 
   return (
@@ -101,10 +135,28 @@ function Navegacion({
         </Link>
       </div>
       <nav className="eo-sidebar__nav" aria-label="Secciones">
-        {NAV_GROUPS.map((group) => (
+        {NAV_GROUPS.map((group) => {
+          const abierto = estaAbierto(group)
+          const idItems = `eo-nav-grupo-${group.title.toLowerCase()}`
+          return (
           <div key={group.title} className="eo-sidebar__group">
-            <span className="eo-sidebar__group-title">{group.title}</span>
-            {group.items.map((item) => {
+            {group.colapsable ? (
+              <button
+                type="button"
+                className="eo-sidebar__group-toggle"
+                aria-expanded={abierto}
+                aria-controls={idItems}
+                onClick={() => alternar(group)}
+              >
+                <span className="eo-sidebar__group-title">{group.title}</span>
+                <IconChevron />
+                <span className="eo-tip" aria-hidden="true" data-tip={group.title} />
+              </button>
+            ) : (
+              <span className="eo-sidebar__group-title">{group.title}</span>
+            )}
+            <div id={idItems} className="eo-sidebar__group-items" hidden={!abierto}>
+            {abierto && group.items.map((item) => {
               const Icon = item.icon
               const count = countFor(item.countKey)
               return (
@@ -127,8 +179,10 @@ function Navegacion({
                 </NavLink>
               )
             })}
+            </div>
           </div>
-        ))}
+          )
+        })}
       </nav>
       {!archive && <LiveRunPill onNavigate={onNavigate} />}
       {archive ? (
@@ -147,14 +201,18 @@ function Navegacion({
 export default function Shell({ children }: { children: ReactNode }) {
   const { pathname } = useLocation()
   const archive = pathname === '/evidencia' || pathname.startsWith('/evidencia/')
+  // La demo en vivo de la defensa va a pantalla completa, sin el armazón y sin
+  // ninguna consulta global (spec 2026-10-23 §6.5), decidido por pathname igual
+  // que el modo archivo.
+  const demo = pathname === '/demo' || pathname.startsWith('/demo/')
   const desktop = useMediaQuery(DESKTOP_QUERY)
   const [open, setOpen] = useState(false)
   // Al cerrar por navegación el foco va al encabezado del destino, no de
   // vuelta al botón de menú.
   const [restaurarFoco, setRestaurarFoco] = useState(true)
   const [collapsed, setCollapsed] = useState(() => localStorage.getItem(COLLAPSE_KEY) === '1')
-  const counts = useSidebarCounts(!archive)
-  const health = useServiceHealth(!archive)
+  const counts = useSidebarCounts(!archive && !demo)
+  const health = useServiceHealth(!archive && !demo)
   const menuRef = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
@@ -180,6 +238,8 @@ export default function Shell({ children }: { children: ReactNode }) {
     setOpen(false)
     enfocarEncabezado()
   }
+
+  if (demo) return <GlosarioProvider>{children}</GlosarioProvider>
 
   return (
     <div className={desktop ? 'eo-shell eo-shell--desktop' : 'eo-shell eo-shell--compact'}>

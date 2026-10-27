@@ -1,0 +1,164 @@
+# Evidencia de la generación 2 — catálogo de pruebas
+
+Cada carpeta `<ID>/prueba.yaml` es el **pre-registro** de una prueba (doc 134 del repo `docs`):
+qué mide, contra qué tabla del informe, con qué insumo y configuración (con sus huellas), qué
+se espera y qué veredicto puede salir. **Se commitea antes de correr y no se toca después**: el
+driver copia el pre-registro a su carpeta de resultados y, si cambia, se niega a seguir sobre
+la misma carpeta (`--forzar` archiva la anterior y deja constancia).
+
+Los resultados quedan en `results/gen2/<ID>/` (`resultado.json`, `corridas.json`,
+`entorno.json`, `comandos.txt`, `logs/`). Esa carpeta se versiona; lo pesado (detecciones,
+previews) queda en los `runs/` de cada servicio.
+
+## Cómo se corre (en la Victus)
+
+Todo pasa por el runner de la consola (`POST /api/experiments/run`). El driver corre dentro
+del contenedor de la consola, con estos envoltorios desde `e-ovrt_experimental-setup/infra/platform/`:
+
+```powershell
+.\evidencia.ps1 lista                 # el catálogo y en qué estado está cada prueba
+.\evidencia.ps1 verificar F1 F3       # sin correr nada: huellas de prompts y patrones, insumos en disco
+.\evidencia.ps1 correr F1             # integridad + plataforma (sin GPU)
+.\evidencia.ps1 -Fondo correr F3      # noche 1 (sigue aunque se cierre la terminal)
+.\evidencia.ps1 estado                # progreso
+```
+
+En Git Bash o WSL: `infra/platform/evidencia.sh` con los mismos argumentos (`--fondo` en vez
+de `-Fondo`). Si se corta, se vuelve a lanzar el mismo comando: retoma donde quedó (clip por
+clip, estrato por estrato).
+
+## Fases
+
+| Fase | Pruebas | GPU | Duración estimada en la Victus |
+|---|---|---|---|
+| F1 | `INT-01`, `INT-02`, `INT-03`, `PLAT-01`, `GT-01` | no | ~10 min (hashea 6.477 imágenes y 47 videos) |
+| F3 | `ALR-01`, `ALR-07` | sí | ~3 h |
+| F4 | `IMG-01`, `EXT-01`, `PER-01`, `DEN-01`, `DEN-03`, `DEN-05` | sí | ~1,5 h |
+| F5 | `ALR-02`, `ALR-08`, `DEN-02`, `DEN-04`, `DEN-06`, `DEN-07`, `PER-03`, `GT-02` | casi no (PER-03 infiere 4 clips cortos) | ~1 h (GT-02 es lo largo) |
+| F6 | `RT-01`, `RT-02`, `DIST-01` | sí | ~30 min |
+| F7 | `RT-04` (la obra simulada en vivo, toma por toma por `/demo`), `RT-05` (el compromiso entre familias de modelo y cadencias, con la misma escena), `RT-03` (latencia) — con el equipo, OAK-D, casco y chaleco | sí | una jornada (~14 escenas, ensayos de la demo y la matriz de RT-05) |
+
+F3 y F4 entran en **una noche** (~4,3 h de GPU estimadas; `.\evidencia.ps1 -Fondo correr F3 F4`).
+El driver cambia solo la instancia del modelo cuando una prueba pide otra (`mp-mock` para
+EXT-01; `mp-gdino-base-560` y `mp-yoloe-26x` solo si se corre a mano un contraste): usa el
+mismo mecanismo que el botón de la consola.
+
+## Lo que no se regenera: las pruebas de contraste (doc 134 §13.6)
+
+`ALR-03`, `ALR-04`, `ALR-05`, `ALR-06`, `IMG-02`, `IMG-03` y `PER-02` comparan **otra
+configuración contra el campeón** (otro modelo, otra formulación, otra evidencia). Cambian el
+modelo o los prompts, no la plataforma: el mismo camino lo recorre en la Victus la prueba del
+campeón (`ALR-01`, `IMG-01`, `PER-01`). Su cifra vigente es la de la **generación 1**, re-evaluada
+con el GT corregido (ALR) o con el código de la generación 2 (IMG), escrita en su pre-registro
+(`gen1.cifras`) junto con el motivo (`no_se_regenera`). La consola las muestra como
+«Generación 1: no se regenera», con esa cifra y sin veredicto.
+
+- Las fases y `todas` **las saltean**; un ID explícito las corre igual
+  (`.\evidencia.ps1 correr ALR-04 ALR-05`) si alguna vez hiciera falta.
+- Ninguna prueba que se regenera depende de ellas: `GT-02` evalúa las 8 conclusiones de C1, C6,
+  C7 y C8 y copia las de C2–C5 del piloto de la generación 1 (todas sostenidas en ≥ 99 % hasta
+  ±2 s); el corpus de `DIST-01` son las corridas de control de las pruebas que se regeneran.
+- Es el mismo criterio que el ajuste fino (Tabla 55), que tampoco se regenera.
+
+## Sesión en vivo con el equipo (F7): la obra simulada repetida en la Victus
+
+**No se graba ni se anota** (el banco temporal del rodaje de julio sigue siendo la referencia de
+las pruebas ALR/DEN): se repiten las escenas **en vivo**, por la plataforma en contenedores, para
+medir y para validar la plataforma. Y como cada toma corre por la pantalla `/demo`, **cada toma es
+además un ensayo de la demo**.
+
+**Armado:** el mismo de la demo (`infra/demo/README.md`): OAK-D en trípode a 960×540 y 5 fps,
+cinta en el piso, fondo liso, cargador enchufado, `/demo` abierta en el proyector o en otra
+ventana. Roles del doc 69: un OPERADOR (nunca en cuadro) y uno o dos actores.
+
+```powershell
+cd e-ovrt_experimental-setup\infra\platform
+.\rodaje.ps1 -Lista              # las 14 escenas, su guion y qué se espera de cada una
+.\rodaje.ps1 -Escena P1          # una toma: espera el chequeo previo, la lanza, dice el guion
+                                 # por los parlantes, la cierra y deja marcas.json
+```
+
+Orden sugerido (de menos a más cambio de vestuario, doc 69 §6): `P1` ×3, `P1c`, `P3` ×2, `P4`,
+`P9b` (y `P9a` si hay gorra) → `P2` ×3, `P6` → `P8` → `P5`, `P7a`, `P7b`, `P7c` → `DEMO` ×5 o más
+(los ensayos de la demo: 5 aprobados seguidos es la etapa G3). Después:
+
+```powershell
+.\evidencia.ps1 correr RT-04     # importa las sesiones, las compara con su guion y relee por sujeto
+.\evidencia.ps1 descartar RT-04 demo_20261102T...Z_P5 --motivo "pasó alguien por el fondo" --quien "Nombre"
+```
+
+- **Una toma mala no se borra:** se descarta con motivo y firma, y queda listada.
+- Entre toma y toma la consola **reinicia el motor sola** (F-101.5) y `rodaje.ps1` espera a que el
+  chequeo previo vuelva a estar en verde (~20–30 s). Nunca `docker compose up -d`.
+- **Remera lisa y oscura**; lo que se saca se deja **fuera de cuadro**; no salir de cuadro con una
+  alerta activa salvo en P8, que justamente mide eso (F-101.9).
+- La marca de cada acción es el tono del director: el tiempo de reacción del actor queda dentro de
+  «acción → alerta» y se declara así.
+- Si no hay voz en español instalada en Windows, habla la voz por defecto; `-SinVoz` deja el guion
+  solo en pantalla (el OPERADOR lo canta).
+- Las sesiones tienen caras del equipo: quedan en `defensa/sesiones/` (fuera de git) y **nunca** van
+  a la carpeta compartida ni a un canal nuevo. A `results/gen2/RT-04/` van solo números.
+
+**RT-05 (compromiso en vivo entre familias de modelo y cadencias).** La misma escena `DEMO`
+con otro motor u otra cadencia de cámara, de la lista cerrada de
+`experiments/demo_defensa/exploracion.yaml`: Grounding DINO tiny y base, YOLOE-26 s y x, a
+960×540 a 5 y a 15 fps, con 3 tomas por celda. `rodaje.ps1` activa la instancia si hace falta, deja el motor
+fresco y marca la sesión como exploración: su id termina en `_exp`, RT-04 no la cuenta, y la
+demo de la defensa sigue siendo la congelada. Conviene agrupar por motor.
+
+```powershell
+.\rodaje.ps1 -Escena DEMO -Motor mp-yoloe-26s -Camara 960x540@15
+.\evidencia.ps1 correr RT-05     # importa las sesiones de exploración por celda
+..\demo\demo.ps1 up              # al terminar: de vuelta al campeón
+```
+
+Requisito: las cuatro instancias creadas con la imagen actual **antes** de la jornada. Crear o
+recrear un contenedor puede tirar la red de WSL. El protocolo de la jornada está en el doc 136
+del repo `docs`.
+
+**RT-03 (latencia por cuadro en dos configs)** sigue por el driver, sin guion: una persona
+moviéndose en cuadro, 2–3 tomas por config.
+
+```powershell
+.\evidencia.ps1 vivo RT-03 --toma lat_960_a --config 960x540@5
+.\evidencia.ps1 vivo RT-03 --toma lat_1080_a --config 1080p@30
+```
+
+Una toma de RT-03 con huecos de cámara o captura → host > 2 s queda marcada **contaminada** (guard
+del doc 101 §5.3) y no entra al agregado: apagar y prender la OAK-D y repetir.
+
+## Veredictos
+
+El driver **propone** un veredicto contra la generación 1 (`identico`,
+`equivalente_con_diferencia`, `otra_combinacion`, o `a_revisar` si difiere sin causa
+declarada). Lo confirma una persona:
+
+```powershell
+.\evidencia.ps1 veredicto ALR-01 identico --motivo "los 12 campos iguales a la gen 1 re-evaluada" --quien "Nombre"
+```
+
+Para el banco temporal, la referencia de la generación 1 es la **re-evaluada con el GT
+corregido** (revisión dirigida del 2026-10-26), no la publicada en el v0.1.
+
+## Antes de empezar (una vez)
+
+1. Repos en `main` actualizados y el paquete privado `traspaso-victus-gen2.zip` descomprimido en
+   la raíz del workspace (`docs/contexto/LEEME-PRIMERO.md`).
+2. Imágenes de los bancos bajadas de su fuente y verificadas por huella: CHV, SHEL5K, obra
+   (`construction_site_safety` v27) y MOCS. La receta está en
+   `e-ovrt_datasets/datasets/scripts/download/README.md`; las dos de Roboflow piden una clave
+   personal gratuita. Los pesos se bajan con `make download-models` (versiones fijadas) y se
+   verifican con `INT-03/modelos.sha256`.
+3. `docker compose build` y la plataforma arriba (`infra/platform/README.md`).
+4. `.\evidencia.ps1 verificar todas` sin fallas bloqueantes.
+
+**Finales de línea.** Los repos no fijan finales de línea: un clon con Git para Windows
+(`core.autocrlf=true`) deja los JSON/YAML con CRLF. Las huellas los aceptan y lo declaran
+aparte (`ok_salvo_finales_de_linea`), pero lo prolijo es clonar con `git config --global
+core.autocrlf input`.
+
+## Lo que no está en el catálogo (decisiones abiertas, doc 134 §11)
+
+- `IMG-04` (tiny a 800 px con box 0,30): pide un perfil de modelo que no existe en el catálogo
+  del media-plane; si se aprueba, se agrega el perfil y su pre-registro como combinación nueva.
+- `SEG-01` (seguimiento en los cruces): reabre la exclusión de métricas MOT del ADR-015.

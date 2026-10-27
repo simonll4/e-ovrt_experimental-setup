@@ -1666,6 +1666,30 @@ th.eo-th--numeric .eo-th__btn { flex-direction: row-reverse; }
   padding: 0 8px;
 }
 .eo-sidebar--collapsed .eo-sidebar__group-title { display: none; }
+/* Grupo plegable («Laboratorio», doc 135): el rótulo es un botón con chevrón. */
+.eo-sidebar__group-toggle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  margin: 0 0 4px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--tx3);
+  cursor: pointer;
+  text-align: left;
+  position: relative;
+  border-radius: 4px;
+}
+.eo-sidebar__group-toggle .eo-sidebar__group-title { margin: 0; }
+.eo-sidebar__group-toggle svg { width: 13px; height: 13px; transition: transform 0.15s ease; }
+.eo-sidebar__group-toggle[aria-expanded='false'] svg { transform: rotate(-90deg); }
+.eo-sidebar__group-toggle:hover { color: var(--tx); }
+.eo-sidebar__group-toggle:focus-visible { outline: 2px solid var(--ac); outline-offset: 2px; }
+.eo-sidebar__group-items { display: flex; flex-direction: column; gap: 1px; width: 100%; }
+.eo-sidebar--collapsed .eo-sidebar__group-toggle { justify-content: center; width: 38px; padding: 4px 0; }
+.eo-sidebar--collapsed .eo-sidebar__group-items { align-items: center; }
 .eo-sidebar--collapsed .eo-sidebar__group {
   align-items: center;
   padding-top: 8px;

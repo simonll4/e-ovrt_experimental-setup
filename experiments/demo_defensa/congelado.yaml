@@ -1,0 +1,27 @@
+# Lo MEDIDO que la demo no puede tocar (spec 2026-10-23 §3.1), con las huellas tomadas
+# del tag `informe-2026` (el código que evaluó el informe) el 2026-10-26:
+#   git -C e-ovrt_experimental-setup show informe-2026:prompts/cr01_cr02_v2_short.yaml | sha256sum
+#   git -C e-ovrt_control-plane show informe-2026:configs/patterns/cr01_cr02_v2.yaml | sha256sum
+#   git -C e-ovrt_media-plane show informe-2026:configs/models/grounding-dino/gdino-tiny-560.yaml | sha256sum
+# El chequeo previo de /demo recalcula cada huella sobre el archivo que usa la sesión y la
+# compara con la de acá; la capa de evidencia (tecla E) muestra el resultado. Un test del
+# BFF re-deriva estas huellas desde el tag cuando git está disponible.
+tag: informe-2026
+prompt_set:
+  id: cr01_cr02_v2_short
+  archivo: e-ovrt_experimental-setup/prompts/cr01_cr02_v2_short.yaml
+  sha256_archivo: e67ae12871d47c670c34150ea0330f9f8f41816d434f406efc15c5f76d6b1a77
+  frozen_sha256: df81fd48b6daf8924b5fb66aa1ce4acc0c880ac6ed8cd1245c6aca1babdb309a
+pattern_set:
+  id: cr01_cr02_v2
+  archivo: e-ovrt_control-plane/configs/patterns/cr01_cr02_v2.yaml
+  sha256_archivo: 4f80f5d3b4e78046f8a033044475a667cd0aed930cfeca05295cf63a323570e8
+modelo:
+  ref: grounding-dino/gdino-tiny-560
+  archivo: e-ovrt_media-plane/configs/models/grounding-dino/gdino-tiny-560.yaml
+  sha256_archivo: 647cfe23429c0d4048bd1ac4fa48ad3f23816945d18ac2425d399312ec735df0
+  box_threshold: 0.30
+  text_threshold: 0.25
+distribucion:
+  cooldown_ms: 30000
+  qos: 1

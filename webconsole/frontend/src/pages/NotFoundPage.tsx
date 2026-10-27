@@ -1,5 +1,6 @@
 import { Link, useLocation } from 'react-router-dom'
 import { Card, EmptyState, PageHeader } from '../components/ui'
+import { RUNS_PATH } from '../nav'
 
 /**
  * Ruta inexistente.
@@ -17,8 +18,8 @@ export default function NotFoundPage() {
         <EmptyState
           hint={
             <>
-              Puede ser un marcador viejo. Volvé a <Link to="/">Corridas</Link> y buscá desde
-              ahí.
+              Puede ser un marcador viejo. Volvé al <Link to="/">inicio</Link> o a la
+              lista de <Link to={RUNS_PATH}>Corridas</Link> y buscá desde ahí.
             </>
           }
         >

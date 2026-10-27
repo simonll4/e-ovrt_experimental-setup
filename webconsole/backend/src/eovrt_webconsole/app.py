@@ -8,9 +8,11 @@ import httpx
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
+from eovrt_webconsole.demo.sesion import DemoManager
 from eovrt_webconsole.documentacion import Documentacion
 from eovrt_webconsole.evidence import EvidenceRegistry
 from eovrt_webconsole.evidence_archive import EvidenceArchive
+from eovrt_webconsole.gen2 import Gen2
 from eovrt_webconsole.experiment.control_backend import ControlPlaneBackend
 from eovrt_webconsole.experiment.run_manager import ExperimentRunManager
 from eovrt_webconsole.orchestrator import ComposeOrchestrator, RunCmd, TargetManager
@@ -23,9 +25,11 @@ from eovrt_webconsole.routers import (
     compare,
     compose,
     control,
+    demo,
     documentacion,
     evidencia,
     experiments,
+    gen2,
     manifests,
     meta,
     platform,
@@ -80,6 +84,9 @@ def create_app(
         # Manager del disparo orquestado (Tarea 3): un experimento activo por vez,
         # corrido como asyncio.Task en este mismo loop (ver run_manager.py).
         app.state.experiment_manager = ExperimentRunManager()
+        # Demo en vivo de la defensa (spec 2026-10-23): una sesión a la vez, encima
+        # del mismo ejecutor de experimentos. Solo observación.
+        app.state.demo_manager = DemoManager(app)
         # Grabación de rodaje: vive en la consola, no depende del media-plane
         # (spec 2026-07-21). El chequeo del intérprete se hace acá y no al
         # apretar grabar: el fallo se descubre ahora, no en medio del rodaje.
@@ -98,6 +105,7 @@ def create_app(
         yield
         # Cancela/awaitea cualquier experimento en curso antes de cerrar los
         # clientes HTTP que usa -- evita un task pendiente huerfano al apagar.
+        await app.state.demo_manager.aclose()
         await app.state.experiment_manager.aclose()
         await app.state.http.aclose()
         await app.state.control_http.aclose()
@@ -112,8 +120,11 @@ def create_app(
     # Los conteos de la tabla «qué aporta cada cosa» salen del registro, no del
     # YAML: un número escrito a mano envejece en cuanto el inventario crece.
     app.state.documentacion = Documentacion(settings.repo_root, app.state.evidence_archive)
+    # La evidencia de la generación 2 (doc 135): pre-registros + results/gen2, del disco.
+    app.state.gen2 = Gen2(settings.repo_root)
     app.include_router(documentacion.router)
     app.include_router(evidencia.router)
+    app.include_router(gen2.router)
     app.include_router(meta.router)
     app.include_router(catalog.router)
     app.include_router(compare.router)
@@ -129,6 +140,7 @@ def create_app(
     app.include_router(clips.router)
     app.include_router(preview.router)
     app.include_router(recordings.router)
+    app.include_router(demo.router)
 
     frontend_dist = settings.spa_dist or (settings.repo_root / "webconsole" / "frontend" / "dist")
     if frontend_dist.is_dir():

@@ -1,0 +1,143 @@
+/* Demo en vivo de la defensa (spec 2026-10-23 §5): oscura, letra grande, sin armazón.
+   Se proyecta duplicada: lo que ve el operador lo ve el tribunal. Usa los tokens de
+   styles/tokens.css; los colores de estado son los de la consola (--ok, --wn, --er). */
+
+.eo-demo {
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 28px 40px 72px;
+  background: var(--sunken);
+  color: var(--tx);
+  font-family: var(--fs);
+  font-size: 22px;
+  line-height: 1.4;
+}
+.eo-demo h1 { font-size: 34px; margin: 0 0 6px; }
+.eo-demo h2 { font-size: 26px; margin: 0 0 10px; }
+.eo-demo h3 { font-size: 20px; margin: 0 0 8px; color: var(--tx2); }
+.eo-demo kbd {
+  display: inline-block;
+  min-width: 1.3em;
+  padding: 0 6px;
+  border: 1px solid var(--bds);
+  border-radius: var(--r);
+  background: var(--s2);
+  font-family: var(--fm);
+  font-size: .85em;
+  text-align: center;
+}
+.eo-demo code { font-family: var(--fm); font-size: .85em; }
+.eo-demo__cab { margin-bottom: 24px; }
+.eo-demo__variante { color: var(--wn); margin: 0; }
+.eo-demo__teclas {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  padding: 12px 40px;
+  background: var(--s1);
+  border-top: 1px solid var(--bd);
+  color: var(--tx3);
+  font-size: 18px;
+}
+
+/* Listo */
+.eo-demo-chequeos { display: flex; flex-wrap: wrap; gap: 10px; list-style: none; margin: 0 0 16px; padding: 0; }
+.eo-demo-chequeo {
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--bd);
+  background: var(--s2);
+}
+.eo-demo-chequeo--ok { border-color: var(--ok-bd); background: var(--ok-bg); }
+.eo-demo-chequeo--ok::before { content: "● "; color: var(--ok); }
+.eo-demo-chequeo--aviso { border-color: var(--wn-bd); background: var(--wn-bg); }
+.eo-demo-chequeo--aviso::before { content: "● "; color: var(--wn); }
+.eo-demo-chequeo--error { border-color: var(--er-bd); background: var(--er-bg); }
+.eo-demo-chequeo--error::before { content: "● "; color: var(--er); }
+.eo-demo-listo__meta { color: var(--tx3); font-size: 18px; }
+.eo-demo-listo__accion { font-size: 40px; margin: 40px 0; }
+.eo-demo-listo__bloqueo { color: var(--er); }
+.eo-demo-listo__problemas { color: var(--tx2); font-size: 20px; }
+
+/* Corriendo */
+.eo-demo-preparando { font-size: 26px; }
+.eo-demo-paso--ok { color: var(--ok); }
+.eo-demo-paso--en_curso { color: var(--wn); }
+.eo-demo-paso--pendiente { color: var(--tx4); }
+.eo-demo-listo-ya { font-size: 30px; color: var(--ok); margin: 0 0 8px; }
+.eo-demo-crono { font-family: var(--fm); font-size: 30px; color: var(--tx2); margin: 0 0 16px; }
+.eo-demo-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 24px; }
+.eo-demo-card {
+  border-radius: var(--rc);
+  border: 2px solid var(--bd);
+  background: var(--s1);
+  padding: 24px 28px;
+  min-height: 220px;
+}
+.eo-demo-card__titulo { font-size: 30px; }
+.eo-demo-card__cara { font-size: 34px; font-weight: 600; margin: 8px 0 14px; }
+.eo-demo-card__cara--alerta { color: var(--er); }
+.eo-demo-card__broker { font-size: 22px; color: var(--tx2); }
+.eo-demo-card__nota { font-size: 18px; color: var(--tx3); }
+.eo-demo-card--ok { border-color: var(--ok-bd); }
+.eo-demo-card--confirmando { border-color: var(--wn-bd); background: var(--wn-bg); }
+.eo-demo-card--alerta { border-color: var(--er); background: var(--er-bg); }
+.eo-demo-card--resolviendo { border-color: var(--sr-bd); background: var(--sr-bg); }
+.eo-demo-card--resuelta { border-color: var(--ok); background: var(--ok-bg); }
+.eo-demo-barra { height: 16px; border-radius: 8px; background: var(--sunken); overflow: hidden; }
+.eo-demo-barra__relleno { height: 100%; background: var(--wn); transition: width .3s linear; }
+.eo-demo-card--resolviendo .eo-demo-barra__relleno { background: var(--ok); }
+.eo-demo-strip {
+  display: flex; gap: 16px; align-items: baseline;
+  margin-top: 24px; padding: 12px 18px;
+  border-radius: var(--r); background: var(--s1); border: 1px solid var(--bd);
+}
+.eo-demo-strip__rotulo { font-weight: 600; }
+.eo-demo-camara { color: var(--tx3); font-size: 18px; }
+.eo-demo-camara--sin-senal { color: var(--er); font-size: 24px; font-weight: 600; }
+.eo-demo-cerrando { font-size: 32px; margin: 60px 0; }
+.eo-demo-aviso { color: var(--wn); font-size: 22px; }
+
+/* Capa de evidencia */
+.eo-demo-capa {
+  position: fixed; inset: 0;
+  overflow: auto;
+  padding: 28px 40px;
+  background: rgba(13, 13, 12, .97);
+  font-size: 17px;
+  z-index: 10;
+}
+.eo-demo-capa:focus { outline: none; }
+.eo-demo-capa__cab { display: flex; justify-content: space-between; align-items: center; }
+.eo-demo-capa__cerrar {
+  font: inherit; color: var(--tx); background: var(--s2);
+  border: 1px solid var(--bds); border-radius: var(--r); padding: 6px 14px;
+}
+.eo-demo-capa__grilla { display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px; }
+.eo-demo-capa__grilla section { background: var(--s1); border: 1px solid var(--bd); border-radius: var(--rc); padding: 16px 20px; }
+.eo-demo-capa__lista { margin: 0; padding-left: 20px; }
+.eo-demo-capa__tabla { width: 100%; border-collapse: collapse; font-size: 15px; }
+.eo-demo-capa__tabla th, .eo-demo-capa__tabla td { text-align: left; padding: 4px 8px; border-bottom: 1px solid var(--bd); }
+.eo-demo-capa__pre { white-space: pre-wrap; word-break: break-all; font-family: var(--fm); font-size: 14px; background: var(--sunken); padding: 12px; border-radius: var(--r); }
+.eo-demo-capa__nota { color: var(--tx3); font-size: 15px; }
+.eo-demo-capa__log { font-family: var(--fm); font-size: 14px; padding-left: 20px; }
+.eo-demo-capa a { color: var(--ac-tx); }
+
+/* Resultado */
+.eo-demo-resultado__respaldo { color: var(--wn); font-size: 26px; margin: 0; }
+.eo-demo-resultado__meta { color: var(--tx3); font-size: 18px; }
+.eo-demo-resultado__video video { width: 100%; max-width: 1280px; border-radius: var(--rc); background: #000; }
+.eo-demo-resultado__rotulo { color: var(--tx3); font-size: 18px; }
+.eo-demo-alerta { margin-top: 32px; padding: 20px 24px; background: var(--s1); border-radius: var(--rc); border: 1px solid var(--bd); }
+.eo-demo-alerta__cuadros { display: flex; gap: 16px; flex-wrap: wrap; }
+.eo-demo-alerta__cuadros figure { margin: 0; width: 380px; max-width: 100%; }
+.eo-demo-alerta__cuadros img { width: 100%; border-radius: var(--r); }
+.eo-demo-alerta__cuadros figcaption { color: var(--tx2); font-size: 18px; }
+.eo-demo-alerta__tramos { font-size: 20px; }
+.eo-demo-alerta__nota { color: var(--tx3); font-size: 16px; }
+.eo-demo-tarjeta { margin-top: 32px; padding: 20px 24px; border-radius: var(--rc); border: 2px solid var(--ac-bd); background: var(--ac-bg); }
+.eo-demo-tarjeta__nota { color: var(--tx3); font-size: 16px; }
+
+@media (max-width: 767px) {
+  .eo-demo { padding: 16px 16px 72px; font-size: 18px; }
+  .eo-demo-cards, .eo-demo-capa__grilla { grid-template-columns: 1fr; }
+}

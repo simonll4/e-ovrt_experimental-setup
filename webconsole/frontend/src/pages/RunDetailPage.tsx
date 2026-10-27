@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import { RUNS_PATH } from '../nav'
 import { artifactUrl } from '../api'
 import {
   useArtifacts, useDeleteRun, useRun, useRunComparison, useStopRun, useTraceIndex,
@@ -144,7 +145,7 @@ export default function RunDetailPage() {
         )
         return
       }
-      navigate('/')
+      navigate(RUNS_PATH)
     } catch (e) {
       setDeleteError(`No se pudo borrar: ${String(e)}`)
     }

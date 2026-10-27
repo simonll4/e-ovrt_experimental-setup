@@ -1,8 +1,11 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { ApiError } from '../api'
+import { useGen2Prueba } from '../api/queries/gen2'
 import {
   useActivateInstance, useInstances, usePreflight, useStopPlatform,
 } from '../api/queries/platform'
+import { ComoCorrio } from './PruebaPage'
 import type { PlaneStatus } from '../types'
 import {
   Badge,
@@ -241,6 +244,46 @@ export default function PlatformPage() {
         Activar otra instancia apaga la actual y espera a que el modelo cargue, lo que puede
         tardar varios minutos. No se puede cambiar de instancia mientras haya una corrida en
         curso.
+      </p>
+      <ComoSeDesplego />
+    </>
+  )
+}
+
+/** «Cómo se desplegó» (doc 135 §3.5): la foto que registró la prueba de plataforma
+ *  de la generación 2 —equipo, imágenes, servicios arriba—. Sale del disco; si la
+ *  prueba todavía no corrió, no se muestra nada. */
+function ComoSeDesplego() {
+  const q = useGen2Prueba('PLAT-01')
+  const foto = q.data?.plataforma ?? q.data?.entorno
+  if (!foto) return null
+  const servicios = Array.isArray(foto.docker?.compose_ps)
+    ? (foto.docker.compose_ps as Array<Record<string, unknown>>)
+    : []
+  return (
+    <>
+      <ComoCorrio entorno={foto} titulo="Cómo se desplegó (prueba PLAT-01)" />
+      {servicios.length > 0 && (
+        <Card title="Servicios del compose" meta="docker compose ps, al registrar la prueba" flush>
+          <TableScroll label="Servicios del compose">
+            <Table aria-label="Servicios del compose">
+              <thead><tr><th>Servicio</th><th>Estado</th><th>Imagen</th></tr></thead>
+              <tbody>
+                {servicios.map((s, i) => (
+                  <tr key={String(s.Name ?? s.Service ?? i)}>
+                    <MonoCell>{String(s.Service ?? s.Name ?? '—')}</MonoCell>
+                    <td>{String(s.Status ?? s.State ?? '—')}</td>
+                    <MonoCell>{String(s.Image ?? '—')}</MonoCell>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          </TableScroll>
+        </Card>
+      )}
+      <p className="eo-cap">
+        La prueba completa, con sus comandos y su pre-registro, está en{' '}
+        <Link to="/resultados/PLAT-01">Resultados</Link>.
       </p>
     </>
   )

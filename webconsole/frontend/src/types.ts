@@ -756,3 +756,271 @@ export interface Documentacion extends ArchiveState {
   /** Índice plano por id. Es lo ÚNICO que `Termino` consulta. */
   terminos: Record<string, TerminoDef>
 }
+
+// --- Demo en vivo de la defensa (spec 2026-10-23, `/api/demo/*`) ---
+
+export type DemoFase = 'idle' | 'preparing' | 'live' | 'finishing' | 'rendering' | 'done' | 'failed'
+export type DemoEstadoChequeo = 'ok' | 'aviso' | 'error'
+export interface DemoChequeo {
+  id: string
+  nombre: string
+  estado: DemoEstadoChequeo
+  detalle: string
+  accion: string | null
+}
+export interface DemoCongeladoItem {
+  id: string
+  nombre: string
+  ok: boolean
+  esperado: unknown
+  actual: unknown
+}
+export interface DemoCongelado {
+  tag: string | null
+  ok: boolean
+  items: DemoCongeladoItem[]
+  error?: string
+}
+export interface DemoMotor {
+  estado: 'fresco' | 'usado' | 'desconocido' | 'reiniciando' | 'error'
+  desde?: string | null
+  detalle?: string
+  instancia?: string
+}
+export interface DemoPreflight {
+  listo: boolean
+  items: DemoChequeo[]
+  congelado: DemoCongelado
+  motor: DemoMotor
+  stack: 'compose' | 'nativo'
+  comprobado_en: string
+}
+/** La cara de una tarjeta (Casco / Chaleco). */
+export type DemoCara = 'ok' | 'confirmando' | 'alerta' | 'resolviendo' | 'resuelta'
+export interface DemoCondicion {
+  condicion: string
+  nombre: string
+  estado: DemoCara
+  transcurrido_ms: number | null
+  umbral_ms: number | null
+  severidad: string | null
+  alertas: number
+  alerta_desde: number | null
+  broker: 'recibido' | 'esperando' | 'suprimido_enfriamiento' | 'no_llego' | null
+}
+export interface DemoEvento {
+  t: string
+  evento: string
+  [k: string]: unknown
+}
+/** Sesión de exploración (prueba RT-05): otro motor u otra cadencia de cámara, de la lista
+ *  cerrada de `experiments/demo_defensa/exploracion.yaml`. `null` = la demo congelada. */
+export interface DemoExploracion {
+  motor: string
+  modelo: string
+  familia?: string | null
+  camara: string
+}
+export interface DemoState {
+  fase: DemoFase
+  session_id: string | null
+  variante?: string
+  escena?: string | null
+  exploracion?: DemoExploracion | null
+  stack?: 'compose' | 'nativo'
+  experiment_id?: string
+  ids?: Record<string, string>
+  iniciada_en?: string
+  transcurrido_s?: number
+  en_vivo_desde?: string | null
+  pasos?: Array<{ id: string; estado: 'ok' | 'en_curso' | 'pendiente' | 'error' }>
+  condiciones?: DemoCondicion[]
+  broker?: {
+    mensajes: number
+    ultimo: null | {
+      topic: string
+      recibido_en: string
+      hace_s: number
+      condition_id: string | null
+      crudo: string | null
+    }
+  }
+  camara?: {
+    cuadros: number
+    ultimo_cuadro_hace_s: number | null
+    sin_senal: boolean
+    bus_perdidos: number
+  }
+  metricas?: { fps?: number | null; latencia_ms?: number | null; gpu_mb?: number | null }
+  ended_by?: string | null
+  error?: string | null
+  eventos?: DemoEvento[]
+  motor: DemoMotor
+}
+export interface DemoLineaAlerta {
+  n: number
+  alert_id: string
+  condition_id: string
+  severity: string | null
+  frame_primera_evidencia: number | null
+  frame_confirmacion: number | null
+  frame_resolucion: number | null
+  t_primera_evidencia_ms: number | null
+  t_confirmacion_ms: number | null
+  t_resolucion_ms: number | null
+  confirmed_wall_ms: number | null
+  t_broker_ms: number | null
+  broker_topic: string | null
+  entrega: string | null
+  tramos: { evidencia_a_confirmacion_ms: number | null; confirmacion_a_broker_ms: number | null }
+}
+export interface DemoResumen {
+  cuadros_procesados?: number
+  duracion_fuente_s?: number | null
+  fps_efectivos?: number | null
+  alertas?: number
+  video: string | null
+  cuadros_clave: Array<{ alerta: number; tipo: 'evidencia' | 'confirmacion' | 'resolucion'; archivo: string; frame_index: number }>
+  log?: string[]
+  faltantes: string[]
+  errores: string[]
+}
+export interface DemoSessionDetail {
+  session: {
+    session_id: string
+    variante: string
+    fase: DemoFase
+    stack: string
+    experiment_id: string
+    ids: Record<string, string>
+    iniciada_en: string
+    terminada_en: string | null
+    ended_by: string | null
+    error: string | null
+    congelado: DemoCongelado
+  } | null
+  resumen: DemoResumen | null
+  linea_de_tiempo: DemoLineaAlerta[]
+  testigo: Array<{ recibido_en: string; topic: string; crudo: string; payload: unknown }>
+  state_log: unknown[]
+  respaldo: boolean
+}
+export interface DemoCifra {
+  prueba: string
+  clave: string
+  que_es: string
+  valor: number | null
+  unidad: string | null
+  pendiente: boolean
+  texto: string | null
+  fuente?: string
+}
+export interface DemoStack {
+  modo: 'compose' | 'nativo'
+  contenedores: Array<Record<string, string | null>> | null
+  error: string | null
+  host: { presente: boolean; edad_s?: number; datos?: Record<string, unknown> }
+  repos: Array<{ repo: string; commit: string | null; tag_evaluado: string; url_tag: string }>
+  servicios: Record<string, string>
+}
+
+/** Generación 2 de la evidencia (doc 135): lo que devuelve `/api/gen2/*`, leído
+ *  de `experiments/evidencia/` (pre-registros) y `results/gen2/` (resultados). */
+export type Gen2Estado = 'sin_correr' | 'completo' | 'parcial' | 'fallido' | 'desconocida'
+export interface Gen2Cifra {
+  clave: string
+  nombre: string
+  valor: number | string | boolean | null
+  unidad: string | null
+  gen1: number | string | boolean | null
+  ic95?: [number, number]
+  n?: number
+  excluye_0?: boolean
+}
+export interface Gen2Veredicto {
+  propuesto: string
+  motivo?: string | null
+  referencia?: string | null
+  diferencias?: Record<string, { gen2: unknown; gen1: unknown }>
+  confirmado: null | { valor: string; motivo?: string; quien?: string; fecha?: string }
+}
+export interface Gen2Prueba {
+  id: string
+  titulo: string | null
+  fase: string | null
+  familia: string | null
+  informe: string[]
+  pregunta: string | null
+  esperado: string | null
+  /** `activa`, `opcional`, `pendiente_decision` o `no_se_regenera` (contraste: vale la gen 1). */
+  registro: string
+  no_se_regenera?: string | null
+  depende_de: string[]
+  gen1: {
+    result_id: string | null
+    doc: string | null
+    relacion: string | null
+    motivo: string | null
+    referencia: string | null
+    nota: string | null
+    /** La cifra vigente de una prueba que no se regenera, tal cual el pre-registro. */
+    cifras?: Array<{ clave: string; nombre: string; valor: number | string | boolean | null; unidad?: string | null }>
+  }
+  estado: Gen2Estado
+  generado: string | null
+  resumen: Gen2Cifra[]
+  veredicto: Gen2Veredicto | null
+}
+export interface Gen2Corrida {
+  estado: string
+  experiment_id?: string | null
+  media_run_id?: string | null
+  control_run_id?: string | null
+  inicio?: string
+  fin?: string
+  segundos?: number
+  error?: string
+  variantes?: Record<string, Gen2Corrida>
+}
+export interface Gen2Detalle extends Gen2Prueba {
+  pre_registro: { texto: string | null; origen: 'copia_al_correr' | 'catalogo'; coincide_con_catalogo: boolean | null }
+  resultado: Record<string, unknown> | null
+  corridas: Record<string, Gen2Corrida> | null
+  entorno: Gen2Entorno | null
+  plataforma: (Gen2Entorno & { instancias?: Array<Record<string, unknown>> | null }) | null
+  comandos: string | null
+  archivos: { logs: string[]; evals: string[]; capturas: string[] }
+}
+export interface Gen2Entorno {
+  fecha_utc?: string
+  modo?: string
+  host?: { nombre?: string; plataforma?: string; cpu?: string; nucleos?: number; memoria_gb?: number; python?: string }
+  gpu?: string | null
+  modelo_cargado?: { model?: { ref?: string } | null } | null
+  repos?: Record<string, { commit: string | null; rama: string | null; archivos_sin_commitear?: number | null }>
+  docker?: {
+    version?: unknown
+    compose_ps?: unknown
+    imagenes?: Record<string, { id?: string; creada?: string; digests?: string[] } | null>
+  }
+}
+export interface Gen2ObservacionPrueba {
+  id: string
+  titulo: string | null
+  estado: Gen2Estado
+  registro?: string | null
+  veredicto: Gen2Veredicto | null
+}
+export interface Gen2Observacion {
+  numero: number
+  titulo: string
+  pedido: string
+  respuesta: string
+  pruebas: Gen2ObservacionPrueba[]
+  secciones: string[]
+}
+export interface Gen2Observaciones {
+  available: boolean
+  message?: string
+  observaciones: Gen2Observacion[]
+}

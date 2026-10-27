@@ -87,16 +87,18 @@ const abrir = () => render(
 )
 
 describe('Documentación', () => {
-  it('es el primer destino del grupo Trabajo y tiene su propia miga e icono', () => {
-    const trabajo = NAV_GROUPS.find((g) => g.title === 'Trabajo')!
-    expect(trabajo.items[0].to).toBe('/documentacion')
-    expect(trabajo.items[0].label).toBe('Documentación')
-    expect(trabajo.items[0].icon).toBeTruthy()
+  it('está en el grupo Evidencia (siempre a la vista) y tiene su propia miga e icono', () => {
+    // Desde la generación 2 la entrada es «Para el tribunal» (doc 135); la
+    // documentación sigue en el grupo que nunca se pliega.
+    const evidencia = NAV_GROUPS.find((g) => g.title === 'Evidencia')!
+    const doc = evidencia.items.find((i) => i.to === '/documentacion')!
+    expect(doc.label).toBe('Documentación')
+    expect(doc.icon).toBeTruthy()
     // Icono propio, no el de otro destino: con la barra colapsada es lo único
     // que queda para distinguirlos.
     const otros = NAV_GROUPS.flatMap((g) => g.items)
       .filter((i) => i.to !== '/documentacion').map((i) => i.icon)
-    expect(otros).not.toContain(trabajo.items[0].icon)
+    expect(otros).not.toContain(doc.icon)
     expect(crumbsFor('/documentacion')).toEqual([
       { to: '/documentacion', label: 'Documentación' },
     ])

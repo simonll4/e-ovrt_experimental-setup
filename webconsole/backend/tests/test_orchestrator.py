@@ -46,6 +46,10 @@ def make_fake_compose(state: dict):
         if verb == "stop":
             state["ps"][args[-1]] = "exited"
             return 0, "", ""
+        if verb == "restart":
+            state["restarts"] = state.get("restarts", 0) + 1
+            state["ps"][args[-1]] = "running"
+            return 0, "", ""
         return 1, "", f"verb inesperado: {verb}"
     return run_cmd
 
@@ -170,6 +174,35 @@ async def test_stop_active_apaga_y_deja_none(manager, state):
     await manager.stop_active()
     assert manager.active is None
     assert state["ps"]["mp-mock"] == "exited"
+
+
+async def test_restart_active_reinicia_sin_recrear_y_espera_ready(manager, state):
+    """Motor fresco para la demo (F-101.5): `compose restart`, nunca `up`/`stop`."""
+    state["ps"] = {"mp-mock": "running"}
+    await manager.bootstrap()
+    calls_before = len(state.get("calls", []))
+    result = await manager.restart_active()
+    verbs = [c[4] for c in state["calls"][calls_before:]]
+    assert result == {"target": "mp-mock", "model_ref": "mock"}
+    assert state["restarts"] == 1
+    assert "up" not in verbs and "stop" not in verbs
+    assert manager.active == "mp-mock"
+
+
+async def test_restart_active_sin_target_es_switch_failed(manager):
+    await manager.bootstrap()
+    with pytest.raises(SwitchFailed) as exc:
+        await manager.restart_active()
+    assert exc.value.step == "restart"
+
+
+async def test_restart_active_con_run_activo_es_platform_busy(manager, state, fake_state):
+    state["ps"] = {"mp-mock": "running"}
+    fake_state.active_run_id = "run_x"
+    await manager.bootstrap()
+    with pytest.raises(PlatformBusy):
+        await manager.restart_active()
+    assert state.get("restarts", 0) == 0
 
 
 async def test_instances_shape(manager, state):

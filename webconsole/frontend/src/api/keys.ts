@@ -89,4 +89,22 @@ export const qk = {
   recording: ['recording'] as const,
   /** Contadores de la barra lateral: derivados, no un endpoint propio. */
   sidebarCounts: ['sidebarCounts'] as const,
+
+  /** La evidencia de la generación 2: archivos, cambia solo cuando corre el driver. */
+  gen2: {
+    all: ['gen2'] as const,
+    observaciones: ['gen2', 'observaciones'] as const,
+    pruebas: ['gen2', 'pruebas'] as const,
+    prueba: (id: string) => ['gen2', 'prueba', id] as const,
+  },
+
+  /** La demo en vivo de la defensa (`/demo`). */
+  demo: {
+    all: ['demo'] as const,
+    preflight: ['demo', 'preflight'] as const,
+    state: ['demo', 'state'] as const,
+    session: (id: string) => ['demo', 'session', id] as const,
+    cifras: ['demo', 'cifras'] as const,
+    stack: ['demo', 'stack'] as const,
+  },
 } as const

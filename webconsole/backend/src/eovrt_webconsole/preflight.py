@@ -161,14 +161,25 @@ async def platform_preflight(app: FastAPI, manifest: ExperimentManifest | None =
         "ready": control_ready,
     }
 
+    # Sin manifiesto (GET /api/preflight) se exigen los dos planos. Con manifiesto se
+    # exige solo lo que el experimento toca: uno de medios solos no usa el control, y
+    # uno que reusa detecciones ya escritas no le pide nada al media-plane (doc 134 §5.2).
+    needs_media = manifest is None or not (
+        manifest.runs.get("media") is not None
+        and (manifest.runs["media"].reuse_run_id or manifest.runs["media"].reuse_run_dir)
+    )
+    needs_control = (
+        manifest is None or "control" in manifest.runs or manifest.sequencing != "media_first"
+    )
+
     blockers: list[str] = []
-    if not media_healthy:
+    if needs_media and not media_healthy:
         blockers.append("el media-plane no responde")
-    elif not media_ready:
+    elif needs_media and not media_ready:
         blockers.append("el media-plane no terminó de cargar el modelo")
-    if not control_healthy:
+    if needs_control and not control_healthy:
         blockers.append("el control-plane no responde")
-    elif not control_ready:
+    elif needs_control and not control_ready:
         blockers.append("el control-plane no está listo")
 
     if manifest is not None:

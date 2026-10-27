@@ -1,0 +1,41 @@
+/* Generación 2 (doc 135): «Para el tribunal», «Resultados» y el detalle de prueba.
+   Solo composición: colores, tipografía y espaciados salen de los tokens. */
+.eo-gen2 { min-width: 0; overflow-wrap: break-word; }
+.eo-gen2 .eo-card { margin-bottom: 16px; min-width: 0; }
+
+.eo-gen2__obs { list-style: none; margin: 16px 0 0; padding: 0; }
+.eo-gen2__qa { display: grid; gap: 10px; margin: 0; }
+.eo-gen2__qa dt { font-size: var(--fz-meta); color: var(--tx3); }
+.eo-gen2__qa dd { margin: 2px 0 0; font-size: var(--fz-body); line-height: 1.5; }
+.eo-gen2__links { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.eo-gen2__links li { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+.eo-gen2__secciones { margin: 8px 0 0; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: var(--fz-meta); color: var(--tx3); }
+
+.eo-gen2__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+  gap: 12px;
+}
+.eo-gen2__prueba {
+  border: 1px solid var(--bd);
+  border-radius: 6px;
+  padding: 12px;
+  background: var(--s1);
+  min-width: 0;
+}
+.eo-gen2__prueba h3 { margin: 0 0 6px; font-size: var(--fz-data); }
+.eo-gen2__estado { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 6px 0; }
+.eo-gen2__cifras { margin: 8px 0 0; display: grid; gap: 4px; }
+.eo-gen2__cifras dt { font-size: var(--fz-meta); color: var(--tx3); }
+.eo-gen2__cifras dd { margin: 0; font-size: var(--fz-body); }
+
+.eo-gen2__gen1 { margin-top: 12px; }
+.eo-gen2 .eo-pre { max-height: 480px; overflow: auto; }
+.eo-gen2__archivos { margin: 0; padding-left: 18px; display: grid; gap: 2px; }
+.eo-gen2__capturas { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr)); gap: 12px; margin-bottom: 12px; }
+.eo-gen2__capturas figure { margin: 0; }
+.eo-gen2__capturas img { width: 100%; height: auto; border: 1px solid var(--bd); border-radius: 4px; }
+.eo-gen2__capturas figcaption { font-size: var(--fz-meta); color: var(--tx3); margin-top: 4px; }
+
+/* Encabezado fijo de la validación inicial (generación 1). */
+.eo-gen1-aviso { margin-bottom: 12px; }

@@ -80,7 +80,7 @@ def consolidate_experiment(
     experiment_id: str,
     *,
     media_run_dir: Path,
-    control_run_dir: Path,
+    control_run_dir: Path | None,
     manifest_effective: dict,
     dest_root: Path,
 ) -> Path:
@@ -97,10 +97,10 @@ def consolidate_experiment(
     - `report/`: directorio vacio, listo para el generador de reporte (Tarea 3).
 
     Tolera artefactos faltantes en cualquiera de los dos planos: los omite en
-    vez de fallar. Devuelve el Path del directorio del experimento.
+    vez de fallar. `control_run_dir=None` es un experimento de medios solos (no
+    hay `control/`). Devuelve el Path del directorio del experimento.
     """
     media_run_dir = Path(media_run_dir)
-    control_run_dir = Path(control_run_dir)
     dest_root = Path(dest_root)
 
     experiment_dir = dest_root / experiment_id
@@ -112,8 +112,10 @@ def consolidate_experiment(
     _copy_light_artifacts(media_run_dir, media_dest_dir, _MEDIA_LIGHT_ARTIFACTS)
     _write_detections_ref(media_run_dir, media_dest_dir)
 
-    _copy_effective_config(control_run_dir, control_dest_dir)
-    _copy_light_artifacts(control_run_dir, control_dest_dir, _CONTROL_LIGHT_ARTIFACTS)
+    if control_run_dir is not None:
+        control_run_dir = Path(control_run_dir)
+        _copy_effective_config(control_run_dir, control_dest_dir)
+        _copy_light_artifacts(control_run_dir, control_dest_dir, _CONTROL_LIGHT_ARTIFACTS)
     experiment_dir.mkdir(parents=True, exist_ok=True)
     manifest_path = experiment_dir / "manifest.effective.yaml"
     manifest_path.write_text(

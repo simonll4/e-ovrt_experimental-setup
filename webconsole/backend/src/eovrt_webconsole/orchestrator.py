@@ -1,8 +1,9 @@
 """Orquestación del fleet de instancias media-plane vía `docker compose` (spec §3).
 
 El compose de plataforma es la única fuente de verdad del fleet; este módulo
-ejecuta exactamente 3 verbos (config/ps/up/stop) con nombres validados contra
-la allowlist de labels — nunca input libre hacia el socket de Docker.
+ejecuta exactamente 5 verbos (config/ps/up/stop/restart) con nombres validados
+contra la allowlist de labels — nunca input libre hacia el socket de Docker.
+`restart` lo agregó la demo de la defensa (motor fresco, F-101.5).
 """
 from __future__ import annotations
 
@@ -113,6 +114,21 @@ class ComposeOrchestrator:
             if r.get("Service") in fleet
         }
 
+    async def ps_todo(self) -> list[dict[str, Any]]:
+        """Todos los contenedores del proyecto (no solo el fleet), como `docker compose
+        ps`: para mostrar el stack corriendo en la capa de evidencia de la demo."""
+        out = await self._compose("ps", "-a", "--format", "json")
+        text = out.strip()
+        if not text:
+            return []
+        try:
+            data = json.loads(text)
+            rows = data if isinstance(data, list) else [data]
+        except json.JSONDecodeError:
+            rows = [json.loads(line) for line in text.splitlines() if line.strip()]
+        campos = ("Service", "Name", "Image", "State", "Status", "Health", "CreatedAt", "RunningFor")
+        return [{k: r.get(k) for k in campos} for r in rows]
+
     async def up(self, name: str) -> None:
         await self.require(name)
         await self._compose("up", "-d", "--no-build", name)
@@ -120,6 +136,17 @@ class ComposeOrchestrator:
     async def stop(self, name: str) -> None:
         await self.require(name)
         await self._compose("stop", name)
+
+    async def restart(self, name: str) -> None:
+        """Reinicia el proceso del contenedor SIN recrearlo (`compose restart`).
+
+        Lo usa la demo para dejar el motor "fresco" tras una corrida con la OAK-D
+        (F-101.5: la segunda corrida en la misma vida del proceso puede tirarlo).
+        A diferencia de `up -d`, `restart` nunca recrea el contenedor, que es lo
+        que tira el adaptador de red de WSL en la PC de la demo (doc 133 §5.5).
+        """
+        await self.require(name)
+        await self._compose("restart", name)
 
 
 NO_TARGET_URL = "http://eovrt-no-target.invalid:8080"
@@ -244,6 +271,39 @@ class TargetManager:
             "readyz",
             f"{name} no llegó a ready en {self._settings.switch_timeout_seconds:.0f}s "
             "(¿pesos presentes? ver logs del contenedor)",
+        )
+
+    async def contenedores(self) -> list[dict[str, Any]]:
+        """Todos los contenedores del stack (solo lectura, capa de evidencia de la demo)."""
+        return await self._orch.ps_todo()
+
+    async def restart_active(self) -> dict:
+        """Reinicia la instancia activa y espera `readyz` (motor fresco, F-101.5).
+
+        Mismas guardas que `switch`: sin target no hay nada que reiniciar, y con un
+        run en curso no se toca. Mientras reinicia, la consola queda sin target.
+        """
+        name = self.active
+        if name is None:
+            raise SwitchFailed("restart", "no hay una instancia activa que reiniciar")
+        run_id = await self._active_run_id()
+        if run_id:
+            raise PlatformBusy(run_id)
+        fleet = await self._orch.fleet()
+        await self._set_target(None)
+        try:
+            await self._orch.restart(name)
+        except ComposeError as exc:
+            raise SwitchFailed("restart", str(exc)) from exc
+        deadline = time.monotonic() + self._settings.switch_timeout_seconds
+        while time.monotonic() < deadline:
+            if await self._is_ready(name):
+                await self._set_target(name)
+                return {"target": name, "model_ref": fleet[name]}
+            await asyncio.sleep(self._poll_interval)
+        raise SwitchFailed(
+            "readyz",
+            f"{name} no llegó a ready en {self._settings.switch_timeout_seconds:.0f}s tras reiniciar",
         )
 
     async def stop_active(self) -> None:

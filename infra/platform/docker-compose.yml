@@ -109,6 +109,10 @@ services:
     build:
       context: ${EOVRT_WORKSPACE}/e-ovrt_experimental-setup
       dockerfile: infra/console/Dockerfile
+      # El núcleo del control-plane se instala en la imagen (evaluación temporal del
+      # runner y driver de evidencia, ver el Dockerfile).
+      additional_contexts:
+        controlplane: ${EOVRT_WORKSPACE}/e-ovrt_control-plane
     restart: unless-stopped
     ports: ["8090:8090"]
     networks: [eovrt]
@@ -124,12 +128,18 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       # Workspace completo en solo-lectura, con remounts rw únicamente donde
-      # el BFF escribe (prompts/cámaras/experimentos/corridas del repo).
+      # el BFF escribe (prompts/cámaras/experimentos/corridas del repo) y donde el
+      # driver de evidencia (tools/evidencia, corre en este contenedor) deja
+      # `results/gen2/` (doc 134 §6).
       - ${EOVRT_WORKSPACE}:${EOVRT_WORKSPACE}:ro
       - ${EOVRT_WORKSPACE}/e-ovrt_experimental-setup/experiments:${EOVRT_WORKSPACE}/e-ovrt_experimental-setup/experiments:rw
       - ${EOVRT_WORKSPACE}/e-ovrt_experimental-setup/prompts:${EOVRT_WORKSPACE}/e-ovrt_experimental-setup/prompts:rw
       - ${EOVRT_WORKSPACE}/e-ovrt_experimental-setup/cameras:${EOVRT_WORKSPACE}/e-ovrt_experimental-setup/cameras:rw
       - ${EOVRT_WORKSPACE}/e-ovrt_experimental-setup/runs:${EOVRT_WORKSPACE}/e-ovrt_experimental-setup/runs:rw
+      - ${EOVRT_WORKSPACE}/e-ovrt_experimental-setup/results:${EOVRT_WORKSPACE}/e-ovrt_experimental-setup/results:rw
+      # Sesiones de la demo en vivo (/demo): configuración enviada, testigo MQTT,
+      # estados mostrados y el Resultado (video, cuadros, línea de tiempo).
+      - ${EOVRT_WORKSPACE}/e-ovrt_experimental-setup/defensa/sesiones:${EOVRT_WORKSPACE}/e-ovrt_experimental-setup/defensa/sesiones:rw
     depends_on:
       control-plane:
         condition: service_healthy

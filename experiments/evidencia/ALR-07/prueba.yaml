@@ -1,0 +1,42 @@
+schema: prueba.gen2.v1
+id: ALR-07
+titulo: "Obra real (estrato B, 13 clips de internet), escena (I1)"
+informe: ["Tabla 53", "§17.5.4"]
+fase: F3
+familia: clips
+pregunta: >
+  Con la combinación intacta y material de obra real no guionado, ¿cuántas alertas acierta y
+  cuántas falsas alarmas produce sobre los clips sin infracción?
+gen1:
+  result_id: i1_gdinotiny560_v2short_scene_internet
+  doc: operacion/110
+  evals: results/clip_bench/i1_gdinotiny560_v2short_scene_internet/evals
+  referencia:
+    fuente: docs/operacion/datos/134-piloto-gt02-sensibilidad-bordes/gt02_todas_gt_corregido.json (I1)
+    nota: el GT de los clips de internet no cambió en la revisión dirigida
+    valores: {episodes_total: 2, episodes_censored: 0, episodes_evaluable: 2, matched: 1, missed: 1,
+              false_positives: 3, re_alerts: 0, sub_threshold: 0, recall_micro: 0.5,
+              precision_micro: 0.25, f1_micro: 0.333333, neg_false_positives: 26}
+esperado: >
+  Igual a la generación 1 (26 falsas alarmas en los 11 negativos). Con n = 2 episodios ninguna
+  comparación por F1 sale de acá (F-111.1); lo robusto son las falsas alarmas.
+veredictos_posibles: [identico, equivalente_con_diferencia, otra_combinacion]
+config:
+  modelo: grounding-dino/gdino-tiny-560
+  prompt_set: cr01_cr02_v2_short
+  pattern_set: cr01_cr02_v2
+  granularidad: scene
+receta:
+  tipo: inferencia
+  clips: internet
+  instancia: mp-gdino-tiny-560
+  modelo: grounding-dino/gdino-tiny-560
+  medios:
+    prompts:
+      set_id: cr01_cr02_v2_short
+      fuente: prompts/cr01_cr02_v2_short.yaml
+      clases: [person, helmet, vest]
+      frozen: {prompts/cr01_cr02_v2_short.yaml: df81fd48b6daf8924b5fb66aa1ce4acc0c880ac6ed8cd1245c6aca1babdb309a}
+  control: {patrones: cr01_cr02_v2, activos: [CR-01, CR-02]}
+  timeout_s: 7200  # v06_c01 dura 6 min a 30 fps: ~30 min de inferencia
+salida: e-ovrt_experimental-setup/results/gen2/ALR-07/

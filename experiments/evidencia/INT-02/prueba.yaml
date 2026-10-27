@@ -1,0 +1,18 @@
+schema: prueba.gen2.v1
+id: INT-02
+titulo: "Integridad del banco temporal (47 clips y GT corregido)"
+informe: ["Anexo E", "§17.5.4"]
+fase: F1
+familia: integridad
+pregunta: "¿Los 47 videos y la referencia corregida en la Victus son exactamente los versionados?"
+gen1:
+  result_id: clip_bench (re-congelado 2026-10-26, revisión dirigida)
+  doc: datasets/registry/clip_bench.md
+esperado: >
+  47/47 mp4 iguales al manifiesto; `clip_bench.sha256` (189 archivos: GT, anotaciones y fichas)
+  con su huella df45a01c…; `validate_clip_gt` sin errores. Citar en el Anexo E la huella de
+  `clip_bench.sha256`, NO la de manifest.yaml (que no cubre el GT).
+veredictos_posibles: [identico]
+receta:
+  clip_bench_sha256: df45a01cdb99bd098e658acb7d4b28686fd11616fb432980288ddcd268bc3b57
+salida: e-ovrt_experimental-setup/results/gen2/INT-02/

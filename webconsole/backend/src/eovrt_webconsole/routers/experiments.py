@@ -414,12 +414,22 @@ async def run_experiment_route(body: dict, request: Request) -> dict:
     manager = request.app.state.experiment_manager
 
     manifest = _resolve_manifest_from_body(body, settings.experiments_dir)
+    # Tiempo máximo por plano para ESTE disparo (gana sobre el `timeout_s` del
+    # manifiesto, que a su vez gana sobre el default del runner).
+    run_kwargs: dict = {}
+    timeout_s = body.get("timeout_s")
+    if timeout_s is not None:
+        if isinstance(timeout_s, bool) or not isinstance(timeout_s, (int, float)) or not (
+            0 < timeout_s < float("inf")
+        ):
+            raise HTTPException(status_code=422, detail="timeout_s debe ser un número positivo")
+        run_kwargs["timeout_s"] = float(timeout_s)
 
-    # Gate de preflight (sincrónico, antes del task 202): todo experimento usa
-    # ambos planos — live los necesita a la vez (control se suscribe al bus
-    # ANTES de disparar media), y replay los encadena. Si algo falta, el
-    # operador se entera ACA con un 503 explicable, no polleando un
-    # experimento que nació muerto dentro del runner en background.
+    # Gate de preflight (sincrónico, antes del task 202): live necesita los dos
+    # planos a la vez (control se suscribe al bus ANTES de disparar media), y
+    # replay los encadena; uno de medios solos o de reuso exige solo lo que toca.
+    # Si algo falta, el operador se entera ACA con un 503 explicable, no
+    # polleando un experimento que nació muerto dentro del runner en background.
     status = await platform_preflight(request.app, manifest=manifest)
     if not status["ready"]:
         return JSONResponse(
@@ -437,6 +447,7 @@ async def run_experiment_route(body: dict, request: Request) -> dict:
             control_backend=request.app.state.control_backend,
             now=datetime.now(UTC),
             poll_interval_s=settings.experiment_poll_interval_s,
+            **run_kwargs,
         )
     except ExperimentBusy as exc:
         # Mismo shape que RunBusy en routers/runs.py: detail + el id activo como

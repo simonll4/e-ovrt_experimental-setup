@@ -1,0 +1,38 @@
+schema: prueba.gen2.v1
+id: RT-03
+titulo: "Latencia en vivo con la OAK-D y personas en escena"
+informe: ["Tabla 54", "§17.5.5"]
+fase: F7
+familia: vivo
+pregunta: >
+  Con la cámara real, una persona en cuadro y la configuración de la demo, ¿cuánto tarda el
+  sistema desde que el cuadro llega al host hasta el resultado (G2A), desde la captura (captura →
+  host) y de punta a punta (vidrio → resultado, por cuadro)?
+gen1:
+  result_id: rodaje (doc 71) y doc 133 (Victus, sin personas)
+  doc: operacion/133
+  relacion: otra_combinacion
+  motivo: >
+    El rodaje midió 1080p@30 en la PC de desarrollo (G2A p95 630–890 ms, 1,16–4,42 fps); la validación en la
+    Victus sin personas: 960x540@5 → G2A p95 192–204 ms, vidrio → resultado p95 272–285 ms. Es la
+    medición que el informe necesita para sostener «tiempo real»: se toma con personas y en las dos configs.
+esperado: >
+  Por toma: 250–300 cuadros, ninguna contaminada (guard del doc 101 §5.3). Por config, los
+  percentiles con los cuadros de todas las tomas válidas juntos (nearest-rank).
+veredictos_posibles: [otra_combinacion]
+receta:
+  instancia: mp-gdino-tiny-560
+  modelo: grounding-dino/gdino-tiny-560
+  prompts:
+    set_id: cr01_cr02_v2_short
+    fuente: prompts/cr01_cr02_v2_short.yaml
+    clases: [person, helmet, vest]
+    frozen: {prompts/cr01_cr02_v2_short.yaml: df81fd48b6daf8924b5fb66aa1ce4acc0c880ac6ed8cd1245c6aca1babdb309a}
+  camara: {url: 169.254.31.137, warmup_frames: 20}  # cameras/oak_d_lab.yaml
+  configs:
+    "960x540@5": {camara: {fps: 5, isp_scale: [1, 2]}, unidades: 300}
+    "1080p@30": {camara: {fps: 30}, unidades: 250}
+  config_demo: "960x540@5"
+  control: {patrones: cr01_cr02_v2, activos: [CR-01, CR-02]}
+  timeout_s: 1800
+salida: e-ovrt_experimental-setup/results/gen2/RT-03/

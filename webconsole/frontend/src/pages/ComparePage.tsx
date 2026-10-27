@@ -1,5 +1,6 @@
 import { useId, useMemo, useState, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
+import { RUNS_PATH } from '../nav'
 import { useQuery } from '@tanstack/react-query'
 import { getCompare } from '../api'
 import { qk } from '../api/keys'
@@ -134,7 +135,7 @@ export default function ComparePage() {
         <Card>
           <EmptyState
             hint="Se evalúan desde el detalle de cada corrida, en la pestaña Evaluación. Las corridas sin evaluación no aparecen acá."
-            action={<Link className="eo-btn eo-btn--primary" to="/">Ir a Corridas</Link>}
+            action={<Link className="eo-btn eo-btn--primary" to={RUNS_PATH}>Ir a Corridas</Link>}
           >
             Todavía no hay corridas evaluadas
           </EmptyState>

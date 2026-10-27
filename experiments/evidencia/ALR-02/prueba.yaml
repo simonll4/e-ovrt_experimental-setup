@@ -1,0 +1,39 @@
+schema: prueba.gen2.v1
+id: ALR-02
+titulo: "Alerta por episodio, granularidad por sujeto (G1)"
+informe: ["Tabla 53", "§17.5.4"]
+fase: F5
+familia: clips
+depende_de: [ALR-01]
+pregunta: >
+  Con las MISMAS detecciones de ALR-01, ¿cuánto cambia el resultado si el motor sostiene la
+  violación por sujeto (identidad de la plataforma) en vez de por escena?
+gen1:
+  result_id: g1_gdinotiny560_v2short_subject
+  doc: operacion/89
+  evals: results/clip_bench/g1_gdinotiny560_v2short_subject/evals
+  clips_gt_corregido: [a_p1_c05, a_p2_c01, a_p2_c02, a_p2_c05, a_p7_c02, a_p7_c03, a_p8_c01, a_p9_c08]
+  publicado: {f1_micro: 0.929577}
+  referencia:
+    fuente: docs/operacion/datos/134-piloto-gt02-sensibilidad-bordes/gt02_todas_gt_corregido.json (G1)
+    valores: {episodes_total: 33, episodes_censored: 0, episodes_evaluable: 33, matched: 31, missed: 2,
+              false_positives: 5, re_alerts: 11, sub_threshold: 0, recall_micro: 0.939394,
+              precision_micro: 0.861111, f1_micro: 0.898551, neg_false_positives: 0}
+esperado: >
+  Igual a la generación 1 re-evaluada con el GT corregido (F1 0,899). En la generación 1 la
+  identidad se asignó post-hoc (`track_event_stream` → `tracked.jsonl`); acá la asigna la
+  plataforma (`input.track_persons: true`, `sources/tracking.py`), con el mismo `SimpleIoUTracker`
+  y el stream en orden: las identidades tienen que salir iguales.
+diferencia_esperada: null
+veredictos_posibles: [identico, equivalente_con_diferencia, otra_combinacion]
+config:
+  modelo: grounding-dino/gdino-tiny-560 (detecciones de ALR-01)
+  pattern_set: cr01_cr02_v2_subject
+  granularidad: subject (input.track_persons)
+receta:
+  tipo: reuso
+  reusa: ALR-01
+  clips: rodaje
+  control: {patrones: cr01_cr02_v2_subject, activos: [CR-01, CR-02], track_persons: true}
+  timeout_s: 900
+salida: e-ovrt_experimental-setup/results/gen2/ALR-02/

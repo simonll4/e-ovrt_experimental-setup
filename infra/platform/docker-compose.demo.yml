@@ -1,0 +1,52 @@
+# Override de la DEMO EN VIVO (spec docs/superpowers/specs/2026-10-23-demo-defensa-design.md §6.6):
+# la CÁMARA DE ENSAYO. Un clip retransmitido por RTSP en tiempo real, para el smoke sin
+# hardware (G1) y como plan B de cámara el día de la defensa (§7.4: «la entrada es una
+# grabación; todo lo demás corre en vivo»). La fuente `rtsp` del media-plane usa el
+# reloj de pared, como la OAK-D; un `video_file` no sirve porque no respeta el tiempo real.
+#
+# Se usa SOLO nombrando los dos servicios (no levanta ni recrea nada más):
+#   infra/demo/demo.ps1 camara-ensayo on        (o demo.sh, desde WSL)
+# que equivale a:
+#   docker compose -f docker-compose.yml -f docker-compose.demo.yml up -d mediamtx ensayo-camara
+# No modifica ningún servicio del compose base: así, usarlo o no usarlo nunca cambia la
+# config de los contenedores de la plataforma (y nunca los recrea, doc 133 §5.5).
+#
+# El clip por default es a_p1_c04 (el de V1: un CR-01 confirmado a los ~7 s). Para el
+# plan B: EOVRT_ENSAYO_DIR = carpeta con la grabación del operario hecha en el ensayo
+# (p.ej. e-ovrt_datasets/datasets-videos/raw) y EOVRT_ENSAYO_CLIP = su nombre.
+services:
+  mediamtx:
+    image: bluenviron/mediamtx:1.9.3
+    networks: [eovrt]
+    profiles: [ensayo]
+    # Para mirar la cámara de ensayo desde el host (VLC: rtsp://127.0.0.1:8554/ensayo).
+    ports: ["127.0.0.1:8554:8554"]
+    restart: unless-stopped
+
+  ensayo-camara:
+    # La imagen de la consola ya trae ffmpeg: no hace falta bajar otra.
+    image: eovrt/console:latest
+    networks: [eovrt]
+    profiles: [ensayo]
+    depends_on: [mediamtx]
+    entrypoint: ["ffmpeg"]
+    command:
+      - -hide_banner
+      - -loglevel
+      - warning
+      - -re
+      - -stream_loop
+      - "-1"
+      - -i
+      - /ensayo/${EOVRT_ENSAYO_CLIP:-a_p1_c04.mp4}
+      - -c
+      - copy
+      - -f
+      - rtsp
+      - -rtsp_transport
+      - tcp
+      - rtsp://mediamtx:8554/ensayo
+    volumes:
+      - ${EOVRT_ENSAYO_DIR:-${EOVRT_WORKSPACE}/e-ovrt_datasets/datasets/raw/clip_bench/clips}:/ensayo:ro
+    # Si mediamtx se reinicia, el publicador vuelve a conectarse solo.
+    restart: on-failure

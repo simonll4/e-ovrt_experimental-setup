@@ -695,6 +695,19 @@ vocabulario:
           Evaluación sobre entorno: el escenario en vivo. Los planos se acoplan
           por un bus de eventos y la corrida es uno a uno. Toda corrida en vivo
           es re-evaluable offline y produce artefactos idénticos.
+      - id: capture_to_host
+        termino: captura → host
+        definicion: >
+          El tramo que va desde que la cámara captura el cuadro hasta que el
+          cuadro sale de la cola en el host. Se mide aparte del G2A, que arranca
+          recién ahí: sumados, por cuadro, dan el recorrido de la imagen a la
+          detección.
+      - id: testigo_mqtt
+        termino: testigo MQTT
+        definicion: >
+          Un suscriptor del broker, independiente del distribuidor, que registra
+          cada notificación con su hora de llegada. Es la prueba de que la alerta
+          pasó por el broker, no la palabra del que la envió.
       - id: G0
         termino: G0
         mono: true

@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
 import { cleanup, fireEvent, render, screen, within } from '../test-utils'
 import App from '../App'
-import { crumbsFor } from '../nav'
+import { GEN1, crumbsFor } from '../nav'
 import type { ArchivedRun, EvidenceResult, EvidenceStep } from '../types'
 
 // `rid` es el resultado que aparece en el paso 3 con título propio
@@ -174,12 +174,16 @@ it('usa el título del usuario cuando está, en vez de la etiqueta derivada', as
   expect(screen.queryByRole('link', { name: 'g1 gdinotiny560 v2short subject' })).toBeNull()
 })
 
-it('las migas conservan id con barra en query y la raíz sigue siendo Corridas', () => {
+// Desde la generación 2 (doc 135) este recorrido es la «Validación inicial».
+const V = GEN1.label
+
+it('las migas conservan id con barra en query; la raíz es «Para el tribunal» y Corridas vive aparte', () => {
   const search = `?${new URLSearchParams({ id: rid, plane: 'media-plane', run_id: 'm1' })}`
   const crumbs = crumbsFor('/evidencia/run', search)
-  expect(crumbs.map(crumb => crumb.label)).toEqual(['Evidencia', rid, 'm1'])
+  expect(crumbs.map(crumb => crumb.label)).toEqual([V, rid, 'm1'])
   expect(new URL(crumbs[1].to, 'http://localhost').searchParams.get('id')).toBe(rid)
-  expect(crumbsFor('/')).toEqual([{ to: '/', label: 'Corridas' }])
+  expect(crumbsFor('/')).toEqual([{ to: '/', label: 'Para el tribunal' }])
+  expect(crumbsFor('/corridas')).toEqual([{ to: '/corridas', label: 'Corridas' }])
 })
 
 it('la entrada muestra los cuatro números del argumento, no las colecciones', async () => {
@@ -234,18 +238,18 @@ it('una falla de lectura del paso (no 404) no se disfraza de "no existe"', async
   expect(screen.queryByText('Ese paso del recorrido no existe.')).toBeNull()
 })
 
-it('las migas encadenan Evidencia > Paso N y Evidencia > Respaldo instrumental', () => {
-  expect(crumbsFor('/evidencia/paso', '?n=3').map(c => c.label)).toEqual(['Evidencia', 'Paso 3'])
-  expect(crumbsFor('/evidencia/respaldo').map(c => c.label)).toEqual(['Evidencia', 'Respaldo instrumental'])
+it('las migas encadenan Validación inicial > Paso N y > Respaldo instrumental', () => {
+  expect(crumbsFor('/evidencia/paso', '?n=3').map(c => c.label)).toEqual([V, 'Paso 3'])
+  expect(crumbsFor('/evidencia/respaldo').map(c => c.label)).toEqual([V, 'Respaldo instrumental'])
 })
 
-it('un resultado abierto desde un paso encadena Evidencia > Paso N > resultado', () => {
+it('un resultado abierto desde un paso encadena Validación inicial > Paso N > resultado', () => {
   const search = `?${new URLSearchParams({ id: rid, paso: '3' })}`
-  expect(crumbsFor('/evidencia/resultado', search).map(c => c.label)).toEqual(['Evidencia', 'Paso 3', rid])
+  expect(crumbsFor('/evidencia/resultado', search).map(c => c.label)).toEqual([V, 'Paso 3', rid])
   // Sin `paso` en el query (se entró directo, o desde el respaldo) la miga
   // vuelve a los dos niveles de siempre: no se inventa un paso de origen.
   expect(crumbsFor('/evidencia/resultado', `?${new URLSearchParams({ id: rid })}`).map(c => c.label))
-    .toEqual(['Evidencia', rid])
+    .toEqual([V, rid])
 })
 
 describe('el resultado con su desglose (Task 6)', () => {

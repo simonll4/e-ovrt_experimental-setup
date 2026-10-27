@@ -1,0 +1,45 @@
+schema: prueba.gen2.v1
+id: ALR-05
+titulo: "Alerta por episodio con fusión E-IND ∨ E-DIR (H1)"
+informe: ["Tabla 53", "§17.5.4"]
+fase: F5
+familia: clips
+estado: no_se_regenera
+no_se_regenera: >
+  Contraste contra el campeón (ALR-01): una relectura sin inferencia nueva sobre las detecciones
+  de ALR-01 y ALR-04. Como ALR-04 no se regenera, ésta tampoco. La cifra vigente es la de la
+  generación 1 re-evaluada con el GT corregido, y su conclusión (la fusión queda por debajo del
+  campeón: C4) se sostuvo en el 100 % de las referencias simuladas hasta ±2 s en el piloto de
+  sensibilidad del doc 134.
+depende_de: [ALR-01, ALR-04]
+pregunta: >
+  Fusionando por disyunción las detecciones de ALR-01 (indirecta) y ALR-04 (directa), sin
+  inferencia nueva, ¿mejora la alerta respecto de la indirecta sola?
+gen1:
+  result_id: h1_gdinotiny560_hybor_scene
+  doc: operacion/87
+  evals: results/clip_bench/h1_gdinotiny560_hybor_scene/evals
+  clips_gt_corregido: [a_p1_c05, a_p2_c01, a_p2_c02, a_p2_c05, a_p7_c02, a_p7_c03, a_p8_c01, a_p9_c08]
+  referencia:
+    fuente: docs/operacion/datos/134-piloto-gt02-sensibilidad-bordes/gt02_todas_gt_corregido.json (H1)
+    valores: {episodes_total: 33, episodes_censored: 0, episodes_evaluable: 33, matched: 13, missed: 20,
+              false_positives: 34, re_alerts: 5, sub_threshold: 0, recall_micro: 0.393939,
+              precision_micro: 0.276596, f1_micro: 0.325, neg_false_positives: 2}
+  cifras:
+    - {clave: f1, nombre: "F1 por episodio (micro)", valor: 0.325}
+    - {clave: precision, nombre: "Precisión", valor: 0.276596}
+    - {clave: recall, nombre: "Recall", valor: 0.393939}
+    - {clave: falsas_alarmas, nombre: "Falsas alarmas en clips sin infracción", valor: 2}
+esperado: "Igual a la generación 1 re-evaluada con el GT corregido (F1 0,325, por debajo de T1)."
+veredictos_posibles: [identico, equivalente_con_diferencia, otra_combinacion]
+config:
+  modelo: grounding-dino/gdino-tiny-560 (detecciones de ALR-01 y ALR-04)
+  fusion: merge_dual_run.merge_detection_streams, clases directas cr01_spec y cr02_obs
+  pattern_set: cr01_cr02_hyb_or_v1
+receta:
+  tipo: fusion
+  clips: rodaje
+  fusion: {eind: ALR-01, edir: ALR-04, clases_directas: [cr01_spec, cr02_obs]}
+  control: {patrones: cr01_cr02_hyb_or_v1, activos: [CR-01, CR-02]}
+  timeout_s: 900
+salida: e-ovrt_experimental-setup/results/gen2/ALR-05/

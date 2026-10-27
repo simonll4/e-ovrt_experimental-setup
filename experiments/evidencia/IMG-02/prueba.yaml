@@ -1,0 +1,78 @@
+schema: prueba.gen2.v1
+id: IMG-02
+titulo: "Percepción sobre bench_v3: gdino-base-560 (contraste)"
+informe: ["Tabla 51"]
+fase: F4
+familia: imagenes
+estado: no_se_regenera
+no_se_regenera: >
+  Contraste contra el campeón (IMG-01) sobre las mismas 6.477 imágenes: cambia el modelo, no la
+  plataforma. No se regenera porque IMG-01 recorre el mismo camino (inferencia y evaluación por
+  estrato) en la PC de la demo. La cifra vigente es la de la generación 1: sus corridas de julio,
+  re-evaluadas el 2026-10-26 con el código de la generación 2, reproducen el 0,525 de la Tabla 51.
+pregunta: "¿Qué logra el especialista base-560 sobre bench_v3, por estrato y agregado?"
+gen1:
+  result_id: confirmacion_b5 (doc 64 y 66)
+  doc: operacion/66
+  corridas: {obra_test: run_20260723_023713_dbe_grounding_dino_735826, obra_val: run_20260723_023728_dbe_grounding_dino_2ac334,
+             shel5k: run_20260723_041634_dbe_grounding_dino_a86693, chv: run_20260723_043046_dbe_grounding_dino_cc967f}
+  referencia:
+    fuente: las corridas de la generación 1 re-evaluadas el 2026-10-26 con este mismo código (reproduce 0,525)
+    valores:
+      mAP50: 0.52492
+      ap50_person: 0.706771
+      ap50_helmet: 0.422159
+      ap50_vest: 0.575867
+      ap50_bare_head: 0.394885
+      obra_test.person: 0.6212
+      obra_test.helmet: 0.6278
+      obra_test.vest: 0.5821
+      obra_test.bare_head: 0.0422
+      obra_test.cr01_recall: 0.32
+      obra_val.person: 0.7081
+      obra_val.helmet: 0.6145
+      obra_val.vest: 0.5817
+      obra_val.bare_head: 0.0073
+      obra_val.cr01_recall: 0.5143
+      chv.person: 0.7827
+      chv.helmet: 0.4527
+      chv.vest: 0.5756
+      shel5k.person: 0.6926
+      shel5k.helmet: 0.4149
+      shel5k.bare_head: 0.3986
+      shel5k.cr01_recall: 0.6016
+  cifras:
+    - {clave: map50, nombre: "mAP50 ponderado (bench_v3, 6.477 imágenes)", valor: 0.52492}
+    - {clave: ap50_person, nombre: "AP50 person (ponderado por n_gt)", valor: 0.706771}
+    - {clave: ap50_helmet, nombre: "AP50 helmet (ponderado por n_gt)", valor: 0.422159}
+    - {clave: ap50_vest, nombre: "AP50 vest (ponderado por n_gt)", valor: 0.575867}
+    - {clave: ap50_bare_head, nombre: "AP50 bare_head (ponderado por n_gt)", valor: 0.394885}
+esperado: "Idéntico estrato por estrato. El recall CR-01 agregado se reporta con su n (ver IMG-01)."
+veredictos_posibles: [identico, equivalente_con_diferencia, otra_combinacion]
+config:
+  modelo: grounding-dino/gdino-base-560
+  prompt_set: cr01_cr02_bench_v2 (person, helmet, vest, bare_head)
+receta:
+  instancia: mp-gdino-base-560
+  modelo: grounding-dino/gdino-base-560
+  prompts:
+    set_id: cr01_cr02_bench_v2
+    fuente: prompts/cr01_cr02_bench_v2.yaml
+    clases: [person, helmet, vest, bare_head]
+    frozen: {prompts/cr01_cr02_bench_v2.yaml: 9775f75b66aea610882075047a640bbc51176373864a0793fdb15e036b5437e8}
+  clases: [person, helmet, vest, bare_head]
+  estratos:
+    - {id: obra_test, imagenes: datasets/raw/construction_site_safety/test/images,
+       coco: datasets/processed/coco/bench/curated/construction_site_safety_bench_obra_test.json,
+       person_gt: datasets/processed/coco/bench/curated/person_gt_bench_obra.json}
+    - {id: obra_val, imagenes: datasets/raw/construction_site_safety/valid/images,
+       coco: datasets/processed/coco/bench/curated/construction_site_safety_bench_obra_val.json,
+       person_gt: datasets/processed/coco/bench/curated/person_gt_bench_obra.json}
+    - {id: chv, imagenes: datasets/raw/chv/CHV_dataset/images,
+       coco: datasets/processed/coco/bench/curated/bench_stratum_chv.json,
+       person_gt: datasets/processed/coco/bench/curated/person_gt_bench_obra.json}
+    - {id: shel5k, imagenes: "datasets/raw/shel5k/9rcv8mm682-4/Safety Helmet Wearing Dataset/Images",
+       coco: datasets/processed/coco/bench/curated/bench_stratum_shel5k.json,
+       person_gt: datasets/processed/coco/bench/curated/person_gt_shel5k.json}
+  timeout_s: 7200
+salida: e-ovrt_experimental-setup/results/gen2/IMG-02/

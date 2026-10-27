@@ -95,7 +95,9 @@ no por campaña: **FAR/hora se reporta pero no sostiene una cota** (D-90.1 **pre
 el 08-07/09 — limitación **L1**: con el clip soak del estrato B la métrica pasó a ser
 computable, 29,2 y 1.850,8 FA/hora = 3 y 190 FP en 6:09,6, pero 0,1027 h están a dos
 órdenes de magnitud de las 3 h que exigiría afirmar una cota; la evidencia principal
-sigue siendo el control de negativos), sin doble anotación (sin kappa, decisión
-declarada — **L2**), bordes adjudicados en 6 clips (**L3**), **obra real medida pero
+sigue siendo el control de negativos), sin doble anotación al azar (sin kappa —
+**L2**; ✎ 2026-10: revisión dirigida de 8 clips que corrigió el GT, ver
+`e-ovrt_datasets/datasets/registry/revision_dirigida_2026-10/`; las cifras de esta
+carpeta son del GT anterior), bordes adjudicados en 6 clips (**L3**), **obra real medida pero
 acotada** (**L4 precisada**, D-113.1: el estrato B aportó 13 clips no guionados, y su
 contenido nuevo es la frontera de juzgabilidad), escenarios desbalanceados (**L5**).

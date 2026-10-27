@@ -70,7 +70,8 @@ beforeEach(() => {
 // documento) y "Línea de base del Nivel B" deja de ser un match único.
 afterEach(() => { cleanup(); vi.unstubAllGlobals() })
 
-const montar = () => render(<MemoryRouter initialEntries={['/']}><App /></MemoryRouter>)
+// La lista de corridas vive en /corridas desde la generación 2 (doc 135 §3.1).
+const montar = () => render(<MemoryRouter initialEntries={['/corridas']}><App /></MemoryRouter>)
 
 it('arranca agrupada por resultado: pide los grupos, no las 472 filas', async () => {
   montar()

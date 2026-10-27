@@ -212,6 +212,26 @@ export function IconNavEvidence() {
   )
 }
 
+/** «Para el tribunal»: una balanza (las observaciones y su respuesta). */
+export function IconNavTribunal() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden="true">
+      <path d="M8 2.4v11.2M4.6 13.6h6.8M3 4.6h10" />
+      <path d="M3 4.6L1.4 8.6a1.9 1.9 0 0 0 3.2 0zM13 4.6l-1.6 4a1.9 1.9 0 0 0 3.2 0z" />
+    </svg>
+  )
+}
+
+/** «Demo en vivo»: una pantalla con el triángulo de reproducir. */
+export function IconNavDemo() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden="true">
+      <rect x="1.8" y="2.8" width="12.4" height="8.6" rx="1.2" />
+      <path d="M6.8 5.3l2.9 1.8-2.9 1.8zM5.4 13.6h5.2" />
+    </svg>
+  )
+}
+
 export function IconNavPlatform() {
   return (
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden="true">

@@ -18,6 +18,7 @@ from eovrt_webconsole.experiment.manifest import ExperimentManifest, generate_ex
 from eovrt_webconsole.experiment.runner import (
     ControlBackendProtocol,
     MediaBackendProtocol,
+    RunHooks,
     run_experiment,
 )
 
@@ -73,12 +74,28 @@ class ExperimentRunManager:
         self._active_id = experiment_id
         self._states[experiment_id] = {"experiment_id": experiment_id, "status": "running"}
 
+        # Los ids de las corridas entran al estado APENAS se conocen (antes solo
+        # aparecian al terminar): quien mira un experimento en curso ya puede ir a
+        # sus corridas. Si el llamador trae sus propios ganchos (la demo), se
+        # encadenan: los dos reciben los ids.
+        hooks: RunHooks = run_kwargs.pop("hooks", None) or RunHooks()
+        propio = hooks.on_ids
+
+        def _publicar(ids: dict[str, str]) -> None:
+            state = self._states.get(experiment_id)
+            if state is not None and state.get("status") == "running":
+                state.update(ids)
+            if propio is not None:
+                propio(ids)
+
+        hooks.on_ids = _publicar
         task = asyncio.create_task(
             run_experiment(
                 manifest,
                 media_backend=media_backend,
                 control_backend=control_backend,
                 now=now,
+                hooks=hooks,
                 **run_kwargs,
             )
         )
@@ -125,6 +142,17 @@ class ExperimentRunManager:
     def get(self, experiment_id: str) -> dict[str, Any] | None:
         """Estado/resultado de un experimento por id (activo o ya terminado)."""
         return self._states.get(experiment_id)
+
+    def cancel(self, experiment_id: str) -> bool:
+        """Cancela el task del experimento activo si es ese id (la demo, cuando el
+        cierre en cascada vence su tiempo). `_on_done` libera el slot y lo deja
+        `failed`/"cancelado". Devuelve si había algo que cancelar."""
+        if self._active_id != experiment_id or self._active_task is None:
+            return False
+        if self._active_task.done():
+            return False
+        self._active_task.cancel()
+        return True
 
     async def aclose(self) -> None:
         """Cancela y espera el task activo (teardown de la app: evita el warning
