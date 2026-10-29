@@ -24,6 +24,7 @@ FAMILIAS = (
     "analisis",
     "vivo",
     "rodaje",
+    "figuras",
 )
 # `no_se_regenera`: prueba de contraste cuya cifra vigente es la de la generación 1 (doc 134
 # §13.6). Queda en el catálogo con su receta: las fases la saltean, un ID explícito la corre.

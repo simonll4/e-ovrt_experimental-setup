@@ -198,7 +198,9 @@ def test_el_catalogo_y_las_observaciones_del_workspace_se_leen_completos():
     obs = g.observaciones()
     if not obs["available"]:
         pytest.skip("sin el repo privado docs al lado: las observaciones no se pueden cotejar")
-    assert [o["numero"] for o in obs["observaciones"]] == list(range(1, 11))
+    # Pueden sumarse observaciones: se exige numeración corrida desde 1 y el piso de las primeras diez.
+    numeros = [o["numero"] for o in obs["observaciones"]]
+    assert len(numeros) >= 10 and numeros == list(range(1, len(numeros) + 1))
     ids = {p["id"] for p in pruebas}
     for o in obs["observaciones"]:
         for p in o["pruebas"]:

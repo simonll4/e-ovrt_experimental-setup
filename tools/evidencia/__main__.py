@@ -29,7 +29,7 @@ from .huellas import HuellaInvalida, armar_prompts
 from .registro import Carpeta, PreRegistroCambiado, ahora, escribir_json
 
 VEREDICTOS = ("identico", "equivalente_con_diferencia", "otra_combinacion")
-SIN_CONSOLA = {"integridad", "analisis"}  # no disparan corridas
+SIN_CONSOLA = {"integridad", "analisis", "figuras"}  # no disparan corridas
 
 
 def _avisar(texto: str) -> None:

@@ -91,6 +91,8 @@ export const GRUPOS: Array<{ titulo: string; informe: string; prefijos: string[]
     explica: 'Si el sistema determina bien, persona por persona, quién no tiene casco o chaleco.' },
   { titulo: 'Alerta por episodio', informe: 'Tabla 53', prefijos: ['ALR'],
     explica: 'Si las alertas aparecen cuando corresponde, contra la referencia temporal anotada a mano del rodaje y de obra real.' },
+  { titulo: 'Errores y seguimiento', informe: '§17.5.4 · §18.3', prefijos: ['ERR', 'SEG', 'VIS'],
+    explica: 'Por qué se equivoca el sistema en obra real, causa por causa y con los cuadros anotados, y cuántas veces el seguimiento le cambia la identidad a una misma persona.' },
   { titulo: 'Tiempo real', informe: 'Tabla 54', prefijos: ['DEN', 'RT', 'DIST'],
     explica: 'Cuánto tarda la cadena en vivo, cuánto rendimiento sobrevive a ver menos cuadros por segundo y cuánto tarda la notificación.' },
   { titulo: 'Referencia', informe: '§17.5.7', prefijos: ['GT'],

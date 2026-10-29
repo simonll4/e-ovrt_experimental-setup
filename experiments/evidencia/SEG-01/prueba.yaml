@@ -1,0 +1,43 @@
+schema: prueba.gen2.v1
+id: SEG-01
+titulo: "Fragmentación de identidad del rastreador de la plataforma (47 clips)"
+informe: ["§17.5.7", "§18.6"]
+fase: F5
+familia: analisis
+depende_de: [ALR-01, ALR-07]
+pregunta: >
+  Contra las trayectorias de la referencia (CVAT, con las identidades corregidas por la revisión
+  dirigida), ¿cuántas veces el rastreador de la plataforma cambia la identidad de una misma
+  persona, cuántos tracks distintos le asigna y qué fracción de sus cajas cubre? En el rodaje (34
+  clips, por escenario, con los cruces de P7) y en obra real (13 clips).
+gen1:
+  result_id: (piloto 137)
+  doc: operacion/137
+  referencia:
+    fuente: >
+      docs/operacion/datos/137-sondeo-falsas-alarmas-obra-real/piloto_gen1.py: este mismo código
+      sobre las identidades de la generación 1 (rodaje: tracked de G1, doc 89; obra real: tracked de
+      I2, doc 110), con la referencia vigente (2026-10-29).
+    valores:
+      rodaje.cobertura: 0.9873
+      rodaje.cambios_de_identidad: 32
+      rodaje.cambios_por_persona_minuto: 1.5391
+      rodaje.tracks_por_persona_media: 1.6739
+      obra_real.cobertura: 0.8433
+      obra_real.cambios_de_identidad: 2012
+      obra_real.cambios_por_persona_minuto: 22.2021
+      obra_real.tracks_por_persona_media: 7.3455
+esperado: >
+  Idéntico al piloto si ALR-01 y ALR-07 reproducen las detecciones de la generación 1. En el piloto
+  los cruces de P7 concentran 24 de los 32 cambios del rodaje.
+  Qué NO es: MOTA, IDF1 ni HOTA. La referencia no garantiza que estén anotadas todas las personas
+  (ERR-01 encontró tracks sin persona de referencia), y esas métricas castigarían como falso
+  positivo a una persona sin anotar. Acá se mide solo sobre las personas anotadas: cobertura,
+  cambios de identidad (A→B a lo largo de los cuadros emparejados) y tracks por persona.
+  Emparejamiento cuadro a cuadro, voraz por IoU descendente, umbral 0,5. MOT17 y OVT-B quedan fuera
+  del alcance y así se declara (doc 137 §4.5).
+veredictos_posibles: [identico, equivalente_con_diferencia]
+receta:
+  bancos: {rodaje: ALR-01, obra_real: ALR-07}
+  iou: 0.5
+salida: e-ovrt_experimental-setup/results/gen2/SEG-01/

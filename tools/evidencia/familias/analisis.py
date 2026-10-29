@@ -1,4 +1,5 @@
-"""Análisis sin GPU sobre lo que dejaron otras pruebas: DEN-07, GT-01 y GT-02.
+"""Análisis sin GPU sobre lo que dejaron otras pruebas: DEN-07, GT-01, GT-02 y, desde el
+2026-10-29 (doc 137), ERR-01, ERR-02 y SEG-01 (módulo `errores`).
 
 - DEN-07: ganancia por identidad por densidad, bootstrap pareado por clip — transcripción de
   la sección 1 de `docs/operacion/datos/96-critica-verificacion.py` (10.000 remuestreos,
@@ -26,7 +27,7 @@ from ..comparar import proponer
 from ..herramientas import clips_de, importar_datasets
 from ..huellas import sha256_archivo
 from ..registro import Carpeta
-from . import Contexto, familia
+from . import Contexto, errores, familia
 
 # --- DEN-07 ---------------------------------------------------------------------------
 
@@ -321,7 +322,8 @@ def _gt02(ctx: Contexto, prueba: Prueba, carpeta: Carpeta) -> dict:
             **({"solo_generacion_1": res["solo_generacion_1"]} if solo_gen1 else {})}
 
 
-_PRUEBAS = {"DEN-07": _den07, "GT-01": _gt01, "GT-02": _gt02}
+_PRUEBAS = {"DEN-07": _den07, "GT-01": _gt01, "GT-02": _gt02,
+            "ERR-01": errores.anatomia, "ERR-02": errores.anatomia, "SEG-01": errores.fragmentacion}
 
 
 @familia("analisis")

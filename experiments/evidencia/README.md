@@ -32,16 +32,46 @@ clip, estrato por estrato).
 | Fase | Pruebas | GPU | Duración estimada en la Victus |
 |---|---|---|---|
 | F1 | `INT-01`, `INT-02`, `INT-03`, `PLAT-01`, `GT-01` | no | ~10 min (hashea 6.477 imágenes y 47 videos) |
-| F3 | `ALR-01`, `ALR-07` | sí | ~3 h |
-| F4 | `IMG-01`, `EXT-01`, `PER-01`, `DEN-01`, `DEN-03`, `DEN-05` | sí | ~1,5 h |
-| F5 | `ALR-02`, `ALR-08`, `DEN-02`, `DEN-04`, `DEN-06`, `DEN-07`, `PER-03`, `GT-02` | casi no (PER-03 infiere 4 clips cortos) | ~1 h (GT-02 es lo largo) |
+| F3 | `ALR-01`, `ALR-07`, `ALR-09` | sí | ~4,8 h (`ALR-09` a 800 px, ~1,8 h) |
+| F4 | `IMG-01`, `IMG-04`, `EXT-01`, `PER-01`, `DEN-01`, `DEN-03`, `DEN-05` | sí | ~1,9 h (`IMG-04` a 800 px, ~0,4 h) |
+| F5 | `ALR-02`, `ALR-08`, `ALR-10`, `DEN-02`, `DEN-04`, `DEN-06`, `DEN-07`, `PER-03`, `GT-02`, `ERR-01`, `ERR-02`, `SEG-01`, `VIS-01` | casi no (PER-03 infiere 4 clips cortos) | ~1,5 h (GT-02 es lo largo; `VIS-01` extrae ~50 cuadros con ffmpeg) |
 | F6 | `RT-01`, `RT-02`, `DIST-01` | sí | ~30 min |
 | F7 | `RT-04` (la obra simulada en vivo, toma por toma por `/demo`), `RT-05` (el compromiso entre familias de modelo y cadencias, con la misma escena), `RT-03` (latencia) — con el equipo, OAK-D, casco y chaleco | sí | una jornada (~14 escenas, ensayos de la demo y la matriz de RT-05) |
 
-F3 y F4 entran en **una noche** (~4,3 h de GPU estimadas; `.\evidencia.ps1 -Fondo correr F3 F4`).
-El driver cambia solo la instancia del modelo cuando una prueba pide otra (`mp-mock` para
-EXT-01; `mp-gdino-base-560` y `mp-yoloe-26x` solo si se corre a mano un contraste): usa el
-mismo mecanismo que el botón de la consola.
+F3 y F4 entran en **una noche** (~6,7 h de GPU estimadas desde la enmienda del 2026-10-29;
+`.\evidencia.ps1 -Fondo correr F3 F4`). El driver cambia solo la instancia del modelo cuando
+una prueba pide otra (`mp-gdino-tiny` para ALR-09 e IMG-04; `mp-mock` para EXT-01;
+`mp-gdino-base-560` y `mp-yoloe-26x` solo si se corre a mano un contraste): usa el mismo
+mecanismo que el botón de la consola. **`mp-gdino-tiny` se crea antes de la noche** (paso 5 de
+«Antes de empezar»): crear un contenedor durante la campaña puede tirar la red de WSL.
+
+## Enmienda del 2026-10-29: errores, resolución y seguimiento (doc 137)
+
+Siete pruebas nuevas, pre-registradas **antes** de correr nada en la Victus, para explicar, con
+cifras y con los cuadros, por qué el sistema se equivoca en obra real:
+
+| Id | Qué hace | GPU |
+|---|---|---|
+| `ALR-09` | obra real con `gdino-tiny` a 800 px, caja 0,35, escena + variante por sujeto | ~1,8 h |
+| `ALR-10` | las detecciones de `ALR-07` re-umbraladas a 0,35 (560 px), escena + sujeto: la otra punta del contraste de resolución | no |
+| `IMG-04` | `bench_v3` a 800 px con caja 0,35, contra `IMG-01` re-umbralada a 0,35 (`comparador`) | ~0,4 h |
+| `ERR-01` | anatomía de las falsas alarmas por sujeto de obra real: causa por causa, fragmentación de identidad, tamaño de la persona, iluminación; muestra para revisión humana ciega | no |
+| `ERR-02` | la misma anatomía a 560 contra 800 px, con el mismo umbral | no |
+| `SEG-01` | fragmentación de identidad contra las trayectorias de la referencia, en los 47 clips (sin MOTA/HOTA) | no |
+| `VIS-01` | cuadros y recortes anotados de aciertos y fallos; la versión ciega de la muestra de `ERR-01` | no |
+
+`ERR-01` y `SEG-01` traen la cifra de la generación 1 (piloto con este mismo código,
+`docs/operacion/datos/137-…/piloto_gen1.py`): si `ALR-07/08` y `ALR-01` reproducen la
+generación 1, tienen que dar **idéntico**. El re-umbral es exacto para GDINO (el umbral se aplica
+antes del NMS); las cajas con puntaje exactamente igual al umbral se cuentan aparte.
+
+**Revisión humana de la muestra de `ERR-01` (después de `VIS-01`).** Los cuadros quedan en
+`defensa/figuras/VIS-01/` (fuera de git: incluyen clips de internet, que **nunca** se publican).
+Una persona del equipo abre solo `revision_ciega/`, completa `revision_ciega.csv` (¿la caja roja
+es una persona? ¿se ve el casco o el chaleco?), lo copia a `results/gen2/ERR-01/revision_humana.csv`
+y vuelve a correr `.\evidencia.ps1 correr ERR-01`: la concordancia queda en el resultado. Sin
+abrir `completas/` ni `muestra.json` antes de terminar. Para el informe se usan los `recortes/`,
+con las caras difuminadas a mano si hiciera falta.
 
 ## Lo que no se regenera: las pruebas de contraste (doc 134 §13.6)
 
@@ -149,16 +179,29 @@ corregido** (revisión dirigida del 2026-10-26), no la publicada en el v0.1.
    `e-ovrt_datasets/datasets/scripts/download/README.md`; las dos de Roboflow piden una clave
    personal gratuita. Los pesos se bajan con `make download-models` (versiones fijadas) y se
    verifican con `INT-03/modelos.sha256`.
-3. `docker compose build` y la plataforma arriba (`infra/platform/README.md`).
+3. `docker compose build` y la plataforma arriba (`infra/platform/README.md`). **Guardar la salida del build**
+   para PLAT-01, que registra su huella junto con la de la infraestructura declarada (el build corre acá, fuera
+   del driver), desde `infra/platform/`:
+   ```powershell
+   New-Item -ItemType Directory -Force ..\..\results\gen2\PLAT-01\logs | Out-Null
+   .\compose.ps1 build 2>&1 | Tee-Object -FilePath ..\..\results\gen2\PLAT-01\logs\compose_build.log
+   ```
+   Antes de commitearlo, mirar que no tenga rutas con el usuario de Windows (doc 134 §13.7).
 4. `.\evidencia.ps1 verificar todas` sin fallas bloqueantes.
+5. Crear una vez la instancia de 800 px que usan `ALR-09` e `IMG-04`, con la imagen actual, igual
+   que las de RT-05 (doc 136 §2), desde `infra/platform/`:
+   `.\compose.ps1 --profile models up --dry-run -d --no-build mp-gdino-tiny` (dice qué haría) y
+   `.\compose.ps1 --profile models create mp-gdino-tiny`. Si después ningún puerto responde:
+   Inicio → Reiniciar. Verificarla activándola desde Plataforma: tiene que decir *listo*.
 
 **Finales de línea.** Los repos no fijan finales de línea: un clon con Git para Windows
 (`core.autocrlf=true`) deja los JSON/YAML con CRLF. Las huellas los aceptan y lo declaran
 aparte (`ok_salvo_finales_de_linea`), pero lo prolijo es clonar con `git config --global
 core.autocrlf input`.
 
-## Lo que no está en el catálogo (decisiones abiertas, doc 134 §11)
+## Decisiones que eran abiertas (doc 134 §11), resueltas el 2026-10-29
 
-- `IMG-04` (tiny a 800 px con box 0,30): pide un perfil de modelo que no existe en el catálogo
-  del media-plane; si se aprueba, se agrega el perfil y su pre-registro como combinación nueva.
-- `SEG-01` (seguimiento en los cruces): reabre la exclusión de métricas MOT del ADR-015.
+- `IMG-04` entró como 800 px contra 560 px **con el mismo umbral (0,35)**: no hace falta un
+  perfil de modelo nuevo, porque el brazo de 560 px sale de re-umbralar `IMG-01`.
+- `SEG-01` entró en forma reducida: fragmentación de identidad sobre las personas anotadas, sin
+  MOTA/IDF1/HOTA (la referencia no garantiza que estén todas las personas anotadas).

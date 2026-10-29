@@ -5,6 +5,7 @@ Misma cadena que los runners de la generación 1 (`docs/operacion/datos/81-…`,
 
     inferencia: media (video_file, prompts congelados) → control replay → evaluate-alerts
     reuso:      detecciones de otra prueba → control replay (otra granularidad o densidad)
+    reumbral:   detecciones de otra prueba con un umbral de caja más alto → control replay
     fusion:     fusión E-IND + E-DIR de otras dos pruebas → control replay (H1)
 
 y al final `aggregate_clip_campaign.aggregate_campaign` contra el GT CORREGIDO del banco
@@ -238,7 +239,7 @@ def correr(ctx: Contexto, prueba: Prueba, carpeta: Carpeta) -> dict:
         prompts_payload, constancia_prompts = armar_prompts(r["medios"]["prompts"], ent.repo)
         if not ctx.reagregar:
             objetivo = preparar_modelo(ctx, r, carpeta)
-    elif tipo == "reuso":
+    elif tipo in ("reuso", "reumbral"):
         origen = ctx.corridas_completas(r["reusa"])
     elif tipo == "fusion":
         origen = {
@@ -285,8 +286,10 @@ def correr(ctx: Contexto, prueba: Prueba, carpeta: Carpeta) -> dict:
             nombre = _nombre(prueba, clip, variante["nombre"])
             reg = _replay(
                 ctx, prueba, carpeta, clip, nombre=nombre,
-                runs_media={"service": "media-plane", "config": previo.get("media_config"),
-                            "mode": "run", "reuse_run_id": previo["media_run_id"]},
+                runs_media={"service": "media-plane", "config": previo.get("media_config"), "mode": "run",
+                            # una corrida armada en disco (reumbral, fusión) se relee por su carpeta
+                            **({"reuse_run_dir": previo["reuse_run_dir"]} if previo.get("reuse_run_dir")
+                               else {"reuse_run_id": previo["media_run_id"]})},
                 control_spec=variante["control"],
                 detecciones=previo["detecciones"],
                 evals_dir=carpeta.dir / "variantes" / variante["nombre"] / "evals",
@@ -298,6 +301,31 @@ def correr(ctx: Contexto, prueba: Prueba, carpeta: Carpeta) -> dict:
                 ctx.avisar(f"      variante {variante['nombre']} FALLÓ: {reg.get('error')}")
 
     return _cerrar(ctx, prueba, carpeta, clips, variantes)
+
+
+def reumbralar(origen: Path, destino: Path, umbral: float) -> dict:
+    """Las detecciones de una corrida con un umbral de caja más alto, sin re-inferir.
+
+    Es exacto porque el adaptador de GDINO filtra por puntaje (`score > threshold`, en el
+    post-proceso de transformers) ANTES del NMS por clase, y una caja de puntaje menor nunca
+    suprime a una mayor: quitar las que no superan el umbral nuevo deja lo mismo que habría
+    dejado correr con él. Única salvedad: el puntaje se guarda redondeado a 4 decimales, así
+    que una caja con puntaje exactamente igual al umbral es ambigua; se cuentan aparte.
+    """
+    destino.parent.mkdir(parents=True, exist_ok=True)
+    antes = despues = empates = 0
+    with Path(origen).open(encoding="utf-8") as src, destino.open("w", encoding="utf-8") as dst:
+        for linea in src:
+            if not linea.strip():
+                continue
+            ev = json.loads(linea)
+            dets = ev.get("detections") or []
+            antes += len(dets)
+            empates += sum(1 for d in dets if float(d.get("confidence", 0.0)) == umbral)
+            ev["detections"] = [d for d in dets if float(d.get("confidence", 0.0)) > umbral]
+            despues += len(ev["detections"])
+            dst.write(json.dumps(ev, ensure_ascii=False) + "\n")
+    return {"detecciones_antes": antes, "detecciones_despues": despues, "puntaje_igual_al_umbral": empates}
 
 
 def _correr_clip(ctx, prueba, carpeta, clip, *, tipo, stride, prompts_payload, origen, evals_dir, timeout_s):
@@ -333,6 +361,23 @@ def _correr_clip(ctx, prueba, carpeta, clip, *, tipo, stride, prompts_payload, o
         runs_media = {"service": "media-plane", "config": fuente.get("media_config"),
                       "mode": "run", "reuse_run_id": fuente["media_run_id"]}
         detecciones = fuente["detecciones"]
+    elif tipo == "reumbral":
+        fuente = origen.get(clip)
+        if not fuente:
+            return {"estado": "fallo", "error": f"{r['reusa']} no tiene una corrida OK de {clip}"}
+        umbral = float(r["umbral"])
+        dir_umbral = ent.trabajo / prueba.id / f"reumbral_{clip}"
+        det = dir_umbral / "detections.jsonl"
+        stats = reumbralar(Path(fuente["detecciones"]), det, umbral)
+        carpeta.comando(f"reumbralar({fuente['detecciones']}, {det}, umbral>{umbral})")
+        (dir_umbral / "summary.json").write_text(json.dumps({
+            "run_id": dir_umbral.name,
+            "status": "succeeded",
+            "reumbral": {"origen_media_run_id": fuente["media_run_id"], "umbral": umbral, **stats},
+        }, indent=2, ensure_ascii=False), encoding="utf-8")
+        runs_media = {"service": "media-plane", "config": fuente.get("media_config"),
+                      "mode": "run", "reuse_run_dir": str(dir_umbral)}
+        detecciones = det
     else:  # fusion
         eind, edir = origen["eind"].get(clip), origen["edir"].get(clip)
         if not eind or not edir:
@@ -359,6 +404,8 @@ def _correr_clip(ctx, prueba, carpeta, clip, *, tipo, stride, prompts_payload, o
     registro = _replay(ctx, prueba, carpeta, clip, nombre=nombre, runs_media=runs_media,
                        control_spec=r["control"], detecciones=detecciones,
                        evals_dir=evals_dir, timeout_s=timeout_s)
+    if runs_media.get("reuse_run_dir"):
+        registro["reuse_run_dir"] = runs_media["reuse_run_dir"]
     if tipo == "inferencia" and registro.get("estado") == "ok":
         resumen_m = resumen_media(ent, registro["media_run_id"])
         registro["unidades"] = resumen_m.get("units_processed")

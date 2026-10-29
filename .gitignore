@@ -36,6 +36,9 @@ defensa/sesiones/*
 # mostrar caras; solo una captura revisada y sin caras se copia a results/gen2/<ID>/capturas/.
 defensa/capturas/
 defensa/jornada/
+# cuadros anotados de VIS-01: incluyen clips de internet, que nunca se publican (CLAUDE.md,
+# doc 137 §3.2), y caras; en results/gen2/VIS-01/ queda solo el índice con sus huellas.
+defensa/figuras/
 
 __pycache__/
 *.pyc

@@ -8,6 +8,7 @@ from __future__ import annotations
 import json
 import subprocess
 import sys
+from pathlib import Path
 
 import yaml
 
@@ -111,6 +112,35 @@ def _int03(ctx: Contexto, prueba: Prueba, carpeta: Carpeta) -> list[dict]:
     return chequeos
 
 
+# La infraestructura declarada: un Dockerfile por servicio y el compose de la plataforma completa.
+INFRA_DECLARADA = (
+    "e-ovrt_media-plane/infra/docker/Dockerfile",
+    "e-ovrt_control-plane/infra/docker/Dockerfile",
+    "e-ovrt_alert-distribution/infra/docker/Dockerfile",
+    "e-ovrt_experimental-setup/infra/console/Dockerfile",
+    "e-ovrt_experimental-setup/infra/platform/docker-compose.yml",
+    "e-ovrt_experimental-setup/infra/platform/docker-compose.demo.yml",
+)
+LOG_BUILD = "compose_build.log"
+
+
+def infra_declarada(ent, logs: Path) -> dict:
+    """Las huellas de la infraestructura con la que se construyó la plataforma y, si la preparación
+    guardó la salida de `docker compose build` en `logs/compose_build.log`, la huella de ese log
+    (doc 137 §8). Es información, no un chequeo: el build corre en la preparación, fuera del driver."""
+    archivos = {rel: (sha256_archivo(ent.ws / rel) if (ent.ws / rel).is_file() else None) for rel in INFRA_DECLARADA}
+    log = logs / LOG_BUILD
+    build = None
+    if log.is_file():
+        crudo = log.read_bytes()
+        # `Tee-Object` de Windows PowerShell 5.1 escribe UTF-16 con BOM; Git Bash y WSL, UTF-8.
+        texto = crudo.decode("utf-16") if crudo[:2] in (b"\xff\xfe", b"\xfe\xff") else crudo.decode("utf-8", "replace")
+        lineas = texto.splitlines()
+        build = {"archivo": f"logs/{LOG_BUILD}", "sha256": sha256_archivo(log), "lineas": len(lineas),
+                 "imagenes_nombradas": sorted({x.split("naming to ")[1].split()[0] for x in lineas if "naming to " in x})}
+    return {"archivos": archivos, "build": build}
+
+
 def _plat01(ctx: Contexto, prueba: Prueba, carpeta: Carpeta) -> list[dict]:
     chequeos = []
     salud = ctx.consola.salud()
@@ -125,7 +155,8 @@ def _plat01(ctx: Contexto, prueba: Prueba, carpeta: Carpeta) -> list[dict]:
         chequeos.append(_chequeo("compose_ps", ps is not None, salida=ps))
     datos = foto(ctx.ent, objetivo=objetivo,
                  servicio_gpu=next((i["name"] for i in (instancias or []) if i.get("is_target")), None))
-    carpeta.escribir("plataforma.json", {"instancias": instancias, **datos})
+    carpeta.escribir("plataforma.json", {"instancias": instancias, **datos,
+                                         "infra_declarada": infra_declarada(ctx.ent, carpeta.logs)})
     chequeos.append(_chequeo("gpu_identificada", bool(datos.get("gpu")), gpu=datos.get("gpu")))
     return chequeos
 

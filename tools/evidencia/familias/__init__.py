@@ -88,4 +88,4 @@ def preparar_modelo(ctx: Contexto, receta: dict, carpeta: Carpeta) -> dict:
 
 
 # Registro de las familias (los módulos se registran al importarse).
-from . import analisis, clips, imagenes, integridad, nivel_a, rodaje, vivo  # noqa: E402,F401
+from . import analisis, clips, figuras, imagenes, integridad, nivel_a, rodaje, vivo  # noqa: E402,F401

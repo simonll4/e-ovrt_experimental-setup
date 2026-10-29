@@ -40,10 +40,12 @@ V2_SHORT = {
 # --- catálogo ------------------------------------------------------------------------
 
 
-def test_el_catalogo_real_carga_y_tiene_las_34_pruebas():
+def test_el_catalogo_real_carga_y_tiene_las_41_pruebas():
     catalogo = cat.cargar_catalogo(CATALOGO)
-    assert len(catalogo) == 34
+    assert len(catalogo) == 41
     assert {"ALR-01", "ALR-02", "IMG-01", "PER-03", "RT-04", "RT-05", "DIST-01", "GT-02"} <= set(catalogo)
+    # la enmienda del doc 137 (2026-10-29)
+    assert {"ALR-09", "ALR-10", "IMG-04", "ERR-01", "ERR-02", "SEG-01", "VIS-01"} <= set(catalogo)
     for prueba in catalogo.values():
         assert prueba.familia in cat.FAMILIAS
 

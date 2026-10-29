@@ -1,0 +1,62 @@
+schema: prueba.gen2.v1
+id: ERR-01
+titulo: "Anatomía de las falsas alarmas por sujeto en obra real"
+informe: ["§17.5.4", "§18.3", "§17.5.7"]
+fase: F5
+familia: analisis
+depende_de: [ALR-07, ALR-08]
+pregunta: >
+  De las falsas alarmas por sujeto en los 11 clips negativos de obra real, ¿cuántas se deben a
+  cada causa: una persona que no está en la referencia, un atributo no observable, una falta
+  real, el EPP no detectado, el EPP detectado fuera de la región que evalúa la regla, el EPP
+  disputado entre dos personas o detectado de forma intermitente? ¿Cuántas de más agrega la
+  fragmentación de identidad (la misma persona alertada con varios tracks)? ¿Cómo se reparten por
+  tamaño de la persona (en píxeles del cuadro y de la entrada del modelo) y por iluminación?
+gen1:
+  result_id: (piloto 137)
+  doc: operacion/137
+  referencia:
+    fuente: >
+      docs/operacion/datos/137-sondeo-falsas-alarmas-obra-real/piloto_gen1.py: este mismo código
+      (tools/evidencia/familias/errores.py) sobre las alertas, la traza y las identidades de I2 de la
+      generación 1 (2026-10-29). Cuenta exactamente las 323 del evaluador.
+    valores:
+      principal.falsas_alarmas: 323
+      principal.F-sin-persona: 84
+      principal.F-parcial: 15
+      principal.U: 21
+      principal.V: 1
+      principal.P-no-detectado: 109
+      principal.P-fuera-region: 0
+      principal.P-disputado: 8
+      principal.P-intermitente: 85
+      principal.alertas_extra_por_fragmentacion: 93
+      principal.discrepancias_reconstruccion: 0
+esperado: >
+  Idéntico al piloto si ALR-07/08 reproducen la generación 1 (doc 133: inferencia bit a bit igual
+  en la Victus) y la identidad que pone la plataforma coincide con la reconstruida en todas las
+  alertas (`discrepancias_reconstruccion` = 0; si no es 0, la prueba lo informa y se revisa a mano).
+  Como el piloto ya miró estas detecciones, esto es un análisis DESCRIPTIVO: el pre-registro fija la
+  taxonomía, las reglas de mayoría y la muestra ANTES de mirar cuadros (VIS-01), no una predicción.
+  Revisión humana: la muestra (hasta 5 por causa, semilla fija) se revisa a ciegas con los cuadros
+  de VIS-01; la concordancia (acuerdo y kappa sobre la causa gruesa) se agrega al resultado cuando
+  `revision_humana.csv` está completo. Una F que la persona ve como persona no es desacuerdo: es una
+  persona que la referencia no anotó, y se informa aparte.
+veredictos_posibles: [identico, equivalente_con_diferencia]
+config:
+  taxonomia: doc 137 §3.1 (docstring de tools/evidencia/familias/errores.py)
+  ventana: desde la última entrada del sujeto en `candidate` (pattern_events) hasta la alerta
+  persona_referencia: IoU ≥ 0,3 en la mayoría de los cuadros con el track (F-parcial si la mediana > 0,1)
+  region_y_umbral_del_epp: los del pattern set por sujeto (upper_body 0–45 % · torso 25–85 % · EPP ≥ 0,25)
+  escala_de_entrada: letterbox a un cuadrado de 560 (un 1920×1080 entra como 560×315)
+receta:
+  campanas:
+    principal:
+      detecciones: ALR-07
+      alertas: {prueba: ALR-08}
+      escena: {prueba: ALR-07}
+      patrones: cr01_cr02_v2_subject
+      tamano_entrada: 560
+      clips: internet
+  muestra: {campana: principal, por_causa: 5, semilla: 20261029}
+salida: e-ovrt_experimental-setup/results/gen2/ERR-01/

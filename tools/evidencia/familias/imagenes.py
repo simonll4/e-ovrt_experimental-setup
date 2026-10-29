@@ -22,7 +22,7 @@ from ..herramientas import escribir_yaml, importar_datasets, importar_media_plan
 from ..huellas import armar_prompts, sha256_archivo
 from ..registro import Carpeta, ahora
 from . import Contexto, familia, preparar_modelo
-from .clips import experiment_id_de, slug_de
+from .clips import experiment_id_de, reumbralar, slug_de
 
 TIMEOUT_S = 7200.0
 
@@ -139,7 +139,6 @@ def correr_imagenes(ctx: Contexto, prueba: Prueba, carpeta: Carpeta) -> dict:
         carpeta.resultado({"familia": "imagenes", "estado": "parcial", "pendientes": pendientes})
         return {"estado": "parcial", "pendientes": pendientes}
 
-    reporte = importar_datasets(ctx.ent, "curate.bench_v3_report")
     corridas = carpeta.corridas()
     evals = {}
     for e in estratos:
@@ -148,20 +147,7 @@ def correr_imagenes(ctx: Contexto, prueba: Prueba, carpeta: Carpeta) -> dict:
         carpeta.escribir(f"evals/eval_{e['id']}.json", ev)
         evals[e["id"]] = ev
     clases = list(r.get("clases") or ["person", "helmet", "vest", "bare_head"])
-    ponderado = reporte.weighted_map50(list(evals.values()), clases)
-    presentes = [v for v in ponderado.values() if v is not None]
-    recall = reporte.weighted_cr01_recall(list(evals.values()))
-    metricas: dict = {
-        "mAP50": round(sum(presentes) / len(presentes), 6) if presentes else None,
-        **{f"ap50_{c}": (round(v, 6) if v is not None else None) for c, v in ponderado.items()},
-        "recall_cr01": round(recall, 6) if recall is not None else None,
-        "n_violadores_cr01": sum(ev.get("cr01_n_violators") or 0 for ev in evals.values()),
-    }
-    for eid, ev in evals.items():
-        for c in ev["per_class"]:
-            metricas[f"{eid}.{c['class_name']}"] = c["AP50"]
-            metricas[f"{eid}.{c['class_name']}.n_gt"] = c["n_gt"]
-        metricas[f"{eid}.cr01_recall"] = ev.get("cr01_detection_recall")
+    metricas = metricas_bench(ctx, evals, clases)
     gen1 = (prueba.gen1.get("referencia") or {}).get("valores") or {}
     resumen = [
         {"clave": "map50", "nombre": "mAP50 ponderado (bench_v3, 6.477 imágenes)", "valor": metricas["mAP50"],
@@ -187,8 +173,59 @@ def correr_imagenes(ctx: Contexto, prueba: Prueba, carpeta: Carpeta) -> dict:
                         for eid, ev in evals.items()},
         "veredicto": proponer(metricas, prueba),
     }
+    if r.get("comparador"):
+        datos["comparador"] = _comparador(ctx, prueba, carpeta, r["comparador"], estratos, clases, metricas)
     carpeta.resultado(datos)
     return {"estado": "completo", "mAP50": metricas["mAP50"], "veredicto": datos["veredicto"]["propuesto"]}
+
+
+def metricas_bench(ctx: Contexto, evals: dict[str, dict], clases: list[str]) -> dict:
+    """Agregado ponderado de `bench_v3_report` (mAP50, AP por clase, recall CR-01) y el detalle por estrato."""
+    reporte = importar_datasets(ctx.ent, "curate.bench_v3_report")
+    ponderado = reporte.weighted_map50(list(evals.values()), clases)
+    presentes = [v for v in ponderado.values() if v is not None]
+    recall = reporte.weighted_cr01_recall(list(evals.values()))
+    metricas: dict = {
+        "mAP50": round(sum(presentes) / len(presentes), 6) if presentes else None,
+        **{f"ap50_{c}": (round(v, 6) if v is not None else None) for c, v in ponderado.items()},
+        "recall_cr01": round(recall, 6) if recall is not None else None,
+        "n_violadores_cr01": sum(ev.get("cr01_n_violators") or 0 for ev in evals.values()),
+    }
+    for eid, ev in evals.items():
+        for c in ev["per_class"]:
+            metricas[f"{eid}.{c['class_name']}"] = c["AP50"]
+            metricas[f"{eid}.{c['class_name']}.n_gt"] = c["n_gt"]
+        metricas[f"{eid}.cr01_recall"] = ev.get("cr01_detection_recall")
+    return metricas
+
+
+def _comparador(ctx: Contexto, prueba: Prueba, carpeta: Carpeta, spec: dict, estratos: list[dict],
+                clases: list[str], propias: dict) -> dict:
+    """La otra punta del contraste sin re-inferir: las corridas de otra prueba con un umbral de
+    caja más alto (`clips.reumbralar`, exacto para GDINO), evaluadas igual que las propias."""
+    origen = ctx.corridas_completas(spec["de"])
+    umbral = float(spec["umbral"])
+    evals, stats = {}, {}
+    for e in estratos:
+        fuente = ctx.ent.media_runs / origen[e["id"]]["media_run_id"]
+        run_dir = ctx.ent.trabajo / prueba.id / f"reumbral_{e['id']}"
+        stats[e["id"]] = reumbralar(fuente / "detections.jsonl", run_dir / "detections.jsonl", umbral)
+        carpeta.comando(f"reumbralar({fuente / 'detections.jsonl'}, {run_dir / 'detections.jsonl'}, umbral>{umbral})")
+        ev = evaluar_estrato(ctx, run_dir, ctx.ent.datasets / e["coco"], ctx.ent.datasets / e["person_gt"])
+        carpeta.escribir(f"comparador/evals/eval_{e['id']}.json", ev)
+        evals[e["id"]] = ev
+    metricas = metricas_bench(ctx, evals, clases)
+    claves = ["mAP50", *[f"ap50_{c}" for c in clases], *[f"{e['id']}.{c}" for e in estratos for c in clases]]
+    return {
+        "de": spec["de"],
+        "umbral": umbral,
+        "descripcion": spec.get("descripcion"),
+        "reumbral": stats,
+        "metricas": metricas,
+        "delta": {k: (round(propias[k] - metricas[k], 6)
+                      if isinstance(propias.get(k), (int, float)) and isinstance(metricas.get(k), (int, float))
+                      else None) for k in claves},
+    }
 
 
 # --- EXT-01: clase nueva sin entrenar ------------------------------------------------
