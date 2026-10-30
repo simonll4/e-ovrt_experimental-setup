@@ -157,7 +157,7 @@ El driver **propone** un veredicto contra la generación 1 (`identico`,
 declarada). Lo confirma una persona:
 
 ```powershell
-.\evidencia.ps1 veredicto ALR-01 identico --motivo "los 12 campos iguales a la gen 1 re-evaluada" --quien "Nombre"
+.\evidencia.ps1 veredicto ALR-01 identico --motivo "los 12 campos iguales a la gen 1 re-evaluada" --quien "equipo E-OVRT-VDP"
 ```
 
 Para el banco temporal, la referencia de la generación 1 es la **re-evaluada con el GT

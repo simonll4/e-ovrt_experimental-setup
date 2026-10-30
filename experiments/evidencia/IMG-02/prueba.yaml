@@ -6,10 +6,18 @@ fase: F4
 familia: imagenes
 # Enmienda 2026-10-30 (doc 134 §13.10): se regenera en la Victus como todas. El bloque gen1
 # queda solo como referencia del veredicto.
+# Corrección 2026-10-30, antes de F4 (doc 134 §13.11): se agrega `gen1.relacion`, la clave que lee
+# el driver; `esperado` ya decía `otra_combinacion` desde la enmienda, pero sin la clave el driver
+# proponía `a_revisar`.
 pregunta: "¿Qué logra el especialista base-560 sobre bench_v3, por estrato y agregado?"
 gen1:
   result_id: confirmacion_b5 (doc 64 y 66)
   doc: operacion/66
+  relacion: otra_combinacion
+  motivo: >
+    Desde la enmienda del 2026-10-30 (doc 134 §13.10), base-560 carga su cabeza de cajas entrenada,
+    que en la generación 1 quedaba sin cargar: cambió el modelo efectivo, no la máquina. La
+    diferencia con la generación 1 mide el efecto de esa cabeza y se muestra al lado.
   corridas: {obra_test: run_20260723_023713_dbe_grounding_dino_735826, obra_val: run_20260723_023728_dbe_grounding_dino_2ac334,
              shel5k: run_20260723_041634_dbe_grounding_dino_a86693, chv: run_20260723_043046_dbe_grounding_dino_cc967f}
   referencia:

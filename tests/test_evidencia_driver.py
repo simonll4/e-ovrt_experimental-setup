@@ -75,6 +75,20 @@ def test_los_contrastes_se_regeneran_con_sus_fases():
         assert catalogo[pid].gen1.get("cifras") or catalogo[pid].gen1.get("referencia"), pid
 
 
+def test_las_pruebas_con_base_que_no_corrieron_declaran_otra_combinacion():
+    # Doc 134 §13.11: `esperado` decía `otra_combinacion` desde la enmienda del 10-30, pero el driver
+    # lee `gen1.relacion` (comparar.proponer) y sin la clave proponía `a_revisar`. ALR-03 y ALR-06
+    # ya habían corrido en F3 cuando se vio: su pre-registro no se toca (una prueba no se re-ajusta)
+    # y su veredicto lo confirma una persona. IMG-02 y PER-02 se corrigieron antes de F4.
+    catalogo = cat.cargar_catalogo(CATALOGO)
+    for pid in ("IMG-02", "PER-02"):
+        assert catalogo[pid].gen1.get("relacion") == "otra_combinacion", pid
+        assert catalogo[pid].gen1.get("motivo"), pid
+        assert "otra_combinacion" in catalogo[pid].datos.get("veredictos_posibles", []), pid
+    for pid in ("ALR-03", "ALR-06"):
+        assert "relacion" not in catalogo[pid].gen1, f"{pid} corrió en F3 con el pre-registro sin la clave"
+
+
 def test_no_se_regenera_exige_motivo_y_cifra_vigente(tmp_path):
     ruta = _prueba(tmp_path, "ALR-03", estado="no_se_regenera")
     with pytest.raises(cat.CatalogoInvalido, match="dice por qué"):
