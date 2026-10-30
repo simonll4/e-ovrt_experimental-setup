@@ -32,17 +32,19 @@ clip, estrato por estrato).
 | Fase | Pruebas | GPU | Duración estimada en la Victus |
 |---|---|---|---|
 | F1 | `INT-01`, `INT-02`, `INT-03`, `PLAT-01`, `GT-01` | no | ~10 min (hashea 6.477 imágenes y 47 videos) |
-| F3 | `ALR-01`, `ALR-07`, `ALR-09` | sí | ~4,8 h (`ALR-09` a 800 px, ~1,8 h) |
-| F4 | `IMG-01`, `IMG-04`, `EXT-01`, `PER-01`, `DEN-01`, `DEN-03`, `DEN-05` | sí | ~1,9 h (`IMG-04` a 800 px, ~0,4 h) |
-| F5 | `ALR-02`, `ALR-08`, `ALR-10`, `DEN-02`, `DEN-04`, `DEN-06`, `DEN-07`, `PER-03`, `GT-02`, `ERR-01`, `ERR-02`, `SEG-01`, `VIS-01` | casi no (PER-03 infiere 4 clips cortos) | ~1,5 h (GT-02 es lo largo; `VIS-01` extrae ~50 cuadros con ffmpeg) |
+| F3 | `ALR-01`, `ALR-03`, `ALR-04`, `ALR-06`, `ALR-07`, `ALR-09` | sí | ~9 h (`ALR-09` a 800 px, ~1,8 h; `ALR-03` y `ALR-06` con base-560, que tarda ~2× tiny por cuadro) |
+| F4 | `IMG-01`, `IMG-02`, `IMG-03`, `IMG-04`, `EXT-01`, `PER-01`, `PER-02`, `DEN-01`, `DEN-03`, `DEN-05` | sí | ~4 h (`IMG-04` a 800 px, ~0,4 h; `IMG-02` y `PER-02` con base-560) |
+| F5 | `ALR-02`, `ALR-05`, `ALR-08`, `ALR-10`, `DEN-02`, `DEN-04`, `DEN-06`, `DEN-07`, `PER-03`, `GT-02`, `ERR-01`, `ERR-02`, `SEG-01`, `VIS-01` | casi no (PER-03 infiere 4 clips cortos) | ~1,5 h (GT-02 es lo largo; `VIS-01` extrae ~50 cuadros con ffmpeg) |
 | F6 | `RT-01`, `RT-02`, `DIST-01` | sí | ~30 min |
 | F7 | `RT-04` (la obra simulada en vivo, toma por toma por `/demo`), `RT-05` (el compromiso entre familias de modelo y cadencias, con la misma escena), `RT-03` (latencia) — con el equipo, OAK-D, casco y chaleco | sí | una jornada (~14 escenas, ensayos de la demo y la matriz de RT-05) |
 
-F3 y F4 entran en **una noche** (~6,7 h de GPU estimadas desde la enmienda del 2026-10-29;
-`.\evidencia.ps1 -Fondo correr F3 F4`). El driver cambia solo la instancia del modelo cuando
+F3 y F4 llevan **dos noches**, una por fase (~9 h + ~4 h de GPU, estimadas desde la enmienda del 2026-10-30, que
+regenera los contrastes: `.\evidencia.ps1 -Fondo correr F3` y, la noche siguiente, `correr F4`; el driver retoma
+donde quedó). Si el código del media-plane cambió desde el build, repetir el paso 3 de «Antes de empezar» (build con
+el log) y `correr PLAT-01` antes de F3, para que toda la evidencia salga de una sola imagen. El driver cambia solo la instancia del modelo cuando
 una prueba pide otra (`mp-gdino-tiny` para ALR-09 e IMG-04; `mp-mock` para EXT-01;
-`mp-gdino-base-560` y `mp-yoloe-26x` solo si se corre a mano un contraste): usa el mismo
-mecanismo que el botón de la consola. **`mp-gdino-tiny` se crea antes de la noche** (paso 5 de
+`mp-gdino-base-560` para ALR-03, ALR-06, IMG-02 y PER-02; `mp-yoloe-26x` para IMG-03): usa el mismo
+mecanismo que el botón de la consola. **`mp-gdino-tiny`, `mp-gdino-base-560` y `mp-yoloe-26x` se crean antes de la noche** (paso 5 de
 «Antes de empezar»): crear un contenedor durante la campaña puede tirar la red de WSL.
 
 ## Enmienda del 2026-10-29: errores, resolución y seguimiento (doc 137)
@@ -73,22 +75,13 @@ y vuelve a correr `.\evidencia.ps1 correr ERR-01`: la concordancia queda en el r
 abrir `completas/` ni `muestra.json` antes de terminar. Para el informe se usan los `recortes/`,
 con las caras difuminadas a mano si hiciera falta.
 
-## Lo que no se regenera: las pruebas de contraste (doc 134 §13.6)
+## Las pruebas de contraste se regeneran (doc 134 §13.10)
 
-`ALR-03`, `ALR-04`, `ALR-05`, `ALR-06`, `IMG-02`, `IMG-03` y `PER-02` comparan **otra
-configuración contra el campeón** (otro modelo, otra formulación, otra evidencia). Cambian el
-modelo o los prompts, no la plataforma: el mismo camino lo recorre en la Victus la prueba del
-campeón (`ALR-01`, `IMG-01`, `PER-01`). Su cifra vigente es la de la **generación 1**, re-evaluada
-con el GT corregido (ALR) o con el código de la generación 2 (IMG), escrita en su pre-registro
-(`gen1.cifras`) junto con el motivo (`no_se_regenera`). La consola las muestra como
-«Generación 1: no se regenera», con esa cifra y sin veredicto.
-
-- Las fases y `todas` **las saltean**; un ID explícito las corre igual
-  (`.\evidencia.ps1 correr ALR-04 ALR-05`) si alguna vez hiciera falta.
-- Ninguna prueba que se regenera depende de ellas: `GT-02` evalúa las 8 conclusiones de C1, C6,
-  C7 y C8 y copia las de C2–C5 del piloto de la generación 1 (todas sostenidas en ≥ 99 % hasta
-  ±2 s); el corpus de `DIST-01` son las corridas de control de las pruebas que se regeneran.
-- Es el mismo criterio que el ajuste fino (Tabla 55), que tampoco se regenera.
+`ALR-03`, `ALR-04`, `ALR-05`, `ALR-06`, `IMG-02`, `IMG-03` y `PER-02` comparan **otra configuración contra el
+campeón**: otro modelo, otra formulación u otra evidencia. Hasta el 2026-10-29 no se regeneraban (doc 134 §13.6).
+Desde la enmienda del 2026-10-30 **se corren en la Victus como todas**, dentro de sus fases. El bloque `gen1` de su
+pre-registro queda solo como referencia del veredicto. `GT-02` evalúa las 12 conclusiones, C2–C5 incluidas, sobre
+las alertas de la generación 2.
 
 ## Sesión en vivo con el equipo (F7): la obra simulada repetida en la Victus
 
@@ -188,10 +181,12 @@ corregido** (revisión dirigida del 2026-10-26), no la publicada en el v0.1.
    ```
    Antes de commitearlo, mirar que no tenga rutas con el usuario de Windows (doc 134 §13.7).
 4. `.\evidencia.ps1 verificar todas` sin fallas bloqueantes.
-5. Crear una vez la instancia de 800 px que usan `ALR-09` e `IMG-04`, con la imagen actual, igual
-   que las de RT-05 (doc 136 §2), desde `infra/platform/`:
-   `.\compose.ps1 --profile models up --dry-run -d --no-build mp-gdino-tiny` (dice qué haría) y
-   `.\compose.ps1 --profile models create mp-gdino-tiny`. Si después ningún puerto responde:
+5. Crear una vez las instancias de la campaña, con la imagen actual, igual que las de RT-05
+   (doc 136 §2), desde `infra/platform/`. Son `mp-gdino-tiny` (ALR-09, IMG-04), `mp-gdino-base-560`
+   (ALR-03, ALR-06, IMG-02, PER-02) y `mp-yoloe-26x` (IMG-03), estas dos desde el 2026-10-30:
+   `.\compose.ps1 --profile models up --dry-run -d --no-build mp-gdino-tiny mp-gdino-base-560 mp-yoloe-26x`
+   (dice qué haría) y `.\compose.ps1 --profile models create mp-gdino-tiny mp-gdino-base-560 mp-yoloe-26x`.
+   Si ya se crearon con el paso de doc 136 §2, no hace falta repetirlo. Si después ningún puerto responde:
    Inicio → Reiniciar. Verificarla activándola desde Plataforma: tiene que decir *listo*.
 
 **Finales de línea.** Los repos no fijan finales de línea: un clon con Git para Windows

@@ -24,9 +24,8 @@ y cada prueba de acá se compara contra ella.
 
 `indice.json` resume todas las pruebas (lo lee la consola).
 
-Siete pruebas de contraste (`ALR-03…06`, `IMG-02`, `IMG-03`, `PER-02`) no tienen carpeta acá: no
-se regeneran y su cifra vigente es la de la generación 1, escrita en su pre-registro
-(`gen1.cifras`, con el motivo en `no_se_regenera`).
+Las 41 pruebas del catálogo tienen carpeta acá. Desde la enmienda del 2026-10-30 (doc 134 §13.10), las siete de
+contraste (`ALR-03…06`, `IMG-02`, `IMG-03`, `PER-02`) también se regeneran.
 
 ## Tres veredictos posibles
 

@@ -4,12 +4,8 @@ titulo: "Percepción sobre bench_v3: gdino-base-560 (contraste)"
 informe: ["Tabla 51"]
 fase: F4
 familia: imagenes
-estado: no_se_regenera
-no_se_regenera: >
-  Contraste contra el campeón (IMG-01) sobre las mismas 6.477 imágenes: cambia el modelo, no la
-  plataforma. No se regenera porque IMG-01 recorre el mismo camino (inferencia y evaluación por
-  estrato) en la PC de la demo. La cifra vigente es la de la generación 1: sus corridas de julio,
-  re-evaluadas el 2026-10-26 con el código de la generación 2, reproducen el 0,525 de la Tabla 51.
+# Enmienda 2026-10-30 (doc 134 §13.10): se regenera en la Victus como todas. El bloque gen1
+# queda solo como referencia del veredicto.
 pregunta: "¿Qué logra el especialista base-560 sobre bench_v3, por estrato y agregado?"
 gen1:
   result_id: confirmacion_b5 (doc 64 y 66)
@@ -47,7 +43,9 @@ gen1:
     - {clave: ap50_helmet, nombre: "AP50 helmet (ponderado por n_gt)", valor: 0.422159}
     - {clave: ap50_vest, nombre: "AP50 vest (ponderado por n_gt)", valor: 0.575867}
     - {clave: ap50_bare_head, nombre: "AP50 bare_head (ponderado por n_gt)", valor: 0.394885}
-esperado: "Idéntico estrato por estrato. El recall CR-01 agregado se reporta con su n (ver IMG-01)."
+esperado: >
+  Referencia: la generación 1 estrato por estrato (mAP50 0,525). El recall CR-01 agregado se reporta
+  con su n (ver IMG-01). Desde la enmienda del 2026-10-30 (doc 134 §13.10), base-560 carga su cabeza de cajas entrenada, que en la generación 1 quedaba sin cargar. Por eso se espera `otra_combinacion`: la diferencia con la generación 1 mide el efecto de esa cabeza.
 veredictos_posibles: [identico, equivalente_con_diferencia, otra_combinacion]
 config:
   modelo: grounding-dino/gdino-base-560

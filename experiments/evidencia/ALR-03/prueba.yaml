@@ -4,13 +4,8 @@ titulo: "Alerta por episodio, escena, gdino-base-560 (T2)"
 informe: ["Tabla 53", "§17.5.4"]
 fase: F3
 familia: clips
-estado: no_se_regenera
-no_se_regenera: >
-  Contraste contra el campeón (ALR-01): cambia el modelo, no la plataforma. No se regenera porque
-  ALR-01 recorre el mismo camino (inferencia, motor de reglas, evaluación) en la PC de la demo. La
-  cifra vigente es la de la generación 1 re-evaluada con el GT corregido, y su conclusión (el
-  campeón no queda por debajo: C2) se sostuvo en al menos el 99 % de las referencias simuladas
-  hasta ±2 s en el piloto de sensibilidad del doc 134.
+# Enmienda 2026-10-30 (doc 134 §13.10): se regenera en la Victus como todas. El bloque gen1
+# queda solo como referencia del veredicto.
 pregunta: >
   ¿El especialista en bare_head/vest (base-560) mejora la alerta por episodio frente al campeón,
   con el mismo prompt set y el mismo pattern set?
@@ -29,7 +24,8 @@ gen1:
     - {clave: precision, nombre: "Precisión", valor: 0.675676}
     - {clave: recall, nombre: "Recall", valor: 0.757576}
     - {clave: falsas_alarmas, nombre: "Falsas alarmas en clips sin infracción", valor: 0}
-esperado: "Igual a la generación 1 re-evaluada con el GT corregido (F1 0,714)."
+esperado: >
+  Referencia: la generación 1 re-evaluada con el GT corregido (F1 0,714). Desde la enmienda del 2026-10-30 (doc 134 §13.10), base-560 carga su cabeza de cajas entrenada, que en la generación 1 quedaba sin cargar. Por eso se espera `otra_combinacion`: la diferencia con la generación 1 mide el efecto de esa cabeza.
 veredictos_posibles: [identico, equivalente_con_diferencia, otra_combinacion]
 config:
   modelo: grounding-dino/gdino-base-560

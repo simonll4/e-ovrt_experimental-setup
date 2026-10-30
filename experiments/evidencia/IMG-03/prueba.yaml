@@ -4,12 +4,8 @@ titulo: "Percepción sobre bench_v3: yoloe-26x (contraste)"
 informe: ["Tabla 51"]
 fase: F4
 familia: imagenes
-estado: no_se_regenera
-no_se_regenera: >
-  Contraste contra el campeón (IMG-01) sobre las mismas 6.477 imágenes: cambia el modelo, no la
-  plataforma. No se regenera porque IMG-01 recorre el mismo camino (inferencia y evaluación por
-  estrato) en la PC de la demo. La cifra vigente es la de la generación 1: sus corridas de julio,
-  re-evaluadas el 2026-10-26 con el código de la generación 2, reproducen el 0,442 de la Tabla 51.
+# Enmienda 2026-10-30 (doc 134 §13.10): se regenera en la Victus como todas. El bloque gen1
+# queda solo como referencia del veredicto.
 pregunta: "¿Qué logra el mejor YOLOE sobre bench_v3, por estrato y agregado?"
 gen1:
   result_id: confirmacion_b5 (doc 64 y 66)

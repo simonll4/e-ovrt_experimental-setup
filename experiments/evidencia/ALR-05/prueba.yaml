@@ -4,13 +4,8 @@ titulo: "Alerta por episodio con fusión E-IND ∨ E-DIR (H1)"
 informe: ["Tabla 53", "§17.5.4"]
 fase: F5
 familia: clips
-estado: no_se_regenera
-no_se_regenera: >
-  Contraste contra el campeón (ALR-01): una relectura sin inferencia nueva sobre las detecciones
-  de ALR-01 y ALR-04. Como ALR-04 no se regenera, ésta tampoco. La cifra vigente es la de la
-  generación 1 re-evaluada con el GT corregido, y su conclusión (la fusión queda por debajo del
-  campeón: C4) se sostuvo en el 100 % de las referencias simuladas hasta ±2 s en el piloto de
-  sensibilidad del doc 134.
+# Enmienda 2026-10-30 (doc 134 §13.10): se regenera en la Victus como todas. El bloque gen1
+# queda solo como referencia del veredicto.
 depende_de: [ALR-01, ALR-04]
 pregunta: >
   Fusionando por disyunción las detecciones de ALR-01 (indirecta) y ALR-04 (directa), sin

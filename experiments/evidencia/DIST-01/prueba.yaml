@@ -15,8 +15,8 @@ gen1:
   motivo: >
     Corpus distinto: la generación 1 usó 413 corridas de julio–agosto (460 entregas, p95 64,5 ms
     con amqtt y el ledger en ext4); acá el corpus son las corridas de control de las pruebas de
-    alerta y densidad que se regeneran en la generación 2 (sin los contrastes ALR-03…06, doc 134
-    §13.6), con mosquitto y el ledger en el disco del contenedor
+    alerta y densidad del campeón (ALR-01/02/07/08, DEN-01…06; los contrastes no agregan un camino
+    de distribución distinto), con mosquitto y el ledger en el disco del contenedor
     (doc 133 §3.4: en el bind mount de Windows una ráfaga llega a 1,6 s).
 esperado: "p95 de decenas de ms; las primeras entregas de cada corrida, ~15 ms (doc 133)."
 veredictos_posibles: [otra_combinacion]

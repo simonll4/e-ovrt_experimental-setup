@@ -4,12 +4,8 @@ titulo: "Estado por persona en imágenes: réplica con gdino-base-560"
 informe: ["Tabla 52"]
 fase: F4
 familia: nivel_a
-estado: no_se_regenera
-no_se_regenera: >
-  Réplica de contraste de PER-01 con gdino-base-560: cambia el modelo, no la plataforma. No se
-  regenera porque PER-01 recorre el mismo camino (inferencia sobre las mismas imágenes, el mismo
-  scorer y la misma semilla) en la PC de la demo. La cifra vigente es la de la generación 1
-  (metrics_base560_replica.json).
+# Enmienda 2026-10-30 (doc 134 §13.10): se regenera en la Victus como todas. El bloque gen1
+# queda solo como referencia del veredicto.
 pregunta: "¿La debilidad de E-DIR con la negación depende de la capacidad del codificador de texto?"
 gen1:
   result_id: d1_gdinotiny560_edir_vs_eind (réplica base-560)
@@ -24,7 +20,8 @@ gen1:
     - {clave: bench_obra/CR-02/f1_edir, nombre: "F1 mejor E-DIR (cr02_obs) — bench_obra/CR-02", valor: 0.351145}
     - {clave: shel5k/CR-01/f1_eind, nombre: "F1 E-IND por persona — shel5k/CR-01", valor: 0.495842}
     - {clave: shel5k/CR-01/f1_edir, nombre: "F1 mejor E-DIR (cr01_obs) — shel5k/CR-01", valor: 0.167156}
-esperado: "Idéntico (mismas imágenes, misma semilla, mismo scorer)."
+esperado: >
+  Mismas imágenes, misma semilla y mismo scorer que la generación 1. Desde la enmienda del 2026-10-30 (doc 134 §13.10), base-560 carga su cabeza de cajas entrenada, que en la generación 1 quedaba sin cargar. Por eso se espera `otra_combinacion`: la diferencia con la generación 1 mide el efecto de esa cabeza.
 veredictos_posibles: [identico, equivalente_con_diferencia, otra_combinacion]
 config:
   modelo: grounding-dino/gdino-base-560

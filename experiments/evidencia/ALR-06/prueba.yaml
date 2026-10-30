@@ -4,13 +4,8 @@ titulo: "Alerta por episodio con bare_head como evidencia directa (B1)"
 informe: ["Tabla 53", "§17.5.4"]
 fase: F3
 familia: clips
-estado: no_se_regenera
-no_se_regenera: >
-  Contraste contra el campeón (ALR-01): cambia el modelo, los prompts y la evidencia de CR-01, no
-  la plataforma. No se regenera porque ALR-01 recorre el mismo camino (inferencia, motor de reglas,
-  evaluación) en la PC de la demo. La cifra vigente es la de la generación 1 re-evaluada con el GT
-  corregido, y su conclusión (queda por debajo del campeón: C5) se sostuvo en el 100 % de las
-  referencias simuladas hasta ±2 s en el piloto de sensibilidad del doc 134.
+# Enmienda 2026-10-30 (doc 134 §13.10): se regenera en la Victus como todas. El bloque gen1
+# queda solo como referencia del veredicto.
 pregunta: >
   La especialidad de base-560 en bare_head, ¿se traduce en mejores alertas CR-01 cuando
   bare_head es la evidencia? Una inferencia por clip con el caption de 4 clases y dos relecturas
@@ -31,7 +26,7 @@ gen1:
     - {clave: recall, nombre: "Recall", valor: 0.424242}
     - {clave: falsas_alarmas, nombre: "Falsas alarmas en clips sin infracción", valor: 3}
 esperado: >
-  La relectura principal (bare_head) igual a la generación 1 re-evaluada (F1 0,412). La variante
+  Referencia de la relectura principal (bare_head): la generación 1 re-evaluada (F1 0,412). Desde la enmienda del 2026-10-30 (doc 134 §13.10), base-560 carga su cabeza de cajas entrenada, que en la generación 1 quedaba sin cargar. Por eso se espera `otra_combinacion`: la diferencia con la generación 1 mide el efecto de esa cabeza. La variante
   `eind_mismo_caption` se publicó con el GT anterior (metrics_eind_mismo_caption.json): se muestra
   al lado, sin referencia re-evaluada.
 veredictos_posibles: [identico, equivalente_con_diferencia, otra_combinacion]

@@ -190,10 +190,10 @@ def test_el_catalogo_y_las_observaciones_del_workspace_se_leen_completos():
     # El catálogo puede crecer: se fija el piso y las pruebas que la consola nombra.
     assert len(pruebas) >= 30
     assert {"ALR-01", "IMG-01", "PER-03", "RT-04", "PLAT-01"} <= {p["id"] for p in pruebas}
-    # Toda prueba que no se regenera llega a la consola con su motivo y su cifra vigente.
-    contrastes = [p for p in pruebas if p["registro"] == "no_se_regenera"]
-    assert contrastes
-    for p in contrastes:
+    # Toda prueba que no se regenera llega a la consola con su motivo y su cifra vigente. Desde la
+    # enmienda del 2026-10-30 (doc 134 §13.10) no queda ninguna en el catálogo real; el caso lo
+    # cubre el test con catálogo sintético de arriba.
+    for p in (p for p in pruebas if p["registro"] == "no_se_regenera"):
         assert p["no_se_regenera"] and p["gen1"]["cifras"], p["id"]
     obs = g.observaciones()
     if not obs["available"]:

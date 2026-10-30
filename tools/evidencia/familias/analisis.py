@@ -215,8 +215,8 @@ CHEQUEOS = {
 def chequeos_para(etiquetas) -> tuple[dict, list[str]]:
     """(chequeos que se pueden evaluar con estas campañas, los que quedan solo con la gen 1).
 
-    Las pruebas de contraste no se regeneran (doc 134 §13.6): sus conclusiones (C2–C5)
-    conservan la fracción del piloto de la generación 1.
+    Si una campaña no está en la receta, su conclusión conserva la fracción del piloto de la
+    generación 1. Desde la enmienda del 2026-10-30 (doc 134 §13.10) la receta trae las 14.
     """
     hay = set(etiquetas)
     evaluables = {k: f for k, (req, f) in CHEQUEOS.items() if hay.issuperset(req)}
@@ -279,7 +279,7 @@ def _gt02(ctx: Contexto, prueba: Prueba, carpeta: Carpeta) -> dict:
     if solo_gen1:
         res["solo_generacion_1"] = {
             "conclusiones": solo_gen1,
-            "motivo": "sus campañas son pruebas de contraste que no se regeneran (doc 134 §13.6)",
+            "motivo": "sus campañas no están en la receta de esta prueba",
             "fuente": r.get("piloto_gen1"),
             "frac_sostenida": ({J: {k: v["frac_sostenida"].get(k) for k in solo_gen1}
                                 for J, v in piloto["por_J"].items()} if piloto else None),

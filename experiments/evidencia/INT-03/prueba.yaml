@@ -4,9 +4,14 @@ titulo: "Pesos de los modelos y configuración congelada"
 informe: ["Anexo E.2", "Tabla B.6"]
 fase: F1
 familia: integridad
-pregunta: "¿Los pesos, los prompt sets y los pattern sets de la Victus son los de la generación 1?"
+pregunta: >
+  ¿Los pesos, los prompt sets y los pattern sets de la Victus son los recreados desde la fuente,
+  con las huellas declaradas?
+# Enmienda 2026-10-30 (doc 134 §13.10): la referencia de cada peso es su fuente (revisión fijada
+# en scripts/download_models.sh). La huella de grounding-dino-base/model.safetensors pasa a ser la
+# de Hugging Face en 12bdfa3120f3e7ec7b434d90674b3396eccf88eb.
 gen1:
-  result_id: (huellas tomadas en la PC de desarrollo el 2026-10-26)
+  result_id: (huellas tomadas el 2026-10-26; base corregida a la de la fuente el 2026-10-30)
   doc: operacion/134
 esperado: >
   33/33 archivos de pesos iguales (tiny, base, YOLOE, blob de la OAK-D); el bloque classes de

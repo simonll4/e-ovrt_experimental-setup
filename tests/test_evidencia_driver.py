@@ -62,21 +62,17 @@ def test_seleccionar_una_fase_respeta_dependencias():
 CONTRASTES = {"ALR-03", "ALR-04", "ALR-05", "ALR-06", "IMG-02", "IMG-03", "PER-02"}
 
 
-def test_los_contrastes_no_se_regeneran_pero_un_id_explicito_los_corre():
+def test_los_contrastes_se_regeneran_con_sus_fases():
+    # Enmienda del 2026-10-30 (doc 134 §13.10): todo se corre en la Victus.
     catalogo = cat.cargar_catalogo(CATALOGO)
-    assert {p.id for p in catalogo.values() if p.estado == "no_se_regenera"} == CONTRASTES
+    assert not [p.id for p in catalogo.values() if p.estado == "no_se_regenera"]
     for objetivo in (["todas"], ["F3", "F4", "F5"]):
-        assert not CONTRASTES & {p.id for p in cat.seleccionar(catalogo, objetivo)}
-    orden = [p.id for p in cat.seleccionar(catalogo, ["ALR-05", "ALR-04"])]
-    assert orden == ["ALR-04", "ALR-05"]
-    # Ninguna prueba que se regenera depende de un contraste: correría sobre una carpeta vacía.
-    for p in catalogo.values():
-        if p.estado != "no_se_regenera":
-            assert not CONTRASTES & set(p.depende_de), p.id
-    for pid in ("GT-02", "DIST-01"):
-        receta = catalogo[pid].receta
-        usadas = {c["prueba"] for c in receta.get("campanas", {}).values()} | set(receta.get("corpus", []))
-        assert usadas and not CONTRASTES & usadas, pid
+        assert CONTRASTES <= {p.id for p in cat.seleccionar(catalogo, objetivo)}
+    orden = [p.id for p in cat.seleccionar(catalogo, ["F3", "F5"])]
+    assert orden.index("ALR-04") < orden.index("ALR-05") < orden.index("GT-02")
+    assert orden.index("ALR-06") < orden.index("GT-02")
+    for pid in CONTRASTES:
+        assert catalogo[pid].gen1.get("cifras") or catalogo[pid].gen1.get("referencia"), pid
 
 
 def test_no_se_regenera_exige_motivo_y_cifra_vigente(tmp_path):
@@ -93,10 +89,10 @@ def test_gt02_evalua_solo_las_conclusiones_de_las_campanas_que_corren():
 
     receta = cat.cargar_catalogo(CATALOGO)["GT-02"].receta
     evaluables, solo_gen1 = chequeos_para(receta["campanas"])
-    assert sorted(solo_gen1) == ["C2_T1>=T2", "C3_D1_prec<0.5", "C4_T1>H1", "C5_T1>B1"]
-    assert len(evaluables) == 8 and set(evaluables) | set(solo_gen1) == set(CHEQUEOS)
-    todas, nada = chequeos_para(["T1", "T2", "D1", "H1", "B1", "G1", "R1", "R2", "R3", "R4", "R5", "R6", "I1", "I2"])
-    assert len(todas) == 12 and nada == []
+    assert solo_gen1 == [] and set(evaluables) == set(CHEQUEOS) and len(evaluables) == 12
+    parcial, faltan = chequeos_para(["T1", "G1", "R1", "R2", "R3", "R4", "R5", "R6", "I1", "I2"])
+    assert sorted(faltan) == ["C2_T1>=T2", "C3_D1_prec<0.5", "C4_T1>H1", "C5_T1>B1"]
+    assert len(parcial) == 8
 
 
 def test_seleccionar_rechaza_objetivos_desconocidos():

@@ -28,6 +28,7 @@ FAMILIAS = (
 )
 # `no_se_regenera`: prueba de contraste cuya cifra vigente es la de la generación 1 (doc 134
 # §13.6). Queda en el catálogo con su receta: las fases la saltean, un ID explícito la corre.
+# Desde la enmienda del 2026-10-30 (doc 134 §13.10) ninguna prueba lo usa: todo se corre.
 ESTADOS = ("activa", "opcional", "pendiente_decision", "no_se_regenera")
 _ID = re.compile(r"^[A-Z]+-\d{2}$")
 _FASE = re.compile(r"^F\d$")
