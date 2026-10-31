@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Revisión ciega · ERR-01</title>
+<!-- La arma `python -m tools.evidencia revision-ciega pagina` (tools/evidencia/revision_ciega.py).
+     Se abre con doble clic desde defensa/figuras/VIS-01/; no se publica: muestra cuadros de clips de internet. -->
+<style>
+  :root {
+    --bg: #111317; --panel: #191c22; --panel2: #20242c; --line: #2c313b; --tx: #e8eaed; --tx2: #a9b0bb;
+    --acc: #7aa7ff; --ok: #32d74b; --warn: #ffb020; --bad: #ff6b5f;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--tx); font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  header { position: sticky; top: 0; z-index: 10; display: flex; gap: 16px; align-items: center; padding: 10px 18px;
+           background: #0c0e11ee; border-bottom: 1px solid var(--line); }
+  header h1 { font-size: 16px; margin: 0; font-weight: 650; }
+  .grow { flex: 1; }
+  #progreso { color: var(--tx2); font-size: 13px; }
+  button { font: inherit; color: var(--tx); background: var(--panel2); border: 1px solid var(--line); border-radius: 8px;
+           padding: 7px 12px; cursor: pointer; }
+  button:hover:not(:disabled) { border-color: var(--acc); }
+  button:disabled { opacity: .45; cursor: default; }
+  button.primary { background: var(--acc); color: #0b1020; border-color: var(--acc); font-weight: 650; }
+  .layout { display: grid; grid-template-columns: 190px 1fr; min-height: calc(100vh - 52px); }
+  nav { border-right: 1px solid var(--line); padding: 10px 8px; position: sticky; top: 52px; align-self: start;
+        max-height: calc(100vh - 52px); overflow: auto; }
+  nav a { display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; border-radius: 7px;
+          color: var(--tx); text-decoration: none; font-size: 14px; }
+  nav a.sel { background: var(--panel2); outline: 1px solid var(--line); }
+  nav .chip { width: 10px; height: 10px; border-radius: 50%; background: var(--line); }
+  nav .chip.ok { background: var(--ok); } nav .chip.cambio { background: var(--warn); }
+  main { padding: 16px 24px 60px; max-width: 1400px; }
+  .reglas { background: #1d2430; border: 1px solid #2c3a52; color: #c9d6ee; border-radius: 10px; padding: 8px 12px;
+            margin: 0 0 14px; font-size: 13px; }
+  .grid { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(320px, 1fr); gap: 18px; align-items: start; }
+  .visor { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 10px; }
+  .tabs { display: flex; gap: 6px; margin-bottom: 8px; }
+  .tabs button.sel { border-color: var(--acc); }
+  .visor img { width: 100%; max-height: 72vh; object-fit: contain; border-radius: 8px; background: #000; cursor: zoom-in; }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; }
+  .panel h2 { margin: 0 0 2px; font-size: 20px; }
+  .cond { color: var(--tx2); margin-bottom: 12px; }
+  .ia { background: var(--panel2); border-left: 3px solid var(--acc); border-radius: 8px; padding: 8px 12px; margin-bottom: 14px; font-size: 14px; }
+  .ia b { color: var(--acc); }
+  .q { margin-bottom: 14px; }
+  .q h3 { margin: 0 0 6px; font-size: 15px; }
+  .opts { display: flex; flex-wrap: wrap; gap: 8px; }
+  .opt { position: relative; }
+  .opt.sel { border-color: var(--acc); box-shadow: 0 0 0 2px #7aa7ff55 inset; }
+  .opt.ia::after { content: "Claude"; position: absolute; top: -8px; right: -6px; font-size: 10px; background: var(--acc);
+                   color: #0b1020; border-radius: 6px; padding: 0 4px; }
+  .opt .k { font-size: 11px; color: var(--tx2); border: 1px solid var(--line); border-radius: 4px; padding: 0 4px; margin-left: 6px; }
+  textarea { width: 100%; min-height: 54px; background: var(--panel2); color: var(--tx); border: 1px solid var(--line);
+             border-radius: 8px; padding: 8px; font: inherit; }
+  .acciones { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+  .estado { margin-top: 10px; font-size: 13px; color: var(--tx2); }
+  .estado.ok { color: var(--ok); } .estado.cambio { color: var(--warn); }
+  #aviso { color: var(--bad); font-size: 13px; }
+  @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } nav { position: static; max-height: none; }
+                              .grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>Revisión ciega · ERR-01</h1>
+  <span id="progreso"></span>
+  <span class="grow"></span>
+  <span id="aviso"></span>
+  <button id="descargar" class="primary">Descargar CSV</button>
+</header>
+<div class="layout">
+  <nav id="lista"></nav>
+  <main>
+    <p class="reglas">Ciega: no abras <code>completas/</code>, <code>recortes/</code>, <code>muestra.json</code> ni ERR-01
+      hasta descargar el CSV. Confirmá cada cuadro, o cambiá la respuesta si no coincidís con Claude. La nota va a un
+      repositorio público: nada de nombres. Teclas: <b>1</b>/<b>2</b> persona sí/no · <b>Q</b>/<b>W</b>/<b>E</b> EPP
+      sí/no/no se puede · <b>Enter</b> confirmar y seguir · <b>←</b>/<b>→</b> moverse.</p>
+    <div class="grid">
+      <section class="visor">
+        <div class="tabs"><button id="tab-recorte">Recorte</button><button id="tab-completo">Cuadro completo</button></div>
+        <img id="img" alt="Cuadro de la muestra">
+      </section>
+      <section class="panel">
+        <h2 id="titulo"></h2>
+        <div class="cond" id="cond"></div>
+        <div class="ia" id="ia"></div>
+        <div class="q"><h3>¿La caja roja es una persona?</h3><div class="opts" id="op-persona"></div></div>
+        <div class="q"><h3 id="pregunta-epp"></h3><div class="opts" id="op-epp"></div></div>
+        <textarea id="nota" placeholder="Nota (opcional; sin nombres)"></textarea>
+        <div class="acciones">
+          <button id="anterior">← Anterior</button>
+          <button id="confirmar" class="primary">Confirmar y seguir (Enter)</button>
+          <button id="siguiente">Siguiente →</button>
+        </div>
+        <div class="estado" id="estado"></div>
+      </section>
+    </div>
+  </main>
+</div>
+<script type="application/json" id="datos">__DATOS__</script>
+<script>
+(() => {
+  const D = JSON.parse(document.getElementById("datos").textContent);
+  const C = D.cuadros;
+  const CLAVE = "eovrt-revision-ciega-v1:" + C.map(c => c.n).join(",");
+  const EPP = { "CR-01": "el casco", "CR-02": "el chaleco" };
+  const PERSONA = [["si", "Sí", "1"], ["no", "No", "2"]];
+  const RESP_EPP = [["si", "Sí, se ve puesto", "q"], ["no", "No, se ve sin él", "w"], ["no_se_puede", "No se puede juzgar", "e"]];
+  const texto = (lista, v) => (lista.find(o => o[0] === v) || [, "—"])[1];
+
+  let estado = {};
+  try { estado = JSON.parse(localStorage.getItem(CLAVE) || "{}"); } catch (e) { estado = {}; }
+  for (const c of C) {
+    if (!estado[c.n]) {
+      const p = c.propuesta || {};
+      estado[c.n] = { es_persona: p.es_persona || "", epp_visible: p.epp_visible || "", nota: "", confirmado: false };
+    }
+  }
+  const guardar = () => { try { localStorage.setItem(CLAVE, JSON.stringify(estado)); } catch (e) { /* sin almacenamiento */ } };
+
+  let i = 0, vista = "recorte";
+  const $ = id => document.getElementById(id);
+  const cambio = c => {
+    const p = c.propuesta, s = estado[c.n];
+    return !!p && (p.es_persona !== s.es_persona || (s.es_persona === "si" && p.epp_visible !== s.epp_visible));
+  };
+  const valido = s => s.es_persona === "no" || (s.es_persona === "si" && !!s.epp_visible);
+
+  function opciones(cont, lista, actual, ia, alElegir, habilitado = true) {
+    cont.innerHTML = "";
+    for (const [v, t, k] of lista) {
+      const b = document.createElement("button");
+      b.className = "opt" + (v === actual ? " sel" : "") + (v === ia ? " ia" : "");
+      b.disabled = !habilitado;
+      b.innerHTML = `${t}<span class="k">${k.toUpperCase()}</span>`;
+      b.onclick = () => alElegir(v);
+      cont.appendChild(b);
+    }
+  }
+
+  function pintar() {
+    const c = C[i], s = estado[c.n], p = c.propuesta;
+    const confirmados = C.filter(x => estado[x.n].confirmado).length;
+    const cambios = C.filter(x => estado[x.n].confirmado && cambio(x)).length;
+    $("progreso").textContent = `${confirmados}/${C.length} confirmados · ${cambios} ${cambios === 1 ? "distinto" : "distintos"} de Claude`;
+    if (confirmados === C.length) $("aviso").textContent = "";
+    $("lista").innerHTML = C.map((x, j) => {
+      const e = estado[x.n], chip = e.confirmado ? (cambio(x) ? "cambio" : "ok") : "";
+      return `<a href="#" data-j="${j}" class="${j === i ? "sel" : ""}">#${x.n} · ${x.condicion}<span class="chip ${chip}"></span></a>`;
+    }).join("");
+    for (const a of $("lista").querySelectorAll("a")) a.onclick = ev => { ev.preventDefault(); ir(+a.dataset.j); };
+
+    const usaRecorte = vista === "recorte" && c.recorte;
+    $("img").src = usaRecorte ? c.recorte : c.imagen;
+    $("tab-recorte").disabled = !c.recorte;
+    $("tab-recorte").classList.toggle("sel", !!usaRecorte);
+    $("tab-completo").classList.toggle("sel", !usaRecorte);
+
+    const epp = EPP[c.condicion] || "el EPP";
+    $("titulo").textContent = `Cuadro #${c.n}`;
+    $("cond").textContent = `${c.condicion}: se juzga ${epp}`;
+    $("pregunta-epp").textContent = `¿Tiene ${epp} puesto?`;
+    $("ia").innerHTML = p
+      ? `<b>Claude propone:</b> persona ${texto(PERSONA, p.es_persona).toLowerCase()}` +
+        (p.es_persona === "si" ? ` · ${epp}: ${texto(RESP_EPP, p.epp_visible).toLowerCase()}` : "") +
+        (p.razon ? `<br>${p.razon.replace(/</g, "&lt;")}` : "")
+      : "<b>Sin propuesta de Claude</b> para este cuadro: respondé vos.";
+    opciones($("op-persona"), PERSONA, s.es_persona, p && p.es_persona, v => elegir("es_persona", v));
+    opciones($("op-epp"), RESP_EPP, s.epp_visible, p && p.es_persona === "si" && p.epp_visible,
+             v => elegir("epp_visible", v), s.es_persona === "si");
+    if (document.activeElement !== $("nota")) $("nota").value = s.nota || "";
+    const e = $("estado");
+    e.className = "estado" + (s.confirmado ? (cambio(c) ? " cambio" : " ok") : "");
+    e.textContent = s.confirmado ? (cambio(c) ? "Confirmado, distinto de Claude." : "Confirmado.") : "Sin confirmar.";
+    $("confirmar").disabled = !valido(s);
+    $("anterior").disabled = i === 0;
+    $("siguiente").disabled = i === C.length - 1;
+  }
+
+  function elegir(campo, v) {
+    const s = estado[C[i].n];
+    s[campo] = v;
+    if (campo === "es_persona" && v === "no") s.epp_visible = "";
+    s.confirmado = false;
+    guardar(); pintar();
+  }
+  function ir(j) { i = Math.max(0, Math.min(C.length - 1, j)); vista = "recorte"; pintar(); window.scrollTo(0, 0); }
+  function confirmar() {
+    const s = estado[C[i].n];
+    if (!valido(s)) return;
+    s.confirmado = true; guardar();
+    const pendiente = C.findIndex((x, j) => j > i && !estado[x.n].confirmado);
+    if (pendiente >= 0) ir(pendiente); else pintar();
+  }
+
+  function csv() {
+    const cols = ["n", "imagen", "condicion", "es_persona", "epp_visible", "nota",
+                  "propuesta_ia_es_persona", "propuesta_ia_epp_visible", "revisado_por_persona"];
+    const esc = v => /[",\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v;
+    const filas = C.map(c => {
+      const s = estado[c.n], p = c.propuesta || {};
+      return [c.n, c.imagen, c.condicion, s.es_persona, s.es_persona === "si" ? s.epp_visible : "", s.nota || "",
+              p.es_persona || "", p.epp_visible || "", s.confirmado ? "si" : "no"].map(v => esc(String(v)));
+    });
+    return [cols.join(","), ...filas.map(f => f.join(","))].join("\n") + "\n";
+  }
+  $("descargar").onclick = () => {
+    const faltan = C.filter(c => !estado[c.n].confirmado).map(c => "#" + c.n);
+    if (faltan.length) { $("aviso").textContent = `Faltan confirmar: ${faltan.join(", ")}`; return; }
+    $("aviso").textContent = "";
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([csv()], { type: "text/csv;charset=utf-8" }));
+    a.download = D.archivo;
+    a.click();
+  };
+
+  $("nota").oninput = () => { estado[C[i].n].nota = $("nota").value; guardar(); };
+  $("confirmar").onclick = confirmar;
+  $("anterior").onclick = () => ir(i - 1);
+  $("siguiente").onclick = () => ir(i + 1);
+  $("tab-recorte").onclick = () => { vista = "recorte"; pintar(); };
+  $("tab-completo").onclick = () => { vista = "completo"; pintar(); };
+  $("img").onclick = () => window.open($("img").src, "_blank");
+  document.addEventListener("keydown", ev => {
+    if (ev.target === $("nota") || ev.ctrlKey || ev.metaKey || ev.altKey) return;
+    const k = ev.key.toLowerCase();
+    const p = PERSONA.find(o => o[2] === k), e = RESP_EPP.find(o => o[2] === k);
+    if (p) elegir("es_persona", p[0]);
+    else if (e && estado[C[i].n].es_persona === "si") elegir("epp_visible", e[0]);
+    else if (k === "enter") { ev.preventDefault(); confirmar(); }
+    else if (k === "arrowleft") ir(i - 1);
+    else if (k === "arrowright") ir(i + 1);
+  });
+  pintar();
+})();
+</script>
+</body>
+</html>

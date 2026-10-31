@@ -32,6 +32,7 @@ distintos miden la fragmentación de identidad (el «ID switch» que multiplica 
 from __future__ import annotations
 
 import csv
+import io
 import json
 import random
 import statistics
@@ -375,8 +376,13 @@ def muestra(filas: list[dict], por_causa: int, semilla: int) -> list[dict]:
             for i, f in enumerate(elegidas)]
 
 
+def normalizar_respuesta(texto: str) -> str:
+    """«Sí», «si », «No se puede» → si / no_se_puede: quien revisa escribe en castellano."""
+    return "_".join((texto or "").strip().lower().replace("í", "i").replace("-", " ").split())
+
+
 def gruesa_humana(es_persona: str, epp_visible: str) -> str | None:
-    es_persona, epp_visible = (es_persona or "").strip().lower(), (epp_visible or "").strip().lower()
+    es_persona, epp_visible = normalizar_respuesta(es_persona), normalizar_respuesta(epp_visible)
     if es_persona == "no":
         return "sin_persona"
     if es_persona != "si":
@@ -384,17 +390,41 @@ def gruesa_humana(es_persona: str, epp_visible: str) -> str | None:
     return {"si": "tiene_epp", "no": "falta_real", "no_se_puede": "no_juzgable"}.get(epp_visible)
 
 
+def leer_revision(csv_path: Path) -> dict[int, dict]:
+    """Las filas de un CSV de revisión por `n`. Acepta el CSV como lo guarda Excel en castellano:
+    con BOM o en cp1252, y separado por `;`."""
+    crudo = Path(csv_path).read_bytes()
+    try:
+        texto = crudo.decode("utf-8-sig")
+    except UnicodeDecodeError:
+        texto = crudo.decode("cp1252")
+    encabezado = texto.splitlines()[0] if texto else ""
+    separador = ";" if encabezado.count(";") > encabezado.count(",") else ","
+    filas = {}
+    for r in csv.DictReader(io.StringIO(texto, newline=""), delimiter=separador):  # una nota puede tener saltos
+        r = {(k or "").strip().lower(): (v or "") for k, v in r.items()}
+        if r.get("n", "").strip():
+            filas[int(r["n"])] = r
+    return filas
+
+
 def concordancia(muestra_: list[dict], csv_path: Path) -> dict:
     """Concordancia entre la causa automática (gruesa) y la revisión humana de la muestra.
-    Columnas del CSV: n, es_persona (si/no), epp_visible (si/no/no_se_puede), nota."""
-    with Path(csv_path).open(encoding="utf-8") as fh:
-        filas = {int(r["n"]): r for r in csv.DictReader(fh) if r.get("n")}
-    pares = []
+    Columnas del CSV: n, es_persona (si/no), epp_visible (si/no/no_se_puede), nota. Si la revisión
+    fue asistida (`revision_ciega.py`), trae además la propuesta de Claude, y se informa cuántas
+    respuestas cambió la persona."""
+    filas = leer_revision(csv_path)
+    pares, propuestas, cambios = [], 0, 0
     for m in muestra_:
         r = filas.get(m["n"])
         humana = gruesa_humana(r.get("es_persona", ""), r.get("epp_visible", "")) if r else None
         if humana is not None:
             pares.append((GRUESA[m["causa"]], humana, m["causa"]))
+            if r.get("propuesta_ia_es_persona", "").strip():
+                propuestas += 1
+                final = (normalizar_respuesta(r["es_persona"]), normalizar_respuesta(r.get("epp_visible", "")))
+                ia = (normalizar_respuesta(r["propuesta_ia_es_persona"]), normalizar_respuesta(r.get("propuesta_ia_epp_visible", "")))
+                cambios += final != ia
     if not pares:
         return {"estado": "pendiente", "revisadas": 0, "de": len(muestra_)}
     acuerdo = sum(1 for a, h, _ in pares if a == h) / len(pares)
@@ -415,6 +445,10 @@ def concordancia(muestra_: list[dict], csv_path: Path) -> dict:
         # persona que la referencia no anotó (incompletitud del GT), y se informa aparte
         "f_que_son_persona": sum(1 for h, _ in f_auto if h != "sin_persona"),
         "f_revisadas": len(f_auto),
+        # revisión asistida: Claude propone, una persona confirma o cambia cada respuesta
+        "asistida_por_ia": propuestas > 0,
+        "con_propuesta_ia": propuestas,
+        "cambios_de_la_persona": cambios,
     }
 
 

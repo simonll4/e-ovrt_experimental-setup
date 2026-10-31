@@ -140,6 +140,8 @@ services:
       # Sesiones de la demo en vivo (/demo): configuración enviada, testigo MQTT,
       # estados mostrados y el Resultado (video, cuadros, línea de tiempo).
       - ${EOVRT_WORKSPACE}/e-ovrt_experimental-setup/defensa/sesiones:${EOVRT_WORKSPACE}/e-ovrt_experimental-setup/defensa/sesiones:rw
+      # Cuadros anotados de VIS-01 (git-ignorados: incluyen clips de internet).
+      - ${EOVRT_WORKSPACE}/e-ovrt_experimental-setup/defensa/figuras:${EOVRT_WORKSPACE}/e-ovrt_experimental-setup/defensa/figuras:rw
     depends_on:
       control-plane:
         condition: service_healthy

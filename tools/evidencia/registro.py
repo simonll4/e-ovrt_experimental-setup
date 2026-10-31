@@ -77,7 +77,8 @@ class Carpeta:
     def corridas(self) -> dict[str, dict]:
         if not self._corridas_path.is_file():
             return {}
-        return json.loads(self._corridas_path.read_text(encoding="utf-8")).get("corridas", {})
+        # Las rutas de un resultado ya limpio (rutas.limpiar) vuelven a apuntar a este workspace.
+        return self.ent.expandir(json.loads(self._corridas_path.read_text(encoding="utf-8")).get("corridas", {}))
 
     def guardar_corrida(self, clave: str, registro: dict) -> None:
         corridas = self.corridas()

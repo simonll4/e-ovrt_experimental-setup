@@ -207,6 +207,17 @@ def test_concordancia_con_la_revision_humana(tmp_path):
     assert c["f_que_son_persona"] == 1
 
 
+def test_concordancia_acepta_el_csv_de_excel_en_castellano(tmp_path):
+    # Excel en castellano guarda con `;`, en cp1252, y quien revisa escribe «Sí» con tilde:
+    # si no se reconoce, ERR-01 queda «pendiente» sin avisar.
+    m = [{"n": 1, "causa": "P-no-detectado"}, {"n": 2, "causa": "F-sin-persona"}, {"n": 3, "causa": "U"}]
+    ruta = tmp_path / "revision.csv"
+    ruta.write_bytes("n;imagen;es_persona;epp_visible;nota\r\n1;x;Sí;sí;casco claro\r\n"
+                     "2;x;no;;\r\n3;x;si;No se puede;de espaldas\r\n".encode("cp1252"))
+    c = errores.concordancia(m, ruta)
+    assert (c["estado"], c["revisadas"], c["acuerdo"]) == ("completa", 3, 1.0)
+
+
 # --- fragmentación (SEG-01) ------------------------------------------------------------
 
 
@@ -279,6 +290,14 @@ def test_los_cuadros_quedan_fuera_de_git(banco):  # noqa: F811
     destino = figuras.carpeta_cuadros(ctx, "VIS-01")
     assert destino.parts[-3:] == ("defensa", "figuras", "VIS-01")
     assert "defensa/figuras/" in (REPO / ".gitignore").read_text()
+
+
+def test_la_consola_puede_escribir_los_cuadros():
+    # El driver corre dentro de la consola, que monta el workspace en solo lectura: sin este
+    # remount, VIS-01 falla con «Read-only file system» en la Victus (el ensayo nativo no lo ve).
+    compose = (REPO / "infra" / "platform" / "docker-compose.yml").read_text()
+    figuras_rw = "/e-ovrt_experimental-setup/defensa/figuras:${EOVRT_WORKSPACE}/e-ovrt_experimental-setup/defensa/figuras:rw"
+    assert figuras_rw in compose
 
 
 # --- PLAT-01: la infraestructura declarada y el log del build ------------------------

@@ -75,6 +75,13 @@ y vuelve a correr `.\evidencia.ps1 correr ERR-01`: la concordancia queda en el r
 abrir `completas/` ni `muestra.json` antes de terminar. Para el informe se usan los `recortes/`,
 con las caras difuminadas a mano si hiciera falta.
 
+✎ 2026-10-31: **revisión asistida por IA, validada por una persona.** Claude Code mira solo los
+cuadros ciegos y propone una respuesta por cuadro (`propuestas_ia.json`), con una razón breve.
+`evidencia.sh revision-ciega pagina` arma `revision.html`, donde una persona del equipo confirma o
+cambia cada respuesta y descarga el CSV. Después, `evidencia.sh revision-ciega cerrar` lo valida y lo
+deja en `results/gen2/ERR-01/revision_humana.csv`, con la propuesta de Claude al lado de la respuesta
+final. ERR-01 informa `asistida_por_ia` y `cambios_de_la_persona`.
+
 ## Las pruebas de contraste se regeneran (doc 134 §13.10)
 
 `ALR-03`, `ALR-04`, `ALR-05`, `ALR-06`, `IMG-02`, `IMG-03` y `PER-02` comparan **otra configuración contra el
@@ -179,7 +186,7 @@ corregido** (revisión dirigida del 2026-10-26), no la publicada en el v0.1.
    New-Item -ItemType Directory -Force ..\..\results\gen2\PLAT-01\logs | Out-Null
    .\compose.ps1 build 2>&1 | Tee-Object -FilePath ..\..\results\gen2\PLAT-01\logs\compose_build.log
    ```
-   Antes de commitearlo, mirar que no tenga rutas con el usuario de Windows (doc 134 §13.7).
+   Antes de commitearlo, correr `limpiar-rutas` (doc 134 §13.12).
 4. `.\evidencia.ps1 verificar todas` sin fallas bloqueantes.
 5. Crear una vez las instancias de la campaña, con la imagen actual, igual que las de RT-05
    (doc 136 §2), desde `infra/platform/`. Son `mp-gdino-tiny` (ALR-09, IMG-04), `mp-gdino-base-560`

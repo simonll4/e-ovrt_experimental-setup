@@ -8,6 +8,8 @@
     python -m tools.evidencia estado [ID|FASE ...]
     python -m tools.evidencia veredicto ID identico|equivalente_con_diferencia|otra_combinacion --motivo "..." --quien NOMBRE
     python -m tools.evidencia indice
+    python -m tools.evidencia limpiar-rutas [--simular] [--desde RUTA]   # antes de cada commit
+    python -m tools.evidencia revision-ciega pagina|cerrar [--csv RUTA]   # ERR-01, asistida por Claude
 
 En la Victus se invoca con `infra/platform/evidencia.sh` (o `.ps1`), que lo corre dentro del
 contenedor de la consola.
@@ -21,10 +23,12 @@ import sys
 import traceback
 from pathlib import Path
 
+from . import revision_ciega, rutas
 from .catalogo import CatalogoInvalido, cargar_catalogo, seleccionar
 from .consola import Consola, ConsolaError
 from .entorno import detectar, foto
 from .familias import FAMILIAS, Contexto
+from .familias.figuras import carpeta_cuadros
 from .huellas import HuellaInvalida, armar_prompts
 from .registro import Carpeta, PreRegistroCambiado, ahora, escribir_json
 
@@ -289,6 +293,47 @@ def cmd_descartar(args) -> int:
     return 0
 
 
+def cmd_limpiar_rutas(args) -> int:
+    """Antes de cada commit de `results/gen2/`: el workspace sale de todas las rutas (rutas.py)."""
+    ent = detectar()
+    informe = rutas.limpiar(ent.resultados, args.desde or str(ent.ws), simular=args.simular)
+    print(f"{informe['reemplazos']} reemplazos en {informe['archivos']} archivos")
+    for clave, texto in (("rotos", "dejarían de parsear"), ("restos", "siguen nombrando al usuario"),
+                         ("binarios", "binarios con la ruta o el usuario")):
+        for rel in informe[clave]:
+            print(f"  ⚠ {texto}: {rel}")
+    if informe["rotos"] or informe["restos"] or informe["binarios"]:
+        print("no se escribió nada", file=sys.stderr)
+        return 1
+    print("escrito; constancia en _registro/limpieza_rutas.json" if informe["escrito"]
+          else "simulado: no se escribió nada" if args.simular else "nada que limpiar")
+    return 0
+
+
+def cmd_revision_ciega(args) -> int:
+    """La revisión ciega de ERR-01 asistida por Claude (revision_ciega.py)."""
+    ent = detectar()
+    carpeta = carpeta_cuadros(Contexto(ent=ent, consola=None, catalogo={}), "VIS-01")
+    if not (carpeta / revision_ciega.CSV_CIEGO).is_file():
+        raise SystemExit(f"no está {carpeta / revision_ciega.CSV_CIEGO}: primero `correr VIS-01`")
+    try:
+        if args.accion == "pagina":
+            ruta, cuadros, propuestas = revision_ciega.pagina(carpeta)
+            print(f"{ruta}: {cuadros} cuadros, {propuestas} con propuesta de Claude")
+            print("abrila con doble clic desde el Explorador (defensa/figuras/VIS-01/revision.html)")
+            return 0
+        destino = Carpeta(ent, cargar_catalogo(ent.catalogo)["ERR-01"]).dir / "revision_humana.csv"
+        completo = Path(args.csv) if args.csv else carpeta / revision_ciega.COMPLETO
+        informe = revision_ciega.cerrar(carpeta, completo, destino)
+    except revision_ciega.RevisionInvalida as exc:
+        print(f"revisión inválida: {exc}", file=sys.stderr)
+        return 1
+    print(f"{informe['cuadros']} cuadros confirmados ({informe['con_propuesta_ia']} con propuesta de Claude, "
+          f"{informe['cambios_de_la_persona']} cambiados por la persona) → {informe['destino']}")
+    print("ahora: correr ERR-01")
+    return 0
+
+
 def cmd_indice(_args) -> int:
     ent = detectar()
     print(escribir_indice(ent, cargar_catalogo(ent.catalogo)))
@@ -330,6 +375,15 @@ def main(argv=None) -> int:
     p.set_defaults(f=cmd_veredicto)
     p = sub.add_parser("indice")
     p.set_defaults(f=cmd_indice)
+    p = sub.add_parser("limpiar-rutas", help="antes de commitear results/gen2/: el workspace pasa a $EOVRT_WORKSPACE")
+    p.add_argument("--desde", help="la ruta a reemplazar (default: el workspace de esta máquina)")
+    p.add_argument("--simular", action="store_true", help="informa sin escribir")
+    p.set_defaults(f=cmd_limpiar_rutas)
+    p = sub.add_parser("revision-ciega", help="la revisión ciega de ERR-01 asistida por Claude: página y cierre")
+    p.add_argument("accion", choices=["pagina", "cerrar"])
+    p.add_argument("--csv", help="cerrar: el CSV que bajó la página (default: defensa/figuras/VIS-01/"
+                                 "revision_ciega_completa.csv)")
+    p.set_defaults(f=cmd_revision_ciega)
     p = sub.add_parser("descartar", help="saca una toma del rodaje en vivo (RT-04) del agregado, con motivo")
     p.add_argument("prueba", choices=["RT-04"])
     p.add_argument("session_id")

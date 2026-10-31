@@ -25,6 +25,9 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]  # e-ovrt_experimental-setup
 
+# Lo que reemplaza al workspace en los resultados versionados (`rutas.limpiar`).
+MARCA_WORKSPACE = "$EOVRT_WORKSPACE"
+
 # Repos del workspace cuyo commit queda registrado en cada prueba.
 REPOS = (
     "e-ovrt_datasets",
@@ -111,6 +114,17 @@ class Entorno:
         """Intermedios pesados (fusiones, ledgers): `runs/` del repo, git-ignorado."""
         salida = os.environ.get("EOVRT_EVIDENCIA_SALIDA")
         return Path(salida) / "runs" / "evidencia" if salida else self.repo / "runs" / "evidencia"
+
+    def expandir(self, datos):
+        """`datos` con `MARCA_WORKSPACE` reemplazada por el workspace de esta máquina, en todo
+        string: la inversa de `rutas.limpiar`, para seguir las rutas de un resultado limpio."""
+        if isinstance(datos, str):
+            return datos.replace(MARCA_WORKSPACE, str(self.ws)) if MARCA_WORKSPACE in datos else datos
+        if isinstance(datos, dict):
+            return {k: self.expandir(v) for k, v in datos.items()}
+        if isinstance(datos, list):
+            return [self.expandir(v) for v in datos]
+        return datos
 
     def ruta_medios(self, ruta: Path | str) -> str:
         """Ruta de un archivo de `e-ovrt_datasets` tal como la ve el media-plane."""

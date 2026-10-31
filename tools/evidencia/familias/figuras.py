@@ -48,7 +48,7 @@ COLOR = {"person": (70, 140, 230), "helmet": (60, 190, 90), "vest": (250, 150, 4
 COLOR_SUJETO = (230, 40, 40)
 COLOR_REGION = (255, 230, 0)
 COLOR_REF = (255, 255, 255)
-CSV_COLUMNAS = ("n", "imagen", "es_persona", "epp_visible", "nota")
+CSV_COLUMNAS = ("n", "imagen", "condicion", "es_persona", "epp_visible", "nota")
 
 
 def extraer_cuadro(video: Path, cuadro: int, fps: float, salida: Path) -> Path:
@@ -320,7 +320,8 @@ def correr(ctx: Contexto, prueba: Prueba, carpeta: Carpeta) -> dict:
                                      cuadro=cuadro, sujeto=e.get("sujeto"), pat=pat, referencia=[],
                                      titulo=f"#{e['n']} · {e['condicion']}", ciega=True)
                 fila["recorte_ciego"] = str(ciega_rec.relative_to(salida))
-            filas_csv.append({"n": e["n"], "imagen": fila["archivo_ciego"], "es_persona": "", "epp_visible": "", "nota": ""})
+            filas_csv.append({"n": e["n"], "imagen": fila["archivo_ciego"], "condicion": e["condicion"],
+                              "es_persona": "", "epp_visible": "", "nota": ""})
         indice.append(fila)
     indice.sort(key=lambda x: x["orden"])
     if filas_csv:
@@ -336,6 +337,8 @@ def correr(ctx: Contexto, prueba: Prueba, carpeta: Carpeta) -> dict:
             "  epp_visible:  si / no / no_se_puede  (¿se ve el casco (CR-01) o el chaleco (CR-02)?)\n"
             "Sin abrir completas/ ni muestra.json antes de terminar. Al terminar, copiá el CSV a\n"
             "results/gen2/ERR-01/revision_humana.csv y volvé a correr ERR-01.\n"
+            "Con asistencia de Claude: `revision-ciega pagina` arma revision.html con sus propuestas\n"
+            "(propuestas_ia.json) y `revision-ciega cerrar` valida y copia el CSV (doc 134 §13.12).\n"
             "Los cuadros de clips de internet (v*) no se publican: nada de esta carpeta va a git.\n",
             encoding="utf-8")
     carpeta.escribir("indice_cuadros.json", {"salida": str(salida), "cuadros": indice})
