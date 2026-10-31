@@ -1,0 +1,1039 @@
+{
+  "rodaje": {
+    "agregado": {
+      "clips": 34,
+      "personas_referencia": 49,
+      "cobertura": 0.9873,
+      "cambios_de_identidad": 32,
+      "cambios_por_persona_minuto": 1.5391,
+      "tracks_por_persona_media": 1.6739,
+      "tracks_por_persona_mediana": 1.0,
+      "personas_con_un_solo_track": 37,
+      "por_escenario": {
+        "P1": {
+          "clips": 11,
+          "personas_referencia": 11,
+          "cobertura": 1.0,
+          "cambios_de_identidad": 1,
+          "cambios_por_persona_minuto": 0.2124,
+          "tracks_por_persona_media": 1.0909,
+          "tracks_por_persona_mediana": 1,
+          "personas_con_un_solo_track": 10
+        },
+        "P2": {
+          "clips": 5,
+          "personas_referencia": 5,
+          "cobertura": 1.0,
+          "cambios_de_identidad": 1,
+          "cambios_por_persona_minuto": 0.3095,
+          "tracks_por_persona_media": 1.2,
+          "tracks_por_persona_mediana": 1,
+          "personas_con_un_solo_track": 4
+        },
+        "P3": {
+          "clips": 2,
+          "personas_referencia": 2,
+          "cobertura": 1.0,
+          "cambios_de_identidad": 0,
+          "cambios_por_persona_minuto": 0.0,
+          "tracks_por_persona_media": 1,
+          "tracks_por_persona_mediana": 1.0,
+          "personas_con_un_solo_track": 2
+        },
+        "P4": {
+          "clips": 2,
+          "personas_referencia": 3,
+          "cobertura": 0.9995,
+          "cambios_de_identidad": 0,
+          "cambios_por_persona_minuto": 0.0,
+          "tracks_por_persona_media": 1,
+          "tracks_por_persona_mediana": 1.0,
+          "personas_con_un_solo_track": 2
+        },
+        "P5": {
+          "clips": 2,
+          "personas_referencia": 6,
+          "cobertura": 1.0,
+          "cambios_de_identidad": 1,
+          "cambios_por_persona_minuto": 0.3491,
+          "tracks_por_persona_media": 1.1667,
+          "tracks_por_persona_mediana": 1.0,
+          "personas_con_un_solo_track": 5
+        },
+        "P6": {
+          "clips": 2,
+          "personas_referencia": 3,
+          "cobertura": 0.9987,
+          "cambios_de_identidad": 2,
+          "cambios_por_persona_minuto": 1.206,
+          "tracks_por_persona_media": 2,
+          "tracks_por_persona_mediana": 2.0,
+          "personas_con_un_solo_track": 1
+        },
+        "P7": {
+          "clips": 4,
+          "personas_referencia": 11,
+          "cobertura": 0.9422,
+          "cambios_de_identidad": 24,
+          "cambios_por_persona_minuto": 5.3859,
+          "tracks_por_persona_media": 3.3,
+          "tracks_por_persona_mediana": 1.0,
+          "personas_con_un_solo_track": 6
+        },
+        "P8": {
+          "clips": 1,
+          "personas_referencia": 1,
+          "cobertura": 1.0,
+          "cambios_de_identidad": 3,
+          "cambios_por_persona_minuto": 5.3947,
+          "tracks_por_persona_media": 4,
+          "tracks_por_persona_mediana": 4,
+          "personas_con_un_solo_track": 0
+        },
+        "P9": {
+          "clips": 5,
+          "personas_referencia": 7,
+          "cobertura": 0.998,
+          "cambios_de_identidad": 0,
+          "cambios_por_persona_minuto": 0.0,
+          "tracks_por_persona_media": 1,
+          "tracks_por_persona_mediana": 1,
+          "personas_con_un_solo_track": 7
+        }
+      }
+    },
+    "por_clip": {
+      "a_p1_c02": {
+        "personas_referencia": 1,
+        "personas_seguidas": 1,
+        "cajas_referencia": 1123,
+        "cajas_cubiertas": 1123,
+        "cobertura": 1.0,
+        "cambios_de_identidad": 0,
+        "cambios_por_persona_minuto": 0.0,
+        "tracks_por_persona": [
+          1
+        ],
+        "persona_minutos": 0.6239,
+        "escenario": "P1",
+        "sha256_referencia": "715febadf45d417ecb992452fa44071037504e1834c2bae01d02ba568a60ed57"
+      },
+      "a_p1_c03": {
+        "personas_referencia": 1,
+        "personas_seguidas": 1,
+        "cajas_referencia": 616,
+        "cajas_cubiertas": 616,
+        "cobertura": 1.0,
+        "cambios_de_identidad": 0,
+        "cambios_por_persona_minuto": 0.0,
+        "tracks_por_persona": [
+          1
+        ],
+        "persona_minutos": 0.3422,
+        "escenario": "P1",
+        "sha256_referencia": "1cf7f2bfed1d996dd9a420e6441026996fe74ede499870194ae726f6153562bb"
+      },
+      "a_p1_c04": {
+        "personas_referencia": 1,
+        "personas_seguidas": 1,
+        "cajas_referencia": 920,
+        "cajas_cubiertas": 920,
+        "cobertura": 1.0,
+        "cambios_de_identidad": 0,
+        "cambios_por_persona_minuto": 0.0,
+        "tracks_por_persona": [
+          1
+        ],
+        "persona_minutos": 0.5111,
+        "escenario": "P1",
+        "sha256_referencia": "186b4b27f6d9c91975da4f94493a0511c8701bef32b14894220f28e5be8bc2b5"
+      },
+      "a_p1_c05": {
+        "personas_referencia": 1,
+        "personas_seguidas": 1,
+        "cajas_referencia": 649,
+        "cajas_cubiertas": 649,
+        "cobertura": 1.0,
+        "cambios_de_identidad": 0,
+        "cambios_por_persona_minuto": 0.0,
+        "tracks_por_persona": [
+          1
+        ],
+        "persona_minutos": 0.3606,
+        "escenario": "P1",
+        "sha256_referencia": "615501c17846d95cf498f799b6beca790753899a803a50bbc0b017d4581035c9"
+      },
+      "a_p1_c06": {
+        "personas_referencia": 1,
+        "personas_seguidas": 1,
+        "cajas_referencia": 736,
+        "cajas_cubiertas": 736,
+        "cobertura": 1.0,
+        "cambios_de_identidad": 1,
+        "cambios_por_persona_minuto": 2.4457,
+        "tracks_por_persona": [
+          2
+        ],
+        "persona_minutos": 0.4089,
+        "escenario": "P1",
+        "sha256_referencia": "4fb96b9e82fa1db3d74d0346e5468ff33c52be9851aee67eeeb5abc506ff8c05"
+      },
+      "a_p1_c07": {
+        "personas_referencia": 1,
+        "personas_seguidas": 1,
+        "cajas_referencia": 613,
+        "cajas_cubiertas": 613,
+        "cobertura": 1.0,
+        "cambios_de_identidad": 0,
+        "cambios_por_persona_minuto": 0.0,
+        "tracks_por_persona": [
+          1
+        ],
+        "persona_minutos": 0.3406,
+        "escenario": "P1",
+        "sha256_referencia": "88ed952e41b413a6e5d5b16743ae1b4bbe26a63c6769e08f549cae7598830c86"
+      },
+      "a_p1_c08": {
+        "personas_referencia": 1,
+        "personas_seguidas": 1,
+        "cajas_referencia": 709,
+        "cajas_cubiertas": 709,
+        "cobertura": 1.0,
+        "cambios_de_identidad": 0,
+        "cambios_por_persona_minuto": 0.0,
+        "tracks_por_persona": [
+          1
+        ],
+        "persona_minutos": 0.3939,
+        "escenario": "P1",
+        "sha256_referencia": "fdd5efc6c645323fba85911cbae1fef5e65923b852f64f4d8282551e764c6813"
+      },
+      "a_p1_c09": {
+        "personas_referencia": 1,
+        "personas_seguidas": 1,
+        "cajas_referencia": 721,
+        "cajas_cubiertas": 721,
+        "cobertura": 1.0,
+        "cambios_de_identidad": 0,
+        "cambios_por_persona_minuto": 0.0,
+        "tracks_por_persona": [
+          1
+        ],
+        "persona_minutos": 0.4006,
+        "escenario": "P1",
+        "sha256_referencia": "4d2c507dca6ed00e5c38147d005791594d7d948a43ea6d2f2797ec7110322b19"
+      },
+      "a_p1_c10": {
+        "personas_referencia": 1,
+        "personas_seguidas": 1,
+        "cajas_referencia": 859,
+        "cajas_cubiertas": 859,
+        "cobertura": 1.0,
+        "cambios_de_identidad": 0,
+        "cambios_por_persona_minuto": 0.0,
+        "tracks_por_persona": [
+          1
+        ],
+        "persona_minutos": 0.4772,
+        "escenario": "P1",
+        "sha256_referencia": "6785d2aadb2659a87c62ba5f2c194d857ee8f14b98c9c43deff23f68374ae995"
+      },
+      "a_p1_c11": {
+        "personas_referencia": 1,
+        "personas_seguidas": 1,
+        "cajas_referencia": 778,
+        "cajas_cubiertas": 778,
+        "cobertura": 1.0,
+        "cambios_de_identidad": 0,
+        "cambios_por_persona_minuto": 0.0,
+        "tracks_por_persona": [
+          1
+        ],
+        "persona_minutos": 0.4322,
+        "escenario": "P1",
+        "sha256_referencia": "6749e4f36c5d944bb39f7276d797f7b837a2e070ef3a966cd8d4c6ff1b2f4c72"
+      },
+      "a_p1_c12": {
+        "personas_referencia": 1,
+        "personas_seguidas": 1,
+        "cajas_referencia": 751,
+        "cajas_cubiertas": 751,
+        "cobertura": 1.0,
+        "cambios_de_identidad": 0,
+        "cambios_por_persona_minuto": 0.0,
+        "tracks_por_persona": [
+          1
+        ],
+        "persona_minutos": 0.4172,
+        "escenario": "P1",
+        "sha256_referencia": "1bab117a09038021bfc412866336661e1f8d421023882ab9e04eceb6e5b0cbc0"
+      },
+      "a_p2_c01": {
+        "personas_referencia": 1,
+        "personas_seguidas": 1,
+        "cajas_referencia": 1093,
+        "cajas_cubiertas": 1093,
+        "cobertura": 1.0,
+        "cambios_de_identidad": 0,
+        "cambios_por_persona_minuto": 0.0,
+        "tracks_por_persona": [
+          1
+        ],
+        "persona_minutos": 0.6072,
+        "escenario": "P2",
+        "sha256_referencia": "4503ae25a20b60c475cb6b71862d3d24ff9711ea75f8f92e47b86a7af7f62fb6"
+      },
+      "a_p2_c02": {
+        "personas_referencia": 1,
+        "personas_seguidas": 1,
+        "cajas_referencia": 1145,
+        "cajas_cubiertas": 1145,
+        "cobertura": 1.0,
+        "cambios_de_identidad": 0,
+        "cambios_por_persona_minuto": 0.0,
+        "tracks_por_persona": [
+          1
+        ],
+        "persona_minutos": 0.6361,
+        "escenario": "P2",
+        "sha256_referencia": "c052b9a36574900d73d42f037cb5bf30fa6211753a10badeaf88a525fd59a9e6"
+      },
+      "a_p2_c03": {
+        "personas_referencia": 1,
+        "personas_seguidas": 1,
+        "cajas_referencia": 1125,
+        "cajas_cubiertas": 1125,
+        "cobertura": 1.0,
+        "cambios_de_identidad": 1,
+        "cambios_por_persona_minuto": 1.6,
+        "tracks_por_persona": [
+          2
+        ],
+        "persona_minutos": 0.625,
+        "escenario": "P2",
+        "sha256_referencia": "6da2cd9e603ccf66f41cd186149aa521af95b489cf52847d623db75402182dc6"
+      },
+      "a_p2_c04": {
+        "personas_referencia": 1,
+        "personas_seguidas": 1,
+        "cajas_referencia": 1270,
+        "cajas_cubiertas": 1270,
+        "cobertura": 1.0,
+        "cambios_de_identidad": 0,
+        "cambios_por_persona_minuto": 0.0,
+        "tracks_por_persona": [
+          1
+        ],
+        "persona_minutos": 0.7056,
+        "escenario": "P2",
+        "sha256_referencia": "eb5ae8cebea850447c8644d832a93f46d20f0b748b294c80f0cd763cd7d87243"
+      },
+      "a_p2_c05": {
+        "personas_referencia": 1,
+        "personas_seguidas": 1,
+        "cajas_referencia": 1183,
+        "cajas_cubiertas": 1183,
+        "cobertura": 1.0,
+        "cambios_de_identidad": 0,
+        "cambios_por_persona_minuto": 0.0,
+        "tracks_por_persona": [
+          1
+        ],
+        "persona_minutos": 0.6572,
+        "escenario": "P2",
+        "sha256_referencia": "630ad8d53411851c33b58ef48166aeb8c71fb705bc60f44e47d99f082b5fa886"
+      },
+      "a_p3_c01": {
+        "personas_referencia": 1,
+        "personas_seguidas": 1,
+        "cajas_referencia": 529,
+        "cajas_cubiertas": 529,
+        "cobertura": 1.0,
+        "cambios_de_identidad": 0,
+        "cambios_por_persona_minuto": 0.0,
+        "tracks_por_persona": [
+          1
+        ],
+        "persona_minutos": 0.2939,
+        "escenario": "P3",
+        "sha256_referencia": "d02959e53ff623c27b169477f7fd90df2e1357dea0f324197a8a108db5b5dd49"
+      },
+      "a_p3_c02": {
+        "personas_referencia": 1,
+        "personas_seguidas": 1,
+        "cajas_referencia": 553,
+        "cajas_cubiertas": 553,
+        "cobertura": 1.0,
+        "cambios_de_identidad": 0,
+        "cambios_por_persona_minuto": 0.0,
+        "tracks_por_persona": [
+          1
+        ],
+        "persona_minutos": 0.3072,
+        "escenario": "P3",
+        "sha256_referencia": "2282d4be75a71911cf45221fc4fc097a959717ee2f79cf3e8266c0f1e3263b34"
+      },
+      "a_p4_c01": {
+        "personas_referencia": 1,
+        "personas_seguidas": 1,
+        "cajas_referencia": 892,
+        "cajas_cubiertas": 892,
+        "cobertura": 1.0,
+        "cambios_de_identidad": 0,
+        "cambios_por_persona_minuto": 0.0,
+        "tracks_por_persona": [
+          1
+        ],
+        "persona_minutos": 0.4956,
+        "escenario": "P4",
+        "sha256_referencia": "7927332a057a689a36e593e09d6b65f15a9c901a360e6e2b9f4418353879e7a1"
+      },
+      "a_p4_c02": {
+        "personas_referencia": 2,
+        "personas_seguidas": 1,
+        "cajas_referencia": 941,
+        "cajas_cubiertas": 940,
+        "cobertura": 0.9989,
+        "cambios_de_identidad": 0,
+        "cambios_por_persona_minuto": 0.0,
+        "tracks_por_persona": [
+          1
+        ],
+        "persona_minutos": 0.5228,
+        "escenario": "P4",
+        "sha256_referencia": "d0937c94d89d70cd1edb33854c35e1ecc86cc09a71bcd915dcafb57e1fd1a775"
+      },
+      "a_p5_c01": {
+        "personas_referencia": 4,
+        "personas_seguidas": 4,
+        "cajas_referencia": 2203,
+        "cajas_cubiertas": 2203,
+        "cobertura": 1.0,
+        "cambios_de_identidad": 1,
+        "cambios_por_persona_minuto": 0.8171,
+        "tracks_por_persona": [
+          2,
+          1,
+          1,
+          1
+        ],
+        "persona_minutos": 1.2239,
+        "escenario": "P5",
+        "sha256_referencia": "a0aa01b9a8c1c337edc31ba65c035f0768fe318823bbfbd802b624290ba4afba"
+      },
+      "a_p5_c02": {
+        "personas_referencia": 2,
+        "personas_seguidas": 2,
+        "cajas_referencia": 2953,
+        "cajas_cubiertas": 2953,
+        "cobertura": 1.0,
+        "cambios_de_identidad": 0,
+        "cambios_por_persona_minuto": 0.0,
+        "tracks_por_persona": [
+          1,
+          1
+        ],
+        "persona_minutos": 1.6406,
+        "escenario": "P5",
+        "sha256_referencia": "4e455375b8a250c86a550264b6675613a6bb68b7693f2d9382cb40e28346ca6e"
+      },
+      "a_p6_c01": {
+        "personas_referencia": 2,
+        "personas_seguidas": 1,
+        "cajas_referencia": 1292,
+        "cajas_cubiertas": 1288,
+        "cobertura": 0.9969,
+        "cambios_de_identidad": 2,
+        "cambios_por_persona_minuto": 2.7864,
+        "tracks_por_persona": [
+          3
+        ],
+        "persona_minutos": 0.7178,
+        "escenario": "P6",
+        "sha256_referencia": "9702cc31a143f8176b6d903cba3c12f57fa0c17683d77f176d1e0116734b4978"
+      },
+      "a_p6_c02": {
+        "personas_referencia": 1,
+        "personas_seguidas": 1,
+        "cajas_referencia": 1693,
+        "cajas_cubiertas": 1693,
+        "cobertura": 1.0,
+        "cambios_de_identidad": 0,
+        "cambios_por_persona_minuto": 0.0,
+        "tracks_por_persona": [
+          1
+        ],
+        "persona_minutos": 0.9406,
+        "escenario": "P6",
+        "sha256_referencia": "8357841229698bfe0c16f2dbb779207f5220fc15c7d3a8dfa360ca9599721afb"
+      },
+      "a_p7_c01": {
+        "personas_referencia": 2,
+        "personas_seguidas": 2,
+        "cajas_referencia": 2156,
+        "cajas_cubiertas": 2156,
+        "cobertura": 1.0,
+        "cambios_de_identidad": 0,
+        "cambios_por_persona_minuto": 0.0,
+        "tracks_por_persona": [
+          1,
+          1
+        ],
+        "persona_minutos": 1.1978,
+        "escenario": "P7",
+        "sha256_referencia": "da6e560d50db43c40f6b1ff9b2b9717123dcb2dd242516a9a917eb09bcf6a0b6"
+      },
+      "a_p7_c02": {
+        "personas_referencia": 5,
+        "personas_seguidas": 4,
+        "cajas_referencia": 1945,
+        "cajas_cubiertas": 1732,
+        "cobertura": 0.8905,
+        "cambios_de_identidad": 11,
+        "cambios_por_persona_minuto": 10.1799,
+        "tracks_por_persona": [
+          8,
+          5,
+          1,
+          1
+        ],
+        "persona_minutos": 1.0806,
+        "escenario": "P7",
+        "sha256_referencia": "e79a155bd823ad0a0fdd787e33783e762d461aaf16be629f4cc3330235888549"
+      },
+      "a_p7_c03": {
+        "personas_referencia": 2,
+        "personas_seguidas": 2,
+        "cajas_referencia": 1952,
+        "cajas_cubiertas": 1707,
+        "cobertura": 0.8745,
+        "cambios_de_identidad": 13,
+        "cambios_por_persona_minuto": 11.9877,
+        "tracks_por_persona": [
+          7,
+          7
+        ],
+        "persona_minutos": 1.0844,
+        "escenario": "P7",
+        "sha256_referencia": "3ade99305b4cb3794062d8a0074f4a828193923862ca2a07d18b979b28339bea"
+      },
+      "a_p7_c04": {
+        "personas_referencia": 2,
+        "personas_seguidas": 2,
+        "cajas_referencia": 1968,
+        "cajas_cubiertas": 1962,
+        "cobertura": 0.997,
+        "cambios_de_identidad": 0,
+        "cambios_por_persona_minuto": 0.0,
+        "tracks_por_persona": [
+          1,
+          1
+        ],
+        "persona_minutos": 1.0933,
+        "escenario": "P7",
+        "sha256_referencia": "64b90ad018003e65561fa84d23da4979a4d1171c46f5851e5566981237d49db9"
+      },
+      "a_p8_c01": {
+        "personas_referencia": 1,
+        "personas_seguidas": 1,
+        "cajas_referencia": 1001,
+        "cajas_cubiertas": 1001,
+        "cobertura": 1.0,
+        "cambios_de_identidad": 3,
+        "cambios_por_persona_minuto": 5.3946,
+        "tracks_por_persona": [
+          4
+        ],
+        "persona_minutos": 0.5561,
+        "escenario": "P8",
+        "sha256_referencia": "c6363bab034482e89f5091ac270d2d0ab3ed834e348026431072f60a4a8dede9"
+      },
+      "a_p9_c01": {
+        "personas_referencia": 1,
+        "personas_seguidas": 1,
+        "cajas_referencia": 637,
+        "cajas_cubiertas": 631,
+        "cobertura": 0.9906,
+        "cambios_de_identidad": 0,
+        "cambios_por_persona_minuto": 0.0,
+        "tracks_por_persona": [
+          1
+        ],
+        "persona_minutos": 0.3539,
+        "escenario": "P9",
+        "sha256_referencia": "b413190064a8e849c80c9e94916f074efc3d3bc9c7137e4b5c2c9fe7281a7ffd"
+      },
+      "a_p9_c02": {
+        "personas_referencia": 1,
+        "personas_seguidas": 1,
+        "cajas_referencia": 640,
+        "cajas_cubiertas": 640,
+        "cobertura": 1.0,
+        "cambios_de_identidad": 0,
+        "cambios_por_persona_minuto": 0.0,
+        "tracks_por_persona": [
+          1
+        ],
+        "persona_minutos": 0.3556,
+        "escenario": "P9",
+        "sha256_referencia": "05415a78f50fde9f9646e53f92ce7a1cb382e40190e68190e2bda6dc91991106"
+      },
+      "a_p9_c03": {
+        "personas_referencia": 1,
+        "personas_seguidas": 1,
+        "cajas_referencia": 568,
+        "cajas_cubiertas": 568,
+        "cobertura": 1.0,
+        "cambios_de_identidad": 0,
+        "cambios_por_persona_minuto": 0.0,
+        "tracks_por_persona": [
+          1
+        ],
+        "persona_minutos": 0.3156,
+        "escenario": "P9",
+        "sha256_referencia": "e1fc93f431f3e9b6fc106510ae8d24a9f70d6193e52264c524f3d269898b51f1"
+      },
+      "a_p9_c06": {
+        "personas_referencia": 3,
+        "personas_seguidas": 3,
+        "cajas_referencia": 617,
+        "cajas_cubiertas": 617,
+        "cobertura": 1.0,
+        "cambios_de_identidad": 0,
+        "cambios_por_persona_minuto": 0.0,
+        "tracks_por_persona": [
+          1,
+          1,
+          1
+        ],
+        "persona_minutos": 0.3428,
+        "escenario": "P9",
+        "sha256_referencia": "12bbf74ebe9be69fbe0b3f555d23b9736a8ecea97bccbec47697ce1da073d0a2"
+      },
+      "a_p9_c08": {
+        "personas_referencia": 1,
+        "personas_seguidas": 1,
+        "cajas_referencia": 592,
+        "cajas_cubiertas": 592,
+        "cobertura": 1.0,
+        "cambios_de_identidad": 0,
+        "cambios_por_persona_minuto": 0.0,
+        "tracks_por_persona": [
+          1
+        ],
+        "persona_minutos": 0.3289,
+        "escenario": "P9",
+        "sha256_referencia": "3e31acfa07fc4a7dbbe5213be8ff553fe65e303805ef7a459259452f1ec0fbfb"
+      }
+    }
+  },
+  "obra_real": {
+    "agregado": {
+      "clips": 13,
+      "personas_referencia": 217,
+      "cobertura": 0.8433,
+      "cambios_de_identidad": 2012,
+      "cambios_por_persona_minuto": 22.2021,
+      "tracks_por_persona_media": 7.3455,
+      "tracks_por_persona_mediana": 4,
+      "personas_con_un_solo_track": 47,
+      "por_escenario": {
+        "P1": {
+          "clips": 2,
+          "personas_referencia": 12,
+          "cobertura": 0.6195,
+          "cambios_de_identidad": 43,
+          "cambios_por_persona_minuto": 10.3585,
+          "tracks_por_persona_media": 3.9,
+          "tracks_por_persona_mediana": 3.0,
+          "personas_con_un_solo_track": 2
+        },
+        "P5": {
+          "clips": 11,
+          "personas_referencia": 205,
+          "cobertura": 0.854,
+          "cambios_de_identidad": 1969,
+          "cambios_por_persona_minuto": 22.7706,
+          "tracks_por_persona_media": 7.5359,
+          "tracks_por_persona_mediana": 4,
+          "personas_con_un_solo_track": 45
+        }
+      }
+    },
+    "por_clip": {
+      "v01_c01": {
+        "personas_referencia": 11,
+        "personas_seguidas": 6,
+        "cajas_referencia": 6604,
+        "cajas_cubiertas": 3504,
+        "cobertura": 0.5306,
+        "cambios_de_identidad": 24,
+        "cambios_por_persona_minuto": 6.5415,
+        "tracks_por_persona": [
+          6,
+          4,
+          6,
+          2,
+          3,
+          5
+        ],
+        "persona_minutos": 3.6689,
+        "escenario": "P5",
+        "sha256_referencia": "0967888d0782331214c0870dddd92760be60b9082fe072d3d891d9aedd5d3565"
+      },
+      "v01_c02": {
+        "personas_referencia": 6,
+        "personas_seguidas": 4,
+        "cajas_referencia": 4096,
+        "cajas_cubiertas": 1914,
+        "cobertura": 0.4673,
+        "cambios_de_identidad": 21,
+        "cambios_por_persona_minuto": 9.2285,
+        "tracks_por_persona": [
+          5,
+          6,
+          4,
+          2
+        ],
+        "persona_minutos": 2.2756,
+        "escenario": "P1",
+        "sha256_referencia": "410edb67cab96656fba33c6a0eb7058ea1ab3a0a01e2d730ef3ff28e51a36cb2"
+      },
+      "v02_c01": {
+        "personas_referencia": 7,
+        "personas_seguidas": 7,
+        "cajas_referencia": 7555,
+        "cajas_cubiertas": 5629,
+        "cobertura": 0.7451,
+        "cambios_de_identidad": 70,
+        "cambios_por_persona_minuto": 16.6777,
+        "tracks_por_persona": [
+          15,
+          7,
+          4,
+          6,
+          7,
+          16,
+          1
+        ],
+        "persona_minutos": 4.1972,
+        "escenario": "P5",
+        "sha256_referencia": "b00fecd8b1910220b7a32a71e9cd51ffbe7a23b246e68c2055a779b607904991"
+      },
+      "v03_c01": {
+        "personas_referencia": 3,
+        "personas_seguidas": 2,
+        "cajas_referencia": 377,
+        "cajas_cubiertas": 376,
+        "cobertura": 0.9973,
+        "cambios_de_identidad": 3,
+        "cambios_por_persona_minuto": 14.3236,
+        "tracks_por_persona": [
+          3,
+          1
+        ],
+        "persona_minutos": 0.2094,
+        "escenario": "P5",
+        "sha256_referencia": "94ca75fb4a8469f25bc4ccc6fa83181995a5a73a591498731097bfa83bf7e9a7"
+      },
+      "v03_c02": {
+        "personas_referencia": 3,
+        "personas_seguidas": 2,
+        "cajas_referencia": 3191,
+        "cajas_cubiertas": 3075,
+        "cobertura": 0.9636,
+        "cambios_de_identidad": 33,
+        "cambios_por_persona_minuto": 18.6149,
+        "tracks_por_persona": [
+          20,
+          2
+        ],
+        "persona_minutos": 1.7728,
+        "escenario": "P5",
+        "sha256_referencia": "06bfe6a49e665de31ab776ff20ff4cd991b3c7050087f4555ae1741adf231d75"
+      },
+      "v04_c01": {
+        "personas_referencia": 6,
+        "personas_seguidas": 6,
+        "cajas_referencia": 3376,
+        "cajas_cubiertas": 2715,
+        "cobertura": 0.8042,
+        "cambios_de_identidad": 22,
+        "cambios_por_persona_minuto": 11.7299,
+        "tracks_por_persona": [
+          1,
+          1,
+          2,
+          2,
+          12,
+          4
+        ],
+        "persona_minutos": 1.8756,
+        "escenario": "P1",
+        "sha256_referencia": "c7899e7fca1a5c98ab7b5908b047cb2bbd1b82046a514e9ac54e756de60a2577"
+      },
+      "v04_c02": {
+        "personas_referencia": 8,
+        "personas_seguidas": 7,
+        "cajas_referencia": 3640,
+        "cajas_cubiertas": 2960,
+        "cobertura": 0.8132,
+        "cambios_de_identidad": 12,
+        "cambios_por_persona_minuto": 5.9341,
+        "tracks_por_persona": [
+          3,
+          1,
+          4,
+          2,
+          5,
+          1,
+          1
+        ],
+        "persona_minutos": 2.0222,
+        "escenario": "P5",
+        "sha256_referencia": "98946a7d1eb1cc99a0f261a6d3afd7b940172fdb632b43252d68ba258bcc6b1c"
+      },
+      "v04_c03": {
+        "personas_referencia": 3,
+        "personas_seguidas": 3,
+        "cajas_referencia": 2307,
+        "cajas_cubiertas": 1996,
+        "cobertura": 0.8652,
+        "cambios_de_identidad": 28,
+        "cambios_por_persona_minuto": 21.8466,
+        "tracks_por_persona": [
+          1,
+          29,
+          1
+        ],
+        "persona_minutos": 1.2817,
+        "escenario": "P5",
+        "sha256_referencia": "0b8f212fb2caf07f33e2dd2e40346d1788eec4a6757e002dbcba6e29af1f55df"
+      },
+      "v05_c01": {
+        "personas_referencia": 17,
+        "personas_seguidas": 14,
+        "cajas_referencia": 6380,
+        "cajas_cubiertas": 5374,
+        "cobertura": 0.8423,
+        "cambios_de_identidad": 93,
+        "cambios_por_persona_minuto": 26.2382,
+        "tracks_por_persona": [
+          3,
+          10,
+          33,
+          9,
+          1,
+          4,
+          1,
+          4,
+          7,
+          6,
+          1,
+          1,
+          1,
+          1
+        ],
+        "persona_minutos": 3.5444,
+        "escenario": "P5",
+        "sha256_referencia": "ab61325346128a2868af230a541fa5c71f11e89f33a2724564a4cd158fd01e60"
+      },
+      "v06_c01": {
+        "personas_referencia": 127,
+        "personas_seguidas": 115,
+        "cajas_referencia": 102831,
+        "cajas_cubiertas": 92327,
+        "cobertura": 0.8979,
+        "cambios_de_identidad": 1442,
+        "cambios_por_persona_minuto": 25.2414,
+        "tracks_por_persona": [
+          1,
+          8,
+          3,
+          19,
+          2,
+          6,
+          7,
+          36,
+          1,
+          8,
+          5,
+          1,
+          5,
+          6,
+          5,
+          9,
+          1,
+          1,
+          3,
+          1,
+          6,
+          8,
+          5,
+          3,
+          1,
+          6,
+          3,
+          1,
+          1,
+          3,
+          6,
+          1,
+          1,
+          8,
+          2,
+          45,
+          6,
+          54,
+          32,
+          15,
+          1,
+          12,
+          14,
+          1,
+          3,
+          15,
+          3,
+          6,
+          11,
+          3,
+          30,
+          4,
+          1,
+          5,
+          12,
+          5,
+          3,
+          11,
+          1,
+          1,
+          13,
+          10,
+          3,
+          1,
+          1,
+          1,
+          1,
+          1,
+          66,
+          11,
+          1,
+          3,
+          1,
+          4,
+          4,
+          7,
+          23,
+          1,
+          3,
+          2,
+          1,
+          6,
+          5,
+          2,
+          2,
+          5,
+          1,
+          6,
+          3,
+          1,
+          3,
+          5,
+          1,
+          24,
+          2,
+          4,
+          4,
+          1,
+          6,
+          2,
+          2,
+          2,
+          91,
+          2,
+          27,
+          23,
+          21,
+          1,
+          2,
+          3,
+          1,
+          5,
+          3,
+          2,
+          2
+        ],
+        "persona_minutos": 57.1283,
+        "escenario": "P5",
+        "sha256_referencia": "79cfbb5e883802830ac804c452716130282093594137ab57d24d7ff81a157c4b"
+      },
+      "v07_c01": {
+        "personas_referencia": 12,
+        "personas_seguidas": 12,
+        "cajas_referencia": 8490,
+        "cajas_cubiertas": 6267,
+        "cobertura": 0.7382,
+        "cambios_de_identidad": 137,
+        "cambios_por_persona_minuto": 29.0459,
+        "tracks_por_persona": [
+          9,
+          5,
+          9,
+          15,
+          10,
+          15,
+          13,
+          9,
+          8,
+          4,
+          8,
+          4
+        ],
+        "persona_minutos": 4.7167,
+        "escenario": "P5",
+        "sha256_referencia": "e972a688e718b0de6d11fb53802faaf854442e88554eb6d7724ac2ca682983ac"
+      },
+      "v09_c01": {
+        "personas_referencia": 8,
+        "personas_seguidas": 8,
+        "cajas_referencia": 7260,
+        "cajas_cubiertas": 5521,
+        "cobertura": 0.7605,
+        "cambios_de_identidad": 102,
+        "cambios_por_persona_minuto": 25.2893,
+        "tracks_por_persona": [
+          12,
+          19,
+          15,
+          3,
+          3,
+          20,
+          9,
+          3
+        ],
+        "persona_minutos": 4.0333,
+        "escenario": "P5",
+        "sha256_referencia": "79adeba4bc78bc8c4707ea1583e6d57bd27fe3f4f11cc4d7a33194afa723e2e1"
+      },
+      "v10_c01": {
+        "personas_referencia": 6,
+        "personas_seguidas": 5,
+        "cajas_referencia": 7013,
+        "cajas_cubiertas": 5902,
+        "cobertura": 0.8416,
+        "cambios_de_identidad": 25,
+        "cambios_por_persona_minuto": 6.4167,
+        "tracks_por_persona": [
+          9,
+          5,
+          7,
+          6,
+          1
+        ],
+        "persona_minutos": 3.8961,
+        "escenario": "P5",
+        "sha256_referencia": "83e2e5d6a535c9aec01ccc2bdbd04c320519b561a981c73a30f4209b1786cce9"
+      }
+    }
+  }
+}

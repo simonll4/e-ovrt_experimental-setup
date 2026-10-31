@@ -1,0 +1,56 @@
+schema: prueba.gen2.v1
+id: ALR-06
+titulo: "Alerta por episodio con bare_head como evidencia directa (B1)"
+informe: ["Tabla 53", "§17.5.4"]
+fase: F3
+familia: clips
+# Enmienda 2026-10-30 (doc 134 §13.10): se regenera en la Victus como todas. El bloque gen1
+# queda solo como referencia del veredicto.
+pregunta: >
+  La especialidad de base-560 en bare_head, ¿se traduce en mejores alertas CR-01 cuando
+  bare_head es la evidencia? Una inferencia por clip con el caption de 4 clases y dos relecturas
+  sobre las MISMAS detecciones (variable única: el evaluador).
+gen1:
+  result_id: b1_gdinobase560_barehead_scene
+  doc: operacion/88
+  evals: results/clip_bench/b1_gdinobase560_barehead_scene/evals
+  clips_gt_corregido: [a_p1_c05, a_p2_c01, a_p2_c02, a_p2_c05, a_p7_c02, a_p7_c03, a_p8_c01, a_p9_c08]
+  referencia:
+    fuente: docs/operacion/datos/134-piloto-gt02-sensibilidad-bordes/gt02_todas_gt_corregido.json (B1)
+    valores: {episodes_total: 33, episodes_censored: 0, episodes_evaluable: 33, matched: 14, missed: 19,
+              false_positives: 21, re_alerts: 2, sub_threshold: 0, recall_micro: 0.424242,
+              precision_micro: 0.4, f1_micro: 0.411765, neg_false_positives: 3}
+  cifras:
+    - {clave: f1, nombre: "F1 por episodio (micro)", valor: 0.411765}
+    - {clave: precision, nombre: "Precisión", valor: 0.4}
+    - {clave: recall, nombre: "Recall", valor: 0.424242}
+    - {clave: falsas_alarmas, nombre: "Falsas alarmas en clips sin infracción", valor: 3}
+esperado: >
+  Referencia de la relectura principal (bare_head): la generación 1 re-evaluada (F1 0,412). Desde la enmienda del 2026-10-30 (doc 134 §13.10), base-560 carga su cabeza de cajas entrenada, que en la generación 1 quedaba sin cargar. Por eso se espera `otra_combinacion`: la diferencia con la generación 1 mide el efecto de esa cabeza. La variante
+  `eind_mismo_caption` se publicó con el GT anterior (metrics_eind_mismo_caption.json): se muestra
+  al lado, sin referencia re-evaluada.
+veredictos_posibles: [identico, equivalente_con_diferencia, otra_combinacion]
+config:
+  modelo: grounding-dino/gdino-base-560
+  prompt_set: cr01_cr02_bench_v2 (person, helmet, vest, bare_head)
+  pattern_set: cr01_bare_head_v1 (CR-01) · variante cr01_cr02_v2
+receta:
+  tipo: inferencia
+  clips: rodaje
+  instancia: mp-gdino-base-560
+  modelo: grounding-dino/gdino-base-560
+  medios:
+    prompts:
+      set_id: cr01_cr02_bench_v2
+      fuente: prompts/cr01_cr02_bench_v2.yaml
+      clases: [person, helmet, vest, bare_head]
+      # cr01_cr02_bench_v2 no tiene status frozen: se fija igual la huella de su bloque classes.
+      frozen: {prompts/cr01_cr02_bench_v2.yaml: 9775f75b66aea610882075047a640bbc51176373864a0793fdb15e036b5437e8}
+  control: {patrones: cr01_bare_head_v1, activos: [CR-01]}
+  variantes:
+    - nombre: eind_mismo_caption
+      control: {patrones: cr01_cr02_v2, activos: [CR-01, CR-02]}
+      gen1: {archivo: results/clip_bench/b1_gdinobase560_barehead_scene/metrics_eind_mismo_caption.json,
+             nota: "publicado con el GT anterior"}
+  timeout_s: 3600
+salida: e-ovrt_experimental-setup/results/gen2/ALR-06/

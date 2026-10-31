@@ -1,0 +1,869 @@
+ Image eovrt/console:latest Building 
+ Image eovrt/control-plane:latest Building 
+ Image eovrt/media-plane:latest Building 
+ Image eovrt/media-plane:latest Building 
+ Image eovrt/media-plane:latest Building 
+ Image eovrt/media-plane:latest Building 
+ Image eovrt/media-plane:latest Building 
+ Image eovrt/distribution:latest Building 
+ Image eovrt/media-plane:latest Building 
+ Image eovrt/media-plane:latest Building 
+ Image eovrt/media-plane:latest Building 
+ Image eovrt/media-plane:latest Building 
+#1 [internal] load local bake definitions
+#1 reading from stdin 6.73kB done
+#1 DONE 0.0s
+
+#2 [mp-yoloe-26m internal] load build definition from Dockerfile
+#2 transferring dockerfile: 2.16kB 0.0s done
+#2 DONE 0.1s
+
+#3 [console internal] load build definition from Dockerfile
+#3 transferring dockerfile: 2.46kB 0.0s done
+#3 DONE 0.1s
+
+#4 [control-plane internal] load build definition from Dockerfile
+#4 transferring dockerfile: 1.47kB 0.0s done
+#4 DONE 0.1s
+
+#5 [distribution internal] load build definition from Dockerfile
+#5 transferring dockerfile: 1.73kB 0.0s done
+#5 DONE 0.1s
+
+#6 [mp-gdino-tiny-560 internal] load metadata for docker.io/nvidia/cuda:12.4.1-runtime-ubuntu22.04
+#6 ...
+
+#7 [console context controlplane] load .dockerignore
+#7 transferring controlplane: 202B 0.1s done
+#7 DONE 0.1s
+
+#8 [distribution internal] load metadata for docker.io/library/python:3.11-slim
+#8 ...
+
+#9 [console internal] load metadata for docker.io/library/node:20-slim
+#9 DONE 1.3s
+
+#8 [distribution internal] load metadata for docker.io/library/python:3.11-slim
+#8 DONE 1.3s
+
+#10 [console internal] load .dockerignore
+#10 transferring context: 288B 0.0s done
+#10 DONE 0.1s
+
+#11 [console context controlplane] load from client
+#11 DONE 0.0s
+
+#12 [console internal] load build context
+#12 DONE 0.0s
+
+#13 [console context controlplane] load from client
+#13 DONE 0.0s
+
+#14 [distribution internal] load .dockerignore
+#14 transferring context: 201B 0.1s done
+#14 DONE 0.1s
+
+#15 [distribution stage-1  1/10] FROM docker.io/library/python:3.11-slim@sha256:673719e071ecf27434fd2635bbd8d00f49f4fdd81f243143438a42ced8bedf60
+#15 resolve docker.io/library/python:3.11-slim@sha256:673719e071ecf27434fd2635bbd8d00f49f4fdd81f243143438a42ced8bedf60
+#15 resolve docker.io/library/python:3.11-slim@sha256:673719e071ecf27434fd2635bbd8d00f49f4fdd81f243143438a42ced8bedf60 0.0s done
+#15 DONE 0.0s
+
+#16 [console spa 1/6] FROM docker.io/library/node:20-slim@sha256:2cf067cfed83d5ea958367df9f966191a942351a2df77d6f0193e162b5febfc0
+#16 resolve docker.io/library/node:20-slim@sha256:2cf067cfed83d5ea958367df9f966191a942351a2df77d6f0193e162b5febfc0 0.0s done
+#16 DONE 0.0s
+
+#17 [control-plane internal] load .dockerignore
+#17 transferring context: 202B 0.1s done
+#17 DONE 0.1s
+
+#18 [control-plane internal] load build context
+#18 ...
+
+#13 [console context controlplane] load from client
+#13 transferring controlplane: 1.18kB 0.1s done
+#13 DONE 0.1s
+
+#6 [mp-yoloe-26s internal] load metadata for docker.io/nvidia/cuda:12.4.1-runtime-ubuntu22.04
+#6 DONE 1.6s
+
+#18 [control-plane internal] load build context
+#18 ...
+
+#19 [mp-gdino-tiny internal] load .dockerignore
+#19 transferring context: 422B 0.1s done
+#19 DONE 0.2s
+
+#20 [mp-gdino-base-560 internal] load build context
+#20 DONE 0.0s
+
+#18 [control-plane internal] load build context
+#18 ...
+
+#21 [mp-gdino-tiny 1/8] FROM docker.io/nvidia/cuda:12.4.1-runtime-ubuntu22.04@sha256:517da2300c184c9999ec203c2665244bdebd3578d12fcc7065e83667932643d9
+#21 resolve docker.io/nvidia/cuda:12.4.1-runtime-ubuntu22.04@sha256:517da2300c184c9999ec203c2665244bdebd3578d12fcc7065e83667932643d9 0.1s done
+#21 DONE 0.1s
+
+#22 [distribution internal] load build context
+#22 transferring context: 63.75kB 0.4s done
+#22 DONE 0.5s
+
+#23 [distribution 4/6] COPY src/ ./src/
+#23 CACHED
+
+#24 [distribution 5/6] COPY configs/ ./configs/
+#24 CACHED
+
+#25 [distribution 2/6] WORKDIR /app
+#25 CACHED
+
+#26 [distribution 3/6] COPY pyproject.toml ./
+#26 CACHED
+
+#27 [distribution 6/6] RUN pip install --no-cache-dir ".[mqtt,service]"
+#27 CACHED
+
+#20 [mp-gdino-tiny internal] load build context
+#20 ...
+
+#28 [distribution] exporting to image
+#28 exporting layers done
+#28 exporting manifest sha256:3b71475b0a45e4157818d75053e28198c1fb6ca51dc960bd8c40dfd16cf02538 done
+#28 exporting config sha256:2c0de40983924e721c046f75e9832a0573200d45d94e4ac2251ec850c2aa533c done
+#28 exporting attestation manifest sha256:97868f7e557868543db383ec53306ca65dca409517dd7c2b41a5655b97fb8e1a 0.0s done
+#28 exporting manifest list sha256:9944a3800a3dd6a0945da1ef6fdcc95400694044ff3f8dd9dc73c40da0893be1 0.0s done
+#28 naming to docker.io/eovrt/distribution:latest done
+#28 unpacking to docker.io/eovrt/distribution:latest 0.0s done
+#28 DONE 0.2s
+
+#20 [mp-gdino-tiny internal] load build context
+#20 ...
+
+#29 [distribution] resolving provenance for metadata file
+#29 DONE 0.0s
+
+#11 [console context controlplane] load from client
+#11 transferring controlplane: 338.43kB 1.0s done
+#11 DONE 1.0s
+
+#20 [mp-gdino-tiny internal] load build context
+#20 ...
+
+#18 [control-plane internal] load build context
+#18 transferring context: 379.63kB 1.4s done
+#18 DONE 1.4s
+
+#30 [control-plane 4/6] COPY src/ ./src/
+#30 CACHED
+
+#31 [control-plane 5/6] COPY configs/ ./configs/
+#31 CACHED
+
+#25 [control-plane 2/6] WORKDIR /app
+#25 CACHED
+
+#32 [control-plane 3/6] COPY pyproject.toml ./
+#32 CACHED
+
+#33 [control-plane 6/6] RUN pip install --no-cache-dir .
+#33 CACHED
+
+#20 [mp-gdino-tiny internal] load build context
+#20 ...
+
+#34 [control-plane] exporting to image
+#34 exporting layers done
+#34 exporting manifest sha256:7fb481ee39d376601b6043b4762c47be05adf0e6e5b12659b61f169964960d65 done
+#34 exporting config sha256:3c245a77ccd490be12912468198e0b0f8baeac8bb692459e7dbbe30f6e15afc0 done
+#34 exporting attestation manifest sha256:0bc522fd09a2e4da5bef641d0f919034913264f3103c9cf1010d11340ca988f7 0.0s done
+#34 exporting manifest list sha256:3962185e0b321ab49b69350ef5981f2ca8a701b9860f6c62728c24dcef3818b5 0.0s done
+#34 naming to docker.io/eovrt/control-plane:latest done
+#34 unpacking to docker.io/eovrt/control-plane:latest 0.0s done
+#34 DONE 0.2s
+
+#20 [mp-gdino-tiny internal] load build context
+#20 transferring context: 439.14kB 1.3s done
+#20 DONE 1.4s
+
+#35 [control-plane] resolving provenance for metadata file
+#35 DONE 0.0s
+
+#12 [console internal] load build context
+#12 ...
+
+#36 [mp-yoloe-26l 3/8] WORKDIR /app
+#36 CACHED
+
+#37 [mp-yoloe-26l 2/8] RUN apt-get update && apt-get install -y --no-install-recommends         software-properties-common gnupg curl     && add-apt-repository -y ppa:deadsnakes/ppa     && apt-get update && apt-get install -y --no-install-recommends         python3.11 python3.11-venv libgl1 libglib2.0-0     && rm -rf /var/lib/apt/lists/*     && python3.11 -m ensurepip --upgrade     && python3.11 -m pip install --no-cache-dir --upgrade pip
+#37 CACHED
+
+#38 [mp-yoloe-26m 4/8] COPY pyproject.toml constraints.txt ./
+#38 CACHED
+
+#12 [console internal] load build context
+#12 ...
+
+#39 [mp-yoloe-26x 5/8] COPY src ./src
+#39 DONE 0.1s
+
+#40 [mp-yoloe-26x 6/8] COPY configs ./configs
+#40 DONE 0.1s
+
+#12 [console internal] load build context
+#12 transferring context: 1.91MB 2.1s done
+#12 DONE 2.2s
+
+#41 [console stage-1  4/10] COPY webconsole/backend/pyproject.toml ./backend/pyproject.toml
+#41 CACHED
+
+#42 [console stage-1  7/10] COPY --from=controlplane pyproject.toml /opt/control-plane/pyproject.toml
+#42 CACHED
+
+#43 [console spa 3/6] COPY webconsole/frontend/package.json webconsole/frontend/package-lock.json ./
+#43 CACHED
+
+#44 [console spa 6/6] RUN npm run build
+#44 CACHED
+
+#45 [console stage-1  3/10] WORKDIR /app
+#45 CACHED
+
+#46 [console spa 5/6] COPY webconsole/frontend ./
+#46 CACHED
+
+#47 [console stage-1  9/10] RUN pip install --no-cache-dir /opt/control-plane
+#47 CACHED
+
+#48 [console spa 2/6] WORKDIR /build
+#48 CACHED
+
+#49 [console spa 4/6] RUN npm ci
+#49 CACHED
+
+#50 [console stage-1  5/10] COPY webconsole/backend/src ./backend/src
+#50 CACHED
+
+#51 [console stage-1  2/10] RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates curl gnupg     && install -m 0755 -d /etc/apt/keyrings     && curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc     && echo "deb [signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian bookworm stable"        > /etc/apt/sources.list.d/docker.list     && apt-get update && apt-get install -y --no-install-recommends docker-ce-cli docker-compose-plugin        ffmpeg     && rm -rf /var/lib/apt/lists/*
+#51 CACHED
+
+#52 [console stage-1  8/10] COPY --from=controlplane src /opt/control-plane/src
+#52 CACHED
+
+#53 [console stage-1  6/10] RUN pip install --no-cache-dir ./backend
+#53 CACHED
+
+#54 [console stage-1 10/10] COPY --from=spa /build/dist /app/spa-dist
+#54 CACHED
+
+#55 [console] exporting to image
+#55 exporting layers done
+#55 exporting manifest sha256:e0f9320b1d97403893f59e5b4efd8e9ac897be7cb1e1cd8664a24eb89468dd0a done
+#55 exporting config sha256:fdca16ee77a1be42ef486775107fc79c5d8e62f6ca84cb9b09b6b63b2330ea40 done
+#55 exporting attestation manifest sha256:b0e7c6a9ae6d20601c023cee5710984e54d0a6c77052071105ad49d41c474eb8 0.0s done
+#55 exporting manifest list sha256:6da99636af1272efdba5f67af07c3ea98e7db8141a44e0b09547aca8b0bc6899 0.0s done
+#55 naming to docker.io/eovrt/console:latest
+#55 naming to docker.io/eovrt/console:latest done
+#55 unpacking to docker.io/eovrt/console:latest done
+#55 DONE 0.1s
+
+#56 [console] resolving provenance for metadata file
+#56 DONE 0.0s
+
+#57 [mp-gdino-base 7/8] RUN python3.11 -m pip install --no-cache-dir -c constraints.txt ".[gpu,edge]"
+#57 1.285 Processing ./.
+#57 1.288   Installing build dependencies: started
+#57 2.684   Installing build dependencies: finished with status 'done'
+#57 2.685   Getting requirements to build wheel: started
+#57 3.054   Getting requirements to build wheel: finished with status 'done'
+#57 3.056   Preparing metadata (pyproject.toml): started
+#57 3.199   Preparing metadata (pyproject.toml): finished with status 'done'
+#57 3.517 Collecting pillow (from eovrt-media-plane==0.1.0)
+#57 3.657   Downloading pillow-12.3.0-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (9.1 kB)
+#57 3.723 Collecting opencv-python (from eovrt-media-plane==0.1.0)
+#57 3.757   Downloading opencv_python-5.0.0.93-cp37-abi3-manylinux_2_28_x86_64.whl.metadata (19 kB)
+#57 3.867 Collecting pydantic (from eovrt-media-plane==0.1.0)
+#57 3.903   Downloading pydantic-2.13.4-py3-none-any.whl.metadata (109 kB)
+#57 4.010 Collecting pyyaml (from eovrt-media-plane==0.1.0)
+#57 4.040   Downloading pyyaml-6.0.3-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (2.4 kB)
+#57 4.088 Collecting rich (from eovrt-media-plane==0.1.0)
+#57 4.119   Downloading rich-15.0.0-py3-none-any.whl.metadata (18 kB)
+#57 4.307 Collecting pyzmq (from eovrt-media-plane==0.1.0)
+#57 4.340   Downloading pyzmq-27.1.0-cp311-cp311-manylinux_2_26_x86_64.manylinux_2_28_x86_64.whl.metadata (6.0 kB)
+#57 4.412 Collecting msgpack (from eovrt-media-plane==0.1.0)
+#57 4.443   Downloading msgpack-1.2.1-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (8.3 kB)
+#57 4.499 Collecting fastapi>=0.110 (from eovrt-media-plane==0.1.0)
+#57 4.527   Downloading fastapi-0.139.0-py3-none-any.whl.metadata (26 kB)
+#57 4.578 Collecting uvicorn[standard] (from eovrt-media-plane==0.1.0)
+#57 4.608   Downloading uvicorn-0.49.0-py3-none-any.whl.metadata (6.7 kB)
+#57 4.841 Collecting depthai<3,>=2.24 (from eovrt-media-plane==0.1.0)
+#57 5.011   Downloading depthai-2.32.0.0-cp311-cp311-manylinux_2_28_x86_64.whl.metadata (9.2 kB)
+#57 5.051 Collecting blobconverter>=1.4.3 (from eovrt-media-plane==0.1.0)
+#57 5.082   Downloading blobconverter-1.4.3-py3-none-any.whl.metadata (7.8 kB)
+#57 5.166 Collecting torch (from eovrt-media-plane==0.1.0)
+#57 5.199   Downloading torch-2.12.1-cp311-cp311-manylinux_2_28_x86_64.whl.metadata (31 kB)
+#57 5.258 Collecting torchvision (from eovrt-media-plane==0.1.0)
+#57 5.293   Downloading torchvision-0.27.1-cp311-cp311-manylinux_2_28_x86_64.whl.metadata (5.5 kB)
+#57 5.345 Collecting transformers (from eovrt-media-plane==0.1.0)
+#57 5.376   Downloading transformers-5.12.1-py3-none-any.whl.metadata (33 kB)
+#57 5.442 Collecting accelerate (from eovrt-media-plane==0.1.0)
+#57 5.475   Downloading accelerate-1.14.0-py3-none-any.whl.metadata (19 kB)
+#57 5.532 Collecting huggingface_hub (from eovrt-media-plane==0.1.0)
+#57 5.565   Downloading huggingface_hub-1.21.0-py3-none-any.whl.metadata (14 kB)
+#57 5.650 Collecting ultralytics (from eovrt-media-plane==0.1.0)
+#57 5.687   Downloading ultralytics-8.4.86-py3-none-any.whl.metadata (41 kB)
+#57 5.730 Collecting requests (from blobconverter>=1.4.3->eovrt-media-plane==0.1.0)
+#57 5.759   Downloading requests-2.34.2-py3-none-any.whl.metadata (4.8 kB)
+#57 5.802 Collecting starlette>=0.46.0 (from fastapi>=0.110->eovrt-media-plane==0.1.0)
+#57 5.833   Downloading starlette-1.3.1-py3-none-any.whl.metadata (6.4 kB)
+#57 5.876 Collecting typing-extensions>=4.8.0 (from fastapi>=0.110->eovrt-media-plane==0.1.0)
+#57 5.907   Downloading typing_extensions-4.16.0-py3-none-any.whl.metadata (3.3 kB)
+#57 5.944 Collecting typing-inspection>=0.4.2 (from fastapi>=0.110->eovrt-media-plane==0.1.0)
+#57 5.978   Downloading typing_inspection-0.4.2-py3-none-any.whl.metadata (2.6 kB)
+#57 6.013 Collecting annotated-doc>=0.0.2 (from fastapi>=0.110->eovrt-media-plane==0.1.0)
+#57 6.043   Downloading annotated_doc-0.0.4-py3-none-any.whl.metadata (6.6 kB)
+#57 6.084 Collecting annotated-types>=0.6.0 (from pydantic->eovrt-media-plane==0.1.0)
+#57 6.114   Downloading annotated_types-0.7.0-py3-none-any.whl.metadata (15 kB)
+#57 6.707 Collecting pydantic-core==2.46.4 (from pydantic->eovrt-media-plane==0.1.0)
+#57 6.846   Downloading pydantic_core-2.46.4-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (6.6 kB)
+#57 6.916 Collecting anyio<5,>=3.6.2 (from starlette>=0.46.0->fastapi>=0.110->eovrt-media-plane==0.1.0)
+#57 7.004   Downloading anyio-4.14.1-py3-none-any.whl.metadata (4.6 kB)
+#57 7.045 Collecting idna>=2.8 (from anyio<5,>=3.6.2->starlette>=0.46.0->fastapi>=0.110->eovrt-media-plane==0.1.0)
+#57 7.075   Downloading idna-3.18-py3-none-any.whl.metadata (6.1 kB)
+#57 7.246 Collecting numpy>=1.17 (from accelerate->eovrt-media-plane==0.1.0)
+#57 7.278   Downloading numpy-2.4.6-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (6.6 kB)
+#57 7.318 Collecting packaging>=20.0 (from accelerate->eovrt-media-plane==0.1.0)
+#57 7.351   Downloading packaging-26.2-py3-none-any.whl.metadata (3.5 kB)
+#57 7.479 Collecting psutil (from accelerate->eovrt-media-plane==0.1.0)
+#57 7.514   Downloading psutil-7.2.2-cp36-abi3-manylinux2010_x86_64.manylinux_2_12_x86_64.manylinux_2_28_x86_64.whl.metadata (22 kB)
+#57 7.631 Collecting safetensors>=0.4.3 (from accelerate->eovrt-media-plane==0.1.0)
+#57 7.663   Downloading safetensors-0.8.0-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.2 kB)
+#57 7.702 Collecting click>=8.4.0 (from huggingface_hub->eovrt-media-plane==0.1.0)
+#57 7.731   Downloading click-8.5.0-py3-none-any.whl.metadata (2.6 kB)
+#57 7.770 Collecting filelock>=3.10.0 (from huggingface_hub->eovrt-media-plane==0.1.0)
+#57 7.805   Downloading filelock-3.29.4-py3-none-any.whl.metadata (2.0 kB)
+#57 7.847 Collecting fsspec>=2023.5.0 (from huggingface_hub->eovrt-media-plane==0.1.0)
+#57 7.879   Downloading fsspec-2026.6.0-py3-none-any.whl.metadata (10 kB)
+#57 7.948 Collecting hf-xet<2.0.0,>=1.5.1 (from huggingface_hub->eovrt-media-plane==0.1.0)
+#57 8.119   Downloading hf_xet-1.5.1-cp37-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (4.9 kB)
+#57 8.160 Collecting httpx<1,>=0.23.0 (from huggingface_hub->eovrt-media-plane==0.1.0)
+#57 8.190   Downloading httpx-0.28.1-py3-none-any.whl.metadata (7.1 kB)
+#57 8.239 Collecting tqdm>=4.42.1 (from huggingface_hub->eovrt-media-plane==0.1.0)
+#57 8.272   Downloading tqdm-4.68.3-py3-none-any.whl.metadata (57 kB)
+#57 8.335 Collecting typer<0.26.0,>=0.20.0 (from huggingface_hub->eovrt-media-plane==0.1.0)
+#57 8.372   Downloading typer-0.25.1-py3-none-any.whl.metadata (15 kB)
+#57 8.417 Collecting certifi (from httpx<1,>=0.23.0->huggingface_hub->eovrt-media-plane==0.1.0)
+#57 8.450   Downloading certifi-2026.6.17-py3-none-any.whl.metadata (2.5 kB)
+#57 8.499 Collecting httpcore==1.* (from httpx<1,>=0.23.0->huggingface_hub->eovrt-media-plane==0.1.0)
+#57 8.543   Downloading httpcore-1.0.9-py3-none-any.whl.metadata (21 kB)
+#57 8.586 Collecting h11>=0.16 (from httpcore==1.*->httpx<1,>=0.23.0->huggingface_hub->eovrt-media-plane==0.1.0)
+#57 8.620   Downloading h11-0.16.0-py3-none-any.whl.metadata (8.3 kB)
+#57 8.669 Collecting shellingham>=1.3.0 (from typer<0.26.0,>=0.20.0->huggingface_hub->eovrt-media-plane==0.1.0)
+#57 8.703   Downloading shellingham-1.5.4-py2.py3-none-any.whl.metadata (3.5 kB)
+#57 8.748 Collecting markdown-it-py>=2.2.0 (from rich->eovrt-media-plane==0.1.0)
+#57 8.789   Downloading markdown_it_py-4.2.0-py3-none-any.whl.metadata (7.4 kB)
+#57 8.827 Collecting pygments<3.0.0,>=2.13.0 (from rich->eovrt-media-plane==0.1.0)
+#57 8.864   Downloading pygments-2.20.0-py3-none-any.whl.metadata (2.5 kB)
+#57 9.001 Collecting mdurl~=0.1 (from markdown-it-py>=2.2.0->rich->eovrt-media-plane==0.1.0)
+#57 9.117   Downloading mdurl-0.1.2-py3-none-any.whl.metadata (1.6 kB)
+#57 9.192 Collecting setuptools<82 (from torch->eovrt-media-plane==0.1.0)
+#57 9.224   Downloading setuptools-81.0.0-py3-none-any.whl.metadata (6.6 kB)
+#57 9.270 Collecting sympy>=1.13.3 (from torch->eovrt-media-plane==0.1.0)
+#57 9.329   Downloading sympy-1.14.0-py3-none-any.whl.metadata (12 kB)
+#57 9.372 Collecting networkx>=2.5.1 (from torch->eovrt-media-plane==0.1.0)
+#57 9.405   Downloading networkx-3.6.1-py3-none-any.whl.metadata (6.8 kB)
+#57 9.444 Collecting jinja2 (from torch->eovrt-media-plane==0.1.0)
+#57 9.475   Downloading jinja2-3.1.6-py3-none-any.whl.metadata (2.9 kB)
+#57 9.511 Collecting cuda-toolkit==13.0.2 (from cuda-toolkit[cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.2; platform_system == "Linux"->torch->eovrt-media-plane==0.1.0)
+#57 9.547   Downloading cuda_toolkit-13.0.2-py2.py3-none-any.whl.metadata (9.4 kB)
+#57 9.591 Collecting nvidia-cublas<=13.1.1.3,>=13.1.0.3 (from torch->eovrt-media-plane==0.1.0)
+#57 9.624   Downloading nvidia_cublas-13.1.1.3-py3-none-manylinux_2_27_x86_64.whl.metadata (1.8 kB)
+#57 9.674 Collecting cuda-bindings<14,>=13.0.3 (from torch->eovrt-media-plane==0.1.0)
+#57 9.707   Downloading cuda_bindings-13.3.1-cp311-cp311-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl.metadata (2.5 kB)
+#57 9.747 Collecting nvidia-cudnn-cu13==9.20.0.48 (from torch->eovrt-media-plane==0.1.0)
+#57 9.779   Downloading nvidia_cudnn_cu13-9.20.0.48-py3-none-manylinux_2_27_x86_64.whl.metadata (1.9 kB)
+#57 9.825 Collecting nvidia-cusparselt-cu13==0.8.1 (from torch->eovrt-media-plane==0.1.0)
+#57 9.861   Downloading nvidia_cusparselt_cu13-0.8.1-py3-none-manylinux2014_x86_64.whl.metadata (12 kB)
+#57 9.950 Collecting nvidia-nccl-cu13==2.29.7 (from torch->eovrt-media-plane==0.1.0)
+#57 9.986   Downloading nvidia_nccl_cu13-2.29.7-py3-none-manylinux_2_18_x86_64.whl.metadata (2.1 kB)
+#57 10.03 Collecting nvidia-nvshmem-cu13==3.4.5 (from torch->eovrt-media-plane==0.1.0)
+#57 10.06   Downloading nvidia_nvshmem_cu13-3.4.5-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (2.1 kB)
+#57 10.15 Collecting triton==3.7.1 (from torch->eovrt-media-plane==0.1.0)
+#57 10.18   Downloading triton-3.7.1-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (1.7 kB)
+#57 10.22 Collecting nvidia-cuda-runtime==13.0.96.* (from cuda-toolkit[cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.2; platform_system == "Linux"->torch->eovrt-media-plane==0.1.0)
+#57 10.26   Downloading nvidia_cuda_runtime-13.0.96-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.7 kB)
+#57 10.29 Collecting nvidia-cufft==12.0.0.61.* (from cuda-toolkit[cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.2; platform_system == "Linux"->torch->eovrt-media-plane==0.1.0)
+#57 10.32   Downloading nvidia_cufft-12.0.0.61-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.8 kB)
+#57 10.36 Collecting nvidia-cufile==1.15.1.6.* (from cuda-toolkit[cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.2; platform_system == "Linux"->torch->eovrt-media-plane==0.1.0)
+#57 10.40   Downloading nvidia_cufile-1.15.1.6-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.7 kB)
+#57 10.44 Collecting nvidia-cuda-cupti==13.0.85.* (from cuda-toolkit[cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.2; platform_system == "Linux"->torch->eovrt-media-plane==0.1.0)
+#57 10.47   Downloading nvidia_cuda_cupti-13.0.85-py3-none-manylinux_2_25_x86_64.whl.metadata (1.7 kB)
+#57 10.65 Collecting nvidia-curand==10.4.0.35.* (from cuda-toolkit[cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.2; platform_system == "Linux"->torch->eovrt-media-plane==0.1.0)
+#57 10.68   Downloading nvidia_curand-10.4.0.35-py3-none-manylinux_2_27_x86_64.whl.metadata (1.7 kB)
+#57 10.72 Collecting nvidia-cusolver==12.0.4.66.* (from cuda-toolkit[cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.2; platform_system == "Linux"->torch->eovrt-media-plane==0.1.0)
+#57 10.75   Downloading nvidia_cusolver-12.0.4.66-py3-none-manylinux_2_27_x86_64.whl.metadata (1.8 kB)
+#57 10.79 Collecting nvidia-cusparse==12.6.3.3.* (from cuda-toolkit[cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.2; platform_system == "Linux"->torch->eovrt-media-plane==0.1.0)
+#57 10.83   Downloading nvidia_cusparse-12.6.3.3-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.8 kB)
+#57 10.86 Collecting nvidia-nvjitlink==13.0.88.* (from cuda-toolkit[cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.2; platform_system == "Linux"->torch->eovrt-media-plane==0.1.0)
+#57 10.90   Downloading nvidia_nvjitlink-13.0.88-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl.metadata (1.7 kB)
+#57 10.93 Collecting nvidia-cuda-nvrtc==13.0.88.* (from cuda-toolkit[cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.2; platform_system == "Linux"->torch->eovrt-media-plane==0.1.0)
+#57 10.97   Downloading nvidia_cuda_nvrtc-13.0.88-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl.metadata (1.7 kB)
+#57 11.00 Collecting nvidia-nvtx==13.0.85.* (from cuda-toolkit[cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.2; platform_system == "Linux"->torch->eovrt-media-plane==0.1.0)
+#57 11.04   Downloading nvidia_nvtx-13.0.85-py3-none-manylinux1_x86_64.manylinux_2_5_x86_64.whl.metadata (1.8 kB)
+#57 11.08 Collecting cuda-pathfinder>=1.4.2 (from cuda-bindings<14,>=13.0.3->torch->eovrt-media-plane==0.1.0)
+#57 11.25   Downloading cuda_pathfinder-1.5.6-py3-none-any.whl.metadata (1.9 kB)
+#57 11.29 Collecting mpmath<1.4,>=1.1.0 (from sympy>=1.13.3->torch->eovrt-media-plane==0.1.0)
+#57 11.32   Downloading mpmath-1.3.0-py3-none-any.whl.metadata (8.6 kB)
+#57 11.40 Collecting MarkupSafe>=2.0 (from jinja2->torch->eovrt-media-plane==0.1.0)
+#57 11.43   Downloading markupsafe-3.0.3-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (2.7 kB)
+#57 11.54 Collecting charset_normalizer<4,>=2 (from requests->blobconverter>=1.4.3->eovrt-media-plane==0.1.0)
+#57 11.57   Downloading charset_normalizer-3.4.7-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (40 kB)
+#57 11.66 Collecting urllib3<3,>=1.26 (from requests->blobconverter>=1.4.3->eovrt-media-plane==0.1.0)
+#57 11.69   Downloading urllib3-2.7.0-py3-none-any.whl.metadata (6.9 kB)
+#57 12.06 Collecting regex>=2025.10.22 (from transformers->eovrt-media-plane==0.1.0)
+#57 12.09   Downloading regex-2026.6.28-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (40 kB)
+#57 12.33 Collecting tokenizers<=0.23.0,>=0.22.0 (from transformers->eovrt-media-plane==0.1.0)
+#57 12.36   Downloading tokenizers-0.22.2-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (7.3 kB)
+#57 12.59 Collecting matplotlib>=3.3.0 (from ultralytics->eovrt-media-plane==0.1.0)
+#57 12.63   Downloading matplotlib-3.11.0-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (80 kB)
+#57 13.14 Collecting polars>=0.20.0 (from ultralytics->eovrt-media-plane==0.1.0)
+#57 13.17   Downloading polars-1.42.1-py3-none-any.whl.metadata (10 kB)
+#57 13.26 Collecting nvidia-ml-py>=12.0.0 (from ultralytics->eovrt-media-plane==0.1.0)
+#57 13.29   Downloading nvidia_ml_py-13.610.43-py3-none-any.whl.metadata (9.7 kB)
+#57 13.37 Collecting ultralytics-thop>=2.0.18 (from ultralytics->eovrt-media-plane==0.1.0)
+#57 13.55   Downloading ultralytics_thop-2.0.20-py3-none-any.whl.metadata (14 kB)
+#57 13.84 Collecting contourpy>=1.0.1 (from matplotlib>=3.3.0->ultralytics->eovrt-media-plane==0.1.0)
+#57 13.87   Downloading contourpy-1.3.3-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (5.5 kB)
+#57 13.91 Collecting cycler>=0.10 (from matplotlib>=3.3.0->ultralytics->eovrt-media-plane==0.1.0)
+#57 13.94   Downloading cycler-0.12.1-py3-none-any.whl.metadata (3.8 kB)
+#57 14.88 Collecting fonttools>=4.22.0 (from matplotlib>=3.3.0->ultralytics->eovrt-media-plane==0.1.0)
+#57 14.91   Downloading fonttools-4.63.0-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (118 kB)
+#57 15.45 Collecting kiwisolver>=1.3.1 (from matplotlib>=3.3.0->ultralytics->eovrt-media-plane==0.1.0)
+#57 15.48   Downloading kiwisolver-1.5.0-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (5.1 kB)
+#57 15.58 Collecting pyparsing>=3 (from matplotlib>=3.3.0->ultralytics->eovrt-media-plane==0.1.0)
+#57 15.61   Downloading pyparsing-3.3.2-py3-none-any.whl.metadata (5.8 kB)
+#57 15.66 Collecting python-dateutil>=2.7 (from matplotlib>=3.3.0->ultralytics->eovrt-media-plane==0.1.0)
+#57 15.69   Downloading python_dateutil-2.9.0.post0-py2.py3-none-any.whl.metadata (8.4 kB)
+#57 15.79 Collecting polars-runtime-32==1.42.1 (from polars>=0.20.0->ultralytics->eovrt-media-plane==0.1.0)
+#57 15.82   Downloading polars_runtime_32-1.42.1-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (1.5 kB)
+#57 15.87 Collecting six>=1.5 (from python-dateutil>=2.7->matplotlib>=3.3.0->ultralytics->eovrt-media-plane==0.1.0)
+#57 15.90   Downloading six-1.17.0-py2.py3-none-any.whl.metadata (1.7 kB)
+#57 16.11 Collecting httptools>=0.8.0 (from uvicorn[standard]->eovrt-media-plane==0.1.0)
+#57 16.14   Downloading httptools-0.8.0-cp311-cp311-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl.metadata (3.5 kB)
+#57 16.21 Collecting python-dotenv>=0.13 (from uvicorn[standard]->eovrt-media-plane==0.1.0)
+#57 16.24   Downloading python_dotenv-1.2.2-py3-none-any.whl.metadata (27 kB)
+#57 16.52 Collecting uvloop>=0.15.1 (from uvicorn[standard]->eovrt-media-plane==0.1.0)
+#57 16.55   Downloading uvloop-0.22.1-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (4.9 kB)
+#57 16.94 Collecting watchfiles>=0.20 (from uvicorn[standard]->eovrt-media-plane==0.1.0)
+#57 16.97   Downloading watchfiles-1.2.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.9 kB)
+#57 18.00 Collecting websockets>=10.4 (from uvicorn[standard]->eovrt-media-plane==0.1.0)
+#57 18.03   Downloading websockets-16.0-cp311-cp311-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl.metadata (6.8 kB)
+#57 18.23 Downloading depthai-2.32.0.0-cp311-cp311-manylinux_2_28_x86_64.whl (14.6 MB)
+#57 24.25    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 14.6/14.6 MB 2.6 MB/s  0:00:06
+#57 24.28 Downloading blobconverter-1.4.3-py3-none-any.whl (10 kB)
+#57 24.31 Downloading fastapi-0.139.0-py3-none-any.whl (130 kB)
+#57 24.36 Downloading annotated_doc-0.0.4-py3-none-any.whl (5.3 kB)
+#57 24.38 Downloading pydantic-2.13.4-py3-none-any.whl (472 kB)
+#57 24.49 Downloading pydantic_core-2.46.4-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (2.1 MB)
+#57 24.85    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.1/2.1 MB 5.7 MB/s  0:00:00
+#57 24.88 Downloading annotated_types-0.7.0-py3-none-any.whl (13 kB)
+#57 24.92 Downloading starlette-1.3.1-py3-none-any.whl (73 kB)
+#57 24.96 Downloading anyio-4.14.1-py3-none-any.whl (124 kB)
+#57 25.00 Downloading idna-3.18-py3-none-any.whl (65 kB)
+#57 25.04 Downloading typing_extensions-4.16.0-py3-none-any.whl (45 kB)
+#57 25.07 Downloading typing_inspection-0.4.2-py3-none-any.whl (14 kB)
+#57 25.10 Downloading accelerate-1.14.0-py3-none-any.whl (389 kB)
+#57 25.20 Downloading huggingface_hub-1.21.0-py3-none-any.whl (721 kB)
+#57 25.31    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 721.1/721.1 kB 6.2 MB/s  0:00:00
+#57 25.49 Downloading hf_xet-1.5.1-cp37-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (4.5 MB)
+#57 26.24    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.5/4.5 MB 6.1 MB/s  0:00:00
+#57 26.27 Downloading httpx-0.28.1-py3-none-any.whl (73 kB)
+#57 26.32 Downloading httpcore-1.0.9-py3-none-any.whl (78 kB)
+#57 26.37 Downloading typer-0.25.1-py3-none-any.whl (58 kB)
+#57 26.41 Downloading click-8.5.0-py3-none-any.whl (125 kB)
+#57 26.47 Downloading filelock-3.29.4-py3-none-any.whl (42 kB)
+#57 26.51 Downloading fsspec-2026.6.0-py3-none-any.whl (203 kB)
+#57 26.60 Downloading h11-0.16.0-py3-none-any.whl (37 kB)
+#57 26.63 Downloading numpy-2.4.6-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (16.9 MB)
+#57 31.40    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 16.9/16.9 MB 3.5 MB/s  0:00:04
+#57 31.43 Downloading packaging-26.2-py3-none-any.whl (100 kB)
+#57 31.48 Downloading pyyaml-6.0.3-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (806 kB)
+#57 31.62    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 806.6/806.6 kB 5.8 MB/s  0:00:00
+#57 31.65 Downloading rich-15.0.0-py3-none-any.whl (310 kB)
+#57 31.72 Downloading pygments-2.20.0-py3-none-any.whl (1.2 MB)
+#57 31.91    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.2/1.2 MB 6.6 MB/s  0:00:00
+#57 31.94 Downloading markdown_it_py-4.2.0-py3-none-any.whl (91 kB)
+#57 31.98 Downloading mdurl-0.1.2-py3-none-any.whl (10.0 kB)
+#57 32.01 Downloading safetensors-0.8.0-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (516 kB)
+#57 32.12 Downloading shellingham-1.5.4-py2.py3-none-any.whl (9.8 kB)
+#57 32.30 Downloading torch-2.12.1-cp311-cp311-manylinux_2_28_x86_64.whl (532.2 MB)
+#57 159.9    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 532.2/532.2 MB 6.0 MB/s  0:02:07
+#57 159.9 Downloading cuda_toolkit-13.0.2-py2.py3-none-any.whl (2.4 kB)
+#57 160.0 Downloading nvidia_cudnn_cu13-9.20.0.48-py3-none-manylinux_2_27_x86_64.whl (366.2 MB)
+#57 183.1    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 366.2/366.2 MB 14.7 MB/s  0:00:23
+#57 183.1 Downloading nvidia_cusparselt_cu13-0.8.1-py3-none-manylinux2014_x86_64.whl (170.1 MB)
+#57 191.0    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 170.1/170.1 MB 21.5 MB/s  0:00:07
+#57 191.0 Downloading nvidia_nccl_cu13-2.29.7-py3-none-manylinux_2_18_x86_64.whl (206.0 MB)
+#57 200.6    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 206.0/206.0 MB 21.4 MB/s  0:00:09
+#57 200.7 Downloading nvidia_nvshmem_cu13-3.4.5-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (60.4 MB)
+#57 203.6    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 60.4/60.4 MB 21.0 MB/s  0:00:02
+#57 203.8 Downloading triton-3.7.1-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (197.7 MB)
+#57 237.2    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 197.7/197.7 MB 5.8 MB/s  0:00:33
+#57 237.4 Downloading cuda_bindings-13.3.1-cp311-cp311-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl (6.7 MB)
+#57 238.3    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 6.7/6.7 MB 7.1 MB/s  0:00:00
+#57 238.4 Downloading nvidia_cublas-13.1.1.3-py3-none-manylinux_2_27_x86_64.whl (423.1 MB)
+#57 259.0    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 423.1/423.1 MB 21.2 MB/s  0:00:20
+#57 259.0 Downloading nvidia_cuda_cupti-13.0.85-py3-none-manylinux_2_25_x86_64.whl (10.7 MB)
+#57 259.5    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 10.7/10.7 MB 20.5 MB/s  0:00:00
+#57 259.6 Downloading nvidia_cuda_nvrtc-13.0.88-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl (90.2 MB)
+#57 264.0    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 90.2/90.2 MB 20.5 MB/s  0:00:04
+#57 264.0 Downloading nvidia_cuda_runtime-13.0.96-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (2.2 MB)
+#57 264.1    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.2/2.2 MB 17.6 MB/s  0:00:00
+#57 264.2 Downloading nvidia_cufft-12.0.0.61-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (214.1 MB)
+#57 274.3    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 214.1/214.1 MB 21.1 MB/s  0:00:10
+#57 274.4 Downloading nvidia_cufile-1.15.1.6-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (1.2 MB)
+#57 274.4    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.2/1.2 MB 23.6 MB/s  0:00:00
+#57 274.4 Downloading nvidia_curand-10.4.0.35-py3-none-manylinux_2_27_x86_64.whl (59.5 MB)
+#57 277.3    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 59.5/59.5 MB 20.7 MB/s  0:00:02
+#57 277.3 Downloading nvidia_cusolver-12.0.4.66-py3-none-manylinux_2_27_x86_64.whl (200.9 MB)
+#57 286.7    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 200.9/200.9 MB 21.5 MB/s  0:00:09
+#57 286.7 Downloading nvidia_cusparse-12.6.3.3-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (145.9 MB)
+#57 293.4    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 145.9/145.9 MB 21.8 MB/s  0:00:06
+#57 293.4 Downloading nvidia_nvjitlink-13.0.88-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl (40.7 MB)
+#57 295.6    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 40.7/40.7 MB 19.0 MB/s  0:00:02
+#57 295.6 Downloading nvidia_nvtx-13.0.85-py3-none-manylinux1_x86_64.manylinux_2_5_x86_64.whl (148 kB)
+#57 295.6 Downloading setuptools-81.0.0-py3-none-any.whl (1.1 MB)
+#57 295.7    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.1/1.1 MB 18.2 MB/s  0:00:00
+#57 295.7 Downloading cuda_pathfinder-1.5.6-py3-none-any.whl (52 kB)
+#57 295.8 Downloading networkx-3.6.1-py3-none-any.whl (2.1 MB)
+#57 295.9    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.1/2.1 MB 22.8 MB/s  0:00:00
+#57 295.9 Downloading sympy-1.14.0-py3-none-any.whl (6.3 MB)
+#57 296.2    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 6.3/6.3 MB 23.2 MB/s  0:00:00
+#57 296.2 Downloading mpmath-1.3.0-py3-none-any.whl (536 kB)
+#57 296.2    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 536.2/536.2 kB 15.4 MB/s  0:00:00
+#57 296.3 Downloading tqdm-4.68.3-py3-none-any.whl (78 kB)
+#57 296.3 Downloading certifi-2026.6.17-py3-none-any.whl (133 kB)
+#57 296.3 Downloading jinja2-3.1.6-py3-none-any.whl (134 kB)
+#57 296.4 Downloading markupsafe-3.0.3-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (22 kB)
+#57 296.4 Downloading msgpack-1.2.1-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (423 kB)
+#57 296.5 Downloading opencv_python-5.0.0.93-cp37-abi3-manylinux_2_28_x86_64.whl (73.8 MB)
+#57 299.6    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 73.8/73.8 MB 23.2 MB/s  0:00:03
+#57 299.7 Downloading pillow-12.3.0-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (6.9 MB)
+#57 300.0    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 6.9/6.9 MB 21.8 MB/s  0:00:00
+#57 300.0 Downloading psutil-7.2.2-cp36-abi3-manylinux2010_x86_64.manylinux_2_12_x86_64.manylinux_2_28_x86_64.whl (155 kB)
+#57 300.1 Downloading pyzmq-27.1.0-cp311-cp311-manylinux_2_26_x86_64.manylinux_2_28_x86_64.whl (857 kB)
+#57 300.1    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 857.0/857.0 kB 25.0 MB/s  0:00:00
+#57 300.1 Downloading requests-2.34.2-py3-none-any.whl (73 kB)
+#57 300.2 Downloading charset_normalizer-3.4.7-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (214 kB)
+#57 300.2 Downloading urllib3-2.7.0-py3-none-any.whl (131 kB)
+#57 300.4 Downloading torchvision-0.27.1-cp311-cp311-manylinux_2_28_x86_64.whl (7.7 MB)
+#57 301.2    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 7.7/7.7 MB 9.1 MB/s  0:00:00
+#57 301.3 Downloading transformers-5.12.1-py3-none-any.whl (11.2 MB)
+#57 301.8    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 11.2/11.2 MB 19.8 MB/s  0:00:00
+#57 301.9 Downloading tokenizers-0.22.2-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (3.3 MB)
+#57 302.0    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.3/3.3 MB 21.9 MB/s  0:00:00
+#57 302.2 Downloading regex-2026.6.28-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (799 kB)
+#57 302.2    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 799.9/799.9 kB 35.0 MB/s  0:00:00
+#57 302.4 Downloading ultralytics-8.4.86-py3-none-any.whl (1.3 MB)
+#57 302.6    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.3/1.3 MB 7.8 MB/s  0:00:00
+#57 302.7 Downloading matplotlib-3.11.0-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (10.0 MB)
+#57 304.1    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 10.0/10.0 MB 7.3 MB/s  0:00:01
+#57 304.1 Downloading contourpy-1.3.3-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (355 kB)
+#57 304.2 Downloading cycler-0.12.1-py3-none-any.whl (8.3 kB)
+#57 304.2 Downloading fonttools-4.63.0-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (5.1 MB)
+#57 304.5    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 5.1/5.1 MB 19.8 MB/s  0:00:00
+#57 304.5 Downloading kiwisolver-1.5.0-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (1.4 MB)
+#57 304.6    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.4/1.4 MB 22.5 MB/s  0:00:00
+#57 304.6 Downloading nvidia_ml_py-13.610.43-py3-none-any.whl (53 kB)
+#57 304.8 Downloading polars-1.42.1-py3-none-any.whl (837 kB)
+#57 304.8    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 837.6/837.6 kB 19.9 MB/s  0:00:00
+#57 304.9 Downloading polars_runtime_32-1.42.1-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (57.3 MB)
+#57 307.7    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 57.3/57.3 MB 19.8 MB/s  0:00:02
+#57 307.8 Downloading pyparsing-3.3.2-py3-none-any.whl (122 kB)
+#57 307.8 Downloading python_dateutil-2.9.0.post0-py2.py3-none-any.whl (229 kB)
+#57 307.9 Downloading six-1.17.0-py2.py3-none-any.whl (11 kB)
+#57 308.0 Downloading ultralytics_thop-2.0.20-py3-none-any.whl (28 kB)
+#57 308.1 Downloading uvicorn-0.49.0-py3-none-any.whl (71 kB)
+#57 308.1 Downloading httptools-0.8.0-cp311-cp311-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (464 kB)
+#57 308.2 Downloading python_dotenv-1.2.2-py3-none-any.whl (22 kB)
+#57 308.2 Downloading uvloop-0.22.1-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (3.8 MB)
+#57 308.4    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.8/3.8 MB 24.7 MB/s  0:00:00
+#57 308.4 Downloading watchfiles-1.2.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (456 kB)
+#57 308.4 Downloading websockets-16.0-cp311-cp311-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (184 kB)
+#57 310.3 Building wheels for collected packages: eovrt-media-plane
+#57 310.3   Building wheel for eovrt-media-plane (pyproject.toml): started
+#57 310.5   Building wheel for eovrt-media-plane (pyproject.toml): finished with status 'done'
+#57 310.5   Created wheel for eovrt-media-plane: filename=eovrt_media_plane-0.1.0-py3-none-any.whl size=151211 sha256=d9615f3b251fcf94458566a3499d45de9b5f46e1641ec2b2c50a8f36c7b1c502
+#57 310.5   Stored in directory: /tmp/pip-ephem-wheel-cache-d_o7a7yg/wheels/57/0f/98/bb57b2b57b95807699b822a35c022f139d38a02c27922f27ce
+#57 310.5 Successfully built eovrt-media-plane
+#57 310.7 Installing collected packages: nvidia-ml-py, nvidia-cusparselt-cu13, mpmath, cuda-toolkit, websockets, uvloop, urllib3, typing-extensions, triton, tqdm, sympy, six, shellingham, setuptools, safetensors, regex, pyzmq, pyyaml, python-dotenv, pyparsing, pygments, psutil, polars-runtime-32, pillow, packaging, nvidia-nvtx, nvidia-nvshmem-cu13, nvidia-nvjitlink, nvidia-nccl-cu13, nvidia-curand, nvidia-cufile, nvidia-cuda-runtime, nvidia-cuda-nvrtc, nvidia-cuda-cupti, numpy, networkx, msgpack, mdurl, MarkupSafe, kiwisolver, idna, httptools, hf-xet, h11, fsspec, fonttools, filelock, depthai, cycler, cuda-pathfinder, click, charset_normalizer, certifi, annotated-types, annotated-doc, uvicorn, typing-inspection, requests, python-dateutil, pydantic-core, polars, opencv-python, nvidia-cusparse, nvidia-cufft, nvidia-cublas, markdown-it-py, jinja2, httpcore, cuda-bindings, contourpy, anyio, watchfiles, starlette, rich, pydantic, nvidia-cusolver, nvidia-cudnn-cu13, matplotlib, httpx, blobconverter, typer, fastapi, torch, huggingface_hub, eovrt-media-plane, ultralytics-thop, torchvision, tokenizers, accelerate, ultralytics, transformers
+#57 324.2   Attempting uninstall: six
+#57 324.2     Found existing installation: six 1.16.0
+#57 324.2     Uninstalling six-1.16.0:
+#57 325.0       Successfully uninstalled six-1.16.0
+#57 326.1   Attempting uninstall: setuptools
+#57 326.1     Found existing installation: setuptools 79.0.1
+#57 326.3     Uninstalling setuptools-79.0.1:
+#57 327.0       Successfully uninstalled setuptools-79.0.1
+#57 327.7   Attempting uninstall: pyparsing
+#57 327.7     Found existing installation: pyparsing 2.4.7
+#57 327.7     Uninstalling pyparsing-2.4.7:
+#57 327.7       Successfully uninstalled pyparsing-2.4.7
+#57 379.1 
+#57 379.1 Successfully installed MarkupSafe-3.0.3 accelerate-1.14.0 annotated-doc-0.0.4 annotated-types-0.7.0 anyio-4.14.1 blobconverter-1.4.3 certifi-2026.6.17 charset_normalizer-3.4.7 click-8.5.0 contourpy-1.3.3 cuda-bindings-13.3.1 cuda-pathfinder-1.5.6 cuda-toolkit-13.0.2 cycler-0.12.1 depthai-2.32.0.0 eovrt-media-plane-0.1.0 fastapi-0.139.0 filelock-3.29.4 fonttools-4.63.0 fsspec-2026.6.0 h11-0.16.0 hf-xet-1.5.1 httpcore-1.0.9 httptools-0.8.0 httpx-0.28.1 huggingface_hub-1.21.0 idna-3.18 jinja2-3.1.6 kiwisolver-1.5.0 markdown-it-py-4.2.0 matplotlib-3.11.0 mdurl-0.1.2 mpmath-1.3.0 msgpack-1.2.1 networkx-3.6.1 numpy-2.4.6 nvidia-cublas-13.1.1.3 nvidia-cuda-cupti-13.0.85 nvidia-cuda-nvrtc-13.0.88 nvidia-cuda-runtime-13.0.96 nvidia-cudnn-cu13-9.20.0.48 nvidia-cufft-12.0.0.61 nvidia-cufile-1.15.1.6 nvidia-curand-10.4.0.35 nvidia-cusolver-12.0.4.66 nvidia-cusparse-12.6.3.3 nvidia-cusparselt-cu13-0.8.1 nvidia-ml-py-13.610.43 nvidia-nccl-cu13-2.29.7 nvidia-nvjitlink-13.0.88 nvidia-nvshmem-cu13-3.4.5 nvidia-nvtx-13.0.85 opencv-python-5.0.0.93 packaging-26.2 pillow-12.3.0 polars-1.42.1 polars-runtime-32-1.42.1 psutil-7.2.2 pydantic-2.13.4 pydantic-core-2.46.4 pygments-2.20.0 pyparsing-3.3.2 python-dateutil-2.9.0.post0 python-dotenv-1.2.2 pyyaml-6.0.3 pyzmq-27.1.0 regex-2026.6.28 requests-2.34.2 rich-15.0.0 safetensors-0.8.0 setuptools-81.0.0 shellingham-1.5.4 six-1.17.0 starlette-1.3.1 sympy-1.14.0 tokenizers-0.22.2 torch-2.12.1 torchvision-0.27.1 tqdm-4.68.3 transformers-5.12.1 triton-3.7.1 typer-0.25.1 typing-extensions-4.16.0 typing-inspection-0.4.2 ultralytics-8.4.86 ultralytics-thop-2.0.20 urllib3-2.7.0 uvicorn-0.49.0 uvloop-0.22.1 watchfiles-1.2.0 websockets-16.0
+#57 379.1 WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+#57 DONE 381.1s
+
+#58 [mp-gdino-tiny-560 8/8] RUN python3.11 -m pip install --no-cache-dir -c constraints.txt         "https://github.com/ultralytics/CLIP/archive/7ffa84b3bfa40c42ecc1c77147a855e69cb2dd40.zip"     && python3.11 -c "from ultralytics.nn.text_model import build_text_model"
+#58 1.058 Collecting https://github.com/ultralytics/CLIP/archive/7ffa84b3bfa40c42ecc1c77147a855e69cb2dd40.zip
+#58 1.929   Downloading 7ffa84b3bfa40c42ecc1c77147a855e69cb2dd40.zip
+#58 2.453      | 4.3 MB 8.3 MB/s 0:00:00
+#58 2.489   Installing build dependencies: started
+#58 3.078   Installing build dependencies: finished with status 'done'
+#58 3.080   Getting requirements to build wheel: started
+#58 3.413   Getting requirements to build wheel: finished with status 'done'
+#58 3.415   Preparing metadata (pyproject.toml): started
+#58 3.546   Preparing metadata (pyproject.toml): finished with status 'done'
+#58 3.685 Collecting ftfy (from clip==1.0)
+#58 3.891   Downloading ftfy-6.3.1-py3-none-any.whl.metadata (7.3 kB)
+#58 3.893 Requirement already satisfied: regex in /usr/local/lib/python3.11/dist-packages (from clip==1.0) (2026.6.28)
+#58 3.894 Requirement already satisfied: tqdm in /usr/local/lib/python3.11/dist-packages (from clip==1.0) (4.68.3)
+#58 3.894 Requirement already satisfied: torch in /usr/local/lib/python3.11/dist-packages (from clip==1.0) (2.12.1)
+#58 3.894 Requirement already satisfied: torchvision in /usr/local/lib/python3.11/dist-packages (from clip==1.0) (0.27.1)
+#58 3.947 Collecting wcwidth (from ftfy->clip==1.0)
+#58 3.980   Downloading wcwidth-0.9.4-cp310-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (23 kB)
+#58 3.993 Requirement already satisfied: filelock in /usr/local/lib/python3.11/dist-packages (from torch->clip==1.0) (3.29.4)
+#58 3.993 Requirement already satisfied: typing-extensions>=4.10.0 in /usr/local/lib/python3.11/dist-packages (from torch->clip==1.0) (4.16.0)
+#58 3.994 Requirement already satisfied: setuptools<82 in /usr/local/lib/python3.11/dist-packages (from torch->clip==1.0) (81.0.0)
+#58 3.994 Requirement already satisfied: sympy>=1.13.3 in /usr/local/lib/python3.11/dist-packages (from torch->clip==1.0) (1.14.0)
+#58 3.994 Requirement already satisfied: networkx>=2.5.1 in /usr/local/lib/python3.11/dist-packages (from torch->clip==1.0) (3.6.1)
+#58 3.995 Requirement already satisfied: jinja2 in /usr/local/lib/python3.11/dist-packages (from torch->clip==1.0) (3.1.6)
+#58 3.995 Requirement already satisfied: fsspec>=0.8.5 in /usr/local/lib/python3.11/dist-packages (from torch->clip==1.0) (2026.6.0)
+#58 3.996 Requirement already satisfied: cuda-toolkit==13.0.2 in /usr/local/lib/python3.11/dist-packages (from cuda-toolkit[cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.2; platform_system == "Linux"->torch->clip==1.0) (13.0.2)
+#58 3.997 Requirement already satisfied: nvidia-cublas<=13.1.1.3,>=13.1.0.3 in /usr/local/lib/python3.11/dist-packages (from torch->clip==1.0) (13.1.1.3)
+#58 3.997 Requirement already satisfied: cuda-bindings<14,>=13.0.3 in /usr/local/lib/python3.11/dist-packages (from torch->clip==1.0) (13.3.1)
+#58 3.998 Requirement already satisfied: nvidia-cudnn-cu13==9.20.0.48 in /usr/local/lib/python3.11/dist-packages (from torch->clip==1.0) (9.20.0.48)
+#58 3.998 Requirement already satisfied: nvidia-cusparselt-cu13==0.8.1 in /usr/local/lib/python3.11/dist-packages (from torch->clip==1.0) (0.8.1)
+#58 3.999 Requirement already satisfied: nvidia-nccl-cu13==2.29.7 in /usr/local/lib/python3.11/dist-packages (from torch->clip==1.0) (2.29.7)
+#58 3.999 Requirement already satisfied: nvidia-nvshmem-cu13==3.4.5 in /usr/local/lib/python3.11/dist-packages (from torch->clip==1.0) (3.4.5)
+#58 4.000 Requirement already satisfied: triton==3.7.1 in /usr/local/lib/python3.11/dist-packages (from torch->clip==1.0) (3.7.1)
+#58 4.005 Requirement already satisfied: nvidia-cuda-runtime==13.0.96.* in /usr/local/lib/python3.11/dist-packages (from cuda-toolkit[cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.2; platform_system == "Linux"->torch->clip==1.0) (13.0.96)
+#58 4.006 Requirement already satisfied: nvidia-cufft==12.0.0.61.* in /usr/local/lib/python3.11/dist-packages (from cuda-toolkit[cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.2; platform_system == "Linux"->torch->clip==1.0) (12.0.0.61)
+#58 4.007 Requirement already satisfied: nvidia-cufile==1.15.1.6.* in /usr/local/lib/python3.11/dist-packages (from cuda-toolkit[cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.2; platform_system == "Linux"->torch->clip==1.0) (1.15.1.6)
+#58 4.008 Requirement already satisfied: nvidia-cuda-cupti==13.0.85.* in /usr/local/lib/python3.11/dist-packages (from cuda-toolkit[cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.2; platform_system == "Linux"->torch->clip==1.0) (13.0.85)
+#58 4.008 Requirement already satisfied: nvidia-curand==10.4.0.35.* in /usr/local/lib/python3.11/dist-packages (from cuda-toolkit[cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.2; platform_system == "Linux"->torch->clip==1.0) (10.4.0.35)
+#58 4.009 Requirement already satisfied: nvidia-cusolver==12.0.4.66.* in /usr/local/lib/python3.11/dist-packages (from cuda-toolkit[cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.2; platform_system == "Linux"->torch->clip==1.0) (12.0.4.66)
+#58 4.010 Requirement already satisfied: nvidia-cusparse==12.6.3.3.* in /usr/local/lib/python3.11/dist-packages (from cuda-toolkit[cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.2; platform_system == "Linux"->torch->clip==1.0) (12.6.3.3)
+#58 4.011 Requirement already satisfied: nvidia-nvjitlink==13.0.88.* in /usr/local/lib/python3.11/dist-packages (from cuda-toolkit[cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.2; platform_system == "Linux"->torch->clip==1.0) (13.0.88)
+#58 4.012 Requirement already satisfied: nvidia-cuda-nvrtc==13.0.88.* in /usr/local/lib/python3.11/dist-packages (from cuda-toolkit[cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.2; platform_system == "Linux"->torch->clip==1.0) (13.0.88)
+#58 4.012 Requirement already satisfied: nvidia-nvtx==13.0.85.* in /usr/local/lib/python3.11/dist-packages (from cuda-toolkit[cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.2; platform_system == "Linux"->torch->clip==1.0) (13.0.85)
+#58 4.015 Requirement already satisfied: cuda-pathfinder>=1.4.2 in /usr/local/lib/python3.11/dist-packages (from cuda-bindings<14,>=13.0.3->torch->clip==1.0) (1.5.6)
+#58 4.027 Requirement already satisfied: mpmath<1.4,>=1.1.0 in /usr/local/lib/python3.11/dist-packages (from sympy>=1.13.3->torch->clip==1.0) (1.3.0)
+#58 4.030 Requirement already satisfied: MarkupSafe>=2.0 in /usr/local/lib/python3.11/dist-packages (from jinja2->torch->clip==1.0) (3.0.3)
+#58 4.031 Requirement already satisfied: numpy in /usr/local/lib/python3.11/dist-packages (from torchvision->clip==1.0) (2.4.6)
+#58 4.031 Requirement already satisfied: pillow!=8.3.*,>=5.3.0 in /usr/local/lib/python3.11/dist-packages (from torchvision->clip==1.0) (12.3.0)
+#58 4.068 Downloading ftfy-6.3.1-py3-none-any.whl (44 kB)
+#58 4.115 Downloading wcwidth-0.9.4-cp310-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (785 kB)
+#58 4.241    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 785.9/785.9 kB 13.7 MB/s  0:00:00
+#58 4.247 Building wheels for collected packages: clip
+#58 4.250   Building wheel for clip (pyproject.toml): started
+#58 4.422   Building wheel for clip (pyproject.toml): finished with status 'done'
+#58 4.424   Created wheel for clip: filename=clip-1.0-py3-none-any.whl size=1382831 sha256=b38673c94b87ec6b879827a738eb9ab09000edc0d339473b164e03040b6c9df5
+#58 4.424   Stored in directory: /tmp/pip-ephem-wheel-cache-d_3z7nga/wheels/7c/08/3d/a302d9bbf4d386fd143eb0cf0d301f4d560df8ec1b1dab4279
+#58 4.426 Successfully built clip
+#58 4.490 Installing collected packages: wcwidth, ftfy, clip
+#58 4.735 
+#58 4.738 Successfully installed clip-1.0 ftfy-6.3.1 wcwidth-0.9.4
+#58 4.738 WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+#58 6.147 WARNING ⚠️ user config directory '/root/.config/Ultralytics' is not writable, using '/tmp/Ultralytics'. Set YOLO_CONFIG_DIR to override.
+#58 6.151 Creating new Ultralytics Settings v0.0.6 file ✅ 
+#58 6.151 View Ultralytics Settings with 'yolo settings' or at '/tmp/Ultralytics/settings.json'
+#58 6.151 Update Settings with 'yolo settings key=value', i.e. 'yolo settings runs_dir=path/to/dir'. For help see https://docs.ultralytics.com/quickstart/#ultralytics-settings.
+#58 DONE 7.9s
+
+#59 [mp-yoloe-26s] exporting to image
+#59 exporting layers
+#59 ...
+
+#60 [mp-yoloe-26x] exporting to image
+#60 ...
+
+#61 [mp-yoloe-26l] exporting to image
+#61 ...
+
+#62 [mp-mock] exporting to image
+#62 ...
+
+#63 [mp-gdino-base] exporting to image
+#63 ...
+
+#64 [mp-gdino-tiny-560] exporting to image
+#64 ...
+
+#65 [mp-yoloe-26m] exporting to image
+#65 ...
+
+#66 [mp-gdino-base-560] exporting to image
+#66 ...
+
+#67 [mp-gdino-tiny] exporting to image
+#67 ...
+
+#61 [mp-yoloe-26l] exporting to image
+#61 exporting layers 126.6s done
+#61 exporting manifest sha256:252daec49fe67efb9978ceca5909e24492693ffa8cf342bd76f16fdb91a9a428 0.1s done
+#61 exporting config sha256:60d4a467aec01a44ff30c04dfd386961ffe6bfb52853ba4545c26fe86e806c3b 0.1s done
+#61 exporting attestation manifest sha256:39232517ecc99caac02872d55cf7c28518196378f23bf54f332617c1da83d5c2 0.1s done
+#61 exporting manifest list sha256:03c26bc81c6e2511a193a10f36a69dac8687b37296711b7340a6085f5a6a2729
+#61 exporting manifest list sha256:03c26bc81c6e2511a193a10f36a69dac8687b37296711b7340a6085f5a6a2729 0.1s done
+#61 naming to docker.io/eovrt/media-plane:latest 0.0s done
+#61 unpacking to docker.io/eovrt/media-plane:latest
+#61 ...
+
+#60 [mp-yoloe-26x] exporting to image
+#60 exporting layers 126.6s done
+#60 exporting manifest sha256:d055e3609aa8991697a3615758d754d836b4810236cd18b5e86f5248ec58ed91 0.1s done
+#60 exporting config sha256:a3348f6bbc6278c5b5ec5d950669ce7612b30cebbd012c9abda30c41619c26dd 0.1s done
+#60 exporting attestation manifest sha256:42e69cc2eaac83508863e606a27410766249eeeb627f8bbc0d52e31a183e7ad3 0.1s done
+#60 exporting manifest list sha256:e004150c1b64b5b14881c30294fb1c4a55cc817379d27b84f9a46fb8d83dee12 0.1s done
+#60 naming to docker.io/eovrt/media-plane:latest 0.0s done
+#60 ...
+
+#64 [mp-gdino-tiny-560] exporting to image
+#64 exporting layers 126.6s done
+#64 exporting manifest sha256:fd1aff4e0dee9273ccbadb0fc2b5e6774c287b3fff76274262af8dede139ab9d 0.1s done
+#64 exporting config sha256:b3ffbe93ded4c2294fd286990327c91ba727ea7685a1f1be4d7e9caa851e877f 0.1s done
+#64 exporting attestation manifest sha256:04a06f88dc50ce7b7000dca5ae51e3943fbca0723164d07b11e115ca59e0d676 0.1s done
+#64 exporting manifest list sha256:c5318cd9672af36579b1297e14f26242d7569215677d2373265bf022d30bfbec 0.1s done
+#64 naming to docker.io/eovrt/media-plane:latest 0.0s done
+#64 ...
+
+#62 [mp-mock] exporting to image
+#62 exporting layers 126.6s done
+#62 exporting manifest sha256:3cdc996d069b7bb3fd0b065a4775e7a4310c6a0620e09df84e395e273d1e0b1e 0.1s done
+#62 exporting config sha256:2819fe716727432dae7f64c0a5afde134b71691a7370d47bdb0e5765556b81b4 0.1s done
+#62 exporting attestation manifest sha256:e1a951c50809c86b457c7679b1cc9d5fa1258253eb080bdb1c9bf040b229e296 0.1s done
+#62 exporting manifest list sha256:5752b068e8e0e033a937bf60069821e1660e6583fcb1ac63ffa7e720fd3c3294 0.1s done
+#62 naming to docker.io/eovrt/media-plane:latest 0.0s done
+#62 ...
+
+#66 [mp-gdino-base-560] exporting to image
+#66 exporting layers 126.6s done
+#66 exporting manifest sha256:550def5f46ea5fd71ec76b2198973051be5c9ff4b961698b97a9e78fdcaabfff 0.1s done
+#66 exporting config sha256:167f0d5798c53a0805182b3edcbc39c7c2da9d7dd4ae147d9969bfd73536cb81 0.1s done
+#66 exporting attestation manifest sha256:3661f593249148bc109f927b10af309e00e7ac3a71bf52708156bca53fab31ad 0.1s done
+#66 exporting manifest list sha256:f3f5f8f64198cafa0a3f3354c7b542017a2a3a19819069443c4b8eab835488d0 0.1s done
+#66 naming to docker.io/eovrt/media-plane:latest 0.0s done
+#66 ...
+
+#67 [mp-gdino-tiny] exporting to image
+#67 exporting layers 126.6s done
+#67 exporting manifest sha256:c1fbfcdbb0cae9dfb725300b1d3a5e570642531027b0c3c0d06940a0812f3604 0.1s done
+#67 exporting config sha256:6258ee5c38148e61b265d9ccfdaacc4d8b31c8e22fc8f29b8cb053fae64f3459 0.1s done
+#67 exporting attestation manifest sha256:70d15474a31a3693c3cd8c513507165e59372e8fe58645cb4cc51be2e906ed90 0.1s done
+#67 exporting manifest list sha256:a85e4d936dfcd4ff3e37b017100eef4a2975e840972b34b79ef0959981b8465d 0.1s done
+#67 naming to docker.io/eovrt/media-plane:latest 0.0s done
+#67 ...
+
+#63 [mp-gdino-base] exporting to image
+#63 exporting layers 126.6s done
+#63 exporting manifest sha256:46816a89d7b6d8fa6047dcd04e4dfb68f2f2622e9fcd6e8791b61de8952cbda2 0.1s done
+#63 exporting config sha256:eda1760efea51690f6e509a39a6bb1e73606ce2c33b76c92d158c256eb8a3b8c 0.1s done
+#63 exporting attestation manifest sha256:c614453671b90eaacf7f8860b38f509cb5e9e48994a3769f5aa0a24f94a6ade1 0.1s done
+#63 exporting manifest list sha256:4520012f15a1c0f90d569f2b45f202f054005561d2f59a20cbfd86900b2ec09a 0.1s done
+#63 naming to docker.io/eovrt/media-plane:latest 0.0s done
+#63 ...
+
+#59 [mp-yoloe-26s] exporting to image
+#59 exporting layers 126.6s done
+#59 exporting manifest sha256:28f12efb45fa84f5eab385251d28257996674b04b8090da5822bde615fd0ac9e 0.1s done
+#59 exporting config sha256:f56467a53fa6187d5fa55f34418340bbbff1324aab2029277cb169c6c87e5c21 0.1s done
+#59 exporting attestation manifest sha256:1a91ea14d3136baab9ce628bb3a1afada368d30b897c02635e74d75015d9dc5b 0.1s done
+#59 exporting manifest list sha256:11945e3c2b75a5a354288f28aee6b517c420179f906931885dd5d911b63294ee 0.1s done
+#59 naming to docker.io/eovrt/media-plane:latest 0.0s done
+#59 ...
+
+#65 [mp-yoloe-26m] exporting to image
+#65 exporting layers 126.6s done
+#65 exporting manifest sha256:510b63b0e51399e0eea873ad0886be0968d7dcd5b4293c7d234bc9208221ba21 0.1s done
+#65 exporting config sha256:20b9732e232c291911ea6d1930db0943e8d98940398d91ab59d06bc9d9285043 0.1s done
+#65 exporting attestation manifest sha256:68ca492ad8764574ddd1db244a4ae194cc2014e2358cfecba6407463ad2ae126 0.1s done
+#65 exporting manifest list sha256:589ebd04b4c62fd38acb2e5b20b7fdadcc8dd960fa36a28eb5c321a5fe165b39 0.1s done
+#65 naming to docker.io/eovrt/media-plane:latest 0.0s done
+#65 ...
+
+#60 [mp-yoloe-26x] exporting to image
+#60 unpacking to docker.io/eovrt/media-plane:latest 220.1s done
+#60 DONE 347.1s
+
+#66 [mp-gdino-base-560] exporting to image
+#66 unpacking to docker.io/eovrt/media-plane:latest 220.1s done
+#66 DONE 347.1s
+
+#64 [mp-gdino-tiny-560] exporting to image
+#64 unpacking to docker.io/eovrt/media-plane:latest 220.1s done
+#64 DONE 347.1s
+
+#61 [mp-yoloe-26l] exporting to image
+#61 unpacking to docker.io/eovrt/media-plane:latest 220.1s done
+#61 DONE 347.1s
+
+#63 [mp-gdino-base] exporting to image
+#63 unpacking to docker.io/eovrt/media-plane:latest 220.1s done
+#63 DONE 347.1s
+
+#67 [mp-gdino-tiny] exporting to image
+#67 unpacking to docker.io/eovrt/media-plane:latest 220.1s done
+#67 DONE 347.1s
+
+#65 [mp-yoloe-26m] exporting to image
+#65 unpacking to docker.io/eovrt/media-plane:latest 220.1s done
+#65 DONE 347.1s
+
+#59 [mp-yoloe-26s] exporting to image
+#59 unpacking to docker.io/eovrt/media-plane:latest 220.1s done
+#59 DONE 347.1s
+
+#62 [mp-mock] exporting to image
+#62 unpacking to docker.io/eovrt/media-plane:latest 220.1s done
+#62 DONE 347.2s
+
+#68 [mp-gdino-base-560] resolving provenance for metadata file
+#68 ...
+
+#69 [mp-yoloe-26l] resolving provenance for metadata file
+#69 DONE 0.1s
+
+#70 [mp-yoloe-26m] resolving provenance for metadata file
+#70 DONE 0.7s
+
+#71 [mp-gdino-tiny-560] resolving provenance for metadata file
+#71 DONE 0.8s
+
+#68 [mp-gdino-base-560] resolving provenance for metadata file
+#68 DONE 0.8s
+
+#72 [mp-yoloe-26s] resolving provenance for metadata file
+#72 DONE 0.2s
+
+#73 [mp-gdino-base] resolving provenance for metadata file
+#73 DONE 0.7s
+
+#74 [mp-yoloe-26x] resolving provenance for metadata file
+#74 DONE 0.2s
+
+#75 [mp-gdino-tiny] resolving provenance for metadata file
+#75 DONE 0.1s
+
+#76 [mp-mock] resolving provenance for metadata file
+#76 DONE 0.0s
+ Image eovrt/media-plane:latest Built 
+ Image eovrt/media-plane:latest Built 
+ Image eovrt/media-plane:latest Built 
+ Image eovrt/console:latest Built 
+ Image eovrt/control-plane:latest Built 
+ Image eovrt/media-plane:latest Built 
+ Image eovrt/media-plane:latest Built 
+ Image eovrt/media-plane:latest Built 
+ Image eovrt/media-plane:latest Built 
+ Image eovrt/media-plane:latest Built 
+ Image eovrt/distribution:latest Built 
+ Image eovrt/media-plane:latest Built 

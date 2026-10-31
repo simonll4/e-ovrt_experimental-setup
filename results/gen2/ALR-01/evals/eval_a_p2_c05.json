@@ -1,0 +1,64 @@
+{
+  "schema_version": "control.eval.temporal.v1",
+  "scenario_id": "a_p2_c05",
+  "alerts_path": "$EOVRT_WORKSPACE/e-ovrt_control-plane/runs/gen2_alr01_a_p2_c05_20261030T032957Z_3c2be3/alerts.jsonl",
+  "ground_truth_path": "$EOVRT_WORKSPACE/e-ovrt_datasets/datasets/processed/clip_bench/gt/a_p2_c05.json",
+  "expected_alerts_count": 1,
+  "observed_alerts_count": 3,
+  "matched_alerts_count": 1,
+  "missed_alerts_count": 0,
+  "unexpected_alerts_count": 1,
+  "duplicate_alerts_count": 0,
+  "precision": 0.5,
+  "recall": 1.0,
+  "f1": 0.666667,
+  "avg_latency_frames_from_first_evidence": null,
+  "avg_latency_ms_from_first_evidence": null,
+  "re_alerts_count": 1,
+  "sub_threshold_count": 0,
+  "censored_episodes_count": 0,
+  "observed_duration_ms": 39467.0,
+  "far_per_hour": 91.215446,
+  "applicability_state": "computed",
+  "applicability_cause": null,
+  "avg_latency_ms_from_episode_start": 16733.67,
+  "effective_matching_windows": {
+    "CR-02": {
+      "persistencia_min_ms": 7000.0,
+      "t_alert_max_ms": 20000.0,
+      "origin": "gt_provenance"
+    }
+  },
+  "warnings": [],
+  "matches": [],
+  "missed_alerts": [],
+  "unexpected_alerts": [
+    {
+      "alert_id": "724801f5-b5b2-5e3a-825c-e9ef8db9bc42",
+      "condition_id": "CR-01",
+      "subject_key": "CR-01:a_p2_c05",
+      "frame_index": 867,
+      "reason": "outside_all_episode_windows"
+    }
+  ],
+  "censored_episodes": [],
+  "avg_ttfd_ms": 0.33,
+  "avg_sdr": 0.08172,
+  "ttfd_by_episode": [
+    {
+      "episode_id": "ep1",
+      "ttfd_ms": 0.32999999999992724,
+      "cause": null
+    }
+  ],
+  "sdr_by_episode": [
+    {
+      "episode_id": "ep1",
+      "sdr": 0.08172032258064534,
+      "cause": null
+    }
+  ],
+  "ttfd_sdr_applicability": "computed",
+  "positive_criterion": "spatial_absence(cr01_cr02_v2) >=1 evidencia",
+  "detections_path": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_032718_dbe_grounding_dino_466f98/detections.jsonl"
+}

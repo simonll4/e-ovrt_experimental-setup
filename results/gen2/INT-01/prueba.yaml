@@ -1,0 +1,19 @@
+schema: prueba.gen2.v1
+id: INT-01
+titulo: "Integridad del bench de imágenes (bench_v3)"
+informe: ["Anexo E.1", "Anexo E.2"]
+fase: F1
+familia: integridad
+pregunta: "¿Las 6.477 imágenes y los estratos con que se mide en la Victus son los mismos con que se midió la generación 1?"
+gen1:
+  result_id: bench_v3 (congelado 2026-07-23)
+  doc: datasets/registry/bench_v3.md
+esperado: >
+  6.477/6.477 huellas de imagen iguales (lista generada el 2026-10-26 sobre las imágenes de la
+  generación 1); los estratos regenerados byte a byte; bench_v3.json reconstruido en memoria con
+  la misma huella que el congelado. Si una imagen no coincide, se copia de la PC de desarrollo y se
+  declara (doc 134 §2).
+veredictos_posibles: [identico]
+receta:
+  lista_imagenes: datasets/registry/bench_v3_imagenes.sha256
+salida: e-ovrt_experimental-setup/results/gen2/INT-01/

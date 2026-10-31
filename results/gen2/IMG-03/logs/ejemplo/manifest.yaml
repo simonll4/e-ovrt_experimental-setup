@@ -1,0 +1,11 @@
+schema_version: experiment.manifest.v1
+slug: gen2_img03
+experiment_id: exp_20261030T224201Z_gen2_img03_obra_test
+runs:
+  media:
+    service: media-plane
+    config: $EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/IMG-03/gen2_img03_obra_test/media.yaml
+    mode: run
+sequencing: media_first
+timeout_s: 7200.0
+changes: 'generación 2 — prueba IMG-03 (Percepción sobre bench_v3: yoloe-26x (contraste))'

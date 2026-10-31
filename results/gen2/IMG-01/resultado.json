@@ -1,0 +1,207 @@
+{
+  "schema": "resultado.gen2.v1",
+  "id": "IMG-01",
+  "titulo": "Percepción sobre bench_v3: gdino-tiny-560 (campeón)",
+  "informe": [
+    "Tabla 51"
+  ],
+  "generado": "2026-10-30T22:23:05+00:00",
+  "familia": "imagenes",
+  "estado": "completo",
+  "metricas": {
+    "mAP50": 0.550535,
+    "ap50_person": 0.783893,
+    "ap50_helmet": 0.735144,
+    "ap50_vest": 0.551475,
+    "ap50_bare_head": 0.13163,
+    "recall_cr01": 0.309139,
+    "n_violadores_cr01": 5308,
+    "obra_test.person": 0.6951,
+    "obra_test.person.n_gt": 135,
+    "obra_test.helmet": 0.7198,
+    "obra_test.helmet.n_gt": 83,
+    "obra_test.vest": 0.465,
+    "obra_test.vest.n_gt": 38,
+    "obra_test.bare_head": 0.0285,
+    "obra_test.bare_head.n_gt": 26,
+    "obra_test.cr01_recall": 0.28,
+    "obra_val.person": 0.7157,
+    "obra_val.person.n_gt": 127,
+    "obra_val.helmet": 0.7892,
+    "obra_val.helmet.n_gt": 76,
+    "obra_val.vest": 0.5609,
+    "obra_val.vest.n_gt": 41,
+    "obra_val.bare_head": 0.0212,
+    "obra_val.bare_head.n_gt": 35,
+    "obra_val.cr01_recall": 0.4857,
+    "chv.person": 0.8618,
+    "chv.person.n_gt": 3887,
+    "chv.helmet": 0.8864,
+    "chv.helmet.n_gt": 3538,
+    "chv.vest": 0.5531,
+    "chv.vest.n_gt": 1784,
+    "chv.bare_head": null,
+    "chv.bare_head.n_gt": 0,
+    "chv.cr01_recall": null,
+    "shel5k.person": 0.7698,
+    "shel5k.person.n_gt": 20023,
+    "shel5k.helmet": 0.7072,
+    "shel5k.helmet.n_gt": 19252,
+    "shel5k.vest": null,
+    "shel5k.vest.n_gt": 0,
+    "shel5k.bare_head": 0.1327,
+    "shel5k.bare_head.n_gt": 6120,
+    "shel5k.cr01_recall": 0.3081
+  },
+  "resumen": [
+    {
+      "clave": "map50",
+      "nombre": "mAP50 ponderado (bench_v3, 6.477 imágenes)",
+      "valor": 0.550535,
+      "unidad": null,
+      "gen1": 0.550535
+    },
+    {
+      "clave": "ap50_person",
+      "nombre": "AP50 person (ponderado por n_gt)",
+      "valor": 0.783893,
+      "unidad": null,
+      "gen1": 0.783893
+    },
+    {
+      "clave": "ap50_helmet",
+      "nombre": "AP50 helmet (ponderado por n_gt)",
+      "valor": 0.735144,
+      "unidad": null,
+      "gen1": 0.735144
+    },
+    {
+      "clave": "ap50_vest",
+      "nombre": "AP50 vest (ponderado por n_gt)",
+      "valor": 0.551475,
+      "unidad": null,
+      "gen1": 0.551475
+    },
+    {
+      "clave": "ap50_bare_head",
+      "nombre": "AP50 bare_head (ponderado por n_gt)",
+      "valor": 0.13163,
+      "unidad": null,
+      "gen1": 0.13163
+    },
+    {
+      "clave": "recall_cr01",
+      "nombre": "Recall CR-01 por la vía directa (bare_head)",
+      "valor": 0.309139,
+      "unidad": null,
+      "gen1": null,
+      "n": 5308
+    }
+  ],
+  "por_estrato": {
+    "obra_test": {
+      "mAP50": 0.4771,
+      "cr01_recall": 0.28,
+      "cr01_n_violators": 25,
+      "por_clase": {
+        "person": {
+          "AP50": 0.6951,
+          "n_gt": 135
+        },
+        "helmet": {
+          "AP50": 0.7198,
+          "n_gt": 83
+        },
+        "vest": {
+          "AP50": 0.465,
+          "n_gt": 38
+        },
+        "bare_head": {
+          "AP50": 0.0285,
+          "n_gt": 26
+        }
+      }
+    },
+    "obra_val": {
+      "mAP50": 0.5218,
+      "cr01_recall": 0.4857,
+      "cr01_n_violators": 35,
+      "por_clase": {
+        "person": {
+          "AP50": 0.7157,
+          "n_gt": 127
+        },
+        "helmet": {
+          "AP50": 0.7892,
+          "n_gt": 76
+        },
+        "vest": {
+          "AP50": 0.5609,
+          "n_gt": 41
+        },
+        "bare_head": {
+          "AP50": 0.0212,
+          "n_gt": 35
+        }
+      }
+    },
+    "chv": {
+      "mAP50": 0.7671,
+      "cr01_recall": null,
+      "cr01_n_violators": 0,
+      "por_clase": {
+        "person": {
+          "AP50": 0.8618,
+          "n_gt": 3887
+        },
+        "helmet": {
+          "AP50": 0.8864,
+          "n_gt": 3538
+        },
+        "vest": {
+          "AP50": 0.5531,
+          "n_gt": 1784
+        },
+        "bare_head": {
+          "AP50": null,
+          "n_gt": 0
+        }
+      }
+    },
+    "shel5k": {
+      "mAP50": 0.5366,
+      "cr01_recall": 0.3081,
+      "cr01_n_violators": 5248,
+      "por_clase": {
+        "person": {
+          "AP50": 0.7698,
+          "n_gt": 20023
+        },
+        "helmet": {
+          "AP50": 0.7072,
+          "n_gt": 19252
+        },
+        "vest": {
+          "AP50": null,
+          "n_gt": 0
+        },
+        "bare_head": {
+          "AP50": 0.1327,
+          "n_gt": 6120
+        }
+      }
+    }
+  },
+  "veredicto": {
+    "confirmado": {
+      "valor": "identico",
+      "motivo": "Coincide con la referencia del pre-registro valor por valor (revisado el 2026-10-31 sobre el zip de results/gen2; doc 134 13.12)",
+      "quien": "equipo E-OVRT-VDP",
+      "fecha": "2026-10-31T03:24:16+00:00"
+    },
+    "referencia": "las corridas de la generación 1 re-evaluadas el 2026-10-26 con este mismo código (run_evaluation del media-plane + bench_v3_report): reproduce el mAP50 publicado (0,551)\n",
+    "propuesto": "identico",
+    "motivo": "los 22 campos coinciden con la generación 1",
+    "diferencias": {}
+  }
+}

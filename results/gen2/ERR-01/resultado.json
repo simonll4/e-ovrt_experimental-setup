@@ -1,0 +1,281 @@
+{
+  "schema": "resultado.gen2.v1",
+  "id": "ERR-01",
+  "titulo": "Anatomía de las falsas alarmas por sujeto en obra real",
+  "informe": [
+    "§17.5.4",
+    "§18.3",
+    "§17.5.7"
+  ],
+  "generado": "2026-10-31T03:03:33+00:00",
+  "familia": "analisis",
+  "estado": "completo",
+  "metricas": {
+    "principal.falsas_alarmas": 323,
+    "principal.F-sin-persona": 84,
+    "principal.F-parcial": 15,
+    "principal.U": 21,
+    "principal.V": 1,
+    "principal.P-no-detectado": 109,
+    "principal.P-fuera-region": 0,
+    "principal.P-disputado": 8,
+    "principal.P-intermitente": 85,
+    "principal.alertas_extra_por_fragmentacion": 93,
+    "principal.discrepancias_reconstruccion": 0
+  },
+  "resumen": [
+    {
+      "clave": "principal.falsas_alarmas",
+      "nombre": "Falsas alarmas por sujeto en negativos (principal)",
+      "valor": 323,
+      "unidad": null,
+      "gen1": 323
+    },
+    {
+      "clave": "principal.F-sin-persona",
+      "nombre": "… causa F-sin-persona (principal)",
+      "valor": 84,
+      "unidad": null,
+      "gen1": 84
+    },
+    {
+      "clave": "principal.F-parcial",
+      "nombre": "… causa F-parcial (principal)",
+      "valor": 15,
+      "unidad": null,
+      "gen1": 15
+    },
+    {
+      "clave": "principal.U",
+      "nombre": "… causa U (principal)",
+      "valor": 21,
+      "unidad": null,
+      "gen1": 21
+    },
+    {
+      "clave": "principal.V",
+      "nombre": "… causa V (principal)",
+      "valor": 1,
+      "unidad": null,
+      "gen1": 1
+    },
+    {
+      "clave": "principal.P-no-detectado",
+      "nombre": "… causa P-no-detectado (principal)",
+      "valor": 109,
+      "unidad": null,
+      "gen1": 109
+    },
+    {
+      "clave": "principal.P-fuera-region",
+      "nombre": "… causa P-fuera-region (principal)",
+      "valor": 0,
+      "unidad": null,
+      "gen1": 0
+    },
+    {
+      "clave": "principal.P-disputado",
+      "nombre": "… causa P-disputado (principal)",
+      "valor": 8,
+      "unidad": null,
+      "gen1": 8
+    },
+    {
+      "clave": "principal.P-intermitente",
+      "nombre": "… causa P-intermitente (principal)",
+      "valor": 85,
+      "unidad": null,
+      "gen1": 85
+    },
+    {
+      "clave": "principal.alertas_extra_por_fragmentacion",
+      "nombre": "Alertas de más por fragmentación de identidad (principal)",
+      "valor": 93,
+      "unidad": null,
+      "gen1": 93
+    }
+  ],
+  "anatomia": {
+    "principal": {
+      "falsas_alarmas": 323,
+      "por_causa": {
+        "F-sin-persona": 84,
+        "F-parcial": 15,
+        "U": 21,
+        "V": 1,
+        "P-no-detectado": 109,
+        "P-fuera-region": 0,
+        "P-disputado": 8,
+        "P-intermitente": 85
+      },
+      "por_causa_gruesa": {
+        "tiene_epp": 202,
+        "no_juzgable": 21,
+        "sin_persona": 99,
+        "falta_real": 1
+      },
+      "fragmentacion": {
+        "alertas_sobre_personas_reales": 224,
+        "pares_persona_condicion": 131,
+        "factor": 1.7099,
+        "alertas_extra": 93,
+        "pares_con_mas_de_una_alerta": 59
+      },
+      "solapadas": 37,
+      "por_banda": {
+        "0-80": {
+          "U": 3,
+          "P-no-detectado": 10
+        },
+        "120-220": {
+          "P-no-detectado": 54,
+          "P-intermitente": 47,
+          "U": 13,
+          "F-parcial": 3,
+          "F-sin-persona": 5,
+          "V": 1,
+          "P-disputado": 3
+        },
+        "220-320": {
+          "P-intermitente": 27,
+          "U": 5,
+          "P-no-detectado": 15,
+          "F-sin-persona": 4,
+          "P-disputado": 4
+        },
+        "80-120": {
+          "P-intermitente": 11,
+          "P-no-detectado": 30,
+          "F-sin-persona": 3,
+          "P-disputado": 1
+        },
+        "sin_persona": {
+          "F-sin-persona": 72,
+          "F-parcial": 12
+        }
+      },
+      "por_iluminacion": {
+        "diurna": {
+          "P-no-detectado": 108,
+          "P-intermitente": 83,
+          "U": 20,
+          "F-parcial": 15,
+          "F-sin-persona": 83,
+          "V": 1,
+          "P-disputado": 8
+        },
+        "nocturna": {
+          "F-sin-persona": 1,
+          "P-intermitente": 2,
+          "U": 1,
+          "P-no-detectado": 1
+        }
+      },
+      "por_clip": {
+        "v01_c01": {
+          "P-no-detectado": 11,
+          "P-intermitente": 3,
+          "U": 1
+        },
+        "v02_c01": {
+          "P-intermitente": 3,
+          "F-parcial": 1
+        },
+        "v03_c01": {
+          "P-intermitente": 1,
+          "F-sin-persona": 1
+        },
+        "v03_c02": {
+          "F-sin-persona": 18,
+          "U": 1,
+          "P-no-detectado": 1
+        },
+        "v04_c02": {
+          "F-sin-persona": 1,
+          "P-intermitente": 1,
+          "U": 1,
+          "P-no-detectado": 1
+        },
+        "v04_c03": {
+          "P-intermitente": 1
+        },
+        "v05_c01": {
+          "F-sin-persona": 18,
+          "P-intermitente": 1,
+          "P-no-detectado": 3,
+          "V": 1
+        },
+        "v06_c01": {
+          "P-no-detectado": 71,
+          "F-sin-persona": 32,
+          "U": 11,
+          "P-intermitente": 58,
+          "F-parcial": 10,
+          "P-disputado": 8
+        },
+        "v07_c01": {
+          "P-intermitente": 11,
+          "P-no-detectado": 7,
+          "U": 2,
+          "F-sin-persona": 2
+        },
+        "v09_c01": {
+          "P-no-detectado": 9,
+          "P-intermitente": 6,
+          "U": 1,
+          "F-sin-persona": 6
+        },
+        "v10_c01": {
+          "F-sin-persona": 6,
+          "U": 4,
+          "P-no-detectado": 6,
+          "F-parcial": 4
+        }
+      },
+      "exposicion": {
+        "persona_horas": 1.4412,
+        "clip_horas": 0.2367
+      },
+      "tasas": {
+        "sujeto_por_persona_hora": 224.121,
+        "escena_por_clip_hora": 109.825,
+        "sujeto_por_clip_hora": 1364.361
+      },
+      "falsas_alarmas_escena": 26,
+      "discrepancias_reconstruccion": 0
+    },
+    "revision_humana": {
+      "estado": "completa",
+      "revisadas": 31,
+      "de": 31,
+      "acuerdo": 0.8387,
+      "kappa": 0.7332,
+      "matriz": {
+        "falta_real|tiene_epp": 1,
+        "no_juzgable|no_juzgable": 3,
+        "no_juzgable|tiene_epp": 2,
+        "sin_persona|sin_persona": 9,
+        "sin_persona|tiene_epp": 1,
+        "tiene_epp|no_juzgable": 1,
+        "tiene_epp|tiene_epp": 14
+      },
+      "f_que_son_persona": 1,
+      "f_revisadas": 10,
+      "asistida_por_ia": true,
+      "con_propuesta_ia": 31,
+      "cambios_de_la_persona": 2
+    }
+  },
+  "veredicto": {
+    "confirmado": {
+      "valor": "identico",
+      "motivo": "Las 323 falsas alarmas por sujeto, por causa, iguales al piloto; revision ciega de 31 cuadros asistida por IA y validada por una persona: acuerdo 0,839, kappa 0,733, 2 cambios de la persona (Claude solo: 24 de 31)",
+      "quien": "equipo E-OVRT-VDP",
+      "fecha": "2026-10-31T03:24:51+00:00"
+    },
+    "referencia": "docs/operacion/datos/137-sondeo-falsas-alarmas-obra-real/piloto_gen1.py: este mismo código (tools/evidencia/familias/errores.py) sobre las alertas, la traza y las identidades de I2 de la generación 1 (2026-10-29). Cuenta exactamente las 323 del evaluador.\n",
+    "propuesto": "identico",
+    "motivo": "los 11 campos coinciden con la generación 1",
+    "diferencias": {}
+  }
+}

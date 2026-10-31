@@ -1,0 +1,7 @@
+[2026-10-30T22:05:03+00:00] python -m tools.evidencia correr F4
+[2026-10-30T22:05:03+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/EXT-01/gen2_ext01_obra_val/manifest.yaml
+[2026-10-30T22:05:24+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/EXT-01/gen2_ext01_obra_test/manifest.yaml
+[2026-10-30T22:05:39+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/EXT-01/gen2_ext01_mocs_valid/manifest.yaml
+[2026-10-30T22:06:03+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/EXT-01/gen2_ext01_vehiculo_val/manifest.yaml
+[2026-10-30T22:06:21+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/EXT-01/gen2_ext01_vehiculo_test/manifest.yaml
+[2026-10-31T03:24:14+00:00] veredicto confirmado: identico (equipo E-OVRT-VDP): Coincide con la referencia del pre-registro valor por valor (revisado el 2026-10-31 sobre el zip de results/gen2; doc 134 13.12)

@@ -1,0 +1,53 @@
+{
+  "schema": "resultado.gen2.v1",
+  "id": "RT-02",
+  "titulo": "Integridad del bus: 0 pérdidas y paridad vivo ↔ relectura",
+  "informe": [
+    "§17.5.5",
+    "Tabla 54"
+  ],
+  "generado": "2026-10-31T01:37:13+00:00",
+  "familia": "vivo",
+  "estado": "completo",
+  "metricas": {
+    "paridad": true,
+    "bus_dropped_events": 0,
+    "eventos_de_patron": 4,
+    "alertas": 1
+  },
+  "resumen": [
+    {
+      "clave": "paridad",
+      "nombre": "Vivo y relectura producen los mismos eventos y alertas",
+      "valor": "sí",
+      "unidad": null,
+      "gen1": "sí"
+    },
+    {
+      "clave": "bus_dropped_events",
+      "nombre": "Eventos perdidos en el bus",
+      "valor": 0,
+      "unidad": null,
+      "gen1": 0
+    },
+    {
+      "clave": "alertas",
+      "nombre": "Alertas de la corrida",
+      "valor": 1,
+      "unidad": null,
+      "gen1": null
+    }
+  ],
+  "veredicto": {
+    "confirmado": {
+      "valor": "identico",
+      "motivo": "Coincide con la referencia del pre-registro valor por valor (revisado el 2026-10-31 sobre el zip de results/gen2; doc 134 13.12)",
+      "quien": "equipo E-OVRT-VDP",
+      "fecha": "2026-10-31T03:24:26+00:00"
+    },
+    "referencia": "doc 37 (byte-idénticos módulo control_run_id/alert_id) y doc 71 (0 pérdidas en el rodaje)",
+    "propuesto": "identico",
+    "motivo": "los 2 campos coinciden con la generación 1",
+    "diferencias": {}
+  }
+}

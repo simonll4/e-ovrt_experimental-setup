@@ -1,0 +1,72 @@
+{
+  "volatiles": [
+    "control_run_id",
+    "alert_id",
+    "first_evidence_ms",
+    "alert_registered_ms",
+    "experiment_id"
+  ],
+  "comparacion": {
+    "pattern_events.jsonl": {
+      "vivo": 4,
+      "relectura": 4,
+      "identicos": true
+    },
+    "alerts.jsonl": {
+      "vivo": 1,
+      "relectura": 1,
+      "identicos": true
+    }
+  },
+  "resumen_control_vivo": {
+    "schema_version": "control.summary.v1",
+    "control_run_id": "gen2_rt02_vivo_a_p1_c04_20261031T013510Z_00d330",
+    "media_run_ids": [
+      "run_20261031_013510_dbe_grounding_dino_1e3d9f"
+    ],
+    "scenario": "EBE",
+    "pattern_set_id": "cr01_cr02_v2",
+    "active_pattern_ids": [
+      "CR-01",
+      "CR-02"
+    ],
+    "units_processed": 920,
+    "units_failed": 0,
+    "pattern_events_count": 4,
+    "alerts_count": 1,
+    "errors_count": 0,
+    "avg_processing_ms": 0.09089758804016722,
+    "processing_ms_percentiles": {
+      "p50": 0.08427600005234126,
+      "p95": 0.1451515499866218,
+      "p99": 0.2101145487358734
+    },
+    "ttfa_internal_ms_percentiles": {
+      "p50": 15338.653800999746,
+      "p95": 15338.653800999746,
+      "p99": 15338.653800999746
+    },
+    "output_files": {
+      "effective_config": "$EOVRT_WORKSPACE/e-ovrt_control-plane/runs/gen2_rt02_vivo_a_p1_c04_20261031T013510Z_00d330/effective_config.yaml",
+      "pattern_events": "$EOVRT_WORKSPACE/e-ovrt_control-plane/runs/gen2_rt02_vivo_a_p1_c04_20261031T013510Z_00d330/pattern_events.jsonl",
+      "alerts": "$EOVRT_WORKSPACE/e-ovrt_control-plane/runs/gen2_rt02_vivo_a_p1_c04_20261031T013510Z_00d330/alerts.jsonl",
+      "alerts_csv": "$EOVRT_WORKSPACE/e-ovrt_control-plane/runs/gen2_rt02_vivo_a_p1_c04_20261031T013510Z_00d330/alerts.csv",
+      "metrics": "$EOVRT_WORKSPACE/e-ovrt_control-plane/runs/gen2_rt02_vivo_a_p1_c04_20261031T013510Z_00d330/metrics.jsonl",
+      "errors": "$EOVRT_WORKSPACE/e-ovrt_control-plane/runs/gen2_rt02_vivo_a_p1_c04_20261031T013510Z_00d330/errors.jsonl",
+      "summary": "$EOVRT_WORKSPACE/e-ovrt_control-plane/runs/gen2_rt02_vivo_a_p1_c04_20261031T013510Z_00d330/summary.json"
+    },
+    "warnings": [],
+    "degraded": false,
+    "degradation_causes": [],
+    "media_run_id": "run_20261031_013510_dbe_grounding_dino_1e3d9f",
+    "experiment_id": "exp_20261031T013510Z_gen2_rt02_vivo_a_p1_c04",
+    "source": "bus",
+    "bus_dropped_events": 0,
+    "pattern_evaluation": {
+      "state": "computed",
+      "causes": []
+    },
+    "started_at": "2026-10-31T01:35:10.250121+00:00",
+    "finished_at": "2026-10-31T01:37:09.294746+00:00"
+  }
+}

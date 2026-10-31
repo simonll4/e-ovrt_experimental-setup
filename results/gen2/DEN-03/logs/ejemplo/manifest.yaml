@@ -1,0 +1,18 @@
+schema_version: experiment.manifest.v1
+slug: gen2_den03
+experiment_id: exp_20261030T215148Z_gen2_den03_a_p1_c02
+runs:
+  media:
+    service: media-plane
+    config: $EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/DEN-03/gen2_den03_a_p1_c02/media.yaml
+    mode: run
+  control:
+    service: control-plane
+    config: $EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/DEN-03/gen2_den03_a_p1_c02/control.yaml
+    mode: replay
+sequencing: media_first
+clip_id: a_p1_c02
+ground_truth: $EOVRT_WORKSPACE/e-ovrt_datasets/datasets/processed/clip_bench/gt/a_p1_c02.json
+timeout_s: 1800.0
+changes: 'generación 2 — prueba DEN-03 (Densidad de evidencia: escena, stride 15 (2,00
+  fps; R3))'

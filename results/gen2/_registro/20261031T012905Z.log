@@ -1,0 +1,9 @@
+== DIST-01 — Canal de distribución: alerta → PUBACK MQTT QoS 1
+  DIST-01: 298 corridas del corpus por el canal (esto tarda)
+   DIST-01: {"estado": "completo", "veredicto": "otra_combinacion"}
+== RT-01 — Sobrecarga de la plataforma sin inferencia (G2A con detector simulado)
+  activando la instancia mp-mock (puede tardar unos minutos)
+   RT-01: {"estado": "completo", "veredicto": "otra_combinacion"}
+== RT-02 — Integridad del bus: 0 pérdidas y paridad vivo ↔ relectura
+  activando la instancia mp-gdino-tiny-560 (puede tardar unos minutos)
+   RT-02: {"estado": "completo", "veredicto": "identico"}

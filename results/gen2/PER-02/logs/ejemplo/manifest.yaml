@@ -1,0 +1,12 @@
+schema_version: experiment.manifest.v1
+slug: gen2_per02
+experiment_id: exp_20261031T000342Z_gen2_per02_eind_bench_obra_val
+runs:
+  media:
+    service: media-plane
+    config: $EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/PER-02/gen2_per02_eind_bench_obra_val/media.yaml
+    mode: run
+sequencing: media_first
+timeout_s: 7200.0
+changes: 'generación 2 — prueba PER-02 (Estado por persona en imágenes: réplica con
+  gdino-base-560)'

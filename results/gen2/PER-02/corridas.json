@@ -1,0 +1,336 @@
+{
+  "schema": "corridas.gen2.v1",
+  "prueba": "PER-02",
+  "corridas": {
+    "eind_bench_obra_val": {
+      "estado": "ok",
+      "experiment_id": "exp_20261031T000342Z_gen2_per02_eind_bench_obra_val",
+      "media_run_id": "run_20261031_000342_dbe_grounding_dino_a4402f",
+      "media_status": "succeeded",
+      "inicio": "2026-10-31T00:03:42+00:00",
+      "fin": "2026-10-31T00:04:03+00:00",
+      "segundos": 21.0,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/PER-02/gen2_per02_eind_bench_obra_val/media.yaml",
+      "sha256": {
+        "media_config": "00a9480a559b75f8ae0339f98e59845c70c837613fcc4dcd2eeed8c35f9b004b"
+      },
+      "unidades": 114,
+      "detecciones_totales": 294,
+      "por_clase": {
+        "person": 159,
+        "helmet": 86,
+        "vest": 49
+      }
+    },
+    "edir_cr01_neg_bench_obra_val": {
+      "estado": "ok",
+      "experiment_id": "exp_20261031T000403Z_gen2_per02_edir_cr01_neg_bench_obra_val",
+      "media_run_id": "run_20261031_000403_dbe_grounding_dino_274e03",
+      "media_status": "succeeded",
+      "inicio": "2026-10-31T00:04:03+00:00",
+      "fin": "2026-10-31T00:04:24+00:00",
+      "segundos": 21.0,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/PER-02/gen2_per02_edir_cr01_neg_bench_obra_val/media.yaml",
+      "sha256": {
+        "media_config": "49b088d3b9df2ed85cf81e94526f67fdfc4266c3636abb145eaa4c7ac87e6754"
+      },
+      "unidades": 114,
+      "detecciones_totales": 117,
+      "por_clase": {
+        "cr01_neg": 117
+      }
+    },
+    "edir_cr01_spec_bench_obra_val": {
+      "estado": "ok",
+      "experiment_id": "exp_20261031T000424Z_gen2_per02_edir_cr01_spec_bench_obra_val",
+      "media_run_id": "run_20261031_000424_dbe_grounding_dino_ab534b",
+      "media_status": "succeeded",
+      "inicio": "2026-10-31T00:04:24+00:00",
+      "fin": "2026-10-31T00:04:45+00:00",
+      "segundos": 21.0,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/PER-02/gen2_per02_edir_cr01_spec_bench_obra_val/media.yaml",
+      "sha256": {
+        "media_config": "df56e41be3fd0aa9f7569606eae4fda88285e1629514eb0c0cba93a2791ac8cd"
+      },
+      "unidades": 114,
+      "detecciones_totales": 231,
+      "por_clase": {
+        "cr01_spec": 231
+      }
+    },
+    "edir_cr01_obs_bench_obra_val": {
+      "estado": "ok",
+      "experiment_id": "exp_20261031T000445Z_gen2_per02_edir_cr01_obs_bench_obra_val",
+      "media_run_id": "run_20261031_000445_dbe_grounding_dino_46b645",
+      "media_status": "succeeded",
+      "inicio": "2026-10-31T00:04:45+00:00",
+      "fin": "2026-10-31T00:05:06+00:00",
+      "segundos": 21.0,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/PER-02/gen2_per02_edir_cr01_obs_bench_obra_val/media.yaml",
+      "sha256": {
+        "media_config": "3015e4fadc3682eaab9e033b2d29492659e902c6f4ef0342d7fc7717c3b2ff6f"
+      },
+      "unidades": 114,
+      "detecciones_totales": 199,
+      "por_clase": {
+        "cr01_obs": 199
+      }
+    },
+    "edir_cr02_neg_bench_obra_val": {
+      "estado": "ok",
+      "experiment_id": "exp_20261031T000506Z_gen2_per02_edir_cr02_neg_bench_obra_val",
+      "media_run_id": "run_20261031_000506_dbe_grounding_dino_b68e4f",
+      "media_status": "succeeded",
+      "inicio": "2026-10-31T00:05:06+00:00",
+      "fin": "2026-10-31T00:05:27+00:00",
+      "segundos": 21.0,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/PER-02/gen2_per02_edir_cr02_neg_bench_obra_val/media.yaml",
+      "sha256": {
+        "media_config": "5a8df599089873163f9c63abf1595a771221fea0c2a630699a40f86f34e183e8"
+      },
+      "unidades": 114,
+      "detecciones_totales": 120,
+      "por_clase": {
+        "cr02_neg": 120
+      }
+    },
+    "edir_cr02_spec_bench_obra_val": {
+      "estado": "ok",
+      "experiment_id": "exp_20261031T000527Z_gen2_per02_edir_cr02_spec_bench_obra_val",
+      "media_run_id": "run_20261031_000527_dbe_grounding_dino_0367e5",
+      "media_status": "succeeded",
+      "inicio": "2026-10-31T00:05:27+00:00",
+      "fin": "2026-10-31T00:05:48+00:00",
+      "segundos": 21.0,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/PER-02/gen2_per02_edir_cr02_spec_bench_obra_val/media.yaml",
+      "sha256": {
+        "media_config": "fb41ee1484ba9ca6c8e4beccc573d54c972fa34d42607099b94b87e2ef22b838"
+      },
+      "unidades": 114,
+      "detecciones_totales": 195,
+      "por_clase": {
+        "cr02_spec": 195
+      }
+    },
+    "edir_cr02_obs_bench_obra_val": {
+      "estado": "ok",
+      "experiment_id": "exp_20261031T000548Z_gen2_per02_edir_cr02_obs_bench_obra_val",
+      "media_run_id": "run_20261031_000548_dbe_grounding_dino_bd926b",
+      "media_status": "succeeded",
+      "inicio": "2026-10-31T00:05:48+00:00",
+      "fin": "2026-10-31T00:06:09+00:00",
+      "segundos": 21.0,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/PER-02/gen2_per02_edir_cr02_obs_bench_obra_val/media.yaml",
+      "sha256": {
+        "media_config": "b4e978131ee0cf616d38e21368614da40aa27fa8856a60c38efd91ceb0db8579"
+      },
+      "unidades": 114,
+      "detecciones_totales": 131,
+      "por_clase": {
+        "cr02_obs": 131
+      }
+    },
+    "eind_bench_obra_test": {
+      "estado": "ok",
+      "experiment_id": "exp_20261031T000609Z_gen2_per02_eind_bench_obra_test",
+      "media_run_id": "run_20261031_000609_dbe_grounding_dino_89c612",
+      "media_status": "succeeded",
+      "inicio": "2026-10-31T00:06:09+00:00",
+      "fin": "2026-10-31T00:06:24+00:00",
+      "segundos": 15.0,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/PER-02/gen2_per02_eind_bench_obra_test/media.yaml",
+      "sha256": {
+        "media_config": "70a9686ed79334c9cb0ee026e0eb286d89f50475f0a7714c8472e4ccdb0e2795"
+      },
+      "unidades": 82,
+      "detecciones_totales": 324,
+      "por_clase": {
+        "person": 157,
+        "helmet": 108,
+        "vest": 59
+      }
+    },
+    "edir_cr01_neg_bench_obra_test": {
+      "estado": "ok",
+      "experiment_id": "exp_20261031T000624Z_gen2_per02_edir_cr01_neg_bench_obra_test",
+      "media_run_id": "run_20261031_000624_dbe_grounding_dino_9e17c6",
+      "media_status": "succeeded",
+      "inicio": "2026-10-31T00:06:24+00:00",
+      "fin": "2026-10-31T00:06:39+00:00",
+      "segundos": 15.0,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/PER-02/gen2_per02_edir_cr01_neg_bench_obra_test/media.yaml",
+      "sha256": {
+        "media_config": "36ff8e323978beee325ce08046ee48c76dc749179e14bdd761d15c54287be956"
+      },
+      "unidades": 82,
+      "detecciones_totales": 89,
+      "por_clase": {
+        "cr01_neg": 89
+      }
+    },
+    "edir_cr01_spec_bench_obra_test": {
+      "estado": "ok",
+      "experiment_id": "exp_20261031T000639Z_gen2_per02_edir_cr01_spec_bench_obra_test",
+      "media_run_id": "run_20261031_000639_dbe_grounding_dino_e98ad6",
+      "media_status": "succeeded",
+      "inicio": "2026-10-31T00:06:39+00:00",
+      "fin": "2026-10-31T00:06:54+00:00",
+      "segundos": 15.0,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/PER-02/gen2_per02_edir_cr01_spec_bench_obra_test/media.yaml",
+      "sha256": {
+        "media_config": "ff8f9aba9c93620ab496d2dba5ab7a9332a6b22fb7de7835cbe44bafc1329750"
+      },
+      "unidades": 82,
+      "detecciones_totales": 175,
+      "por_clase": {
+        "cr01_spec": 175
+      }
+    },
+    "edir_cr01_obs_bench_obra_test": {
+      "estado": "ok",
+      "experiment_id": "exp_20261031T000654Z_gen2_per02_edir_cr01_obs_bench_obra_test",
+      "media_run_id": "run_20261031_000655_dbe_grounding_dino_a014af",
+      "media_status": "succeeded",
+      "inicio": "2026-10-31T00:06:55+00:00",
+      "fin": "2026-10-31T00:07:10+00:00",
+      "segundos": 15.0,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/PER-02/gen2_per02_edir_cr01_obs_bench_obra_test/media.yaml",
+      "sha256": {
+        "media_config": "1eeee0518eb8054dd15393937be2520e1e08d130259fc3eba977faa693154599"
+      },
+      "unidades": 82,
+      "detecciones_totales": 149,
+      "por_clase": {
+        "cr01_obs": 149
+      }
+    },
+    "edir_cr02_neg_bench_obra_test": {
+      "estado": "ok",
+      "experiment_id": "exp_20261031T000710Z_gen2_per02_edir_cr02_neg_bench_obra_test",
+      "media_run_id": "run_20261031_000710_dbe_grounding_dino_a3173a",
+      "media_status": "succeeded",
+      "inicio": "2026-10-31T00:07:10+00:00",
+      "fin": "2026-10-31T00:07:25+00:00",
+      "segundos": 15.0,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/PER-02/gen2_per02_edir_cr02_neg_bench_obra_test/media.yaml",
+      "sha256": {
+        "media_config": "98bab930402019254c56c5bd872de036957f989a862135b5a50b0f614883d244"
+      },
+      "unidades": 82,
+      "detecciones_totales": 91,
+      "por_clase": {
+        "cr02_neg": 91
+      }
+    },
+    "edir_cr02_spec_bench_obra_test": {
+      "estado": "ok",
+      "experiment_id": "exp_20261031T000725Z_gen2_per02_edir_cr02_spec_bench_obra_test",
+      "media_run_id": "run_20261031_000725_dbe_grounding_dino_f02cad",
+      "media_status": "succeeded",
+      "inicio": "2026-10-31T00:07:25+00:00",
+      "fin": "2026-10-31T00:07:40+00:00",
+      "segundos": 15.0,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/PER-02/gen2_per02_edir_cr02_spec_bench_obra_test/media.yaml",
+      "sha256": {
+        "media_config": "b7585341bdef2a20f1f8bb91317864e12db1f1eb553b4aacab664a8499a5dfe2"
+      },
+      "unidades": 82,
+      "detecciones_totales": 145,
+      "por_clase": {
+        "cr02_spec": 145
+      }
+    },
+    "edir_cr02_obs_bench_obra_test": {
+      "estado": "ok",
+      "experiment_id": "exp_20261031T000740Z_gen2_per02_edir_cr02_obs_bench_obra_test",
+      "media_run_id": "run_20261031_000740_dbe_grounding_dino_eeb1c2",
+      "media_status": "succeeded",
+      "inicio": "2026-10-31T00:07:40+00:00",
+      "fin": "2026-10-31T00:07:55+00:00",
+      "segundos": 15.0,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/PER-02/gen2_per02_edir_cr02_obs_bench_obra_test/media.yaml",
+      "sha256": {
+        "media_config": "cf11320aa7fb04da7875a7434a905ae977c30b3ddc5854ea0dbb872d3caeb8a6"
+      },
+      "unidades": 82,
+      "detecciones_totales": 95,
+      "por_clase": {
+        "cr02_obs": 95
+      }
+    },
+    "eind_shel5k": {
+      "estado": "ok",
+      "experiment_id": "exp_20261031T000755Z_gen2_per02_eind_shel5k",
+      "media_run_id": "run_20261031_000755_dbe_grounding_dino_913841",
+      "media_status": "succeeded",
+      "inicio": "2026-10-31T00:07:55+00:00",
+      "fin": "2026-10-31T00:21:10+00:00",
+      "segundos": 795.5,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/PER-02/gen2_per02_eind_shel5k/media.yaml",
+      "sha256": {
+        "media_config": "cdec5285bfa066232da2554e8f34f6b05ee3b04ef993a53aeb3fd5726fc2ef46"
+      },
+      "unidades": 5000,
+      "detecciones_totales": 40215,
+      "por_clase": {
+        "person": 21426,
+        "helmet": 15909,
+        "vest": 2880
+      }
+    },
+    "edir_cr01_neg_shel5k": {
+      "estado": "ok",
+      "experiment_id": "exp_20261031T002110Z_gen2_per02_edir_cr01_neg_shel5k",
+      "media_run_id": "run_20261031_002110_dbe_grounding_dino_1b1833",
+      "media_status": "succeeded",
+      "inicio": "2026-10-31T00:21:10+00:00",
+      "fin": "2026-10-31T00:34:26+00:00",
+      "segundos": 795.5,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/PER-02/gen2_per02_edir_cr01_neg_shel5k/media.yaml",
+      "sha256": {
+        "media_config": "687144a24ec87007fbeca751a1f8b5afecaa353b8bbd080b769d01b070fb8d01"
+      },
+      "unidades": 5000,
+      "detecciones_totales": 6763,
+      "por_clase": {
+        "cr01_neg": 6763
+      }
+    },
+    "edir_cr01_spec_shel5k": {
+      "estado": "ok",
+      "experiment_id": "exp_20261031T003426Z_gen2_per02_edir_cr01_spec_shel5k",
+      "media_run_id": "run_20261031_003426_dbe_grounding_dino_4466ba",
+      "media_status": "succeeded",
+      "inicio": "2026-10-31T00:34:26+00:00",
+      "fin": "2026-10-31T00:47:50+00:00",
+      "segundos": 804.5,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/PER-02/gen2_per02_edir_cr01_spec_shel5k/media.yaml",
+      "sha256": {
+        "media_config": "0edddbc4ff7d447cca752fde3863c3fac17d780a851b5fdbb0aad589463a447b"
+      },
+      "unidades": 5000,
+      "detecciones_totales": 19544,
+      "por_clase": {
+        "cr01_spec": 19544
+      }
+    },
+    "edir_cr01_obs_shel5k": {
+      "estado": "ok",
+      "experiment_id": "exp_20261031T004750Z_gen2_per02_edir_cr01_obs_shel5k",
+      "media_run_id": "run_20261031_004750_dbe_grounding_dino_95185e",
+      "media_status": "succeeded",
+      "inicio": "2026-10-31T00:47:50+00:00",
+      "fin": "2026-10-31T01:01:12+00:00",
+      "segundos": 801.5,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/PER-02/gen2_per02_edir_cr01_obs_shel5k/media.yaml",
+      "sha256": {
+        "media_config": "dd55deab76f80767d60ae7e51915b6ff1b77d411569cefab1ab498e6b621a96e"
+      },
+      "unidades": 5000,
+      "detecciones_totales": 19632,
+      "por_clase": {
+        "cr01_obs": 19632
+      }
+    }
+  }
+}

@@ -1,0 +1,49 @@
+schema: prueba.gen2.v1
+id: PER-01
+titulo: "Estado por persona en imágenes: E-IND contra E-DIR, gdino-tiny-560"
+informe: ["Tabla 52"]
+fase: F4
+familia: nivel_a
+pregunta: >
+  A nivel persona, ¿la formulación indirecta (E-IND: ausencia de casco/chaleco en la región de la
+  persona) o la directa (E-DIR: frases que describen la violación) determina mejor el estado?
+  Calibración en la mitad A, reporte en la mitad B (pre-registro nucleo/04 §7).
+gen1:
+  result_id: d1_gdinotiny560_edir_vs_eind
+  doc: operacion/83
+  referencia:
+    archivo: results/bench_nivel_a/d1_gdinotiny560_edir_vs_eind/metrics.json
+    nota: se compara el bloque `gate` (F1 E-IND, mejor variante E-DIR, su F1 y la razón) por estrato y condición
+esperado: "Idéntico (mismas imágenes, misma semilla 20260803, mismo scorer)."
+veredictos_posibles: [identico, equivalente_con_diferencia, otra_combinacion]
+config:
+  modelo: grounding-dino/gdino-tiny-560
+  eind: eind_v1 (3 clases en un caption)
+  edir: edir_v1, una corrida por variante (6 frases; las 2 sondas de presencia no entran)
+receta:
+  instancia: mp-gdino-tiny-560
+  modelo: grounding-dino/gdino-tiny-560
+  estratos:
+    - {id: bench_obra_val, imagenes: datasets/raw/construction_site_safety/valid/images, condiciones: [CR-01, CR-02]}
+    - {id: bench_obra_test, imagenes: datasets/raw/construction_site_safety/test/images, condiciones: [CR-01, CR-02]}
+    - {id: shel5k, imagenes: "datasets/raw/shel5k/9rcv8mm682-4/Safety Helmet Wearing Dataset/Images", condiciones: [CR-01]}
+  eind:
+    prompts:
+      set_id: eind_v1
+      fuente: prompts/eind_v1.yaml
+      clases: [person, helmet, vest]
+      frozen: {prompts/eind_v1.yaml: 7a0126f45eb1362a2cfcc67458caa307357dc3f7684188fae6486486cd5ed770}
+  edir:
+    set_id: edir_v1
+    fuente: prompts/edir_v1.yaml
+    frozen: {prompts/edir_v1.yaml: a1278d0c34cd13beb759a1fe10b13c7096f147f7be23154f28a79454b5643703}
+    variantes:
+      - {id: cr01_neg, condicion: CR-01, estrategia: syntactic_negation}
+      - {id: cr01_spec, condicion: CR-01, estrategia: specificity}
+      - {id: cr01_obs, condicion: CR-01, estrategia: observable_state}
+      - {id: cr02_neg, condicion: CR-02, estrategia: syntactic_negation}
+      - {id: cr02_spec, condicion: CR-02, estrategia: specificity}
+      - {id: cr02_obs, condicion: CR-02, estrategia: observable_state}
+  scorer: {seed: 20260803, bootstrap: 1000}
+  timeout_s: 7200
+salida: e-ovrt_experimental-setup/results/gen2/PER-01/

@@ -1,0 +1,5 @@
+[2026-10-31T01:34:52+00:00] python -m tools.evidencia correr F6
+[2026-10-31T01:34:52+00:00] POST /api/platform/instances/mp-gdino-tiny-560/activate
+[2026-10-31T01:35:10+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/RT-02/gen2_rt02_vivo_a_p1_c04/manifest.yaml
+[2026-10-31T01:37:10+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/RT-02/gen2_rt02_relectura_a_p1_c04/manifest.yaml
+[2026-10-31T03:24:26+00:00] veredicto confirmado: identico (equipo E-OVRT-VDP): Coincide con la referencia del pre-registro valor por valor (revisado el 2026-10-31 sobre el zip de results/gen2; doc 134 13.12)

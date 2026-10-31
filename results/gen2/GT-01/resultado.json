@@ -1,0 +1,46 @@
+{
+  "schema": "resultado.gen2.v1",
+  "id": "GT-01",
+  "titulo": "Concordancia entre la marca del operador y el GT corregido",
+  "informe": [
+    "§17.5.7 (limitaciones)",
+    "Anexo E"
+  ],
+  "generado": "2026-10-29T23:32:39+00:00",
+  "familia": "analisis",
+  "estado": "completo",
+  "metricas": {
+    "pares": 33,
+    "sin_episodio_en_gt": 0,
+    "dentro_de_0.5s": 32,
+    "dentro_de_1.0s": 33
+  },
+  "resumen": [
+    {
+      "clave": "dentro_de_0.5s",
+      "nombre": "Marcas del operador a ≤ 0.5 s del inicio en el GT",
+      "valor": "32/33",
+      "unidad": null,
+      "gen1": 32
+    },
+    {
+      "clave": "dentro_de_1.0s",
+      "nombre": "Marcas del operador a ≤ 1.0 s del inicio en el GT",
+      "valor": "33/33",
+      "unidad": null,
+      "gen1": 33
+    }
+  ],
+  "veredicto": {
+    "confirmado": {
+      "valor": "identico",
+      "motivo": "Coincide con la referencia del pre-registro valor por valor (revisado el 2026-10-31 sobre el zip de results/gen2; doc 134 13.12)",
+      "quien": "equipo E-OVRT-VDP",
+      "fecha": "2026-10-31T03:23:44+00:00"
+    },
+    "referencia": "e-ovrt_datasets/datasets/registry/clip_bench.md, L2",
+    "propuesto": "identico",
+    "motivo": "los 4 campos coinciden con la generación 1",
+    "diferencias": {}
+  }
+}

@@ -1,0 +1,23 @@
+run:
+  id: null
+  scenario: DBE
+  name: gen2_alr09_v01_c01
+  description: 'Generación 2, ALR-09: Obra real a 800 px: gdino-tiny con caja 0,35,
+    escena y sujeto — v01_c01'
+input:
+  type: media_jsonl
+  path: (la completa el runner de la consola)
+patterns:
+  file: $EOVRT_WORKSPACE/e-ovrt_control-plane/configs/patterns/cr01_cr02_v2.yaml
+  active_ids:
+  - CR-01
+  - CR-02
+outputs:
+  base_dir: $EOVRT_WORKSPACE/e-ovrt_control-plane/runs
+  save_pattern_events_jsonl: true
+  save_alerts_jsonl: true
+  save_metrics_jsonl: true
+  save_errors_jsonl: true
+  save_summary_json: true
+logging:
+  level: WARNING

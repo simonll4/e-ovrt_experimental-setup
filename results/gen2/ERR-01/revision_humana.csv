@@ -1,0 +1,32 @@
+n,imagen,condicion,es_persona,epp_visible,nota,propuesta_ia_es_persona,propuesta_ia_epp_visible,razon_ia,revisado_por_persona
+1,revision_ciega/001.png,CR-01,si,si,,si,no,"Operador en la cabina de la cargadora; la cabeza se ve descubierta, sin casco.",si
+2,revision_ciega/002.png,CR-02,no,,,no,,"La caja enmarca el interior de la cabina al lado del operador, que queda fuera de la caja.",si
+3,revision_ciega/003.png,CR-01,si,si,,si,si,Casco con ala visible sobre la cabeza de la persona que camina.,si
+4,revision_ciega/004.png,CR-01,si,si,,si,si,"Casco blanco puesto, visible sobre la cabeza.",si
+5,revision_ciega/005.png,CR-01,si,si,,si,si,Operador de la barredora con casco claro puesto.,si
+6,revision_ciega/006.png,CR-01,no,,,no,,La caja enmarca el borde de una máquina (luz trasera y carrocería) en el límite del cuadro.,si
+7,revision_ciega/007.png,CR-02,si,si,,si,si,Prenda amarilla flúor de alta visibilidad puesta en el torso.,si
+8,revision_ciega/008.png,CR-01,si,si,,si,si,Operador del rodillo inclinado; sobre la cabeza se distingue un casco oscuro con calcomanías claras.,si
+9,revision_ciega/009.png,CR-01,si,no_se_puede,,si,no_se_puede,Persona casi tapada por una columna; la cabeza se ve muy chica y no se distingue si hay casco.,si
+10,revision_ciega/010.png,CR-01,si,si,,si,si,Operador del rodillo inclinado hacia adelante; se ve un casco sobre la cabeza.,si
+11,revision_ciega/011.png,CR-01,no,,,no,,"La caja enmarca un compactador vibratorio y una vara, junto a un trabajador que queda afuera.",si
+12,revision_ciega/012.png,CR-02,si,si,,si,si,Chaleco naranja con bandas reflectivas puesto sobre la remera.,si
+13,revision_ciega/013.png,CR-02,si,si,,si,si,Chaleco naranja con bandas reflectivas sobre el torso del operador del rodillo.,si
+14,revision_ciega/014.png,CR-01,no,,,no,,"La caja cae sobre la columna entre el operario y su reflejo en el vidrio, no sobre una persona.",si
+15,revision_ciega/015.png,CR-01,no,,,no,,"La caja enmarca la parte trasera de un auto y un cono, con reflejos de luces; no se ve una persona.",si
+16,revision_ciega/016.png,CR-01,no,,,no,,La caja enmarca un tacho de basura con un balde naranja encima.,si
+17,revision_ciega/017.png,CR-02,si,si,,si,si,Persona cortada por el borde inferior; se ve el chaleco amarillo flúor sobre los hombros.,si
+18,revision_ciega/018.png,CR-01,si,si,,si,si,"Casco blanco puesto, visible sobre la cabeza.",si
+19,revision_ciega/019.png,CR-02,si,si,,si,si,"De noche, se ve el chaleco naranja con banda reflectiva sobre el torso.",si
+20,revision_ciega/020.png,CR-02,si,si,,si,si,Chaleco amarillo flúor con bandas visibles sobre el torso; la persona está en el borde del cuadro.,si
+21,revision_ciega/021.png,CR-01,si,si,,si,si,Casco blanco puesto; la persona queda tapada de la cintura para abajo por un generador.,si
+22,revision_ciega/022.png,CR-02,si,si,"Se ve puesto, pero la caja roja terminó marcando un poco más allá a la izquierda del centro de la persona",si,si,Prenda naranja de alta visibilidad con bandas reflectivas sobre el torso.,si
+23,revision_ciega/023.png,CR-01,no,,,no,,La caja enmarca un balde y herramientas al lado de un trabajador que queda afuera.,si
+24,revision_ciega/024.png,CR-01,si,si,,si,si,Operador de la barredora con casco oscuro puesto.,si
+25,revision_ciega/025.png,CR-01,no,,,no,,"La caja enmarca el aparejo del equipo de izaje, al lado del trabajador.",si
+26,revision_ciega/026.png,CR-02,si,si,,si,si,Persona cortada por el borde izquierdo; se ve el chaleco naranja con bandas reflectivas.,si
+27,revision_ciega/027.png,CR-02,si,si,,si,si,Operador en la cabina con prenda naranja de alta visibilidad sobre los hombros.,si
+28,revision_ciega/028.png,CR-02,si,no_se_puede,,si,no_se_puede,Persona chica con arnés; el torso se ve claro y no se distingue si la prenda es de alta visibilidad.,si
+29,revision_ciega/029.png,CR-02,no,,,no,,La caja enmarca un semáforo.,si
+30,revision_ciega/030.png,CR-01,si,no_se_puede,,si,no_se_puede,"De noche, persona cortada por el borde derecho; la cabeza no se ve.",si
+31,revision_ciega/031.png,CR-02,si,no_se_puede,,si,no,Torso con campera oscura y arnés; no se ve chaleco de alta visibilidad.,si

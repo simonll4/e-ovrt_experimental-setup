@@ -1,0 +1,50 @@
+{
+  "tipo": "fusion",
+  "clips": [
+    "a_p1_c02",
+    "a_p1_c03",
+    "a_p1_c04",
+    "a_p1_c05",
+    "a_p1_c06",
+    "a_p1_c07",
+    "a_p1_c08",
+    "a_p1_c09",
+    "a_p1_c10",
+    "a_p1_c11",
+    "a_p1_c12",
+    "a_p2_c01",
+    "a_p2_c02",
+    "a_p2_c03",
+    "a_p2_c04",
+    "a_p2_c05",
+    "a_p3_c01",
+    "a_p3_c02",
+    "a_p4_c01",
+    "a_p4_c02",
+    "a_p5_c01",
+    "a_p5_c02",
+    "a_p6_c01",
+    "a_p6_c02",
+    "a_p7_c01",
+    "a_p7_c02",
+    "a_p7_c03",
+    "a_p7_c04",
+    "a_p8_c01",
+    "a_p9_c01",
+    "a_p9_c02",
+    "a_p9_c03",
+    "a_p9_c06",
+    "a_p9_c08"
+  ],
+  "prompts": null,
+  "modelo_cargado": null,
+  "control": {
+    "patrones": "cr01_cr02_hyb_or_v1",
+    "activos": [
+      "CR-01",
+      "CR-02"
+    ]
+  },
+  "variantes": [],
+  "stride": 1
+}

@@ -1,0 +1,28 @@
+ingest:
+  plugin: video_file
+  config:
+    path: /e-ovrt_datasets/datasets/raw/clip_bench/clips/a_p1_c02.mp4
+    source_id: a_p1_c02
+prompts:
+  set_inline:
+    id: cr01_cr02_v2_short
+    classes:
+    - id: person
+      phrasings:
+        default:
+        - person
+    - id: helmet
+      phrasings:
+        default:
+        - helmet
+    - id: vest
+      phrasings:
+        default:
+        - vest
+  active_ids:
+  - person
+  - helmet
+  - vest
+run:
+  name: gen2_alr03_a_p1_c02
+  save_previews: false

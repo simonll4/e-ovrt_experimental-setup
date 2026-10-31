@@ -1,0 +1,141 @@
+{
+  "schema": "resultado.gen2.v1",
+  "id": "ALR-07",
+  "titulo": "Obra real (estrato B, 13 clips de internet), escena (I1)",
+  "informe": [
+    "Tabla 53",
+    "§17.5.4"
+  ],
+  "generado": "2026-10-30T09:07:47+00:00",
+  "familia": "clips",
+  "corridas": {
+    "total": 13,
+    "ok": 13
+  },
+  "pendientes": [],
+  "estado": "completo",
+  "metricas": {
+    "episodes_total": 2,
+    "episodes_censored": 0,
+    "episodes_evaluable": 2,
+    "matched": 1,
+    "missed": 1,
+    "false_positives": 3,
+    "re_alerts": 0,
+    "sub_threshold": 0,
+    "recall_micro": 0.5,
+    "precision_micro": 0.25,
+    "f1_micro": 0.333333,
+    "neg_false_positives": 26
+  },
+  "resumen": [
+    {
+      "clave": "f1",
+      "nombre": "F1 por episodio (micro)",
+      "valor": 0.333333,
+      "unidad": null,
+      "gen1": 0.333333
+    },
+    {
+      "clave": "precision",
+      "nombre": "Precisión",
+      "valor": 0.25,
+      "unidad": null,
+      "gen1": 0.25
+    },
+    {
+      "clave": "recall",
+      "nombre": "Recall",
+      "valor": 0.5,
+      "unidad": null,
+      "gen1": 0.5
+    },
+    {
+      "clave": "episodios_evaluables",
+      "nombre": "Episodios evaluables",
+      "valor": 2,
+      "unidad": null,
+      "gen1": 2
+    },
+    {
+      "clave": "aciertos",
+      "nombre": "Alertas que acertaron un episodio",
+      "valor": 1,
+      "unidad": null,
+      "gen1": 1
+    },
+    {
+      "clave": "perdidos",
+      "nombre": "Episodios sin alerta",
+      "valor": 1,
+      "unidad": null,
+      "gen1": 1
+    },
+    {
+      "clave": "falsas_alarmas_en_positivos",
+      "nombre": "Falsas alarmas en clips con episodios",
+      "valor": 3,
+      "unidad": null,
+      "gen1": 3
+    },
+    {
+      "clave": "falsas_alarmas",
+      "nombre": "Falsas alarmas en clips sin infracción",
+      "valor": 26,
+      "unidad": null,
+      "gen1": 26
+    },
+    {
+      "clave": "re_alertas",
+      "nombre": "Re-alertas (no son falsas alarmas)",
+      "valor": 0,
+      "unidad": null,
+      "gen1": 0
+    },
+    {
+      "clave": "t_alert_s",
+      "nombre": "Tiempo hasta la alerta desde el inicio del episodio",
+      "valor": 4.0,
+      "unidad": "s",
+      "gen1": null
+    },
+    {
+      "clave": "ttfd_ms",
+      "nombre": "Tiempo hasta la primera detección",
+      "valor": 16.5,
+      "unidad": "ms",
+      "gen1": null
+    },
+    {
+      "clave": "sdr",
+      "nombre": "Proporción de detección sostenida (SDR)",
+      "valor": 0.959496,
+      "unidad": null,
+      "gen1": null
+    }
+  ],
+  "veredicto": {
+    "confirmado": {
+      "valor": "identico",
+      "motivo": "Coincide con la referencia del pre-registro valor por valor (revisado el 2026-10-31 sobre el zip de results/gen2; doc 134 13.12)",
+      "quien": "equipo E-OVRT-VDP",
+      "fecha": "2026-10-31T03:23:59+00:00"
+    },
+    "referencia": "docs/operacion/datos/134-piloto-gt02-sensibilidad-bordes/gt02_todas_gt_corregido.json (I1)",
+    "propuesto": "identico",
+    "motivo": "los 12 campos coinciden con la generación 1",
+    "diferencias": {}
+  },
+  "por_clip_vs_gen1_publicada": {
+    "campos": [
+      "matched_alerts_count",
+      "missed_alerts_count",
+      "unexpected_alerts_count",
+      "re_alerts_count",
+      "avg_latency_ms_from_episode_start"
+    ],
+    "iguales": 13,
+    "distintos": [],
+    "distintos_sin_gt_corregido": []
+  }
+}

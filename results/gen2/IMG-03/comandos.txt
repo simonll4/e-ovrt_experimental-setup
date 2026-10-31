@@ -1,0 +1,7 @@
+[2026-10-30T22:41:25+00:00] python -m tools.evidencia correr F4
+[2026-10-30T22:41:25+00:00] POST /api/platform/instances/mp-yoloe-26x/activate
+[2026-10-30T22:42:01+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/IMG-03/gen2_img03_obra_test/manifest.yaml
+[2026-10-30T22:42:10+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/IMG-03/gen2_img03_obra_val/manifest.yaml
+[2026-10-30T22:42:19+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/IMG-03/gen2_img03_chv/manifest.yaml
+[2026-10-30T22:43:40+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/IMG-03/gen2_img03_shel5k/manifest.yaml
+[2026-10-31T03:24:18+00:00] veredicto confirmado: identico (equipo E-OVRT-VDP): Coincide con la referencia del pre-registro valor por valor (revisado el 2026-10-31 sobre el zip de results/gen2; doc 134 13.12)

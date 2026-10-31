@@ -1,0 +1,28 @@
+ingest:
+  plugin: video_file
+  config:
+    path: /e-ovrt_datasets/datasets/raw/clip_bench/clips/a_p1_c02.mp4
+    source_id: a_p1_c02
+prompts:
+  set_inline:
+    id: edir_v1_pair_nivel_b
+    classes:
+    - id: person
+      phrasings:
+        default:
+        - person
+    - id: cr01_spec
+      phrasings:
+        default:
+        - construction worker without safety helmet
+    - id: cr02_obs
+      phrasings:
+        default:
+        - person without bright colored safety clothing
+  active_ids:
+  - person
+  - cr01_spec
+  - cr02_obs
+run:
+  name: gen2_alr04_a_p1_c02
+  save_previews: false

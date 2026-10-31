@@ -1,0 +1,55 @@
+{
+  "schema": "resultado.gen2.v1",
+  "id": "DIST-01",
+  "titulo": "Canal de distribución: alerta → PUBACK MQTT QoS 1",
+  "informe": [
+    "Tabla 54",
+    "§17.5.5"
+  ],
+  "generado": "2026-10-31T01:34:29+00:00",
+  "familia": "vivo",
+  "estado": "completo",
+  "metricas": {
+    "corridas": 298,
+    "entregadas": 339,
+    "suprimidas": 347,
+    "p50_ms": 14.687,
+    "p95_ms": 22.887,
+    "primeras_p95_ms": 15.905
+  },
+  "resumen": [
+    {
+      "clave": "p95_ms",
+      "nombre": "Alerta → PUBACK MQTT QoS 1, p95 (todas las entregas)",
+      "valor": 22.887,
+      "unidad": "ms",
+      "gen1": 64.534
+    },
+    {
+      "clave": "primeras_p95_ms",
+      "nombre": "Primera entrega de cada corrida, p95",
+      "valor": 15.905,
+      "unidad": "ms",
+      "gen1": 49.9
+    },
+    {
+      "clave": "entregadas",
+      "nombre": "Notificaciones entregadas",
+      "valor": 339,
+      "unidad": null,
+      "gen1": 460
+    }
+  ],
+  "veredicto": {
+    "confirmado": {
+      "valor": "otra_combinacion",
+      "motivo": "Otro broker (mosquitto) y otro corpus (corridas de la gen 2): p95 22,9 ms en 339 entregas",
+      "quien": "equipo E-OVRT-VDP",
+      "fecha": "2026-10-31T03:24:41+00:00"
+    },
+    "referencia": null,
+    "propuesto": "otra_combinacion",
+    "motivo": "Corpus distinto: la generación 1 usó 413 corridas de julio–agosto (460 entregas, p95 64,5 ms con amqtt y el ledger en ext4); acá el corpus son las corridas de control de las pruebas de alerta y densidad del campeón (ALR-01/02/07/08, DEN-01…06; los contrastes no agregan un camino de distribución distinto), con mosquitto y el ledger en el disco del contenedor (doc 133 §3.4: en el bind mount de Windows una ráfaga llega a 1,6 s).\n",
+    "diferencias": {}
+  }
+}

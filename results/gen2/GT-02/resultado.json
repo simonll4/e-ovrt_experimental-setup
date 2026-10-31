@@ -1,0 +1,161 @@
+{
+  "schema": "resultado.gen2.v1",
+  "id": "GT-02",
+  "titulo": "Sensibilidad de cada conclusión a los bordes de la referencia",
+  "informe": [
+    "§17.5.7 (limitaciones)"
+  ],
+  "generado": "2026-10-31T01:23:59+00:00",
+  "familia": "analisis",
+  "estado": "completo",
+  "metricas": {
+    "J500.C1_G1>T1": 0.9174,
+    "J500.C2_T1>=T2": 1.0,
+    "J500.C3_D1_prec<0.5": 1.0,
+    "J500.C4_T1>H1": 1.0,
+    "J500.C5_T1>B1": 1.0,
+    "J500.C6_R2>R1": 1.0,
+    "J500.C6_R4>R3": 1.0,
+    "J500.C6_R6>R5": 1.0,
+    "J500.C7_T1>=R1": 0.9822,
+    "J500.C7_R1>R3": 0.7312,
+    "J500.C7_R3>R5": 1.0,
+    "J500.C8_I1_FPneg<I2_FPneg": 1.0,
+    "J1000.C1_G1>T1": 0.7668,
+    "J1000.C2_T1>=T2": 0.9998,
+    "J1000.C3_D1_prec<0.5": 1.0,
+    "J1000.C4_T1>H1": 1.0,
+    "J1000.C5_T1>B1": 1.0,
+    "J1000.C6_R2>R1": 0.9872,
+    "J1000.C6_R4>R3": 0.9976,
+    "J1000.C6_R6>R5": 1.0,
+    "J1000.C7_T1>=R1": 0.646,
+    "J1000.C7_R1>R3": 0.7726,
+    "J1000.C7_R3>R5": 0.9926,
+    "J1000.C8_I1_FPneg<I2_FPneg": 1.0,
+    "J2000.C1_G1>T1": 0.6502,
+    "J2000.C2_T1>=T2": 0.9994,
+    "J2000.C3_D1_prec<0.5": 1.0,
+    "J2000.C4_T1>H1": 1.0,
+    "J2000.C5_T1>B1": 1.0,
+    "J2000.C6_R2>R1": 0.8838,
+    "J2000.C6_R4>R3": 0.933,
+    "J2000.C6_R6>R5": 1.0,
+    "J2000.C7_T1>=R1": 0.744,
+    "J2000.C7_R1>R3": 0.8422,
+    "J2000.C7_R3>R5": 0.6106,
+    "J2000.C8_I1_FPneg<I2_FPneg": 1.0
+  },
+  "resumen": [
+    {
+      "clave": "C1_G1>T1",
+      "nombre": "Fracción de referencias simuladas (±0,5 s) en que se sostiene C1_G1>T1",
+      "valor": 0.9174,
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "C2_T1>=T2",
+      "nombre": "Fracción de referencias simuladas (±0,5 s) en que se sostiene C2_T1>=T2",
+      "valor": 1.0,
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "C3_D1_prec<0.5",
+      "nombre": "Fracción de referencias simuladas (±0,5 s) en que se sostiene C3_D1_prec<0.5",
+      "valor": 1.0,
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "C4_T1>H1",
+      "nombre": "Fracción de referencias simuladas (±0,5 s) en que se sostiene C4_T1>H1",
+      "valor": 1.0,
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "C5_T1>B1",
+      "nombre": "Fracción de referencias simuladas (±0,5 s) en que se sostiene C5_T1>B1",
+      "valor": 1.0,
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "C6_R2>R1",
+      "nombre": "Fracción de referencias simuladas (±0,5 s) en que se sostiene C6_R2>R1",
+      "valor": 1.0,
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "C6_R4>R3",
+      "nombre": "Fracción de referencias simuladas (±0,5 s) en que se sostiene C6_R4>R3",
+      "valor": 1.0,
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "C6_R6>R5",
+      "nombre": "Fracción de referencias simuladas (±0,5 s) en que se sostiene C6_R6>R5",
+      "valor": 1.0,
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "C7_T1>=R1",
+      "nombre": "Fracción de referencias simuladas (±0,5 s) en que se sostiene C7_T1>=R1",
+      "valor": 0.9822,
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "C7_R1>R3",
+      "nombre": "Fracción de referencias simuladas (±0,5 s) en que se sostiene C7_R1>R3",
+      "valor": 0.7312,
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "C7_R3>R5",
+      "nombre": "Fracción de referencias simuladas (±0,5 s) en que se sostiene C7_R3>R5",
+      "valor": 1.0,
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "C8_I1_FPneg<I2_FPneg",
+      "nombre": "Fracción de referencias simuladas (±0,5 s) en que se sostiene C8_I1_FPneg<I2_FPneg",
+      "valor": 1.0,
+      "unidad": null,
+      "gen1": null
+    }
+  ],
+  "conclusiones_base": {
+    "C1_G1>T1": true,
+    "C2_T1>=T2": true,
+    "C3_D1_prec<0.5": true,
+    "C4_T1>H1": true,
+    "C5_T1>B1": true,
+    "C6_R2>R1": true,
+    "C6_R4>R3": true,
+    "C6_R6>R5": true,
+    "C7_T1>=R1": true,
+    "C7_R1>R3": true,
+    "C7_R3>R5": true,
+    "C8_I1_FPneg<I2_FPneg": true
+  },
+  "veredicto": {
+    "confirmado": {
+      "valor": "otra_combinacion",
+      "motivo": "Corre sobre las alertas de la gen 2; V1 ok en las 14 series; fracciones identicas al piloto con el GT corregido salvo C2, que sube",
+      "quien": "equipo E-OVRT-VDP",
+      "fecha": "2026-10-31T03:24:39+00:00"
+    },
+    "referencia": null,
+    "propuesto": "otra_combinacion",
+    "motivo": "El piloto 134 corrió sobre las alertas de la generación 1; acá corre sobre las de la generación 2. Mismo arnés, misma semilla y mismo número de réplicas.\n",
+    "diferencias": {}
+  }
+}

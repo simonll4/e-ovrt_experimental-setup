@@ -1,0 +1,294 @@
+{
+  "schema": "resultado.gen2.v1",
+  "id": "ALR-03",
+  "titulo": "Alerta por episodio, escena, gdino-base-560 (T2)",
+  "informe": [
+    "Tabla 53",
+    "§17.5.4"
+  ],
+  "generado": "2026-10-30T05:30:29+00:00",
+  "familia": "clips",
+  "corridas": {
+    "total": 34,
+    "ok": 34
+  },
+  "pendientes": [],
+  "estado": "completo",
+  "metricas": {
+    "episodes_total": 33,
+    "episodes_censored": 0,
+    "episodes_evaluable": 33,
+    "matched": 24,
+    "missed": 9,
+    "false_positives": 14,
+    "re_alerts": 2,
+    "sub_threshold": 0,
+    "recall_micro": 0.727273,
+    "precision_micro": 0.631579,
+    "f1_micro": 0.676056,
+    "neg_false_positives": 0
+  },
+  "resumen": [
+    {
+      "clave": "f1",
+      "nombre": "F1 por episodio (micro)",
+      "valor": 0.676056,
+      "unidad": null,
+      "gen1": 0.714286
+    },
+    {
+      "clave": "precision",
+      "nombre": "Precisión",
+      "valor": 0.631579,
+      "unidad": null,
+      "gen1": 0.675676
+    },
+    {
+      "clave": "recall",
+      "nombre": "Recall",
+      "valor": 0.727273,
+      "unidad": null,
+      "gen1": 0.757576
+    },
+    {
+      "clave": "episodios_evaluables",
+      "nombre": "Episodios evaluables",
+      "valor": 33,
+      "unidad": null,
+      "gen1": 33
+    },
+    {
+      "clave": "aciertos",
+      "nombre": "Alertas que acertaron un episodio",
+      "valor": 24,
+      "unidad": null,
+      "gen1": 25
+    },
+    {
+      "clave": "perdidos",
+      "nombre": "Episodios sin alerta",
+      "valor": 9,
+      "unidad": null,
+      "gen1": 8
+    },
+    {
+      "clave": "falsas_alarmas_en_positivos",
+      "nombre": "Falsas alarmas en clips con episodios",
+      "valor": 14,
+      "unidad": null,
+      "gen1": 12
+    },
+    {
+      "clave": "falsas_alarmas",
+      "nombre": "Falsas alarmas en clips sin infracción",
+      "valor": 0,
+      "unidad": null,
+      "gen1": 0
+    },
+    {
+      "clave": "re_alertas",
+      "nombre": "Re-alertas (no son falsas alarmas)",
+      "valor": 2,
+      "unidad": null,
+      "gen1": 2
+    },
+    {
+      "clave": "t_alert_s",
+      "nombre": "Tiempo hasta la alerta desde el inicio del episodio",
+      "valor": 4.999,
+      "unidad": "s",
+      "gen1": null
+    },
+    {
+      "clave": "ttfd_ms",
+      "nombre": "Tiempo hasta la primera detección",
+      "valor": 248.9935,
+      "unidad": "ms",
+      "gen1": null
+    },
+    {
+      "clave": "sdr",
+      "nombre": "Proporción de detección sostenida (SDR)",
+      "valor": 0.810573,
+      "unidad": null,
+      "gen1": null
+    }
+  ],
+  "veredicto": {
+    "confirmado": {
+      "valor": "otra_combinacion",
+      "motivo": "base-560 carga su cabeza de cajas entrenada desde el 10-30 (doc 134 13.10 y 13.11); la gen 1 corria sin ella. El pre-registro lo esperaba; faltaba la clave gen1.relacion",
+      "quien": "equipo E-OVRT-VDP",
+      "fecha": "2026-10-30T21:37:48+00:00"
+    },
+    "referencia": "docs/operacion/datos/134-piloto-gt02-sensibilidad-bordes/gt02_todas_gt_corregido.json (T2)",
+    "propuesto": "a_revisar",
+    "motivo": "difiere de la generación 1 y el pre-registro no declara una causa: lo revisa una persona",
+    "diferencias": {
+      "matched": {
+        "gen2": 24,
+        "gen1": 25
+      },
+      "missed": {
+        "gen2": 9,
+        "gen1": 8
+      },
+      "false_positives": {
+        "gen2": 14,
+        "gen1": 12
+      },
+      "recall_micro": {
+        "gen2": 0.727273,
+        "gen1": 0.757576
+      },
+      "precision_micro": {
+        "gen2": 0.631579,
+        "gen1": 0.675676
+      },
+      "f1_micro": {
+        "gen2": 0.676056,
+        "gen1": 0.714286
+      }
+    }
+  },
+  "por_clip_vs_gen1_publicada": {
+    "campos": [
+      "matched_alerts_count",
+      "missed_alerts_count",
+      "unexpected_alerts_count",
+      "re_alerts_count",
+      "avg_latency_ms_from_episode_start"
+    ],
+    "iguales": 24,
+    "distintos": [
+      {
+        "clip": "a_p1_c07",
+        "gt_corregido": false,
+        "diferencias": {
+          "avg_latency_ms_from_episode_start": [
+            4200.0,
+            4100.0
+          ]
+        }
+      },
+      {
+        "clip": "a_p1_c11",
+        "gt_corregido": false,
+        "diferencias": {
+          "unexpected_alerts_count": [
+            1,
+            0
+          ]
+        }
+      },
+      {
+        "clip": "a_p2_c01",
+        "gt_corregido": true,
+        "diferencias": {
+          "avg_latency_ms_from_episode_start": [
+            8133.67,
+            6767.0
+          ]
+        }
+      },
+      {
+        "clip": "a_p2_c02",
+        "gt_corregido": true,
+        "diferencias": {
+          "avg_latency_ms_from_episode_start": [
+            8000.33,
+            6533.33
+          ]
+        }
+      },
+      {
+        "clip": "a_p4_c01",
+        "gt_corregido": false,
+        "diferencias": {
+          "avg_latency_ms_from_episode_start": [
+            4199.67,
+            4066.33
+          ]
+        }
+      },
+      {
+        "clip": "a_p6_c01",
+        "gt_corregido": false,
+        "diferencias": {
+          "avg_latency_ms_from_episode_start": [
+            5433.5,
+            5400.17
+          ]
+        }
+      },
+      {
+        "clip": "a_p6_c02",
+        "gt_corregido": false,
+        "diferencias": {
+          "avg_latency_ms_from_episode_start": [
+            5400.0,
+            5383.335
+          ]
+        }
+      },
+      {
+        "clip": "a_p7_c02",
+        "gt_corregido": true,
+        "diferencias": {
+          "unexpected_alerts_count": [
+            2,
+            1
+          ]
+        }
+      },
+      {
+        "clip": "a_p7_c03",
+        "gt_corregido": true,
+        "diferencias": {
+          "missed_alerts_count": [
+            0,
+            1
+          ],
+          "unexpected_alerts_count": [
+            0,
+            1
+          ],
+          "re_alerts_count": [
+            1,
+            0
+          ]
+        }
+      },
+      {
+        "clip": "a_p9_c06",
+        "gt_corregido": false,
+        "diferencias": {
+          "matched_alerts_count": [
+            0,
+            1
+          ],
+          "missed_alerts_count": [
+            1,
+            0
+          ],
+          "unexpected_alerts_count": [
+            1,
+            0
+          ],
+          "avg_latency_ms_from_episode_start": [
+            null,
+            5833.33
+          ]
+        }
+      }
+    ],
+    "distintos_sin_gt_corregido": [
+      "a_p1_c07",
+      "a_p1_c11",
+      "a_p4_c01",
+      "a_p6_c01",
+      "a_p6_c02",
+      "a_p9_c06"
+    ]
+  }
+}

@@ -1,0 +1,228 @@
+{
+  "schema": "resultado.gen2.v1",
+  "id": "DEN-07",
+  "titulo": "Ganancia por identidad y costo de la densidad, con remuestreo pareado por clip",
+  "informe": [
+    "Tabla 54 (fila «Identidad», F-96.4)",
+    "§17.5.5"
+  ],
+  "generado": "2026-10-31T01:15:29+00:00",
+  "familia": "analisis",
+  "estado": "completo",
+  "metricas": {
+    "R1−T1.obs": -0.094311,
+    "R1−T1.excluye_0": false,
+    "R3−T1.obs": -0.12183,
+    "R3−T1.excluye_0": false,
+    "R5−T1.obs": -0.225195,
+    "R5−T1.excluye_0": true,
+    "R2−G1.obs": -0.067781,
+    "R2−G1.excluye_0": false,
+    "R4−G1.obs": -0.086051,
+    "R4−G1.excluye_0": false,
+    "R6−G1.obs": -0.221131,
+    "R6−G1.excluye_0": true,
+    "R2−T1.obs": -0.00981,
+    "R2−T1.excluye_0": false,
+    "G1−T1.obs": 0.057971,
+    "G1−T1.excluye_0": false,
+    "R2−R1.obs": 0.084501,
+    "R2−R1.excluye_0": true,
+    "R4−R3.obs": 0.09375,
+    "R4−R3.excluye_0": false,
+    "R6−R5.obs": 0.062035,
+    "R6−R5.excluye_0": true
+  },
+  "resumen": [
+    {
+      "clave": "R1−T1",
+      "nombre": "ΔF1 R1−T1",
+      "valor": -0.094,
+      "unidad": null,
+      "ic95": [
+        -0.204,
+        0.018
+      ],
+      "excluye_0": false,
+      "gen1": 0.005385
+    },
+    {
+      "clave": "R3−T1",
+      "nombre": "ΔF1 R3−T1",
+      "valor": -0.122,
+      "unidad": null,
+      "ic95": [
+        -0.242,
+        0.0
+      ],
+      "excluye_0": false,
+      "gen1": -0.050271
+    },
+    {
+      "clave": "R5−T1",
+      "nombre": "ΔF1 R5−T1",
+      "valor": -0.225,
+      "unidad": null,
+      "ic95": [
+        -0.393,
+        -0.049
+      ],
+      "excluye_0": true,
+      "gen1": -0.142579
+    },
+    {
+      "clave": "R2−G1",
+      "nombre": "ΔF1 R2−G1",
+      "valor": -0.068,
+      "unidad": null,
+      "ic95": [
+        -0.183,
+        0.046
+      ],
+      "excluye_0": false,
+      "gen1": -0.063906
+    },
+    {
+      "clave": "R4−G1",
+      "nombre": "ΔF1 R4−G1",
+      "valor": -0.086,
+      "unidad": null,
+      "ic95": [
+        -0.2,
+        0.028
+      ],
+      "excluye_0": false,
+      "gen1": -0.054577
+    },
+    {
+      "clave": "R6−G1",
+      "nombre": "ΔF1 R6−G1",
+      "valor": -0.221,
+      "unidad": null,
+      "ic95": [
+        -0.375,
+        -0.072
+      ],
+      "excluye_0": true,
+      "gen1": -0.187642
+    },
+    {
+      "clave": "R2−T1",
+      "nombre": "ΔF1 R2−T1",
+      "valor": -0.01,
+      "unidad": null,
+      "ic95": [
+        -0.158,
+        0.143
+      ],
+      "excluye_0": false,
+      "gen1": 0.076939
+    },
+    {
+      "clave": "G1−T1",
+      "nombre": "ΔF1 G1−T1",
+      "valor": 0.058,
+      "unidad": null,
+      "ic95": [
+        -0.045,
+        0.163
+      ],
+      "excluye_0": false,
+      "gen1": 0.140845
+    },
+    {
+      "clave": "R2−R1",
+      "nombre": "ΔF1 R2−R1",
+      "valor": 0.085,
+      "unidad": null,
+      "ic95": [
+        0.005,
+        0.179
+      ],
+      "excluye_0": true,
+      "gen1": 0.071554
+    },
+    {
+      "clave": "R4−R3",
+      "nombre": "ΔF1 R4−R3",
+      "valor": 0.094,
+      "unidad": null,
+      "ic95": [
+        0.0,
+        0.204
+      ],
+      "excluye_0": false,
+      "gen1": 0.136538
+    },
+    {
+      "clave": "R6−R5",
+      "nombre": "ΔF1 R6−R5",
+      "valor": 0.062,
+      "unidad": null,
+      "ic95": [
+        0.011,
+        0.134
+      ],
+      "excluye_0": true,
+      "gen1": 0.095782
+    }
+  ],
+  "clips_apareados": 30,
+  "veredicto": {
+    "confirmado": {
+      "valor": "equivalente_con_diferencia",
+      "motivo": "GT corregido (10-26): G1-T1 baja de +0,141 a +0,058 y no excluye el cero; R4-R3 tampoco (IC 0,000 a 0,204); R2-R1 y R6-R5 si",
+      "quien": "equipo E-OVRT-VDP",
+      "fecha": "2026-10-31T03:24:45+00:00"
+    },
+    "referencia": "docs/operacion/datos/96-critica-verificacion.json (GT anterior)",
+    "propuesto": "equivalente_con_diferencia",
+    "motivo": "La generación 1 se calculó contra el GT anterior; con el GT corregido cambian T1 (0,789 → 0,841) y G1 (0,930 → 0,899), así que los deltas no pueden coincidir. Se comparan al lado.\n",
+    "diferencias": {
+      "R1−T1.obs": {
+        "gen2": -0.094311,
+        "gen1": 0.005385
+      },
+      "R3−T1.obs": {
+        "gen2": -0.12183,
+        "gen1": -0.050271
+      },
+      "R5−T1.obs": {
+        "gen2": -0.225195,
+        "gen1": -0.142579
+      },
+      "R2−G1.obs": {
+        "gen2": -0.067781,
+        "gen1": -0.063906
+      },
+      "R4−G1.obs": {
+        "gen2": -0.086051,
+        "gen1": -0.054577
+      },
+      "R6−G1.obs": {
+        "gen2": -0.221131,
+        "gen1": -0.187642
+      },
+      "R2−T1.obs": {
+        "gen2": -0.00981,
+        "gen1": 0.076939
+      },
+      "G1−T1.obs": {
+        "gen2": 0.057971,
+        "gen1": 0.140845
+      },
+      "R2−R1.obs": {
+        "gen2": 0.084501,
+        "gen1": 0.071554
+      },
+      "R4−R3.obs": {
+        "gen2": 0.09375,
+        "gen1": 0.136538
+      },
+      "R6−R5.obs": {
+        "gen2": 0.062035,
+        "gen1": 0.095782
+      }
+    }
+  }
+}

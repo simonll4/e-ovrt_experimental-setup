@@ -1,0 +1,19 @@
+schema_version: experiment.manifest.v1
+slug: gen2_alr02
+experiment_id: exp_20261031T010206Z_gen2_alr02_a_p1_c02
+runs:
+  media:
+    service: media-plane
+    config: $EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-01/gen2_alr01_a_p1_c02/media.yaml
+    mode: run
+    reuse_run_id: run_20261030_025718_dbe_grounding_dino_927391
+  control:
+    service: control-plane
+    config: $EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-02/gen2_alr02_a_p1_c02/control.yaml
+    mode: replay
+sequencing: media_first
+clip_id: a_p1_c02
+ground_truth: $EOVRT_WORKSPACE/e-ovrt_datasets/datasets/processed/clip_bench/gt/a_p1_c02.json
+timeout_s: 900.0
+changes: generación 2 — prueba ALR-02 (Alerta por episodio, granularidad por sujeto
+  (G1))

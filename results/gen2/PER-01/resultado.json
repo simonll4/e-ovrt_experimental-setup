@@ -1,0 +1,84 @@
+{
+  "schema": "resultado.gen2.v1",
+  "id": "PER-01",
+  "titulo": "Estado por persona en imágenes: E-IND contra E-DIR, gdino-tiny-560",
+  "informe": [
+    "Tabla 52"
+  ],
+  "generado": "2026-10-31T00:03:18+00:00",
+  "familia": "nivel_a",
+  "estado": "completo",
+  "metricas": {
+    "bench_obra/CR-01.f1_eind": 0.40816326530612246,
+    "bench_obra/CR-01.best_edir_variant": "cr01_spec",
+    "bench_obra/CR-01.f1_edir": 0.1886792452830189,
+    "bench_obra/CR-01.ratio": 0.4622641509433963,
+    "bench_obra/CR-01.edir_below_half": true,
+    "bench_obra/CR-02.f1_eind": 0.47887323943661975,
+    "bench_obra/CR-02.best_edir_variant": "cr02_obs",
+    "bench_obra/CR-02.f1_edir": 0.4177215189873418,
+    "bench_obra/CR-02.ratio": 0.8723008190618019,
+    "bench_obra/CR-02.edir_below_half": false,
+    "shel5k/CR-01.f1_eind": 0.5459970164097463,
+    "shel5k/CR-01.best_edir_variant": "cr01_obs",
+    "shel5k/CR-01.f1_edir": 0.1875317635100796,
+    "shel5k/CR-01.ratio": 0.34346664519013675,
+    "shel5k/CR-01.edir_below_half": true
+  },
+  "resumen": [
+    {
+      "clave": "bench_obra/CR-01/f1_eind",
+      "nombre": "F1 E-IND por persona — bench_obra/CR-01",
+      "valor": 0.40816326530612246,
+      "unidad": null,
+      "gen1": 0.40816326530612246
+    },
+    {
+      "clave": "bench_obra/CR-01/f1_edir",
+      "nombre": "F1 mejor E-DIR (cr01_spec) — bench_obra/CR-01",
+      "valor": 0.1886792452830189,
+      "unidad": null,
+      "gen1": 0.1886792452830189
+    },
+    {
+      "clave": "bench_obra/CR-02/f1_eind",
+      "nombre": "F1 E-IND por persona — bench_obra/CR-02",
+      "valor": 0.47887323943661975,
+      "unidad": null,
+      "gen1": 0.47887323943661975
+    },
+    {
+      "clave": "bench_obra/CR-02/f1_edir",
+      "nombre": "F1 mejor E-DIR (cr02_obs) — bench_obra/CR-02",
+      "valor": 0.4177215189873418,
+      "unidad": null,
+      "gen1": 0.4177215189873418
+    },
+    {
+      "clave": "shel5k/CR-01/f1_eind",
+      "nombre": "F1 E-IND por persona — shel5k/CR-01",
+      "valor": 0.5459970164097463,
+      "unidad": null,
+      "gen1": 0.5459970164097463
+    },
+    {
+      "clave": "shel5k/CR-01/f1_edir",
+      "nombre": "F1 mejor E-DIR (cr01_obs) — shel5k/CR-01",
+      "valor": 0.1875317635100796,
+      "unidad": null,
+      "gen1": 0.1875317635100796
+    }
+  ],
+  "veredicto": {
+    "confirmado": {
+      "valor": "identico",
+      "motivo": "Coincide con la referencia del pre-registro valor por valor (revisado el 2026-10-31 sobre el zip de results/gen2; doc 134 13.12)",
+      "quien": "equipo E-OVRT-VDP",
+      "fecha": "2026-10-31T03:24:20+00:00"
+    },
+    "referencia": "results/bench_nivel_a/d1_gdinotiny560_edir_vs_eind/metrics.json",
+    "propuesto": "identico",
+    "motivo": "los 15 campos coinciden con la generación 1",
+    "diferencias": {}
+  }
+}

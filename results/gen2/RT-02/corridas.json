@@ -1,0 +1,35 @@
+{
+  "schema": "corridas.gen2.v1",
+  "prueba": "RT-02",
+  "corridas": {
+    "vivo": {
+      "estado": "ok",
+      "inicio": "2026-10-31T01:35:10+00:00",
+      "fin": "2026-10-31T01:37:10+00:00",
+      "segundos": 120.1,
+      "experiment_id": "exp_20261031T013510Z_gen2_rt02_vivo_a_p1_c04",
+      "media_run_id": "run_20261031_013510_dbe_grounding_dino_1e3d9f",
+      "control_run_id": "gen2_rt02_vivo_a_p1_c04_20261031T013510Z_00d330",
+      "media_status": "succeeded",
+      "control_status": "succeeded",
+      "distribution_status": null,
+      "consolidated_dir": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/exp_20261031T013510Z_gen2_rt02_vivo_a_p1_c04",
+      "error": null,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/RT-02/gen2_rt02_vivo_a_p1_c04/media.yaml"
+    },
+    "relectura": {
+      "estado": "ok",
+      "inicio": "2026-10-31T01:37:10+00:00",
+      "fin": "2026-10-31T01:37:13+00:00",
+      "segundos": 3.0,
+      "experiment_id": "exp_20261031T013710Z_gen2_rt02_relectura_a_p1_c04",
+      "media_run_id": "run_20261031_013510_dbe_grounding_dino_1e3d9f",
+      "control_run_id": "gen2_rt02_relectura_a_p1_c04_20261031T013710Z_a0b709",
+      "media_status": "succeeded",
+      "control_status": "succeeded",
+      "distribution_status": null,
+      "consolidated_dir": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/exp_20261031T013710Z_gen2_rt02_relectura_a_p1_c04",
+      "error": null
+    }
+  }
+}

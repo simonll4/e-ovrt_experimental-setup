@@ -1,0 +1,39 @@
+schema: prueba.gen2.v1
+id: ALR-10
+titulo: "Obra real a 560 px con caja 0,35 (el campeón re-umbralado), escena y sujeto"
+informe: ["§17.5.4", "§18.3"]
+fase: F5
+familia: clips
+depende_de: [ALR-07]
+pregunta: >
+  Con las MISMAS detecciones de ALR-07 pero con umbral de caja 0,35 en vez de 0,30, ¿cuántas
+  falsas alarmas quedan por escena y por sujeto? Es la otra punta del contraste de resolución de
+  ALR-09 (800 px, caja 0,35): mismo modelo, mismo umbral, solo cambia el tamaño de entrada.
+gen1:
+  result_id: (no corrió)
+  doc: operacion/137
+  relacion: otra_combinacion
+  motivo: >
+    Combinación nueva (doc 137 §3.3). No re-infiere: filtra las detecciones de ALR-07 a puntaje >
+    0,35 (`clips.reumbralar`). Es exacto para GDINO porque el adaptador aplica el umbral en el
+    post-proceso de transformers ANTES del NMS por clase, y una caja de puntaje menor nunca
+    suprime a una mayor. Salvedad declarada: el puntaje se guarda con 4 decimales; las cajas con
+    puntaje exactamente 0,3500 quedan afuera y se cuentan en el summary de cada clip.
+esperado: >
+  Sin cifra pre-registrada: menos falsas alarmas que ALR-07/08 (umbral más alto). Lo que importa es
+  su diferencia con ALR-09, que lee ERR-02.
+veredictos_posibles: [otra_combinacion]
+config:
+  modelo: grounding-dino/gdino-tiny-560 re-umbralado a caja 0,35
+  pattern_set: cr01_cr02_v2 (escena) y cr01_cr02_v2_subject (variante sujeto)
+receta:
+  tipo: reumbral
+  reusa: ALR-07
+  umbral: 0.35
+  clips: internet
+  control: {patrones: cr01_cr02_v2, activos: [CR-01, CR-02]}
+  variantes:
+    - nombre: sujeto
+      control: {patrones: cr01_cr02_v2_subject, activos: [CR-01, CR-02], track_persons: true}
+  timeout_s: 1800
+salida: e-ovrt_experimental-setup/results/gen2/ALR-10/

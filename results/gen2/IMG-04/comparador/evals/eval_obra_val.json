@@ -1,0 +1,39 @@
+{
+  "type": "perception",
+  "run_id": "reumbral_obra_val",
+  "benchmark": "construction_site_safety_bench_obra_val",
+  "iou_threshold": 0.5,
+  "per_class": [
+    {
+      "class_name": "person",
+      "AP50": 0.7157,
+      "n_gt": 127,
+      "n_det": 112
+    },
+    {
+      "class_name": "helmet",
+      "AP50": 0.7892,
+      "n_gt": 76,
+      "n_det": 72
+    },
+    {
+      "class_name": "vest",
+      "AP50": 0.5609,
+      "n_gt": 41,
+      "n_det": 54
+    },
+    {
+      "class_name": "bare_head",
+      "AP50": 0.0152,
+      "n_gt": 35,
+      "n_det": 48
+    }
+  ],
+  "mAP50": 0.5203,
+  "cr01_detection_recall": 0.4286,
+  "evaluated_at": "2026-10-30T23:10:25.878946+00:00",
+  "cr01_n_violators": 35,
+  "cr01_n_detected": 15,
+  "bench_coco": "$EOVRT_WORKSPACE/e-ovrt_datasets/datasets/processed/coco/bench/curated/construction_site_safety_bench_obra_val.json",
+  "person_gt": "$EOVRT_WORKSPACE/e-ovrt_datasets/datasets/processed/coco/bench/curated/person_gt_bench_obra.json"
+}

@@ -1,0 +1,461 @@
+{
+  "schema": "entorno.gen2.v1",
+  "fecha_utc": "2026-10-29T23:34:10+00:00",
+  "modo": "docker",
+  "workspace": "$EOVRT_WORKSPACE",
+  "host": {
+    "nombre": "f0eb677d63d7",
+    "plataforma": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.41",
+    "cpu": "AMD Ryzen 5 8645HS w/ Radeon 760M Graphics",
+    "nucleos": 12,
+    "memoria_gb": 15.3,
+    "python": "3.11.18"
+  },
+  "gpu": null,
+  "modelo_cargado": {
+    "service_url": "http://localhost:8080",
+    "healthy": true,
+    "ready": true,
+    "model": {
+      "ref": "grounding-dino/gdino-tiny-560",
+      "name": "grounding_dino",
+      "adapter": "grounding_dino",
+      "device": "cuda",
+      "thresholds": {
+        "box": 0.3,
+        "text": 0.25,
+        "confidence": 0.25,
+        "iou": 0.5
+      },
+      "runtime": {
+        "half_precision": true,
+        "warmup": true
+      }
+    }
+  },
+  "repos": {
+    "e-ovrt_datasets": {
+      "commit": "cd24c18c79d142ae5c5bad675f750412fc042ffa",
+      "rama": "main",
+      "archivos_sin_commitear": null
+    },
+    "e-ovrt_media-plane": {
+      "commit": "e7092e5359b05e9b89b123116f61493215b7f5ee",
+      "rama": "feature/docker-oakd-rendimiento",
+      "archivos_sin_commitear": null
+    },
+    "e-ovrt_control-plane": {
+      "commit": "ba3286b706dc3f72dcfffa94a5f977b1fac09a3f",
+      "rama": "main",
+      "archivos_sin_commitear": null
+    },
+    "e-ovrt_alert-distribution": {
+      "commit": "eccd2022989312cdf4a8628928e3fa1073550a6c",
+      "rama": "main",
+      "archivos_sin_commitear": null
+    },
+    "e-ovrt_experimental-setup": {
+      "commit": "f0d016806e4622b48bf7865c30212d0faa9fdddb",
+      "rama": "feature/webconsole-refinamiento-integral",
+      "archivos_sin_commitear": null
+    },
+    "docs": {
+      "commit": null,
+      "rama": null,
+      "nota": "sin .git"
+    }
+  },
+  "docker": {
+    "version": {
+      "Client": {
+        "Platform": {
+          "Name": "Docker Engine - Community"
+        },
+        "Version": "29.9.2",
+        "ApiVersion": "1.56",
+        "DefaultAPIVersion": "1.56",
+        "GitCommit": "a82e528",
+        "GoVersion": "go1.26.10",
+        "Os": "linux",
+        "Arch": "amd64",
+        "BuildTime": "Tue Oct 20 18:45:02 2026",
+        "Context": "default"
+      },
+      "Server": {
+        "Platform": {
+          "Name": "Docker Desktop 4.91.0 (239619)"
+        },
+        "Version": "29.8.0",
+        "ApiVersion": "1.56",
+        "MinAPIVersion": "1.40",
+        "Os": "linux",
+        "Arch": "amd64",
+        "Components": [
+          {
+            "Name": "Engine",
+            "Version": "29.8.0",
+            "Details": {
+              "ApiVersion": "1.56",
+              "Arch": "amd64",
+              "BuildTime": "Thu Sep  3 21:51:20 2026",
+              "Experimental": "false",
+              "GitCommit": "3ce5872",
+              "GoVersion": "go1.26.8",
+              "KernelVersion": "6.6.87.2-microsoft-standard-WSL2",
+              "MinAPIVersion": "1.40",
+              "Module": "github.com/moby/moby/v2",
+              "ModuleVersion": "v2.0.0+unknown",
+              "Os": "linux"
+            }
+          },
+          {
+            "Name": "containerd",
+            "Version": "v2.3.4",
+            "Details": {
+              "GitCommit": "db8809540e1a7a9da5d518876894933ff55692ab"
+            }
+          },
+          {
+            "Name": "runc",
+            "Version": "1.4.3",
+            "Details": {
+              "GitCommit": "v1.4.3-0-gbb14dabe"
+            }
+          },
+          {
+            "Name": "docker-init",
+            "Version": "0.19.0",
+            "Details": {
+              "GitCommit": "de40ad0"
+            }
+          }
+        ],
+        "GitCommit": "3ce5872",
+        "GoVersion": "go1.26.8",
+        "KernelVersion": "6.6.87.2-microsoft-standard-WSL2",
+        "BuildTime": "2026-09-03T21:51:20.000000000+00:00"
+      }
+    },
+    "compose_ps": [
+      {
+        "Command": "\"python -m uvicorn -…\"",
+        "CreatedAt": "2026-10-29 23:28:48 +0000 UTC",
+        "Engine": "",
+        "ExitCode": 0,
+        "Health": "healthy",
+        "ID": "f0eb677d63d7",
+        "Image": "eovrt/console:latest",
+        "Labels": "com.docker.compose.container-number=1,desktop.docker.io/binds/1/Target=$EOVRT_WORKSPACE,desktop.docker.io/binds/2/SourceKind=hostFile,desktop.docker.io/binds/4/SourceKind=hostFile,desktop.docker.io/binds/7/Source=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/defensa/sesiones,desktop.docker.io/binds/5/SourceKind=hostFile,com.docker.compose.version=5.6.1,com.docker.compose.image=sha256:e0f9320b1d97403893f59e5b4efd8e9ac897be7cb1e1cd8664a24eb89468dd0a,com.docker.compose.project.working_dir=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/infra/platform,com.docker.compose.replace=console-1,desktop.docker.io/binds/1/Source=$EOVRT_WORKSPACE,desktop.docker.io/binds/6/SourceKind=hostFile,desktop.docker.io/ports.scheme=v2,desktop.docker.io/binds/0/SourceKind=dockerSocketProxied,desktop.docker.io/binds/3/Source=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/prompts,desktop.docker.io/binds/3/SourceKind=hostFile,com.docker.compose.oneoff=False,com.docker.compose.project=eovrt,desktop.docker.io/binds/5/Source=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs,desktop.docker.io/binds/7/SourceKind=hostFile,com.docker.compose.config-hash=df8b13a95c885b575ca44ef388fca8dae98897b91948706abb5b4bff8a97f5d2,desktop.docker.io/binds/0/Source=/var/run/docker.sock,desktop.docker.io/binds/0/Target=/var/run/docker.sock,desktop.docker.io/binds/1/SourceKind=hostFile,desktop.docker.io/binds/4/Source=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/cameras,desktop.docker.io/binds/4/Target=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/cameras,com.docker.compose.depends_on=control-plane:service_healthy:false,distribution:service_healthy:false,com.docker.compose.project.config_files=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/infra/platform/docker-compose.yml,desktop.docker.io/binds/2/Source=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/experiments,desktop.docker.io/binds/6/Source=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/results,desktop.docker.io/ports/8090/tcp=:8090,com.docker.compose.service=console,desktop.docker.io/binds/2/Target=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/experiments,desktop.docker.io/binds/3/Target=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/prompts,desktop.docker.io/binds/5/Target=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs,desktop.docker.io/binds/6/Target=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/results,desktop.docker.io/binds/7/Target=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/defensa/sesiones",
+        "LocalVolumes": "0",
+        "Mounts": "/run/host-serv…,/run/desktop/m…,/run/desktop/m…,/run/desktop/m…,/run/desktop/m…,/run/desktop/m…,/run/desktop/m…,/run/desktop/m…",
+        "Name": "eovrt-console-1",
+        "Names": "eovrt-console-1",
+        "Networks": "eovrt_eovrt",
+        "Ports": "0.0.0.0:8090->8090/tcp, [::]:8090->8090/tcp",
+        "Project": "eovrt",
+        "Publishers": [
+          {
+            "URL": "0.0.0.0",
+            "TargetPort": 8090,
+            "PublishedPort": 8090,
+            "Protocol": "tcp"
+          },
+          {
+            "URL": "::",
+            "TargetPort": 8090,
+            "PublishedPort": 8090,
+            "Protocol": "tcp"
+          }
+        ],
+        "RunningFor": "5 minutes ago",
+        "Service": "console",
+        "Size": "0B",
+        "State": "running",
+        "Status": "Up 5 minutes (healthy)"
+      },
+      {
+        "Command": "\"eovrt-control serve…\"",
+        "CreatedAt": "2026-10-29 23:28:47 +0000 UTC",
+        "Engine": "",
+        "ExitCode": 0,
+        "Health": "healthy",
+        "ID": "5f6f8a993556",
+        "Image": "eovrt/control-plane:latest",
+        "Labels": "com.docker.compose.project=eovrt,com.docker.compose.project.config_files=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/infra/platform/docker-compose.yml,com.docker.compose.replace=control-plane-1,desktop.docker.io/binds/0/Source=$EOVRT_WORKSPACE,desktop.docker.io/binds/0/Target=$EOVRT_WORKSPACE,desktop.docker.io/ports/5558/tcp=127.0.0.1:5558,desktop.docker.io/ports/8081/tcp=:8081,com.docker.compose.config-hash=958871869f223a81766764c31885950d5748f397f9f9df99ff7bce5e2b197443,com.docker.compose.oneoff=False,com.docker.compose.version=5.6.1,desktop.docker.io/ports.scheme=v2,com.docker.compose.container-number=1,com.docker.compose.image=sha256:7fb481ee39d376601b6043b4762c47be05adf0e6e5b12659b61f169964960d65,com.docker.compose.project.working_dir=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/infra/platform,com.docker.compose.service=control-plane,desktop.docker.io/binds/0/SourceKind=hostFile,com.docker.compose.depends_on=",
+        "LocalVolumes": "1",
+        "Mounts": "1f2ea8a308c2a4…,/run/desktop/m…",
+        "Name": "eovrt-control-plane-1",
+        "Names": "eovrt-control-plane-1",
+        "Networks": "eovrt_eovrt",
+        "Ports": "127.0.0.1:5558->5558/tcp, 0.0.0.0:8081->8081/tcp, [::]:8081->8081/tcp",
+        "Project": "eovrt",
+        "Publishers": [
+          {
+            "URL": "127.0.0.1",
+            "TargetPort": 5558,
+            "PublishedPort": 5558,
+            "Protocol": "tcp"
+          },
+          {
+            "URL": "0.0.0.0",
+            "TargetPort": 8081,
+            "PublishedPort": 8081,
+            "Protocol": "tcp"
+          },
+          {
+            "URL": "::",
+            "TargetPort": 8081,
+            "PublishedPort": 8081,
+            "Protocol": "tcp"
+          }
+        ],
+        "RunningFor": "5 minutes ago",
+        "Service": "control-plane",
+        "Size": "0B",
+        "State": "running",
+        "Status": "Up 5 minutes (healthy)"
+      },
+      {
+        "Command": "\"eovrt-distribute se…\"",
+        "CreatedAt": "2026-10-29 23:28:48 +0000 UTC",
+        "Engine": "",
+        "ExitCode": 0,
+        "Health": "healthy",
+        "ID": "7429a5c412d1",
+        "Image": "eovrt/distribution:latest",
+        "Labels": "desktop.docker.io/binds/0/Source=$EOVRT_WORKSPACE,desktop.docker.io/binds/0/Target=$EOVRT_WORKSPACE,com.docker.compose.oneoff=False,com.docker.compose.replace=distribution-1,desktop.docker.io/ports.scheme=v2,com.docker.compose.image=sha256:3b71475b0a45e4157818d75053e28198c1fb6ca51dc960bd8c40dfd16cf02538,com.docker.compose.project.config_files=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/infra/platform/docker-compose.yml,desktop.docker.io/ports/8082/tcp=:8082,com.docker.compose.config-hash=d87d8f2e44a2d515a98a121f5a81a86ce4f9a0cff3715cfa7b6f68edad9f89ce,com.docker.compose.depends_on=mosquitto:service_healthy:false,com.docker.compose.project.working_dir=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/infra/platform,com.docker.compose.service=distribution,com.docker.compose.version=5.6.1,desktop.docker.io/binds/0/SourceKind=hostFile,com.docker.compose.container-number=1,com.docker.compose.project=eovrt",
+        "LocalVolumes": "0",
+        "Mounts": "/run/desktop/m…",
+        "Name": "eovrt-distribution-1",
+        "Names": "eovrt-distribution-1",
+        "Networks": "eovrt_eovrt",
+        "Ports": "0.0.0.0:8082->8082/tcp, [::]:8082->8082/tcp",
+        "Project": "eovrt",
+        "Publishers": [
+          {
+            "URL": "0.0.0.0",
+            "TargetPort": 8082,
+            "PublishedPort": 8082,
+            "Protocol": "tcp"
+          },
+          {
+            "URL": "::",
+            "TargetPort": 8082,
+            "PublishedPort": 8082,
+            "Protocol": "tcp"
+          }
+        ],
+        "RunningFor": "5 minutes ago",
+        "Service": "distribution",
+        "Size": "0B",
+        "State": "running",
+        "Status": "Up 5 minutes (healthy)"
+      },
+      {
+        "Command": "\"/docker-entrypoint.…\"",
+        "CreatedAt": "2026-10-23 22:50:21 +0000 UTC",
+        "Engine": "",
+        "ExitCode": 0,
+        "Health": "healthy",
+        "ID": "651253ee8774",
+        "Image": "eclipse-mosquitto:2",
+        "Labels": "org.opencontainers.image.licenses=EPL-2.0 OR BSD-3-Clause,org.opencontainers.image.source=https://github.com/eclipse-mosquitto/mosquitto,org.opencontainers.image.title=eclipse-mosquitto,com.docker.compose.project.config_files=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/infra/platform/docker-compose.yml,com.docker.compose.project.working_dir=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/infra/platform,desktop.docker.io/binds/0/Target=/mosquitto/config/mosquitto.conf,desktop.docker.io/ports/1883/tcp=127.0.0.1:1883,com.docker.compose.container-number=1,com.docker.compose.image=sha256:888af343ab81912c1f4a88cda46c687a2ce607ed3732754c36d8b8879d17a8b4,com.docker.compose.oneoff=False,com.docker.compose.version=5.6.1,desktop.docker.io/binds/0/Source=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/infra/platform/mosquitto/mosquitto.conf,org.opencontainers.image.documentation=https://mosquitto.org/documentation/,org.opencontainers.image.version=2.1.2,com.docker.compose.project=eovrt,com.docker.compose.service=mosquitto,desktop.docker.io/binds/0/SourceKind=hostFile,org.opencontainers.image.authors=Roger Light <roger@atchoo.org>,org.opencontainers.image.url=https://mosquitto.org/,com.docker.compose.config-hash=2742fbe0b5fe1a2cc7ad3281d3fea261585f7eeafdc61cac087a6283e7ea28e3,com.docker.compose.depends_on=,desktop.docker.io/ports.scheme=v2,org.opencontainers.image.description=Eclipse Mosquitto MQTT Broker",
+        "LocalVolumes": "2",
+        "Mounts": "0505ba78525ce8…,e11c0a68493cbc…,/run/desktop/m…",
+        "Name": "eovrt-mosquitto-1",
+        "Names": "eovrt-mosquitto-1",
+        "Networks": "eovrt_eovrt",
+        "Ports": "127.0.0.1:1883->1883/tcp",
+        "Project": "eovrt",
+        "Publishers": [
+          {
+            "URL": "127.0.0.1",
+            "TargetPort": 1883,
+            "PublishedPort": 1883,
+            "Protocol": "tcp"
+          }
+        ],
+        "RunningFor": "6 days ago",
+        "Service": "mosquitto",
+        "Size": "0B",
+        "State": "running",
+        "Status": "Up 5 minutes (healthy)"
+      },
+      {
+        "Command": "\"/opt/nvidia/nvidia_…\"",
+        "CreatedAt": "2026-10-29 23:29:27 +0000 UTC",
+        "Engine": "",
+        "ExitCode": 0,
+        "Health": "",
+        "ID": "87a0d83ba5fd",
+        "Image": "eovrt/media-plane:latest",
+        "Labels": "desktop.docker.io/binds/1/SourceKind=hostFile,desktop.docker.io/binds/1/Target=/app/mobileclip2_b.ts,desktop.docker.io/binds/2/SourceKind=hostFile,desktop.docker.io/binds/3/Target=/e-ovrt_datasets,org.opencontainers.image.ref.name=ubuntu,com.docker.compose.service=mp-gdino-base-560,desktop.docker.io/binds/0/SourceKind=hostFile,desktop.docker.io/binds/0/Target=/app/models,desktop.docker.io/binds/3/Source=$EOVRT_WORKSPACE/e-ovrt_datasets,eovrt.model_ref=grounding-dino/gdino-base-560,maintainer=NVIDIA CORPORATION <cudatools@nvidia.com>,org.opencontainers.image.version=22.04,com.docker.compose.container-number=1,com.docker.compose.project.config_files=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/infra/platform/docker-compose.yml,desktop.docker.io/binds/2/Source=$EOVRT_WORKSPACE/e-ovrt_media-plane/runs,desktop.docker.io/binds/2/Target=/data/runs,desktop.docker.io/ports.scheme=v2,eovrt.instance=true,com.docker.compose.depends_on=,com.docker.compose.image=sha256:0ccf1f93a4c07ec65858a963ba4606c7a092c6707331b5716111afe1adc64170,com.docker.compose.project=eovrt,com.docker.compose.project.working_dir=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/infra/platform,com.docker.compose.version=5.6.1,desktop.docker.io/binds/0/Source=$EOVRT_WORKSPACE/e-ovrt_media-plane/models,desktop.docker.io/binds/3/SourceKind=hostFile,com.docker.compose.config-hash=ce109ceeb316b1e43359a7a23cb01998c8ed74df1660cbf3512e46fae66ad8ac,com.docker.compose.oneoff=False,desktop.docker.io/binds/1/Source=$EOVRT_WORKSPACE/e-ovrt_media-plane/models/yoloe/original/mobileclip2_b.ts",
+        "LocalVolumes": "2",
+        "Mounts": "/run/desktop/m…,/run/desktop/m…,/run/desktop/m…,a2003467f994c0…,/run/desktop/m…,eovrt_weights-…",
+        "Name": "eovrt-mp-gdino-base-560-1",
+        "Names": "eovrt-mp-gdino-base-560-1",
+        "Networks": "eovrt_eovrt",
+        "Ports": "",
+        "Project": "eovrt",
+        "Publishers": [],
+        "RunningFor": "4 minutes ago",
+        "Service": "mp-gdino-base-560",
+        "Size": "0B",
+        "State": "exited",
+        "Status": "Exited (0) 3 minutes ago"
+      },
+      {
+        "Command": "\"/opt/nvidia/nvidia_…\"",
+        "CreatedAt": "2026-10-29 23:29:27 +0000 UTC",
+        "Engine": "",
+        "ExitCode": 0,
+        "Health": "",
+        "ID": "6c9e9c8fb8cf",
+        "Image": "eovrt/media-plane:latest",
+        "Labels": "org.opencontainers.image.version=22.04,desktop.docker.io/binds/0/Source=$EOVRT_WORKSPACE/e-ovrt_media-plane/models,com.docker.compose.config-hash=008c08b18dccbda2adbe2fac46b9853a9abd6317c199c81f11de3162fd166a2e,com.docker.compose.container-number=1,com.docker.compose.image=sha256:0ccf1f93a4c07ec65858a963ba4606c7a092c6707331b5716111afe1adc64170,com.docker.compose.project=eovrt,com.docker.compose.version=5.6.1,desktop.docker.io/binds/2/Source=$EOVRT_WORKSPACE/e-ovrt_media-plane/runs,desktop.docker.io/binds/3/Source=$EOVRT_WORKSPACE/e-ovrt_datasets,com.docker.compose.project.config_files=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/infra/platform/docker-compose.yml,com.docker.compose.project.working_dir=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/infra/platform,desktop.docker.io/binds/0/Target=/app/models,desktop.docker.io/binds/1/Source=$EOVRT_WORKSPACE/e-ovrt_media-plane/models/yoloe/original/mobileclip2_b.ts,desktop.docker.io/binds/2/Target=/data/runs,desktop.docker.io/binds/3/SourceKind=hostFile,eovrt.model_ref=grounding-dino/gdino-tiny,maintainer=NVIDIA CORPORATION <cudatools@nvidia.com>,com.docker.compose.depends_on=,com.docker.compose.oneoff=False,com.docker.compose.service=mp-gdino-tiny,desktop.docker.io/binds/1/SourceKind=hostFile,desktop.docker.io/binds/2/SourceKind=hostFile,desktop.docker.io/binds/3/Target=/e-ovrt_datasets,eovrt.instance=true,org.opencontainers.image.ref.name=ubuntu,desktop.docker.io/binds/0/SourceKind=hostFile,desktop.docker.io/binds/1/Target=/app/mobileclip2_b.ts,desktop.docker.io/ports.scheme=v2",
+        "LocalVolumes": "2",
+        "Mounts": "/run/desktop/m…,/run/desktop/m…,/run/desktop/m…,466aee0080c5f7…,/run/desktop/m…,eovrt_weights-…",
+        "Name": "eovrt-mp-gdino-tiny-1",
+        "Names": "eovrt-mp-gdino-tiny-1",
+        "Networks": "eovrt_eovrt",
+        "Ports": "",
+        "Project": "eovrt",
+        "Publishers": [],
+        "RunningFor": "4 minutes ago",
+        "Service": "mp-gdino-tiny",
+        "Size": "0B",
+        "State": "exited",
+        "Status": "Exited (0) 3 minutes ago"
+      },
+      {
+        "Command": "\"/opt/nvidia/nvidia_…\"",
+        "CreatedAt": "2026-10-29 23:29:27 +0000 UTC",
+        "Engine": "",
+        "ExitCode": 0,
+        "Health": "healthy",
+        "ID": "9bfc84b7ad52",
+        "Image": "eovrt/media-plane:latest",
+        "Labels": "desktop.docker.io/binds/2/SourceKind=hostFile,desktop.docker.io/binds/3/Target=/app/mobileclip2_b.ts,desktop.docker.io/ports.scheme=v2,eovrt.model_ref=grounding-dino/gdino-tiny-560,desktop.docker.io/binds/2/Target=/app/models,desktop.docker.io/binds/4/Target=/e-ovrt_datasets,com.docker.compose.image=sha256:0ccf1f93a4c07ec65858a963ba4606c7a092c6707331b5716111afe1adc64170,com.docker.compose.version=5.6.1,org.opencontainers.image.ref.name=ubuntu,com.docker.compose.container-number=1,desktop.docker.io/binds/0/Source=$EOVRT_WORKSPACE/e-ovrt_media-plane/runs,desktop.docker.io/binds/0/SourceKind=hostFile,desktop.docker.io/binds/0/Target=/data/runs,com.docker.compose.oneoff=False,desktop.docker.io/binds/3/Source=$EOVRT_WORKSPACE/e-ovrt_media-plane/models/yoloe/original/mobileclip2_b.ts,desktop.docker.io/binds/4/Source=$EOVRT_WORKSPACE/e-ovrt_datasets,eovrt.instance=true,com.docker.compose.project.config_files=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/infra/platform/docker-compose.yml,desktop.docker.io/binds/4/SourceKind=hostFile,org.opencontainers.image.version=22.04,com.docker.compose.config-hash=0cc2f0753fd2e24f703513b394fb1303c368a5bc0d12353219128799aac2bfe7,com.docker.compose.project=eovrt,desktop.docker.io/binds/2/Source=$EOVRT_WORKSPACE/e-ovrt_media-plane/models,desktop.docker.io/binds/3/SourceKind=hostFile,maintainer=NVIDIA CORPORATION <cudatools@nvidia.com>,com.docker.compose.depends_on=,com.docker.compose.project.working_dir=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/infra/platform,com.docker.compose.service=mp-gdino-tiny-560,com.docker.compose.replace=mp-gdino-tiny-560-1",
+        "LocalVolumes": "2",
+        "Mounts": "/run/desktop/m…,/run/desktop/m…,/run/desktop/m…,084a0de26f8f1b…,/run/desktop/m…,eovrt_weights-…",
+        "Name": "eovrt-mp-gdino-tiny-560-1",
+        "Names": "eovrt-mp-gdino-tiny-560-1",
+        "Networks": "eovrt_eovrt",
+        "Ports": "8080/tcp",
+        "Project": "eovrt",
+        "Publishers": [
+          {
+            "URL": "",
+            "TargetPort": 8080,
+            "PublishedPort": 0,
+            "Protocol": "tcp"
+          }
+        ],
+        "RunningFor": "4 minutes ago",
+        "Service": "mp-gdino-tiny-560",
+        "Size": "0B",
+        "State": "running",
+        "Status": "Up 2 minutes (healthy)"
+      },
+      {
+        "Command": "\"/opt/nvidia/nvidia_…\"",
+        "CreatedAt": "2026-10-29 23:29:27 +0000 UTC",
+        "Engine": "",
+        "ExitCode": 0,
+        "Health": "",
+        "ID": "db7eb1640840",
+        "Image": "eovrt/media-plane:latest",
+        "Labels": "com.docker.compose.container-number=1,com.docker.compose.image=sha256:0ccf1f93a4c07ec65858a963ba4606c7a092c6707331b5716111afe1adc64170,com.docker.compose.project.working_dir=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/infra/platform,desktop.docker.io/binds/2/SourceKind=hostFile,eovrt.instance=true,com.docker.compose.depends_on=,org.opencontainers.image.version=22.04,com.docker.compose.replace=mp-mock-1,desktop.docker.io/binds/0/SourceKind=hostFile,desktop.docker.io/binds/4/Target=/app/models,com.docker.compose.oneoff=False,com.docker.compose.service=mp-mock,com.docker.compose.version=5.6.1,desktop.docker.io/binds/0/Source=$EOVRT_WORKSPACE/e-ovrt_media-plane/models/yoloe/original/mobileclip2_b.ts,eovrt.model_ref=mock,maintainer=NVIDIA CORPORATION <cudatools@nvidia.com>,com.docker.compose.project=eovrt,com.docker.compose.project.config_files=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/infra/platform/docker-compose.yml,desktop.docker.io/binds/0/Target=/app/mobileclip2_b.ts,desktop.docker.io/binds/1/SourceKind=hostFile,desktop.docker.io/binds/2/Source=$EOVRT_WORKSPACE/e-ovrt_media-plane/runs,desktop.docker.io/ports.scheme=v2,org.opencontainers.image.ref.name=ubuntu,com.docker.compose.config-hash=a9f3e164db99c2a54be7708109573e6cf50f137533bbc564527a7063cc0f4372,desktop.docker.io/binds/1/Source=$EOVRT_WORKSPACE/e-ovrt_datasets,desktop.docker.io/binds/1/Target=/e-ovrt_datasets,desktop.docker.io/binds/4/Source=$EOVRT_WORKSPACE/e-ovrt_media-plane/models,desktop.docker.io/binds/4/SourceKind=hostFile,desktop.docker.io/binds/2/Target=/data/runs",
+        "LocalVolumes": "2",
+        "Mounts": "/run/desktop/m…,/run/desktop/m…,/run/desktop/m…,63b42832e912ed…,/run/desktop/m…,eovrt_weights-…",
+        "Name": "eovrt-mp-mock-1",
+        "Names": "eovrt-mp-mock-1",
+        "Networks": "eovrt_eovrt",
+        "Ports": "",
+        "Project": "eovrt",
+        "Publishers": [],
+        "RunningFor": "4 minutes ago",
+        "Service": "mp-mock",
+        "Size": "0B",
+        "State": "exited",
+        "Status": "Exited (0) 3 minutes ago"
+      },
+      {
+        "Command": "\"/opt/nvidia/nvidia_…\"",
+        "CreatedAt": "2026-10-29 23:29:27 +0000 UTC",
+        "Engine": "",
+        "ExitCode": 0,
+        "Health": "",
+        "ID": "074e16444997",
+        "Image": "eovrt/media-plane:latest",
+        "Labels": "com.docker.compose.project=eovrt,com.docker.compose.project.working_dir=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/infra/platform,desktop.docker.io/binds/3/Source=$EOVRT_WORKSPACE/e-ovrt_media-plane/models/yoloe/original/mobileclip2_b.ts,eovrt.instance=true,com.docker.compose.image=sha256:0ccf1f93a4c07ec65858a963ba4606c7a092c6707331b5716111afe1adc64170,com.docker.compose.project.config_files=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/infra/platform/docker-compose.yml,com.docker.compose.service=mp-yoloe-26s,com.docker.compose.depends_on=,desktop.docker.io/binds/3/SourceKind=hostFile,desktop.docker.io/binds/2/Source=$EOVRT_WORKSPACE/e-ovrt_media-plane/models,eovrt.model_ref=yoloe/yoloe-26s,com.docker.compose.replace=mp-yoloe-26s-1,desktop.docker.io/binds/0/Source=$EOVRT_WORKSPACE/e-ovrt_media-plane/runs,desktop.docker.io/binds/4/Source=$EOVRT_WORKSPACE/e-ovrt_datasets,desktop.docker.io/binds/2/Target=/app/models,desktop.docker.io/binds/4/SourceKind=hostFile,com.docker.compose.config-hash=6399e6ec4a897b106986769dc37de83d4d7f1b4b1c09d267093df7727d573319,com.docker.compose.oneoff=False,desktop.docker.io/binds/0/SourceKind=hostFile,desktop.docker.io/binds/0/Target=/data/runs,desktop.docker.io/binds/2/SourceKind=hostFile,com.docker.compose.version=5.6.1,desktop.docker.io/binds/3/Target=/app/mobileclip2_b.ts,desktop.docker.io/ports.scheme=v2,maintainer=NVIDIA CORPORATION <cudatools@nvidia.com>,org.opencontainers.image.ref.name=ubuntu,com.docker.compose.container-number=1,desktop.docker.io/binds/4/Target=/e-ovrt_datasets,org.opencontainers.image.version=22.04",
+        "LocalVolumes": "2",
+        "Mounts": "/run/desktop/m…,/run/desktop/m…,/run/desktop/m…,27ea5cb2fdb576…,/run/desktop/m…,eovrt_weights-…",
+        "Name": "eovrt-mp-yoloe-26s-1",
+        "Names": "eovrt-mp-yoloe-26s-1",
+        "Networks": "eovrt_eovrt",
+        "Ports": "",
+        "Project": "eovrt",
+        "Publishers": [],
+        "RunningFor": "4 minutes ago",
+        "Service": "mp-yoloe-26s",
+        "Size": "0B",
+        "State": "exited",
+        "Status": "Exited (0) 2 minutes ago"
+      },
+      {
+        "Command": "\"/opt/nvidia/nvidia_…\"",
+        "CreatedAt": "2026-10-29 23:29:27 +0000 UTC",
+        "Engine": "",
+        "ExitCode": 0,
+        "Health": "",
+        "ID": "db55fa58ef6b",
+        "Image": "eovrt/media-plane:latest",
+        "Labels": "desktop.docker.io/binds/1/SourceKind=hostFile,desktop.docker.io/binds/3/SourceKind=hostFile,org.opencontainers.image.ref.name=ubuntu,com.docker.compose.image=sha256:0ccf1f93a4c07ec65858a963ba4606c7a092c6707331b5716111afe1adc64170,com.docker.compose.oneoff=False,com.docker.compose.project=eovrt,desktop.docker.io/binds/0/Target=/app/models,desktop.docker.io/binds/2/Target=/data/runs,desktop.docker.io/ports.scheme=v2,eovrt.model_ref=yoloe/yoloe-26x,org.opencontainers.image.version=22.04,com.docker.compose.config-hash=50423174f49a7d910f43f61e74ab2b5c8478b9d344fdb2a62581d4498ca910a6,com.docker.compose.container-number=1,com.docker.compose.project.working_dir=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/infra/platform,com.docker.compose.service=mp-yoloe-26x,com.docker.compose.version=5.6.1,desktop.docker.io/binds/0/Source=$EOVRT_WORKSPACE/e-ovrt_media-plane/models,desktop.docker.io/binds/1/Source=$EOVRT_WORKSPACE/e-ovrt_media-plane/models/yoloe/original/mobileclip2_b.ts,desktop.docker.io/binds/1/Target=/app/mobileclip2_b.ts,com.docker.compose.depends_on=,com.docker.compose.project.config_files=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/infra/platform/docker-compose.yml,desktop.docker.io/binds/2/Source=$EOVRT_WORKSPACE/e-ovrt_media-plane/runs,desktop.docker.io/binds/2/SourceKind=hostFile,desktop.docker.io/binds/3/Source=$EOVRT_WORKSPACE/e-ovrt_datasets,desktop.docker.io/binds/3/Target=/e-ovrt_datasets,eovrt.instance=true,maintainer=NVIDIA CORPORATION <cudatools@nvidia.com>,desktop.docker.io/binds/0/SourceKind=hostFile",
+        "LocalVolumes": "2",
+        "Mounts": "/run/desktop/m…,/run/desktop/m…,/run/desktop/m…,2690eaec154746…,/run/desktop/m…,eovrt_weights-…",
+        "Name": "eovrt-mp-yoloe-26x-1",
+        "Names": "eovrt-mp-yoloe-26x-1",
+        "Networks": "eovrt_eovrt",
+        "Ports": "",
+        "Project": "eovrt",
+        "Publishers": [],
+        "RunningFor": "4 minutes ago",
+        "Service": "mp-yoloe-26x",
+        "Size": "0B",
+        "State": "exited",
+        "Status": "Exited (0) 2 minutes ago"
+      }
+    ],
+    "imagenes": {
+      "eovrt/console:latest": {
+        "id": "sha256:dcc28f3271c80ae7aaff1d716ac3fa2c8b3c91e28055fd6bb843fb9388d966b1",
+        "creada": "2026-10-29T23:25:00.1537928Z",
+        "digests": [
+          "eovrt/console@sha256:dcc28f3271c80ae7aaff1d716ac3fa2c8b3c91e28055fd6bb843fb9388d966b1"
+        ]
+      },
+      "eovrt/control-plane:latest": {
+        "id": "sha256:277b95c4417e9d37d62e73462ec80d912898308a05fd6d6451bb9dbc1fd9543c",
+        "creada": "2026-10-29T23:24:06.697636627Z",
+        "digests": [
+          "eovrt/control-plane@sha256:277b95c4417e9d37d62e73462ec80d912898308a05fd6d6451bb9dbc1fd9543c"
+        ]
+      },
+      "eovrt/distribution:latest": {
+        "id": "sha256:7580b9a2592537096ab6d912b2f3e54f37c09b76f7a873c06f150f98929ddb7c",
+        "creada": "2026-10-29T23:24:03.815085609Z",
+        "digests": [
+          "eovrt/distribution@sha256:7580b9a2592537096ab6d912b2f3e54f37c09b76f7a873c06f150f98929ddb7c"
+        ]
+      },
+      "eovrt/media-plane:latest": {
+        "id": "sha256:460bdbf8fb59d4901de8c67df0116343e09d7c7ab26deecab41eb1b3f6376d27",
+        "creada": "2026-10-24T20:15:47.143560615Z",
+        "digests": [
+          "eovrt/media-plane@sha256:460bdbf8fb59d4901de8c67df0116343e09d7c7ab26deecab41eb1b3f6376d27"
+        ]
+      }
+    }
+  }
+}

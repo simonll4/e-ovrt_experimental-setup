@@ -1,0 +1,37 @@
+ingest:
+  plugin: image_folder
+  config:
+    path: /e-ovrt_datasets/datasets/raw/construction_site_safety/valid/images
+prompts:
+  set_inline:
+    id: clase_nueva_v1
+    classes:
+    - id: person
+      phrasings:
+        default:
+        - person
+    - id: helmet
+      phrasings:
+        default:
+        - helmet
+    - id: vest
+      phrasings:
+        default:
+        - vest
+    - id: machinery
+      phrasings:
+        default:
+        - machinery
+    - id: vehicle
+      phrasings:
+        default:
+        - vehicle
+  active_ids:
+  - person
+  - helmet
+  - vest
+  - machinery
+  - vehicle
+run:
+  name: gen2_ext01_obra_val
+  save_previews: false

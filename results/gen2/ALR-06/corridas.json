@@ -1,0 +1,1604 @@
+{
+  "schema": "corridas.gen2.v1",
+  "prueba": "ALR-06",
+  "corridas": {
+    "a_p1_c02": {
+      "estado": "ok",
+      "experiment_id": "exp_20261030T064359Z_gen2_alr06_a_p1_c02",
+      "media_run_id": "run_20261030_064359_dbe_grounding_dino_51ded5",
+      "control_run_id": "gen2_alr06_a_p1_c02_20261030T064644Z_992174",
+      "media_status": "succeeded",
+      "control_status": "succeeded",
+      "inicio": "2026-10-30T06:43:59+00:00",
+      "fin": "2026-10-30T06:46:47+00:00",
+      "segundos": 168.2,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p1_c02/media.yaml",
+      "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p1_c02/control.yaml",
+      "sha256": {
+        "control_config": "b4e99160ef6c3a8cc86adc0ddede5e22c33314b62d52174a6dd8b3509efa473c",
+        "patrones": "934e18e1e82ee1c9d37a8aef05a8aa7f1b37fd552723f29ff01a74b1b6066001",
+        "media_config": "d1afee453426515b0ac90ad4656c86887dcd0e571cd3f37ca594ec9e166cb0fa",
+        "gt": "e0271e7078b9cd85f8872e7d76b4d85dc1246bbc3e783ea33f2a5746c494bfbf"
+      },
+      "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_064359_dbe_grounding_dino_51ded5/detections.jsonl",
+      "eval": "evals/eval_a_p1_c02.json",
+      "unidades": 1123,
+      "fps_efectivos": 6.85,
+      "modelo": "grounding_dino",
+      "variantes": {
+        "eind_mismo_caption": {
+          "estado": "ok",
+          "experiment_id": "exp_20261030T064648Z_gen2_alr06_eind_mismo_caption_a_p1_c02",
+          "media_run_id": "run_20261030_064359_dbe_grounding_dino_51ded5",
+          "control_run_id": "gen2_alr06_eind_mismo_caption_a_p1_c02_20261030T064648Z_4d945c",
+          "media_status": "succeeded",
+          "control_status": "succeeded",
+          "inicio": "2026-10-30T06:46:48+00:00",
+          "fin": "2026-10-30T06:46:51+00:00",
+          "segundos": 3.0,
+          "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p1_c02/media.yaml",
+          "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_eind_mismo_caption_a_p1_c02/control.yaml",
+          "sha256": {
+            "control_config": "ef41a6a95a465dbdb5418b10a41f28def269f38bbc541d506c86852ee2e9387b",
+            "patrones": "4f80f5d3b4e78046f8a033044475a667cd0aed930cfeca05295cf63a323570e8",
+            "media_config": "d1afee453426515b0ac90ad4656c86887dcd0e571cd3f37ca594ec9e166cb0fa",
+            "gt": "e0271e7078b9cd85f8872e7d76b4d85dc1246bbc3e783ea33f2a5746c494bfbf"
+          },
+          "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_064359_dbe_grounding_dino_51ded5/detections.jsonl",
+          "eval": "variantes/eind_mismo_caption/evals/eval_a_p1_c02.json"
+        }
+      }
+    },
+    "a_p1_c03": {
+      "estado": "ok",
+      "experiment_id": "exp_20261030T064651Z_gen2_alr06_a_p1_c03",
+      "media_run_id": "run_20261030_064651_dbe_grounding_dino_4d212f",
+      "control_run_id": "gen2_alr06_a_p1_c03_20261030T064820Z_d84171",
+      "media_status": "succeeded",
+      "control_status": "succeeded",
+      "inicio": "2026-10-30T06:46:51+00:00",
+      "fin": "2026-10-30T06:48:21+00:00",
+      "segundos": 90.1,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p1_c03/media.yaml",
+      "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p1_c03/control.yaml",
+      "sha256": {
+        "control_config": "e13eb0ac3f32105339aa1501d5c093f2e2b5daac6d039431da9a879155953939",
+        "patrones": "934e18e1e82ee1c9d37a8aef05a8aa7f1b37fd552723f29ff01a74b1b6066001",
+        "media_config": "6b54569e79af50efc0759bdf5ad54783b50e9649de8fb05e5bc87435a5d6657e",
+        "gt": "2c46b2c64c837d64aa72d199f937e5c2298ae60d6698e1a1a541b2f577abf79b"
+      },
+      "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_064651_dbe_grounding_dino_4d212f/detections.jsonl",
+      "eval": "evals/eval_a_p1_c03.json",
+      "unidades": 618,
+      "fps_efectivos": 7.0,
+      "modelo": "grounding_dino",
+      "variantes": {
+        "eind_mismo_caption": {
+          "estado": "ok",
+          "experiment_id": "exp_20261030T064822Z_gen2_alr06_eind_mismo_caption_a_p1_c03",
+          "media_run_id": "run_20261030_064651_dbe_grounding_dino_4d212f",
+          "control_run_id": "gen2_alr06_eind_mismo_caption_a_p1_c03_20261030T064822Z_3f0251",
+          "media_status": "succeeded",
+          "control_status": "succeeded",
+          "inicio": "2026-10-30T06:48:22+00:00",
+          "fin": "2026-10-30T06:48:25+00:00",
+          "segundos": 3.0,
+          "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p1_c03/media.yaml",
+          "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_eind_mismo_caption_a_p1_c03/control.yaml",
+          "sha256": {
+            "control_config": "ce5b892ed730fa6f32ce682a1b604d241a82ba6d858bce061cfbeb6b5cbf9d11",
+            "patrones": "4f80f5d3b4e78046f8a033044475a667cd0aed930cfeca05295cf63a323570e8",
+            "media_config": "6b54569e79af50efc0759bdf5ad54783b50e9649de8fb05e5bc87435a5d6657e",
+            "gt": "2c46b2c64c837d64aa72d199f937e5c2298ae60d6698e1a1a541b2f577abf79b"
+          },
+          "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_064651_dbe_grounding_dino_4d212f/detections.jsonl",
+          "eval": "variantes/eind_mismo_caption/evals/eval_a_p1_c03.json"
+        }
+      }
+    },
+    "a_p1_c04": {
+      "estado": "ok",
+      "experiment_id": "exp_20261030T064825Z_gen2_alr06_a_p1_c04",
+      "media_run_id": "run_20261030_064825_dbe_grounding_dino_148d87",
+      "control_run_id": "gen2_alr06_a_p1_c04_20261030T065040Z_37dfa4",
+      "media_status": "succeeded",
+      "control_status": "succeeded",
+      "inicio": "2026-10-30T06:48:25+00:00",
+      "fin": "2026-10-30T06:50:43+00:00",
+      "segundos": 138.1,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p1_c04/media.yaml",
+      "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p1_c04/control.yaml",
+      "sha256": {
+        "control_config": "5962c700a87c9393960e0f619594d22b0dc6e73255d047134d5d04201e1da572",
+        "patrones": "934e18e1e82ee1c9d37a8aef05a8aa7f1b37fd552723f29ff01a74b1b6066001",
+        "media_config": "3c0c4dfa5f2c1a904d9f882530ef09c7525fb3edc576116d8ec2099f3d46c9d9",
+        "gt": "27bdaae2ee2e01cbddf9c387ceeebf5455ead842728615f412f82df317237ba6"
+      },
+      "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_064825_dbe_grounding_dino_148d87/detections.jsonl",
+      "eval": "evals/eval_a_p1_c04.json",
+      "unidades": 920,
+      "fps_efectivos": 6.88,
+      "modelo": "grounding_dino",
+      "variantes": {
+        "eind_mismo_caption": {
+          "estado": "ok",
+          "experiment_id": "exp_20261030T065044Z_gen2_alr06_eind_mismo_caption_a_p1_c04",
+          "media_run_id": "run_20261030_064825_dbe_grounding_dino_148d87",
+          "control_run_id": "gen2_alr06_eind_mismo_caption_a_p1_c04_20261030T065044Z_f019dc",
+          "media_status": "succeeded",
+          "control_status": "succeeded",
+          "inicio": "2026-10-30T06:50:44+00:00",
+          "fin": "2026-10-30T06:50:47+00:00",
+          "segundos": 3.0,
+          "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p1_c04/media.yaml",
+          "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_eind_mismo_caption_a_p1_c04/control.yaml",
+          "sha256": {
+            "control_config": "06023a085cb25fbfeb09bcb88201d82d48b443dd60b73ffc309e25ef690c83a8",
+            "patrones": "4f80f5d3b4e78046f8a033044475a667cd0aed930cfeca05295cf63a323570e8",
+            "media_config": "3c0c4dfa5f2c1a904d9f882530ef09c7525fb3edc576116d8ec2099f3d46c9d9",
+            "gt": "27bdaae2ee2e01cbddf9c387ceeebf5455ead842728615f412f82df317237ba6"
+          },
+          "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_064825_dbe_grounding_dino_148d87/detections.jsonl",
+          "eval": "variantes/eind_mismo_caption/evals/eval_a_p1_c04.json"
+        }
+      }
+    },
+    "a_p1_c05": {
+      "estado": "ok",
+      "experiment_id": "exp_20261030T065047Z_gen2_alr06_a_p1_c05",
+      "media_run_id": "run_20261030_065047_dbe_grounding_dino_4ba432",
+      "control_run_id": "gen2_alr06_a_p1_c05_20261030T065223Z_550486",
+      "media_status": "succeeded",
+      "control_status": "succeeded",
+      "inicio": "2026-10-30T06:50:47+00:00",
+      "fin": "2026-10-30T06:52:26+00:00",
+      "segundos": 99.1,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p1_c05/media.yaml",
+      "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p1_c05/control.yaml",
+      "sha256": {
+        "control_config": "5583b231544601326040592c550ddf5f065447daa7ff95d3a848001c40284cf5",
+        "patrones": "934e18e1e82ee1c9d37a8aef05a8aa7f1b37fd552723f29ff01a74b1b6066001",
+        "media_config": "27f5e85c25502b4d8f56471cd7c65e9a28981fef75352dc096255fbffb30cb61",
+        "gt": "1e7edccc268461b038c070c5a21e40b5999d7370d07616d6332c9fbd9542931b"
+      },
+      "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_065047_dbe_grounding_dino_4ba432/detections.jsonl",
+      "eval": "evals/eval_a_p1_c05.json",
+      "unidades": 650,
+      "fps_efectivos": 6.88,
+      "modelo": "grounding_dino",
+      "variantes": {
+        "eind_mismo_caption": {
+          "estado": "ok",
+          "experiment_id": "exp_20261030T065227Z_gen2_alr06_eind_mismo_caption_a_p1_c05",
+          "media_run_id": "run_20261030_065047_dbe_grounding_dino_4ba432",
+          "control_run_id": "gen2_alr06_eind_mismo_caption_a_p1_c05_20261030T065227Z_1ac668",
+          "media_status": "succeeded",
+          "control_status": "succeeded",
+          "inicio": "2026-10-30T06:52:27+00:00",
+          "fin": "2026-10-30T06:52:30+00:00",
+          "segundos": 3.0,
+          "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p1_c05/media.yaml",
+          "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_eind_mismo_caption_a_p1_c05/control.yaml",
+          "sha256": {
+            "control_config": "22c7ae5755efb885499e4cd4268b4fd7d08484a427cd7ebc37490caade8449ce",
+            "patrones": "4f80f5d3b4e78046f8a033044475a667cd0aed930cfeca05295cf63a323570e8",
+            "media_config": "27f5e85c25502b4d8f56471cd7c65e9a28981fef75352dc096255fbffb30cb61",
+            "gt": "1e7edccc268461b038c070c5a21e40b5999d7370d07616d6332c9fbd9542931b"
+          },
+          "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_065047_dbe_grounding_dino_4ba432/detections.jsonl",
+          "eval": "variantes/eind_mismo_caption/evals/eval_a_p1_c05.json"
+        }
+      }
+    },
+    "a_p1_c06": {
+      "estado": "ok",
+      "experiment_id": "exp_20261030T065230Z_gen2_alr06_a_p1_c06",
+      "media_run_id": "run_20261030_065230_dbe_grounding_dino_cefc2e",
+      "control_run_id": "gen2_alr06_a_p1_c06_20261030T065419Z_5c0f37",
+      "media_status": "succeeded",
+      "control_status": "succeeded",
+      "inicio": "2026-10-30T06:52:30+00:00",
+      "fin": "2026-10-30T06:54:21+00:00",
+      "segundos": 111.1,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p1_c06/media.yaml",
+      "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p1_c06/control.yaml",
+      "sha256": {
+        "control_config": "add451d4903cd72386eca8dd12d57c3831a7e3930c72d106f83c57cdb30a1680",
+        "patrones": "934e18e1e82ee1c9d37a8aef05a8aa7f1b37fd552723f29ff01a74b1b6066001",
+        "media_config": "8f94327113a9cb4d96f96f86bbdb18bce1cc65a8fc6651e1d7f70134e9c4d27f",
+        "gt": "5c898406b17693433f202f6645bff25fb7ef962709f4ca0b706340a3e0e0b322"
+      },
+      "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_065230_dbe_grounding_dino_cefc2e/detections.jsonl",
+      "eval": "evals/eval_a_p1_c06.json",
+      "unidades": 755,
+      "fps_efectivos": 6.93,
+      "modelo": "grounding_dino",
+      "variantes": {
+        "eind_mismo_caption": {
+          "estado": "ok",
+          "experiment_id": "exp_20261030T065421Z_gen2_alr06_eind_mismo_caption_a_p1_c06",
+          "media_run_id": "run_20261030_065230_dbe_grounding_dino_cefc2e",
+          "control_run_id": "gen2_alr06_eind_mismo_caption_a_p1_c06_20261030T065421Z_29732d",
+          "media_status": "succeeded",
+          "control_status": "succeeded",
+          "inicio": "2026-10-30T06:54:21+00:00",
+          "fin": "2026-10-30T06:54:24+00:00",
+          "segundos": 3.0,
+          "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p1_c06/media.yaml",
+          "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_eind_mismo_caption_a_p1_c06/control.yaml",
+          "sha256": {
+            "control_config": "cff2a2e2a6ea9ff5d263bc44275e3890bf6c97a20fc203ef70bfa329a383b56f",
+            "patrones": "4f80f5d3b4e78046f8a033044475a667cd0aed930cfeca05295cf63a323570e8",
+            "media_config": "8f94327113a9cb4d96f96f86bbdb18bce1cc65a8fc6651e1d7f70134e9c4d27f",
+            "gt": "5c898406b17693433f202f6645bff25fb7ef962709f4ca0b706340a3e0e0b322"
+          },
+          "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_065230_dbe_grounding_dino_cefc2e/detections.jsonl",
+          "eval": "variantes/eind_mismo_caption/evals/eval_a_p1_c06.json"
+        }
+      }
+    },
+    "a_p1_c07": {
+      "estado": "ok",
+      "experiment_id": "exp_20261030T065425Z_gen2_alr06_a_p1_c07",
+      "media_run_id": "run_20261030_065425_dbe_grounding_dino_9fdf1f",
+      "control_run_id": "gen2_alr06_a_p1_c07_20261030T065555Z_e3593e",
+      "media_status": "succeeded",
+      "control_status": "succeeded",
+      "inicio": "2026-10-30T06:54:25+00:00",
+      "fin": "2026-10-30T06:55:58+00:00",
+      "segundos": 93.1,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p1_c07/media.yaml",
+      "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p1_c07/control.yaml",
+      "sha256": {
+        "control_config": "33d79bcafd73064ca8374078f535dd671ae1c74324a4c0fb911373a1ae3029d2",
+        "patrones": "934e18e1e82ee1c9d37a8aef05a8aa7f1b37fd552723f29ff01a74b1b6066001",
+        "media_config": "79ebfb36d4379aa57b9c5a1b4f5b37c46d73c13835b69adc8e8693655a1894e7",
+        "gt": "b78af400822f755c2c1bf61067255aeb6d1ad44efa478aa257e82c4407041fd4"
+      },
+      "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_065425_dbe_grounding_dino_9fdf1f/detections.jsonl",
+      "eval": "evals/eval_a_p1_c07.json",
+      "unidades": 615,
+      "fps_efectivos": 6.88,
+      "modelo": "grounding_dino",
+      "variantes": {
+        "eind_mismo_caption": {
+          "estado": "ok",
+          "experiment_id": "exp_20261030T065558Z_gen2_alr06_eind_mismo_caption_a_p1_c07",
+          "media_run_id": "run_20261030_065425_dbe_grounding_dino_9fdf1f",
+          "control_run_id": "gen2_alr06_eind_mismo_caption_a_p1_c07_20261030T065558Z_df3bbe",
+          "media_status": "succeeded",
+          "control_status": "succeeded",
+          "inicio": "2026-10-30T06:55:58+00:00",
+          "fin": "2026-10-30T06:56:01+00:00",
+          "segundos": 3.0,
+          "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p1_c07/media.yaml",
+          "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_eind_mismo_caption_a_p1_c07/control.yaml",
+          "sha256": {
+            "control_config": "4f6e3005928014eff9b6162029ef8d4fe0214f56203328beae79e3b2582cf1a3",
+            "patrones": "4f80f5d3b4e78046f8a033044475a667cd0aed930cfeca05295cf63a323570e8",
+            "media_config": "79ebfb36d4379aa57b9c5a1b4f5b37c46d73c13835b69adc8e8693655a1894e7",
+            "gt": "b78af400822f755c2c1bf61067255aeb6d1ad44efa478aa257e82c4407041fd4"
+          },
+          "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_065425_dbe_grounding_dino_9fdf1f/detections.jsonl",
+          "eval": "variantes/eind_mismo_caption/evals/eval_a_p1_c07.json"
+        }
+      }
+    },
+    "a_p1_c08": {
+      "estado": "ok",
+      "experiment_id": "exp_20261030T065602Z_gen2_alr06_a_p1_c08",
+      "media_run_id": "run_20261030_065602_dbe_grounding_dino_dadf9c",
+      "control_run_id": "gen2_alr06_a_p1_c08_20261030T065747Z_42bb27",
+      "media_status": "succeeded",
+      "control_status": "succeeded",
+      "inicio": "2026-10-30T06:56:02+00:00",
+      "fin": "2026-10-30T06:57:50+00:00",
+      "segundos": 108.1,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p1_c08/media.yaml",
+      "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p1_c08/control.yaml",
+      "sha256": {
+        "control_config": "3b52f4d7685851337268da0d62b54ea8da867d0f20d8471103c50d0325d95963",
+        "patrones": "934e18e1e82ee1c9d37a8aef05a8aa7f1b37fd552723f29ff01a74b1b6066001",
+        "media_config": "6cf899ef8e9a9d53b312982ee66aac75f328ed5872032dff4fb77bfc45ee2f7e",
+        "gt": "68a4605053fd443332446c17e4abd0da4674bd08216882f75a18ff37311cc56f"
+      },
+      "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_065602_dbe_grounding_dino_dadf9c/detections.jsonl",
+      "eval": "evals/eval_a_p1_c08.json",
+      "unidades": 709,
+      "fps_efectivos": 6.77,
+      "modelo": "grounding_dino",
+      "variantes": {
+        "eind_mismo_caption": {
+          "estado": "ok",
+          "experiment_id": "exp_20261030T065750Z_gen2_alr06_eind_mismo_caption_a_p1_c08",
+          "media_run_id": "run_20261030_065602_dbe_grounding_dino_dadf9c",
+          "control_run_id": "gen2_alr06_eind_mismo_caption_a_p1_c08_20261030T065750Z_79fc9b",
+          "media_status": "succeeded",
+          "control_status": "succeeded",
+          "inicio": "2026-10-30T06:57:50+00:00",
+          "fin": "2026-10-30T06:57:53+00:00",
+          "segundos": 3.0,
+          "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p1_c08/media.yaml",
+          "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_eind_mismo_caption_a_p1_c08/control.yaml",
+          "sha256": {
+            "control_config": "8e3ae4d28879dfd9a5b111c6d57e4a7949684287a6b06c8690831930da9443f5",
+            "patrones": "4f80f5d3b4e78046f8a033044475a667cd0aed930cfeca05295cf63a323570e8",
+            "media_config": "6cf899ef8e9a9d53b312982ee66aac75f328ed5872032dff4fb77bfc45ee2f7e",
+            "gt": "68a4605053fd443332446c17e4abd0da4674bd08216882f75a18ff37311cc56f"
+          },
+          "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_065602_dbe_grounding_dino_dadf9c/detections.jsonl",
+          "eval": "variantes/eind_mismo_caption/evals/eval_a_p1_c08.json"
+        }
+      }
+    },
+    "a_p1_c09": {
+      "estado": "ok",
+      "experiment_id": "exp_20261030T065753Z_gen2_alr06_a_p1_c09",
+      "media_run_id": "run_20261030_065753_dbe_grounding_dino_1f8d3e",
+      "control_run_id": "gen2_alr06_a_p1_c09_20261030T065938Z_708b3c",
+      "media_status": "succeeded",
+      "control_status": "succeeded",
+      "inicio": "2026-10-30T06:57:53+00:00",
+      "fin": "2026-10-30T06:59:42+00:00",
+      "segundos": 108.1,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p1_c09/media.yaml",
+      "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p1_c09/control.yaml",
+      "sha256": {
+        "control_config": "50eba747c40090e9de77c1d032799473f67bd625f189851fcadf6c32770ec4f5",
+        "patrones": "934e18e1e82ee1c9d37a8aef05a8aa7f1b37fd552723f29ff01a74b1b6066001",
+        "media_config": "c660cb7424236652226b7b3c738ab80f00e8b6570010dab15ebfee18d8dc1a5f",
+        "gt": "8606bbe8dab1105cc1b1116daee98b37380245c38b974025fa00b5116c046125"
+      },
+      "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_065753_dbe_grounding_dino_1f8d3e/detections.jsonl",
+      "eval": "evals/eval_a_p1_c09.json",
+      "unidades": 722,
+      "fps_efectivos": 6.93,
+      "modelo": "grounding_dino",
+      "variantes": {
+        "eind_mismo_caption": {
+          "estado": "ok",
+          "experiment_id": "exp_20261030T065942Z_gen2_alr06_eind_mismo_caption_a_p1_c09",
+          "media_run_id": "run_20261030_065753_dbe_grounding_dino_1f8d3e",
+          "control_run_id": "gen2_alr06_eind_mismo_caption_a_p1_c09_20261030T065942Z_ce9e8b",
+          "media_status": "succeeded",
+          "control_status": "succeeded",
+          "inicio": "2026-10-30T06:59:42+00:00",
+          "fin": "2026-10-30T06:59:45+00:00",
+          "segundos": 3.0,
+          "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p1_c09/media.yaml",
+          "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_eind_mismo_caption_a_p1_c09/control.yaml",
+          "sha256": {
+            "control_config": "24be98532c36b522f5a90151cfd41d04f490ab5130cfcdae6161507ebce71b74",
+            "patrones": "4f80f5d3b4e78046f8a033044475a667cd0aed930cfeca05295cf63a323570e8",
+            "media_config": "c660cb7424236652226b7b3c738ab80f00e8b6570010dab15ebfee18d8dc1a5f",
+            "gt": "8606bbe8dab1105cc1b1116daee98b37380245c38b974025fa00b5116c046125"
+          },
+          "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_065753_dbe_grounding_dino_1f8d3e/detections.jsonl",
+          "eval": "variantes/eind_mismo_caption/evals/eval_a_p1_c09.json"
+        }
+      }
+    },
+    "a_p1_c10": {
+      "estado": "ok",
+      "experiment_id": "exp_20261030T065945Z_gen2_alr06_a_p1_c10",
+      "media_run_id": "run_20261030_065945_dbe_grounding_dino_4e020f",
+      "control_run_id": "gen2_alr06_a_p1_c10_20261030T070150Z_657067",
+      "media_status": "succeeded",
+      "control_status": "succeeded",
+      "inicio": "2026-10-30T06:59:45+00:00",
+      "fin": "2026-10-30T07:01:52+00:00",
+      "segundos": 126.2,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p1_c10/media.yaml",
+      "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p1_c10/control.yaml",
+      "sha256": {
+        "control_config": "faec60ff56c4ce8621d1f566674fe00a419a84eb51bfc4541e66fb248617722b",
+        "patrones": "934e18e1e82ee1c9d37a8aef05a8aa7f1b37fd552723f29ff01a74b1b6066001",
+        "media_config": "3261734df024e759b457e9a3c27d8b619b5e227692bfcf6c99cfa135e23ba856",
+        "gt": "e64d5fa112a50b1f5a5a4be4549ba26c28e9f4a93d27966b55bd41df897a30f6"
+      },
+      "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_065945_dbe_grounding_dino_4e020f/detections.jsonl",
+      "eval": "evals/eval_a_p1_c10.json",
+      "unidades": 859,
+      "fps_efectivos": 6.94,
+      "modelo": "grounding_dino",
+      "variantes": {
+        "eind_mismo_caption": {
+          "estado": "ok",
+          "experiment_id": "exp_20261030T070152Z_gen2_alr06_eind_mismo_caption_a_p1_c10",
+          "media_run_id": "run_20261030_065945_dbe_grounding_dino_4e020f",
+          "control_run_id": "gen2_alr06_eind_mismo_caption_a_p1_c10_20261030T070152Z_c449e6",
+          "media_status": "succeeded",
+          "control_status": "succeeded",
+          "inicio": "2026-10-30T07:01:52+00:00",
+          "fin": "2026-10-30T07:01:55+00:00",
+          "segundos": 3.0,
+          "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p1_c10/media.yaml",
+          "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_eind_mismo_caption_a_p1_c10/control.yaml",
+          "sha256": {
+            "control_config": "019e993691e9bb21f3265f33ac7aa256de21f531e3c94f31e018570d8050dbb2",
+            "patrones": "4f80f5d3b4e78046f8a033044475a667cd0aed930cfeca05295cf63a323570e8",
+            "media_config": "3261734df024e759b457e9a3c27d8b619b5e227692bfcf6c99cfa135e23ba856",
+            "gt": "e64d5fa112a50b1f5a5a4be4549ba26c28e9f4a93d27966b55bd41df897a30f6"
+          },
+          "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_065945_dbe_grounding_dino_4e020f/detections.jsonl",
+          "eval": "variantes/eind_mismo_caption/evals/eval_a_p1_c10.json"
+        }
+      }
+    },
+    "a_p1_c11": {
+      "estado": "ok",
+      "experiment_id": "exp_20261030T070155Z_gen2_alr06_a_p1_c11",
+      "media_run_id": "run_20261030_070155_dbe_grounding_dino_e38b7a",
+      "control_run_id": "gen2_alr06_a_p1_c11_20261030T070348Z_944f38",
+      "media_status": "succeeded",
+      "control_status": "succeeded",
+      "inicio": "2026-10-30T07:01:55+00:00",
+      "fin": "2026-10-30T07:03:49+00:00",
+      "segundos": 114.2,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p1_c11/media.yaml",
+      "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p1_c11/control.yaml",
+      "sha256": {
+        "control_config": "20b30f3c8524a52ba01986d2fefd56c4ed172611476f8df13ec362402fd236f1",
+        "patrones": "934e18e1e82ee1c9d37a8aef05a8aa7f1b37fd552723f29ff01a74b1b6066001",
+        "media_config": "f112ec62457bf3c5b218ca4a701b743eb477f95611f243c84cc07328e4482f45",
+        "gt": "e2c924669d56c1e8a7b5a1f9ca7d44d63f8075b6eaa777bb5fe66e767c8f1f78"
+      },
+      "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_070155_dbe_grounding_dino_e38b7a/detections.jsonl",
+      "eval": "evals/eval_a_p1_c11.json",
+      "unidades": 778,
+      "fps_efectivos": 6.96,
+      "modelo": "grounding_dino",
+      "variantes": {
+        "eind_mismo_caption": {
+          "estado": "ok",
+          "experiment_id": "exp_20261030T070350Z_gen2_alr06_eind_mismo_caption_a_p1_c11",
+          "media_run_id": "run_20261030_070155_dbe_grounding_dino_e38b7a",
+          "control_run_id": "gen2_alr06_eind_mismo_caption_a_p1_c11_20261030T070350Z_d161bf",
+          "media_status": "succeeded",
+          "control_status": "succeeded",
+          "inicio": "2026-10-30T07:03:50+00:00",
+          "fin": "2026-10-30T07:03:53+00:00",
+          "segundos": 3.0,
+          "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p1_c11/media.yaml",
+          "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_eind_mismo_caption_a_p1_c11/control.yaml",
+          "sha256": {
+            "control_config": "9e857a0b965552681ae19bdbe6884a9e16fa50ff4307847c80ad0e457b0409ff",
+            "patrones": "4f80f5d3b4e78046f8a033044475a667cd0aed930cfeca05295cf63a323570e8",
+            "media_config": "f112ec62457bf3c5b218ca4a701b743eb477f95611f243c84cc07328e4482f45",
+            "gt": "e2c924669d56c1e8a7b5a1f9ca7d44d63f8075b6eaa777bb5fe66e767c8f1f78"
+          },
+          "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_070155_dbe_grounding_dino_e38b7a/detections.jsonl",
+          "eval": "variantes/eind_mismo_caption/evals/eval_a_p1_c11.json"
+        }
+      }
+    },
+    "a_p1_c12": {
+      "estado": "ok",
+      "experiment_id": "exp_20261030T070353Z_gen2_alr06_a_p1_c12",
+      "media_run_id": "run_20261030_070353_dbe_grounding_dino_980dc3",
+      "control_run_id": "gen2_alr06_a_p1_c12_20261030T070541Z_b03a2e",
+      "media_status": "succeeded",
+      "control_status": "succeeded",
+      "inicio": "2026-10-30T07:03:53+00:00",
+      "fin": "2026-10-30T07:05:44+00:00",
+      "segundos": 111.1,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p1_c12/media.yaml",
+      "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p1_c12/control.yaml",
+      "sha256": {
+        "control_config": "623ed94445e40e7d2040cead3eb7d8fc8e28e0c44a6c36357749dda9e984dfbe",
+        "patrones": "934e18e1e82ee1c9d37a8aef05a8aa7f1b37fd552723f29ff01a74b1b6066001",
+        "media_config": "e34a8e77ac14c7a3efb330dc920f310f3ad114f82befa0b00305386aaf666708",
+        "gt": "9e0091abe15a140b985f9c50f08c6f65f8361d5ec34becb2499549a2028d053f"
+      },
+      "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_070353_dbe_grounding_dino_980dc3/detections.jsonl",
+      "eval": "evals/eval_a_p1_c12.json",
+      "unidades": 752,
+      "fps_efectivos": 7.02,
+      "modelo": "grounding_dino",
+      "variantes": {
+        "eind_mismo_caption": {
+          "estado": "ok",
+          "experiment_id": "exp_20261030T070545Z_gen2_alr06_eind_mismo_caption_a_p1_c12",
+          "media_run_id": "run_20261030_070353_dbe_grounding_dino_980dc3",
+          "control_run_id": "gen2_alr06_eind_mismo_caption_a_p1_c12_20261030T070545Z_8d8229",
+          "media_status": "succeeded",
+          "control_status": "succeeded",
+          "inicio": "2026-10-30T07:05:45+00:00",
+          "fin": "2026-10-30T07:05:48+00:00",
+          "segundos": 3.0,
+          "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p1_c12/media.yaml",
+          "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_eind_mismo_caption_a_p1_c12/control.yaml",
+          "sha256": {
+            "control_config": "15881a133f93e2fd6c9adf93f72e5f5e20ab71bacda0e7c14bc14b1c71a12546",
+            "patrones": "4f80f5d3b4e78046f8a033044475a667cd0aed930cfeca05295cf63a323570e8",
+            "media_config": "e34a8e77ac14c7a3efb330dc920f310f3ad114f82befa0b00305386aaf666708",
+            "gt": "9e0091abe15a140b985f9c50f08c6f65f8361d5ec34becb2499549a2028d053f"
+          },
+          "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_070353_dbe_grounding_dino_980dc3/detections.jsonl",
+          "eval": "variantes/eind_mismo_caption/evals/eval_a_p1_c12.json"
+        }
+      }
+    },
+    "a_p2_c01": {
+      "estado": "ok",
+      "experiment_id": "exp_20261030T070548Z_gen2_alr06_a_p2_c01",
+      "media_run_id": "run_20261030_070548_dbe_grounding_dino_816d8e",
+      "control_run_id": "gen2_alr06_a_p2_c01_20261030T070827Z_9b0edf",
+      "media_status": "succeeded",
+      "control_status": "succeeded",
+      "inicio": "2026-10-30T07:05:48+00:00",
+      "fin": "2026-10-30T07:08:30+00:00",
+      "segundos": 162.1,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p2_c01/media.yaml",
+      "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p2_c01/control.yaml",
+      "sha256": {
+        "control_config": "9e1bdf4e3998995dea136a6803c0c485a7d21daeb223430687ac067c03878b0d",
+        "patrones": "934e18e1e82ee1c9d37a8aef05a8aa7f1b37fd552723f29ff01a74b1b6066001",
+        "media_config": "1608c4ba067b269e7073f9c332aeb7fcfbb44a07930610bd6d3de5a350fbdb74",
+        "gt": "5378da264b6c9323e8801e6672cce4ad60548f30b141768c3c661e01fef0e475"
+      },
+      "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_070548_dbe_grounding_dino_816d8e/detections.jsonl",
+      "eval": "evals/eval_a_p2_c01.json",
+      "unidades": 1093,
+      "fps_efectivos": 6.93,
+      "modelo": "grounding_dino",
+      "variantes": {
+        "eind_mismo_caption": {
+          "estado": "ok",
+          "experiment_id": "exp_20261030T070831Z_gen2_alr06_eind_mismo_caption_a_p2_c01",
+          "media_run_id": "run_20261030_070548_dbe_grounding_dino_816d8e",
+          "control_run_id": "gen2_alr06_eind_mismo_caption_a_p2_c01_20261030T070831Z_5f40a3",
+          "media_status": "succeeded",
+          "control_status": "succeeded",
+          "inicio": "2026-10-30T07:08:31+00:00",
+          "fin": "2026-10-30T07:08:34+00:00",
+          "segundos": 3.0,
+          "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p2_c01/media.yaml",
+          "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_eind_mismo_caption_a_p2_c01/control.yaml",
+          "sha256": {
+            "control_config": "d0771d89e99ce437f6494795948c0bb06510350ee250c306fd2d0577d19d00dc",
+            "patrones": "4f80f5d3b4e78046f8a033044475a667cd0aed930cfeca05295cf63a323570e8",
+            "media_config": "1608c4ba067b269e7073f9c332aeb7fcfbb44a07930610bd6d3de5a350fbdb74",
+            "gt": "5378da264b6c9323e8801e6672cce4ad60548f30b141768c3c661e01fef0e475"
+          },
+          "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_070548_dbe_grounding_dino_816d8e/detections.jsonl",
+          "eval": "variantes/eind_mismo_caption/evals/eval_a_p2_c01.json"
+        }
+      }
+    },
+    "a_p2_c02": {
+      "estado": "ok",
+      "experiment_id": "exp_20261030T070834Z_gen2_alr06_a_p2_c02",
+      "media_run_id": "run_20261030_070834_dbe_grounding_dino_1b9e69",
+      "control_run_id": "gen2_alr06_a_p2_c02_20261030T071121Z_4fe79a",
+      "media_status": "succeeded",
+      "control_status": "succeeded",
+      "inicio": "2026-10-30T07:08:34+00:00",
+      "fin": "2026-10-30T07:11:23+00:00",
+      "segundos": 168.5,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p2_c02/media.yaml",
+      "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p2_c02/control.yaml",
+      "sha256": {
+        "control_config": "2155c7b1fa4c67def0365bc2ba554892b4a2e7c07b5cbebeef78ce23891632ed",
+        "patrones": "934e18e1e82ee1c9d37a8aef05a8aa7f1b37fd552723f29ff01a74b1b6066001",
+        "media_config": "c2b3fbc3dd8bf4dbd14a342089d567a9b674e2e34773d0e0d6cad6ddc49c8e82",
+        "gt": "69774a6dfa5c1eb802cfdd93122231268cc3017d3800d95ea6b7e61a341fd3ec"
+      },
+      "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_070834_dbe_grounding_dino_1b9e69/detections.jsonl",
+      "eval": "evals/eval_a_p2_c02.json",
+      "unidades": 1145,
+      "fps_efectivos": 6.88,
+      "modelo": "grounding_dino",
+      "variantes": {
+        "eind_mismo_caption": {
+          "estado": "ok",
+          "experiment_id": "exp_20261030T071123Z_gen2_alr06_eind_mismo_caption_a_p2_c02",
+          "media_run_id": "run_20261030_070834_dbe_grounding_dino_1b9e69",
+          "control_run_id": "gen2_alr06_eind_mismo_caption_a_p2_c02_20261030T071123Z_b2ca1a",
+          "media_status": "succeeded",
+          "control_status": "succeeded",
+          "inicio": "2026-10-30T07:11:23+00:00",
+          "fin": "2026-10-30T07:11:26+00:00",
+          "segundos": 3.0,
+          "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p2_c02/media.yaml",
+          "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_eind_mismo_caption_a_p2_c02/control.yaml",
+          "sha256": {
+            "control_config": "d813a3e6289030037693e46fddf5d8a79955eedb99dc99fb3e928b3c2ec23fc5",
+            "patrones": "4f80f5d3b4e78046f8a033044475a667cd0aed930cfeca05295cf63a323570e8",
+            "media_config": "c2b3fbc3dd8bf4dbd14a342089d567a9b674e2e34773d0e0d6cad6ddc49c8e82",
+            "gt": "69774a6dfa5c1eb802cfdd93122231268cc3017d3800d95ea6b7e61a341fd3ec"
+          },
+          "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_070834_dbe_grounding_dino_1b9e69/detections.jsonl",
+          "eval": "variantes/eind_mismo_caption/evals/eval_a_p2_c02.json"
+        }
+      }
+    },
+    "a_p2_c03": {
+      "estado": "ok",
+      "experiment_id": "exp_20261030T071126Z_gen2_alr06_a_p2_c03",
+      "media_run_id": "run_20261030_071126_dbe_grounding_dino_8253e9",
+      "control_run_id": "gen2_alr06_a_p2_c03_20261030T071410Z_09d31d",
+      "media_status": "succeeded",
+      "control_status": "succeeded",
+      "inicio": "2026-10-30T07:11:26+00:00",
+      "fin": "2026-10-30T07:14:12+00:00",
+      "segundos": 165.4,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p2_c03/media.yaml",
+      "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p2_c03/control.yaml",
+      "sha256": {
+        "control_config": "927f1b69513198a8c565f39c2a729c2fdef8eaaa0ca9d2d75725ff84bab7e90b",
+        "patrones": "934e18e1e82ee1c9d37a8aef05a8aa7f1b37fd552723f29ff01a74b1b6066001",
+        "media_config": "6308e8201c0f7e91fea2b848f29b86f9728ab4d8c573f96e7d50b376f4bb276c",
+        "gt": "6d8decc8d2a0c893203409bc378d947272ca015bb1a5e9c74510d0e04ee5e552"
+      },
+      "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_071126_dbe_grounding_dino_8253e9/detections.jsonl",
+      "eval": "evals/eval_a_p2_c03.json",
+      "unidades": 1125,
+      "fps_efectivos": 6.88,
+      "modelo": "grounding_dino",
+      "variantes": {
+        "eind_mismo_caption": {
+          "estado": "ok",
+          "experiment_id": "exp_20261030T071412Z_gen2_alr06_eind_mismo_caption_a_p2_c03",
+          "media_run_id": "run_20261030_071126_dbe_grounding_dino_8253e9",
+          "control_run_id": "gen2_alr06_eind_mismo_caption_a_p2_c03_20261030T071412Z_7bf496",
+          "media_status": "succeeded",
+          "control_status": "succeeded",
+          "inicio": "2026-10-30T07:14:12+00:00",
+          "fin": "2026-10-30T07:14:15+00:00",
+          "segundos": 3.0,
+          "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p2_c03/media.yaml",
+          "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_eind_mismo_caption_a_p2_c03/control.yaml",
+          "sha256": {
+            "control_config": "9e7d46f77792e32f0c8ed0b7cefcada732912e3a9181c1c54eb5f515c305718e",
+            "patrones": "4f80f5d3b4e78046f8a033044475a667cd0aed930cfeca05295cf63a323570e8",
+            "media_config": "6308e8201c0f7e91fea2b848f29b86f9728ab4d8c573f96e7d50b376f4bb276c",
+            "gt": "6d8decc8d2a0c893203409bc378d947272ca015bb1a5e9c74510d0e04ee5e552"
+          },
+          "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_071126_dbe_grounding_dino_8253e9/detections.jsonl",
+          "eval": "variantes/eind_mismo_caption/evals/eval_a_p2_c03.json"
+        }
+      }
+    },
+    "a_p2_c04": {
+      "estado": "ok",
+      "experiment_id": "exp_20261030T071416Z_gen2_alr06_a_p2_c04",
+      "media_run_id": "run_20261030_071416_dbe_grounding_dino_dfa855",
+      "control_run_id": "gen2_alr06_a_p2_c04_20261030T071719Z_419a69",
+      "media_status": "succeeded",
+      "control_status": "succeeded",
+      "inicio": "2026-10-30T07:14:16+00:00",
+      "fin": "2026-10-30T07:17:22+00:00",
+      "segundos": 186.1,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p2_c04/media.yaml",
+      "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p2_c04/control.yaml",
+      "sha256": {
+        "control_config": "26755f0964fd04c7293ecbf62fe44f050f0bd13d0af0f87431bab3a747a584bb",
+        "patrones": "934e18e1e82ee1c9d37a8aef05a8aa7f1b37fd552723f29ff01a74b1b6066001",
+        "media_config": "4d1398602c1c2e9bb955d052c09d38f3a1a10aa9ec33424f172a52ad63b4c732",
+        "gt": "071659427de0178d4a09cc0c85e5fa808e5214811da4de8479fb3e2eded87367"
+      },
+      "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_071416_dbe_grounding_dino_dfa855/detections.jsonl",
+      "eval": "evals/eval_a_p2_c04.json",
+      "unidades": 1270,
+      "fps_efectivos": 6.96,
+      "modelo": "grounding_dino",
+      "variantes": {
+        "eind_mismo_caption": {
+          "estado": "ok",
+          "experiment_id": "exp_20261030T071722Z_gen2_alr06_eind_mismo_caption_a_p2_c04",
+          "media_run_id": "run_20261030_071416_dbe_grounding_dino_dfa855",
+          "control_run_id": "gen2_alr06_eind_mismo_caption_a_p2_c04_20261030T071722Z_fd55ee",
+          "media_status": "succeeded",
+          "control_status": "succeeded",
+          "inicio": "2026-10-30T07:17:22+00:00",
+          "fin": "2026-10-30T07:17:25+00:00",
+          "segundos": 3.0,
+          "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p2_c04/media.yaml",
+          "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_eind_mismo_caption_a_p2_c04/control.yaml",
+          "sha256": {
+            "control_config": "f04db72909dbd81960d9b72692c38d17cf159aa3a87f16de3f03525b6878588f",
+            "patrones": "4f80f5d3b4e78046f8a033044475a667cd0aed930cfeca05295cf63a323570e8",
+            "media_config": "4d1398602c1c2e9bb955d052c09d38f3a1a10aa9ec33424f172a52ad63b4c732",
+            "gt": "071659427de0178d4a09cc0c85e5fa808e5214811da4de8479fb3e2eded87367"
+          },
+          "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_071416_dbe_grounding_dino_dfa855/detections.jsonl",
+          "eval": "variantes/eind_mismo_caption/evals/eval_a_p2_c04.json"
+        }
+      }
+    },
+    "a_p2_c05": {
+      "estado": "ok",
+      "experiment_id": "exp_20261030T071726Z_gen2_alr06_a_p2_c05",
+      "media_run_id": "run_20261030_071726_dbe_grounding_dino_0eefff",
+      "control_run_id": "gen2_alr06_a_p2_c05_20261030T072017Z_f4cc0b",
+      "media_status": "succeeded",
+      "control_status": "succeeded",
+      "inicio": "2026-10-30T07:17:26+00:00",
+      "fin": "2026-10-30T07:20:20+00:00",
+      "segundos": 174.1,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p2_c05/media.yaml",
+      "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p2_c05/control.yaml",
+      "sha256": {
+        "control_config": "50f87db0e6e7f0f101afe045fb1e03058518c5951d5ebbd3b3db9178d63da933",
+        "patrones": "934e18e1e82ee1c9d37a8aef05a8aa7f1b37fd552723f29ff01a74b1b6066001",
+        "media_config": "35262d26ccc1406107786193c1fb0dc32180ebf64f0dab0aeb6951ae25070cdb",
+        "gt": "9c86be7aeaae4d9dba9c871e58d741c28a145eba7d57476e81acf1df8798fdd4"
+      },
+      "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_071726_dbe_grounding_dino_0eefff/detections.jsonl",
+      "eval": "evals/eval_a_p2_c05.json",
+      "unidades": 1184,
+      "fps_efectivos": 6.93,
+      "modelo": "grounding_dino",
+      "variantes": {
+        "eind_mismo_caption": {
+          "estado": "ok",
+          "experiment_id": "exp_20261030T072020Z_gen2_alr06_eind_mismo_caption_a_p2_c05",
+          "media_run_id": "run_20261030_071726_dbe_grounding_dino_0eefff",
+          "control_run_id": "gen2_alr06_eind_mismo_caption_a_p2_c05_20261030T072020Z_21a94a",
+          "media_status": "succeeded",
+          "control_status": "succeeded",
+          "inicio": "2026-10-30T07:20:20+00:00",
+          "fin": "2026-10-30T07:20:23+00:00",
+          "segundos": 3.0,
+          "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p2_c05/media.yaml",
+          "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_eind_mismo_caption_a_p2_c05/control.yaml",
+          "sha256": {
+            "control_config": "dc146d03bf4f493beb7ae656f75ebfa625a330f313736825daaa68cc0b274a77",
+            "patrones": "4f80f5d3b4e78046f8a033044475a667cd0aed930cfeca05295cf63a323570e8",
+            "media_config": "35262d26ccc1406107786193c1fb0dc32180ebf64f0dab0aeb6951ae25070cdb",
+            "gt": "9c86be7aeaae4d9dba9c871e58d741c28a145eba7d57476e81acf1df8798fdd4"
+          },
+          "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_071726_dbe_grounding_dino_0eefff/detections.jsonl",
+          "eval": "variantes/eind_mismo_caption/evals/eval_a_p2_c05.json"
+        }
+      }
+    },
+    "a_p3_c01": {
+      "estado": "ok",
+      "experiment_id": "exp_20261030T072024Z_gen2_alr06_a_p3_c01",
+      "media_run_id": "run_20261030_072024_dbe_grounding_dino_e634c5",
+      "control_run_id": "gen2_alr06_a_p3_c01_20261030T072145Z_a4f492",
+      "media_status": "succeeded",
+      "control_status": "succeeded",
+      "inicio": "2026-10-30T07:20:24+00:00",
+      "fin": "2026-10-30T07:21:48+00:00",
+      "segundos": 84.1,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p3_c01/media.yaml",
+      "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p3_c01/control.yaml",
+      "sha256": {
+        "control_config": "050877b4a4faaa07fc33b48fdb78db12b0d4eb42075e4bf26fa98946c56980ae",
+        "patrones": "934e18e1e82ee1c9d37a8aef05a8aa7f1b37fd552723f29ff01a74b1b6066001",
+        "media_config": "bb913aa8b4c7611dc5d30127ace8489b40bc4a516593915dc8f8ec91707d6519",
+        "gt": "55a668bcd188bb09929abe31a211bd3106cc7c41893e770535e7a0043f766dfc"
+      },
+      "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_072024_dbe_grounding_dino_e634c5/detections.jsonl",
+      "eval": "evals/eval_a_p3_c01.json",
+      "unidades": 552,
+      "fps_efectivos": 6.84,
+      "modelo": "grounding_dino",
+      "variantes": {
+        "eind_mismo_caption": {
+          "estado": "ok",
+          "experiment_id": "exp_20261030T072148Z_gen2_alr06_eind_mismo_caption_a_p3_c01",
+          "media_run_id": "run_20261030_072024_dbe_grounding_dino_e634c5",
+          "control_run_id": "gen2_alr06_eind_mismo_caption_a_p3_c01_20261030T072148Z_29dce4",
+          "media_status": "succeeded",
+          "control_status": "succeeded",
+          "inicio": "2026-10-30T07:21:48+00:00",
+          "fin": "2026-10-30T07:21:51+00:00",
+          "segundos": 3.0,
+          "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p3_c01/media.yaml",
+          "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_eind_mismo_caption_a_p3_c01/control.yaml",
+          "sha256": {
+            "control_config": "c00cc40242d04d96d84c20f0d0eb01b16f65845b1e426c880eaba2b666059159",
+            "patrones": "4f80f5d3b4e78046f8a033044475a667cd0aed930cfeca05295cf63a323570e8",
+            "media_config": "bb913aa8b4c7611dc5d30127ace8489b40bc4a516593915dc8f8ec91707d6519",
+            "gt": "55a668bcd188bb09929abe31a211bd3106cc7c41893e770535e7a0043f766dfc"
+          },
+          "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_072024_dbe_grounding_dino_e634c5/detections.jsonl",
+          "eval": "variantes/eind_mismo_caption/evals/eval_a_p3_c01.json"
+        }
+      }
+    },
+    "a_p3_c02": {
+      "estado": "ok",
+      "experiment_id": "exp_20261030T072151Z_gen2_alr06_a_p3_c02",
+      "media_run_id": "run_20261030_072151_dbe_grounding_dino_37d52b",
+      "control_run_id": "gen2_alr06_a_p3_c02_20261030T072313Z_dfa6ba",
+      "media_status": "succeeded",
+      "control_status": "succeeded",
+      "inicio": "2026-10-30T07:21:51+00:00",
+      "fin": "2026-10-30T07:23:15+00:00",
+      "segundos": 84.1,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p3_c02/media.yaml",
+      "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p3_c02/control.yaml",
+      "sha256": {
+        "control_config": "65daea7e8de752b98fe284d3b6fe043ac4f4835fcec871fcf01382274351c415",
+        "patrones": "934e18e1e82ee1c9d37a8aef05a8aa7f1b37fd552723f29ff01a74b1b6066001",
+        "media_config": "12dd6ecda9afb6c9182c8701fa9fca9b6cf782ed8c4abceca50063cd060e885f",
+        "gt": "9edf2cda8efaf9bd479f951d93c91a8fac16c7c17a7c81c2d1417bcecbfb9601"
+      },
+      "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_072151_dbe_grounding_dino_37d52b/detections.jsonl",
+      "eval": "evals/eval_a_p3_c02.json",
+      "unidades": 555,
+      "fps_efectivos": 6.88,
+      "modelo": "grounding_dino",
+      "variantes": {
+        "eind_mismo_caption": {
+          "estado": "ok",
+          "experiment_id": "exp_20261030T072316Z_gen2_alr06_eind_mismo_caption_a_p3_c02",
+          "media_run_id": "run_20261030_072151_dbe_grounding_dino_37d52b",
+          "control_run_id": "gen2_alr06_eind_mismo_caption_a_p3_c02_20261030T072316Z_4a180b",
+          "media_status": "succeeded",
+          "control_status": "succeeded",
+          "inicio": "2026-10-30T07:23:16+00:00",
+          "fin": "2026-10-30T07:23:19+00:00",
+          "segundos": 3.0,
+          "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p3_c02/media.yaml",
+          "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_eind_mismo_caption_a_p3_c02/control.yaml",
+          "sha256": {
+            "control_config": "5991a249b5eb9b0016114299e0d94fe145e221742fc21a76d773308d9dd8d4fe",
+            "patrones": "4f80f5d3b4e78046f8a033044475a667cd0aed930cfeca05295cf63a323570e8",
+            "media_config": "12dd6ecda9afb6c9182c8701fa9fca9b6cf782ed8c4abceca50063cd060e885f",
+            "gt": "9edf2cda8efaf9bd479f951d93c91a8fac16c7c17a7c81c2d1417bcecbfb9601"
+          },
+          "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_072151_dbe_grounding_dino_37d52b/detections.jsonl",
+          "eval": "variantes/eind_mismo_caption/evals/eval_a_p3_c02.json"
+        }
+      }
+    },
+    "a_p4_c01": {
+      "estado": "ok",
+      "experiment_id": "exp_20261030T072319Z_gen2_alr06_a_p4_c01",
+      "media_run_id": "run_20261030_072319_dbe_grounding_dino_d6b87d",
+      "control_run_id": "gen2_alr06_a_p4_c01_20261030T072534Z_09fba7",
+      "media_status": "succeeded",
+      "control_status": "succeeded",
+      "inicio": "2026-10-30T07:23:19+00:00",
+      "fin": "2026-10-30T07:25:37+00:00",
+      "segundos": 138.1,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p4_c01/media.yaml",
+      "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p4_c01/control.yaml",
+      "sha256": {
+        "control_config": "0c5a3920294f64f378052d99a7fbbbaf9ab14b98616e6cd31a542254d3fbf9a5",
+        "patrones": "934e18e1e82ee1c9d37a8aef05a8aa7f1b37fd552723f29ff01a74b1b6066001",
+        "media_config": "2124f14f10e7ff404966ce1d1bd05f0eb12f6cca3513e4501eba2af131231205",
+        "gt": "e600e68f8bc863bc245e04d363b6209ee5d591a492bcc58b1f2f264ea07b0295"
+      },
+      "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_072319_dbe_grounding_dino_d6b87d/detections.jsonl",
+      "eval": "evals/eval_a_p4_c01.json",
+      "unidades": 892,
+      "fps_efectivos": 6.65,
+      "modelo": "grounding_dino",
+      "variantes": {
+        "eind_mismo_caption": {
+          "estado": "ok",
+          "experiment_id": "exp_20261030T072538Z_gen2_alr06_eind_mismo_caption_a_p4_c01",
+          "media_run_id": "run_20261030_072319_dbe_grounding_dino_d6b87d",
+          "control_run_id": "gen2_alr06_eind_mismo_caption_a_p4_c01_20261030T072538Z_223bdc",
+          "media_status": "succeeded",
+          "control_status": "succeeded",
+          "inicio": "2026-10-30T07:25:38+00:00",
+          "fin": "2026-10-30T07:25:41+00:00",
+          "segundos": 3.0,
+          "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p4_c01/media.yaml",
+          "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_eind_mismo_caption_a_p4_c01/control.yaml",
+          "sha256": {
+            "control_config": "ffe804ce6bead15e0ed7814c9c41f4cc0dd3f3e23ef82790a311093d3833d9ab",
+            "patrones": "4f80f5d3b4e78046f8a033044475a667cd0aed930cfeca05295cf63a323570e8",
+            "media_config": "2124f14f10e7ff404966ce1d1bd05f0eb12f6cca3513e4501eba2af131231205",
+            "gt": "e600e68f8bc863bc245e04d363b6209ee5d591a492bcc58b1f2f264ea07b0295"
+          },
+          "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_072319_dbe_grounding_dino_d6b87d/detections.jsonl",
+          "eval": "variantes/eind_mismo_caption/evals/eval_a_p4_c01.json"
+        }
+      }
+    },
+    "a_p4_c02": {
+      "estado": "ok",
+      "experiment_id": "exp_20261030T072541Z_gen2_alr06_a_p4_c02",
+      "media_run_id": "run_20261030_072541_dbe_grounding_dino_061ce3",
+      "control_run_id": "gen2_alr06_a_p4_c02_20261030T072800Z_e93b97",
+      "media_status": "succeeded",
+      "control_status": "succeeded",
+      "inicio": "2026-10-30T07:25:41+00:00",
+      "fin": "2026-10-30T07:28:02+00:00",
+      "segundos": 141.1,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p4_c02/media.yaml",
+      "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p4_c02/control.yaml",
+      "sha256": {
+        "control_config": "d8417ddbe70ee8baca21a6a5038e3400b72cac9d9aa872bbcf47cd3c56e77250",
+        "patrones": "934e18e1e82ee1c9d37a8aef05a8aa7f1b37fd552723f29ff01a74b1b6066001",
+        "media_config": "0ebd9307a3e9d24b09ce4920885f4657ff02deb184b1fe670b69351e61e063df",
+        "gt": "73eeca44fb8b0e36e65925283bbabf87812db2eff4c6b47264f4a4a4a4bacbec"
+      },
+      "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_072541_dbe_grounding_dino_061ce3/detections.jsonl",
+      "eval": "evals/eval_a_p4_c02.json",
+      "unidades": 950,
+      "fps_efectivos": 6.87,
+      "modelo": "grounding_dino",
+      "variantes": {
+        "eind_mismo_caption": {
+          "estado": "ok",
+          "experiment_id": "exp_20261030T072803Z_gen2_alr06_eind_mismo_caption_a_p4_c02",
+          "media_run_id": "run_20261030_072541_dbe_grounding_dino_061ce3",
+          "control_run_id": "gen2_alr06_eind_mismo_caption_a_p4_c02_20261030T072803Z_60b41d",
+          "media_status": "succeeded",
+          "control_status": "succeeded",
+          "inicio": "2026-10-30T07:28:03+00:00",
+          "fin": "2026-10-30T07:28:06+00:00",
+          "segundos": 3.0,
+          "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p4_c02/media.yaml",
+          "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_eind_mismo_caption_a_p4_c02/control.yaml",
+          "sha256": {
+            "control_config": "9ccead8e633e1241e19401c563ce23594d65e5f77312d3b52b42d5fc518f7438",
+            "patrones": "4f80f5d3b4e78046f8a033044475a667cd0aed930cfeca05295cf63a323570e8",
+            "media_config": "0ebd9307a3e9d24b09ce4920885f4657ff02deb184b1fe670b69351e61e063df",
+            "gt": "73eeca44fb8b0e36e65925283bbabf87812db2eff4c6b47264f4a4a4a4bacbec"
+          },
+          "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_072541_dbe_grounding_dino_061ce3/detections.jsonl",
+          "eval": "variantes/eind_mismo_caption/evals/eval_a_p4_c02.json"
+        }
+      }
+    },
+    "a_p5_c01": {
+      "estado": "ok",
+      "experiment_id": "exp_20261030T072806Z_gen2_alr06_a_p5_c01",
+      "media_run_id": "run_20261030_072806_dbe_grounding_dino_51ef8a",
+      "control_run_id": "gen2_alr06_a_p5_c01_20261030T073100Z_3b3312",
+      "media_status": "succeeded",
+      "control_status": "succeeded",
+      "inicio": "2026-10-30T07:28:06+00:00",
+      "fin": "2026-10-30T07:31:03+00:00",
+      "segundos": 177.1,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p5_c01/media.yaml",
+      "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p5_c01/control.yaml",
+      "sha256": {
+        "control_config": "02c68c10a1156a92ab217401a0d93bd8371618945459b55c8ab40bfed0ebb87f",
+        "patrones": "934e18e1e82ee1c9d37a8aef05a8aa7f1b37fd552723f29ff01a74b1b6066001",
+        "media_config": "0eab38565e2ad66d5597237fcc38c50ca6e2e693bb8472320d12f8df4a87c54d",
+        "gt": "beabb95a49016e3b63ae45e180e55e19640561ec399add4eae10056ee7b9095a"
+      },
+      "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_072806_dbe_grounding_dino_51ef8a/detections.jsonl",
+      "eval": "evals/eval_a_p5_c01.json",
+      "unidades": 1175,
+      "fps_efectivos": 6.77,
+      "modelo": "grounding_dino",
+      "variantes": {
+        "eind_mismo_caption": {
+          "estado": "ok",
+          "experiment_id": "exp_20261030T073104Z_gen2_alr06_eind_mismo_caption_a_p5_c01",
+          "media_run_id": "run_20261030_072806_dbe_grounding_dino_51ef8a",
+          "control_run_id": "gen2_alr06_eind_mismo_caption_a_p5_c01_20261030T073104Z_b7b7a9",
+          "media_status": "succeeded",
+          "control_status": "succeeded",
+          "inicio": "2026-10-30T07:31:04+00:00",
+          "fin": "2026-10-30T07:31:07+00:00",
+          "segundos": 3.0,
+          "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p5_c01/media.yaml",
+          "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_eind_mismo_caption_a_p5_c01/control.yaml",
+          "sha256": {
+            "control_config": "e8daf7181a464f8afa61d4e8c5117a727da34599339d78f7bee1fd72733d1e9d",
+            "patrones": "4f80f5d3b4e78046f8a033044475a667cd0aed930cfeca05295cf63a323570e8",
+            "media_config": "0eab38565e2ad66d5597237fcc38c50ca6e2e693bb8472320d12f8df4a87c54d",
+            "gt": "beabb95a49016e3b63ae45e180e55e19640561ec399add4eae10056ee7b9095a"
+          },
+          "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_072806_dbe_grounding_dino_51ef8a/detections.jsonl",
+          "eval": "variantes/eind_mismo_caption/evals/eval_a_p5_c01.json"
+        }
+      }
+    },
+    "a_p5_c02": {
+      "estado": "ok",
+      "experiment_id": "exp_20261030T073107Z_gen2_alr06_a_p5_c02",
+      "media_run_id": "run_20261030_073107_dbe_grounding_dino_ed4117",
+      "control_run_id": "gen2_alr06_a_p5_c02_20261030T073500Z_7dacd2",
+      "media_status": "succeeded",
+      "control_status": "succeeded",
+      "inicio": "2026-10-30T07:31:07+00:00",
+      "fin": "2026-10-30T07:35:02+00:00",
+      "segundos": 234.8,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p5_c02/media.yaml",
+      "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p5_c02/control.yaml",
+      "sha256": {
+        "control_config": "cbca9123576a9383fc137d249c07143e9c0e8324e32db92ec16d1199b51fd146",
+        "patrones": "934e18e1e82ee1c9d37a8aef05a8aa7f1b37fd552723f29ff01a74b1b6066001",
+        "media_config": "824ac04f2a502f2629f6bf6c765a367d380bf54023d10c474eaea7fdb12ec615",
+        "gt": "0ec6a930929f0c5a93c4b950427e16b1171098cc8d2fd2c2c2f6e4d9f812b20b"
+      },
+      "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_073107_dbe_grounding_dino_ed4117/detections.jsonl",
+      "eval": "evals/eval_a_p5_c02.json",
+      "unidades": 1583,
+      "fps_efectivos": 6.8,
+      "modelo": "grounding_dino",
+      "variantes": {
+        "eind_mismo_caption": {
+          "estado": "ok",
+          "experiment_id": "exp_20261030T073502Z_gen2_alr06_eind_mismo_caption_a_p5_c02",
+          "media_run_id": "run_20261030_073107_dbe_grounding_dino_ed4117",
+          "control_run_id": "gen2_alr06_eind_mismo_caption_a_p5_c02_20261030T073502Z_7f84d8",
+          "media_status": "succeeded",
+          "control_status": "succeeded",
+          "inicio": "2026-10-30T07:35:02+00:00",
+          "fin": "2026-10-30T07:35:05+00:00",
+          "segundos": 3.0,
+          "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p5_c02/media.yaml",
+          "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_eind_mismo_caption_a_p5_c02/control.yaml",
+          "sha256": {
+            "control_config": "2f953b64aefa43d729b8b134bb832fcd169646b3c2cd31fccea8d47a94c89bfc",
+            "patrones": "4f80f5d3b4e78046f8a033044475a667cd0aed930cfeca05295cf63a323570e8",
+            "media_config": "824ac04f2a502f2629f6bf6c765a367d380bf54023d10c474eaea7fdb12ec615",
+            "gt": "0ec6a930929f0c5a93c4b950427e16b1171098cc8d2fd2c2c2f6e4d9f812b20b"
+          },
+          "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_073107_dbe_grounding_dino_ed4117/detections.jsonl",
+          "eval": "variantes/eind_mismo_caption/evals/eval_a_p5_c02.json"
+        }
+      }
+    },
+    "a_p6_c01": {
+      "estado": "ok",
+      "experiment_id": "exp_20261030T073506Z_gen2_alr06_a_p6_c01",
+      "media_run_id": "run_20261030_073506_dbe_grounding_dino_698f47",
+      "control_run_id": "gen2_alr06_a_p6_c01_20261030T073815Z_b5cab9",
+      "media_status": "succeeded",
+      "control_status": "succeeded",
+      "inicio": "2026-10-30T07:35:06+00:00",
+      "fin": "2026-10-30T07:38:18+00:00",
+      "segundos": 192.1,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p6_c01/media.yaml",
+      "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p6_c01/control.yaml",
+      "sha256": {
+        "control_config": "6a777dd4fa7962dcf924fe3cb2f926acfd842b502a69a391d23253820e00d19a",
+        "patrones": "934e18e1e82ee1c9d37a8aef05a8aa7f1b37fd552723f29ff01a74b1b6066001",
+        "media_config": "a80d28b7811bb6328eaee71afeeb8450e80254c32def9b68238feb5972b72194",
+        "gt": "9e13dc0bcfa1960bfd06bc09d30879017465f6df40d2800fc95f785278027e72"
+      },
+      "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_073506_dbe_grounding_dino_698f47/detections.jsonl",
+      "eval": "evals/eval_a_p6_c01.json",
+      "unidades": 1296,
+      "fps_efectivos": 6.9,
+      "modelo": "grounding_dino",
+      "variantes": {
+        "eind_mismo_caption": {
+          "estado": "ok",
+          "experiment_id": "exp_20261030T073818Z_gen2_alr06_eind_mismo_caption_a_p6_c01",
+          "media_run_id": "run_20261030_073506_dbe_grounding_dino_698f47",
+          "control_run_id": "gen2_alr06_eind_mismo_caption_a_p6_c01_20261030T073818Z_5907bc",
+          "media_status": "succeeded",
+          "control_status": "succeeded",
+          "inicio": "2026-10-30T07:38:18+00:00",
+          "fin": "2026-10-30T07:38:21+00:00",
+          "segundos": 3.0,
+          "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p6_c01/media.yaml",
+          "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_eind_mismo_caption_a_p6_c01/control.yaml",
+          "sha256": {
+            "control_config": "bcf66402582e2748841dd0ffd87cef4b48d21535227f2f92507aa5da39e58a02",
+            "patrones": "4f80f5d3b4e78046f8a033044475a667cd0aed930cfeca05295cf63a323570e8",
+            "media_config": "a80d28b7811bb6328eaee71afeeb8450e80254c32def9b68238feb5972b72194",
+            "gt": "9e13dc0bcfa1960bfd06bc09d30879017465f6df40d2800fc95f785278027e72"
+          },
+          "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_073506_dbe_grounding_dino_698f47/detections.jsonl",
+          "eval": "variantes/eind_mismo_caption/evals/eval_a_p6_c01.json"
+        }
+      }
+    },
+    "a_p6_c02": {
+      "estado": "ok",
+      "experiment_id": "exp_20261030T073822Z_gen2_alr06_a_p6_c02",
+      "media_run_id": "run_20261030_073822_dbe_grounding_dino_468f93",
+      "control_run_id": "gen2_alr06_a_p6_c02_20261030T074230Z_8a5728",
+      "media_status": "succeeded",
+      "control_status": "succeeded",
+      "inicio": "2026-10-30T07:38:22+00:00",
+      "fin": "2026-10-30T07:42:34+00:00",
+      "segundos": 252.2,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p6_c02/media.yaml",
+      "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p6_c02/control.yaml",
+      "sha256": {
+        "control_config": "8b340f10069139aefa739b53c9da857a612b6e3cd95b688cbadf26ad5948fe20",
+        "patrones": "934e18e1e82ee1c9d37a8aef05a8aa7f1b37fd552723f29ff01a74b1b6066001",
+        "media_config": "0833fbd162a664b4f1d93d5effbe7c7f45f3e816ca60ffb2d788668627f4afc9",
+        "gt": "f1abd24550707e3386df4c43c5ccde11f669a1ba3d4a1b375fb4910943882132"
+      },
+      "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_073822_dbe_grounding_dino_468f93/detections.jsonl",
+      "eval": "evals/eval_a_p6_c02.json",
+      "unidades": 1695,
+      "fps_efectivos": 6.85,
+      "modelo": "grounding_dino",
+      "variantes": {
+        "eind_mismo_caption": {
+          "estado": "ok",
+          "experiment_id": "exp_20261030T074235Z_gen2_alr06_eind_mismo_caption_a_p6_c02",
+          "media_run_id": "run_20261030_073822_dbe_grounding_dino_468f93",
+          "control_run_id": "gen2_alr06_eind_mismo_caption_a_p6_c02_20261030T074235Z_0802c7",
+          "media_status": "succeeded",
+          "control_status": "succeeded",
+          "inicio": "2026-10-30T07:42:35+00:00",
+          "fin": "2026-10-30T07:42:38+00:00",
+          "segundos": 3.0,
+          "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p6_c02/media.yaml",
+          "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_eind_mismo_caption_a_p6_c02/control.yaml",
+          "sha256": {
+            "control_config": "6d474710c8d806dceddc866c8295bd67c64ad8002b0166322af274f4791cb883",
+            "patrones": "4f80f5d3b4e78046f8a033044475a667cd0aed930cfeca05295cf63a323570e8",
+            "media_config": "0833fbd162a664b4f1d93d5effbe7c7f45f3e816ca60ffb2d788668627f4afc9",
+            "gt": "f1abd24550707e3386df4c43c5ccde11f669a1ba3d4a1b375fb4910943882132"
+          },
+          "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_073822_dbe_grounding_dino_468f93/detections.jsonl",
+          "eval": "variantes/eind_mismo_caption/evals/eval_a_p6_c02.json"
+        }
+      }
+    },
+    "a_p7_c01": {
+      "estado": "ok",
+      "experiment_id": "exp_20261030T074238Z_gen2_alr06_a_p7_c01",
+      "media_run_id": "run_20261030_074238_dbe_grounding_dino_a856d7",
+      "control_run_id": "gen2_alr06_a_p7_c01_20261030T074518Z_01d27a",
+      "media_status": "succeeded",
+      "control_status": "succeeded",
+      "inicio": "2026-10-30T07:42:38+00:00",
+      "fin": "2026-10-30T07:45:20+00:00",
+      "segundos": 162.1,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p7_c01/media.yaml",
+      "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p7_c01/control.yaml",
+      "sha256": {
+        "control_config": "14ee112756d08b7a3df33298fab99676133c20f6506ae513467ea29644b40d15",
+        "patrones": "934e18e1e82ee1c9d37a8aef05a8aa7f1b37fd552723f29ff01a74b1b6066001",
+        "media_config": "79e90cbd2b89a50f0932f3d319a82c0eeae1aeaf0d3ace2c7451afcaf7407062",
+        "gt": "45837d7dc8acb49866f3c6b7f42983c237f23b80401905a7a84176ee684e5630"
+      },
+      "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_074238_dbe_grounding_dino_a856d7/detections.jsonl",
+      "eval": "evals/eval_a_p7_c01.json",
+      "unidades": 1085,
+      "fps_efectivos": 6.81,
+      "modelo": "grounding_dino",
+      "variantes": {
+        "eind_mismo_caption": {
+          "estado": "ok",
+          "experiment_id": "exp_20261030T074521Z_gen2_alr06_eind_mismo_caption_a_p7_c01",
+          "media_run_id": "run_20261030_074238_dbe_grounding_dino_a856d7",
+          "control_run_id": "gen2_alr06_eind_mismo_caption_a_p7_c01_20261030T074521Z_d16b10",
+          "media_status": "succeeded",
+          "control_status": "succeeded",
+          "inicio": "2026-10-30T07:45:21+00:00",
+          "fin": "2026-10-30T07:45:24+00:00",
+          "segundos": 3.0,
+          "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p7_c01/media.yaml",
+          "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_eind_mismo_caption_a_p7_c01/control.yaml",
+          "sha256": {
+            "control_config": "f3a5a81b0eb2914b40b3a491109a454bcff1ca6c78fc59bd114b1e534ceae4bb",
+            "patrones": "4f80f5d3b4e78046f8a033044475a667cd0aed930cfeca05295cf63a323570e8",
+            "media_config": "79e90cbd2b89a50f0932f3d319a82c0eeae1aeaf0d3ace2c7451afcaf7407062",
+            "gt": "45837d7dc8acb49866f3c6b7f42983c237f23b80401905a7a84176ee684e5630"
+          },
+          "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_074238_dbe_grounding_dino_a856d7/detections.jsonl",
+          "eval": "variantes/eind_mismo_caption/evals/eval_a_p7_c01.json"
+        }
+      }
+    },
+    "a_p7_c02": {
+      "estado": "ok",
+      "experiment_id": "exp_20261030T074524Z_gen2_alr06_a_p7_c02",
+      "media_run_id": "run_20261030_074524_dbe_grounding_dino_602693",
+      "control_run_id": "gen2_alr06_a_p7_c02_20261030T074749Z_0d594e",
+      "media_status": "succeeded",
+      "control_status": "succeeded",
+      "inicio": "2026-10-30T07:45:24+00:00",
+      "fin": "2026-10-30T07:47:51+00:00",
+      "segundos": 147.1,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p7_c02/media.yaml",
+      "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p7_c02/control.yaml",
+      "sha256": {
+        "control_config": "ce9b9503644d97a70b1344e16dfc85e9f49324913b0efee8962154f1b55250e6",
+        "patrones": "934e18e1e82ee1c9d37a8aef05a8aa7f1b37fd552723f29ff01a74b1b6066001",
+        "media_config": "58b5a0bcca1b5029c19f86aa10d1b9a13e9b31a2ca8660611be5e8ae3838fa41",
+        "gt": "dffb6b6a4931760809f628e33698ea8b78dfbbd3ce84a3fa95a92bef8b83ab4b"
+      },
+      "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_074524_dbe_grounding_dino_602693/detections.jsonl",
+      "eval": "evals/eval_a_p7_c02.json",
+      "unidades": 1013,
+      "fps_efectivos": 7.02,
+      "modelo": "grounding_dino",
+      "variantes": {
+        "eind_mismo_caption": {
+          "estado": "ok",
+          "experiment_id": "exp_20261030T074752Z_gen2_alr06_eind_mismo_caption_a_p7_c02",
+          "media_run_id": "run_20261030_074524_dbe_grounding_dino_602693",
+          "control_run_id": "gen2_alr06_eind_mismo_caption_a_p7_c02_20261030T074752Z_832907",
+          "media_status": "succeeded",
+          "control_status": "succeeded",
+          "inicio": "2026-10-30T07:47:52+00:00",
+          "fin": "2026-10-30T07:47:55+00:00",
+          "segundos": 3.0,
+          "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p7_c02/media.yaml",
+          "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_eind_mismo_caption_a_p7_c02/control.yaml",
+          "sha256": {
+            "control_config": "4c57c560ec2e71d55146148b54cb6451fae05f82c7d8460b18be993fc01fdf1b",
+            "patrones": "4f80f5d3b4e78046f8a033044475a667cd0aed930cfeca05295cf63a323570e8",
+            "media_config": "58b5a0bcca1b5029c19f86aa10d1b9a13e9b31a2ca8660611be5e8ae3838fa41",
+            "gt": "dffb6b6a4931760809f628e33698ea8b78dfbbd3ce84a3fa95a92bef8b83ab4b"
+          },
+          "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_074524_dbe_grounding_dino_602693/detections.jsonl",
+          "eval": "variantes/eind_mismo_caption/evals/eval_a_p7_c02.json"
+        }
+      }
+    },
+    "a_p7_c03": {
+      "estado": "ok",
+      "experiment_id": "exp_20261030T074755Z_gen2_alr06_a_p7_c03",
+      "media_run_id": "run_20261030_074755_dbe_grounding_dino_436975",
+      "control_run_id": "gen2_alr06_a_p7_c03_20261030T075016Z_dd02e7",
+      "media_status": "succeeded",
+      "control_status": "succeeded",
+      "inicio": "2026-10-30T07:47:55+00:00",
+      "fin": "2026-10-30T07:50:19+00:00",
+      "segundos": 144.1,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p7_c03/media.yaml",
+      "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p7_c03/control.yaml",
+      "sha256": {
+        "control_config": "a6b8c945d1714303918dd04516cd397a91d1896a415ff11e174b87e17d6d7ce6",
+        "patrones": "934e18e1e82ee1c9d37a8aef05a8aa7f1b37fd552723f29ff01a74b1b6066001",
+        "media_config": "fb410badf090a768f723a4d820d243ec352185bbb9d6b6f1ca8c198e03ebbf61",
+        "gt": "26f4eb26d388393205c9d214d5e92083e841c0c64690953ccf7ee91dcd527d93"
+      },
+      "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_074755_dbe_grounding_dino_436975/detections.jsonl",
+      "eval": "evals/eval_a_p7_c03.json",
+      "unidades": 976,
+      "fps_efectivos": 6.96,
+      "modelo": "grounding_dino",
+      "variantes": {
+        "eind_mismo_caption": {
+          "estado": "ok",
+          "experiment_id": "exp_20261030T075020Z_gen2_alr06_eind_mismo_caption_a_p7_c03",
+          "media_run_id": "run_20261030_074755_dbe_grounding_dino_436975",
+          "control_run_id": "gen2_alr06_eind_mismo_caption_a_p7_c03_20261030T075020Z_0f8bbe",
+          "media_status": "succeeded",
+          "control_status": "succeeded",
+          "inicio": "2026-10-30T07:50:20+00:00",
+          "fin": "2026-10-30T07:50:23+00:00",
+          "segundos": 3.0,
+          "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p7_c03/media.yaml",
+          "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_eind_mismo_caption_a_p7_c03/control.yaml",
+          "sha256": {
+            "control_config": "b94f714d1164dfdaeb1e9e6fa219f00882cf8621866d1aa71c578a6f1dfaf27a",
+            "patrones": "4f80f5d3b4e78046f8a033044475a667cd0aed930cfeca05295cf63a323570e8",
+            "media_config": "fb410badf090a768f723a4d820d243ec352185bbb9d6b6f1ca8c198e03ebbf61",
+            "gt": "26f4eb26d388393205c9d214d5e92083e841c0c64690953ccf7ee91dcd527d93"
+          },
+          "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_074755_dbe_grounding_dino_436975/detections.jsonl",
+          "eval": "variantes/eind_mismo_caption/evals/eval_a_p7_c03.json"
+        }
+      }
+    },
+    "a_p7_c04": {
+      "estado": "ok",
+      "experiment_id": "exp_20261030T075023Z_gen2_alr06_a_p7_c04",
+      "media_run_id": "run_20261030_075023_dbe_grounding_dino_31c116",
+      "control_run_id": "gen2_alr06_a_p7_c04_20261030T075247Z_436989",
+      "media_status": "succeeded",
+      "control_status": "succeeded",
+      "inicio": "2026-10-30T07:50:23+00:00",
+      "fin": "2026-10-30T07:52:50+00:00",
+      "segundos": 147.1,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p7_c04/media.yaml",
+      "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p7_c04/control.yaml",
+      "sha256": {
+        "control_config": "38dc1af44a18f7f25e6e9eb3f1a3fb9a694c2c8092148f28804bd3fd98583179",
+        "patrones": "934e18e1e82ee1c9d37a8aef05a8aa7f1b37fd552723f29ff01a74b1b6066001",
+        "media_config": "dd1720b6056e4480fb6170fd83bdae4afdef740cf5cc1f27796b588e1a472e27",
+        "gt": "5a19db1932caef9fa2e8dd034c0bdbeda429289b190f97fc8c5f12594c24eb58"
+      },
+      "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_075023_dbe_grounding_dino_31c116/detections.jsonl",
+      "eval": "evals/eval_a_p7_c04.json",
+      "unidades": 984,
+      "fps_efectivos": 6.86,
+      "modelo": "grounding_dino",
+      "variantes": {
+        "eind_mismo_caption": {
+          "estado": "ok",
+          "experiment_id": "exp_20261030T075251Z_gen2_alr06_eind_mismo_caption_a_p7_c04",
+          "media_run_id": "run_20261030_075023_dbe_grounding_dino_31c116",
+          "control_run_id": "gen2_alr06_eind_mismo_caption_a_p7_c04_20261030T075251Z_d53c27",
+          "media_status": "succeeded",
+          "control_status": "succeeded",
+          "inicio": "2026-10-30T07:52:51+00:00",
+          "fin": "2026-10-30T07:52:54+00:00",
+          "segundos": 3.0,
+          "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p7_c04/media.yaml",
+          "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_eind_mismo_caption_a_p7_c04/control.yaml",
+          "sha256": {
+            "control_config": "86920f816a4198dcb539cc9b9d0e8ca3c3a44fe3f19062335c5b5273ebd96acf",
+            "patrones": "4f80f5d3b4e78046f8a033044475a667cd0aed930cfeca05295cf63a323570e8",
+            "media_config": "dd1720b6056e4480fb6170fd83bdae4afdef740cf5cc1f27796b588e1a472e27",
+            "gt": "5a19db1932caef9fa2e8dd034c0bdbeda429289b190f97fc8c5f12594c24eb58"
+          },
+          "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_075023_dbe_grounding_dino_31c116/detections.jsonl",
+          "eval": "variantes/eind_mismo_caption/evals/eval_a_p7_c04.json"
+        }
+      }
+    },
+    "a_p8_c01": {
+      "estado": "ok",
+      "experiment_id": "exp_20261030T075254Z_gen2_alr06_a_p8_c01",
+      "media_run_id": "run_20261030_075254_dbe_grounding_dino_112921",
+      "control_run_id": "gen2_alr06_a_p8_c01_20261030T075619Z_59c599",
+      "media_status": "succeeded",
+      "control_status": "succeeded",
+      "inicio": "2026-10-30T07:52:54+00:00",
+      "fin": "2026-10-30T07:56:21+00:00",
+      "segundos": 207.2,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p8_c01/media.yaml",
+      "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p8_c01/control.yaml",
+      "sha256": {
+        "control_config": "3a2437e69d0b600017094f78a31dbe928d29d219b4a0b6039509939aa3a46498",
+        "patrones": "934e18e1e82ee1c9d37a8aef05a8aa7f1b37fd552723f29ff01a74b1b6066001",
+        "media_config": "34ecf0fbee7040132ee981543a91cc8de1bdb038c27abf09f561bfdd15db8300",
+        "gt": "f386f23b7a446835d571029701b94a378ed7c6a67eb15647912baecc1d69f66e"
+      },
+      "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_075254_dbe_grounding_dino_112921/detections.jsonl",
+      "eval": "evals/eval_a_p8_c01.json",
+      "unidades": 1415,
+      "fps_efectivos": 6.93,
+      "modelo": "grounding_dino",
+      "variantes": {
+        "eind_mismo_caption": {
+          "estado": "ok",
+          "experiment_id": "exp_20261030T075622Z_gen2_alr06_eind_mismo_caption_a_p8_c01",
+          "media_run_id": "run_20261030_075254_dbe_grounding_dino_112921",
+          "control_run_id": "gen2_alr06_eind_mismo_caption_a_p8_c01_20261030T075622Z_90babd",
+          "media_status": "succeeded",
+          "control_status": "succeeded",
+          "inicio": "2026-10-30T07:56:22+00:00",
+          "fin": "2026-10-30T07:56:25+00:00",
+          "segundos": 3.0,
+          "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p8_c01/media.yaml",
+          "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_eind_mismo_caption_a_p8_c01/control.yaml",
+          "sha256": {
+            "control_config": "a870e0991cf21df5e6255008f6d2db823474eec95cd08a203dd05622442187ce",
+            "patrones": "4f80f5d3b4e78046f8a033044475a667cd0aed930cfeca05295cf63a323570e8",
+            "media_config": "34ecf0fbee7040132ee981543a91cc8de1bdb038c27abf09f561bfdd15db8300",
+            "gt": "f386f23b7a446835d571029701b94a378ed7c6a67eb15647912baecc1d69f66e"
+          },
+          "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_075254_dbe_grounding_dino_112921/detections.jsonl",
+          "eval": "variantes/eind_mismo_caption/evals/eval_a_p8_c01.json"
+        }
+      }
+    },
+    "a_p9_c01": {
+      "estado": "ok",
+      "experiment_id": "exp_20261030T075625Z_gen2_alr06_a_p9_c01",
+      "media_run_id": "run_20261030_075625_dbe_grounding_dino_d578be",
+      "control_run_id": "gen2_alr06_a_p9_c01_20261030T075821Z_9d6ca9",
+      "media_status": "succeeded",
+      "control_status": "succeeded",
+      "inicio": "2026-10-30T07:56:25+00:00",
+      "fin": "2026-10-30T07:58:22+00:00",
+      "segundos": 117.2,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p9_c01/media.yaml",
+      "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p9_c01/control.yaml",
+      "sha256": {
+        "control_config": "4c6622124cb4e4816eecd204a43a076aa5a1c24d40b9d53a623c146b14b48f89",
+        "patrones": "934e18e1e82ee1c9d37a8aef05a8aa7f1b37fd552723f29ff01a74b1b6066001",
+        "media_config": "6a0f5c7665f8c6c50de4dbf7d642731834103553a3f599e0a04aa8c511880bca",
+        "gt": "6d2004cbae89d5e961301e3e20b1772abc1609950ef2ecda8122b22b7660c3b2"
+      },
+      "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_075625_dbe_grounding_dino_d578be/detections.jsonl",
+      "eval": "evals/eval_a_p9_c01.json",
+      "unidades": 798,
+      "fps_efectivos": 6.97,
+      "modelo": "grounding_dino",
+      "variantes": {
+        "eind_mismo_caption": {
+          "estado": "ok",
+          "experiment_id": "exp_20261030T075823Z_gen2_alr06_eind_mismo_caption_a_p9_c01",
+          "media_run_id": "run_20261030_075625_dbe_grounding_dino_d578be",
+          "control_run_id": "gen2_alr06_eind_mismo_caption_a_p9_c01_20261030T075823Z_8ab3c2",
+          "media_status": "succeeded",
+          "control_status": "succeeded",
+          "inicio": "2026-10-30T07:58:23+00:00",
+          "fin": "2026-10-30T07:58:26+00:00",
+          "segundos": 3.0,
+          "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p9_c01/media.yaml",
+          "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_eind_mismo_caption_a_p9_c01/control.yaml",
+          "sha256": {
+            "control_config": "c703abb8fdda3e935d5e247689ee3b5de3923eb80c14f653aef872a5cc335f98",
+            "patrones": "4f80f5d3b4e78046f8a033044475a667cd0aed930cfeca05295cf63a323570e8",
+            "media_config": "6a0f5c7665f8c6c50de4dbf7d642731834103553a3f599e0a04aa8c511880bca",
+            "gt": "6d2004cbae89d5e961301e3e20b1772abc1609950ef2ecda8122b22b7660c3b2"
+          },
+          "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_075625_dbe_grounding_dino_d578be/detections.jsonl",
+          "eval": "variantes/eind_mismo_caption/evals/eval_a_p9_c01.json"
+        }
+      }
+    },
+    "a_p9_c02": {
+      "estado": "ok",
+      "experiment_id": "exp_20261030T075826Z_gen2_alr06_a_p9_c02",
+      "media_run_id": "run_20261030_075826_dbe_grounding_dino_3ad090",
+      "control_run_id": "gen2_alr06_a_p9_c02_20261030T080018Z_678173",
+      "media_status": "succeeded",
+      "control_status": "succeeded",
+      "inicio": "2026-10-30T07:58:26+00:00",
+      "fin": "2026-10-30T08:00:20+00:00",
+      "segundos": 114.1,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p9_c02/media.yaml",
+      "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p9_c02/control.yaml",
+      "sha256": {
+        "control_config": "dd483c4e565d611109dd3317dcb4a729aad4fbfab216481b661df0b08e02da0b",
+        "patrones": "934e18e1e82ee1c9d37a8aef05a8aa7f1b37fd552723f29ff01a74b1b6066001",
+        "media_config": "54548057fa2c4e5ea0c2e134b8d980af37de2e03ca501ad127721b573df93a63",
+        "gt": "6cdfbede63cb80ec1f808e347c719f0b195ab8e2d97814f1f7372e989ee9bfef"
+      },
+      "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_075826_dbe_grounding_dino_3ad090/detections.jsonl",
+      "eval": "evals/eval_a_p9_c02.json",
+      "unidades": 770,
+      "fps_efectivos": 6.93,
+      "modelo": "grounding_dino",
+      "variantes": {
+        "eind_mismo_caption": {
+          "estado": "ok",
+          "experiment_id": "exp_20261030T080021Z_gen2_alr06_eind_mismo_caption_a_p9_c02",
+          "media_run_id": "run_20261030_075826_dbe_grounding_dino_3ad090",
+          "control_run_id": "gen2_alr06_eind_mismo_caption_a_p9_c02_20261030T080021Z_ede207",
+          "media_status": "succeeded",
+          "control_status": "succeeded",
+          "inicio": "2026-10-30T08:00:21+00:00",
+          "fin": "2026-10-30T08:00:24+00:00",
+          "segundos": 3.0,
+          "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p9_c02/media.yaml",
+          "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_eind_mismo_caption_a_p9_c02/control.yaml",
+          "sha256": {
+            "control_config": "06f2b8fcf03d5390d2e8b8e005549ad9b38a9ce26c4db5d288ad73834f12dee8",
+            "patrones": "4f80f5d3b4e78046f8a033044475a667cd0aed930cfeca05295cf63a323570e8",
+            "media_config": "54548057fa2c4e5ea0c2e134b8d980af37de2e03ca501ad127721b573df93a63",
+            "gt": "6cdfbede63cb80ec1f808e347c719f0b195ab8e2d97814f1f7372e989ee9bfef"
+          },
+          "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_075826_dbe_grounding_dino_3ad090/detections.jsonl",
+          "eval": "variantes/eind_mismo_caption/evals/eval_a_p9_c02.json"
+        }
+      }
+    },
+    "a_p9_c03": {
+      "estado": "ok",
+      "experiment_id": "exp_20261030T080024Z_gen2_alr06_a_p9_c03",
+      "media_run_id": "run_20261030_080024_dbe_grounding_dino_cb1a66",
+      "control_run_id": "gen2_alr06_a_p9_c03_20261030T080209Z_e39866",
+      "media_status": "succeeded",
+      "control_status": "succeeded",
+      "inicio": "2026-10-30T08:00:24+00:00",
+      "fin": "2026-10-30T08:02:12+00:00",
+      "segundos": 108.1,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p9_c03/media.yaml",
+      "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p9_c03/control.yaml",
+      "sha256": {
+        "control_config": "445c49ef2f0db0060c3def961aea82b9def75bc62dc6269f89cc903cd444237c",
+        "patrones": "934e18e1e82ee1c9d37a8aef05a8aa7f1b37fd552723f29ff01a74b1b6066001",
+        "media_config": "00bd326a3bd639a05d380ab517a730e5b4c1a3fed01cc350b47be4150c7642ea",
+        "gt": "122594ce446e980fe7840c5ff119282b3579f157e9866893a85f7c2dc1be9cd0"
+      },
+      "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_080024_dbe_grounding_dino_cb1a66/detections.jsonl",
+      "eval": "evals/eval_a_p9_c03.json",
+      "unidades": 707,
+      "fps_efectivos": 6.79,
+      "modelo": "grounding_dino",
+      "variantes": {
+        "eind_mismo_caption": {
+          "estado": "ok",
+          "experiment_id": "exp_20261030T080212Z_gen2_alr06_eind_mismo_caption_a_p9_c03",
+          "media_run_id": "run_20261030_080024_dbe_grounding_dino_cb1a66",
+          "control_run_id": "gen2_alr06_eind_mismo_caption_a_p9_c03_20261030T080213Z_43bf6b",
+          "media_status": "succeeded",
+          "control_status": "succeeded",
+          "inicio": "2026-10-30T08:02:12+00:00",
+          "fin": "2026-10-30T08:02:16+00:00",
+          "segundos": 3.0,
+          "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p9_c03/media.yaml",
+          "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_eind_mismo_caption_a_p9_c03/control.yaml",
+          "sha256": {
+            "control_config": "f9bd60647851513a06ec935eccd43e3d6e7cf9d1163f5be67208c87767cf9fa8",
+            "patrones": "4f80f5d3b4e78046f8a033044475a667cd0aed930cfeca05295cf63a323570e8",
+            "media_config": "00bd326a3bd639a05d380ab517a730e5b4c1a3fed01cc350b47be4150c7642ea",
+            "gt": "122594ce446e980fe7840c5ff119282b3579f157e9866893a85f7c2dc1be9cd0"
+          },
+          "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_080024_dbe_grounding_dino_cb1a66/detections.jsonl",
+          "eval": "variantes/eind_mismo_caption/evals/eval_a_p9_c03.json"
+        }
+      }
+    },
+    "a_p9_c06": {
+      "estado": "ok",
+      "experiment_id": "exp_20261030T080216Z_gen2_alr06_a_p9_c06",
+      "media_run_id": "run_20261030_080216_dbe_grounding_dino_bff56d",
+      "control_run_id": "gen2_alr06_a_p9_c06_20261030T080403Z_e77643",
+      "media_status": "succeeded",
+      "control_status": "succeeded",
+      "inicio": "2026-10-30T08:02:16+00:00",
+      "fin": "2026-10-30T08:04:07+00:00",
+      "segundos": 111.1,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p9_c06/media.yaml",
+      "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p9_c06/control.yaml",
+      "sha256": {
+        "control_config": "42b6930667f5dc7eca5b3efee31fb8397bca70233acf3695083f82888be7bce3",
+        "patrones": "934e18e1e82ee1c9d37a8aef05a8aa7f1b37fd552723f29ff01a74b1b6066001",
+        "media_config": "d3abd6c456c2a6b74d44a62499ed39877d7bd042f4eb6088791ef912f576361b",
+        "gt": "813cd3bc99f16d57d26bb894b95150c9376ec814f14241e37f3d05485bd73286"
+      },
+      "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_080216_dbe_grounding_dino_bff56d/detections.jsonl",
+      "eval": "evals/eval_a_p9_c06.json",
+      "unidades": 737,
+      "fps_efectivos": 6.92,
+      "modelo": "grounding_dino",
+      "variantes": {
+        "eind_mismo_caption": {
+          "estado": "ok",
+          "experiment_id": "exp_20261030T080407Z_gen2_alr06_eind_mismo_caption_a_p9_c06",
+          "media_run_id": "run_20261030_080216_dbe_grounding_dino_bff56d",
+          "control_run_id": "gen2_alr06_eind_mismo_caption_a_p9_c06_20261030T080407Z_f29bfd",
+          "media_status": "succeeded",
+          "control_status": "succeeded",
+          "inicio": "2026-10-30T08:04:07+00:00",
+          "fin": "2026-10-30T08:04:10+00:00",
+          "segundos": 3.0,
+          "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p9_c06/media.yaml",
+          "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_eind_mismo_caption_a_p9_c06/control.yaml",
+          "sha256": {
+            "control_config": "b31c98fd6ce27f7b032b2cf452bbbdddbb5d5eaab5a89d62fc04593e652a761b",
+            "patrones": "4f80f5d3b4e78046f8a033044475a667cd0aed930cfeca05295cf63a323570e8",
+            "media_config": "d3abd6c456c2a6b74d44a62499ed39877d7bd042f4eb6088791ef912f576361b",
+            "gt": "813cd3bc99f16d57d26bb894b95150c9376ec814f14241e37f3d05485bd73286"
+          },
+          "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_080216_dbe_grounding_dino_bff56d/detections.jsonl",
+          "eval": "variantes/eind_mismo_caption/evals/eval_a_p9_c06.json"
+        }
+      }
+    },
+    "a_p9_c08": {
+      "estado": "ok",
+      "experiment_id": "exp_20261030T080411Z_gen2_alr06_a_p9_c08",
+      "media_run_id": "run_20261030_080411_dbe_grounding_dino_a4a2db",
+      "control_run_id": "gen2_alr06_a_p9_c08_20261030T080552Z_b15131",
+      "media_status": "succeeded",
+      "control_status": "succeeded",
+      "inicio": "2026-10-30T08:04:11+00:00",
+      "fin": "2026-10-30T08:05:56+00:00",
+      "segundos": 105.1,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p9_c08/media.yaml",
+      "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p9_c08/control.yaml",
+      "sha256": {
+        "control_config": "4a43ff4a2df8cf1fba1edca8e015e5c9cd657ba4db7c7c77aa1a7fbc56af3ce6",
+        "patrones": "934e18e1e82ee1c9d37a8aef05a8aa7f1b37fd552723f29ff01a74b1b6066001",
+        "media_config": "5a01d59c66775b4c429fbebe948ee18548f50b311fe5ca39d4c37fb41ef0d860",
+        "gt": "dc6230c5fce8aedff5f0c0eaee01140ec0fe89b5c8feaf19098f6bd207f72869"
+      },
+      "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_080411_dbe_grounding_dino_a4a2db/detections.jsonl",
+      "eval": "evals/eval_a_p9_c08.json",
+      "unidades": 681,
+      "fps_efectivos": 6.78,
+      "modelo": "grounding_dino",
+      "variantes": {
+        "eind_mismo_caption": {
+          "estado": "ok",
+          "experiment_id": "exp_20261030T080556Z_gen2_alr06_eind_mismo_caption_a_p9_c08",
+          "media_run_id": "run_20261030_080411_dbe_grounding_dino_a4a2db",
+          "control_run_id": "gen2_alr06_eind_mismo_caption_a_p9_c08_20261030T080556Z_bd97f2",
+          "media_status": "succeeded",
+          "control_status": "succeeded",
+          "inicio": "2026-10-30T08:05:56+00:00",
+          "fin": "2026-10-30T08:05:59+00:00",
+          "segundos": 3.0,
+          "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_a_p9_c08/media.yaml",
+          "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-06/gen2_alr06_eind_mismo_caption_a_p9_c08/control.yaml",
+          "sha256": {
+            "control_config": "bc0a148f4f9206daff992c5d7d68165b6a9f2dd01ae25079cef0195ea6f81510",
+            "patrones": "4f80f5d3b4e78046f8a033044475a667cd0aed930cfeca05295cf63a323570e8",
+            "media_config": "5a01d59c66775b4c429fbebe948ee18548f50b311fe5ca39d4c37fb41ef0d860",
+            "gt": "dc6230c5fce8aedff5f0c0eaee01140ec0fe89b5c8feaf19098f6bd207f72869"
+          },
+          "detecciones": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_080411_dbe_grounding_dino_a4a2db/detections.jsonl",
+          "eval": "variantes/eind_mismo_caption/evals/eval_a_p9_c08.json"
+        }
+      }
+    }
+  }
+}

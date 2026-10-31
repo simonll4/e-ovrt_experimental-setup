@@ -1,0 +1,591 @@
+{
+  "schema": "corridas.gen2.v1",
+  "prueba": "ALR-10",
+  "corridas": {
+    "v01_c01": {
+      "estado": "ok",
+      "experiment_id": "exp_20261031T010723Z_gen2_alr10_v01_c01",
+      "media_run_id": "reumbral_v01_c01",
+      "control_run_id": "gen2_alr10_v01_c01_20261031T010723Z_62e3f8",
+      "media_status": "succeeded",
+      "control_status": "succeeded",
+      "inicio": "2026-10-31T01:07:23+00:00",
+      "fin": "2026-10-31T01:07:26+00:00",
+      "segundos": 3.0,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-07/gen2_alr07_v01_c01/media.yaml",
+      "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-10/gen2_alr10_v01_c01/control.yaml",
+      "sha256": {
+        "control_config": "ea9f3d4b9a0fa3b47f4b8d9e104492a51a89f60718c4fc75f0b911b07dab905c",
+        "patrones": "4f80f5d3b4e78046f8a033044475a667cd0aed930cfeca05295cf63a323570e8",
+        "media_config": "c812129c353cad8609b49d2468663a4b8d597e1ddfef7857de8c2d0b291b2576",
+        "gt": "79b5b7c160b142d3a1a5a2d34ddbcec9f40d7860b6ebbd6d12a42049d937a6ef"
+      },
+      "detecciones": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/ALR-10/reumbral_v01_c01/detections.jsonl",
+      "eval": "evals/eval_v01_c01.json",
+      "reuse_run_dir": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/ALR-10/reumbral_v01_c01",
+      "variantes": {
+        "sujeto": {
+          "estado": "ok",
+          "experiment_id": "exp_20261031T010727Z_gen2_alr10_sujeto_v01_c01",
+          "media_run_id": "reumbral_v01_c01",
+          "control_run_id": "gen2_alr10_sujeto_v01_c01_20261031T010727Z_53d946",
+          "media_status": "succeeded",
+          "control_status": "succeeded",
+          "inicio": "2026-10-31T01:07:27+00:00",
+          "fin": "2026-10-31T01:07:30+00:00",
+          "segundos": 3.0,
+          "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-07/gen2_alr07_v01_c01/media.yaml",
+          "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-10/gen2_alr10_sujeto_v01_c01/control.yaml",
+          "sha256": {
+            "control_config": "f1a716c718dc356234789a3ec16606d0b37f91898e178286bc5849b5eabf981f",
+            "patrones": "0b88e5cd159ba49676f7723fe34d48c81f1b9a6b2ecb9c973e076570d164a391",
+            "media_config": "c812129c353cad8609b49d2468663a4b8d597e1ddfef7857de8c2d0b291b2576",
+            "gt": "79b5b7c160b142d3a1a5a2d34ddbcec9f40d7860b6ebbd6d12a42049d937a6ef"
+          },
+          "detecciones": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/ALR-10/reumbral_v01_c01/detections.jsonl",
+          "eval": "variantes/sujeto/evals/eval_v01_c01.json"
+        }
+      }
+    },
+    "v01_c02": {
+      "estado": "ok",
+      "experiment_id": "exp_20261031T010730Z_gen2_alr10_v01_c02",
+      "media_run_id": "reumbral_v01_c02",
+      "control_run_id": "gen2_alr10_v01_c02_20261031T010730Z_30b424",
+      "media_status": "succeeded",
+      "control_status": "succeeded",
+      "inicio": "2026-10-31T01:07:30+00:00",
+      "fin": "2026-10-31T01:07:33+00:00",
+      "segundos": 3.0,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-07/gen2_alr07_v01_c02/media.yaml",
+      "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-10/gen2_alr10_v01_c02/control.yaml",
+      "sha256": {
+        "control_config": "f8e6ed0d22ea9d1af2362bea72c30112a21b216e6528fa60b1550356ebad1fc6",
+        "patrones": "4f80f5d3b4e78046f8a033044475a667cd0aed930cfeca05295cf63a323570e8",
+        "media_config": "3a5f3616437a030e61afd294b0526dd1a0b86c4cfc34f312f95734203ee5e38e",
+        "gt": "6189a28fefe9b9ba18dac03cbcb7c6242bc739f60cdf0d93ceadbf4201bdc55e"
+      },
+      "detecciones": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/ALR-10/reumbral_v01_c02/detections.jsonl",
+      "eval": "evals/eval_v01_c02.json",
+      "reuse_run_dir": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/ALR-10/reumbral_v01_c02",
+      "variantes": {
+        "sujeto": {
+          "estado": "ok",
+          "experiment_id": "exp_20261031T010734Z_gen2_alr10_sujeto_v01_c02",
+          "media_run_id": "reumbral_v01_c02",
+          "control_run_id": "gen2_alr10_sujeto_v01_c02_20261031T010734Z_6e798b",
+          "media_status": "succeeded",
+          "control_status": "succeeded",
+          "inicio": "2026-10-31T01:07:34+00:00",
+          "fin": "2026-10-31T01:07:37+00:00",
+          "segundos": 3.0,
+          "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-07/gen2_alr07_v01_c02/media.yaml",
+          "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-10/gen2_alr10_sujeto_v01_c02/control.yaml",
+          "sha256": {
+            "control_config": "58c10330c1716bf9a7b60c7e67f969b80cfbb2a381043d5a1ac95db022ac44ac",
+            "patrones": "0b88e5cd159ba49676f7723fe34d48c81f1b9a6b2ecb9c973e076570d164a391",
+            "media_config": "3a5f3616437a030e61afd294b0526dd1a0b86c4cfc34f312f95734203ee5e38e",
+            "gt": "6189a28fefe9b9ba18dac03cbcb7c6242bc739f60cdf0d93ceadbf4201bdc55e"
+          },
+          "detecciones": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/ALR-10/reumbral_v01_c02/detections.jsonl",
+          "eval": "variantes/sujeto/evals/eval_v01_c02.json"
+        }
+      }
+    },
+    "v02_c01": {
+      "estado": "ok",
+      "experiment_id": "exp_20261031T010738Z_gen2_alr10_v02_c01",
+      "media_run_id": "reumbral_v02_c01",
+      "control_run_id": "gen2_alr10_v02_c01_20261031T010738Z_0e61aa",
+      "media_status": "succeeded",
+      "control_status": "succeeded",
+      "inicio": "2026-10-31T01:07:38+00:00",
+      "fin": "2026-10-31T01:07:41+00:00",
+      "segundos": 3.0,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-07/gen2_alr07_v02_c01/media.yaml",
+      "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-10/gen2_alr10_v02_c01/control.yaml",
+      "sha256": {
+        "control_config": "aba789962330b10145f213dc4b21de85e762f31a3a4d79d1246d1a8c54c9b68a",
+        "patrones": "4f80f5d3b4e78046f8a033044475a667cd0aed930cfeca05295cf63a323570e8",
+        "media_config": "d4a29da4ca36649592833dea91976d82f8a679e41739c19f9cecee0577faaa1f",
+        "gt": "f69e10075fa168970f220b2551f25843a9bf501af050420938bc06a5d0fda511"
+      },
+      "detecciones": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/ALR-10/reumbral_v02_c01/detections.jsonl",
+      "eval": "evals/eval_v02_c01.json",
+      "reuse_run_dir": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/ALR-10/reumbral_v02_c01",
+      "variantes": {
+        "sujeto": {
+          "estado": "ok",
+          "experiment_id": "exp_20261031T010741Z_gen2_alr10_sujeto_v02_c01",
+          "media_run_id": "reumbral_v02_c01",
+          "control_run_id": "gen2_alr10_sujeto_v02_c01_20261031T010741Z_eefc58",
+          "media_status": "succeeded",
+          "control_status": "succeeded",
+          "inicio": "2026-10-31T01:07:41+00:00",
+          "fin": "2026-10-31T01:07:44+00:00",
+          "segundos": 3.0,
+          "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-07/gen2_alr07_v02_c01/media.yaml",
+          "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-10/gen2_alr10_sujeto_v02_c01/control.yaml",
+          "sha256": {
+            "control_config": "022397dd4d65a3299e0fde09c7ee9106ebef2b262985f378788eda2e31eb06e4",
+            "patrones": "0b88e5cd159ba49676f7723fe34d48c81f1b9a6b2ecb9c973e076570d164a391",
+            "media_config": "d4a29da4ca36649592833dea91976d82f8a679e41739c19f9cecee0577faaa1f",
+            "gt": "f69e10075fa168970f220b2551f25843a9bf501af050420938bc06a5d0fda511"
+          },
+          "detecciones": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/ALR-10/reumbral_v02_c01/detections.jsonl",
+          "eval": "variantes/sujeto/evals/eval_v02_c01.json"
+        }
+      }
+    },
+    "v03_c01": {
+      "estado": "ok",
+      "experiment_id": "exp_20261031T010745Z_gen2_alr10_v03_c01",
+      "media_run_id": "reumbral_v03_c01",
+      "control_run_id": "gen2_alr10_v03_c01_20261031T010745Z_0fb511",
+      "media_status": "succeeded",
+      "control_status": "succeeded",
+      "inicio": "2026-10-31T01:07:45+00:00",
+      "fin": "2026-10-31T01:07:48+00:00",
+      "segundos": 3.0,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-07/gen2_alr07_v03_c01/media.yaml",
+      "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-10/gen2_alr10_v03_c01/control.yaml",
+      "sha256": {
+        "control_config": "ebcc441a8a0f791d16769e1817c8a511dbb244292db3583d0ab9f92705940c80",
+        "patrones": "4f80f5d3b4e78046f8a033044475a667cd0aed930cfeca05295cf63a323570e8",
+        "media_config": "faa2368148abd5c206b1eee588415dd64ef0fcbe25f4fd3ae3af078fd81b4c20",
+        "gt": "84e87f14738ff4d50185ca08d26484fc89b63222e07dd78bb967446344933b1b"
+      },
+      "detecciones": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/ALR-10/reumbral_v03_c01/detections.jsonl",
+      "eval": "evals/eval_v03_c01.json",
+      "reuse_run_dir": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/ALR-10/reumbral_v03_c01",
+      "variantes": {
+        "sujeto": {
+          "estado": "ok",
+          "experiment_id": "exp_20261031T010748Z_gen2_alr10_sujeto_v03_c01",
+          "media_run_id": "reumbral_v03_c01",
+          "control_run_id": "gen2_alr10_sujeto_v03_c01_20261031T010748Z_c653d6",
+          "media_status": "succeeded",
+          "control_status": "succeeded",
+          "inicio": "2026-10-31T01:07:48+00:00",
+          "fin": "2026-10-31T01:07:51+00:00",
+          "segundos": 3.0,
+          "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-07/gen2_alr07_v03_c01/media.yaml",
+          "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-10/gen2_alr10_sujeto_v03_c01/control.yaml",
+          "sha256": {
+            "control_config": "b45f6bbc7f40719c663abaf0cbb8ad10ce942aa50847d778b42cc67efa40dcfe",
+            "patrones": "0b88e5cd159ba49676f7723fe34d48c81f1b9a6b2ecb9c973e076570d164a391",
+            "media_config": "faa2368148abd5c206b1eee588415dd64ef0fcbe25f4fd3ae3af078fd81b4c20",
+            "gt": "84e87f14738ff4d50185ca08d26484fc89b63222e07dd78bb967446344933b1b"
+          },
+          "detecciones": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/ALR-10/reumbral_v03_c01/detections.jsonl",
+          "eval": "variantes/sujeto/evals/eval_v03_c01.json"
+        }
+      }
+    },
+    "v03_c02": {
+      "estado": "ok",
+      "experiment_id": "exp_20261031T010752Z_gen2_alr10_v03_c02",
+      "media_run_id": "reumbral_v03_c02",
+      "control_run_id": "gen2_alr10_v03_c02_20261031T010752Z_fc973c",
+      "media_status": "succeeded",
+      "control_status": "succeeded",
+      "inicio": "2026-10-31T01:07:52+00:00",
+      "fin": "2026-10-31T01:07:55+00:00",
+      "segundos": 3.0,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-07/gen2_alr07_v03_c02/media.yaml",
+      "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-10/gen2_alr10_v03_c02/control.yaml",
+      "sha256": {
+        "control_config": "d85dbd0e304026cf07031e12c8b01d3142469e4dc98dda87a39129eb5819f8c4",
+        "patrones": "4f80f5d3b4e78046f8a033044475a667cd0aed930cfeca05295cf63a323570e8",
+        "media_config": "a3875143c8f186dc8287c5e37a12ae4d25015d02964eaeeb5012310fb2cae671",
+        "gt": "eb275c2b737e1ab035b60972b15d376fd392adabe94f930bc968df0b3b084b31"
+      },
+      "detecciones": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/ALR-10/reumbral_v03_c02/detections.jsonl",
+      "eval": "evals/eval_v03_c02.json",
+      "reuse_run_dir": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/ALR-10/reumbral_v03_c02",
+      "variantes": {
+        "sujeto": {
+          "estado": "ok",
+          "experiment_id": "exp_20261031T010756Z_gen2_alr10_sujeto_v03_c02",
+          "media_run_id": "reumbral_v03_c02",
+          "control_run_id": "gen2_alr10_sujeto_v03_c02_20261031T010756Z_72e35d",
+          "media_status": "succeeded",
+          "control_status": "succeeded",
+          "inicio": "2026-10-31T01:07:56+00:00",
+          "fin": "2026-10-31T01:07:59+00:00",
+          "segundos": 3.0,
+          "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-07/gen2_alr07_v03_c02/media.yaml",
+          "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-10/gen2_alr10_sujeto_v03_c02/control.yaml",
+          "sha256": {
+            "control_config": "b1dc5f59f34396bbb4fccb3962c975435d1b370f3c853762f27ef89ec3fa48a5",
+            "patrones": "0b88e5cd159ba49676f7723fe34d48c81f1b9a6b2ecb9c973e076570d164a391",
+            "media_config": "a3875143c8f186dc8287c5e37a12ae4d25015d02964eaeeb5012310fb2cae671",
+            "gt": "eb275c2b737e1ab035b60972b15d376fd392adabe94f930bc968df0b3b084b31"
+          },
+          "detecciones": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/ALR-10/reumbral_v03_c02/detections.jsonl",
+          "eval": "variantes/sujeto/evals/eval_v03_c02.json"
+        }
+      }
+    },
+    "v04_c01": {
+      "estado": "ok",
+      "experiment_id": "exp_20261031T010759Z_gen2_alr10_v04_c01",
+      "media_run_id": "reumbral_v04_c01",
+      "control_run_id": "gen2_alr10_v04_c01_20261031T010759Z_d056b3",
+      "media_status": "succeeded",
+      "control_status": "succeeded",
+      "inicio": "2026-10-31T01:07:59+00:00",
+      "fin": "2026-10-31T01:08:02+00:00",
+      "segundos": 3.0,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-07/gen2_alr07_v04_c01/media.yaml",
+      "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-10/gen2_alr10_v04_c01/control.yaml",
+      "sha256": {
+        "control_config": "305ba0ff9a80ecde4db44b4e51a136b04d9414e5e0891427b1b1ad83f441902c",
+        "patrones": "4f80f5d3b4e78046f8a033044475a667cd0aed930cfeca05295cf63a323570e8",
+        "media_config": "3142f6cff1eb98dbf5fc6ddb20aaad5cf7f749c901c110c42226365e2070f183",
+        "gt": "47d8f4be724518865e9484e5e55dd0a7012a8ad1682f7b3de19286c914535d73"
+      },
+      "detecciones": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/ALR-10/reumbral_v04_c01/detections.jsonl",
+      "eval": "evals/eval_v04_c01.json",
+      "reuse_run_dir": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/ALR-10/reumbral_v04_c01",
+      "variantes": {
+        "sujeto": {
+          "estado": "ok",
+          "experiment_id": "exp_20261031T010803Z_gen2_alr10_sujeto_v04_c01",
+          "media_run_id": "reumbral_v04_c01",
+          "control_run_id": "gen2_alr10_sujeto_v04_c01_20261031T010803Z_e924df",
+          "media_status": "succeeded",
+          "control_status": "succeeded",
+          "inicio": "2026-10-31T01:08:03+00:00",
+          "fin": "2026-10-31T01:08:06+00:00",
+          "segundos": 3.0,
+          "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-07/gen2_alr07_v04_c01/media.yaml",
+          "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-10/gen2_alr10_sujeto_v04_c01/control.yaml",
+          "sha256": {
+            "control_config": "2b8e99ee52d79feb9e9d8bfc22e323971b1570943686898389c0dcda20f4a85b",
+            "patrones": "0b88e5cd159ba49676f7723fe34d48c81f1b9a6b2ecb9c973e076570d164a391",
+            "media_config": "3142f6cff1eb98dbf5fc6ddb20aaad5cf7f749c901c110c42226365e2070f183",
+            "gt": "47d8f4be724518865e9484e5e55dd0a7012a8ad1682f7b3de19286c914535d73"
+          },
+          "detecciones": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/ALR-10/reumbral_v04_c01/detections.jsonl",
+          "eval": "variantes/sujeto/evals/eval_v04_c01.json"
+        }
+      }
+    },
+    "v04_c02": {
+      "estado": "ok",
+      "experiment_id": "exp_20261031T010806Z_gen2_alr10_v04_c02",
+      "media_run_id": "reumbral_v04_c02",
+      "control_run_id": "gen2_alr10_v04_c02_20261031T010806Z_114449",
+      "media_status": "succeeded",
+      "control_status": "succeeded",
+      "inicio": "2026-10-31T01:08:06+00:00",
+      "fin": "2026-10-31T01:08:09+00:00",
+      "segundos": 3.0,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-07/gen2_alr07_v04_c02/media.yaml",
+      "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-10/gen2_alr10_v04_c02/control.yaml",
+      "sha256": {
+        "control_config": "e78861e3c7ba78b5583a547da36e87818892c3de62019892d4ada774b88c3c4e",
+        "patrones": "4f80f5d3b4e78046f8a033044475a667cd0aed930cfeca05295cf63a323570e8",
+        "media_config": "6f5932b917a2708a70c63e1091ec876c5b8a389b5a785c06d74645773ce2ad01",
+        "gt": "efdd9534978e4ab627dfa9afea453a8abb6d160983a8b207ce99556ffd8d0bdb"
+      },
+      "detecciones": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/ALR-10/reumbral_v04_c02/detections.jsonl",
+      "eval": "evals/eval_v04_c02.json",
+      "reuse_run_dir": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/ALR-10/reumbral_v04_c02",
+      "variantes": {
+        "sujeto": {
+          "estado": "ok",
+          "experiment_id": "exp_20261031T010810Z_gen2_alr10_sujeto_v04_c02",
+          "media_run_id": "reumbral_v04_c02",
+          "control_run_id": "gen2_alr10_sujeto_v04_c02_20261031T010810Z_a3323a",
+          "media_status": "succeeded",
+          "control_status": "succeeded",
+          "inicio": "2026-10-31T01:08:10+00:00",
+          "fin": "2026-10-31T01:08:13+00:00",
+          "segundos": 3.0,
+          "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-07/gen2_alr07_v04_c02/media.yaml",
+          "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-10/gen2_alr10_sujeto_v04_c02/control.yaml",
+          "sha256": {
+            "control_config": "acf40ed6bce6f1e682b9ad034bba2819d7c7646abc25cf6a31d2c4e8f12edbbd",
+            "patrones": "0b88e5cd159ba49676f7723fe34d48c81f1b9a6b2ecb9c973e076570d164a391",
+            "media_config": "6f5932b917a2708a70c63e1091ec876c5b8a389b5a785c06d74645773ce2ad01",
+            "gt": "efdd9534978e4ab627dfa9afea453a8abb6d160983a8b207ce99556ffd8d0bdb"
+          },
+          "detecciones": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/ALR-10/reumbral_v04_c02/detections.jsonl",
+          "eval": "variantes/sujeto/evals/eval_v04_c02.json"
+        }
+      }
+    },
+    "v04_c03": {
+      "estado": "ok",
+      "experiment_id": "exp_20261031T010813Z_gen2_alr10_v04_c03",
+      "media_run_id": "reumbral_v04_c03",
+      "control_run_id": "gen2_alr10_v04_c03_20261031T010813Z_8a04f8",
+      "media_status": "succeeded",
+      "control_status": "succeeded",
+      "inicio": "2026-10-31T01:08:13+00:00",
+      "fin": "2026-10-31T01:08:16+00:00",
+      "segundos": 3.0,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-07/gen2_alr07_v04_c03/media.yaml",
+      "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-10/gen2_alr10_v04_c03/control.yaml",
+      "sha256": {
+        "control_config": "e8bae7b414118219ae7b68a4df6d2f41b791adcb2284d02e9b84dce1ea6d195c",
+        "patrones": "4f80f5d3b4e78046f8a033044475a667cd0aed930cfeca05295cf63a323570e8",
+        "media_config": "7f078c72e5ecdc1ebd69d93ca543cfbb67776dbd5e6ce52f9dbe9fa90aba3bb8",
+        "gt": "47cb95498650dd98c4094eb631a4175f9738668ea8520a37f4f14027564ba324"
+      },
+      "detecciones": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/ALR-10/reumbral_v04_c03/detections.jsonl",
+      "eval": "evals/eval_v04_c03.json",
+      "reuse_run_dir": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/ALR-10/reumbral_v04_c03",
+      "variantes": {
+        "sujeto": {
+          "estado": "ok",
+          "experiment_id": "exp_20261031T010817Z_gen2_alr10_sujeto_v04_c03",
+          "media_run_id": "reumbral_v04_c03",
+          "control_run_id": "gen2_alr10_sujeto_v04_c03_20261031T010817Z_4f4e1c",
+          "media_status": "succeeded",
+          "control_status": "succeeded",
+          "inicio": "2026-10-31T01:08:17+00:00",
+          "fin": "2026-10-31T01:08:20+00:00",
+          "segundos": 3.0,
+          "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-07/gen2_alr07_v04_c03/media.yaml",
+          "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-10/gen2_alr10_sujeto_v04_c03/control.yaml",
+          "sha256": {
+            "control_config": "95f4e881d55d75a5ec7e8b8f96b18a264d9ce7fe5a6f63e4823113de99ec0ad6",
+            "patrones": "0b88e5cd159ba49676f7723fe34d48c81f1b9a6b2ecb9c973e076570d164a391",
+            "media_config": "7f078c72e5ecdc1ebd69d93ca543cfbb67776dbd5e6ce52f9dbe9fa90aba3bb8",
+            "gt": "47cb95498650dd98c4094eb631a4175f9738668ea8520a37f4f14027564ba324"
+          },
+          "detecciones": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/ALR-10/reumbral_v04_c03/detections.jsonl",
+          "eval": "variantes/sujeto/evals/eval_v04_c03.json"
+        }
+      }
+    },
+    "v05_c01": {
+      "estado": "ok",
+      "experiment_id": "exp_20261031T010821Z_gen2_alr10_v05_c01",
+      "media_run_id": "reumbral_v05_c01",
+      "control_run_id": "gen2_alr10_v05_c01_20261031T010821Z_40135c",
+      "media_status": "succeeded",
+      "control_status": "succeeded",
+      "inicio": "2026-10-31T01:08:21+00:00",
+      "fin": "2026-10-31T01:08:24+00:00",
+      "segundos": 3.0,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-07/gen2_alr07_v05_c01/media.yaml",
+      "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-10/gen2_alr10_v05_c01/control.yaml",
+      "sha256": {
+        "control_config": "bfba99418e28374b3c750afd2c7c0062ce77a7c4e4e73889739f324d47fa8a03",
+        "patrones": "4f80f5d3b4e78046f8a033044475a667cd0aed930cfeca05295cf63a323570e8",
+        "media_config": "ddbbb6722b8349dc4f50bf278f0ab31a6e7cf5b78425c7a8bb579d6f0f36f342",
+        "gt": "c8ade0359b1790e284e51ed10939023b4d84cba16b71a3e71c4a3e1b19852f5d"
+      },
+      "detecciones": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/ALR-10/reumbral_v05_c01/detections.jsonl",
+      "eval": "evals/eval_v05_c01.json",
+      "reuse_run_dir": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/ALR-10/reumbral_v05_c01",
+      "variantes": {
+        "sujeto": {
+          "estado": "ok",
+          "experiment_id": "exp_20261031T010824Z_gen2_alr10_sujeto_v05_c01",
+          "media_run_id": "reumbral_v05_c01",
+          "control_run_id": "gen2_alr10_sujeto_v05_c01_20261031T010824Z_89c339",
+          "media_status": "succeeded",
+          "control_status": "succeeded",
+          "inicio": "2026-10-31T01:08:24+00:00",
+          "fin": "2026-10-31T01:08:27+00:00",
+          "segundos": 3.0,
+          "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-07/gen2_alr07_v05_c01/media.yaml",
+          "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-10/gen2_alr10_sujeto_v05_c01/control.yaml",
+          "sha256": {
+            "control_config": "b0486e33e53e51793a8779dcb8599798ea5e3ee8f60bc1072305bb51dd8b214f",
+            "patrones": "0b88e5cd159ba49676f7723fe34d48c81f1b9a6b2ecb9c973e076570d164a391",
+            "media_config": "ddbbb6722b8349dc4f50bf278f0ab31a6e7cf5b78425c7a8bb579d6f0f36f342",
+            "gt": "c8ade0359b1790e284e51ed10939023b4d84cba16b71a3e71c4a3e1b19852f5d"
+          },
+          "detecciones": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/ALR-10/reumbral_v05_c01/detections.jsonl",
+          "eval": "variantes/sujeto/evals/eval_v05_c01.json"
+        }
+      }
+    },
+    "v06_c01": {
+      "estado": "ok",
+      "experiment_id": "exp_20261031T010832Z_gen2_alr10_v06_c01",
+      "media_run_id": "reumbral_v06_c01",
+      "control_run_id": "gen2_alr10_v06_c01_20261031T010832Z_b0fe38",
+      "media_status": "succeeded",
+      "control_status": "succeeded",
+      "inicio": "2026-10-31T01:08:32+00:00",
+      "fin": "2026-10-31T01:08:42+00:00",
+      "segundos": 10.5,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-07/gen2_alr07_v06_c01/media.yaml",
+      "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-10/gen2_alr10_v06_c01/control.yaml",
+      "sha256": {
+        "control_config": "69f660dd44b965f99a914d4804840fe526955af10563d857a20194257b7011bb",
+        "patrones": "4f80f5d3b4e78046f8a033044475a667cd0aed930cfeca05295cf63a323570e8",
+        "media_config": "6ab9d366641c0317ae479f2c747e837f12f654d61c4d215dd4f635999835f578",
+        "gt": "431ede94325aaf43ecfc1fab84b19f8c88223f484e741095becd6fb54322f5a4"
+      },
+      "detecciones": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/ALR-10/reumbral_v06_c01/detections.jsonl",
+      "eval": "evals/eval_v06_c01.json",
+      "reuse_run_dir": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/ALR-10/reumbral_v06_c01",
+      "variantes": {
+        "sujeto": {
+          "estado": "ok",
+          "experiment_id": "exp_20261031T010848Z_gen2_alr10_sujeto_v06_c01",
+          "media_run_id": "reumbral_v06_c01",
+          "control_run_id": "gen2_alr10_sujeto_v06_c01_20261031T010848Z_124c24",
+          "media_status": "succeeded",
+          "control_status": "succeeded",
+          "inicio": "2026-10-31T01:08:48+00:00",
+          "fin": "2026-10-31T01:09:09+00:00",
+          "segundos": 20.9,
+          "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-07/gen2_alr07_v06_c01/media.yaml",
+          "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-10/gen2_alr10_sujeto_v06_c01/control.yaml",
+          "sha256": {
+            "control_config": "302578d8e8b3cba95342ea17bba8e9583035d6ca11281ead79afb749725da659",
+            "patrones": "0b88e5cd159ba49676f7723fe34d48c81f1b9a6b2ecb9c973e076570d164a391",
+            "media_config": "6ab9d366641c0317ae479f2c747e837f12f654d61c4d215dd4f635999835f578",
+            "gt": "431ede94325aaf43ecfc1fab84b19f8c88223f484e741095becd6fb54322f5a4"
+          },
+          "detecciones": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/ALR-10/reumbral_v06_c01/detections.jsonl",
+          "eval": "variantes/sujeto/evals/eval_v06_c01.json"
+        }
+      }
+    },
+    "v07_c01": {
+      "estado": "ok",
+      "experiment_id": "exp_20261031T010915Z_gen2_alr10_v07_c01",
+      "media_run_id": "reumbral_v07_c01",
+      "control_run_id": "gen2_alr10_v07_c01_20261031T010916Z_baa8a0",
+      "media_status": "succeeded",
+      "control_status": "succeeded",
+      "inicio": "2026-10-31T01:09:15+00:00",
+      "fin": "2026-10-31T01:09:18+00:00",
+      "segundos": 3.0,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-07/gen2_alr07_v07_c01/media.yaml",
+      "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-10/gen2_alr10_v07_c01/control.yaml",
+      "sha256": {
+        "control_config": "125956f831fe67dac043182d2b534ff198c7f5887d98a46dfe847bbf373772f1",
+        "patrones": "4f80f5d3b4e78046f8a033044475a667cd0aed930cfeca05295cf63a323570e8",
+        "media_config": "6da808a0683e246dfc5d6279db1fa5567f859fa7160dfa518d1aa5268c414ace",
+        "gt": "166b58ac832758959e8482172d9c5c5fa54429837170787f3362a21d7ccf39a2"
+      },
+      "detecciones": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/ALR-10/reumbral_v07_c01/detections.jsonl",
+      "eval": "evals/eval_v07_c01.json",
+      "reuse_run_dir": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/ALR-10/reumbral_v07_c01",
+      "variantes": {
+        "sujeto": {
+          "estado": "ok",
+          "experiment_id": "exp_20261031T010919Z_gen2_alr10_sujeto_v07_c01",
+          "media_run_id": "reumbral_v07_c01",
+          "control_run_id": "gen2_alr10_sujeto_v07_c01_20261031T010919Z_609658",
+          "media_status": "succeeded",
+          "control_status": "succeeded",
+          "inicio": "2026-10-31T01:09:19+00:00",
+          "fin": "2026-10-31T01:09:22+00:00",
+          "segundos": 3.0,
+          "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-07/gen2_alr07_v07_c01/media.yaml",
+          "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-10/gen2_alr10_sujeto_v07_c01/control.yaml",
+          "sha256": {
+            "control_config": "1d1e05b173144ad6cb09f01610192753061b855fee566137ba8cef7c4a7f5d2d",
+            "patrones": "0b88e5cd159ba49676f7723fe34d48c81f1b9a6b2ecb9c973e076570d164a391",
+            "media_config": "6da808a0683e246dfc5d6279db1fa5567f859fa7160dfa518d1aa5268c414ace",
+            "gt": "166b58ac832758959e8482172d9c5c5fa54429837170787f3362a21d7ccf39a2"
+          },
+          "detecciones": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/ALR-10/reumbral_v07_c01/detections.jsonl",
+          "eval": "variantes/sujeto/evals/eval_v07_c01.json"
+        }
+      }
+    },
+    "v09_c01": {
+      "estado": "ok",
+      "experiment_id": "exp_20261031T010923Z_gen2_alr10_v09_c01",
+      "media_run_id": "reumbral_v09_c01",
+      "control_run_id": "gen2_alr10_v09_c01_20261031T010923Z_db5ef1",
+      "media_status": "succeeded",
+      "control_status": "succeeded",
+      "inicio": "2026-10-31T01:09:23+00:00",
+      "fin": "2026-10-31T01:09:26+00:00",
+      "segundos": 3.0,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-07/gen2_alr07_v09_c01/media.yaml",
+      "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-10/gen2_alr10_v09_c01/control.yaml",
+      "sha256": {
+        "control_config": "b4c6ba38531b9827c6396e7f134bb5d97b80b430017f5684dd704d34456437bf",
+        "patrones": "4f80f5d3b4e78046f8a033044475a667cd0aed930cfeca05295cf63a323570e8",
+        "media_config": "9aa7a690532a469c4e1cb7940e102cf90269875ca012197d983459db166852b4",
+        "gt": "17fbc4faa669412a7775c8289c4cc0379fb3f24702a27d567b121ff17d15e6ba"
+      },
+      "detecciones": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/ALR-10/reumbral_v09_c01/detections.jsonl",
+      "eval": "evals/eval_v09_c01.json",
+      "reuse_run_dir": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/ALR-10/reumbral_v09_c01",
+      "variantes": {
+        "sujeto": {
+          "estado": "ok",
+          "experiment_id": "exp_20261031T010926Z_gen2_alr10_sujeto_v09_c01",
+          "media_run_id": "reumbral_v09_c01",
+          "control_run_id": "gen2_alr10_sujeto_v09_c01_20261031T010926Z_826fda",
+          "media_status": "succeeded",
+          "control_status": "succeeded",
+          "inicio": "2026-10-31T01:09:26+00:00",
+          "fin": "2026-10-31T01:09:29+00:00",
+          "segundos": 3.0,
+          "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-07/gen2_alr07_v09_c01/media.yaml",
+          "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-10/gen2_alr10_sujeto_v09_c01/control.yaml",
+          "sha256": {
+            "control_config": "d2721b590f29cb74593e1ddf6db5a2f53b1f221d5edb96c61377dbe70e4cce87",
+            "patrones": "0b88e5cd159ba49676f7723fe34d48c81f1b9a6b2ecb9c973e076570d164a391",
+            "media_config": "9aa7a690532a469c4e1cb7940e102cf90269875ca012197d983459db166852b4",
+            "gt": "17fbc4faa669412a7775c8289c4cc0379fb3f24702a27d567b121ff17d15e6ba"
+          },
+          "detecciones": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/ALR-10/reumbral_v09_c01/detections.jsonl",
+          "eval": "variantes/sujeto/evals/eval_v09_c01.json"
+        }
+      }
+    },
+    "v10_c01": {
+      "estado": "ok",
+      "experiment_id": "exp_20261031T010930Z_gen2_alr10_v10_c01",
+      "media_run_id": "reumbral_v10_c01",
+      "control_run_id": "gen2_alr10_v10_c01_20261031T010930Z_427705",
+      "media_status": "succeeded",
+      "control_status": "succeeded",
+      "inicio": "2026-10-31T01:09:30+00:00",
+      "fin": "2026-10-31T01:09:33+00:00",
+      "segundos": 3.0,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-07/gen2_alr07_v10_c01/media.yaml",
+      "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-10/gen2_alr10_v10_c01/control.yaml",
+      "sha256": {
+        "control_config": "ec4598c0aeeee36caa43356345fa70afecada94963f9a063de3cdc48d2dfff40",
+        "patrones": "4f80f5d3b4e78046f8a033044475a667cd0aed930cfeca05295cf63a323570e8",
+        "media_config": "1e296d6e50f7d5ee15e6baf687e2a67bbcbe705686a7735ab7fe2b2b7d0a5857",
+        "gt": "73fa628329a3e09378e45cf16957b0d98b3a028260ccf83e7aaab4b77f9e479c"
+      },
+      "detecciones": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/ALR-10/reumbral_v10_c01/detections.jsonl",
+      "eval": "evals/eval_v10_c01.json",
+      "reuse_run_dir": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/ALR-10/reumbral_v10_c01",
+      "variantes": {
+        "sujeto": {
+          "estado": "ok",
+          "experiment_id": "exp_20261031T010934Z_gen2_alr10_sujeto_v10_c01",
+          "media_run_id": "reumbral_v10_c01",
+          "control_run_id": "gen2_alr10_sujeto_v10_c01_20261031T010934Z_cf3aaf",
+          "media_status": "succeeded",
+          "control_status": "succeeded",
+          "inicio": "2026-10-31T01:09:34+00:00",
+          "fin": "2026-10-31T01:09:37+00:00",
+          "segundos": 3.0,
+          "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-07/gen2_alr07_v10_c01/media.yaml",
+          "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-10/gen2_alr10_sujeto_v10_c01/control.yaml",
+          "sha256": {
+            "control_config": "2e4cb3f95a1a993b9f07251739cb2985d7ae6c29fa8f561e581cfffae0757e12",
+            "patrones": "0b88e5cd159ba49676f7723fe34d48c81f1b9a6b2ecb9c973e076570d164a391",
+            "media_config": "1e296d6e50f7d5ee15e6baf687e2a67bbcbe705686a7735ab7fe2b2b7d0a5857",
+            "gt": "73fa628329a3e09378e45cf16957b0d98b3a028260ccf83e7aaab4b77f9e479c"
+          },
+          "detecciones": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/ALR-10/reumbral_v10_c01/detections.jsonl",
+          "eval": "variantes/sujeto/evals/eval_v10_c01.json"
+        }
+      }
+    }
+  }
+}

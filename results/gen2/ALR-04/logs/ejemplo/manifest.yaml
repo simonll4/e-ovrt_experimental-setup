@@ -1,0 +1,18 @@
+schema_version: experiment.manifest.v1
+slug: gen2_alr04
+experiment_id: exp_20261030T053045Z_gen2_alr04_a_p1_c02
+runs:
+  media:
+    service: media-plane
+    config: $EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-04/gen2_alr04_a_p1_c02/media.yaml
+    mode: run
+  control:
+    service: control-plane
+    config: $EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-04/gen2_alr04_a_p1_c02/control.yaml
+    mode: replay
+sequencing: media_first
+clip_id: a_p1_c02
+ground_truth: $EOVRT_WORKSPACE/e-ovrt_datasets/datasets/processed/clip_bench/gt/a_p1_c02.json
+timeout_s: 3600.0
+changes: generación 2 — prueba ALR-04 (Alerta por episodio con evidencia directa E-DIR
+  (D1))

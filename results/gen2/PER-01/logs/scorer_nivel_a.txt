@@ -1,0 +1,5 @@
+18 corridas disponibles
+[bench_obra] 147 imagenes del estrato (104 con personas anotadas)
+[shel5k] 5000 imagenes del estrato (4979 con personas anotadas)
+
+-> $EOVRT_WORKSPACE/e-ovrt_experimental-setup/results/gen2/PER-01/evals/metrics.json

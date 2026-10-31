@@ -1,0 +1,28 @@
+ingest:
+  plugin: video_file
+  config:
+    path: /e-ovrt_datasets/datasets-videos/clips/video02_clip07.mp4
+    source_id: video02_clip07
+prompts:
+  set_inline:
+    id: cr01_cr02_v2_short
+    classes:
+    - id: person
+      phrasings:
+        default:
+        - person
+    - id: helmet
+      phrasings:
+        default:
+        - helmet
+    - id: vest
+      phrasings:
+        default:
+        - vest
+  active_ids:
+  - person
+  - helmet
+  - vest
+run:
+  name: gen2_per03_video02_clip07
+  save_previews: false

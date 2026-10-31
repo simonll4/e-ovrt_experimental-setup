@@ -1,0 +1,64 @@
+schema: prueba.gen2.v1
+id: PER-02
+titulo: "Estado por persona en imágenes: réplica con gdino-base-560"
+informe: ["Tabla 52"]
+fase: F4
+familia: nivel_a
+# Enmienda 2026-10-30 (doc 134 §13.10): se regenera en la Victus como todas. El bloque gen1
+# queda solo como referencia del veredicto.
+# Corrección 2026-10-30, antes de F4 (doc 134 §13.11): se agrega `gen1.relacion`, la clave que lee
+# el driver; `esperado` ya decía `otra_combinacion` desde la enmienda, pero sin la clave el driver
+# proponía `a_revisar`.
+pregunta: "¿La debilidad de E-DIR con la negación depende de la capacidad del codificador de texto?"
+gen1:
+  result_id: d1_gdinotiny560_edir_vs_eind (réplica base-560)
+  doc: operacion/84
+  relacion: otra_combinacion
+  motivo: >
+    Desde la enmienda del 2026-10-30 (doc 134 §13.10), base-560 carga su cabeza de cajas entrenada,
+    que en la generación 1 quedaba sin cargar: cambió el modelo efectivo, no la máquina. La
+    diferencia con la generación 1 mide el efecto de esa cabeza y se muestra al lado.
+  referencia:
+    archivo: results/bench_nivel_a/d1_gdinotiny560_edir_vs_eind/metrics_base560_replica.json
+    nota: se compara el bloque `gate` por estrato y condición
+  cifras:
+    - {clave: bench_obra/CR-01/f1_eind, nombre: "F1 E-IND por persona — bench_obra/CR-01", valor: 0.4}
+    - {clave: bench_obra/CR-01/f1_edir, nombre: "F1 mejor E-DIR (cr01_neg) — bench_obra/CR-01", valor: 0.188679}
+    - {clave: bench_obra/CR-02/f1_eind, nombre: "F1 E-IND por persona — bench_obra/CR-02", valor: 0.582781}
+    - {clave: bench_obra/CR-02/f1_edir, nombre: "F1 mejor E-DIR (cr02_obs) — bench_obra/CR-02", valor: 0.351145}
+    - {clave: shel5k/CR-01/f1_eind, nombre: "F1 E-IND por persona — shel5k/CR-01", valor: 0.495842}
+    - {clave: shel5k/CR-01/f1_edir, nombre: "F1 mejor E-DIR (cr01_obs) — shel5k/CR-01", valor: 0.167156}
+esperado: >
+  Mismas imágenes, misma semilla y mismo scorer que la generación 1. Desde la enmienda del 2026-10-30 (doc 134 §13.10), base-560 carga su cabeza de cajas entrenada, que en la generación 1 quedaba sin cargar. Por eso se espera `otra_combinacion`: la diferencia con la generación 1 mide el efecto de esa cabeza.
+veredictos_posibles: [identico, equivalente_con_diferencia, otra_combinacion]
+config:
+  modelo: grounding-dino/gdino-base-560
+  eind: eind_v1
+  edir: edir_v1, una corrida por variante
+receta:
+  instancia: mp-gdino-base-560
+  modelo: grounding-dino/gdino-base-560
+  estratos:
+    - {id: bench_obra_val, imagenes: datasets/raw/construction_site_safety/valid/images, condiciones: [CR-01, CR-02]}
+    - {id: bench_obra_test, imagenes: datasets/raw/construction_site_safety/test/images, condiciones: [CR-01, CR-02]}
+    - {id: shel5k, imagenes: "datasets/raw/shel5k/9rcv8mm682-4/Safety Helmet Wearing Dataset/Images", condiciones: [CR-01]}
+  eind:
+    prompts:
+      set_id: eind_v1
+      fuente: prompts/eind_v1.yaml
+      clases: [person, helmet, vest]
+      frozen: {prompts/eind_v1.yaml: 7a0126f45eb1362a2cfcc67458caa307357dc3f7684188fae6486486cd5ed770}
+  edir:
+    set_id: edir_v1
+    fuente: prompts/edir_v1.yaml
+    frozen: {prompts/edir_v1.yaml: a1278d0c34cd13beb759a1fe10b13c7096f147f7be23154f28a79454b5643703}
+    variantes:
+      - {id: cr01_neg, condicion: CR-01, estrategia: syntactic_negation}
+      - {id: cr01_spec, condicion: CR-01, estrategia: specificity}
+      - {id: cr01_obs, condicion: CR-01, estrategia: observable_state}
+      - {id: cr02_neg, condicion: CR-02, estrategia: syntactic_negation}
+      - {id: cr02_spec, condicion: CR-02, estrategia: specificity}
+      - {id: cr02_obs, condicion: CR-02, estrategia: observable_state}
+  scorer: {seed: 20260803, bootstrap: 1000}
+  timeout_s: 7200
+salida: e-ovrt_experimental-setup/results/gen2/PER-02/

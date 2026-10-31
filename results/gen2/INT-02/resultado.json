@@ -1,0 +1,81 @@
+{
+  "schema": "resultado.gen2.v1",
+  "id": "INT-02",
+  "titulo": "Integridad del banco temporal (47 clips y GT corregido)",
+  "informe": [
+    "Anexo E",
+    "§17.5.4"
+  ],
+  "generado": "2026-10-29T23:34:10+00:00",
+  "familia": "integridad",
+  "estado": "completo",
+  "metricas": {
+    "clips_mp4_contra_manifiesto": true,
+    "gt_y_anotaciones_del_banco": true,
+    "validate_clip_gt": true
+  },
+  "resumen": [
+    {
+      "clave": "clips_mp4_contra_manifiesto",
+      "nombre": "clips mp4 contra manifiesto",
+      "valor": "ok",
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "gt_y_anotaciones_del_banco",
+      "nombre": "gt y anotaciones del banco",
+      "valor": "ok",
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "validate_clip_gt",
+      "nombre": "validate clip gt",
+      "valor": "ok",
+      "unidad": null,
+      "gen1": null
+    }
+  ],
+  "chequeos": [
+    {
+      "nombre": "clips_mp4_contra_manifiesto",
+      "ok": true,
+      "total": 47,
+      "fallan": [],
+      "faltan": []
+    },
+    {
+      "nombre": "gt_y_anotaciones_del_banco",
+      "ok": true,
+      "lista": "$EOVRT_WORKSPACE/e-ovrt_datasets/datasets/processed/clip_bench/clip_bench.sha256",
+      "lista_sha256": "df45a01cdb99bd098e658acb7d4b28686fd11616fb432980288ddcd268bc3b57",
+      "lista_sha256_lf": null,
+      "total": 189,
+      "ok_salvo_finales_de_linea": 0,
+      "coinciden": 189,
+      "fallan": [],
+      "faltan": [],
+      "n_fallan": 0,
+      "n_faltan": 0,
+      "lista_sha256_esperado": "df45a01cdb99bd098e658acb7d4b28686fd11616fb432980288ddcd268bc3b57"
+    },
+    {
+      "nombre": "validate_clip_gt",
+      "ok": true,
+      "comando": "/usr/local/bin/python $EOVRT_WORKSPACE/e-ovrt_datasets/datasets/scripts/bench/validate_clip_gt.py --gt-dir $EOVRT_WORKSPACE/e-ovrt_datasets/datasets/processed/clip_bench/gt --manifest $EOVRT_WORKSPACE/e-ovrt_datasets/datasets/processed/clip_bench/manifest.yaml --base-dir $EOVRT_WORKSPACE/e-ovrt_datasets/datasets/processed/clip_bench",
+      "salida": "[aviso] a_p3_c01: clip negativo con scenario 'P3' (negativos esperados solo en P5/V3) — revisar si es un C2 encubierto (export sin tracks 'person' por formato/capitalización)\n[aviso] a_p3_c02: clip negativo con scenario 'P3' (negativos esperados solo en P5/V3) — revisar si es un C2 encubierto (export sin tracks 'person' por formato/capitalización)\n[aviso] a_p3_c01: clip negativo con scenario 'P3' (negativos esperados solo en P5/V3) — revisar si es un C2 encubierto (export sin tracks 'person' por formato/capitalización)\n[aviso] a_p3_c02: clip negativo con scenario 'P3' (negativos esperados solo en P5/V3) — revisar si es un C2 encubierto (export sin tracks 'person' por formato/capitalización)\n✓ validate_clip_gt: 0 error(es)\n"
+    }
+  ],
+  "veredicto": {
+    "propuesto": "identico",
+    "motivo": "todas las huellas coinciden",
+    "confirmado": {
+      "valor": "identico",
+      "motivo": "Coincide con la referencia del pre-registro valor por valor (revisado el 2026-10-31 sobre el zip de results/gen2; doc 134 13.12)",
+      "quien": "equipo E-OVRT-VDP",
+      "fecha": "2026-10-31T03:23:48+00:00"
+    },
+    "diferencias": {}
+  }
+}

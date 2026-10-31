@@ -1,0 +1,265 @@
+{
+  "schema": "resultado.gen2.v1",
+  "id": "INT-03",
+  "titulo": "Pesos de los modelos y configuración congelada",
+  "informe": [
+    "Anexo E.2",
+    "Tabla B.6"
+  ],
+  "generado": "2026-10-29T23:34:34+00:00",
+  "familia": "integridad",
+  "estado": "fallido",
+  "metricas": {
+    "pesos_de_los_modelos": false,
+    "prompt_set:prompts/cr01_cr02_v2_short.yaml": true,
+    "prompt_set:prompts/eind_v1.yaml": true,
+    "prompt_set:prompts/edir_v1.yaml": true,
+    "prompt_set:prompts/cr01_cr02_bench_v2.yaml": true,
+    "prompt_set:prompts/clase_nueva_v1.yaml": true,
+    "pattern_set:cr01_cr02_v2": true,
+    "pattern_set:cr01_cr02_v2_subject": true,
+    "pattern_set:cr01_cr02_edir_v1": true,
+    "pattern_set:cr01_cr02_hyb_or_v1": true,
+    "pattern_set:cr01_bare_head_v1": true,
+    "catalogos_de_modelo_leidos": true
+  },
+  "resumen": [
+    {
+      "clave": "pesos_de_los_modelos",
+      "nombre": "pesos de los modelos",
+      "valor": "FALLA",
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "prompt_set:prompts/cr01_cr02_v2_short.yaml",
+      "nombre": "prompt set:prompts/cr01 cr02 v2 short.yaml",
+      "valor": "ok",
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "prompt_set:prompts/eind_v1.yaml",
+      "nombre": "prompt set:prompts/eind v1.yaml",
+      "valor": "ok",
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "prompt_set:prompts/edir_v1.yaml",
+      "nombre": "prompt set:prompts/edir v1.yaml",
+      "valor": "ok",
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "prompt_set:prompts/cr01_cr02_bench_v2.yaml",
+      "nombre": "prompt set:prompts/cr01 cr02 bench v2.yaml",
+      "valor": "ok",
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "prompt_set:prompts/clase_nueva_v1.yaml",
+      "nombre": "prompt set:prompts/clase nueva v1.yaml",
+      "valor": "ok",
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "pattern_set:cr01_cr02_v2",
+      "nombre": "pattern set:cr01 cr02 v2",
+      "valor": "ok",
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "pattern_set:cr01_cr02_v2_subject",
+      "nombre": "pattern set:cr01 cr02 v2 subject",
+      "valor": "ok",
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "pattern_set:cr01_cr02_edir_v1",
+      "nombre": "pattern set:cr01 cr02 edir v1",
+      "valor": "ok",
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "pattern_set:cr01_cr02_hyb_or_v1",
+      "nombre": "pattern set:cr01 cr02 hyb or v1",
+      "valor": "ok",
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "pattern_set:cr01_bare_head_v1",
+      "nombre": "pattern set:cr01 bare head v1",
+      "valor": "ok",
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "catalogos_de_modelo_leidos",
+      "nombre": "catalogos de modelo leidos",
+      "valor": "ok",
+      "unidad": null,
+      "gen1": null
+    }
+  ],
+  "chequeos": [
+    {
+      "nombre": "pesos_de_los_modelos",
+      "ok": false,
+      "lista": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/experiments/evidencia/INT-03/modelos.sha256",
+      "lista_sha256": "f769bce907781be0d210849c64029b1eea4c0c340865d6b79f118aef0e109bea",
+      "lista_sha256_lf": null,
+      "total": 33,
+      "ok_salvo_finales_de_linea": 0,
+      "coinciden": 32,
+      "fallan": [
+        "models/grounding-dino/original/grounding-dino-base/model.safetensors"
+      ],
+      "faltan": [],
+      "n_fallan": 1,
+      "n_faltan": 0,
+      "lista_sha256_esperado": null
+    },
+    {
+      "nombre": "prompt_set:prompts/cr01_cr02_v2_short.yaml",
+      "ok": true,
+      "esperado": "df81fd48b6daf8924b5fb66aa1ce4acc0c880ac6ed8cd1245c6aca1babdb309a",
+      "calculado": "df81fd48b6daf8924b5fb66aa1ce4acc0c880ac6ed8cd1245c6aca1babdb309a",
+      "declarado_en_el_yaml": "df81fd48b6daf8924b5fb66aa1ce4acc0c880ac6ed8cd1245c6aca1babdb309a"
+    },
+    {
+      "nombre": "prompt_set:prompts/eind_v1.yaml",
+      "ok": true,
+      "esperado": "7a0126f45eb1362a2cfcc67458caa307357dc3f7684188fae6486486cd5ed770",
+      "calculado": "7a0126f45eb1362a2cfcc67458caa307357dc3f7684188fae6486486cd5ed770",
+      "declarado_en_el_yaml": "7a0126f45eb1362a2cfcc67458caa307357dc3f7684188fae6486486cd5ed770"
+    },
+    {
+      "nombre": "prompt_set:prompts/edir_v1.yaml",
+      "ok": true,
+      "esperado": "a1278d0c34cd13beb759a1fe10b13c7096f147f7be23154f28a79454b5643703",
+      "calculado": "a1278d0c34cd13beb759a1fe10b13c7096f147f7be23154f28a79454b5643703",
+      "declarado_en_el_yaml": "a1278d0c34cd13beb759a1fe10b13c7096f147f7be23154f28a79454b5643703"
+    },
+    {
+      "nombre": "prompt_set:prompts/cr01_cr02_bench_v2.yaml",
+      "ok": true,
+      "esperado": "9775f75b66aea610882075047a640bbc51176373864a0793fdb15e036b5437e8",
+      "calculado": "9775f75b66aea610882075047a640bbc51176373864a0793fdb15e036b5437e8",
+      "declarado_en_el_yaml": null
+    },
+    {
+      "nombre": "prompt_set:prompts/clase_nueva_v1.yaml",
+      "ok": true,
+      "esperado": "3871bca9c1d3e663dfd5475725ae5651c6261569f70bf1003ffcc2d8ab327889",
+      "calculado": "3871bca9c1d3e663dfd5475725ae5651c6261569f70bf1003ffcc2d8ab327889",
+      "declarado_en_el_yaml": null
+    },
+    {
+      "nombre": "pattern_set:cr01_cr02_v2",
+      "ok": true,
+      "esperado": "4f80f5d3b4e78046f8a033044475a667cd0aed930cfeca05295cf63a323570e8",
+      "calculado": "4f80f5d3b4e78046f8a033044475a667cd0aed930cfeca05295cf63a323570e8",
+      "finales_de_linea": null
+    },
+    {
+      "nombre": "pattern_set:cr01_cr02_v2_subject",
+      "ok": true,
+      "esperado": "0b88e5cd159ba49676f7723fe34d48c81f1b9a6b2ecb9c973e076570d164a391",
+      "calculado": "0b88e5cd159ba49676f7723fe34d48c81f1b9a6b2ecb9c973e076570d164a391",
+      "finales_de_linea": null
+    },
+    {
+      "nombre": "pattern_set:cr01_cr02_edir_v1",
+      "ok": true,
+      "esperado": "7200f0874502d0717b0a867eabad566babcef3daffef80e2fb6e0988ccb43141",
+      "calculado": "7200f0874502d0717b0a867eabad566babcef3daffef80e2fb6e0988ccb43141",
+      "finales_de_linea": null
+    },
+    {
+      "nombre": "pattern_set:cr01_cr02_hyb_or_v1",
+      "ok": true,
+      "esperado": "3fecfe517b5a23e0b08ec3db16135e376312c572763b74e703ee450ca0e20565",
+      "calculado": "3fecfe517b5a23e0b08ec3db16135e376312c572763b74e703ee450ca0e20565",
+      "finales_de_linea": null
+    },
+    {
+      "nombre": "pattern_set:cr01_bare_head_v1",
+      "ok": true,
+      "esperado": "934e18e1e82ee1c9d37a8aef05a8aa7f1b37fd552723f29ff01a74b1b6066001",
+      "calculado": "934e18e1e82ee1c9d37a8aef05a8aa7f1b37fd552723f29ff01a74b1b6066001",
+      "finales_de_linea": null
+    },
+    {
+      "nombre": "catalogos_de_modelo_leidos",
+      "ok": true,
+      "catalogos": {
+        "configs/models/grounding-dino/gdino-tiny-560.yaml": {
+          "family": "grounding-dino",
+          "variant": "gdino-tiny-560",
+          "lineage": "original",
+          "description": "Grounding DINO tiny, inferencia 560x560 letterbox (~-40% latencia vs 800).",
+          "source": "https://huggingface.co/IDEA-Research/grounding-dino-tiny",
+          "license": "Apache-2.0",
+          "adapter": "grounding_dino",
+          "model_id": "IDEA-Research/grounding-dino-tiny",
+          "local_dir": "models/grounding-dino/original/grounding-dino-tiny",
+          "device": "auto",
+          "box_threshold": 0.3,
+          "text_threshold": 0.25,
+          "image_size": 560
+        },
+        "configs/models/grounding-dino/gdino-base-560.yaml": {
+          "family": "grounding-dino",
+          "variant": "gdino-base-560",
+          "lineage": "original",
+          "description": "Grounding DINO base, inferencia 560x560 letterbox (matriz de selección S1).",
+          "source": "https://huggingface.co/IDEA-Research/grounding-dino-base",
+          "license": "Apache-2.0",
+          "adapter": "grounding_dino",
+          "model_id": "IDEA-Research/grounding-dino-base",
+          "local_dir": "models/grounding-dino/original/grounding-dino-base",
+          "device": "auto",
+          "box_threshold": 0.3,
+          "text_threshold": 0.25,
+          "image_size": 560
+        },
+        "configs/models/yoloe/yoloe-26x.yaml": {
+          "family": "yoloe",
+          "variant": "yoloe-26x",
+          "lineage": "original",
+          "description": "YOLOE xlarge segmentation (85.4M params). Techo de precisión local si entra en VRAM (Y-E5).",
+          "source": "https://github.com/ultralytics/assets/releases/download/v8.4.0/yoloe-26x-seg.pt",
+          "license": "AGPL-3.0",
+          "adapter": "yoloe",
+          "weights": "models/yoloe/original/yoloe-26x-seg.pt",
+          "device": "auto",
+          "confidence_threshold": 0.25,
+          "iou_threshold": 0.5,
+          "image_size": 640
+        },
+        "configs/models/mock.yaml": {
+          "family": "mock",
+          "variant": "mock",
+          "lineage": "original",
+          "description": "Detector sintético sin pesos; valida el pipeline de punta a punta.",
+          "adapter": "mock",
+          "device": "cpu"
+        }
+      }
+    }
+  ],
+  "veredicto": {
+    "propuesto": "a_revisar",
+    "motivo": "hay chequeos que fallan",
+    "confirmado": null,
+    "diferencias": {}
+  }
+}

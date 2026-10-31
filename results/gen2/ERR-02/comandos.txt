@@ -1,0 +1,2 @@
+[2026-10-31T01:16:04+00:00] python -m tools.evidencia correr F5
+[2026-10-31T03:24:37+00:00] veredicto confirmado: otra_combinacion (equipo E-OVRT-VDP): Combinacion nueva: 355 falsas alarmas por sujeto a 560 px y 309 a 800 px (caja 0,35); la regla fijada se cumple (P-no-detectado bajo 120 px: 48 a 42, sin subir las F) con efecto chico

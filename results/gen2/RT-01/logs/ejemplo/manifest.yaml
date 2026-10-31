@@ -1,0 +1,12 @@
+schema_version: experiment.manifest.v1
+slug: gen2_rt01
+experiment_id: exp_20261031T013442Z_gen2_rt01_mock_n300
+runs:
+  media:
+    service: media-plane
+    config: $EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/RT-01/gen2_rt01_mock_n300/media.yaml
+    mode: run
+sequencing: media_first
+timeout_s: 900
+changes: generación 2 — prueba RT-01 (Sobrecarga de la plataforma sin inferencia (G2A
+  con detector simulado))

@@ -1,0 +1,33 @@
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/pathlib.py", line 1116, in mkdir
+    os.mkdir(self, mode)
+FileNotFoundError: [Errno 2] No such file or directory: '$EOVRT_WORKSPACE/e-ovrt_experimental-setup/defensa/figuras/VIS-01/_crudos'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/pathlib.py", line 1116, in mkdir
+    os.mkdir(self, mode)
+FileNotFoundError: [Errno 2] No such file or directory: '$EOVRT_WORKSPACE/e-ovrt_experimental-setup/defensa/figuras/VIS-01'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/tools/evidencia/__main__.py", line 218, in _correr
+    salida = _correr_una(ctx, prueba)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/tools/evidencia/__main__.py", line 200, in _correr_una
+    return FAMILIAS[prueba.familia](ctx, prueba, carpeta)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/tools/evidencia/familias/figuras.py", line 297, in correr
+    crudo = extraer(ruta_video(ent, clip), e["cuadro"], fps, salida / "_crudos" / f"{clip}_{e['cuadro']}.png")
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/tools/evidencia/familias/figuras.py", line 56, in extraer_cuadro
+    salida.parent.mkdir(parents=True, exist_ok=True)
+  File "/usr/local/lib/python3.11/pathlib.py", line 1120, in mkdir
+    self.parent.mkdir(parents=True, exist_ok=True)
+  File "/usr/local/lib/python3.11/pathlib.py", line 1120, in mkdir
+    self.parent.mkdir(parents=True, exist_ok=True)
+  File "/usr/local/lib/python3.11/pathlib.py", line 1116, in mkdir
+    os.mkdir(self, mode)
+OSError: [Errno 30] Read-only file system: '$EOVRT_WORKSPACE/e-ovrt_experimental-setup/defensa/figuras'

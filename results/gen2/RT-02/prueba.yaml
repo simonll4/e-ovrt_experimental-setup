@@ -1,0 +1,28 @@
+schema: prueba.gen2.v1
+id: RT-02
+titulo: "Integridad del bus: 0 pérdidas y paridad vivo ↔ relectura"
+informe: ["§17.5.5", "Tabla 54"]
+fase: F6
+familia: vivo
+pregunta: >
+  Una corrida en vivo por el bus (control suscripto antes que medios), ¿pierde eventos? Y releída
+  offline sobre las mismas detecciones, ¿produce exactamente los mismos eventos y alertas?
+gen1:
+  result_id: bus_live_paridad
+  doc: operacion/37
+  referencia:
+    fuente: doc 37 (byte-idénticos módulo control_run_id/alert_id) y doc 71 (0 pérdidas en el rodaje)
+    valores: {paridad: true, bus_dropped_events: 0}
+esperado: "paridad sí y 0 eventos perdidos."
+veredictos_posibles: [identico]
+receta:
+  instancia: mp-gdino-tiny-560
+  modelo: grounding-dino/gdino-tiny-560
+  clip: a_p1_c04  # el de V1: tiene un episodio CR-01
+  prompts:
+    set_id: cr01_cr02_v2_short
+    fuente: prompts/cr01_cr02_v2_short.yaml
+    clases: [person, helmet, vest]
+    frozen: {prompts/cr01_cr02_v2_short.yaml: df81fd48b6daf8924b5fb66aa1ce4acc0c880ac6ed8cd1245c6aca1babdb309a}
+  control: {patrones: cr01_cr02_v2, activos: [CR-01, CR-02]}
+salida: e-ovrt_experimental-setup/results/gen2/RT-02/

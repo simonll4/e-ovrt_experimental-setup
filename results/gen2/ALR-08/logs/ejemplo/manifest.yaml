@@ -1,0 +1,19 @@
+schema_version: experiment.manifest.v1
+slug: gen2_alr08
+experiment_id: exp_20261031T010607Z_gen2_alr08_v01_c01
+runs:
+  media:
+    service: media-plane
+    config: $EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-07/gen2_alr07_v01_c01/media.yaml
+    mode: run
+    reuse_run_id: run_20261030_080618_dbe_grounding_dino_32a1fb
+  control:
+    service: control-plane
+    config: $EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-08/gen2_alr08_v01_c01/control.yaml
+    mode: replay
+sequencing: media_first
+clip_id: v01_c01
+ground_truth: $EOVRT_WORKSPACE/e-ovrt_datasets/datasets/processed/clip_bench/gt/v01_c01.json
+timeout_s: 1800.0
+changes: generación 2 — prueba ALR-08 (Obra real (estrato B), granularidad por sujeto
+  (I2))

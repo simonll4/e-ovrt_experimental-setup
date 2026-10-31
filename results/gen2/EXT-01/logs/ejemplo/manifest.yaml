@@ -1,0 +1,12 @@
+schema_version: experiment.manifest.v1
+slug: gen2_ext01
+experiment_id: exp_20261030T220503Z_gen2_ext01_obra_val
+runs:
+  media:
+    service: media-plane
+    config: $EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/EXT-01/gen2_ext01_obra_val/media.yaml
+    mode: run
+sequencing: media_first
+timeout_s: 1800.0
+changes: 'generación 2 — prueba EXT-01 (Clase nueva sin entrenar: machinery en obra
+  y máquinas en MOCS)'

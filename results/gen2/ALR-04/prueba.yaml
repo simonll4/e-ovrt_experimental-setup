@@ -1,0 +1,51 @@
+schema: prueba.gen2.v1
+id: ALR-04
+titulo: "Alerta por episodio con evidencia directa E-DIR (D1)"
+informe: ["Tabla 53", "§17.5.4"]
+fase: F3
+familia: clips
+# Enmienda 2026-10-30 (doc 134 §13.10): se regenera en la Victus como todas. El bloque gen1
+# queda solo como referencia del veredicto.
+pregunta: >
+  ¿Qué logra la formulación directa (frases que describen la violación, las ganadoras por
+  condición en la mitad A del Nivel A) de punta a punta, con el mismo campeón?
+gen1:
+  result_id: d1_gdinotiny560_edirpair_scene
+  doc: operacion/85
+  evals: results/clip_bench/d1_gdinotiny560_edirpair_scene/evals
+  clips_gt_corregido: [a_p1_c05, a_p2_c01, a_p2_c02, a_p2_c05, a_p7_c02, a_p7_c03, a_p8_c01, a_p9_c08]
+  referencia:
+    fuente: docs/operacion/datos/134-piloto-gt02-sensibilidad-bordes/gt02_todas_gt_corregido.json (D1)
+    valores: {episodes_total: 33, episodes_censored: 0, episodes_evaluable: 33, matched: 6, missed: 27,
+              false_positives: 35, re_alerts: 2, sub_threshold: 0, recall_micro: 0.181818,
+              precision_micro: 0.146341, f1_micro: 0.162162, neg_false_positives: 2}
+  cifras:
+    - {clave: f1, nombre: "F1 por episodio (micro)", valor: 0.162162}
+    - {clave: precision, nombre: "Precisión", valor: 0.146341}
+    - {clave: recall, nombre: "Recall", valor: 0.181818}
+    - {clave: falsas_alarmas, nombre: "Falsas alarmas en clips sin infracción", valor: 2}
+esperado: "Igual a la generación 1 re-evaluada con el GT corregido (F1 0,162; precisión < 0,5)."
+veredictos_posibles: [identico, equivalente_con_diferencia, otra_combinacion]
+config:
+  modelo: grounding-dino/gdino-tiny-560
+  prompt_set: edir_v1_pair_nivel_b (person + cr01_spec + cr02_obs, de los sets congelados eind_v1 y edir_v1)
+  pattern_set: cr01_cr02_edir_v1
+  granularidad: scene
+receta:
+  tipo: inferencia
+  clips: rodaje
+  instancia: mp-gdino-tiny-560
+  modelo: grounding-dino/gdino-tiny-560
+  medios:
+    prompts:
+      set_id: edir_v1_pair_nivel_b
+      clases:
+        - {id: person, fuente: prompts/eind_v1.yaml}
+        - {id: cr01_spec, fuente: prompts/edir_v1.yaml}
+        - {id: cr02_obs, fuente: prompts/edir_v1.yaml}
+      frozen:
+        prompts/eind_v1.yaml: 7a0126f45eb1362a2cfcc67458caa307357dc3f7684188fae6486486cd5ed770
+        prompts/edir_v1.yaml: a1278d0c34cd13beb759a1fe10b13c7096f147f7be23154f28a79454b5643703
+  control: {patrones: cr01_cr02_edir_v1, activos: [CR-01, CR-02]}
+  timeout_s: 3600
+salida: e-ovrt_experimental-setup/results/gen2/ALR-04/

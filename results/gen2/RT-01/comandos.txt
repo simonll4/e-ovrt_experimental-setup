@@ -1,0 +1,4 @@
+[2026-10-31T01:34:30+00:00] python -m tools.evidencia correr F6
+[2026-10-31T01:34:31+00:00] POST /api/platform/instances/mp-mock/activate
+[2026-10-31T01:34:42+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/RT-01/gen2_rt01_mock_n300/manifest.yaml
+[2026-10-31T03:24:43+00:00] veredicto confirmado: otra_combinacion (equipo E-OVRT-VDP): Latencia, no se espera igualdad: p50 15,8 / p95 19,5 ms, del orden de la validacion de la Victus (16,2 / 19,7)

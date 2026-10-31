@@ -1,0 +1,69 @@
+{
+  "schema_version": "control.eval.temporal.v1",
+  "scenario_id": "v02_c01",
+  "alerts_path": "$EOVRT_WORKSPACE/e-ovrt_control-plane/runs/gen2_alr10_v02_c01_20261031T010738Z_0e61aa/alerts.jsonl",
+  "ground_truth_path": "$EOVRT_WORKSPACE/e-ovrt_datasets/datasets/processed/clip_bench/gt/v02_c01.json",
+  "expected_alerts_count": 0,
+  "observed_alerts_count": 4,
+  "matched_alerts_count": 0,
+  "missed_alerts_count": 0,
+  "unexpected_alerts_count": 4,
+  "duplicate_alerts_count": 0,
+  "precision": 0.0,
+  "recall": 0.0,
+  "f1": 0.0,
+  "avg_latency_frames_from_first_evidence": null,
+  "avg_latency_ms_from_first_evidence": null,
+  "re_alerts_count": 0,
+  "sub_threshold_count": 0,
+  "censored_episodes_count": 0,
+  "observed_duration_ms": 48900.0,
+  "far_per_hour": 294.478528,
+  "applicability_state": "not_applicable",
+  "applicability_cause": "negative_clip_no_episodes",
+  "avg_latency_ms_from_episode_start": null,
+  "effective_matching_windows": {},
+  "warnings": [
+    "clip negativo (0 episodios en el GT): precision/recall/F1 no son evaluables (denominador 0) y NO deben promediarse. Lo que si es dato real: 4 falso(s) positivo(s) y far_per_hour — este clip es control de falsos positivos, no de recall."
+  ],
+  "matches": [],
+  "missed_alerts": [],
+  "unexpected_alerts": [
+    {
+      "alert_id": "18906470-f0c3-533e-b704-992f232cc34e",
+      "condition_id": "CR-01",
+      "subject_key": "CR-01:v02_c01",
+      "frame_index": 131,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "fd796a82-36aa-5b5c-8524-d69ef6486ff2",
+      "condition_id": "CR-02",
+      "subject_key": "CR-02:v02_c01",
+      "frame_index": 210,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "27af6e1e-f620-5b5a-b5a9-f12f7fe720c5",
+      "condition_id": "CR-01",
+      "subject_key": "CR-01:v02_c01",
+      "frame_index": 1067,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "99e7217e-290e-5174-aad5-feb61aec2db8",
+      "condition_id": "CR-01",
+      "subject_key": "CR-01:v02_c01",
+      "frame_index": 1430,
+      "reason": "outside_all_episode_windows"
+    }
+  ],
+  "censored_episodes": [],
+  "avg_ttfd_ms": null,
+  "avg_sdr": null,
+  "ttfd_by_episode": [],
+  "sdr_by_episode": [],
+  "ttfd_sdr_applicability": "computed",
+  "positive_criterion": "spatial_absence(cr01_cr02_v2) >=1 evidencia",
+  "detections_path": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/ALR-10/reumbral_v02_c01/detections.jsonl"
+}

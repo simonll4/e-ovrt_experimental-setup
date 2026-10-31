@@ -1,0 +1,22 @@
+[2026-10-30T23:10:30+00:00] python -m tools.evidencia correr F4
+[2026-10-30T23:10:30+00:00] POST /api/platform/instances/mp-gdino-tiny-560/activate
+[2026-10-30T23:10:48+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/PER-01/gen2_per01_eind_bench_obra_val/manifest.yaml
+[2026-10-30T23:11:06+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/PER-01/gen2_per01_edir_cr01_neg_bench_obra_val/manifest.yaml
+[2026-10-30T23:11:24+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/PER-01/gen2_per01_edir_cr01_spec_bench_obra_val/manifest.yaml
+[2026-10-30T23:11:45+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/PER-01/gen2_per01_edir_cr01_obs_bench_obra_val/manifest.yaml
+[2026-10-30T23:12:03+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/PER-01/gen2_per01_edir_cr02_neg_bench_obra_val/manifest.yaml
+[2026-10-30T23:12:24+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/PER-01/gen2_per01_edir_cr02_spec_bench_obra_val/manifest.yaml
+[2026-10-30T23:12:45+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/PER-01/gen2_per01_edir_cr02_obs_bench_obra_val/manifest.yaml
+[2026-10-30T23:13:06+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/PER-01/gen2_per01_eind_bench_obra_test/manifest.yaml
+[2026-10-30T23:13:22+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/PER-01/gen2_per01_edir_cr01_neg_bench_obra_test/manifest.yaml
+[2026-10-30T23:13:37+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/PER-01/gen2_per01_edir_cr01_spec_bench_obra_test/manifest.yaml
+[2026-10-30T23:13:52+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/PER-01/gen2_per01_edir_cr01_obs_bench_obra_test/manifest.yaml
+[2026-10-30T23:14:07+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/PER-01/gen2_per01_edir_cr02_neg_bench_obra_test/manifest.yaml
+[2026-10-30T23:14:22+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/PER-01/gen2_per01_edir_cr02_spec_bench_obra_test/manifest.yaml
+[2026-10-30T23:14:37+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/PER-01/gen2_per01_edir_cr02_obs_bench_obra_test/manifest.yaml
+[2026-10-30T23:14:52+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/PER-01/gen2_per01_eind_shel5k/manifest.yaml
+[2026-10-30T23:26:55+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/PER-01/gen2_per01_edir_cr01_neg_shel5k/manifest.yaml
+[2026-10-30T23:38:59+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/PER-01/gen2_per01_edir_cr01_spec_shel5k/manifest.yaml
+[2026-10-30T23:51:08+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/PER-01/gen2_per01_edir_cr01_obs_shel5k/manifest.yaml
+[2026-10-31T00:03:03+00:00] /usr/local/bin/python $EOVRT_WORKSPACE/e-ovrt_datasets/datasets/scripts/bench/run_fase_d_nivel_a.py --runs $EOVRT_WORKSPACE/e-ovrt_experimental-setup/results/gen2/PER-01/evals/runs.json --out $EOVRT_WORKSPACE/e-ovrt_experimental-setup/results/gen2/PER-01/evals --seed 20260803 --bootstrap 1000
+[2026-10-31T03:24:20+00:00] veredicto confirmado: identico (equipo E-OVRT-VDP): Coincide con la referencia del pre-registro valor por valor (revisado el 2026-10-31 sobre el zip de results/gen2; doc 134 13.12)

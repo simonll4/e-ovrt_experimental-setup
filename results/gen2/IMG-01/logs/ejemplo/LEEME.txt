@@ -1,0 +1,1 @@
+Configuración expandida de la primera corrida (gen2_img01_obra_test). Las demás difieren solo en el clip/estrato y el nombre de la corrida; sus huellas están en corridas.json.

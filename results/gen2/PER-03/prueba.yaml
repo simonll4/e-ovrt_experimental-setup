@@ -1,0 +1,46 @@
+schema: prueba.gen2.v1
+id: PER-03
+titulo: "Estado por persona en video de obra real (17 clips)"
+informe: ["Tabla 52 (video)", "§17.5.3"]
+fase: F5
+familia: nivel_a_video
+depende_de: [ALR-07]
+pregunta: >
+  Por persona y por cuadro, en el punto de operación desplegado, ¿qué tan bien determina el
+  sistema el estado de cada persona en video de obra real (13 clips del estrato B + 4 del piloto)?
+gen1:
+  result_id: na1_gdinotiny560_v2short_video
+  doc: operacion/113
+  referencia:
+    archivo: results/bench_nivel_a/na1_gdinotiny560_v2short_video/metrics.json
+    nota: se compara el `agregado` por condición (tp, fp, fn, n_gt, precisión, recall, F1)
+esperado: >
+  Idéntico a la puntuación vigente (post revisión ciega, doc 113): CR-01 F1 0,031, CR-02 0,018.
+  Los XML del estrato B salen del banco versionado (idénticos byte a byte a los del laboratorio
+  que usó la generación 1, verificado el 2026-10-26).
+veredictos_posibles: [identico, equivalente_con_diferencia, otra_combinacion]
+config:
+  modelo: grounding-dino/gdino-tiny-560
+  prompt_set: cr01_cr02_v2_short
+  puntaje: score_clip_person_state.py, 1 de cada 15 cuadros, punto de operación de cr01_cr02_v2
+receta:
+  reusa: ALR-07
+  instancia: mp-gdino-tiny-560
+  modelo: grounding-dino/gdino-tiny-560
+  prompts:
+    set_id: cr01_cr02_v2_short
+    fuente: prompts/cr01_cr02_v2_short.yaml
+    clases: [person, helmet, vest]
+    frozen: {prompts/cr01_cr02_v2_short.yaml: df81fd48b6daf8924b5fb66aa1ce4acc0c880ac6ed8cd1245c6aca1babdb309a}
+  banco:
+    clips: [v01_c01, v01_c02, v02_c01, v03_c01, v03_c02, v04_c01, v04_c02, v04_c03, v05_c01, v06_c01, v07_c01, v09_c01, v10_c01]
+    xml: datasets/processed/clip_bench/annotations
+    info: datasets/processed/clip_bench/meta
+  # Los 4 clips del piloto vienen en el paquete privado (traspaso-victus-gen2.zip).
+  piloto:
+    clips: [video02_clip07, video15_clip01, video16_clip10, video16_clip14]
+    videos: datasets-videos/clips
+    xml: datasets-videos/corrected
+  stride_puntaje: 15
+  timeout_s: 1800
+salida: e-ovrt_experimental-setup/results/gen2/PER-03/

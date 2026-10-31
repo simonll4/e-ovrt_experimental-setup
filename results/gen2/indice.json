@@ -1,0 +1,3422 @@
+{
+  "schema": "indice.gen2.v1",
+  "generado": "2026-10-31T03:24:51+00:00",
+  "pruebas": [
+    {
+      "id": "GT-01",
+      "fase": "F1",
+      "familia": "analisis",
+      "registro": "activa",
+      "estado": "completo",
+      "corridas_ok": 0,
+      "corridas": 0,
+      "veredicto": "identico",
+      "confirmado": true,
+      "titulo": "Concordancia entre la marca del operador y el GT corregido",
+      "informe": [
+        "§17.5.7 (limitaciones)",
+        "Anexo E"
+      ],
+      "pregunta": "Las marcas que el operador anotó al recortar cada toma del rodaje (antes de la anotación), ¿coinciden con el inicio de los episodios del GT corregido?\n",
+      "gen1": {
+        "result_id": "(revisión dirigida, 2026-10-26)",
+        "doc": "datasets/registry/clip_bench.md (L2)"
+      },
+      "resumen": [
+        {
+          "clave": "dentro_de_0.5s",
+          "nombre": "Marcas del operador a ≤ 0.5 s del inicio en el GT",
+          "valor": "32/33",
+          "unidad": null,
+          "gen1": 32
+        },
+        {
+          "clave": "dentro_de_1.0s",
+          "nombre": "Marcas del operador a ≤ 1.0 s del inicio en el GT",
+          "valor": "33/33",
+          "unidad": null,
+          "gen1": 33
+        }
+      ],
+      "generado": "2026-10-29T23:32:39+00:00"
+    },
+    {
+      "id": "INT-01",
+      "fase": "F1",
+      "familia": "integridad",
+      "registro": "activa",
+      "estado": "completo",
+      "corridas_ok": 0,
+      "corridas": 0,
+      "veredicto": "identico",
+      "confirmado": true,
+      "titulo": "Integridad del bench de imágenes (bench_v3)",
+      "informe": [
+        "Anexo E.1",
+        "Anexo E.2"
+      ],
+      "pregunta": "¿Las 6.477 imágenes y los estratos con que se mide en la Victus son los mismos con que se midió la generación 1?",
+      "gen1": {
+        "result_id": "bench_v3 (congelado 2026-07-23)",
+        "doc": "datasets/registry/bench_v3.md"
+      },
+      "resumen": [
+        {
+          "clave": "imagenes_bench_v3",
+          "nombre": "imagenes bench v3",
+          "valor": "ok",
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "estratos_byte_a_byte",
+          "nombre": "estratos byte a byte",
+          "valor": "ok",
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "bench_v3_reconstruido",
+          "nombre": "bench v3 reconstruido",
+          "valor": "ok",
+          "unidad": null,
+          "gen1": null
+        }
+      ],
+      "generado": "2026-10-29T23:33:41+00:00"
+    },
+    {
+      "id": "INT-02",
+      "fase": "F1",
+      "familia": "integridad",
+      "registro": "activa",
+      "estado": "completo",
+      "corridas_ok": 0,
+      "corridas": 0,
+      "veredicto": "identico",
+      "confirmado": true,
+      "titulo": "Integridad del banco temporal (47 clips y GT corregido)",
+      "informe": [
+        "Anexo E",
+        "§17.5.4"
+      ],
+      "pregunta": "¿Los 47 videos y la referencia corregida en la Victus son exactamente los versionados?",
+      "gen1": {
+        "result_id": "clip_bench (re-congelado 2026-10-26, revisión dirigida)",
+        "doc": "datasets/registry/clip_bench.md"
+      },
+      "resumen": [
+        {
+          "clave": "clips_mp4_contra_manifiesto",
+          "nombre": "clips mp4 contra manifiesto",
+          "valor": "ok",
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "gt_y_anotaciones_del_banco",
+          "nombre": "gt y anotaciones del banco",
+          "valor": "ok",
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "validate_clip_gt",
+          "nombre": "validate clip gt",
+          "valor": "ok",
+          "unidad": null,
+          "gen1": null
+        }
+      ],
+      "generado": "2026-10-29T23:34:10+00:00"
+    },
+    {
+      "id": "INT-03",
+      "fase": "F1",
+      "familia": "integridad",
+      "registro": "activa",
+      "estado": "completo",
+      "corridas_ok": 0,
+      "corridas": 0,
+      "veredicto": "identico",
+      "confirmado": true,
+      "titulo": "Pesos de los modelos y configuración congelada",
+      "informe": [
+        "Anexo E.2",
+        "Tabla B.6"
+      ],
+      "pregunta": "¿Los pesos, los prompt sets y los pattern sets de la Victus son los recreados desde la fuente, con las huellas declaradas?\n",
+      "gen1": {
+        "result_id": "(huellas tomadas el 2026-10-26; base corregida a la de la fuente el 2026-10-30)",
+        "doc": "operacion/134"
+      },
+      "resumen": [
+        {
+          "clave": "pesos_de_los_modelos",
+          "nombre": "pesos de los modelos",
+          "valor": "ok",
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "prompt_set:prompts/cr01_cr02_v2_short.yaml",
+          "nombre": "prompt set:prompts/cr01 cr02 v2 short.yaml",
+          "valor": "ok",
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "prompt_set:prompts/eind_v1.yaml",
+          "nombre": "prompt set:prompts/eind v1.yaml",
+          "valor": "ok",
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "prompt_set:prompts/edir_v1.yaml",
+          "nombre": "prompt set:prompts/edir v1.yaml",
+          "valor": "ok",
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "prompt_set:prompts/cr01_cr02_bench_v2.yaml",
+          "nombre": "prompt set:prompts/cr01 cr02 bench v2.yaml",
+          "valor": "ok",
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "prompt_set:prompts/clase_nueva_v1.yaml",
+          "nombre": "prompt set:prompts/clase nueva v1.yaml",
+          "valor": "ok",
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "pattern_set:cr01_cr02_v2",
+          "nombre": "pattern set:cr01 cr02 v2",
+          "valor": "ok",
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "pattern_set:cr01_cr02_v2_subject",
+          "nombre": "pattern set:cr01 cr02 v2 subject",
+          "valor": "ok",
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "pattern_set:cr01_cr02_edir_v1",
+          "nombre": "pattern set:cr01 cr02 edir v1",
+          "valor": "ok",
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "pattern_set:cr01_cr02_hyb_or_v1",
+          "nombre": "pattern set:cr01 cr02 hyb or v1",
+          "valor": "ok",
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "pattern_set:cr01_bare_head_v1",
+          "nombre": "pattern set:cr01 bare head v1",
+          "valor": "ok",
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "catalogos_de_modelo_leidos",
+          "nombre": "catalogos de modelo leidos",
+          "valor": "ok",
+          "unidad": null,
+          "gen1": null
+        }
+      ],
+      "generado": "2026-10-30T02:55:54+00:00"
+    },
+    {
+      "id": "PLAT-01",
+      "fase": "F1",
+      "familia": "plataforma",
+      "registro": "activa",
+      "estado": "completo",
+      "corridas_ok": 0,
+      "corridas": 0,
+      "veredicto": "identico",
+      "confirmado": true,
+      "titulo": "Qué corrió y dónde: la plataforma en contenedores en la Victus",
+      "informe": [
+        "Tabla B.1",
+        "Tabla B.3",
+        "§17.6.4"
+      ],
+      "pregunta": "¿En qué equipo, con qué versiones e imágenes, y con qué servicios arriba se generó la evidencia final?",
+      "gen1": {
+        "result_id": "doc 133 (validación de la Victus)",
+        "doc": "operacion/133"
+      },
+      "resumen": [
+        {
+          "clave": "consola_responde",
+          "nombre": "consola responde",
+          "valor": "ok",
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "media_plane_listo",
+          "nombre": "media plane listo",
+          "valor": "ok",
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "compose_config_valido",
+          "nombre": "compose config valido",
+          "valor": "ok",
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "compose_ps",
+          "nombre": "compose ps",
+          "valor": "ok",
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "gpu_identificada",
+          "nombre": "gpu identificada",
+          "valor": "ok",
+          "unidad": null,
+          "gen1": null
+        }
+      ],
+      "generado": "2026-10-31T02:49:32+00:00"
+    },
+    {
+      "id": "ALR-01",
+      "fase": "F3",
+      "familia": "clips",
+      "registro": "activa",
+      "estado": "completo",
+      "corridas_ok": 34,
+      "corridas": 34,
+      "veredicto": "identico",
+      "confirmado": true,
+      "titulo": "Alerta por episodio, escena, campeón (T1)",
+      "informe": [
+        "Tabla 53",
+        "§17.5.4"
+      ],
+      "pregunta": "¿Qué recall, precisión y F1 por episodio logra la configuración congelada sobre los 34 clips del rodaje, contra la referencia corregida?\n",
+      "gen1": {
+        "result_id": "t1_gdinotiny560_v2short_scene",
+        "doc": "operacion/81"
+      },
+      "resumen": [
+        {
+          "clave": "f1",
+          "nombre": "F1 por episodio (micro)",
+          "valor": 0.84058,
+          "unidad": null,
+          "gen1": 0.84058
+        },
+        {
+          "clave": "precision",
+          "nombre": "Precisión",
+          "valor": 0.805556,
+          "unidad": null,
+          "gen1": 0.805556
+        },
+        {
+          "clave": "recall",
+          "nombre": "Recall",
+          "valor": 0.878788,
+          "unidad": null,
+          "gen1": 0.878788
+        },
+        {
+          "clave": "episodios_evaluables",
+          "nombre": "Episodios evaluables",
+          "valor": 33,
+          "unidad": null,
+          "gen1": 33
+        },
+        {
+          "clave": "aciertos",
+          "nombre": "Alertas que acertaron un episodio",
+          "valor": 29,
+          "unidad": null,
+          "gen1": 29
+        },
+        {
+          "clave": "perdidos",
+          "nombre": "Episodios sin alerta",
+          "valor": 4,
+          "unidad": null,
+          "gen1": 4
+        },
+        {
+          "clave": "falsas_alarmas_en_positivos",
+          "nombre": "Falsas alarmas en clips con episodios",
+          "valor": 7,
+          "unidad": null,
+          "gen1": 7
+        },
+        {
+          "clave": "falsas_alarmas",
+          "nombre": "Falsas alarmas en clips sin infracción",
+          "valor": 0,
+          "unidad": null,
+          "gen1": 0
+        },
+        {
+          "clave": "re_alertas",
+          "nombre": "Re-alertas (no son falsas alarmas)",
+          "valor": 8,
+          "unidad": null,
+          "gen1": 8
+        },
+        {
+          "clave": "t_alert_s",
+          "nombre": "Tiempo hasta la alerta desde el inicio del episodio",
+          "valor": 5.39,
+          "unidad": "s",
+          "gen1": null
+        },
+        {
+          "clave": "ttfd_ms",
+          "nombre": "Tiempo hasta la primera detección",
+          "valor": 243.993667,
+          "unidad": "ms",
+          "gen1": null
+        },
+        {
+          "clave": "sdr",
+          "nombre": "Proporción de detección sostenida (SDR)",
+          "valor": 0.690071,
+          "unidad": null,
+          "gen1": null
+        }
+      ],
+      "generado": "2026-10-30T04:10:31+00:00"
+    },
+    {
+      "id": "ALR-03",
+      "fase": "F3",
+      "familia": "clips",
+      "registro": "activa",
+      "estado": "completo",
+      "corridas_ok": 34,
+      "corridas": 34,
+      "veredicto": "otra_combinacion",
+      "confirmado": true,
+      "titulo": "Alerta por episodio, escena, gdino-base-560 (T2)",
+      "informe": [
+        "Tabla 53",
+        "§17.5.4"
+      ],
+      "pregunta": "¿El especialista en bare_head/vest (base-560) mejora la alerta por episodio frente al campeón, con el mismo prompt set y el mismo pattern set?\n",
+      "gen1": {
+        "result_id": "t2_gdinobase560_v2short_scene",
+        "doc": "operacion/84"
+      },
+      "resumen": [
+        {
+          "clave": "f1",
+          "nombre": "F1 por episodio (micro)",
+          "valor": 0.676056,
+          "unidad": null,
+          "gen1": 0.714286
+        },
+        {
+          "clave": "precision",
+          "nombre": "Precisión",
+          "valor": 0.631579,
+          "unidad": null,
+          "gen1": 0.675676
+        },
+        {
+          "clave": "recall",
+          "nombre": "Recall",
+          "valor": 0.727273,
+          "unidad": null,
+          "gen1": 0.757576
+        },
+        {
+          "clave": "episodios_evaluables",
+          "nombre": "Episodios evaluables",
+          "valor": 33,
+          "unidad": null,
+          "gen1": 33
+        },
+        {
+          "clave": "aciertos",
+          "nombre": "Alertas que acertaron un episodio",
+          "valor": 24,
+          "unidad": null,
+          "gen1": 25
+        },
+        {
+          "clave": "perdidos",
+          "nombre": "Episodios sin alerta",
+          "valor": 9,
+          "unidad": null,
+          "gen1": 8
+        },
+        {
+          "clave": "falsas_alarmas_en_positivos",
+          "nombre": "Falsas alarmas en clips con episodios",
+          "valor": 14,
+          "unidad": null,
+          "gen1": 12
+        },
+        {
+          "clave": "falsas_alarmas",
+          "nombre": "Falsas alarmas en clips sin infracción",
+          "valor": 0,
+          "unidad": null,
+          "gen1": 0
+        },
+        {
+          "clave": "re_alertas",
+          "nombre": "Re-alertas (no son falsas alarmas)",
+          "valor": 2,
+          "unidad": null,
+          "gen1": 2
+        },
+        {
+          "clave": "t_alert_s",
+          "nombre": "Tiempo hasta la alerta desde el inicio del episodio",
+          "valor": 4.999,
+          "unidad": "s",
+          "gen1": null
+        },
+        {
+          "clave": "ttfd_ms",
+          "nombre": "Tiempo hasta la primera detección",
+          "valor": 248.9935,
+          "unidad": "ms",
+          "gen1": null
+        },
+        {
+          "clave": "sdr",
+          "nombre": "Proporción de detección sostenida (SDR)",
+          "valor": 0.810573,
+          "unidad": null,
+          "gen1": null
+        }
+      ],
+      "generado": "2026-10-30T05:30:29+00:00"
+    },
+    {
+      "id": "ALR-04",
+      "fase": "F3",
+      "familia": "clips",
+      "registro": "activa",
+      "estado": "completo",
+      "corridas_ok": 34,
+      "corridas": 34,
+      "veredicto": "identico",
+      "confirmado": true,
+      "titulo": "Alerta por episodio con evidencia directa E-DIR (D1)",
+      "informe": [
+        "Tabla 53",
+        "§17.5.4"
+      ],
+      "pregunta": "¿Qué logra la formulación directa (frases que describen la violación, las ganadoras por condición en la mitad A del Nivel A) de punta a punta, con el mismo campeón?\n",
+      "gen1": {
+        "result_id": "d1_gdinotiny560_edirpair_scene",
+        "doc": "operacion/85"
+      },
+      "resumen": [
+        {
+          "clave": "f1",
+          "nombre": "F1 por episodio (micro)",
+          "valor": 0.162162,
+          "unidad": null,
+          "gen1": 0.162162
+        },
+        {
+          "clave": "precision",
+          "nombre": "Precisión",
+          "valor": 0.146341,
+          "unidad": null,
+          "gen1": 0.146341
+        },
+        {
+          "clave": "recall",
+          "nombre": "Recall",
+          "valor": 0.181818,
+          "unidad": null,
+          "gen1": 0.181818
+        },
+        {
+          "clave": "episodios_evaluables",
+          "nombre": "Episodios evaluables",
+          "valor": 33,
+          "unidad": null,
+          "gen1": 33
+        },
+        {
+          "clave": "aciertos",
+          "nombre": "Alertas que acertaron un episodio",
+          "valor": 6,
+          "unidad": null,
+          "gen1": 6
+        },
+        {
+          "clave": "perdidos",
+          "nombre": "Episodios sin alerta",
+          "valor": 27,
+          "unidad": null,
+          "gen1": 27
+        },
+        {
+          "clave": "falsas_alarmas_en_positivos",
+          "nombre": "Falsas alarmas en clips con episodios",
+          "valor": 35,
+          "unidad": null,
+          "gen1": 35
+        },
+        {
+          "clave": "falsas_alarmas",
+          "nombre": "Falsas alarmas en clips sin infracción",
+          "valor": 2,
+          "unidad": null,
+          "gen1": 2
+        },
+        {
+          "clave": "re_alertas",
+          "nombre": "Re-alertas (no son falsas alarmas)",
+          "valor": 2,
+          "unidad": null,
+          "gen1": 2
+        },
+        {
+          "clave": "t_alert_s",
+          "nombre": "Tiempo hasta la alerta desde el inicio del episodio",
+          "valor": 6.572,
+          "unidad": "s",
+          "gen1": null
+        },
+        {
+          "clave": "ttfd_ms",
+          "nombre": "Tiempo hasta la primera detección",
+          "valor": 862.7598,
+          "unidad": "ms",
+          "gen1": null
+        },
+        {
+          "clave": "sdr",
+          "nombre": "Proporción de detección sostenida (SDR)",
+          "valor": 0.210538,
+          "unidad": null,
+          "gen1": null
+        }
+      ],
+      "generado": "2026-10-30T06:43:42+00:00"
+    },
+    {
+      "id": "ALR-06",
+      "fase": "F3",
+      "familia": "clips",
+      "registro": "activa",
+      "estado": "completo",
+      "corridas_ok": 34,
+      "corridas": 34,
+      "veredicto": "otra_combinacion",
+      "confirmado": true,
+      "titulo": "Alerta por episodio con bare_head como evidencia directa (B1)",
+      "informe": [
+        "Tabla 53",
+        "§17.5.4"
+      ],
+      "pregunta": "La especialidad de base-560 en bare_head, ¿se traduce en mejores alertas CR-01 cuando bare_head es la evidencia? Una inferencia por clip con el caption de 4 clases y dos relecturas sobre las MISMAS detecciones (variable única: el evaluador).\n",
+      "gen1": {
+        "result_id": "b1_gdinobase560_barehead_scene",
+        "doc": "operacion/88"
+      },
+      "resumen": [
+        {
+          "clave": "f1",
+          "nombre": "F1 por episodio (micro)",
+          "valor": 0.371428,
+          "unidad": null,
+          "gen1": 0.411765
+        },
+        {
+          "clave": "precision",
+          "nombre": "Precisión",
+          "valor": 0.351351,
+          "unidad": null,
+          "gen1": 0.4
+        },
+        {
+          "clave": "recall",
+          "nombre": "Recall",
+          "valor": 0.393939,
+          "unidad": null,
+          "gen1": 0.424242
+        },
+        {
+          "clave": "episodios_evaluables",
+          "nombre": "Episodios evaluables",
+          "valor": 33,
+          "unidad": null,
+          "gen1": 33
+        },
+        {
+          "clave": "aciertos",
+          "nombre": "Alertas que acertaron un episodio",
+          "valor": 13,
+          "unidad": null,
+          "gen1": 14
+        },
+        {
+          "clave": "perdidos",
+          "nombre": "Episodios sin alerta",
+          "valor": 20,
+          "unidad": null,
+          "gen1": 19
+        },
+        {
+          "clave": "falsas_alarmas_en_positivos",
+          "nombre": "Falsas alarmas en clips con episodios",
+          "valor": 24,
+          "unidad": null,
+          "gen1": 21
+        },
+        {
+          "clave": "falsas_alarmas",
+          "nombre": "Falsas alarmas en clips sin infracción",
+          "valor": 1,
+          "unidad": null,
+          "gen1": 3
+        },
+        {
+          "clave": "re_alertas",
+          "nombre": "Re-alertas (no son falsas alarmas)",
+          "valor": 1,
+          "unidad": null,
+          "gen1": 2
+        },
+        {
+          "clave": "t_alert_s",
+          "nombre": "Tiempo hasta la alerta desde el inicio del episodio",
+          "valor": 4.031,
+          "unidad": "s",
+          "gen1": null
+        },
+        {
+          "clave": "ttfd_ms",
+          "nombre": "Tiempo hasta la primera detección",
+          "valor": 32.0922,
+          "unidad": "ms",
+          "gen1": null
+        },
+        {
+          "clave": "sdr",
+          "nombre": "Proporción de detección sostenida (SDR)",
+          "valor": 0.938703,
+          "unidad": null,
+          "gen1": null
+        }
+      ],
+      "generado": "2026-10-30T08:06:01+00:00"
+    },
+    {
+      "id": "ALR-07",
+      "fase": "F3",
+      "familia": "clips",
+      "registro": "activa",
+      "estado": "completo",
+      "corridas_ok": 13,
+      "corridas": 13,
+      "veredicto": "identico",
+      "confirmado": true,
+      "titulo": "Obra real (estrato B, 13 clips de internet), escena (I1)",
+      "informe": [
+        "Tabla 53",
+        "§17.5.4"
+      ],
+      "pregunta": "Con la combinación intacta y material de obra real no guionado, ¿cuántas alertas acierta y cuántas falsas alarmas produce sobre los clips sin infracción?\n",
+      "gen1": {
+        "result_id": "i1_gdinotiny560_v2short_scene_internet",
+        "doc": "operacion/110"
+      },
+      "resumen": [
+        {
+          "clave": "f1",
+          "nombre": "F1 por episodio (micro)",
+          "valor": 0.333333,
+          "unidad": null,
+          "gen1": 0.333333
+        },
+        {
+          "clave": "precision",
+          "nombre": "Precisión",
+          "valor": 0.25,
+          "unidad": null,
+          "gen1": 0.25
+        },
+        {
+          "clave": "recall",
+          "nombre": "Recall",
+          "valor": 0.5,
+          "unidad": null,
+          "gen1": 0.5
+        },
+        {
+          "clave": "episodios_evaluables",
+          "nombre": "Episodios evaluables",
+          "valor": 2,
+          "unidad": null,
+          "gen1": 2
+        },
+        {
+          "clave": "aciertos",
+          "nombre": "Alertas que acertaron un episodio",
+          "valor": 1,
+          "unidad": null,
+          "gen1": 1
+        },
+        {
+          "clave": "perdidos",
+          "nombre": "Episodios sin alerta",
+          "valor": 1,
+          "unidad": null,
+          "gen1": 1
+        },
+        {
+          "clave": "falsas_alarmas_en_positivos",
+          "nombre": "Falsas alarmas en clips con episodios",
+          "valor": 3,
+          "unidad": null,
+          "gen1": 3
+        },
+        {
+          "clave": "falsas_alarmas",
+          "nombre": "Falsas alarmas en clips sin infracción",
+          "valor": 26,
+          "unidad": null,
+          "gen1": 26
+        },
+        {
+          "clave": "re_alertas",
+          "nombre": "Re-alertas (no son falsas alarmas)",
+          "valor": 0,
+          "unidad": null,
+          "gen1": 0
+        },
+        {
+          "clave": "t_alert_s",
+          "nombre": "Tiempo hasta la alerta desde el inicio del episodio",
+          "valor": 4.0,
+          "unidad": "s",
+          "gen1": null
+        },
+        {
+          "clave": "ttfd_ms",
+          "nombre": "Tiempo hasta la primera detección",
+          "valor": 16.5,
+          "unidad": "ms",
+          "gen1": null
+        },
+        {
+          "clave": "sdr",
+          "nombre": "Proporción de detección sostenida (SDR)",
+          "valor": 0.959496,
+          "unidad": null,
+          "gen1": null
+        }
+      ],
+      "generado": "2026-10-30T09:07:47+00:00"
+    },
+    {
+      "id": "ALR-09",
+      "fase": "F3",
+      "familia": "clips",
+      "registro": "activa",
+      "estado": "completo",
+      "corridas_ok": 13,
+      "corridas": 13,
+      "veredicto": "otra_combinacion",
+      "confirmado": true,
+      "titulo": "Obra real a 800 px: gdino-tiny con caja 0,35, escena y sujeto",
+      "informe": [
+        "§17.5.4",
+        "§18.3"
+      ],
+      "pregunta": "Con el mismo Grounding DINO tiny a 800 px, ¿cuántas falsas alarmas produce sobre los 13 clips de obra real, por escena y por sujeto? Junto con ALR-10 (el campeón a 560 px con el MISMO umbral de caja, 0,35) pone a prueba que la resolución de entrada explica parte de las falsas alarmas: el adaptador lleva cada cuadro a un cuadrado del tamaño de entrada con letterbox, así que un 1920×1080 entra como 560×315 a 560 px y como 800×450 a 800 px.\n",
+      "gen1": {
+        "result_id": "(no corrió)",
+        "doc": "operacion/137",
+        "relacion": "otra_combinacion"
+      },
+      "resumen": [
+        {
+          "clave": "f1",
+          "nombre": "F1 por episodio (micro)",
+          "valor": 0.333333,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "precision",
+          "nombre": "Precisión",
+          "valor": 0.25,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "recall",
+          "nombre": "Recall",
+          "valor": 0.5,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "episodios_evaluables",
+          "nombre": "Episodios evaluables",
+          "valor": 2,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "aciertos",
+          "nombre": "Alertas que acertaron un episodio",
+          "valor": 1,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "perdidos",
+          "nombre": "Episodios sin alerta",
+          "valor": 1,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "falsas_alarmas_en_positivos",
+          "nombre": "Falsas alarmas en clips con episodios",
+          "valor": 3,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "falsas_alarmas",
+          "nombre": "Falsas alarmas en clips sin infracción",
+          "valor": 27,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "re_alertas",
+          "nombre": "Re-alertas (no son falsas alarmas)",
+          "valor": 0,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "t_alert_s",
+          "nombre": "Tiempo hasta la alerta desde el inicio del episodio",
+          "valor": 4.0,
+          "unidad": "s",
+          "gen1": null
+        },
+        {
+          "clave": "ttfd_ms",
+          "nombre": "Tiempo hasta la primera detección",
+          "valor": 16.5,
+          "unidad": "ms",
+          "gen1": null
+        },
+        {
+          "clave": "sdr",
+          "nombre": "Proporción de detección sostenida (SDR)",
+          "valor": 0.998933,
+          "unidad": null,
+          "gen1": null
+        }
+      ],
+      "generado": "2026-10-30T10:33:22+00:00"
+    },
+    {
+      "id": "DEN-01",
+      "fase": "F4",
+      "familia": "clips",
+      "registro": "activa",
+      "estado": "completo",
+      "corridas_ok": 34,
+      "corridas": 34,
+      "veredicto": "identico",
+      "confirmado": true,
+      "titulo": "Densidad de evidencia: escena, stride 7 (≈4,29 fps; R1)",
+      "informe": [
+        "Tabla 54 (densidad)",
+        "§17.5.5"
+      ],
+      "pregunta": "Si el sistema ve 1 de cada 7 cuadros (el techo en vivo de la PC de desarrollo), ¿cuánto del rendimiento de ALR-01 sobrevive?\n",
+      "gen1": {
+        "result_id": "r1_gdinotiny560_v2short_scene_s7",
+        "doc": "operacion/96"
+      },
+      "resumen": [
+        {
+          "clave": "f1",
+          "nombre": "F1 por episodio (micro)",
+          "valor": 0.746269,
+          "unidad": null,
+          "gen1": 0.746269
+        },
+        {
+          "clave": "precision",
+          "nombre": "Precisión",
+          "valor": 0.735294,
+          "unidad": null,
+          "gen1": 0.735294
+        },
+        {
+          "clave": "recall",
+          "nombre": "Recall",
+          "valor": 0.757576,
+          "unidad": null,
+          "gen1": 0.757576
+        },
+        {
+          "clave": "episodios_evaluables",
+          "nombre": "Episodios evaluables",
+          "valor": 33,
+          "unidad": null,
+          "gen1": 33
+        },
+        {
+          "clave": "aciertos",
+          "nombre": "Alertas que acertaron un episodio",
+          "valor": 25,
+          "unidad": null,
+          "gen1": 25
+        },
+        {
+          "clave": "perdidos",
+          "nombre": "Episodios sin alerta",
+          "valor": 8,
+          "unidad": null,
+          "gen1": 8
+        },
+        {
+          "clave": "falsas_alarmas_en_positivos",
+          "nombre": "Falsas alarmas en clips con episodios",
+          "valor": 9,
+          "unidad": null,
+          "gen1": 9
+        },
+        {
+          "clave": "falsas_alarmas",
+          "nombre": "Falsas alarmas en clips sin infracción",
+          "valor": 0,
+          "unidad": null,
+          "gen1": 0
+        },
+        {
+          "clave": "re_alertas",
+          "nombre": "Re-alertas (no son falsas alarmas)",
+          "valor": 3,
+          "unidad": null,
+          "gen1": 3
+        },
+        {
+          "clave": "t_alert_s",
+          "nombre": "Tiempo hasta la alerta desde el inicio del episodio",
+          "valor": 5.405,
+          "unidad": "s",
+          "gen1": null
+        },
+        {
+          "clave": "ttfd_ms",
+          "nombre": "Tiempo hasta la primera detección",
+          "valor": 639.550333,
+          "unidad": "ms",
+          "gen1": null
+        },
+        {
+          "clave": "sdr",
+          "nombre": "Proporción de detección sostenida (SDR)",
+          "valor": 0.709427,
+          "unidad": null,
+          "gen1": null
+        }
+      ],
+      "generado": "2026-10-30T21:51:47+00:00"
+    },
+    {
+      "id": "DEN-03",
+      "fase": "F4",
+      "familia": "clips",
+      "registro": "activa",
+      "estado": "completo",
+      "corridas_ok": 34,
+      "corridas": 34,
+      "veredicto": "identico",
+      "confirmado": true,
+      "titulo": "Densidad de evidencia: escena, stride 15 (2,00 fps; R3)",
+      "informe": [
+        "Tabla 54 (densidad)",
+        "§17.5.5"
+      ],
+      "pregunta": "Con 1 de cada 15 cuadros (lo que efectivamente corrió en vivo en el rodaje), ¿cuánto sobrevive?",
+      "gen1": {
+        "result_id": "r3_gdinotiny560_v2short_scene_s15",
+        "doc": "operacion/96"
+      },
+      "resumen": [
+        {
+          "clave": "f1",
+          "nombre": "F1 por episodio (micro)",
+          "valor": 0.71875,
+          "unidad": null,
+          "gen1": 0.71875
+        },
+        {
+          "clave": "precision",
+          "nombre": "Precisión",
+          "valor": 0.741935,
+          "unidad": null,
+          "gen1": 0.741935
+        },
+        {
+          "clave": "recall",
+          "nombre": "Recall",
+          "valor": 0.69697,
+          "unidad": null,
+          "gen1": 0.69697
+        },
+        {
+          "clave": "episodios_evaluables",
+          "nombre": "Episodios evaluables",
+          "valor": 33,
+          "unidad": null,
+          "gen1": 33
+        },
+        {
+          "clave": "aciertos",
+          "nombre": "Alertas que acertaron un episodio",
+          "valor": 23,
+          "unidad": null,
+          "gen1": 23
+        },
+        {
+          "clave": "perdidos",
+          "nombre": "Episodios sin alerta",
+          "valor": 10,
+          "unidad": null,
+          "gen1": 10
+        },
+        {
+          "clave": "falsas_alarmas_en_positivos",
+          "nombre": "Falsas alarmas en clips con episodios",
+          "valor": 8,
+          "unidad": null,
+          "gen1": 8
+        },
+        {
+          "clave": "falsas_alarmas",
+          "nombre": "Falsas alarmas en clips sin infracción",
+          "valor": 0,
+          "unidad": null,
+          "gen1": 0
+        },
+        {
+          "clave": "re_alertas",
+          "nombre": "Re-alertas (no son falsas alarmas)",
+          "valor": 3,
+          "unidad": null,
+          "gen1": 3
+        },
+        {
+          "clave": "t_alert_s",
+          "nombre": "Tiempo hasta la alerta desde el inicio del episodio",
+          "valor": 4.959,
+          "unidad": "s",
+          "gen1": null
+        },
+        {
+          "clave": "ttfd_ms",
+          "nombre": "Tiempo hasta la primera detección",
+          "valor": 952.883333,
+          "unidad": "ms",
+          "gen1": null
+        },
+        {
+          "clave": "sdr",
+          "nombre": "Proporción de detección sostenida (SDR)",
+          "valor": 0.728839,
+          "unidad": null,
+          "gen1": null
+        }
+      ],
+      "generado": "2026-10-30T21:59:17+00:00"
+    },
+    {
+      "id": "DEN-05",
+      "fase": "F4",
+      "familia": "clips",
+      "registro": "activa",
+      "estado": "completo",
+      "corridas_ok": 34,
+      "corridas": 34,
+      "veredicto": "identico",
+      "confirmado": true,
+      "titulo": "Densidad de evidencia: escena, stride 26 (≈1,15 fps; R5)",
+      "informe": [
+        "Tabla 54 (densidad)",
+        "§17.5.5"
+      ],
+      "pregunta": "Con 1 de cada 26 cuadros (el piso medido en vivo, 1,16 fps), ¿cuánto sobrevive?",
+      "gen1": {
+        "result_id": "r5_gdinotiny560_v2short_scene_s26",
+        "doc": "operacion/96"
+      },
+      "resumen": [
+        {
+          "clave": "f1",
+          "nombre": "F1 por episodio (micro)",
+          "valor": 0.615385,
+          "unidad": null,
+          "gen1": 0.615385
+        },
+        {
+          "clave": "precision",
+          "nombre": "Precisión",
+          "valor": 0.625,
+          "unidad": null,
+          "gen1": 0.625
+        },
+        {
+          "clave": "recall",
+          "nombre": "Recall",
+          "valor": 0.606061,
+          "unidad": null,
+          "gen1": 0.606061
+        },
+        {
+          "clave": "episodios_evaluables",
+          "nombre": "Episodios evaluables",
+          "valor": 33,
+          "unidad": null,
+          "gen1": 33
+        },
+        {
+          "clave": "aciertos",
+          "nombre": "Alertas que acertaron un episodio",
+          "valor": 20,
+          "unidad": null,
+          "gen1": 20
+        },
+        {
+          "clave": "perdidos",
+          "nombre": "Episodios sin alerta",
+          "valor": 13,
+          "unidad": null,
+          "gen1": 13
+        },
+        {
+          "clave": "falsas_alarmas_en_positivos",
+          "nombre": "Falsas alarmas en clips con episodios",
+          "valor": 12,
+          "unidad": null,
+          "gen1": 12
+        },
+        {
+          "clave": "falsas_alarmas",
+          "nombre": "Falsas alarmas en clips sin infracción",
+          "valor": 0,
+          "unidad": null,
+          "gen1": 0
+        },
+        {
+          "clave": "re_alertas",
+          "nombre": "Re-alertas (no son falsas alarmas)",
+          "valor": 0,
+          "unidad": null,
+          "gen1": 0
+        },
+        {
+          "clave": "t_alert_s",
+          "nombre": "Tiempo hasta la alerta desde el inicio del episodio",
+          "valor": 5.44,
+          "unidad": "s",
+          "gen1": null
+        },
+        {
+          "clave": "ttfd_ms",
+          "nombre": "Tiempo hasta la primera detección",
+          "valor": 1523.439167,
+          "unidad": "ms",
+          "gen1": null
+        },
+        {
+          "clave": "sdr",
+          "nombre": "Proporción de detección sostenida (SDR)",
+          "valor": 0.71311,
+          "unidad": null,
+          "gen1": null
+        }
+      ],
+      "generado": "2026-10-30T22:05:02+00:00"
+    },
+    {
+      "id": "EXT-01",
+      "fase": "F4",
+      "familia": "clase_nueva",
+      "registro": "activa",
+      "estado": "completo",
+      "corridas_ok": 5,
+      "corridas": 5,
+      "veredicto": "identico",
+      "confirmado": true,
+      "titulo": "Clase nueva sin entrenar: machinery en obra y máquinas en MOCS",
+      "informe": [
+        "Tabla 51 (extensibilidad)",
+        "§17.5.3"
+      ],
+      "pregunta": "Una clase jamás configurada ni entrenada (machinery), agregada con unas líneas de prompt, ¿qué AP logra sobre el bench curado? ¿Y person contra los Worker anotados de MOCS?\n",
+      "gen1": {
+        "result_id": "clase_nueva",
+        "doc": "operacion/94"
+      },
+      "resumen": [
+        {
+          "clave": "ap50_machinery_obra",
+          "nombre": "AP50 machinery (obra, 147 imgs, clase jamás configurada)",
+          "valor": 0.6618,
+          "unidad": null,
+          "gen1": 0.6618
+        },
+        {
+          "clave": "ap50_vehicle_obra",
+          "nombre": "AP50 vehicle (obra, con machinery en el caption)",
+          "valor": 0.0,
+          "unidad": null,
+          "gen1": 0.0
+        },
+        {
+          "clave": "ap50_vehicle_sin_machinery",
+          "nombre": "AP50 vehicle (obra, sin machinery en el caption)",
+          "valor": 0.0257,
+          "unidad": null,
+          "gen1": 0.0257
+        },
+        {
+          "clave": "ap50_person_vs_worker_mocs",
+          "nombre": "AP50 person contra Worker (MOCS valid, 151 imgs)",
+          "valor": 0.6101,
+          "unidad": null,
+          "gen1": 0.6101
+        }
+      ],
+      "generado": "2026-10-30T22:06:39+00:00"
+    },
+    {
+      "id": "IMG-01",
+      "fase": "F4",
+      "familia": "imagenes",
+      "registro": "activa",
+      "estado": "completo",
+      "corridas_ok": 4,
+      "corridas": 4,
+      "veredicto": "identico",
+      "confirmado": true,
+      "titulo": "Percepción sobre bench_v3: gdino-tiny-560 (campeón)",
+      "informe": [
+        "Tabla 51"
+      ],
+      "pregunta": "¿Qué AP50 por clase y qué mAP50 logra el campeón sobre las 6.477 imágenes de bench_v3, por estrato y agregado?\n",
+      "gen1": {
+        "result_id": "confirmacion_b5 (doc 64 y 66)",
+        "doc": "operacion/66"
+      },
+      "resumen": [
+        {
+          "clave": "map50",
+          "nombre": "mAP50 ponderado (bench_v3, 6.477 imágenes)",
+          "valor": 0.550535,
+          "unidad": null,
+          "gen1": 0.550535
+        },
+        {
+          "clave": "ap50_person",
+          "nombre": "AP50 person (ponderado por n_gt)",
+          "valor": 0.783893,
+          "unidad": null,
+          "gen1": 0.783893
+        },
+        {
+          "clave": "ap50_helmet",
+          "nombre": "AP50 helmet (ponderado por n_gt)",
+          "valor": 0.735144,
+          "unidad": null,
+          "gen1": 0.735144
+        },
+        {
+          "clave": "ap50_vest",
+          "nombre": "AP50 vest (ponderado por n_gt)",
+          "valor": 0.551475,
+          "unidad": null,
+          "gen1": 0.551475
+        },
+        {
+          "clave": "ap50_bare_head",
+          "nombre": "AP50 bare_head (ponderado por n_gt)",
+          "valor": 0.13163,
+          "unidad": null,
+          "gen1": 0.13163
+        },
+        {
+          "clave": "recall_cr01",
+          "nombre": "Recall CR-01 por la vía directa (bare_head)",
+          "valor": 0.309139,
+          "unidad": null,
+          "gen1": null,
+          "n": 5308
+        }
+      ],
+      "generado": "2026-10-30T22:23:05+00:00"
+    },
+    {
+      "id": "IMG-02",
+      "fase": "F4",
+      "familia": "imagenes",
+      "registro": "activa",
+      "estado": "completo",
+      "corridas_ok": 4,
+      "corridas": 4,
+      "veredicto": "otra_combinacion",
+      "confirmado": true,
+      "titulo": "Percepción sobre bench_v3: gdino-base-560 (contraste)",
+      "informe": [
+        "Tabla 51"
+      ],
+      "pregunta": "¿Qué logra el especialista base-560 sobre bench_v3, por estrato y agregado?",
+      "gen1": {
+        "result_id": "confirmacion_b5 (doc 64 y 66)",
+        "doc": "operacion/66",
+        "relacion": "otra_combinacion"
+      },
+      "resumen": [
+        {
+          "clave": "map50",
+          "nombre": "mAP50 ponderado (bench_v3, 6.477 imágenes)",
+          "valor": 0.524754,
+          "unidad": null,
+          "gen1": 0.52492
+        },
+        {
+          "clave": "ap50_person",
+          "nombre": "AP50 person (ponderado por n_gt)",
+          "valor": 0.706843,
+          "unidad": null,
+          "gen1": 0.706771
+        },
+        {
+          "clave": "ap50_helmet",
+          "nombre": "AP50 helmet (ponderado por n_gt)",
+          "valor": 0.41971,
+          "unidad": null,
+          "gen1": 0.422159
+        },
+        {
+          "clave": "ap50_vest",
+          "nombre": "AP50 vest (ponderado por n_gt)",
+          "valor": 0.576558,
+          "unidad": null,
+          "gen1": 0.575867
+        },
+        {
+          "clave": "ap50_bare_head",
+          "nombre": "AP50 bare_head (ponderado por n_gt)",
+          "valor": 0.395905,
+          "unidad": null,
+          "gen1": 0.394885
+        },
+        {
+          "clave": "recall_cr01",
+          "nombre": "Recall CR-01 por la vía directa (bare_head)",
+          "valor": 0.601685,
+          "unidad": null,
+          "gen1": null,
+          "n": 5308
+        }
+      ],
+      "generado": "2026-10-30T22:41:24+00:00"
+    },
+    {
+      "id": "IMG-03",
+      "fase": "F4",
+      "familia": "imagenes",
+      "registro": "activa",
+      "estado": "completo",
+      "corridas_ok": 4,
+      "corridas": 4,
+      "veredicto": "identico",
+      "confirmado": true,
+      "titulo": "Percepción sobre bench_v3: yoloe-26x (contraste)",
+      "informe": [
+        "Tabla 51"
+      ],
+      "pregunta": "¿Qué logra el mejor YOLOE sobre bench_v3, por estrato y agregado?",
+      "gen1": {
+        "result_id": "confirmacion_b5 (doc 64 y 66)",
+        "doc": "operacion/66"
+      },
+      "resumen": [
+        {
+          "clave": "map50",
+          "nombre": "mAP50 ponderado (bench_v3, 6.477 imágenes)",
+          "valor": 0.44163,
+          "unidad": null,
+          "gen1": 0.44163
+        },
+        {
+          "clave": "ap50_person",
+          "nombre": "AP50 person (ponderado por n_gt)",
+          "valor": 0.783981,
+          "unidad": null,
+          "gen1": 0.783981
+        },
+        {
+          "clave": "ap50_helmet",
+          "nombre": "AP50 helmet (ponderado por n_gt)",
+          "valor": 0.741751,
+          "unidad": null,
+          "gen1": 0.741751
+        },
+        {
+          "clave": "ap50_vest",
+          "nombre": "AP50 vest (ponderado por n_gt)",
+          "valor": 0.240788,
+          "unidad": null,
+          "gen1": 0.240788
+        },
+        {
+          "clave": "ap50_bare_head",
+          "nombre": "AP50 bare_head (ponderado por n_gt)",
+          "valor": 0.0,
+          "unidad": null,
+          "gen1": 0.0
+        },
+        {
+          "clave": "recall_cr01",
+          "nombre": "Recall CR-01 por la vía directa (bare_head)",
+          "valor": 0.0,
+          "unidad": null,
+          "gen1": null,
+          "n": 5308
+        }
+      ],
+      "generado": "2026-10-30T22:48:19+00:00"
+    },
+    {
+      "id": "IMG-04",
+      "fase": "F4",
+      "familia": "imagenes",
+      "registro": "activa",
+      "estado": "completo",
+      "corridas_ok": 4,
+      "corridas": 4,
+      "veredicto": "otra_combinacion",
+      "confirmado": true,
+      "titulo": "Resolución sin confusión de umbral: gdino-tiny a 800 px contra 560 px, ambos con caja 0,35",
+      "informe": [
+        "Tabla 51",
+        "§17.5.2"
+      ],
+      "pregunta": "Sobre las 6.477 imágenes de bench_v3, ¿cuánto cambia el AP por clase y por estrato entre 800 px y 560 px cuando el umbral de caja es el mismo (0,35)? El informe comparó tiny a 800 px con caja 0,35 contra tiny-560 con caja 0,30 (doc 130 R-04): resolución y umbral confundidos.\n",
+      "gen1": {
+        "result_id": "(no corrió con el mismo umbral)",
+        "doc": "operacion/137",
+        "relacion": "otra_combinacion"
+      },
+      "resumen": [
+        {
+          "clave": "map50",
+          "nombre": "mAP50 ponderado (bench_v3, 6.477 imágenes)",
+          "valor": 0.510513,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "ap50_person",
+          "nombre": "AP50 person (ponderado por n_gt)",
+          "valor": 0.711231,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "ap50_helmet",
+          "nombre": "AP50 helmet (ponderado por n_gt)",
+          "valor": 0.667786,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "ap50_vest",
+          "nombre": "AP50 vest (ponderado por n_gt)",
+          "valor": 0.539838,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "ap50_bare_head",
+          "nombre": "AP50 bare_head (ponderado por n_gt)",
+          "valor": 0.123197,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "recall_cr01",
+          "nombre": "Recall CR-01 por la vía directa (bare_head)",
+          "valor": 0.179153,
+          "unidad": null,
+          "gen1": null,
+          "n": 5308
+        }
+      ],
+      "generado": "2026-10-30T23:10:29+00:00"
+    },
+    {
+      "id": "PER-01",
+      "fase": "F4",
+      "familia": "nivel_a",
+      "registro": "activa",
+      "estado": "completo",
+      "corridas_ok": 18,
+      "corridas": 18,
+      "veredicto": "identico",
+      "confirmado": true,
+      "titulo": "Estado por persona en imágenes: E-IND contra E-DIR, gdino-tiny-560",
+      "informe": [
+        "Tabla 52"
+      ],
+      "pregunta": "A nivel persona, ¿la formulación indirecta (E-IND: ausencia de casco/chaleco en la región de la persona) o la directa (E-DIR: frases que describen la violación) determina mejor el estado? Calibración en la mitad A, reporte en la mitad B (pre-registro nucleo/04 §7).\n",
+      "gen1": {
+        "result_id": "d1_gdinotiny560_edir_vs_eind",
+        "doc": "operacion/83"
+      },
+      "resumen": [
+        {
+          "clave": "bench_obra/CR-01/f1_eind",
+          "nombre": "F1 E-IND por persona — bench_obra/CR-01",
+          "valor": 0.40816326530612246,
+          "unidad": null,
+          "gen1": 0.40816326530612246
+        },
+        {
+          "clave": "bench_obra/CR-01/f1_edir",
+          "nombre": "F1 mejor E-DIR (cr01_spec) — bench_obra/CR-01",
+          "valor": 0.1886792452830189,
+          "unidad": null,
+          "gen1": 0.1886792452830189
+        },
+        {
+          "clave": "bench_obra/CR-02/f1_eind",
+          "nombre": "F1 E-IND por persona — bench_obra/CR-02",
+          "valor": 0.47887323943661975,
+          "unidad": null,
+          "gen1": 0.47887323943661975
+        },
+        {
+          "clave": "bench_obra/CR-02/f1_edir",
+          "nombre": "F1 mejor E-DIR (cr02_obs) — bench_obra/CR-02",
+          "valor": 0.4177215189873418,
+          "unidad": null,
+          "gen1": 0.4177215189873418
+        },
+        {
+          "clave": "shel5k/CR-01/f1_eind",
+          "nombre": "F1 E-IND por persona — shel5k/CR-01",
+          "valor": 0.5459970164097463,
+          "unidad": null,
+          "gen1": 0.5459970164097463
+        },
+        {
+          "clave": "shel5k/CR-01/f1_edir",
+          "nombre": "F1 mejor E-DIR (cr01_obs) — shel5k/CR-01",
+          "valor": 0.1875317635100796,
+          "unidad": null,
+          "gen1": 0.1875317635100796
+        }
+      ],
+      "generado": "2026-10-31T00:03:18+00:00"
+    },
+    {
+      "id": "PER-02",
+      "fase": "F4",
+      "familia": "nivel_a",
+      "registro": "activa",
+      "estado": "completo",
+      "corridas_ok": 18,
+      "corridas": 18,
+      "veredicto": "otra_combinacion",
+      "confirmado": true,
+      "titulo": "Estado por persona en imágenes: réplica con gdino-base-560",
+      "informe": [
+        "Tabla 52"
+      ],
+      "pregunta": "¿La debilidad de E-DIR con la negación depende de la capacidad del codificador de texto?",
+      "gen1": {
+        "result_id": "d1_gdinotiny560_edir_vs_eind (réplica base-560)",
+        "doc": "operacion/84",
+        "relacion": "otra_combinacion"
+      },
+      "resumen": [
+        {
+          "clave": "bench_obra/CR-01/f1_eind",
+          "nombre": "F1 E-IND por persona — bench_obra/CR-01",
+          "valor": 0.4262295081967213,
+          "unidad": null,
+          "gen1": 0.39999999999999997
+        },
+        {
+          "clave": "bench_obra/CR-01/f1_edir",
+          "nombre": "F1 mejor E-DIR (cr01_obs) — bench_obra/CR-01",
+          "valor": 0.18181818181818182,
+          "unidad": null,
+          "gen1": 0.1886792452830189
+        },
+        {
+          "clave": "bench_obra/CR-02/f1_eind",
+          "nombre": "F1 E-IND por persona — bench_obra/CR-02",
+          "valor": 0.5428571428571429,
+          "unidad": null,
+          "gen1": 0.5827814569536424
+        },
+        {
+          "clave": "bench_obra/CR-02/f1_edir",
+          "nombre": "F1 mejor E-DIR (cr02_neg) — bench_obra/CR-02",
+          "valor": 0.3888888888888889,
+          "unidad": null,
+          "gen1": 0.3511450381679389
+        },
+        {
+          "clave": "shel5k/CR-01/f1_eind",
+          "nombre": "F1 E-IND por persona — shel5k/CR-01",
+          "valor": 0.4946206115515289,
+          "unidad": null,
+          "gen1": 0.4958421423537702
+        },
+        {
+          "clave": "shel5k/CR-01/f1_edir",
+          "nombre": "F1 mejor E-DIR (cr01_obs) — shel5k/CR-01",
+          "valor": 0.16604204008473197,
+          "unidad": null,
+          "gen1": 0.1671559034572733
+        }
+      ],
+      "generado": "2026-10-31T01:01:26+00:00"
+    },
+    {
+      "id": "ALR-02",
+      "fase": "F5",
+      "familia": "clips",
+      "registro": "activa",
+      "estado": "completo",
+      "corridas_ok": 34,
+      "corridas": 34,
+      "veredicto": "identico",
+      "confirmado": true,
+      "titulo": "Alerta por episodio, granularidad por sujeto (G1)",
+      "informe": [
+        "Tabla 53",
+        "§17.5.4"
+      ],
+      "pregunta": "Con las MISMAS detecciones de ALR-01, ¿cuánto cambia el resultado si el motor sostiene la violación por sujeto (identidad de la plataforma) en vez de por escena?\n",
+      "gen1": {
+        "result_id": "g1_gdinotiny560_v2short_subject",
+        "doc": "operacion/89"
+      },
+      "resumen": [
+        {
+          "clave": "f1",
+          "nombre": "F1 por episodio (micro)",
+          "valor": 0.898551,
+          "unidad": null,
+          "gen1": 0.898551
+        },
+        {
+          "clave": "precision",
+          "nombre": "Precisión",
+          "valor": 0.861111,
+          "unidad": null,
+          "gen1": 0.861111
+        },
+        {
+          "clave": "recall",
+          "nombre": "Recall",
+          "valor": 0.939394,
+          "unidad": null,
+          "gen1": 0.939394
+        },
+        {
+          "clave": "episodios_evaluables",
+          "nombre": "Episodios evaluables",
+          "valor": 33,
+          "unidad": null,
+          "gen1": 33
+        },
+        {
+          "clave": "aciertos",
+          "nombre": "Alertas que acertaron un episodio",
+          "valor": 31,
+          "unidad": null,
+          "gen1": 31
+        },
+        {
+          "clave": "perdidos",
+          "nombre": "Episodios sin alerta",
+          "valor": 2,
+          "unidad": null,
+          "gen1": 2
+        },
+        {
+          "clave": "falsas_alarmas_en_positivos",
+          "nombre": "Falsas alarmas en clips con episodios",
+          "valor": 5,
+          "unidad": null,
+          "gen1": 5
+        },
+        {
+          "clave": "falsas_alarmas",
+          "nombre": "Falsas alarmas en clips sin infracción",
+          "valor": 0,
+          "unidad": null,
+          "gen1": 0
+        },
+        {
+          "clave": "re_alertas",
+          "nombre": "Re-alertas (no son falsas alarmas)",
+          "valor": 11,
+          "unidad": null,
+          "gen1": 11
+        },
+        {
+          "clave": "t_alert_s",
+          "nombre": "Tiempo hasta la alerta desde el inicio del episodio",
+          "valor": 5.375,
+          "unidad": "s",
+          "gen1": null
+        },
+        {
+          "clave": "ttfd_ms",
+          "nombre": "Tiempo hasta la primera detección",
+          "valor": 243.993667,
+          "unidad": "ms",
+          "gen1": null
+        },
+        {
+          "clave": "sdr",
+          "nombre": "Proporción de detección sostenida (SDR)",
+          "valor": 0.690071,
+          "unidad": null,
+          "gen1": null
+        }
+      ],
+      "generado": "2026-10-31T01:04:03+00:00"
+    },
+    {
+      "id": "ALR-05",
+      "fase": "F5",
+      "familia": "clips",
+      "registro": "activa",
+      "estado": "completo",
+      "corridas_ok": 34,
+      "corridas": 34,
+      "veredicto": "identico",
+      "confirmado": true,
+      "titulo": "Alerta por episodio con fusión E-IND ∨ E-DIR (H1)",
+      "informe": [
+        "Tabla 53",
+        "§17.5.4"
+      ],
+      "pregunta": "Fusionando por disyunción las detecciones de ALR-01 (indirecta) y ALR-04 (directa), sin inferencia nueva, ¿mejora la alerta respecto de la indirecta sola?\n",
+      "gen1": {
+        "result_id": "h1_gdinotiny560_hybor_scene",
+        "doc": "operacion/87"
+      },
+      "resumen": [
+        {
+          "clave": "f1",
+          "nombre": "F1 por episodio (micro)",
+          "valor": 0.325,
+          "unidad": null,
+          "gen1": 0.325
+        },
+        {
+          "clave": "precision",
+          "nombre": "Precisión",
+          "valor": 0.276596,
+          "unidad": null,
+          "gen1": 0.276596
+        },
+        {
+          "clave": "recall",
+          "nombre": "Recall",
+          "valor": 0.393939,
+          "unidad": null,
+          "gen1": 0.393939
+        },
+        {
+          "clave": "episodios_evaluables",
+          "nombre": "Episodios evaluables",
+          "valor": 33,
+          "unidad": null,
+          "gen1": 33
+        },
+        {
+          "clave": "aciertos",
+          "nombre": "Alertas que acertaron un episodio",
+          "valor": 13,
+          "unidad": null,
+          "gen1": 13
+        },
+        {
+          "clave": "perdidos",
+          "nombre": "Episodios sin alerta",
+          "valor": 20,
+          "unidad": null,
+          "gen1": 20
+        },
+        {
+          "clave": "falsas_alarmas_en_positivos",
+          "nombre": "Falsas alarmas en clips con episodios",
+          "valor": 34,
+          "unidad": null,
+          "gen1": 34
+        },
+        {
+          "clave": "falsas_alarmas",
+          "nombre": "Falsas alarmas en clips sin infracción",
+          "valor": 2,
+          "unidad": null,
+          "gen1": 2
+        },
+        {
+          "clave": "re_alertas",
+          "nombre": "Re-alertas (no son falsas alarmas)",
+          "valor": 5,
+          "unidad": null,
+          "gen1": 5
+        },
+        {
+          "clave": "t_alert_s",
+          "nombre": "Tiempo hasta la alerta desde el inicio del episodio",
+          "valor": 6.962,
+          "unidad": "s",
+          "gen1": null
+        },
+        {
+          "clave": "ttfd_ms",
+          "nombre": "Tiempo hasta la primera detección",
+          "valor": 189.549,
+          "unidad": "ms",
+          "gen1": null
+        },
+        {
+          "clave": "sdr",
+          "nombre": "Proporción de detección sostenida (SDR)",
+          "valor": 0.731738,
+          "unidad": null,
+          "gen1": null
+        }
+      ],
+      "generado": "2026-10-31T01:06:06+00:00"
+    },
+    {
+      "id": "ALR-08",
+      "fase": "F5",
+      "familia": "clips",
+      "registro": "activa",
+      "estado": "completo",
+      "corridas_ok": 13,
+      "corridas": 13,
+      "veredicto": "identico",
+      "confirmado": true,
+      "titulo": "Obra real (estrato B), granularidad por sujeto (I2)",
+      "informe": [
+        "Tabla 53",
+        "§17.5.4"
+      ],
+      "pregunta": "Con las MISMAS detecciones de ALR-07, ¿qué pasa con las falsas alarmas en obra real cuando el motor sostiene la violación por sujeto?\n",
+      "gen1": {
+        "result_id": "i2_gdinotiny560_v2short_subject_internet",
+        "doc": "operacion/110"
+      },
+      "resumen": [
+        {
+          "clave": "f1",
+          "nombre": "F1 por episodio (micro)",
+          "valor": 0.190476,
+          "unidad": null,
+          "gen1": 0.190476
+        },
+        {
+          "clave": "precision",
+          "nombre": "Precisión",
+          "valor": 0.105263,
+          "unidad": null,
+          "gen1": 0.105263
+        },
+        {
+          "clave": "recall",
+          "nombre": "Recall",
+          "valor": 1.0,
+          "unidad": null,
+          "gen1": 1.0
+        },
+        {
+          "clave": "episodios_evaluables",
+          "nombre": "Episodios evaluables",
+          "valor": 2,
+          "unidad": null,
+          "gen1": 2
+        },
+        {
+          "clave": "aciertos",
+          "nombre": "Alertas que acertaron un episodio",
+          "valor": 2,
+          "unidad": null,
+          "gen1": 2
+        },
+        {
+          "clave": "perdidos",
+          "nombre": "Episodios sin alerta",
+          "valor": 0,
+          "unidad": null,
+          "gen1": 0
+        },
+        {
+          "clave": "falsas_alarmas_en_positivos",
+          "nombre": "Falsas alarmas en clips con episodios",
+          "valor": 17,
+          "unidad": null,
+          "gen1": 17
+        },
+        {
+          "clave": "falsas_alarmas",
+          "nombre": "Falsas alarmas en clips sin infracción",
+          "valor": 323,
+          "unidad": null,
+          "gen1": 323
+        },
+        {
+          "clave": "re_alertas",
+          "nombre": "Re-alertas (no son falsas alarmas)",
+          "valor": 8,
+          "unidad": null,
+          "gen1": 8
+        },
+        {
+          "clave": "t_alert_s",
+          "nombre": "Tiempo hasta la alerta desde el inicio del episodio",
+          "valor": 4.133,
+          "unidad": "s",
+          "gen1": null
+        },
+        {
+          "clave": "ttfd_ms",
+          "nombre": "Tiempo hasta la primera detección",
+          "valor": 16.5,
+          "unidad": "ms",
+          "gen1": null
+        },
+        {
+          "clave": "sdr",
+          "nombre": "Proporción de detección sostenida (SDR)",
+          "valor": 0.959496,
+          "unidad": null,
+          "gen1": null
+        }
+      ],
+      "generado": "2026-10-31T01:07:22+00:00"
+    },
+    {
+      "id": "ALR-10",
+      "fase": "F5",
+      "familia": "clips",
+      "registro": "activa",
+      "estado": "completo",
+      "corridas_ok": 13,
+      "corridas": 13,
+      "veredicto": "otra_combinacion",
+      "confirmado": true,
+      "titulo": "Obra real a 560 px con caja 0,35 (el campeón re-umbralado), escena y sujeto",
+      "informe": [
+        "§17.5.4",
+        "§18.3"
+      ],
+      "pregunta": "Con las MISMAS detecciones de ALR-07 pero con umbral de caja 0,35 en vez de 0,30, ¿cuántas falsas alarmas quedan por escena y por sujeto? Es la otra punta del contraste de resolución de ALR-09 (800 px, caja 0,35): mismo modelo, mismo umbral, solo cambia el tamaño de entrada.\n",
+      "gen1": {
+        "result_id": "(no corrió)",
+        "doc": "operacion/137",
+        "relacion": "otra_combinacion"
+      },
+      "resumen": [
+        {
+          "clave": "f1",
+          "nombre": "F1 por episodio (micro)",
+          "valor": 0.333333,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "precision",
+          "nombre": "Precisión",
+          "valor": 0.25,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "recall",
+          "nombre": "Recall",
+          "valor": 0.5,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "episodios_evaluables",
+          "nombre": "Episodios evaluables",
+          "valor": 2,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "aciertos",
+          "nombre": "Alertas que acertaron un episodio",
+          "valor": 1,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "perdidos",
+          "nombre": "Episodios sin alerta",
+          "valor": 1,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "falsas_alarmas_en_positivos",
+          "nombre": "Falsas alarmas en clips con episodios",
+          "valor": 3,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "falsas_alarmas",
+          "nombre": "Falsas alarmas en clips sin infracción",
+          "valor": 25,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "re_alertas",
+          "nombre": "Re-alertas (no son falsas alarmas)",
+          "valor": 0,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "t_alert_s",
+          "nombre": "Tiempo hasta la alerta desde el inicio del episodio",
+          "valor": 4.0,
+          "unidad": "s",
+          "gen1": null
+        },
+        {
+          "clave": "ttfd_ms",
+          "nombre": "Tiempo hasta la primera detección",
+          "valor": 16.5,
+          "unidad": "ms",
+          "gen1": null
+        },
+        {
+          "clave": "sdr",
+          "nombre": "Proporción de detección sostenida (SDR)",
+          "valor": 0.974412,
+          "unidad": null,
+          "gen1": null
+        }
+      ],
+      "generado": "2026-10-31T01:09:38+00:00"
+    },
+    {
+      "id": "DEN-02",
+      "fase": "F5",
+      "familia": "clips",
+      "registro": "activa",
+      "estado": "completo",
+      "corridas_ok": 34,
+      "corridas": 34,
+      "veredicto": "identico",
+      "confirmado": true,
+      "titulo": "Densidad de evidencia: sujeto, stride 7 (R2)",
+      "informe": [
+        "Tabla 54 (densidad)",
+        "§17.5.5"
+      ],
+      "pregunta": "Con las detecciones de DEN-01, ¿la ganancia por identidad sobrevive a 4,29 fps?",
+      "gen1": {
+        "result_id": "r2_gdinotiny560_v2short_subject_s7",
+        "doc": "operacion/96"
+      },
+      "resumen": [
+        {
+          "clave": "f1",
+          "nombre": "F1 por episodio (micro)",
+          "valor": 0.830769,
+          "unidad": null,
+          "gen1": 0.830769
+        },
+        {
+          "clave": "precision",
+          "nombre": "Precisión",
+          "valor": 0.84375,
+          "unidad": null,
+          "gen1": 0.84375
+        },
+        {
+          "clave": "recall",
+          "nombre": "Recall",
+          "valor": 0.818182,
+          "unidad": null,
+          "gen1": 0.818182
+        },
+        {
+          "clave": "episodios_evaluables",
+          "nombre": "Episodios evaluables",
+          "valor": 33,
+          "unidad": null,
+          "gen1": 33
+        },
+        {
+          "clave": "aciertos",
+          "nombre": "Alertas que acertaron un episodio",
+          "valor": 27,
+          "unidad": null,
+          "gen1": 27
+        },
+        {
+          "clave": "perdidos",
+          "nombre": "Episodios sin alerta",
+          "valor": 6,
+          "unidad": null,
+          "gen1": 6
+        },
+        {
+          "clave": "falsas_alarmas_en_positivos",
+          "nombre": "Falsas alarmas en clips con episodios",
+          "valor": 5,
+          "unidad": null,
+          "gen1": 5
+        },
+        {
+          "clave": "falsas_alarmas",
+          "nombre": "Falsas alarmas en clips sin infracción",
+          "valor": 0,
+          "unidad": null,
+          "gen1": 0
+        },
+        {
+          "clave": "re_alertas",
+          "nombre": "Re-alertas (no son falsas alarmas)",
+          "valor": 5,
+          "unidad": null,
+          "gen1": 5
+        },
+        {
+          "clave": "t_alert_s",
+          "nombre": "Tiempo hasta la alerta desde el inicio del episodio",
+          "valor": 5.132,
+          "unidad": "s",
+          "gen1": null
+        },
+        {
+          "clave": "ttfd_ms",
+          "nombre": "Tiempo hasta la primera detección",
+          "valor": 639.550333,
+          "unidad": "ms",
+          "gen1": null
+        },
+        {
+          "clave": "sdr",
+          "nombre": "Proporción de detección sostenida (SDR)",
+          "valor": 0.709427,
+          "unidad": null,
+          "gen1": null
+        }
+      ],
+      "generado": "2026-10-31T01:11:33+00:00"
+    },
+    {
+      "id": "DEN-04",
+      "fase": "F5",
+      "familia": "clips",
+      "registro": "activa",
+      "estado": "completo",
+      "corridas_ok": 34,
+      "corridas": 34,
+      "veredicto": "identico",
+      "confirmado": true,
+      "titulo": "Densidad de evidencia: sujeto, stride 15 (R4)",
+      "informe": [
+        "Tabla 54 (densidad)",
+        "§17.5.5"
+      ],
+      "pregunta": "Con las detecciones de DEN-03, ¿la ganancia por identidad sobrevive a 2,00 fps?",
+      "gen1": {
+        "result_id": "r4_gdinotiny560_v2short_subject_s15",
+        "doc": "operacion/96"
+      },
+      "resumen": [
+        {
+          "clave": "f1",
+          "nombre": "F1 por episodio (micro)",
+          "valor": 0.8125,
+          "unidad": null,
+          "gen1": 0.8125
+        },
+        {
+          "clave": "precision",
+          "nombre": "Precisión",
+          "valor": 0.83871,
+          "unidad": null,
+          "gen1": 0.83871
+        },
+        {
+          "clave": "recall",
+          "nombre": "Recall",
+          "valor": 0.787879,
+          "unidad": null,
+          "gen1": 0.787879
+        },
+        {
+          "clave": "episodios_evaluables",
+          "nombre": "Episodios evaluables",
+          "valor": 33,
+          "unidad": null,
+          "gen1": 33
+        },
+        {
+          "clave": "aciertos",
+          "nombre": "Alertas que acertaron un episodio",
+          "valor": 26,
+          "unidad": null,
+          "gen1": 26
+        },
+        {
+          "clave": "perdidos",
+          "nombre": "Episodios sin alerta",
+          "valor": 7,
+          "unidad": null,
+          "gen1": 7
+        },
+        {
+          "clave": "falsas_alarmas_en_positivos",
+          "nombre": "Falsas alarmas en clips con episodios",
+          "valor": 5,
+          "unidad": null,
+          "gen1": 5
+        },
+        {
+          "clave": "falsas_alarmas",
+          "nombre": "Falsas alarmas en clips sin infracción",
+          "valor": 0,
+          "unidad": null,
+          "gen1": 0
+        },
+        {
+          "clave": "re_alertas",
+          "nombre": "Re-alertas (no son falsas alarmas)",
+          "valor": 8,
+          "unidad": null,
+          "gen1": 8
+        },
+        {
+          "clave": "t_alert_s",
+          "nombre": "Tiempo hasta la alerta desde el inicio del episodio",
+          "valor": 5.031,
+          "unidad": "s",
+          "gen1": null
+        },
+        {
+          "clave": "ttfd_ms",
+          "nombre": "Tiempo hasta la primera detección",
+          "valor": 952.883333,
+          "unidad": "ms",
+          "gen1": null
+        },
+        {
+          "clave": "sdr",
+          "nombre": "Proporción de detección sostenida (SDR)",
+          "valor": 0.728839,
+          "unidad": null,
+          "gen1": null
+        }
+      ],
+      "generado": "2026-10-31T01:13:29+00:00"
+    },
+    {
+      "id": "DEN-06",
+      "fase": "F5",
+      "familia": "clips",
+      "registro": "activa",
+      "estado": "completo",
+      "corridas_ok": 34,
+      "corridas": 34,
+      "veredicto": "identico",
+      "confirmado": true,
+      "titulo": "Densidad de evidencia: sujeto, stride 26 (R6)",
+      "informe": [
+        "Tabla 54 (densidad)",
+        "§17.5.5"
+      ],
+      "pregunta": "Con las detecciones de DEN-05, ¿la ganancia por identidad sobrevive a 1,15 fps?",
+      "gen1": {
+        "result_id": "r6_gdinotiny560_v2short_subject_s26",
+        "doc": "operacion/96"
+      },
+      "resumen": [
+        {
+          "clave": "f1",
+          "nombre": "F1 por episodio (micro)",
+          "valor": 0.67742,
+          "unidad": null,
+          "gen1": 0.67742
+        },
+        {
+          "clave": "precision",
+          "nombre": "Precisión",
+          "valor": 0.724138,
+          "unidad": null,
+          "gen1": 0.724138
+        },
+        {
+          "clave": "recall",
+          "nombre": "Recall",
+          "valor": 0.636364,
+          "unidad": null,
+          "gen1": 0.636364
+        },
+        {
+          "clave": "episodios_evaluables",
+          "nombre": "Episodios evaluables",
+          "valor": 33,
+          "unidad": null,
+          "gen1": 33
+        },
+        {
+          "clave": "aciertos",
+          "nombre": "Alertas que acertaron un episodio",
+          "valor": 21,
+          "unidad": null,
+          "gen1": 21
+        },
+        {
+          "clave": "perdidos",
+          "nombre": "Episodios sin alerta",
+          "valor": 12,
+          "unidad": null,
+          "gen1": 12
+        },
+        {
+          "clave": "falsas_alarmas_en_positivos",
+          "nombre": "Falsas alarmas en clips con episodios",
+          "valor": 8,
+          "unidad": null,
+          "gen1": 8
+        },
+        {
+          "clave": "falsas_alarmas",
+          "nombre": "Falsas alarmas en clips sin infracción",
+          "valor": 0,
+          "unidad": null,
+          "gen1": 0
+        },
+        {
+          "clave": "re_alertas",
+          "nombre": "Re-alertas (no son falsas alarmas)",
+          "valor": 2,
+          "unidad": null,
+          "gen1": 2
+        },
+        {
+          "clave": "t_alert_s",
+          "nombre": "Tiempo hasta la alerta desde el inicio del episodio",
+          "valor": 5.449,
+          "unidad": "s",
+          "gen1": null
+        },
+        {
+          "clave": "ttfd_ms",
+          "nombre": "Tiempo hasta la primera detección",
+          "valor": 1523.439167,
+          "unidad": "ms",
+          "gen1": null
+        },
+        {
+          "clave": "sdr",
+          "nombre": "Proporción de detección sostenida (SDR)",
+          "valor": 0.71311,
+          "unidad": null,
+          "gen1": null
+        }
+      ],
+      "generado": "2026-10-31T01:15:24+00:00"
+    },
+    {
+      "id": "DEN-07",
+      "fase": "F5",
+      "familia": "analisis",
+      "registro": "activa",
+      "estado": "completo",
+      "corridas_ok": 0,
+      "corridas": 0,
+      "veredicto": "equivalente_con_diferencia",
+      "confirmado": true,
+      "titulo": "Ganancia por identidad y costo de la densidad, con remuestreo pareado por clip",
+      "informe": [
+        "Tabla 54 (fila «Identidad», F-96.4)",
+        "§17.5.5"
+      ],
+      "pregunta": "¿La ganancia por identidad (sujeto contra escena a la misma densidad) excluye el cero en cada densidad? ¿Y la pérdida por densidad?\n",
+      "gen1": {
+        "result_id": "(doc 96, revisión adversarial)",
+        "doc": "operacion/96"
+      },
+      "resumen": [
+        {
+          "clave": "R1−T1",
+          "nombre": "ΔF1 R1−T1",
+          "valor": -0.094,
+          "unidad": null,
+          "ic95": [
+            -0.204,
+            0.018
+          ],
+          "excluye_0": false,
+          "gen1": 0.005385
+        },
+        {
+          "clave": "R3−T1",
+          "nombre": "ΔF1 R3−T1",
+          "valor": -0.122,
+          "unidad": null,
+          "ic95": [
+            -0.242,
+            0.0
+          ],
+          "excluye_0": false,
+          "gen1": -0.050271
+        },
+        {
+          "clave": "R5−T1",
+          "nombre": "ΔF1 R5−T1",
+          "valor": -0.225,
+          "unidad": null,
+          "ic95": [
+            -0.393,
+            -0.049
+          ],
+          "excluye_0": true,
+          "gen1": -0.142579
+        },
+        {
+          "clave": "R2−G1",
+          "nombre": "ΔF1 R2−G1",
+          "valor": -0.068,
+          "unidad": null,
+          "ic95": [
+            -0.183,
+            0.046
+          ],
+          "excluye_0": false,
+          "gen1": -0.063906
+        },
+        {
+          "clave": "R4−G1",
+          "nombre": "ΔF1 R4−G1",
+          "valor": -0.086,
+          "unidad": null,
+          "ic95": [
+            -0.2,
+            0.028
+          ],
+          "excluye_0": false,
+          "gen1": -0.054577
+        },
+        {
+          "clave": "R6−G1",
+          "nombre": "ΔF1 R6−G1",
+          "valor": -0.221,
+          "unidad": null,
+          "ic95": [
+            -0.375,
+            -0.072
+          ],
+          "excluye_0": true,
+          "gen1": -0.187642
+        },
+        {
+          "clave": "R2−T1",
+          "nombre": "ΔF1 R2−T1",
+          "valor": -0.01,
+          "unidad": null,
+          "ic95": [
+            -0.158,
+            0.143
+          ],
+          "excluye_0": false,
+          "gen1": 0.076939
+        },
+        {
+          "clave": "G1−T1",
+          "nombre": "ΔF1 G1−T1",
+          "valor": 0.058,
+          "unidad": null,
+          "ic95": [
+            -0.045,
+            0.163
+          ],
+          "excluye_0": false,
+          "gen1": 0.140845
+        },
+        {
+          "clave": "R2−R1",
+          "nombre": "ΔF1 R2−R1",
+          "valor": 0.085,
+          "unidad": null,
+          "ic95": [
+            0.005,
+            0.179
+          ],
+          "excluye_0": true,
+          "gen1": 0.071554
+        },
+        {
+          "clave": "R4−R3",
+          "nombre": "ΔF1 R4−R3",
+          "valor": 0.094,
+          "unidad": null,
+          "ic95": [
+            0.0,
+            0.204
+          ],
+          "excluye_0": false,
+          "gen1": 0.136538
+        },
+        {
+          "clave": "R6−R5",
+          "nombre": "ΔF1 R6−R5",
+          "valor": 0.062,
+          "unidad": null,
+          "ic95": [
+            0.011,
+            0.134
+          ],
+          "excluye_0": true,
+          "gen1": 0.095782
+        }
+      ],
+      "generado": "2026-10-31T01:15:29+00:00"
+    },
+    {
+      "id": "ERR-01",
+      "fase": "F5",
+      "familia": "analisis",
+      "registro": "activa",
+      "estado": "completo",
+      "corridas_ok": 0,
+      "corridas": 0,
+      "veredicto": "identico",
+      "confirmado": true,
+      "titulo": "Anatomía de las falsas alarmas por sujeto en obra real",
+      "informe": [
+        "§17.5.4",
+        "§18.3",
+        "§17.5.7"
+      ],
+      "pregunta": "De las falsas alarmas por sujeto en los 11 clips negativos de obra real, ¿cuántas se deben a cada causa: una persona que no está en la referencia, un atributo no observable, una falta real, el EPP no detectado, el EPP detectado fuera de la región que evalúa la regla, el EPP disputado entre dos personas o detectado de forma intermitente? ¿Cuántas de más agrega la fragmentación de identidad (la misma persona alertada con varios tracks)? ¿Cómo se reparten por tamaño de la persona (en píxeles del cuadro y de la entrada del modelo) y por iluminación?\n",
+      "gen1": {
+        "result_id": "(piloto 137)",
+        "doc": "operacion/137"
+      },
+      "resumen": [
+        {
+          "clave": "principal.falsas_alarmas",
+          "nombre": "Falsas alarmas por sujeto en negativos (principal)",
+          "valor": 323,
+          "unidad": null,
+          "gen1": 323
+        },
+        {
+          "clave": "principal.F-sin-persona",
+          "nombre": "… causa F-sin-persona (principal)",
+          "valor": 84,
+          "unidad": null,
+          "gen1": 84
+        },
+        {
+          "clave": "principal.F-parcial",
+          "nombre": "… causa F-parcial (principal)",
+          "valor": 15,
+          "unidad": null,
+          "gen1": 15
+        },
+        {
+          "clave": "principal.U",
+          "nombre": "… causa U (principal)",
+          "valor": 21,
+          "unidad": null,
+          "gen1": 21
+        },
+        {
+          "clave": "principal.V",
+          "nombre": "… causa V (principal)",
+          "valor": 1,
+          "unidad": null,
+          "gen1": 1
+        },
+        {
+          "clave": "principal.P-no-detectado",
+          "nombre": "… causa P-no-detectado (principal)",
+          "valor": 109,
+          "unidad": null,
+          "gen1": 109
+        },
+        {
+          "clave": "principal.P-fuera-region",
+          "nombre": "… causa P-fuera-region (principal)",
+          "valor": 0,
+          "unidad": null,
+          "gen1": 0
+        },
+        {
+          "clave": "principal.P-disputado",
+          "nombre": "… causa P-disputado (principal)",
+          "valor": 8,
+          "unidad": null,
+          "gen1": 8
+        },
+        {
+          "clave": "principal.P-intermitente",
+          "nombre": "… causa P-intermitente (principal)",
+          "valor": 85,
+          "unidad": null,
+          "gen1": 85
+        },
+        {
+          "clave": "principal.alertas_extra_por_fragmentacion",
+          "nombre": "Alertas de más por fragmentación de identidad (principal)",
+          "valor": 93,
+          "unidad": null,
+          "gen1": 93
+        }
+      ],
+      "generado": "2026-10-31T03:03:33+00:00"
+    },
+    {
+      "id": "ERR-02",
+      "fase": "F5",
+      "familia": "analisis",
+      "registro": "activa",
+      "estado": "completo",
+      "corridas_ok": 0,
+      "corridas": 0,
+      "veredicto": "otra_combinacion",
+      "confirmado": true,
+      "titulo": "¿La resolución explica las falsas alarmas? Anatomía a 560 px contra 800 px (caja 0,35)",
+      "informe": [
+        "§17.5.4",
+        "§18.3"
+      ],
+      "pregunta": "Con la taxonomía de ERR-01 aplicada a ALR-10 (560 px) y ALR-09 (800 px), los dos con caja 0,35, ¿cuántas falsas alarmas por sujeto cambian y de qué causa? En particular, ¿bajan las del EPP no detectado en las personas chicas al subir la resolución?\n",
+      "gen1": {
+        "result_id": "(no corrió)",
+        "doc": "operacion/137",
+        "relacion": "otra_combinacion"
+      },
+      "resumen": [
+        {
+          "clave": "r560.falsas_alarmas",
+          "nombre": "Falsas alarmas por sujeto en negativos (r560)",
+          "valor": 355,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "r560.F-sin-persona",
+          "nombre": "… causa F-sin-persona (r560)",
+          "valor": 63,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "r560.F-parcial",
+          "nombre": "… causa F-parcial (r560)",
+          "valor": 10,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "r560.U",
+          "nombre": "… causa U (r560)",
+          "valor": 18,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "r560.V",
+          "nombre": "… causa V (r560)",
+          "valor": 1,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "r560.P-no-detectado",
+          "nombre": "… causa P-no-detectado (r560)",
+          "valor": 163,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "r560.P-fuera-region",
+          "nombre": "… causa P-fuera-region (r560)",
+          "valor": 0,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "r560.P-disputado",
+          "nombre": "… causa P-disputado (r560)",
+          "valor": 6,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "r560.P-intermitente",
+          "nombre": "… causa P-intermitente (r560)",
+          "valor": 94,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "r560.alertas_extra_por_fragmentacion",
+          "nombre": "Alertas de más por fragmentación de identidad (r560)",
+          "valor": 120,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "r800.falsas_alarmas",
+          "nombre": "Falsas alarmas por sujeto en negativos (r800)",
+          "valor": 309,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "r800.F-sin-persona",
+          "nombre": "… causa F-sin-persona (r800)",
+          "valor": 41,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "r800.F-parcial",
+          "nombre": "… causa F-parcial (r800)",
+          "valor": 6,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "r800.U",
+          "nombre": "… causa U (r800)",
+          "valor": 32,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "r800.V",
+          "nombre": "… causa V (r800)",
+          "valor": 1,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "r800.P-no-detectado",
+          "nombre": "… causa P-no-detectado (r800)",
+          "valor": 147,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "r800.P-fuera-region",
+          "nombre": "… causa P-fuera-region (r800)",
+          "valor": 0,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "r800.P-disputado",
+          "nombre": "… causa P-disputado (r800)",
+          "valor": 2,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "r800.P-intermitente",
+          "nombre": "… causa P-intermitente (r800)",
+          "valor": 80,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "r800.alertas_extra_por_fragmentacion",
+          "nombre": "Alertas de más por fragmentación de identidad (r800)",
+          "valor": 104,
+          "unidad": null,
+          "gen1": null
+        }
+      ],
+      "generado": "2026-10-31T01:17:01+00:00"
+    },
+    {
+      "id": "GT-02",
+      "fase": "F5",
+      "familia": "analisis",
+      "registro": "activa",
+      "estado": "completo",
+      "corridas_ok": 0,
+      "corridas": 0,
+      "veredicto": "otra_combinacion",
+      "confirmado": true,
+      "titulo": "Sensibilidad de cada conclusión a los bordes de la referencia",
+      "informe": [
+        "§17.5.7 (limitaciones)"
+      ],
+      "pregunta": "Si los bordes del GT estuvieran corridos hasta ±0,5 / ±1 / ±2 s, ¿en qué fracción de las referencias simuladas se sostiene cada conclusión comparativa del informe?\n",
+      "gen1": {
+        "result_id": "(piloto 134)",
+        "doc": "operacion/134",
+        "relacion": "otra_combinacion"
+      },
+      "resumen": [
+        {
+          "clave": "C1_G1>T1",
+          "nombre": "Fracción de referencias simuladas (±0,5 s) en que se sostiene C1_G1>T1",
+          "valor": 0.9174,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "C2_T1>=T2",
+          "nombre": "Fracción de referencias simuladas (±0,5 s) en que se sostiene C2_T1>=T2",
+          "valor": 1.0,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "C3_D1_prec<0.5",
+          "nombre": "Fracción de referencias simuladas (±0,5 s) en que se sostiene C3_D1_prec<0.5",
+          "valor": 1.0,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "C4_T1>H1",
+          "nombre": "Fracción de referencias simuladas (±0,5 s) en que se sostiene C4_T1>H1",
+          "valor": 1.0,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "C5_T1>B1",
+          "nombre": "Fracción de referencias simuladas (±0,5 s) en que se sostiene C5_T1>B1",
+          "valor": 1.0,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "C6_R2>R1",
+          "nombre": "Fracción de referencias simuladas (±0,5 s) en que se sostiene C6_R2>R1",
+          "valor": 1.0,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "C6_R4>R3",
+          "nombre": "Fracción de referencias simuladas (±0,5 s) en que se sostiene C6_R4>R3",
+          "valor": 1.0,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "C6_R6>R5",
+          "nombre": "Fracción de referencias simuladas (±0,5 s) en que se sostiene C6_R6>R5",
+          "valor": 1.0,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "C7_T1>=R1",
+          "nombre": "Fracción de referencias simuladas (±0,5 s) en que se sostiene C7_T1>=R1",
+          "valor": 0.9822,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "C7_R1>R3",
+          "nombre": "Fracción de referencias simuladas (±0,5 s) en que se sostiene C7_R1>R3",
+          "valor": 0.7312,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "C7_R3>R5",
+          "nombre": "Fracción de referencias simuladas (±0,5 s) en que se sostiene C7_R3>R5",
+          "valor": 1.0,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "C8_I1_FPneg<I2_FPneg",
+          "nombre": "Fracción de referencias simuladas (±0,5 s) en que se sostiene C8_I1_FPneg<I2_FPneg",
+          "valor": 1.0,
+          "unidad": null,
+          "gen1": null
+        }
+      ],
+      "generado": "2026-10-31T01:23:59+00:00"
+    },
+    {
+      "id": "PER-03",
+      "fase": "F5",
+      "familia": "nivel_a_video",
+      "registro": "activa",
+      "estado": "completo",
+      "corridas_ok": 4,
+      "corridas": 4,
+      "veredicto": "identico",
+      "confirmado": true,
+      "titulo": "Estado por persona en video de obra real (17 clips)",
+      "informe": [
+        "Tabla 52 (video)",
+        "§17.5.3"
+      ],
+      "pregunta": "Por persona y por cuadro, en el punto de operación desplegado, ¿qué tan bien determina el sistema el estado de cada persona en video de obra real (13 clips del estrato B + 4 del piloto)?\n",
+      "gen1": {
+        "result_id": "na1_gdinotiny560_v2short_video",
+        "doc": "operacion/113"
+      },
+      "resumen": [
+        {
+          "clave": "CR-01/f1",
+          "nombre": "F1 por persona-cuadro — CR-01",
+          "valor": 0.030648610121168922,
+          "unidad": null,
+          "gen1": 0.030648610121168922
+        },
+        {
+          "clave": "CR-01/precision",
+          "nombre": "Precisión por persona-cuadro — CR-01",
+          "valor": 0.015843773028739867,
+          "unidad": null,
+          "gen1": 0.015843773028739867
+        },
+        {
+          "clave": "CR-01/recall",
+          "nombre": "Recall por persona-cuadro — CR-01",
+          "valor": 0.4673913043478261,
+          "unidad": null,
+          "gen1": 0.4673913043478261
+        },
+        {
+          "clave": "CR-02/f1",
+          "nombre": "F1 por persona-cuadro — CR-02",
+          "valor": 0.01804209822920147,
+          "unidad": null,
+          "gen1": 0.01804209822920147
+        },
+        {
+          "clave": "CR-02/precision",
+          "nombre": "Precisión por persona-cuadro — CR-02",
+          "valor": 0.009284731774415406,
+          "unidad": null,
+          "gen1": 0.009284731774415406
+        },
+        {
+          "clave": "CR-02/recall",
+          "nombre": "Recall por persona-cuadro — CR-02",
+          "valor": 0.3176470588235294,
+          "unidad": null,
+          "gen1": 0.3176470588235294
+        }
+      ],
+      "generado": "2026-10-31T01:27:42+00:00"
+    },
+    {
+      "id": "SEG-01",
+      "fase": "F5",
+      "familia": "analisis",
+      "registro": "activa",
+      "estado": "completo",
+      "corridas_ok": 0,
+      "corridas": 0,
+      "veredicto": "identico",
+      "confirmado": true,
+      "titulo": "Fragmentación de identidad del rastreador de la plataforma (47 clips)",
+      "informe": [
+        "§17.5.7",
+        "§18.6"
+      ],
+      "pregunta": "Contra las trayectorias de la referencia (CVAT, con las identidades corregidas por la revisión dirigida), ¿cuántas veces el rastreador de la plataforma cambia la identidad de una misma persona, cuántos tracks distintos le asigna y qué fracción de sus cajas cubre? En el rodaje (34 clips, por escenario, con los cruces de P7) y en obra real (13 clips).\n",
+      "gen1": {
+        "result_id": "(piloto 137)",
+        "doc": "operacion/137"
+      },
+      "resumen": [
+        {
+          "clave": "rodaje.cobertura",
+          "nombre": "Cobertura (rodaje)",
+          "valor": 0.9873,
+          "unidad": null,
+          "gen1": 0.9873
+        },
+        {
+          "clave": "rodaje.cambios_de_identidad",
+          "nombre": "Cambios de identidad (rodaje)",
+          "valor": 32,
+          "unidad": null,
+          "gen1": 32
+        },
+        {
+          "clave": "rodaje.cambios_por_persona_minuto",
+          "nombre": "Cambios por persona minuto (rodaje)",
+          "valor": 1.5391,
+          "unidad": null,
+          "gen1": 1.5391
+        },
+        {
+          "clave": "rodaje.tracks_por_persona_media",
+          "nombre": "Tracks por persona media (rodaje)",
+          "valor": 1.6739,
+          "unidad": null,
+          "gen1": 1.6739
+        },
+        {
+          "clave": "obra_real.cobertura",
+          "nombre": "Cobertura (obra_real)",
+          "valor": 0.8433,
+          "unidad": null,
+          "gen1": 0.8433
+        },
+        {
+          "clave": "obra_real.cambios_de_identidad",
+          "nombre": "Cambios de identidad (obra_real)",
+          "valor": 2012,
+          "unidad": null,
+          "gen1": 2012
+        },
+        {
+          "clave": "obra_real.cambios_por_persona_minuto",
+          "nombre": "Cambios por persona minuto (obra_real)",
+          "valor": 22.2021,
+          "unidad": null,
+          "gen1": 22.2021
+        },
+        {
+          "clave": "obra_real.tracks_por_persona_media",
+          "nombre": "Tracks por persona media (obra_real)",
+          "valor": 7.3455,
+          "unidad": null,
+          "gen1": 7.3455
+        }
+      ],
+      "generado": "2026-10-31T01:28:22+00:00"
+    },
+    {
+      "id": "VIS-01",
+      "fase": "F5",
+      "familia": "figuras",
+      "registro": "activa",
+      "estado": "completo",
+      "corridas_ok": 0,
+      "corridas": 0,
+      "veredicto": "otra_combinacion",
+      "confirmado": true,
+      "titulo": "Cuadros anotados: aciertos y fallos del rodaje y de obra real",
+      "informe": [
+        "§17.5.4",
+        "§18.3",
+        "Anexo E"
+      ],
+      "pregunta": "¿Cómo se ven, sobre el cuadro, un acierto y un fallo del sistema: las cajas predichas con su puntaje, el track de cada persona, la región que evalúa la regla y la referencia?\n",
+      "gen1": {
+        "result_id": "(no corrió)",
+        "doc": "operacion/137",
+        "relacion": "otra_combinacion"
+      },
+      "resumen": [
+        {
+          "clave": "rodaje.exito",
+          "nombre": "Cuadros: rodaje.exito",
+          "valor": 7,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "rodaje.fallo_falsa_alarma",
+          "nombre": "Cuadros: rodaje.fallo falsa alarma",
+          "valor": 12,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "rodaje.fallo_perdido",
+          "nombre": "Cuadros: rodaje.fallo perdido",
+          "valor": 6,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "internet.exito",
+          "nombre": "Cuadros: internet.exito",
+          "valor": 2,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "internet.fallo_perdido",
+          "nombre": "Cuadros: internet.fallo perdido",
+          "valor": 0,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "internet.obra_real",
+          "nombre": "Cuadros: internet.obra real",
+          "valor": 31,
+          "unidad": null,
+          "gen1": null
+        }
+      ],
+      "generado": "2026-10-31T03:23:00+00:00"
+    },
+    {
+      "id": "DIST-01",
+      "fase": "F6",
+      "familia": "vivo",
+      "registro": "activa",
+      "estado": "completo",
+      "corridas_ok": 0,
+      "corridas": 0,
+      "veredicto": "otra_combinacion",
+      "confirmado": true,
+      "titulo": "Canal de distribución: alerta → PUBACK MQTT QoS 1",
+      "informe": [
+        "Tabla 54",
+        "§17.5.5"
+      ],
+      "pregunta": "Sobre todas las alertas que produjo la generación 2, ¿cuánto tarda la distribución en obtener el PUBACK del broker para cada notificación?\n",
+      "gen1": {
+        "result_id": "t_alert_notification",
+        "doc": "operacion/118",
+        "relacion": "otra_combinacion"
+      },
+      "resumen": [
+        {
+          "clave": "p95_ms",
+          "nombre": "Alerta → PUBACK MQTT QoS 1, p95 (todas las entregas)",
+          "valor": 22.887,
+          "unidad": "ms",
+          "gen1": 64.534
+        },
+        {
+          "clave": "primeras_p95_ms",
+          "nombre": "Primera entrega de cada corrida, p95",
+          "valor": 15.905,
+          "unidad": "ms",
+          "gen1": 49.9
+        },
+        {
+          "clave": "entregadas",
+          "nombre": "Notificaciones entregadas",
+          "valor": 339,
+          "unidad": null,
+          "gen1": 460
+        }
+      ],
+      "generado": "2026-10-31T01:34:29+00:00"
+    },
+    {
+      "id": "RT-01",
+      "fase": "F6",
+      "familia": "vivo",
+      "registro": "activa",
+      "estado": "completo",
+      "corridas_ok": 1,
+      "corridas": 1,
+      "veredicto": "otra_combinacion",
+      "confirmado": true,
+      "titulo": "Sobrecarga de la plataforma sin inferencia (G2A con detector simulado)",
+      "informe": [
+        "Tabla 54",
+        "§17.5.5"
+      ],
+      "pregunta": "Sin el costo del modelo, ¿cuánto agrega la plataforma (lectura, normalización, escritura, bus) entre que un cuadro sale de la cola y su resultado?\n",
+      "gen1": {
+        "result_id": "g2a_single_host",
+        "doc": "operacion/39",
+        "relacion": "otra_combinacion"
+      },
+      "resumen": [
+        {
+          "clave": "g2a_p50_ms",
+          "nombre": "G2A p50 sin inferencia (detector simulado)",
+          "valor": 15.817,
+          "unidad": "ms",
+          "gen1": null
+        },
+        {
+          "clave": "g2a_p95_ms",
+          "nombre": "G2A p95 sin inferencia (detector simulado)",
+          "valor": 19.505,
+          "unidad": "ms",
+          "gen1": null
+        }
+      ],
+      "generado": "2026-10-31T01:34:51+00:00"
+    },
+    {
+      "id": "RT-02",
+      "fase": "F6",
+      "familia": "vivo",
+      "registro": "activa",
+      "estado": "completo",
+      "corridas_ok": 2,
+      "corridas": 2,
+      "veredicto": "identico",
+      "confirmado": true,
+      "titulo": "Integridad del bus: 0 pérdidas y paridad vivo ↔ relectura",
+      "informe": [
+        "§17.5.5",
+        "Tabla 54"
+      ],
+      "pregunta": "Una corrida en vivo por el bus (control suscripto antes que medios), ¿pierde eventos? Y releída offline sobre las mismas detecciones, ¿produce exactamente los mismos eventos y alertas?\n",
+      "gen1": {
+        "result_id": "bus_live_paridad",
+        "doc": "operacion/37"
+      },
+      "resumen": [
+        {
+          "clave": "paridad",
+          "nombre": "Vivo y relectura producen los mismos eventos y alertas",
+          "valor": "sí",
+          "unidad": null,
+          "gen1": "sí"
+        },
+        {
+          "clave": "bus_dropped_events",
+          "nombre": "Eventos perdidos en el bus",
+          "valor": 0,
+          "unidad": null,
+          "gen1": 0
+        },
+        {
+          "clave": "alertas",
+          "nombre": "Alertas de la corrida",
+          "valor": 1,
+          "unidad": null,
+          "gen1": null
+        }
+      ],
+      "generado": "2026-10-31T01:37:13+00:00"
+    },
+    {
+      "id": "RT-03",
+      "fase": "F7",
+      "familia": "vivo",
+      "registro": "activa",
+      "estado": "sin_correr",
+      "corridas_ok": 0,
+      "corridas": 0,
+      "veredicto": null,
+      "confirmado": false,
+      "titulo": "Latencia en vivo con la OAK-D y personas en escena",
+      "informe": [
+        "Tabla 54",
+        "§17.5.5"
+      ],
+      "pregunta": "Con la cámara real, una persona en cuadro y la configuración de la demo, ¿cuánto tarda el sistema desde que el cuadro llega al host hasta el resultado (G2A), desde la captura (captura → host) y de punta a punta (vidrio → resultado, por cuadro)?\n",
+      "gen1": {
+        "result_id": "rodaje (doc 71) y doc 133 (Victus, sin personas)",
+        "doc": "operacion/133",
+        "relacion": "otra_combinacion"
+      },
+      "resumen": [],
+      "generado": null
+    },
+    {
+      "id": "RT-04",
+      "fase": "F7",
+      "familia": "rodaje",
+      "registro": "activa",
+      "estado": "sin_correr",
+      "corridas_ok": 0,
+      "corridas": 0,
+      "veredicto": null,
+      "confirmado": false,
+      "titulo": "Obra simulada en vivo: el rodaje repetido en la plataforma en contenedores",
+      "informe": [
+        "Tabla 54",
+        "§17.5.5"
+      ],
+      "pregunta": "Con el equipo en la obra simulada, la OAK-D y la configuración de la demo, ¿cada escena del rodaje se comporta en vivo como su guion espera (alerta o silencio, de qué condición), cuánto tarda de la acción a la alerta confirmada y al broker, y cuál es la latencia por cuadro?\n",
+      "gen1": {
+        "result_id": "rodaje del 2026-07-25 (tomas B en vivo de P1, P2 y P3; doc 71)",
+        "doc": "operacion/71",
+        "relacion": "otra_combinacion"
+      },
+      "resumen": [],
+      "generado": null
+    },
+    {
+      "id": "RT-05",
+      "fase": "F7",
+      "familia": "rodaje",
+      "registro": "activa",
+      "estado": "sin_correr",
+      "corridas_ok": 0,
+      "corridas": 0,
+      "veredicto": null,
+      "confirmado": false,
+      "titulo": "Compromiso en vivo entre familias de modelo y cadencias de cámara",
+      "informe": [
+        "Tabla 54",
+        "§17.5.5"
+      ],
+      "pregunta": "Con la misma escena guionada (el guion de la demo: sacarse y ponerse el casco y el chaleco), la OAK-D y la plataforma en contenedores, ¿qué cambia según el motor (Grounding DINO tiny o base, YOLOE-26 s o x) y la cadencia de la cámara (5 o 15 cuadros por segundo, a 960×540)? Por celda: si CR-01 y CR-02 confirman, cuánto tarda de la acción a la alerta, si alerta antes de la acción, cuántos cuadros por segundo procesa, cuántos descarta y la latencia por cuadro.\n",
+      "gen1": {
+        "result_id": "rodaje del 2026-07-25 (doc 71 §2.1)",
+        "doc": "operacion/71",
+        "relacion": "otra_combinacion"
+      },
+      "resumen": [],
+      "generado": null
+    }
+  ]
+}

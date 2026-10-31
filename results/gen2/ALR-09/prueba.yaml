@@ -1,0 +1,47 @@
+schema: prueba.gen2.v1
+id: ALR-09
+titulo: "Obra real a 800 px: gdino-tiny con caja 0,35, escena y sujeto"
+informe: ["§17.5.4", "§18.3"]
+fase: F3
+familia: clips
+pregunta: >
+  Con el mismo Grounding DINO tiny a 800 px, ¿cuántas falsas alarmas produce sobre los 13 clips de
+  obra real, por escena y por sujeto? Junto con ALR-10 (el campeón a 560 px con el MISMO umbral de
+  caja, 0,35) pone a prueba que la resolución de entrada explica parte de las falsas alarmas: el
+  adaptador lleva cada cuadro a un cuadrado del tamaño de entrada con letterbox, así que un
+  1920×1080 entra como 560×315 a 560 px y como 800×450 a 800 px.
+gen1:
+  result_id: (no corrió)
+  doc: operacion/137
+  relacion: otra_combinacion
+  motivo: >
+    Combinación nueva (doc 137 §3.3): la generación 1 no corrió tiny a 800 px sobre obra real. Se
+    compara contra ALR-10, no contra la generación 1. La comparación de resolución del informe
+    (tiny 800 a 0,35 contra tiny-560 a 0,30, doc 130 R-04) estaba confundida con el umbral; acá
+    los dos brazos tienen caja 0,35.
+esperado: >
+  Sin cifra pre-registrada. Lectura (ERR-02): si a 800 px bajan las falsas alarmas P-no-detectado
+  de las personas chicas, la resolución pesa. Con n = 2 episodios ningún F1 ordena nada (F-111.1):
+  lo que se compara son las falsas alarmas en los 11 negativos.
+veredictos_posibles: [otra_combinacion]
+config:
+  modelo: grounding-dino/gdino-tiny (800 px, caja 0,35, texto 0,25, NMS 0,50, fp16)
+  prompt_set: cr01_cr02_v2_short
+  pattern_set: cr01_cr02_v2 (escena) y cr01_cr02_v2_subject (variante sujeto, identidad de la plataforma)
+receta:
+  tipo: inferencia
+  clips: internet
+  instancia: mp-gdino-tiny  # crearla ANTES de la noche de F3 (doc 136 §2: crear un contenedor tira la red de WSL)
+  modelo: grounding-dino/gdino-tiny
+  medios:
+    prompts:
+      set_id: cr01_cr02_v2_short
+      fuente: prompts/cr01_cr02_v2_short.yaml
+      clases: [person, helmet, vest]
+      frozen: {prompts/cr01_cr02_v2_short.yaml: df81fd48b6daf8924b5fb66aa1ce4acc0c880ac6ed8cd1245c6aca1babdb309a}
+  control: {patrones: cr01_cr02_v2, activos: [CR-01, CR-02]}
+  variantes:
+    - nombre: sujeto
+      control: {patrones: cr01_cr02_v2_subject, activos: [CR-01, CR-02], track_persons: true}
+  timeout_s: 10800  # v06_c01 dura 6 min a 30 fps; a 800 px la inferencia es ~1,3× la de 560
+salida: e-ovrt_experimental-setup/results/gen2/ALR-09/

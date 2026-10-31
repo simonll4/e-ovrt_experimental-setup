@@ -1,0 +1,39 @@
+{
+  "type": "perception",
+  "run_id": "run_20261030_225349_dbe_grounding_dino_983e25",
+  "benchmark": "bench_stratum_shel5k",
+  "iou_threshold": 0.5,
+  "per_class": [
+    {
+      "class_name": "person",
+      "AP50": 0.6972,
+      "n_gt": 20023,
+      "n_det": 18356
+    },
+    {
+      "class_name": "helmet",
+      "AP50": 0.6263,
+      "n_gt": 19252,
+      "n_det": 13700
+    },
+    {
+      "class_name": "vest",
+      "AP50": null,
+      "n_gt": 0,
+      "n_det": 4229
+    },
+    {
+      "class_name": "bare_head",
+      "AP50": 0.1237,
+      "n_gt": 6120,
+      "n_det": 3025
+    }
+  ],
+  "mAP50": 0.4824,
+  "cr01_detection_recall": 0.1772,
+  "evaluated_at": "2026-10-30T23:10:24.818783+00:00",
+  "cr01_n_violators": 5248,
+  "cr01_n_detected": 930,
+  "bench_coco": "$EOVRT_WORKSPACE/e-ovrt_datasets/datasets/processed/coco/bench/curated/bench_stratum_shel5k.json",
+  "person_gt": "$EOVRT_WORKSPACE/e-ovrt_datasets/datasets/processed/coco/bench/curated/person_gt_shel5k.json"
+}

@@ -1,0 +1,85 @@
+{
+  "tipo": "inferencia",
+  "clips": [
+    "a_p1_c02",
+    "a_p1_c03",
+    "a_p1_c04",
+    "a_p1_c05",
+    "a_p1_c06",
+    "a_p1_c07",
+    "a_p1_c08",
+    "a_p1_c09",
+    "a_p1_c10",
+    "a_p1_c11",
+    "a_p1_c12",
+    "a_p2_c01",
+    "a_p2_c02",
+    "a_p2_c03",
+    "a_p2_c04",
+    "a_p2_c05",
+    "a_p3_c01",
+    "a_p3_c02",
+    "a_p4_c01",
+    "a_p4_c02",
+    "a_p5_c01",
+    "a_p5_c02",
+    "a_p6_c01",
+    "a_p6_c02",
+    "a_p7_c01",
+    "a_p7_c02",
+    "a_p7_c03",
+    "a_p7_c04",
+    "a_p8_c01",
+    "a_p9_c01",
+    "a_p9_c02",
+    "a_p9_c03",
+    "a_p9_c06",
+    "a_p9_c08"
+  ],
+  "prompts": {
+    "set_id": "edir_v1_pair_nivel_b",
+    "fuentes": {
+      "prompts/eind_v1.yaml": {
+        "status": "frozen",
+        "frozen_sha256": "7a0126f45eb1362a2cfcc67458caa307357dc3f7684188fae6486486cd5ed770",
+        "clases_sha256": "7a0126f45eb1362a2cfcc67458caa307357dc3f7684188fae6486486cd5ed770"
+      },
+      "prompts/edir_v1.yaml": {
+        "status": "frozen",
+        "frozen_sha256": "a1278d0c34cd13beb759a1fe10b13c7096f147f7be23154f28a79454b5643703",
+        "clases_sha256": "a1278d0c34cd13beb759a1fe10b13c7096f147f7be23154f28a79454b5643703"
+      }
+    },
+    "payload_sha256": "d8c4593caae0d119e7f9cd4bc7d219c11c97c15dc134a71a73fc24fa84b22572"
+  },
+  "modelo_cargado": {
+    "service_url": "http://localhost:8080",
+    "healthy": true,
+    "ready": true,
+    "model": {
+      "ref": "grounding-dino/gdino-tiny-560",
+      "name": "grounding_dino",
+      "adapter": "grounding_dino",
+      "device": "cuda",
+      "thresholds": {
+        "box": 0.3,
+        "text": 0.25,
+        "confidence": 0.25,
+        "iou": 0.5
+      },
+      "runtime": {
+        "half_precision": true,
+        "warmup": true
+      }
+    }
+  },
+  "control": {
+    "patrones": "cr01_cr02_edir_v1",
+    "activos": [
+      "CR-01",
+      "CR-02"
+    ]
+  },
+  "variantes": [],
+  "stride": 1
+}

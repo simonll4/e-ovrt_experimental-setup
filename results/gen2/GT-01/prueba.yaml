@@ -1,0 +1,21 @@
+schema: prueba.gen2.v1
+id: GT-01
+titulo: "Concordancia entre la marca del operador y el GT corregido"
+informe: ["§17.5.7 (limitaciones)", "Anexo E"]
+fase: F1
+familia: analisis
+pregunta: >
+  Las marcas que el operador anotó al recortar cada toma del rodaje (antes de la anotación),
+  ¿coinciden con el inicio de los episodios del GT corregido?
+gen1:
+  result_id: (revisión dirigida, 2026-10-26)
+  doc: datasets/registry/clip_bench.md (L2)
+  referencia:
+    fuente: e-ovrt_datasets/datasets/registry/clip_bench.md, L2
+    valores: {pares: 33, "dentro_de_0.5s": 32, "dentro_de_1.0s": 33, sin_episodio_en_gt: 0}
+esperado: "33 pares; 32 dentro de 0,5 s y 33 dentro de 1 s. No depende de la máquina: es un chequeo del GT versionado."
+veredictos_posibles: [identico]
+receta:
+  clips: rodaje
+  umbrales_s: [0.5, 1.0]
+salida: e-ovrt_experimental-setup/results/gen2/GT-01/

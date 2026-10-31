@@ -1,0 +1,7 @@
+[2026-10-30T22:23:06+00:00] python -m tools.evidencia correr F4
+[2026-10-30T22:23:06+00:00] POST /api/platform/instances/mp-gdino-base-560/activate
+[2026-10-30T22:23:32+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/IMG-02/gen2_img02_obra_test/manifest.yaml
+[2026-10-30T22:23:47+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/IMG-02/gen2_img02_obra_val/manifest.yaml
+[2026-10-30T22:24:08+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/IMG-02/gen2_img02_chv/manifest.yaml
+[2026-10-30T22:27:42+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/IMG-02/gen2_img02_shel5k/manifest.yaml
+[2026-10-31T03:24:32+00:00] veredicto confirmado: otra_combinacion (equipo E-OVRT-VDP): base-560 carga su cabeza de cajas entrenada desde el 10-30 (doc 134 13.10): mAP50 0,5248 contra 0,5249 de la gen 1

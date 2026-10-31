@@ -1,0 +1,11 @@
+[2026-10-30T22:48:20+00:00] python -m tools.evidencia correr F4
+[2026-10-30T22:48:20+00:00] POST /api/platform/instances/mp-gdino-tiny/activate
+[2026-10-30T22:48:40+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/IMG-04/gen2_img04_obra_test/manifest.yaml
+[2026-10-30T22:48:58+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/IMG-04/gen2_img04_obra_val/manifest.yaml
+[2026-10-30T22:49:22+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/IMG-04/gen2_img04_chv/manifest.yaml
+[2026-10-30T22:53:49+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/IMG-04/gen2_img04_shel5k/manifest.yaml
+[2026-10-30T23:10:25+00:00] reumbralar($EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_220640_dbe_grounding_dino_845761/detections.jsonl, $EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/IMG-04/reumbral_obra_test/detections.jsonl, umbral>0.35)
+[2026-10-30T23:10:25+00:00] reumbralar($EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_220655_dbe_grounding_dino_ca4d7d/detections.jsonl, $EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/IMG-04/reumbral_obra_val/detections.jsonl, umbral>0.35)
+[2026-10-30T23:10:26+00:00] reumbralar($EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_220716_dbe_grounding_dino_2a2d40/detections.jsonl, $EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/IMG-04/reumbral_chv/detections.jsonl, umbral>0.35)
+[2026-10-30T23:10:27+00:00] reumbralar($EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_221040_dbe_grounding_dino_e39938/detections.jsonl, $EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/IMG-04/reumbral_shel5k/detections.jsonl, umbral>0.35)
+[2026-10-31T03:24:35+00:00] veredicto confirmado: otra_combinacion (equipo E-OVRT-VDP): Combinacion nueva, 800 contra 560 px a caja 0,35: mAP50 0,5105 contra 0,5083 (+0,002); al lado de la Tabla 51, no en su reemplazo

@@ -1,0 +1,5 @@
+[2026-10-31T01:28:22+00:00] python -m tools.evidencia correr F5
+[2026-10-31T01:28:24+00:00] ERROR OSError: [Errno 30] Read-only file system: '$EOVRT_WORKSPACE/e-ovrt_experimental-setup/defensa/figuras'
+[2026-10-31T02:49:43+00:00] python -m tools.evidencia correr VIS-01
+[2026-10-31T03:21:07+00:00] python -m tools.evidencia correr VIS-01
+[2026-10-31T03:24:49+00:00] veredicto confirmado: otra_combinacion (equipo E-OVRT-VDP): Figuras nuevas de la gen 2; rodaje 7 aciertos, 12 falsas alarmas y 6 perdidos (perdidos derivados con la ventana del evaluador desde el 2026-10-31)

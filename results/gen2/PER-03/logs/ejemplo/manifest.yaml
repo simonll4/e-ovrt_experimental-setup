@@ -1,0 +1,12 @@
+schema_version: experiment.manifest.v1
+slug: gen2_per03
+experiment_id: exp_20261031T012401Z_gen2_per03_video02_clip07
+runs:
+  media:
+    service: media-plane
+    config: $EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/PER-03/gen2_per03_video02_clip07/media.yaml
+    mode: run
+sequencing: media_first
+timeout_s: 1800.0
+changes: generación 2 — prueba PER-03 (Estado por persona en video de obra real (17
+  clips))

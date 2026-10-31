@@ -1,0 +1,303 @@
+{
+  "schema": "resultado.gen2.v1",
+  "id": "IMG-04",
+  "titulo": "Resolución sin confusión de umbral: gdino-tiny a 800 px contra 560 px, ambos con caja 0,35",
+  "informe": [
+    "Tabla 51",
+    "§17.5.2"
+  ],
+  "generado": "2026-10-30T23:10:29+00:00",
+  "familia": "imagenes",
+  "estado": "completo",
+  "metricas": {
+    "mAP50": 0.510513,
+    "ap50_person": 0.711231,
+    "ap50_helmet": 0.667786,
+    "ap50_vest": 0.539838,
+    "ap50_bare_head": 0.123197,
+    "recall_cr01": 0.179153,
+    "n_violadores_cr01": 5308,
+    "obra_test.person": 0.6287,
+    "obra_test.person.n_gt": 135,
+    "obra_test.helmet": 0.8058,
+    "obra_test.helmet.n_gt": 83,
+    "obra_test.vest": 0.4019,
+    "obra_test.vest.n_gt": 38,
+    "obra_test.bare_head": 0.026,
+    "obra_test.bare_head.n_gt": 26,
+    "obra_test.cr01_recall": 0.2,
+    "obra_val.person": 0.7165,
+    "obra_val.person.n_gt": 127,
+    "obra_val.helmet": 0.7978,
+    "obra_val.helmet.n_gt": 76,
+    "obra_val.vest": 0.4953,
+    "obra_val.vest.n_gt": 41,
+    "obra_val.bare_head": 0.1074,
+    "obra_val.bare_head.n_gt": 35,
+    "obra_val.cr01_recall": 0.4571,
+    "chv.person": 0.7862,
+    "chv.person.n_gt": 3887,
+    "chv.helmet": 0.8875,
+    "chv.helmet.n_gt": 3538,
+    "chv.vest": 0.5438,
+    "chv.vest.n_gt": 1784,
+    "chv.bare_head": null,
+    "chv.bare_head.n_gt": 0,
+    "chv.cr01_recall": null,
+    "shel5k.person": 0.6972,
+    "shel5k.person.n_gt": 20023,
+    "shel5k.helmet": 0.6263,
+    "shel5k.helmet.n_gt": 19252,
+    "shel5k.vest": null,
+    "shel5k.vest.n_gt": 0,
+    "shel5k.bare_head": 0.1237,
+    "shel5k.bare_head.n_gt": 6120,
+    "shel5k.cr01_recall": 0.1772
+  },
+  "resumen": [
+    {
+      "clave": "map50",
+      "nombre": "mAP50 ponderado (bench_v3, 6.477 imágenes)",
+      "valor": 0.510513,
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "ap50_person",
+      "nombre": "AP50 person (ponderado por n_gt)",
+      "valor": 0.711231,
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "ap50_helmet",
+      "nombre": "AP50 helmet (ponderado por n_gt)",
+      "valor": 0.667786,
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "ap50_vest",
+      "nombre": "AP50 vest (ponderado por n_gt)",
+      "valor": 0.539838,
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "ap50_bare_head",
+      "nombre": "AP50 bare_head (ponderado por n_gt)",
+      "valor": 0.123197,
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "recall_cr01",
+      "nombre": "Recall CR-01 por la vía directa (bare_head)",
+      "valor": 0.179153,
+      "unidad": null,
+      "gen1": null,
+      "n": 5308
+    }
+  ],
+  "por_estrato": {
+    "obra_test": {
+      "mAP50": 0.4656,
+      "cr01_recall": 0.2,
+      "cr01_n_violators": 25,
+      "por_clase": {
+        "person": {
+          "AP50": 0.6287,
+          "n_gt": 135
+        },
+        "helmet": {
+          "AP50": 0.8058,
+          "n_gt": 83
+        },
+        "vest": {
+          "AP50": 0.4019,
+          "n_gt": 38
+        },
+        "bare_head": {
+          "AP50": 0.026,
+          "n_gt": 26
+        }
+      }
+    },
+    "obra_val": {
+      "mAP50": 0.5292,
+      "cr01_recall": 0.4571,
+      "cr01_n_violators": 35,
+      "por_clase": {
+        "person": {
+          "AP50": 0.7165,
+          "n_gt": 127
+        },
+        "helmet": {
+          "AP50": 0.7978,
+          "n_gt": 76
+        },
+        "vest": {
+          "AP50": 0.4953,
+          "n_gt": 41
+        },
+        "bare_head": {
+          "AP50": 0.1074,
+          "n_gt": 35
+        }
+      }
+    },
+    "chv": {
+      "mAP50": 0.7392,
+      "cr01_recall": null,
+      "cr01_n_violators": 0,
+      "por_clase": {
+        "person": {
+          "AP50": 0.7862,
+          "n_gt": 3887
+        },
+        "helmet": {
+          "AP50": 0.8875,
+          "n_gt": 3538
+        },
+        "vest": {
+          "AP50": 0.5438,
+          "n_gt": 1784
+        },
+        "bare_head": {
+          "AP50": null,
+          "n_gt": 0
+        }
+      }
+    },
+    "shel5k": {
+      "mAP50": 0.4824,
+      "cr01_recall": 0.1772,
+      "cr01_n_violators": 5248,
+      "por_clase": {
+        "person": {
+          "AP50": 0.6972,
+          "n_gt": 20023
+        },
+        "helmet": {
+          "AP50": 0.6263,
+          "n_gt": 19252
+        },
+        "vest": {
+          "AP50": null,
+          "n_gt": 0
+        },
+        "bare_head": {
+          "AP50": 0.1237,
+          "n_gt": 6120
+        }
+      }
+    }
+  },
+  "veredicto": {
+    "confirmado": {
+      "valor": "otra_combinacion",
+      "motivo": "Combinacion nueva, 800 contra 560 px a caja 0,35: mAP50 0,5105 contra 0,5083 (+0,002); al lado de la Tabla 51, no en su reemplazo",
+      "quien": "equipo E-OVRT-VDP",
+      "fecha": "2026-10-31T03:24:35+00:00"
+    },
+    "referencia": null,
+    "propuesto": "otra_combinacion",
+    "motivo": "Combinación nueva (doc 137 §3.3, decisión abierta 4 del doc 134 §11, aprobada el 2026-10-29). El brazo de 800 px corre en la Victus; el de 560 px con caja 0,35 sale de las corridas de IMG-01 filtradas a puntaje > 0,35 (`clips.reumbralar`, exacto para GDINO: el umbral se aplica antes del NMS) y se evalúa con el mismo código. Va en `comparador` del resultado, con la diferencia 800 − 560 por clase y por estrato.\n",
+    "diferencias": {}
+  },
+  "comparador": {
+    "de": "IMG-01",
+    "umbral": 0.35,
+    "descripcion": "gdino-tiny-560 con caja 0,35 (corridas de IMG-01 re-umbraladas)",
+    "reumbral": {
+      "obra_test": {
+        "detecciones_antes": 423,
+        "detecciones_despues": 330,
+        "puntaje_igual_al_umbral": 0
+      },
+      "obra_val": {
+        "detecciones_antes": 449,
+        "detecciones_despues": 375,
+        "puntaje_igual_al_umbral": 0
+      },
+      "chv": {
+        "detecciones_antes": 12658,
+        "detecciones_despues": 10846,
+        "puntaje_igual_al_umbral": 5
+      },
+      "shel5k": {
+        "detecciones_antes": 49263,
+        "detecciones_despues": 39213,
+        "puntaje_igual_al_umbral": 23
+      }
+    },
+    "metricas": {
+      "mAP50": 0.508254,
+      "ap50_person": 0.709876,
+      "ap50_helmet": 0.665934,
+      "ap50_vest": 0.551475,
+      "ap50_bare_head": 0.10573,
+      "recall_cr01": 0.16276,
+      "n_violadores_cr01": 5308,
+      "obra_test.person": 0.6231,
+      "obra_test.person.n_gt": 135,
+      "obra_test.helmet": 0.7198,
+      "obra_test.helmet.n_gt": 83,
+      "obra_test.vest": 0.465,
+      "obra_test.vest.n_gt": 38,
+      "obra_test.bare_head": 0.0227,
+      "obra_test.bare_head.n_gt": 26,
+      "obra_test.cr01_recall": 0.16,
+      "obra_val.person": 0.7157,
+      "obra_val.person.n_gt": 127,
+      "obra_val.helmet": 0.7892,
+      "obra_val.helmet.n_gt": 76,
+      "obra_val.vest": 0.5609,
+      "obra_val.vest.n_gt": 41,
+      "obra_val.bare_head": 0.0152,
+      "obra_val.bare_head.n_gt": 35,
+      "obra_val.cr01_recall": 0.4286,
+      "chv.person": 0.7883,
+      "chv.person.n_gt": 3887,
+      "chv.helmet": 0.8864,
+      "chv.helmet.n_gt": 3538,
+      "chv.vest": 0.5531,
+      "chv.vest.n_gt": 1784,
+      "chv.bare_head": null,
+      "chv.bare_head.n_gt": 0,
+      "chv.cr01_recall": null,
+      "shel5k.person": 0.6952,
+      "shel5k.person.n_gt": 20023,
+      "shel5k.helmet": 0.6247,
+      "shel5k.helmet.n_gt": 19252,
+      "shel5k.vest": null,
+      "shel5k.vest.n_gt": 0,
+      "shel5k.bare_head": 0.1066,
+      "shel5k.bare_head.n_gt": 6120,
+      "shel5k.cr01_recall": 0.161
+    },
+    "delta": {
+      "mAP50": 0.002259,
+      "ap50_person": 0.001355,
+      "ap50_helmet": 0.001852,
+      "ap50_vest": -0.011637,
+      "ap50_bare_head": 0.017467,
+      "obra_test.person": 0.0056,
+      "obra_test.helmet": 0.086,
+      "obra_test.vest": -0.0631,
+      "obra_test.bare_head": 0.0033,
+      "obra_val.person": 0.0008,
+      "obra_val.helmet": 0.0086,
+      "obra_val.vest": -0.0656,
+      "obra_val.bare_head": 0.0922,
+      "chv.person": -0.0021,
+      "chv.helmet": 0.0011,
+      "chv.vest": -0.0093,
+      "chv.bare_head": null,
+      "shel5k.person": 0.002,
+      "shel5k.helmet": 0.0016,
+      "shel5k.vest": null,
+      "shel5k.bare_head": 0.0171
+    }
+  }
+}

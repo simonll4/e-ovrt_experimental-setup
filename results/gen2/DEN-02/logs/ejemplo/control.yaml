@@ -1,0 +1,24 @@
+run:
+  id: null
+  scenario: DBE
+  name: gen2_den02_a_p1_c02
+  description: 'Generación 2, DEN-02: Densidad de evidencia: sujeto, stride 7 (R2)
+    — a_p1_c02'
+input:
+  type: media_jsonl
+  path: (la completa el runner de la consola)
+  track_persons: true
+patterns:
+  file: $EOVRT_WORKSPACE/e-ovrt_control-plane/configs/patterns/cr01_cr02_v2_subject.yaml
+  active_ids:
+  - CR-01
+  - CR-02
+outputs:
+  base_dir: $EOVRT_WORKSPACE/e-ovrt_control-plane/runs
+  save_pattern_events_jsonl: true
+  save_alerts_jsonl: true
+  save_metrics_jsonl: true
+  save_errors_jsonl: true
+  save_summary_json: true
+logging:
+  level: WARNING

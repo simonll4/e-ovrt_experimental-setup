@@ -1,0 +1,123 @@
+{
+  "schema": "resultado.gen2.v1",
+  "id": "EXT-01",
+  "titulo": "Clase nueva sin entrenar: machinery en obra y máquinas en MOCS",
+  "informe": [
+    "Tabla 51 (extensibilidad)",
+    "§17.5.3"
+  ],
+  "generado": "2026-10-30T22:06:39+00:00",
+  "familia": "clase_nueva",
+  "estado": "completo",
+  "metricas": {
+    "ap50_machinery_obra": 0.6618,
+    "ap50_vehicle_obra": 0.0,
+    "ap50_vehicle_sin_machinery": 0.0257,
+    "ap50_person_vs_worker_mocs": 0.6101,
+    "mocs_excavator_imgs@0.50": 62,
+    "mocs_dump_truck_imgs@0.50": 4,
+    "mocs_tower_crane_imgs@0.50": 34
+  },
+  "resumen": [
+    {
+      "clave": "ap50_machinery_obra",
+      "nombre": "AP50 machinery (obra, 147 imgs, clase jamás configurada)",
+      "valor": 0.6618,
+      "unidad": null,
+      "gen1": 0.6618
+    },
+    {
+      "clave": "ap50_vehicle_obra",
+      "nombre": "AP50 vehicle (obra, con machinery en el caption)",
+      "valor": 0.0,
+      "unidad": null,
+      "gen1": 0.0
+    },
+    {
+      "clave": "ap50_vehicle_sin_machinery",
+      "nombre": "AP50 vehicle (obra, sin machinery en el caption)",
+      "valor": 0.0257,
+      "unidad": null,
+      "gen1": 0.0257
+    },
+    {
+      "clave": "ap50_person_vs_worker_mocs",
+      "nombre": "AP50 person contra Worker (MOCS valid, 151 imgs)",
+      "valor": 0.6101,
+      "unidad": null,
+      "gen1": 0.6101
+    }
+  ],
+  "puntajes": {
+    "bench_obra/machinery": {
+      "class": "machinery",
+      "AP50": 0.6618,
+      "n_gt": 99,
+      "n_det": 111,
+      "n_tp": 73,
+      "n_fp": 38,
+      "recall": 0.7374,
+      "precision": 0.6577
+    },
+    "bench_obra/vehicle": {
+      "class": "vehicle",
+      "AP50": 0.0,
+      "n_gt": 76,
+      "n_det": 0,
+      "n_tp": 0,
+      "n_fp": 0,
+      "recall": 0.0,
+      "precision": 0.0
+    },
+    "bench_obra/vehicle_sin_machinery": {
+      "class": "vehicle",
+      "AP50": 0.0257,
+      "n_gt": 76,
+      "n_det": 106,
+      "n_tp": 13,
+      "n_fp": 93,
+      "recall": 0.1711,
+      "precision": 0.1226
+    },
+    "mocs/person_vs_worker": {
+      "class": "person",
+      "AP50": 0.6101,
+      "n_gt": 507,
+      "n_det": 456,
+      "n_tp": 342,
+      "n_fp": 114,
+      "recall": 0.6746,
+      "precision": 0.75
+    },
+    "mocs/maquinas_sin_gt": {
+      "imgs_total": 151,
+      "excavator": {
+        "imgs_con_deteccion@0.30": 118,
+        "imgs_con_deteccion@0.50": 62,
+        "total_detecciones": 143
+      },
+      "dump_truck": {
+        "imgs_con_deteccion@0.30": 14,
+        "imgs_con_deteccion@0.50": 4,
+        "total_detecciones": 17
+      },
+      "tower_crane": {
+        "imgs_con_deteccion@0.30": 93,
+        "imgs_con_deteccion@0.50": 34,
+        "total_detecciones": 155
+      }
+    }
+  },
+  "veredicto": {
+    "confirmado": {
+      "valor": "identico",
+      "motivo": "Coincide con la referencia del pre-registro valor por valor (revisado el 2026-10-31 sobre el zip de results/gen2; doc 134 13.12)",
+      "quien": "equipo E-OVRT-VDP",
+      "fecha": "2026-10-31T03:24:14+00:00"
+    },
+    "referencia": "docs/operacion/datos/94-piloto-clase-nueva/resultados.json",
+    "propuesto": "identico",
+    "motivo": "los 7 campos coinciden con la generación 1",
+    "diferencias": {}
+  }
+}

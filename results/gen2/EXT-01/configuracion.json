@@ -1,0 +1,135 @@
+{
+  "prompts": {
+    "obra_val": {
+      "set_id": "clase_nueva_v1",
+      "fuentes": {
+        "prompts/clase_nueva_v1.yaml": {
+          "status": "exploratory",
+          "frozen_sha256": null,
+          "clases_sha256": "3871bca9c1d3e663dfd5475725ae5651c6261569f70bf1003ffcc2d8ab327889"
+        }
+      },
+      "payload_sha256": "9228f83b5e5b3a4f30633b1209d25c4f2d24c820c2911d7248d7b53c43401a87"
+    },
+    "obra_test": {
+      "set_id": "clase_nueva_v1",
+      "fuentes": {
+        "prompts/clase_nueva_v1.yaml": {
+          "status": "exploratory",
+          "frozen_sha256": null,
+          "clases_sha256": "3871bca9c1d3e663dfd5475725ae5651c6261569f70bf1003ffcc2d8ab327889"
+        }
+      },
+      "payload_sha256": "9228f83b5e5b3a4f30633b1209d25c4f2d24c820c2911d7248d7b53c43401a87"
+    },
+    "mocs_valid": {
+      "set_id": "clase_nueva_v1",
+      "fuentes": {
+        "prompts/clase_nueva_v1.yaml": {
+          "status": "exploratory",
+          "frozen_sha256": null,
+          "clases_sha256": "3871bca9c1d3e663dfd5475725ae5651c6261569f70bf1003ffcc2d8ab327889"
+        }
+      },
+      "payload_sha256": "6ba6c0b0ddb34eccb0eb705bda63451cee35c2f51d0ef497eb933a77e0870f23"
+    },
+    "vehiculo_val": {
+      "set_id": "clase_nueva_v1",
+      "fuentes": {
+        "prompts/clase_nueva_v1.yaml": {
+          "status": "exploratory",
+          "frozen_sha256": null,
+          "clases_sha256": "3871bca9c1d3e663dfd5475725ae5651c6261569f70bf1003ffcc2d8ab327889"
+        }
+      },
+      "payload_sha256": "89c18cde10f2992e071e3a663f7f06545cee45a712e3c0e93364e2f5616fb374"
+    },
+    "vehiculo_test": {
+      "set_id": "clase_nueva_v1",
+      "fuentes": {
+        "prompts/clase_nueva_v1.yaml": {
+          "status": "exploratory",
+          "frozen_sha256": null,
+          "clases_sha256": "3871bca9c1d3e663dfd5475725ae5651c6261569f70bf1003ffcc2d8ab327889"
+        }
+      },
+      "payload_sha256": "89c18cde10f2992e071e3a663f7f06545cee45a712e3c0e93364e2f5616fb374"
+    }
+  },
+  "modelo_cargado": {
+    "service_url": "http://localhost:8080",
+    "healthy": true,
+    "ready": true,
+    "model": {
+      "ref": "grounding-dino/gdino-tiny-560",
+      "name": "grounding_dino",
+      "adapter": "grounding_dino",
+      "device": "cuda",
+      "thresholds": {
+        "box": 0.3,
+        "text": 0.25,
+        "confidence": 0.25,
+        "iou": 0.5
+      },
+      "runtime": {
+        "half_precision": true,
+        "warmup": true
+      }
+    }
+  },
+  "corridas": [
+    {
+      "id": "obra_val",
+      "imagenes": "datasets/raw/construction_site_safety/valid/images",
+      "clases": [
+        "person",
+        "helmet",
+        "vest",
+        "machinery",
+        "vehicle"
+      ]
+    },
+    {
+      "id": "obra_test",
+      "imagenes": "datasets/raw/construction_site_safety/test/images",
+      "clases": [
+        "person",
+        "helmet",
+        "vest",
+        "machinery",
+        "vehicle"
+      ]
+    },
+    {
+      "id": "mocs_valid",
+      "imagenes": "datasets/raw/MOCS/valid",
+      "clases": [
+        "person",
+        "excavator",
+        "dump_truck",
+        "tower_crane"
+      ],
+      "previews": true
+    },
+    {
+      "id": "vehiculo_val",
+      "imagenes": "datasets/raw/construction_site_safety/valid/images",
+      "clases": [
+        "person",
+        "helmet",
+        "vest",
+        "vehicle"
+      ]
+    },
+    {
+      "id": "vehiculo_test",
+      "imagenes": "datasets/raw/construction_site_safety/test/images",
+      "clases": [
+        "person",
+        "helmet",
+        "vest",
+        "vehicle"
+      ]
+    }
+  ]
+}

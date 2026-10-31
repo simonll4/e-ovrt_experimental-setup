@@ -1,0 +1,3 @@
+[2026-10-29T23:32:40+00:00] python -m tools.evidencia correr F1
+[2026-10-29T23:33:41+00:00] /usr/local/bin/python $EOVRT_WORKSPACE/e-ovrt_datasets/datasets/scripts/curate/build_bench_strata.py --verify
+[2026-10-31T03:23:46+00:00] veredicto confirmado: identico (equipo E-OVRT-VDP): Coincide con la referencia del pre-registro valor por valor (revisado el 2026-10-31 sobre el zip de results/gen2; doc 134 13.12)

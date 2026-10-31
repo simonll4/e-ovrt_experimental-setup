@@ -1,0 +1,9 @@
+{
+  "corpus": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/DIST-01/corpus",
+  "runs": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/DIST-01/corpus_runs.json",
+  "salida": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/DIST-01/ledgers",
+  "broker_host": "mosquitto",
+  "broker_port": 1883,
+  "endpoint": "tcp://127.0.0.1:15558",
+  "ledger_tmp": "/tmp/eovrt-dist01"
+}

@@ -1,0 +1,171 @@
+{
+  "principal": {
+    "falsas_alarmas": 323,
+    "por_causa": {
+      "F-sin-persona": 84,
+      "F-parcial": 15,
+      "U": 21,
+      "V": 1,
+      "P-no-detectado": 109,
+      "P-fuera-region": 0,
+      "P-disputado": 8,
+      "P-intermitente": 85
+    },
+    "por_causa_gruesa": {
+      "tiene_epp": 202,
+      "no_juzgable": 21,
+      "sin_persona": 99,
+      "falta_real": 1
+    },
+    "fragmentacion": {
+      "alertas_sobre_personas_reales": 224,
+      "pares_persona_condicion": 131,
+      "factor": 1.7099,
+      "alertas_extra": 93,
+      "pares_con_mas_de_una_alerta": 59
+    },
+    "solapadas": 37,
+    "por_banda": {
+      "0-80": {
+        "U": 3,
+        "P-no-detectado": 10
+      },
+      "120-220": {
+        "P-no-detectado": 54,
+        "P-intermitente": 47,
+        "U": 13,
+        "F-parcial": 3,
+        "F-sin-persona": 5,
+        "V": 1,
+        "P-disputado": 3
+      },
+      "220-320": {
+        "P-intermitente": 27,
+        "U": 5,
+        "P-no-detectado": 15,
+        "F-sin-persona": 4,
+        "P-disputado": 4
+      },
+      "80-120": {
+        "P-intermitente": 11,
+        "P-no-detectado": 30,
+        "F-sin-persona": 3,
+        "P-disputado": 1
+      },
+      "sin_persona": {
+        "F-sin-persona": 72,
+        "F-parcial": 12
+      }
+    },
+    "por_iluminacion": {
+      "diurna": {
+        "P-no-detectado": 108,
+        "P-intermitente": 83,
+        "U": 20,
+        "F-parcial": 15,
+        "F-sin-persona": 83,
+        "V": 1,
+        "P-disputado": 8
+      },
+      "nocturna": {
+        "F-sin-persona": 1,
+        "P-intermitente": 2,
+        "U": 1,
+        "P-no-detectado": 1
+      }
+    },
+    "por_clip": {
+      "v01_c01": {
+        "P-no-detectado": 11,
+        "P-intermitente": 3,
+        "U": 1
+      },
+      "v02_c01": {
+        "P-intermitente": 3,
+        "F-parcial": 1
+      },
+      "v03_c01": {
+        "P-intermitente": 1,
+        "F-sin-persona": 1
+      },
+      "v03_c02": {
+        "F-sin-persona": 18,
+        "U": 1,
+        "P-no-detectado": 1
+      },
+      "v04_c02": {
+        "F-sin-persona": 1,
+        "P-intermitente": 1,
+        "U": 1,
+        "P-no-detectado": 1
+      },
+      "v04_c03": {
+        "P-intermitente": 1
+      },
+      "v05_c01": {
+        "F-sin-persona": 18,
+        "P-intermitente": 1,
+        "P-no-detectado": 3,
+        "V": 1
+      },
+      "v06_c01": {
+        "P-no-detectado": 71,
+        "F-sin-persona": 32,
+        "U": 11,
+        "P-intermitente": 58,
+        "F-parcial": 10,
+        "P-disputado": 8
+      },
+      "v07_c01": {
+        "P-intermitente": 11,
+        "P-no-detectado": 7,
+        "U": 2,
+        "F-sin-persona": 2
+      },
+      "v09_c01": {
+        "P-no-detectado": 9,
+        "P-intermitente": 6,
+        "U": 1,
+        "F-sin-persona": 6
+      },
+      "v10_c01": {
+        "F-sin-persona": 6,
+        "U": 4,
+        "P-no-detectado": 6,
+        "F-parcial": 4
+      }
+    },
+    "exposicion": {
+      "persona_horas": 1.4412,
+      "clip_horas": 0.2367
+    },
+    "tasas": {
+      "sujeto_por_persona_hora": 224.121,
+      "escena_por_clip_hora": 109.825,
+      "sujeto_por_clip_hora": 1364.361
+    },
+    "falsas_alarmas_escena": 26,
+    "discrepancias_reconstruccion": 0
+  },
+  "revision_humana": {
+    "estado": "completa",
+    "revisadas": 31,
+    "de": 31,
+    "acuerdo": 0.8387,
+    "kappa": 0.7332,
+    "matriz": {
+      "falta_real|tiene_epp": 1,
+      "no_juzgable|no_juzgable": 3,
+      "no_juzgable|tiene_epp": 2,
+      "sin_persona|sin_persona": 9,
+      "sin_persona|tiene_epp": 1,
+      "tiene_epp|no_juzgable": 1,
+      "tiene_epp|tiene_epp": 14
+    },
+    "f_que_son_persona": 1,
+    "f_revisadas": 10,
+    "asistida_por_ia": true,
+    "con_propuesta_ia": 31,
+    "cambios_de_la_persona": 2
+  }
+}

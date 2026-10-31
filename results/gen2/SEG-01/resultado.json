@@ -1,0 +1,92 @@
+{
+  "schema": "resultado.gen2.v1",
+  "id": "SEG-01",
+  "titulo": "Fragmentación de identidad del rastreador de la plataforma (47 clips)",
+  "informe": [
+    "§17.5.7",
+    "§18.6"
+  ],
+  "generado": "2026-10-31T01:28:22+00:00",
+  "familia": "analisis",
+  "estado": "completo",
+  "metricas": {
+    "rodaje.cobertura": 0.9873,
+    "rodaje.cambios_de_identidad": 32,
+    "rodaje.cambios_por_persona_minuto": 1.5391,
+    "rodaje.tracks_por_persona_media": 1.6739,
+    "obra_real.cobertura": 0.8433,
+    "obra_real.cambios_de_identidad": 2012,
+    "obra_real.cambios_por_persona_minuto": 22.2021,
+    "obra_real.tracks_por_persona_media": 7.3455
+  },
+  "resumen": [
+    {
+      "clave": "rodaje.cobertura",
+      "nombre": "Cobertura (rodaje)",
+      "valor": 0.9873,
+      "unidad": null,
+      "gen1": 0.9873
+    },
+    {
+      "clave": "rodaje.cambios_de_identidad",
+      "nombre": "Cambios de identidad (rodaje)",
+      "valor": 32,
+      "unidad": null,
+      "gen1": 32
+    },
+    {
+      "clave": "rodaje.cambios_por_persona_minuto",
+      "nombre": "Cambios por persona minuto (rodaje)",
+      "valor": 1.5391,
+      "unidad": null,
+      "gen1": 1.5391
+    },
+    {
+      "clave": "rodaje.tracks_por_persona_media",
+      "nombre": "Tracks por persona media (rodaje)",
+      "valor": 1.6739,
+      "unidad": null,
+      "gen1": 1.6739
+    },
+    {
+      "clave": "obra_real.cobertura",
+      "nombre": "Cobertura (obra_real)",
+      "valor": 0.8433,
+      "unidad": null,
+      "gen1": 0.8433
+    },
+    {
+      "clave": "obra_real.cambios_de_identidad",
+      "nombre": "Cambios de identidad (obra_real)",
+      "valor": 2012,
+      "unidad": null,
+      "gen1": 2012
+    },
+    {
+      "clave": "obra_real.cambios_por_persona_minuto",
+      "nombre": "Cambios por persona minuto (obra_real)",
+      "valor": 22.2021,
+      "unidad": null,
+      "gen1": 22.2021
+    },
+    {
+      "clave": "obra_real.tracks_por_persona_media",
+      "nombre": "Tracks por persona media (obra_real)",
+      "valor": 7.3455,
+      "unidad": null,
+      "gen1": 7.3455
+    }
+  ],
+  "veredicto": {
+    "confirmado": {
+      "valor": "identico",
+      "motivo": "Coincide con la referencia del pre-registro valor por valor (revisado el 2026-10-31 sobre el zip de results/gen2; doc 134 13.12)",
+      "quien": "equipo E-OVRT-VDP",
+      "fecha": "2026-10-31T03:24:24+00:00"
+    },
+    "referencia": "docs/operacion/datos/137-sondeo-falsas-alarmas-obra-real/piloto_gen1.py: este mismo código sobre las identidades de la generación 1 (rodaje: tracked de G1, doc 89; obra real: tracked de I2, doc 110), con la referencia vigente (2026-10-29).\n",
+    "propuesto": "identico",
+    "motivo": "los 8 campos coinciden con la generación 1",
+    "diferencias": {}
+  }
+}

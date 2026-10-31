@@ -1,0 +1,3 @@
+[2026-10-30T02:55:39+00:00] --forzar: la carpeta anterior se archivó en INT-03.descartada-2026-10-30T025539+0000
+[2026-10-30T02:55:39+00:00] python -m tools.evidencia correr INT-03 --forzar
+[2026-10-31T03:23:50+00:00] veredicto confirmado: identico (equipo E-OVRT-VDP): Coincide con la referencia del pre-registro valor por valor (revisado el 2026-10-31 sobre el zip de results/gen2; doc 134 13.12)

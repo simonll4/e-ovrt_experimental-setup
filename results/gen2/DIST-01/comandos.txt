@@ -1,0 +1,3 @@
+[2026-10-31T01:29:07+00:00] python -m tools.evidencia correr F6
+[2026-10-31T01:29:12+00:00] docker exec -i eovrt-distribution-1 python3 - '<parametros>' < tools/evidencia/dist01_contenedor.py
+[2026-10-31T03:24:41+00:00] veredicto confirmado: otra_combinacion (equipo E-OVRT-VDP): Otro broker (mosquitto) y otro corpus (corridas de la gen 2): p95 22,9 ms en 339 entregas

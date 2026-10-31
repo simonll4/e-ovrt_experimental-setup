@@ -1,0 +1,77 @@
+{
+  "schema": "resultado.gen2.v1",
+  "id": "VIS-01",
+  "titulo": "Cuadros anotados: aciertos y fallos del rodaje y de obra real",
+  "informe": [
+    "§17.5.4",
+    "§18.3",
+    "Anexo E"
+  ],
+  "generado": "2026-10-31T03:23:00+00:00",
+  "familia": "figuras",
+  "estado": "completo",
+  "metricas": {
+    "rodaje.exito": 7,
+    "rodaje.fallo_falsa_alarma": 12,
+    "rodaje.fallo_perdido": 6,
+    "internet.exito": 2,
+    "internet.fallo_perdido": 0,
+    "internet.obra_real": 31
+  },
+  "resumen": [
+    {
+      "clave": "rodaje.exito",
+      "nombre": "Cuadros: rodaje.exito",
+      "valor": 7,
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "rodaje.fallo_falsa_alarma",
+      "nombre": "Cuadros: rodaje.fallo falsa alarma",
+      "valor": 12,
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "rodaje.fallo_perdido",
+      "nombre": "Cuadros: rodaje.fallo perdido",
+      "valor": 6,
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "internet.exito",
+      "nombre": "Cuadros: internet.exito",
+      "valor": 2,
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "internet.fallo_perdido",
+      "nombre": "Cuadros: internet.fallo perdido",
+      "valor": 0,
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "internet.obra_real",
+      "nombre": "Cuadros: internet.obra real",
+      "valor": 31,
+      "unidad": null,
+      "gen1": null
+    }
+  ],
+  "veredicto": {
+    "confirmado": {
+      "valor": "otra_combinacion",
+      "motivo": "Figuras nuevas de la gen 2; rodaje 7 aciertos, 12 falsas alarmas y 6 perdidos (perdidos derivados con la ventana del evaluador desde el 2026-10-31)",
+      "quien": "equipo E-OVRT-VDP",
+      "fecha": "2026-10-31T03:24:49+00:00"
+    },
+    "propuesto": "otra_combinacion",
+    "referencia": null,
+    "motivo": "figuras nuevas de la generación 2: no hay cifra de la generación 1 que comparar",
+    "diferencias": {}
+  }
+}

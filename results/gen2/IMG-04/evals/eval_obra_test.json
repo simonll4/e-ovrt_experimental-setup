@@ -1,0 +1,39 @@
+{
+  "type": "perception",
+  "run_id": "run_20261030_224840_dbe_grounding_dino_cb7664",
+  "benchmark": "construction_site_safety_bench_obra_test",
+  "iou_threshold": 0.5,
+  "per_class": [
+    {
+      "class_name": "person",
+      "AP50": 0.6287,
+      "n_gt": 135,
+      "n_det": 108
+    },
+    {
+      "class_name": "helmet",
+      "AP50": 0.8058,
+      "n_gt": 83,
+      "n_det": 76
+    },
+    {
+      "class_name": "vest",
+      "AP50": 0.4019,
+      "n_gt": 38,
+      "n_det": 47
+    },
+    {
+      "class_name": "bare_head",
+      "AP50": 0.026,
+      "n_gt": 26,
+      "n_det": 26
+    }
+  ],
+  "mAP50": 0.4656,
+  "cr01_detection_recall": 0.2,
+  "evaluated_at": "2026-10-30T23:10:23.148271+00:00",
+  "cr01_n_violators": 25,
+  "cr01_n_detected": 5,
+  "bench_coco": "$EOVRT_WORKSPACE/e-ovrt_datasets/datasets/processed/coco/bench/curated/construction_site_safety_bench_obra_test.json",
+  "person_gt": "$EOVRT_WORKSPACE/e-ovrt_datasets/datasets/processed/coco/bench/curated/person_gt_bench_obra.json"
+}

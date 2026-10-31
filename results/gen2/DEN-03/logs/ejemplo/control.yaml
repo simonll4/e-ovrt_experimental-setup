@@ -1,0 +1,23 @@
+run:
+  id: null
+  scenario: DBE
+  name: gen2_den03_a_p1_c02
+  description: 'Generación 2, DEN-03: Densidad de evidencia: escena, stride 15 (2,00
+    fps; R3) — a_p1_c02'
+input:
+  type: media_jsonl
+  path: (la completa el runner de la consola)
+patterns:
+  file: $EOVRT_WORKSPACE/e-ovrt_control-plane/configs/patterns/cr01_cr02_v2.yaml
+  active_ids:
+  - CR-01
+  - CR-02
+outputs:
+  base_dir: $EOVRT_WORKSPACE/e-ovrt_control-plane/runs
+  save_pattern_events_jsonl: true
+  save_alerts_jsonl: true
+  save_metrics_jsonl: true
+  save_errors_jsonl: true
+  save_summary_json: true
+logging:
+  level: WARNING

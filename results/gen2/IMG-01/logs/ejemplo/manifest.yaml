@@ -1,0 +1,12 @@
+schema_version: experiment.manifest.v1
+slug: gen2_img01
+experiment_id: exp_20261030T220640Z_gen2_img01_obra_test
+runs:
+  media:
+    service: media-plane
+    config: $EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/IMG-01/gen2_img01_obra_test/media.yaml
+    mode: run
+sequencing: media_first
+timeout_s: 7200.0
+changes: 'generación 2 — prueba IMG-01 (Percepción sobre bench_v3: gdino-tiny-560
+  (campeón))'

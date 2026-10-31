@@ -1,0 +1,2 @@
+[2026-10-31T01:15:25+00:00] python -m tools.evidencia correr F5
+[2026-10-31T03:24:45+00:00] veredicto confirmado: equivalente_con_diferencia (equipo E-OVRT-VDP): GT corregido (10-26): G1-T1 baja de +0,141 a +0,058 y no excluye el cero; R4-R3 tampoco (IC 0,000 a 0,204); R2-R1 y R6-R5 si

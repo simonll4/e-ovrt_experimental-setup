@@ -1,0 +1,19 @@
+schema_version: experiment.manifest.v1
+slug: gen2_alr10
+experiment_id: exp_20261031T010723Z_gen2_alr10_v01_c01
+runs:
+  media:
+    service: media-plane
+    config: $EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-07/gen2_alr07_v01_c01/media.yaml
+    mode: run
+    reuse_run_dir: $EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/ALR-10/reumbral_v01_c01
+  control:
+    service: control-plane
+    config: $EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-10/gen2_alr10_v01_c01/control.yaml
+    mode: replay
+sequencing: media_first
+clip_id: v01_c01
+ground_truth: $EOVRT_WORKSPACE/e-ovrt_datasets/datasets/processed/clip_bench/gt/v01_c01.json
+timeout_s: 1800.0
+changes: generación 2 — prueba ALR-10 (Obra real a 560 px con caja 0,35 (el campeón
+  re-umbralado), escena y sujeto)

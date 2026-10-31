@@ -1,0 +1,2 @@
+[2026-10-31T01:17:02+00:00] python -m tools.evidencia correr F5
+[2026-10-31T03:24:39+00:00] veredicto confirmado: otra_combinacion (equipo E-OVRT-VDP): Corre sobre las alertas de la gen 2; V1 ok en las 14 series; fracciones identicas al piloto con el GT corregido salvo C2, que sube

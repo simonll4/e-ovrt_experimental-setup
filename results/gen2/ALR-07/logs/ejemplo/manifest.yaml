@@ -1,0 +1,18 @@
+schema_version: experiment.manifest.v1
+slug: gen2_alr07
+experiment_id: exp_20261030T080618Z_gen2_alr07_v01_c01
+runs:
+  media:
+    service: media-plane
+    config: $EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-07/gen2_alr07_v01_c01/media.yaml
+    mode: run
+  control:
+    service: control-plane
+    config: $EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-07/gen2_alr07_v01_c01/control.yaml
+    mode: replay
+sequencing: media_first
+clip_id: v01_c01
+ground_truth: $EOVRT_WORKSPACE/e-ovrt_datasets/datasets/processed/clip_bench/gt/v01_c01.json
+timeout_s: 7200.0
+changes: generación 2 — prueba ALR-07 (Obra real (estrato B, 13 clips de internet),
+  escena (I1))

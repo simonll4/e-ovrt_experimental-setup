@@ -1,0 +1,122 @@
+{
+  "prompts": {
+    "eind": {
+      "set_id": "eind_v1",
+      "fuentes": {
+        "prompts/eind_v1.yaml": {
+          "status": "frozen",
+          "frozen_sha256": "7a0126f45eb1362a2cfcc67458caa307357dc3f7684188fae6486486cd5ed770",
+          "clases_sha256": "7a0126f45eb1362a2cfcc67458caa307357dc3f7684188fae6486486cd5ed770"
+        }
+      },
+      "payload_sha256": "c754a4df5960013d84f841fb6c0eda8905c5487e119a655773ed524e4155307a"
+    },
+    "cr01_neg": {
+      "set_id": "edir_v1",
+      "fuentes": {
+        "prompts/edir_v1.yaml": {
+          "status": "frozen",
+          "frozen_sha256": "a1278d0c34cd13beb759a1fe10b13c7096f147f7be23154f28a79454b5643703",
+          "clases_sha256": "a1278d0c34cd13beb759a1fe10b13c7096f147f7be23154f28a79454b5643703"
+        }
+      },
+      "payload_sha256": "392b8e0b51bac525c618a456739b97c145f9a2aa9ef6e00cba8eb26ac004e311"
+    },
+    "cr01_spec": {
+      "set_id": "edir_v1",
+      "fuentes": {
+        "prompts/edir_v1.yaml": {
+          "status": "frozen",
+          "frozen_sha256": "a1278d0c34cd13beb759a1fe10b13c7096f147f7be23154f28a79454b5643703",
+          "clases_sha256": "a1278d0c34cd13beb759a1fe10b13c7096f147f7be23154f28a79454b5643703"
+        }
+      },
+      "payload_sha256": "3d5bec3c2efc1ff181c2f0ba1b61bf12bc95f8d060950d511934df719ad470e4"
+    },
+    "cr01_obs": {
+      "set_id": "edir_v1",
+      "fuentes": {
+        "prompts/edir_v1.yaml": {
+          "status": "frozen",
+          "frozen_sha256": "a1278d0c34cd13beb759a1fe10b13c7096f147f7be23154f28a79454b5643703",
+          "clases_sha256": "a1278d0c34cd13beb759a1fe10b13c7096f147f7be23154f28a79454b5643703"
+        }
+      },
+      "payload_sha256": "6478500074b1e44357a8e1c24941aae7fa756df8e20bbb73f1f8b4828c3f48d8"
+    },
+    "cr02_neg": {
+      "set_id": "edir_v1",
+      "fuentes": {
+        "prompts/edir_v1.yaml": {
+          "status": "frozen",
+          "frozen_sha256": "a1278d0c34cd13beb759a1fe10b13c7096f147f7be23154f28a79454b5643703",
+          "clases_sha256": "a1278d0c34cd13beb759a1fe10b13c7096f147f7be23154f28a79454b5643703"
+        }
+      },
+      "payload_sha256": "821cce757452a5650feebb9a4808be3535f5bc2a8ae874cb0a17a410e8135824"
+    },
+    "cr02_spec": {
+      "set_id": "edir_v1",
+      "fuentes": {
+        "prompts/edir_v1.yaml": {
+          "status": "frozen",
+          "frozen_sha256": "a1278d0c34cd13beb759a1fe10b13c7096f147f7be23154f28a79454b5643703",
+          "clases_sha256": "a1278d0c34cd13beb759a1fe10b13c7096f147f7be23154f28a79454b5643703"
+        }
+      },
+      "payload_sha256": "91e77e21f2ceead22aeced8b81970ffa451adf39f0f83d76975a5d5d64812193"
+    },
+    "cr02_obs": {
+      "set_id": "edir_v1",
+      "fuentes": {
+        "prompts/edir_v1.yaml": {
+          "status": "frozen",
+          "frozen_sha256": "a1278d0c34cd13beb759a1fe10b13c7096f147f7be23154f28a79454b5643703",
+          "clases_sha256": "a1278d0c34cd13beb759a1fe10b13c7096f147f7be23154f28a79454b5643703"
+        }
+      },
+      "payload_sha256": "a7dd158313049ba84ac2f88bc3d8d4439fe120f66b2df421f03da6309728b8e1"
+    }
+  },
+  "modelo_cargado": {
+    "service_url": "http://localhost:8080",
+    "healthy": true,
+    "ready": true,
+    "model": {
+      "ref": "grounding-dino/gdino-base-560",
+      "name": "grounding_dino",
+      "adapter": "grounding_dino",
+      "device": "cuda",
+      "thresholds": {
+        "box": 0.3,
+        "text": 0.25,
+        "confidence": 0.25,
+        "iou": 0.5
+      },
+      "runtime": {
+        "half_precision": true,
+        "warmup": true
+      }
+    }
+  },
+  "trabajos": [
+    "eind_bench_obra_val",
+    "edir_cr01_neg_bench_obra_val",
+    "edir_cr01_spec_bench_obra_val",
+    "edir_cr01_obs_bench_obra_val",
+    "edir_cr02_neg_bench_obra_val",
+    "edir_cr02_spec_bench_obra_val",
+    "edir_cr02_obs_bench_obra_val",
+    "eind_bench_obra_test",
+    "edir_cr01_neg_bench_obra_test",
+    "edir_cr01_spec_bench_obra_test",
+    "edir_cr01_obs_bench_obra_test",
+    "edir_cr02_neg_bench_obra_test",
+    "edir_cr02_spec_bench_obra_test",
+    "edir_cr02_obs_bench_obra_test",
+    "eind_shel5k",
+    "edir_cr01_neg_shel5k",
+    "edir_cr01_spec_shel5k",
+    "edir_cr01_obs_shel5k"
+  ]
+}

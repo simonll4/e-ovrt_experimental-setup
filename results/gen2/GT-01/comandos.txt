@@ -1,0 +1,2 @@
+[2026-10-29T23:32:38+00:00] python -m tools.evidencia correr F1
+[2026-10-31T03:23:44+00:00] veredicto confirmado: identico (equipo E-OVRT-VDP): Coincide con la referencia del pre-registro valor por valor (revisado el 2026-10-31 sobre el zip de results/gen2; doc 134 13.12)

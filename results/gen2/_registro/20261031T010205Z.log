@@ -1,0 +1,246 @@
+== ALR-02 — Alerta por episodio, granularidad por sujeto (G1)
+  [1/34] ALR-02 a_p1_c02
+  [2/34] ALR-02 a_p1_c03
+  [3/34] ALR-02 a_p1_c04
+  [4/34] ALR-02 a_p1_c05
+  [5/34] ALR-02 a_p1_c06
+  [6/34] ALR-02 a_p1_c07
+  [7/34] ALR-02 a_p1_c08
+  [8/34] ALR-02 a_p1_c09
+  [9/34] ALR-02 a_p1_c10
+  [10/34] ALR-02 a_p1_c11
+  [11/34] ALR-02 a_p1_c12
+  [12/34] ALR-02 a_p2_c01
+  [13/34] ALR-02 a_p2_c02
+  [14/34] ALR-02 a_p2_c03
+  [15/34] ALR-02 a_p2_c04
+  [16/34] ALR-02 a_p2_c05
+  [17/34] ALR-02 a_p3_c01
+  [18/34] ALR-02 a_p3_c02
+  [19/34] ALR-02 a_p4_c01
+  [20/34] ALR-02 a_p4_c02
+  [21/34] ALR-02 a_p5_c01
+  [22/34] ALR-02 a_p5_c02
+  [23/34] ALR-02 a_p6_c01
+  [24/34] ALR-02 a_p6_c02
+  [25/34] ALR-02 a_p7_c01
+  [26/34] ALR-02 a_p7_c02
+  [27/34] ALR-02 a_p7_c03
+  [28/34] ALR-02 a_p7_c04
+  [29/34] ALR-02 a_p8_c01
+  [30/34] ALR-02 a_p9_c01
+  [31/34] ALR-02 a_p9_c02
+  [32/34] ALR-02 a_p9_c03
+  [33/34] ALR-02 a_p9_c06
+  [34/34] ALR-02 a_p9_c08
+   ALR-02: {"estado": "completo", "f1": 0.898551, "veredicto": "identico"}
+== ALR-05 — Alerta por episodio con fusión E-IND ∨ E-DIR (H1)
+  [1/34] ALR-05 a_p1_c02
+  [2/34] ALR-05 a_p1_c03
+  [3/34] ALR-05 a_p1_c04
+  [4/34] ALR-05 a_p1_c05
+  [5/34] ALR-05 a_p1_c06
+  [6/34] ALR-05 a_p1_c07
+  [7/34] ALR-05 a_p1_c08
+  [8/34] ALR-05 a_p1_c09
+  [9/34] ALR-05 a_p1_c10
+  [10/34] ALR-05 a_p1_c11
+  [11/34] ALR-05 a_p1_c12
+  [12/34] ALR-05 a_p2_c01
+  [13/34] ALR-05 a_p2_c02
+  [14/34] ALR-05 a_p2_c03
+  [15/34] ALR-05 a_p2_c04
+  [16/34] ALR-05 a_p2_c05
+  [17/34] ALR-05 a_p3_c01
+  [18/34] ALR-05 a_p3_c02
+  [19/34] ALR-05 a_p4_c01
+  [20/34] ALR-05 a_p4_c02
+  [21/34] ALR-05 a_p5_c01
+  [22/34] ALR-05 a_p5_c02
+  [23/34] ALR-05 a_p6_c01
+  [24/34] ALR-05 a_p6_c02
+  [25/34] ALR-05 a_p7_c01
+  [26/34] ALR-05 a_p7_c02
+  [27/34] ALR-05 a_p7_c03
+  [28/34] ALR-05 a_p7_c04
+  [29/34] ALR-05 a_p8_c01
+  [30/34] ALR-05 a_p9_c01
+  [31/34] ALR-05 a_p9_c02
+  [32/34] ALR-05 a_p9_c03
+  [33/34] ALR-05 a_p9_c06
+  [34/34] ALR-05 a_p9_c08
+   ALR-05: {"estado": "completo", "f1": 0.325, "veredicto": "identico"}
+== ALR-08 — Obra real (estrato B), granularidad por sujeto (I2)
+  [1/13] ALR-08 v01_c01
+  [2/13] ALR-08 v01_c02
+  [3/13] ALR-08 v02_c01
+  [4/13] ALR-08 v03_c01
+  [5/13] ALR-08 v03_c02
+  [6/13] ALR-08 v04_c01
+  [7/13] ALR-08 v04_c02
+  [8/13] ALR-08 v04_c03
+  [9/13] ALR-08 v05_c01
+  [10/13] ALR-08 v06_c01
+  [11/13] ALR-08 v07_c01
+  [12/13] ALR-08 v09_c01
+  [13/13] ALR-08 v10_c01
+   ALR-08: {"estado": "completo", "f1": 0.190476, "veredicto": "identico"}
+== ALR-10 — Obra real a 560 px con caja 0,35 (el campeón re-umbralado), escena y sujeto
+  [1/13] ALR-10 v01_c01
+  [2/13] ALR-10 v01_c02
+  [3/13] ALR-10 v02_c01
+  [4/13] ALR-10 v03_c01
+  [5/13] ALR-10 v03_c02
+  [6/13] ALR-10 v04_c01
+  [7/13] ALR-10 v04_c02
+  [8/13] ALR-10 v04_c03
+  [9/13] ALR-10 v05_c01
+  [10/13] ALR-10 v06_c01
+  [11/13] ALR-10 v07_c01
+  [12/13] ALR-10 v09_c01
+  [13/13] ALR-10 v10_c01
+   ALR-10: {"estado": "completo", "f1": 0.333333, "veredicto": "otra_combinacion"}
+== DEN-02 — Densidad de evidencia: sujeto, stride 7 (R2)
+  [1/34] DEN-02 a_p1_c02
+  [2/34] DEN-02 a_p1_c03
+  [3/34] DEN-02 a_p1_c04
+  [4/34] DEN-02 a_p1_c05
+  [5/34] DEN-02 a_p1_c06
+  [6/34] DEN-02 a_p1_c07
+  [7/34] DEN-02 a_p1_c08
+  [8/34] DEN-02 a_p1_c09
+  [9/34] DEN-02 a_p1_c10
+  [10/34] DEN-02 a_p1_c11
+  [11/34] DEN-02 a_p1_c12
+  [12/34] DEN-02 a_p2_c01
+  [13/34] DEN-02 a_p2_c02
+  [14/34] DEN-02 a_p2_c03
+  [15/34] DEN-02 a_p2_c04
+  [16/34] DEN-02 a_p2_c05
+  [17/34] DEN-02 a_p3_c01
+  [18/34] DEN-02 a_p3_c02
+  [19/34] DEN-02 a_p4_c01
+  [20/34] DEN-02 a_p4_c02
+  [21/34] DEN-02 a_p5_c01
+  [22/34] DEN-02 a_p5_c02
+  [23/34] DEN-02 a_p6_c01
+  [24/34] DEN-02 a_p6_c02
+  [25/34] DEN-02 a_p7_c01
+  [26/34] DEN-02 a_p7_c02
+  [27/34] DEN-02 a_p7_c03
+  [28/34] DEN-02 a_p7_c04
+  [29/34] DEN-02 a_p8_c01
+  [30/34] DEN-02 a_p9_c01
+  [31/34] DEN-02 a_p9_c02
+  [32/34] DEN-02 a_p9_c03
+  [33/34] DEN-02 a_p9_c06
+  [34/34] DEN-02 a_p9_c08
+   DEN-02: {"estado": "completo", "f1": 0.830769, "veredicto": "identico"}
+== DEN-04 — Densidad de evidencia: sujeto, stride 15 (R4)
+  [1/34] DEN-04 a_p1_c02
+  [2/34] DEN-04 a_p1_c03
+  [3/34] DEN-04 a_p1_c04
+  [4/34] DEN-04 a_p1_c05
+  [5/34] DEN-04 a_p1_c06
+  [6/34] DEN-04 a_p1_c07
+  [7/34] DEN-04 a_p1_c08
+  [8/34] DEN-04 a_p1_c09
+  [9/34] DEN-04 a_p1_c10
+  [10/34] DEN-04 a_p1_c11
+  [11/34] DEN-04 a_p1_c12
+  [12/34] DEN-04 a_p2_c01
+  [13/34] DEN-04 a_p2_c02
+  [14/34] DEN-04 a_p2_c03
+  [15/34] DEN-04 a_p2_c04
+  [16/34] DEN-04 a_p2_c05
+  [17/34] DEN-04 a_p3_c01
+  [18/34] DEN-04 a_p3_c02
+  [19/34] DEN-04 a_p4_c01
+  [20/34] DEN-04 a_p4_c02
+  [21/34] DEN-04 a_p5_c01
+  [22/34] DEN-04 a_p5_c02
+  [23/34] DEN-04 a_p6_c01
+  [24/34] DEN-04 a_p6_c02
+  [25/34] DEN-04 a_p7_c01
+  [26/34] DEN-04 a_p7_c02
+  [27/34] DEN-04 a_p7_c03
+  [28/34] DEN-04 a_p7_c04
+  [29/34] DEN-04 a_p8_c01
+  [30/34] DEN-04 a_p9_c01
+  [31/34] DEN-04 a_p9_c02
+  [32/34] DEN-04 a_p9_c03
+  [33/34] DEN-04 a_p9_c06
+  [34/34] DEN-04 a_p9_c08
+   DEN-04: {"estado": "completo", "f1": 0.8125, "veredicto": "identico"}
+== DEN-06 — Densidad de evidencia: sujeto, stride 26 (R6)
+  [1/34] DEN-06 a_p1_c02
+  [2/34] DEN-06 a_p1_c03
+  [3/34] DEN-06 a_p1_c04
+  [4/34] DEN-06 a_p1_c05
+  [5/34] DEN-06 a_p1_c06
+  [6/34] DEN-06 a_p1_c07
+  [7/34] DEN-06 a_p1_c08
+  [8/34] DEN-06 a_p1_c09
+  [9/34] DEN-06 a_p1_c10
+  [10/34] DEN-06 a_p1_c11
+  [11/34] DEN-06 a_p1_c12
+  [12/34] DEN-06 a_p2_c01
+  [13/34] DEN-06 a_p2_c02
+  [14/34] DEN-06 a_p2_c03
+  [15/34] DEN-06 a_p2_c04
+  [16/34] DEN-06 a_p2_c05
+  [17/34] DEN-06 a_p3_c01
+  [18/34] DEN-06 a_p3_c02
+  [19/34] DEN-06 a_p4_c01
+  [20/34] DEN-06 a_p4_c02
+  [21/34] DEN-06 a_p5_c01
+  [22/34] DEN-06 a_p5_c02
+  [23/34] DEN-06 a_p6_c01
+  [24/34] DEN-06 a_p6_c02
+  [25/34] DEN-06 a_p7_c01
+  [26/34] DEN-06 a_p7_c02
+  [27/34] DEN-06 a_p7_c03
+  [28/34] DEN-06 a_p7_c04
+  [29/34] DEN-06 a_p8_c01
+  [30/34] DEN-06 a_p9_c01
+  [31/34] DEN-06 a_p9_c02
+  [32/34] DEN-06 a_p9_c03
+  [33/34] DEN-06 a_p9_c06
+  [34/34] DEN-06 a_p9_c08
+   DEN-06: {"estado": "completo", "f1": 0.67742, "veredicto": "identico"}
+== DEN-07 — Ganancia por identidad y costo de la densidad, con remuestreo pareado por clip
+   DEN-07: {"estado": "completo", "veredicto": "equivalente_con_diferencia"}
+== ERR-01 — Anatomía de las falsas alarmas por sujeto en obra real
+   ERR-01: {"estado": "completo", "veredicto": "identico"}
+== ERR-02 — ¿La resolución explica las falsas alarmas? Anatomía a 560 px contra 800 px (caja 0,35)
+   ERR-02: {"estado": "completo", "veredicto": "otra_combinacion"}
+== GT-02 — Sensibilidad de cada conclusión a los bordes de la referencia
+    aviso: no está el piloto de la generación 1 (docs/operacion/datos/134-piloto-gt02-sensibilidad-bordes/gt02_todas_gt_corregido.json); la columna gen 1 queda vacía
+    [T1] V1 ok · F1 0.84058 · FP neg 0
+    [G1] V1 ok · F1 0.898551 · FP neg 0
+    [T2] V1 ok · F1 0.676056 · FP neg 0
+    [D1] V1 ok · F1 0.162162 · FP neg 2
+    [H1] V1 ok · F1 0.325 · FP neg 2
+    [B1] V1 ok · F1 0.371428 · FP neg 1
+    [R1] V1 ok · F1 0.746269 · FP neg 0
+    [R2] V1 ok · F1 0.830769 · FP neg 0
+    [R3] V1 ok · F1 0.71875 · FP neg 0
+    [R4] V1 ok · F1 0.8125 · FP neg 0
+    [R5] V1 ok · F1 0.615385 · FP neg 0
+    [R6] V1 ok · F1 0.67742 · FP neg 0
+    [I1] V1 ok · F1 0.333333 · FP neg 26
+    [I2] V1 ok · F1 0.190476 · FP neg 323
+    J500: {'C1_G1>T1': 0.9174, 'C2_T1>=T2': 1.0, 'C3_D1_prec<0.5': 1.0, 'C4_T1>H1': 1.0, 'C5_T1>B1': 1.0, 'C6_R2>R1': 1.0, 'C6_R4>R3': 1.0, 'C6_R6>R5': 1.0, 'C7_T1>=R1': 0.9822, 'C7_R1>R3': 0.7312, 'C7_R3>R5': 1.0, 'C8_I1_FPneg<I2_FPneg': 1.0}
+    J1000: {'C1_G1>T1': 0.7668, 'C2_T1>=T2': 0.9998, 'C3_D1_prec<0.5': 1.0, 'C4_T1>H1': 1.0, 'C5_T1>B1': 1.0, 'C6_R2>R1': 0.9872, 'C6_R4>R3': 0.9976, 'C6_R6>R5': 1.0, 'C7_T1>=R1': 0.646, 'C7_R1>R3': 0.7726, 'C7_R3>R5': 0.9926, 'C8_I1_FPneg<I2_FPneg': 1.0}
+    J2000: {'C1_G1>T1': 0.6502, 'C2_T1>=T2': 0.9994, 'C3_D1_prec<0.5': 1.0, 'C4_T1>H1': 1.0, 'C5_T1>B1': 1.0, 'C6_R2>R1': 0.8838, 'C6_R4>R3': 0.933, 'C6_R6>R5': 1.0, 'C7_T1>=R1': 0.744, 'C7_R1>R3': 0.8422, 'C7_R3>R5': 0.6106, 'C8_I1_FPneg<I2_FPneg': 1.0}
+   GT-02: {"estado": "completo", "veredicto": "otra_combinacion"}
+== PER-03 — Estado por persona en video de obra real (17 clips)
+  [1/4] PER-03 video02_clip07
+  [2/4] PER-03 video15_clip01
+  [3/4] PER-03 video16_clip10
+  [4/4] PER-03 video16_clip14
+   PER-03: {"estado": "completo", "veredicto": "identico"}
+== SEG-01 — Fragmentación de identidad del rastreador de la plataforma (47 clips)
+   SEG-01: {"estado": "completo", "veredicto": "identico"}
+== VIS-01 — Cuadros anotados: aciertos y fallos del rodaje y de obra real
+   VIS-01: ERROR OSError: [Errno 30] Read-only file system: '$EOVRT_WORKSPACE/e-ovrt_experimental-setup/defensa/figuras'

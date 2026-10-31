@@ -1,0 +1,46 @@
+schema: prueba.gen2.v1
+id: EXT-01
+titulo: "Clase nueva sin entrenar: machinery en obra y máquinas en MOCS"
+informe: ["Tabla 51 (extensibilidad)", "§17.5.3"]
+fase: F4
+familia: clase_nueva
+pregunta: >
+  Una clase jamás configurada ni entrenada (machinery), agregada con unas líneas de prompt,
+  ¿qué AP logra sobre el bench curado? ¿Y person contra los Worker anotados de MOCS?
+gen1:
+  result_id: clase_nueva
+  doc: operacion/94
+  corridas: {obra_val: run_20260805_030630_dbe_grounding_dino_8ae17c, obra_test: run_20260805_030726_dbe_grounding_dino_37c041,
+             mocs_valid: run_20260805_030810_dbe_grounding_dino_8593f0, vehiculo_val: run_20260805_031006_dbe_grounding_dino_082b63,
+             vehiculo_test: run_20260805_031106_dbe_grounding_dino_446e27}
+  referencia:
+    fuente: docs/operacion/datos/94-piloto-clase-nueva/resultados.json
+    valores:
+      ap50_machinery_obra: 0.6618
+      ap50_vehicle_obra: 0.0
+      ap50_vehicle_sin_machinery: 0.0257
+      ap50_person_vs_worker_mocs: 0.6101
+      "mocs_excavator_imgs@0.50": 62
+      "mocs_dump_truck_imgs@0.50": 4
+      "mocs_tower_crane_imgs@0.50": 34
+esperado: "Idéntico (mismas imágenes, mismo modelo, misma puntuación que el runner 94)."
+veredictos_posibles: [identico, equivalente_con_diferencia, otra_combinacion]
+config:
+  modelo: grounding-dino/gdino-tiny-560
+  prompt_set: clase_nueva_v1
+receta:
+  instancia: mp-gdino-tiny-560
+  modelo: grounding-dino/gdino-tiny-560
+  prompts:
+    set_id: clase_nueva_v1
+    fuente: prompts/clase_nueva_v1.yaml
+    frozen: {prompts/clase_nueva_v1.yaml: 3871bca9c1d3e663dfd5475725ae5651c6261569f70bf1003ffcc2d8ab327889}
+  # Las imágenes de obra y MOCS vienen en el paquete privado (no se redistribuyen).
+  corridas:
+    - {id: obra_val, imagenes: datasets/raw/construction_site_safety/valid/images, clases: [person, helmet, vest, machinery, vehicle]}
+    - {id: obra_test, imagenes: datasets/raw/construction_site_safety/test/images, clases: [person, helmet, vest, machinery, vehicle]}
+    - {id: mocs_valid, imagenes: datasets/raw/MOCS/valid, clases: [person, excavator, dump_truck, tower_crane], previews: true}
+    - {id: vehiculo_val, imagenes: datasets/raw/construction_site_safety/valid/images, clases: [person, helmet, vest, vehicle]}
+    - {id: vehiculo_test, imagenes: datasets/raw/construction_site_safety/test/images, clases: [person, helmet, vest, vehicle]}
+  timeout_s: 1800
+salida: e-ovrt_experimental-setup/results/gen2/EXT-01/

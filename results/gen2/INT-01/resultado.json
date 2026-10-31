@@ -1,0 +1,81 @@
+{
+  "schema": "resultado.gen2.v1",
+  "id": "INT-01",
+  "titulo": "Integridad del bench de imágenes (bench_v3)",
+  "informe": [
+    "Anexo E.1",
+    "Anexo E.2"
+  ],
+  "generado": "2026-10-29T23:33:41+00:00",
+  "familia": "integridad",
+  "estado": "completo",
+  "metricas": {
+    "imagenes_bench_v3": true,
+    "estratos_byte_a_byte": true,
+    "bench_v3_reconstruido": true
+  },
+  "resumen": [
+    {
+      "clave": "imagenes_bench_v3",
+      "nombre": "imagenes bench v3",
+      "valor": "ok",
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "estratos_byte_a_byte",
+      "nombre": "estratos byte a byte",
+      "valor": "ok",
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "bench_v3_reconstruido",
+      "nombre": "bench v3 reconstruido",
+      "valor": "ok",
+      "unidad": null,
+      "gen1": null
+    }
+  ],
+  "chequeos": [
+    {
+      "nombre": "imagenes_bench_v3",
+      "ok": true,
+      "lista": "$EOVRT_WORKSPACE/e-ovrt_datasets/datasets/registry/bench_v3_imagenes.sha256",
+      "lista_sha256": "c69912323852626531564fce94fc2181a5a33278cc75f4c174e6384700c566ce",
+      "lista_sha256_lf": null,
+      "total": 6477,
+      "ok_salvo_finales_de_linea": 0,
+      "coinciden": 6477,
+      "fallan": [],
+      "faltan": [],
+      "n_fallan": 0,
+      "n_faltan": 0,
+      "lista_sha256_esperado": null
+    },
+    {
+      "nombre": "estratos_byte_a_byte",
+      "ok": true,
+      "comando": "/usr/local/bin/python $EOVRT_WORKSPACE/e-ovrt_datasets/datasets/scripts/curate/build_bench_strata.py --verify",
+      "salida": "[SKIP] chv: no está la fuente canonical_v2 $EOVRT_WORKSPACE/e-ovrt_datasets/datasets/processed/coco/canonical_v2/chv\n[SKIP] shel5k: no está la fuente canonical_v2 $EOVRT_WORKSPACE/e-ovrt_datasets/datasets/processed/coco/canonical_v2/shel5k\n"
+    },
+    {
+      "nombre": "bench_v3_reconstruido",
+      "ok": true,
+      "reconstruido": "4557024ecc4ee497ab1fad01d6819206395c10fd794010ed8c1d9198b19a4462",
+      "en_disco": "4557024ecc4ee497ab1fad01d6819206395c10fd794010ed8c1d9198b19a4462",
+      "manifiesto": "4557024ecc4ee497ab1fad01d6819206395c10fd794010ed8c1d9198b19a4462"
+    }
+  ],
+  "veredicto": {
+    "propuesto": "identico",
+    "motivo": "todas las huellas coinciden",
+    "confirmado": {
+      "valor": "identico",
+      "motivo": "Coincide con la referencia del pre-registro valor por valor (revisado el 2026-10-31 sobre el zip de results/gen2; doc 134 13.12)",
+      "quien": "equipo E-OVRT-VDP",
+      "fecha": "2026-10-31T03:23:46+00:00"
+    },
+    "diferencias": {}
+  }
+}

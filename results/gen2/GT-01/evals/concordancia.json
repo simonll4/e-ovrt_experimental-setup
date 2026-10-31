@@ -1,0 +1,239 @@
+{
+  "umbrales_s": [
+    0.5,
+    1.0
+  ],
+  "pares": [
+    {
+      "clip": "a_p1_c02",
+      "condicion": "CR-01",
+      "marca_ms": 3500,
+      "gt_ms": 3033,
+      "delta_s": 0.467
+    },
+    {
+      "clip": "a_p1_c03",
+      "condicion": "CR-01",
+      "marca_ms": 3500,
+      "gt_ms": 3233,
+      "delta_s": 0.267
+    },
+    {
+      "clip": "a_p1_c04",
+      "condicion": "CR-01",
+      "marca_ms": 3500,
+      "gt_ms": 3133,
+      "delta_s": 0.367
+    },
+    {
+      "clip": "a_p1_c05",
+      "condicion": "CR-01",
+      "marca_ms": 3500,
+      "gt_ms": 3900,
+      "delta_s": 0.4
+    },
+    {
+      "clip": "a_p1_c06",
+      "condicion": "CR-01",
+      "marca_ms": 3500,
+      "gt_ms": 3833,
+      "delta_s": 0.333
+    },
+    {
+      "clip": "a_p1_c07",
+      "condicion": "CR-01",
+      "marca_ms": 3500,
+      "gt_ms": 3300,
+      "delta_s": 0.2
+    },
+    {
+      "clip": "a_p1_c08",
+      "condicion": "CR-01",
+      "marca_ms": 3500,
+      "gt_ms": 3000,
+      "delta_s": 0.5
+    },
+    {
+      "clip": "a_p1_c09",
+      "condicion": "CR-01",
+      "marca_ms": 3500,
+      "gt_ms": 3933,
+      "delta_s": 0.433
+    },
+    {
+      "clip": "a_p1_c10",
+      "condicion": "CR-01",
+      "marca_ms": 3500,
+      "gt_ms": 3767,
+      "delta_s": 0.267
+    },
+    {
+      "clip": "a_p1_c11",
+      "condicion": "CR-01",
+      "marca_ms": 3500,
+      "gt_ms": 3167,
+      "delta_s": 0.333
+    },
+    {
+      "clip": "a_p1_c12",
+      "condicion": "CR-01",
+      "marca_ms": 3500,
+      "gt_ms": 3000,
+      "delta_s": 0.5
+    },
+    {
+      "clip": "a_p2_c01",
+      "condicion": "CR-02",
+      "marca_ms": 3500,
+      "gt_ms": 3133,
+      "delta_s": 0.367
+    },
+    {
+      "clip": "a_p2_c02",
+      "condicion": "CR-02",
+      "marca_ms": 3500,
+      "gt_ms": 3633,
+      "delta_s": 0.133
+    },
+    {
+      "clip": "a_p2_c03",
+      "condicion": "CR-02",
+      "marca_ms": 3500,
+      "gt_ms": 3300,
+      "delta_s": 0.2
+    },
+    {
+      "clip": "a_p2_c04",
+      "condicion": "CR-02",
+      "marca_ms": 3500,
+      "gt_ms": 3033,
+      "delta_s": 0.467
+    },
+    {
+      "clip": "a_p2_c05",
+      "condicion": "CR-02",
+      "marca_ms": 3500,
+      "gt_ms": 3233,
+      "delta_s": 0.267
+    },
+    {
+      "clip": "a_p4_c01",
+      "condicion": "CR-01",
+      "marca_ms": 3500,
+      "gt_ms": 3067,
+      "delta_s": 0.433
+    },
+    {
+      "clip": "a_p4_c02",
+      "condicion": "CR-01",
+      "marca_ms": 3500,
+      "gt_ms": 3933,
+      "delta_s": 0.433
+    },
+    {
+      "clip": "a_p6_c01",
+      "condicion": "CR-01",
+      "marca_ms": 3500,
+      "gt_ms": 3133,
+      "delta_s": 0.367
+    },
+    {
+      "clip": "a_p6_c01",
+      "condicion": "CR-02",
+      "marca_ms": 8732,
+      "gt_ms": 8300,
+      "delta_s": 0.432
+    },
+    {
+      "clip": "a_p6_c02",
+      "condicion": "CR-01",
+      "marca_ms": 3500,
+      "gt_ms": 3033,
+      "delta_s": 0.467
+    },
+    {
+      "clip": "a_p6_c02",
+      "condicion": "CR-02",
+      "marca_ms": 8806,
+      "gt_ms": 8767,
+      "delta_s": 0.039
+    },
+    {
+      "clip": "a_p7_c01",
+      "condicion": "CR-01",
+      "marca_ms": 3500,
+      "gt_ms": 3033,
+      "delta_s": 0.467
+    },
+    {
+      "clip": "a_p7_c02",
+      "condicion": "CR-01",
+      "marca_ms": 3500,
+      "gt_ms": 3033,
+      "delta_s": 0.467
+    },
+    {
+      "clip": "a_p7_c03",
+      "condicion": "CR-01",
+      "marca_ms": 3500,
+      "gt_ms": 3000,
+      "delta_s": 0.5
+    },
+    {
+      "clip": "a_p7_c04",
+      "condicion": "CR-01",
+      "marca_ms": 3500,
+      "gt_ms": 3767,
+      "delta_s": 0.267
+    },
+    {
+      "clip": "a_p8_c01",
+      "condicion": "CR-01",
+      "marca_ms": 3500,
+      "gt_ms": 3067,
+      "delta_s": 0.433
+    },
+    {
+      "clip": "a_p8_c01",
+      "condicion": "CR-01",
+      "marca_ms": 31398,
+      "gt_ms": 31033,
+      "delta_s": 0.365
+    },
+    {
+      "clip": "a_p9_c01",
+      "condicion": "CR-01",
+      "marca_ms": 3500,
+      "gt_ms": 3700,
+      "delta_s": 0.2
+    },
+    {
+      "clip": "a_p9_c02",
+      "condicion": "CR-01",
+      "marca_ms": 3500,
+      "gt_ms": 3100,
+      "delta_s": 0.4
+    },
+    {
+      "clip": "a_p9_c03",
+      "condicion": "CR-01",
+      "marca_ms": 2832,
+      "gt_ms": 2700,
+      "delta_s": 0.132
+    },
+    {
+      "clip": "a_p9_c06",
+      "condicion": "CR-01",
+      "marca_ms": 3500,
+      "gt_ms": 3500,
+      "delta_s": 0.0
+    },
+    {
+      "clip": "a_p9_c08",
+      "condicion": "CR-01",
+      "marca_ms": 3500,
+      "gt_ms": 2533,
+      "delta_s": 0.967
+    }
+  ]
+}

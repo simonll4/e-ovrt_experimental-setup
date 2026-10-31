@@ -1,0 +1,184 @@
+== DEN-01 — Densidad de evidencia: escena, stride 7 (≈4,29 fps; R1)
+  [1/34] DEN-01 a_p1_c02
+  [2/34] DEN-01 a_p1_c03
+  [3/34] DEN-01 a_p1_c04
+  [4/34] DEN-01 a_p1_c05
+  [5/34] DEN-01 a_p1_c06
+  [6/34] DEN-01 a_p1_c07
+  [7/34] DEN-01 a_p1_c08
+  [8/34] DEN-01 a_p1_c09
+  [9/34] DEN-01 a_p1_c10
+  [10/34] DEN-01 a_p1_c11
+  [11/34] DEN-01 a_p1_c12
+  [12/34] DEN-01 a_p2_c01
+  [13/34] DEN-01 a_p2_c02
+  [14/34] DEN-01 a_p2_c03
+  [15/34] DEN-01 a_p2_c04
+  [16/34] DEN-01 a_p2_c05
+  [17/34] DEN-01 a_p3_c01
+  [18/34] DEN-01 a_p3_c02
+  [19/34] DEN-01 a_p4_c01
+  [20/34] DEN-01 a_p4_c02
+  [21/34] DEN-01 a_p5_c01
+  [22/34] DEN-01 a_p5_c02
+  [23/34] DEN-01 a_p6_c01
+  [24/34] DEN-01 a_p6_c02
+  [25/34] DEN-01 a_p7_c01
+  [26/34] DEN-01 a_p7_c02
+  [27/34] DEN-01 a_p7_c03
+  [28/34] DEN-01 a_p7_c04
+  [29/34] DEN-01 a_p8_c01
+  [30/34] DEN-01 a_p9_c01
+  [31/34] DEN-01 a_p9_c02
+  [32/34] DEN-01 a_p9_c03
+  [33/34] DEN-01 a_p9_c06
+  [34/34] DEN-01 a_p9_c08
+   DEN-01: {"estado": "completo", "f1": 0.746269, "veredicto": "identico"}
+== DEN-03 — Densidad de evidencia: escena, stride 15 (2,00 fps; R3)
+  [1/34] DEN-03 a_p1_c02
+  [2/34] DEN-03 a_p1_c03
+  [3/34] DEN-03 a_p1_c04
+  [4/34] DEN-03 a_p1_c05
+  [5/34] DEN-03 a_p1_c06
+  [6/34] DEN-03 a_p1_c07
+  [7/34] DEN-03 a_p1_c08
+  [8/34] DEN-03 a_p1_c09
+  [9/34] DEN-03 a_p1_c10
+  [10/34] DEN-03 a_p1_c11
+  [11/34] DEN-03 a_p1_c12
+  [12/34] DEN-03 a_p2_c01
+  [13/34] DEN-03 a_p2_c02
+  [14/34] DEN-03 a_p2_c03
+  [15/34] DEN-03 a_p2_c04
+  [16/34] DEN-03 a_p2_c05
+  [17/34] DEN-03 a_p3_c01
+  [18/34] DEN-03 a_p3_c02
+  [19/34] DEN-03 a_p4_c01
+  [20/34] DEN-03 a_p4_c02
+  [21/34] DEN-03 a_p5_c01
+  [22/34] DEN-03 a_p5_c02
+  [23/34] DEN-03 a_p6_c01
+  [24/34] DEN-03 a_p6_c02
+  [25/34] DEN-03 a_p7_c01
+  [26/34] DEN-03 a_p7_c02
+  [27/34] DEN-03 a_p7_c03
+  [28/34] DEN-03 a_p7_c04
+  [29/34] DEN-03 a_p8_c01
+  [30/34] DEN-03 a_p9_c01
+  [31/34] DEN-03 a_p9_c02
+  [32/34] DEN-03 a_p9_c03
+  [33/34] DEN-03 a_p9_c06
+  [34/34] DEN-03 a_p9_c08
+   DEN-03: {"estado": "completo", "f1": 0.71875, "veredicto": "identico"}
+== DEN-05 — Densidad de evidencia: escena, stride 26 (≈1,15 fps; R5)
+  [1/34] DEN-05 a_p1_c02
+  [2/34] DEN-05 a_p1_c03
+  [3/34] DEN-05 a_p1_c04
+  [4/34] DEN-05 a_p1_c05
+  [5/34] DEN-05 a_p1_c06
+  [6/34] DEN-05 a_p1_c07
+  [7/34] DEN-05 a_p1_c08
+  [8/34] DEN-05 a_p1_c09
+  [9/34] DEN-05 a_p1_c10
+  [10/34] DEN-05 a_p1_c11
+  [11/34] DEN-05 a_p1_c12
+  [12/34] DEN-05 a_p2_c01
+  [13/34] DEN-05 a_p2_c02
+  [14/34] DEN-05 a_p2_c03
+  [15/34] DEN-05 a_p2_c04
+  [16/34] DEN-05 a_p2_c05
+  [17/34] DEN-05 a_p3_c01
+  [18/34] DEN-05 a_p3_c02
+  [19/34] DEN-05 a_p4_c01
+  [20/34] DEN-05 a_p4_c02
+  [21/34] DEN-05 a_p5_c01
+  [22/34] DEN-05 a_p5_c02
+  [23/34] DEN-05 a_p6_c01
+  [24/34] DEN-05 a_p6_c02
+  [25/34] DEN-05 a_p7_c01
+  [26/34] DEN-05 a_p7_c02
+  [27/34] DEN-05 a_p7_c03
+  [28/34] DEN-05 a_p7_c04
+  [29/34] DEN-05 a_p8_c01
+  [30/34] DEN-05 a_p9_c01
+  [31/34] DEN-05 a_p9_c02
+  [32/34] DEN-05 a_p9_c03
+  [33/34] DEN-05 a_p9_c06
+  [34/34] DEN-05 a_p9_c08
+   DEN-05: {"estado": "completo", "f1": 0.615385, "veredicto": "identico"}
+== EXT-01 — Clase nueva sin entrenar: machinery en obra y máquinas en MOCS
+  [1/5] EXT-01 obra_val
+  [2/5] EXT-01 obra_test
+  [3/5] EXT-01 mocs_valid
+  [4/5] EXT-01 vehiculo_val
+  [5/5] EXT-01 vehiculo_test
+   EXT-01: {"estado": "completo", "veredicto": "identico"}
+== IMG-01 — Percepción sobre bench_v3: gdino-tiny-560 (campeón)
+  [1/4] IMG-01 obra_test
+  [2/4] IMG-01 obra_val
+  [3/4] IMG-01 chv
+  [4/4] IMG-01 shel5k
+   IMG-01: {"estado": "completo", "mAP50": 0.550535, "veredicto": "identico"}
+== IMG-02 — Percepción sobre bench_v3: gdino-base-560 (contraste)
+  activando la instancia mp-gdino-base-560 (puede tardar unos minutos)
+  [1/4] IMG-02 obra_test
+  [2/4] IMG-02 obra_val
+  [3/4] IMG-02 chv
+  [4/4] IMG-02 shel5k
+   IMG-02: {"estado": "completo", "mAP50": 0.524754, "veredicto": "otra_combinacion"}
+== IMG-03 — Percepción sobre bench_v3: yoloe-26x (contraste)
+  activando la instancia mp-yoloe-26x (puede tardar unos minutos)
+  [1/4] IMG-03 obra_test
+  [2/4] IMG-03 obra_val
+  [3/4] IMG-03 chv
+  [4/4] IMG-03 shel5k
+   IMG-03: {"estado": "completo", "mAP50": 0.44163, "veredicto": "identico"}
+== IMG-04 — Resolución sin confusión de umbral: gdino-tiny a 800 px contra 560 px, ambos con caja 0,35
+  activando la instancia mp-gdino-tiny (puede tardar unos minutos)
+  [1/4] IMG-04 obra_test
+  [2/4] IMG-04 obra_val
+  [3/4] IMG-04 chv
+  [4/4] IMG-04 shel5k
+   IMG-04: {"estado": "completo", "mAP50": 0.510513, "veredicto": "otra_combinacion"}
+== PER-01 — Estado por persona en imágenes: E-IND contra E-DIR, gdino-tiny-560
+  activando la instancia mp-gdino-tiny-560 (puede tardar unos minutos)
+  [1/18] PER-01 eind_bench_obra_val
+  [2/18] PER-01 edir_cr01_neg_bench_obra_val
+  [3/18] PER-01 edir_cr01_spec_bench_obra_val
+  [4/18] PER-01 edir_cr01_obs_bench_obra_val
+  [5/18] PER-01 edir_cr02_neg_bench_obra_val
+  [6/18] PER-01 edir_cr02_spec_bench_obra_val
+  [7/18] PER-01 edir_cr02_obs_bench_obra_val
+  [8/18] PER-01 eind_bench_obra_test
+  [9/18] PER-01 edir_cr01_neg_bench_obra_test
+  [10/18] PER-01 edir_cr01_spec_bench_obra_test
+  [11/18] PER-01 edir_cr01_obs_bench_obra_test
+  [12/18] PER-01 edir_cr02_neg_bench_obra_test
+  [13/18] PER-01 edir_cr02_spec_bench_obra_test
+  [14/18] PER-01 edir_cr02_obs_bench_obra_test
+  [15/18] PER-01 eind_shel5k
+  [16/18] PER-01 edir_cr01_neg_shel5k
+  [17/18] PER-01 edir_cr01_spec_shel5k
+  [18/18] PER-01 edir_cr01_obs_shel5k
+   PER-01: {"estado": "completo", "veredicto": "identico"}
+== PER-02 — Estado por persona en imágenes: réplica con gdino-base-560
+  activando la instancia mp-gdino-base-560 (puede tardar unos minutos)
+  [1/18] PER-02 eind_bench_obra_val
+  [2/18] PER-02 edir_cr01_neg_bench_obra_val
+  [3/18] PER-02 edir_cr01_spec_bench_obra_val
+  [4/18] PER-02 edir_cr01_obs_bench_obra_val
+  [5/18] PER-02 edir_cr02_neg_bench_obra_val
+  [6/18] PER-02 edir_cr02_spec_bench_obra_val
+  [7/18] PER-02 edir_cr02_obs_bench_obra_val
+  [8/18] PER-02 eind_bench_obra_test
+  [9/18] PER-02 edir_cr01_neg_bench_obra_test
+  [10/18] PER-02 edir_cr01_spec_bench_obra_test
+  [11/18] PER-02 edir_cr01_obs_bench_obra_test
+  [12/18] PER-02 edir_cr02_neg_bench_obra_test
+  [13/18] PER-02 edir_cr02_spec_bench_obra_test
+  [14/18] PER-02 edir_cr02_obs_bench_obra_test
+  [15/18] PER-02 eind_shel5k
+  [16/18] PER-02 edir_cr01_neg_shel5k
+  [17/18] PER-02 edir_cr01_spec_shel5k
+  [18/18] PER-02 edir_cr01_obs_shel5k
+   PER-02: {"estado": "completo", "veredicto": "otra_combinacion"}

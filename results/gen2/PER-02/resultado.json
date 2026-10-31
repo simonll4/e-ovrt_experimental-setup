@@ -1,0 +1,129 @@
+{
+  "schema": "resultado.gen2.v1",
+  "id": "PER-02",
+  "titulo": "Estado por persona en imágenes: réplica con gdino-base-560",
+  "informe": [
+    "Tabla 52"
+  ],
+  "generado": "2026-10-31T01:01:26+00:00",
+  "familia": "nivel_a",
+  "estado": "completo",
+  "metricas": {
+    "bench_obra/CR-01.f1_eind": 0.4262295081967213,
+    "bench_obra/CR-01.best_edir_variant": "cr01_obs",
+    "bench_obra/CR-01.f1_edir": 0.18181818181818182,
+    "bench_obra/CR-01.ratio": 0.4265734265734266,
+    "bench_obra/CR-01.edir_below_half": true,
+    "bench_obra/CR-02.f1_eind": 0.5428571428571429,
+    "bench_obra/CR-02.best_edir_variant": "cr02_neg",
+    "bench_obra/CR-02.f1_edir": 0.3888888888888889,
+    "bench_obra/CR-02.ratio": 0.7163742690058479,
+    "bench_obra/CR-02.edir_below_half": false,
+    "shel5k/CR-01.f1_eind": 0.4946206115515289,
+    "shel5k/CR-01.best_edir_variant": "cr01_obs",
+    "shel5k/CR-01.f1_edir": 0.16604204008473197,
+    "shel5k/CR-01.ratio": 0.3356957559125777,
+    "shel5k/CR-01.edir_below_half": true
+  },
+  "resumen": [
+    {
+      "clave": "bench_obra/CR-01/f1_eind",
+      "nombre": "F1 E-IND por persona — bench_obra/CR-01",
+      "valor": 0.4262295081967213,
+      "unidad": null,
+      "gen1": 0.39999999999999997
+    },
+    {
+      "clave": "bench_obra/CR-01/f1_edir",
+      "nombre": "F1 mejor E-DIR (cr01_obs) — bench_obra/CR-01",
+      "valor": 0.18181818181818182,
+      "unidad": null,
+      "gen1": 0.1886792452830189
+    },
+    {
+      "clave": "bench_obra/CR-02/f1_eind",
+      "nombre": "F1 E-IND por persona — bench_obra/CR-02",
+      "valor": 0.5428571428571429,
+      "unidad": null,
+      "gen1": 0.5827814569536424
+    },
+    {
+      "clave": "bench_obra/CR-02/f1_edir",
+      "nombre": "F1 mejor E-DIR (cr02_neg) — bench_obra/CR-02",
+      "valor": 0.3888888888888889,
+      "unidad": null,
+      "gen1": 0.3511450381679389
+    },
+    {
+      "clave": "shel5k/CR-01/f1_eind",
+      "nombre": "F1 E-IND por persona — shel5k/CR-01",
+      "valor": 0.4946206115515289,
+      "unidad": null,
+      "gen1": 0.4958421423537702
+    },
+    {
+      "clave": "shel5k/CR-01/f1_edir",
+      "nombre": "F1 mejor E-DIR (cr01_obs) — shel5k/CR-01",
+      "valor": 0.16604204008473197,
+      "unidad": null,
+      "gen1": 0.1671559034572733
+    }
+  ],
+  "veredicto": {
+    "confirmado": {
+      "valor": "otra_combinacion",
+      "motivo": "base-560 carga su cabeza de cajas entrenada desde el 10-30 (doc 134 13.10): la diferencia con la gen 1 mide el efecto de esa cabeza",
+      "quien": "equipo E-OVRT-VDP",
+      "fecha": "2026-10-31T03:24:33+00:00"
+    },
+    "referencia": "results/bench_nivel_a/d1_gdinotiny560_edir_vs_eind/metrics_base560_replica.json",
+    "propuesto": "otra_combinacion",
+    "motivo": "Desde la enmienda del 2026-10-30 (doc 134 §13.10), base-560 carga su cabeza de cajas entrenada, que en la generación 1 quedaba sin cargar: cambió el modelo efectivo, no la máquina. La diferencia con la generación 1 mide el efecto de esa cabeza y se muestra al lado.\n",
+    "diferencias": {
+      "bench_obra/CR-01.f1_eind": {
+        "gen2": 0.4262295081967213,
+        "gen1": 0.39999999999999997
+      },
+      "bench_obra/CR-01.best_edir_variant": {
+        "gen2": "cr01_obs",
+        "gen1": "cr01_neg"
+      },
+      "bench_obra/CR-01.f1_edir": {
+        "gen2": 0.18181818181818182,
+        "gen1": 0.1886792452830189
+      },
+      "bench_obra/CR-01.ratio": {
+        "gen2": 0.4265734265734266,
+        "gen1": 0.4716981132075473
+      },
+      "bench_obra/CR-02.f1_eind": {
+        "gen2": 0.5428571428571429,
+        "gen1": 0.5827814569536424
+      },
+      "bench_obra/CR-02.best_edir_variant": {
+        "gen2": "cr02_neg",
+        "gen1": "cr02_obs"
+      },
+      "bench_obra/CR-02.f1_edir": {
+        "gen2": 0.3888888888888889,
+        "gen1": 0.3511450381679389
+      },
+      "bench_obra/CR-02.ratio": {
+        "gen2": 0.7163742690058479,
+        "gen1": 0.6025329632199861
+      },
+      "shel5k/CR-01.f1_eind": {
+        "gen2": 0.4946206115515289,
+        "gen1": 0.4958421423537702
+      },
+      "shel5k/CR-01.f1_edir": {
+        "gen2": 0.16604204008473197,
+        "gen1": 0.1671559034572733
+      },
+      "shel5k/CR-01.ratio": {
+        "gen2": 0.3356957559125777,
+        "gen1": 0.3371151606109591
+      }
+    }
+  }
+}

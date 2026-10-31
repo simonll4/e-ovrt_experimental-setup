@@ -1,0 +1,76 @@
+schema: prueba.gen2.v1
+id: IMG-03
+titulo: "Percepción sobre bench_v3: yoloe-26x (contraste)"
+informe: ["Tabla 51"]
+fase: F4
+familia: imagenes
+# Enmienda 2026-10-30 (doc 134 §13.10): se regenera en la Victus como todas. El bloque gen1
+# queda solo como referencia del veredicto.
+pregunta: "¿Qué logra el mejor YOLOE sobre bench_v3, por estrato y agregado?"
+gen1:
+  result_id: confirmacion_b5 (doc 64 y 66)
+  doc: operacion/66
+  corridas: {obra_test: run_20260723_023338_dbe_yoloe_a06d0e, obra_val: run_20260723_023348_dbe_yoloe_843f74,
+             shel5k: run_20260723_135128_dbe_yoloe_ce6f98, chv: run_20260723_140220_dbe_yoloe_965857}
+  referencia:
+    fuente: las corridas de la generación 1 re-evaluadas el 2026-10-26 con este mismo código (reproduce 0,442)
+    valores:
+      mAP50: 0.44163
+      ap50_person: 0.783981
+      ap50_helmet: 0.741751
+      ap50_vest: 0.240788
+      ap50_bare_head: 0.0
+      obra_test.person: 0.7182
+      obra_test.helmet: 0.7258
+      obra_test.vest: 0.1818
+      obra_test.bare_head: 0.0
+      obra_test.cr01_recall: 0.0
+      obra_val.person: 0.6341
+      obra_val.helmet: 0.7986
+      obra_val.vest: 0.1818
+      obra_val.bare_head: 0.0
+      obra_val.cr01_recall: 0.0
+      chv.person: 0.7854
+      chv.helmet: 0.8881
+      chv.vest: 0.2434
+      shel5k.person: 0.7851
+      shel5k.helmet: 0.7147
+      shel5k.bare_head: 0.0
+      shel5k.cr01_recall: 0.0
+  cifras:
+    - {clave: map50, nombre: "mAP50 ponderado (bench_v3, 6.477 imágenes)", valor: 0.44163}
+    - {clave: ap50_person, nombre: "AP50 person (ponderado por n_gt)", valor: 0.783981}
+    - {clave: ap50_helmet, nombre: "AP50 helmet (ponderado por n_gt)", valor: 0.741751}
+    - {clave: ap50_vest, nombre: "AP50 vest (ponderado por n_gt)", valor: 0.240788}
+    - {clave: ap50_bare_head, nombre: "AP50 bare_head (ponderado por n_gt)", valor: 0.0}
+esperado: >
+  Idéntico estrato por estrato. Nota del doc 133 / decisión abierta 5 del doc 134: la imagen del
+  contenedor de YOLOE es vieja; si hubo que reconstruirla, declararlo en el veredicto.
+veredictos_posibles: [identico, equivalente_con_diferencia, otra_combinacion]
+config:
+  modelo: yoloe/yoloe-26x
+  prompt_set: cr01_cr02_bench_v2 (person, helmet, vest, bare_head)
+receta:
+  instancia: mp-yoloe-26x
+  modelo: yoloe/yoloe-26x
+  prompts:
+    set_id: cr01_cr02_bench_v2
+    fuente: prompts/cr01_cr02_bench_v2.yaml
+    clases: [person, helmet, vest, bare_head]
+    frozen: {prompts/cr01_cr02_bench_v2.yaml: 9775f75b66aea610882075047a640bbc51176373864a0793fdb15e036b5437e8}
+  clases: [person, helmet, vest, bare_head]
+  estratos:
+    - {id: obra_test, imagenes: datasets/raw/construction_site_safety/test/images,
+       coco: datasets/processed/coco/bench/curated/construction_site_safety_bench_obra_test.json,
+       person_gt: datasets/processed/coco/bench/curated/person_gt_bench_obra.json}
+    - {id: obra_val, imagenes: datasets/raw/construction_site_safety/valid/images,
+       coco: datasets/processed/coco/bench/curated/construction_site_safety_bench_obra_val.json,
+       person_gt: datasets/processed/coco/bench/curated/person_gt_bench_obra.json}
+    - {id: chv, imagenes: datasets/raw/chv/CHV_dataset/images,
+       coco: datasets/processed/coco/bench/curated/bench_stratum_chv.json,
+       person_gt: datasets/processed/coco/bench/curated/person_gt_bench_obra.json}
+    - {id: shel5k, imagenes: "datasets/raw/shel5k/9rcv8mm682-4/Safety Helmet Wearing Dataset/Images",
+       coco: datasets/processed/coco/bench/curated/bench_stratum_shel5k.json,
+       person_gt: datasets/processed/coco/bench/curated/person_gt_shel5k.json}
+  timeout_s: 7200
+salida: e-ovrt_experimental-setup/results/gen2/IMG-03/

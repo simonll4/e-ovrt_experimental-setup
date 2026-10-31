@@ -1,0 +1,511 @@
+{
+  "seed": 20260803,
+  "strata": {
+    "bench_obra": {
+      "n_images": 147,
+      "conditions": {
+        "CR-01": {
+          "n_calib": 73,
+          "n_test": 74,
+          "arms": {
+            "eind": {
+              "calibration": {
+                "person_conf": 0.4,
+                "evidence_conf": 0.3,
+                "f1_calib": 0.6578947368421052
+              },
+              "metrics": {
+                "precision": 0.3939393939393939,
+                "recall": 0.4642857142857143,
+                "f1": 0.4262295081967213,
+                "tp": 13,
+                "fp": 20,
+                "fn": 15,
+                "n_gt": 121,
+                "n_gt_positive": 28
+              },
+              "ci_recall": {
+                "lo": 0.28,
+                "hi": 0.6666666666666666,
+                "n_iter": 1000
+              },
+              "ci_precision": {
+                "lo": 0.22580645161290322,
+                "hi": 0.5757575757575758,
+                "n_iter": 1000
+              }
+            },
+            "cr01_neg": {
+              "calibration": {
+                "conf": 0.55,
+                "f1_calib": 0.3018867924528302
+              },
+              "metrics": {
+                "precision": 0.16666666666666666,
+                "recall": 0.14285714285714285,
+                "f1": 0.15384615384615383,
+                "tp": 4,
+                "fp": 20,
+                "fn": 24,
+                "n_gt": 121,
+                "n_gt_positive": 28
+              },
+              "ci_recall": {
+                "lo": 0.027777777777777776,
+                "hi": 0.3333333333333333,
+                "n_iter": 1000
+              },
+              "ci_precision": {
+                "lo": 0.034482758620689655,
+                "hi": 0.3333333333333333,
+                "n_iter": 1000
+              }
+            },
+            "cr01_spec": {
+              "calibration": {
+                "conf": 0.7,
+                "f1_calib": 0.2545454545454546
+              },
+              "metrics": {
+                "precision": 0.13043478260869565,
+                "recall": 0.10714285714285714,
+                "f1": 0.11764705882352941,
+                "tp": 3,
+                "fp": 20,
+                "fn": 25,
+                "n_gt": 121,
+                "n_gt_positive": 28
+              },
+              "ci_recall": {
+                "lo": 0.0,
+                "hi": 0.26666666666666666,
+                "n_iter": 1000
+              },
+              "ci_precision": {
+                "lo": 0.0,
+                "hi": 0.2727272727272727,
+                "n_iter": 1000
+              }
+            },
+            "cr01_obs": {
+              "calibration": {
+                "conf": 0.6,
+                "f1_calib": 0.3157894736842105
+              },
+              "metrics": {
+                "precision": 0.18518518518518517,
+                "recall": 0.17857142857142858,
+                "f1": 0.18181818181818182,
+                "tp": 5,
+                "fp": 22,
+                "fn": 23,
+                "n_gt": 121,
+                "n_gt_positive": 28
+              },
+              "ci_recall": {
+                "lo": 0.043478260869565216,
+                "hi": 0.37037037037037035,
+                "n_iter": 1000
+              },
+              "ci_precision": {
+                "lo": 0.04,
+                "hi": 0.34615384615384615,
+                "n_iter": 1000
+              }
+            },
+            "ehyb_or": {
+              "calibration": {
+                "edir_variant": "cr01_obs",
+                "edir_conf": 0.6,
+                "person_conf": 0.4,
+                "evidence_conf": 0.3,
+                "note": "sin parametros libres propios: hereda los umbrales calibrados de cada brazo"
+              },
+              "metrics": {
+                "precision": 0.27450980392156865,
+                "recall": 0.5,
+                "f1": 0.35443037974683544,
+                "tp": 14,
+                "fp": 37,
+                "fn": 14,
+                "n_gt": 121,
+                "n_gt_positive": 28
+              },
+              "ci_recall": {
+                "lo": 0.3181818181818182,
+                "hi": 0.6842105263157895,
+                "n_iter": 1000
+              },
+              "ci_precision": {
+                "lo": 0.14,
+                "hi": 0.39705882352941174,
+                "n_iter": 1000
+              }
+            }
+          },
+          "ehyb_and_corroboration": {
+            "edir_variant": "cr01_obs",
+            "tp_total": 13,
+            "tp_corroborated": 4,
+            "fp_total": 20,
+            "fp_corroborated": 5,
+            "tp_rate": 0.3076923076923077,
+            "fp_rate": 0.25,
+            "note": "-and no cambia el estado por persona (E-IND primaria); esto mide si la corroboracion distingue aciertos de errores — el insumo de seguridad para el corroboration_factor de Nivel B"
+          }
+        },
+        "CR-02": {
+          "n_calib": 73,
+          "n_test": 74,
+          "arms": {
+            "eind": {
+              "calibration": {
+                "person_conf": 0.5,
+                "evidence_conf": 0.35,
+                "f1_calib": 0.7758620689655172
+              },
+              "metrics": {
+                "precision": 0.6551724137931034,
+                "recall": 0.4634146341463415,
+                "f1": 0.5428571428571429,
+                "tp": 38,
+                "fp": 20,
+                "fn": 44,
+                "n_gt": 148,
+                "n_gt_positive": 82
+              },
+              "ci_recall": {
+                "lo": 0.2558139534883721,
+                "hi": 0.7254901960784313,
+                "n_iter": 1000
+              },
+              "ci_precision": {
+                "lo": 0.46,
+                "hi": 0.8225806451612904,
+                "n_iter": 1000
+              }
+            },
+            "cr02_neg": {
+              "calibration": {
+                "conf": 0.35,
+                "f1_calib": 0.45378151260504196
+              },
+              "metrics": {
+                "precision": 0.45161290322580644,
+                "recall": 0.34146341463414637,
+                "f1": 0.3888888888888889,
+                "tp": 28,
+                "fp": 34,
+                "fn": 54,
+                "n_gt": 148,
+                "n_gt_positive": 82
+              },
+              "ci_recall": {
+                "lo": 0.2222222222222222,
+                "hi": 0.5633802816901409,
+                "n_iter": 1000
+              },
+              "ci_precision": {
+                "lo": 0.3142857142857143,
+                "hi": 0.6,
+                "n_iter": 1000
+              }
+            },
+            "cr02_spec": {
+              "calibration": {
+                "conf": 0.45,
+                "f1_calib": 0.41739130434782606
+              },
+              "metrics": {
+                "precision": 0.3559322033898305,
+                "recall": 0.25609756097560976,
+                "f1": 0.29787234042553196,
+                "tp": 21,
+                "fp": 38,
+                "fn": 61,
+                "n_gt": 148,
+                "n_gt_positive": 82
+              },
+              "ci_recall": {
+                "lo": 0.14150943396226415,
+                "hi": 0.46938775510204084,
+                "n_iter": 1000
+              },
+              "ci_precision": {
+                "lo": 0.22727272727272727,
+                "hi": 0.5,
+                "n_iter": 1000
+              }
+            },
+            "cr02_obs": {
+              "calibration": {
+                "conf": 0.3,
+                "f1_calib": 0.4507042253521127
+              },
+              "metrics": {
+                "precision": 0.3118279569892473,
+                "recall": 0.35365853658536583,
+                "f1": 0.3314285714285714,
+                "tp": 29,
+                "fp": 64,
+                "fn": 53,
+                "n_gt": 148,
+                "n_gt_positive": 82
+              },
+              "ci_recall": {
+                "lo": 0.23076923076923078,
+                "hi": 0.5714285714285714,
+                "n_iter": 1000
+              },
+              "ci_precision": {
+                "lo": 0.20618556701030927,
+                "hi": 0.4235294117647059,
+                "n_iter": 1000
+              }
+            },
+            "ehyb_or": {
+              "calibration": {
+                "edir_variant": "cr02_neg",
+                "edir_conf": 0.35,
+                "person_conf": 0.5,
+                "evidence_conf": 0.35,
+                "note": "sin parametros libres propios: hereda los umbrales calibrados de cada brazo"
+              },
+              "metrics": {
+                "precision": 0.5405405405405406,
+                "recall": 0.4878048780487805,
+                "f1": 0.5128205128205128,
+                "tp": 40,
+                "fp": 34,
+                "fn": 42,
+                "n_gt": 148,
+                "n_gt_positive": 82
+              },
+              "ci_recall": {
+                "lo": 0.2719298245614035,
+                "hi": 0.7636363636363637,
+                "n_iter": 1000
+              },
+              "ci_precision": {
+                "lo": 0.3611111111111111,
+                "hi": 0.7037037037037037,
+                "n_iter": 1000
+              }
+            }
+          },
+          "ehyb_and_corroboration": {
+            "edir_variant": "cr02_neg",
+            "tp_total": 38,
+            "tp_corroborated": 21,
+            "fp_total": 20,
+            "fp_corroborated": 11,
+            "tp_rate": 0.5526315789473685,
+            "fp_rate": 0.55,
+            "note": "-and no cambia el estado por persona (E-IND primaria); esto mide si la corroboracion distingue aciertos de errores — el insumo de seguridad para el corroboration_factor de Nivel B"
+          }
+        }
+      }
+    },
+    "shel5k": {
+      "n_images": 5000,
+      "conditions": {
+        "CR-01": {
+          "n_calib": 2500,
+          "n_test": 2500,
+          "arms": {
+            "eind": {
+              "calibration": {
+                "person_conf": 0.3,
+                "evidence_conf": 0.3,
+                "f1_calib": 0.5257634871518903
+              },
+              "metrics": {
+                "precision": 0.38169106401573083,
+                "recall": 0.7024527543224769,
+                "f1": 0.4946206115515289,
+                "tp": 1747,
+                "fp": 2830,
+                "fn": 740,
+                "n_gt": 9913,
+                "n_gt_positive": 2487
+              },
+              "ci_recall": {
+                "lo": 0.6676840900419687,
+                "hi": 0.7345381526104418,
+                "n_iter": 1000
+              },
+              "ci_precision": {
+                "lo": 0.355825461088619,
+                "hi": 0.4075181546347715,
+                "n_iter": 1000
+              }
+            },
+            "cr01_neg": {
+              "calibration": {
+                "conf": 0.3,
+                "f1_calib": 0.1632719569822389
+              },
+              "metrics": {
+                "precision": 0.1384706229701801,
+                "recall": 0.1885806192199437,
+                "f1": 0.15968675519237313,
+                "tp": 469,
+                "fp": 2918,
+                "fn": 2018,
+                "n_gt": 9913,
+                "n_gt_positive": 2487
+              },
+              "ci_recall": {
+                "lo": 0.17224334600760458,
+                "hi": 0.20554455445544553,
+                "n_iter": 1000
+              },
+              "ci_precision": {
+                "lo": 0.12462908011869436,
+                "hi": 0.15330188679245282,
+                "n_iter": 1000
+              }
+            },
+            "cr01_spec": {
+              "calibration": {
+                "conf": 0.3,
+                "f1_calib": 0.09877134194989627
+              },
+              "metrics": {
+                "precision": 0.06038276532596459,
+                "recall": 0.2372336147969441,
+                "f1": 0.09626366454560287,
+                "tp": 590,
+                "fp": 9181,
+                "fn": 1897,
+                "n_gt": 9913,
+                "n_gt_positive": 2487
+              },
+              "ci_recall": {
+                "lo": 0.21693121693121692,
+                "hi": 0.2580500894454383,
+                "n_iter": 1000
+              },
+              "ci_precision": {
+                "lo": 0.05313073628390781,
+                "hi": 0.0676482701812191,
+                "n_iter": 1000
+              }
+            },
+            "cr01_obs": {
+              "calibration": {
+                "conf": 0.3,
+                "f1_calib": 0.1745200698080279
+              },
+              "metrics": {
+                "precision": 0.10411770716256258,
+                "recall": 0.4097305991154001,
+                "f1": 0.16604204008473197,
+                "tp": 1019,
+                "fp": 8768,
+                "fn": 1468,
+                "n_gt": 9913,
+                "n_gt_positive": 2487
+              },
+              "ci_recall": {
+                "lo": 0.38445552784704906,
+                "hi": 0.433832456495346,
+                "n_iter": 1000
+              },
+              "ci_precision": {
+                "lo": 0.09470321516900247,
+                "hi": 0.11427708417237213,
+                "n_iter": 1000
+              }
+            },
+            "ehyb_or": {
+              "calibration": {
+                "edir_variant": "cr01_obs",
+                "edir_conf": 0.3,
+                "person_conf": 0.3,
+                "evidence_conf": 0.3,
+                "note": "sin parametros libres propios: hereda los umbrales calibrados de cada brazo"
+              },
+              "metrics": {
+                "precision": 0.21073420074349442,
+                "recall": 0.7293928427824689,
+                "f1": 0.3269941415051825,
+                "tp": 1814,
+                "fp": 6794,
+                "fn": 673,
+                "n_gt": 9913,
+                "n_gt_positive": 2487
+              },
+              "ci_recall": {
+                "lo": 0.6970313135420902,
+                "hi": 0.7619047619047619,
+                "n_iter": 1000
+              },
+              "ci_precision": {
+                "lo": 0.1925152106531971,
+                "hi": 0.22853907134767837,
+                "n_iter": 1000
+              }
+            }
+          },
+          "ehyb_and_corroboration": {
+            "edir_variant": "cr01_obs",
+            "tp_total": 1747,
+            "tp_corroborated": 898,
+            "fp_total": 2830,
+            "fp_corroborated": 475,
+            "tp_rate": 0.5140240412135089,
+            "fp_rate": 0.16784452296819788,
+            "note": "-and no cambia el estado por persona (E-IND primaria); esto mide si la corroboracion distingue aciertos de errores — el insumo de seguridad para el corroboration_factor de Nivel B"
+          }
+        }
+      }
+    }
+  },
+  "gate": {
+    "bench_obra/CR-01": {
+      "f1_eind": 0.4262295081967213,
+      "best_edir_variant": "cr01_obs",
+      "f1_edir": 0.18181818181818182,
+      "ratio": 0.4265734265734266,
+      "edir_below_half": true
+    },
+    "bench_obra/CR-02": {
+      "f1_eind": 0.5428571428571429,
+      "best_edir_variant": "cr02_neg",
+      "f1_edir": 0.3888888888888889,
+      "ratio": 0.7163742690058479,
+      "edir_below_half": false
+    },
+    "shel5k/CR-01": {
+      "f1_eind": 0.4946206115515289,
+      "best_edir_variant": "cr01_obs",
+      "f1_edir": 0.16604204008473197,
+      "ratio": 0.3356957559125777,
+      "edir_below_half": true
+    }
+  },
+  "complementarity": {
+    "bench_obra/CR-01": {
+      "best_edir_variant": "cr01_obs",
+      "eind_misses": 15,
+      "edir_misses": 23,
+      "recovered_by_edir": 1,
+      "fraction_recovered": 0.06666666666666667
+    },
+    "bench_obra/CR-02": {
+      "best_edir_variant": "cr02_neg",
+      "eind_misses": 44,
+      "edir_misses": 54,
+      "recovered_by_edir": 7,
+      "fraction_recovered": 0.1590909090909091
+    },
+    "shel5k/CR-01": {
+      "best_edir_variant": "cr01_obs",
+      "eind_misses": 740,
+      "edir_misses": 1468,
+      "recovered_by_edir": 128,
+      "fraction_recovered": 0.17297297297297298
+    }
+  }
+}

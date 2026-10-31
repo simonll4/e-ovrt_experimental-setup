@@ -1,0 +1,111 @@
+{
+  "schema": "corridas.gen2.v1",
+  "prueba": "EXT-01",
+  "corridas": {
+    "obra_val": {
+      "estado": "ok",
+      "experiment_id": "exp_20261030T220503Z_gen2_ext01_obra_val",
+      "media_run_id": "run_20261030_220503_dbe_grounding_dino_1365cd",
+      "media_status": "succeeded",
+      "inicio": "2026-10-30T22:05:03+00:00",
+      "fin": "2026-10-30T22:05:24+00:00",
+      "segundos": 21.0,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/EXT-01/gen2_ext01_obra_val/media.yaml",
+      "sha256": {
+        "media_config": "9973c4ab9bed4c221c1e2b2a55f3938ee4fcaef9a629388629e1f3dfabefbae0"
+      },
+      "unidades": 114,
+      "detecciones_totales": 420,
+      "por_clase": {
+        "person": 171,
+        "vest": 94,
+        "helmet": 91,
+        "machinery": 64
+      }
+    },
+    "obra_test": {
+      "estado": "ok",
+      "experiment_id": "exp_20261030T220524Z_gen2_ext01_obra_test",
+      "media_run_id": "run_20261030_220524_dbe_grounding_dino_60cd12",
+      "media_status": "succeeded",
+      "inicio": "2026-10-30T22:05:24+00:00",
+      "fin": "2026-10-30T22:05:39+00:00",
+      "segundos": 15.0,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/EXT-01/gen2_ext01_obra_test/media.yaml",
+      "sha256": {
+        "media_config": "5e9083567e72daa1e0213b510d30d2749d8d31ec619a8e79317085ae1290f32d"
+      },
+      "unidades": 82,
+      "detecciones_totales": 412,
+      "por_clase": {
+        "person": 174,
+        "helmet": 115,
+        "vest": 64,
+        "machinery": 59
+      }
+    },
+    "mocs_valid": {
+      "estado": "ok",
+      "experiment_id": "exp_20261030T220539Z_gen2_ext01_mocs_valid",
+      "media_run_id": "run_20261030_220539_dbe_grounding_dino_bf46d3",
+      "media_status": "succeeded",
+      "inicio": "2026-10-30T22:05:39+00:00",
+      "fin": "2026-10-30T22:06:03+00:00",
+      "segundos": 24.0,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/EXT-01/gen2_ext01_mocs_valid/media.yaml",
+      "sha256": {
+        "media_config": "53f6bd40fe17b5ec1d5aa339e0dacd88275f98d8ffb822ff0edab9b52da83af4"
+      },
+      "unidades": 151,
+      "detecciones_totales": 771,
+      "por_clase": {
+        "person": 456,
+        "tower_crane": 155,
+        "excavator": 143,
+        "dump_truck": 17
+      }
+    },
+    "vehiculo_val": {
+      "estado": "ok",
+      "experiment_id": "exp_20261030T220603Z_gen2_ext01_vehiculo_val",
+      "media_run_id": "run_20261030_220603_dbe_grounding_dino_4a23b8",
+      "media_status": "succeeded",
+      "inicio": "2026-10-30T22:06:03+00:00",
+      "fin": "2026-10-30T22:06:21+00:00",
+      "segundos": 18.0,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/EXT-01/gen2_ext01_vehiculo_val/media.yaml",
+      "sha256": {
+        "media_config": "3a4d1c435acc9ccb920f28ff80a4f89f438e7c2f529769e16d47fcf6280177ea"
+      },
+      "unidades": 114,
+      "detecciones_totales": 423,
+      "por_clase": {
+        "person": 172,
+        "vest": 95,
+        "helmet": 94,
+        "vehicle": 62
+      }
+    },
+    "vehiculo_test": {
+      "estado": "ok",
+      "experiment_id": "exp_20261030T220621Z_gen2_ext01_vehiculo_test",
+      "media_run_id": "run_20261030_220621_dbe_grounding_dino_ca4007",
+      "media_status": "succeeded",
+      "inicio": "2026-10-30T22:06:21+00:00",
+      "fin": "2026-10-30T22:06:36+00:00",
+      "segundos": 15.0,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/EXT-01/gen2_ext01_vehiculo_test/media.yaml",
+      "sha256": {
+        "media_config": "7f0f499b19b3f16ed9c9e98ccaba02f8f1211c56ac887ef1fd9b59ce55c98336"
+      },
+      "unidades": 82,
+      "detecciones_totales": 411,
+      "por_clase": {
+        "person": 173,
+        "helmet": 116,
+        "vest": 66,
+        "vehicle": 56
+      }
+    }
+  }
+}

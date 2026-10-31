@@ -1,0 +1,39 @@
+schema: prueba.gen2.v1
+id: ERR-02
+titulo: "¿La resolución explica las falsas alarmas? Anatomía a 560 px contra 800 px (caja 0,35)"
+informe: ["§17.5.4", "§18.3"]
+fase: F5
+familia: analisis
+depende_de: [ALR-09, ALR-10]
+pregunta: >
+  Con la taxonomía de ERR-01 aplicada a ALR-10 (560 px) y ALR-09 (800 px), los dos con caja 0,35,
+  ¿cuántas falsas alarmas por sujeto cambian y de qué causa? En particular, ¿bajan las del EPP no
+  detectado en las personas chicas al subir la resolución?
+gen1:
+  result_id: (no corrió)
+  doc: operacion/137
+  relacion: otra_combinacion
+  motivo: "Combinación nueva (doc 137 §3.3): depende de ALR-09 y ALR-10, que tampoco corrieron en la generación 1."
+esperado: >
+  Sin cifra pre-registrada. Lectura fijada de antemano: la resolución «pesa» si a 800 px bajan las
+  P-no-detectado de las bandas de menos de 120 px de alto (en el cuadro) sin que suban las F
+  (personas que no están en la referencia). Si bajan unas y suben otras, se informan las dos.
+veredictos_posibles: [otra_combinacion]
+receta:
+  campanas:
+    r560:
+      detecciones: ALR-10
+      alertas: {prueba: ALR-10, variante: sujeto}
+      escena: {prueba: ALR-10}
+      patrones: cr01_cr02_v2_subject
+      tamano_entrada: 560
+      clips: internet
+    r800:
+      detecciones: ALR-09
+      alertas: {prueba: ALR-09, variante: sujeto}
+      escena: {prueba: ALR-09}
+      patrones: cr01_cr02_v2_subject
+      tamano_entrada: 800
+      clips: internet
+  contraste: {base: r560, comparada: r800}
+salida: e-ovrt_experimental-setup/results/gen2/ERR-02/

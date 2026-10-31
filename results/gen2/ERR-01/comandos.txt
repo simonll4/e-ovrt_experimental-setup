@@ -1,0 +1,3 @@
+[2026-10-31T01:15:30+00:00] python -m tools.evidencia correr F5
+[2026-10-31T03:03:21+00:00] python -m tools.evidencia correr ERR-01
+[2026-10-31T03:24:51+00:00] veredicto confirmado: identico (equipo E-OVRT-VDP): Las 323 falsas alarmas por sujeto, por causa, iguales al piloto; revision ciega de 31 cuadros asistida por IA y validada por una persona: acuerdo 0,839, kappa 0,733, 2 cambios de la persona (Claude solo: 24 de 31)

@@ -1,0 +1,12 @@
+schema_version: experiment.manifest.v1
+slug: gen2_img04
+experiment_id: exp_20261030T224840Z_gen2_img04_obra_test
+runs:
+  media:
+    service: media-plane
+    config: $EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/IMG-04/gen2_img04_obra_test/media.yaml
+    mode: run
+sequencing: media_first
+timeout_s: 7200.0
+changes: 'generación 2 — prueba IMG-04 (Resolución sin confusión de umbral: gdino-tiny
+  a 800 px contra 560 px, ambos con caja 0,35)'

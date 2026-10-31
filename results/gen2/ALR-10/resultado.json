@@ -1,0 +1,235 @@
+{
+  "schema": "resultado.gen2.v1",
+  "id": "ALR-10",
+  "titulo": "Obra real a 560 px con caja 0,35 (el campeón re-umbralado), escena y sujeto",
+  "informe": [
+    "§17.5.4",
+    "§18.3"
+  ],
+  "generado": "2026-10-31T01:09:38+00:00",
+  "familia": "clips",
+  "corridas": {
+    "total": 13,
+    "ok": 13
+  },
+  "pendientes": [],
+  "estado": "completo",
+  "metricas": {
+    "episodes_total": 2,
+    "episodes_censored": 0,
+    "episodes_evaluable": 2,
+    "matched": 1,
+    "missed": 1,
+    "false_positives": 3,
+    "re_alerts": 0,
+    "sub_threshold": 0,
+    "recall_micro": 0.5,
+    "precision_micro": 0.25,
+    "f1_micro": 0.333333,
+    "neg_false_positives": 25
+  },
+  "resumen": [
+    {
+      "clave": "f1",
+      "nombre": "F1 por episodio (micro)",
+      "valor": 0.333333,
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "precision",
+      "nombre": "Precisión",
+      "valor": 0.25,
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "recall",
+      "nombre": "Recall",
+      "valor": 0.5,
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "episodios_evaluables",
+      "nombre": "Episodios evaluables",
+      "valor": 2,
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "aciertos",
+      "nombre": "Alertas que acertaron un episodio",
+      "valor": 1,
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "perdidos",
+      "nombre": "Episodios sin alerta",
+      "valor": 1,
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "falsas_alarmas_en_positivos",
+      "nombre": "Falsas alarmas en clips con episodios",
+      "valor": 3,
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "falsas_alarmas",
+      "nombre": "Falsas alarmas en clips sin infracción",
+      "valor": 25,
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "re_alertas",
+      "nombre": "Re-alertas (no son falsas alarmas)",
+      "valor": 0,
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "t_alert_s",
+      "nombre": "Tiempo hasta la alerta desde el inicio del episodio",
+      "valor": 4.0,
+      "unidad": "s",
+      "gen1": null
+    },
+    {
+      "clave": "ttfd_ms",
+      "nombre": "Tiempo hasta la primera detección",
+      "valor": 16.5,
+      "unidad": "ms",
+      "gen1": null
+    },
+    {
+      "clave": "sdr",
+      "nombre": "Proporción de detección sostenida (SDR)",
+      "valor": 0.974412,
+      "unidad": null,
+      "gen1": null
+    }
+  ],
+  "veredicto": {
+    "confirmado": {
+      "valor": "otra_combinacion",
+      "motivo": "Combinacion nueva (560 px re-umbralado a 0,35). La prediccion del pre-registro (menos falsas alarmas) se cumple por escena (25 contra 26) y FALLA por sujeto (355 contra 323): ver ERR-02",
+      "quien": "equipo E-OVRT-VDP",
+      "fecha": "2026-10-31T03:24:30+00:00"
+    },
+    "referencia": null,
+    "propuesto": "otra_combinacion",
+    "motivo": "Combinación nueva (doc 137 §3.3). No re-infiere: filtra las detecciones de ALR-07 a puntaje > 0,35 (`clips.reumbralar`). Es exacto para GDINO porque el adaptador aplica el umbral en el post-proceso de transformers ANTES del NMS por clase, y una caja de puntaje menor nunca suprime a una mayor. Salvedad declarada: el puntaje se guarda con 4 decimales; las cajas con puntaje exactamente 0,3500 quedan afuera y se cuentan en el summary de cada clip.\n",
+    "diferencias": {}
+  },
+  "por_clip_vs_gen1_publicada": null,
+  "variantes": {
+    "sujeto": {
+      "metricas": {
+        "episodes_total": 2,
+        "episodes_censored": 0,
+        "episodes_evaluable": 2,
+        "matched": 2,
+        "missed": 0,
+        "false_positives": 12,
+        "re_alerts": 9,
+        "sub_threshold": 0,
+        "recall_micro": 1.0,
+        "precision_micro": 0.142857,
+        "f1_micro": 0.25,
+        "neg_false_positives": 355
+      },
+      "resumen": [
+        {
+          "clave": "f1",
+          "nombre": "F1 por episodio (micro)",
+          "valor": 0.25,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "precision",
+          "nombre": "Precisión",
+          "valor": 0.142857,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "recall",
+          "nombre": "Recall",
+          "valor": 1.0,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "episodios_evaluables",
+          "nombre": "Episodios evaluables",
+          "valor": 2,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "aciertos",
+          "nombre": "Alertas que acertaron un episodio",
+          "valor": 2,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "perdidos",
+          "nombre": "Episodios sin alerta",
+          "valor": 0,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "falsas_alarmas_en_positivos",
+          "nombre": "Falsas alarmas en clips con episodios",
+          "valor": 12,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "falsas_alarmas",
+          "nombre": "Falsas alarmas en clips sin infracción",
+          "valor": 355,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "re_alertas",
+          "nombre": "Re-alertas (no son falsas alarmas)",
+          "valor": 9,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "t_alert_s",
+          "nombre": "Tiempo hasta la alerta desde el inicio del episodio",
+          "valor": 4.067,
+          "unidad": "s",
+          "gen1": null
+        },
+        {
+          "clave": "ttfd_ms",
+          "nombre": "Tiempo hasta la primera detección",
+          "valor": 16.5,
+          "unidad": "ms",
+          "gen1": null
+        },
+        {
+          "clave": "sdr",
+          "nombre": "Proporción de detección sostenida (SDR)",
+          "valor": 0.974412,
+          "unidad": null,
+          "gen1": null
+        }
+      ],
+      "gen1": null
+    }
+  }
+}

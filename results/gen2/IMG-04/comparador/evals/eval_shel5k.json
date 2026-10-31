@@ -1,0 +1,39 @@
+{
+  "type": "perception",
+  "run_id": "reumbral_shel5k",
+  "benchmark": "bench_stratum_shel5k",
+  "iou_threshold": 0.5,
+  "per_class": [
+    {
+      "class_name": "person",
+      "AP50": 0.6952,
+      "n_gt": 20023,
+      "n_det": 18308
+    },
+    {
+      "class_name": "helmet",
+      "AP50": 0.6247,
+      "n_gt": 19252,
+      "n_det": 13878
+    },
+    {
+      "class_name": "vest",
+      "AP50": null,
+      "n_gt": 0,
+      "n_det": 4117
+    },
+    {
+      "class_name": "bare_head",
+      "AP50": 0.1066,
+      "n_gt": 6120,
+      "n_det": 2910
+    }
+  ],
+  "mAP50": 0.4755,
+  "cr01_detection_recall": 0.161,
+  "evaluated_at": "2026-10-30T23:10:28.523969+00:00",
+  "cr01_n_violators": 5248,
+  "cr01_n_detected": 845,
+  "bench_coco": "$EOVRT_WORKSPACE/e-ovrt_datasets/datasets/processed/coco/bench/curated/bench_stratum_shel5k.json",
+  "person_gt": "$EOVRT_WORKSPACE/e-ovrt_datasets/datasets/processed/coco/bench/curated/person_gt_shel5k.json"
+}

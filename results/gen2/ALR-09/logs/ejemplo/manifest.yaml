@@ -1,0 +1,18 @@
+schema_version: experiment.manifest.v1
+slug: gen2_alr09
+experiment_id: exp_20261030T090802Z_gen2_alr09_v01_c01
+runs:
+  media:
+    service: media-plane
+    config: $EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-09/gen2_alr09_v01_c01/media.yaml
+    mode: run
+  control:
+    service: control-plane
+    config: $EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/ALR-09/gen2_alr09_v01_c01/control.yaml
+    mode: replay
+sequencing: media_first
+clip_id: v01_c01
+ground_truth: $EOVRT_WORKSPACE/e-ovrt_datasets/datasets/processed/clip_bench/gt/v01_c01.json
+timeout_s: 10800.0
+changes: 'generación 2 — prueba ALR-09 (Obra real a 800 px: gdino-tiny con caja 0,35,
+  escena y sujeto)'

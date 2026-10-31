@@ -1,0 +1,212 @@
+{
+  "schema": "resultado.gen2.v1",
+  "id": "DEN-02",
+  "titulo": "Densidad de evidencia: sujeto, stride 7 (R2)",
+  "informe": [
+    "Tabla 54 (densidad)",
+    "§17.5.5"
+  ],
+  "generado": "2026-10-31T01:11:33+00:00",
+  "familia": "clips",
+  "corridas": {
+    "total": 34,
+    "ok": 34
+  },
+  "pendientes": [],
+  "estado": "completo",
+  "metricas": {
+    "episodes_total": 33,
+    "episodes_censored": 0,
+    "episodes_evaluable": 33,
+    "matched": 27,
+    "missed": 6,
+    "false_positives": 5,
+    "re_alerts": 5,
+    "sub_threshold": 0,
+    "recall_micro": 0.818182,
+    "precision_micro": 0.84375,
+    "f1_micro": 0.830769,
+    "neg_false_positives": 0
+  },
+  "resumen": [
+    {
+      "clave": "f1",
+      "nombre": "F1 por episodio (micro)",
+      "valor": 0.830769,
+      "unidad": null,
+      "gen1": 0.830769
+    },
+    {
+      "clave": "precision",
+      "nombre": "Precisión",
+      "valor": 0.84375,
+      "unidad": null,
+      "gen1": 0.84375
+    },
+    {
+      "clave": "recall",
+      "nombre": "Recall",
+      "valor": 0.818182,
+      "unidad": null,
+      "gen1": 0.818182
+    },
+    {
+      "clave": "episodios_evaluables",
+      "nombre": "Episodios evaluables",
+      "valor": 33,
+      "unidad": null,
+      "gen1": 33
+    },
+    {
+      "clave": "aciertos",
+      "nombre": "Alertas que acertaron un episodio",
+      "valor": 27,
+      "unidad": null,
+      "gen1": 27
+    },
+    {
+      "clave": "perdidos",
+      "nombre": "Episodios sin alerta",
+      "valor": 6,
+      "unidad": null,
+      "gen1": 6
+    },
+    {
+      "clave": "falsas_alarmas_en_positivos",
+      "nombre": "Falsas alarmas en clips con episodios",
+      "valor": 5,
+      "unidad": null,
+      "gen1": 5
+    },
+    {
+      "clave": "falsas_alarmas",
+      "nombre": "Falsas alarmas en clips sin infracción",
+      "valor": 0,
+      "unidad": null,
+      "gen1": 0
+    },
+    {
+      "clave": "re_alertas",
+      "nombre": "Re-alertas (no son falsas alarmas)",
+      "valor": 5,
+      "unidad": null,
+      "gen1": 5
+    },
+    {
+      "clave": "t_alert_s",
+      "nombre": "Tiempo hasta la alerta desde el inicio del episodio",
+      "valor": 5.132,
+      "unidad": "s",
+      "gen1": null
+    },
+    {
+      "clave": "ttfd_ms",
+      "nombre": "Tiempo hasta la primera detección",
+      "valor": 639.550333,
+      "unidad": "ms",
+      "gen1": null
+    },
+    {
+      "clave": "sdr",
+      "nombre": "Proporción de detección sostenida (SDR)",
+      "valor": 0.709427,
+      "unidad": null,
+      "gen1": null
+    }
+  ],
+  "veredicto": {
+    "confirmado": {
+      "valor": "identico",
+      "motivo": "Coincide con la referencia del pre-registro valor por valor (revisado el 2026-10-31 sobre el zip de results/gen2; doc 134 13.12)",
+      "quien": "equipo E-OVRT-VDP",
+      "fecha": "2026-10-31T03:24:05+00:00"
+    },
+    "referencia": "docs/operacion/datos/134-piloto-gt02-sensibilidad-bordes/gt02_todas_gt_corregido.json (R2)",
+    "propuesto": "identico",
+    "motivo": "los 12 campos coinciden con la generación 1",
+    "diferencias": {}
+  },
+  "por_clip_vs_gen1_publicada": {
+    "campos": [
+      "matched_alerts_count",
+      "missed_alerts_count",
+      "unexpected_alerts_count",
+      "re_alerts_count",
+      "avg_latency_ms_from_episode_start"
+    ],
+    "iguales": 29,
+    "distintos": [
+      {
+        "clip": "a_p2_c01",
+        "gt_corregido": true,
+        "diferencias": {
+          "matched_alerts_count": [
+            0,
+            1
+          ],
+          "missed_alerts_count": [
+            1,
+            0
+          ],
+          "unexpected_alerts_count": [
+            1,
+            0
+          ],
+          "avg_latency_ms_from_episode_start": [
+            null,
+            19833.67
+          ]
+        }
+      },
+      {
+        "clip": "a_p2_c02",
+        "gt_corregido": true,
+        "diferencias": {
+          "avg_latency_ms_from_episode_start": [
+            8033.67,
+            6566.67
+          ]
+        }
+      },
+      {
+        "clip": "a_p7_c03",
+        "gt_corregido": true,
+        "diferencias": {
+          "matched_alerts_count": [
+            1,
+            2
+          ],
+          "re_alerts_count": [
+            1,
+            0
+          ],
+          "avg_latency_ms_from_episode_start": [
+            4700.0,
+            4833.335
+          ]
+        }
+      },
+      {
+        "clip": "a_p8_c01",
+        "gt_corregido": true,
+        "diferencias": {
+          "avg_latency_ms_from_episode_start": [
+            4066.67,
+            4033.17
+          ]
+        }
+      },
+      {
+        "clip": "a_p9_c08",
+        "gt_corregido": true,
+        "diferencias": {
+          "avg_latency_ms_from_episode_start": [
+            3767.0,
+            4000.0
+          ]
+        }
+      }
+    ],
+    "distintos_sin_gt_corregido": []
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "schema": "corridas.gen2.v1",
+  "prueba": "RT-01",
+  "corridas": {
+    "mock_n300": {
+      "estado": "ok",
+      "experiment_id": "exp_20261031T013442Z_gen2_rt01_mock_n300",
+      "media_run_id": "run_20261031_013442_dbe_mock_1e9c43",
+      "media_status": "succeeded",
+      "inicio": "2026-10-31T01:34:42+00:00",
+      "fin": "2026-10-31T01:34:51+00:00",
+      "segundos": 9.0,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/RT-01/gen2_rt01_mock_n300/media.yaml",
+      "sha256": {
+        "media_config": "2bf42ec31bf47be8437ee41ebefc5f411164f90ca9218083a2f1b0e04fd8bd55"
+      },
+      "unidades": 300,
+      "detecciones_totales": 1356,
+      "por_clase": {
+        "person": 472,
+        "vest": 462,
+        "helmet": 422
+      }
+    }
+  }
+}

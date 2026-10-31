@@ -1,0 +1,27 @@
+ingest:
+  plugin: image_folder
+  config:
+    path: /e-ovrt_datasets/datasets/raw/construction_site_safety/valid/images
+prompts:
+  set_inline:
+    id: eind_v1
+    classes:
+    - id: person
+      phrasings:
+        default:
+        - person
+    - id: helmet
+      phrasings:
+        default:
+        - helmet
+    - id: vest
+      phrasings:
+        default:
+        - vest
+  active_ids:
+  - person
+  - helmet
+  - vest
+run:
+  name: gen2_per02_eind_bench_obra_val
+  save_previews: false

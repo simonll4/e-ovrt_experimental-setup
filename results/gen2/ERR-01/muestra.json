@@ -1,0 +1,467 @@
+[
+  {
+    "n": 1,
+    "clip": "v06_c01",
+    "alert_id": "3146db8f-19af-5e94-858e-b2b4011d57fd",
+    "condicion": "CR-01",
+    "track": "subject_203",
+    "cuadro_alerta": 1280,
+    "caja_sujeto": [
+      1575.6,
+      383.1,
+      1664.5,
+      478.9
+    ],
+    "causa": "P-no-detectado"
+  },
+  {
+    "n": 2,
+    "clip": "v06_c01",
+    "alert_id": "ac3ad7bc-3171-5b86-97c2-8290f07668be",
+    "condicion": "CR-02",
+    "track": "subject_387",
+    "cuadro_alerta": 2331,
+    "caja_sujeto": [
+      1704.8,
+      35.2,
+      1767.8,
+      184.4
+    ],
+    "causa": "F-sin-persona"
+  },
+  {
+    "n": 3,
+    "clip": "v06_c01",
+    "alert_id": "6722bc29-7544-5c06-aace-ffa16436b536",
+    "condicion": "CR-01",
+    "track": "subject_239",
+    "cuadro_alerta": 2054,
+    "caja_sujeto": [
+      1378.9,
+      485.3,
+      1483.1,
+      721.8
+    ],
+    "causa": "P-intermitente"
+  },
+  {
+    "n": 4,
+    "clip": "v06_c01",
+    "alert_id": "86e6aa2c-7677-5717-a4b3-9bf91a499e6a",
+    "condicion": "CR-01",
+    "track": "subject_1084",
+    "cuadro_alerta": 7170,
+    "caja_sujeto": [
+      211.8,
+      274.0,
+      272.0,
+      408.9
+    ],
+    "causa": "P-disputado"
+  },
+  {
+    "n": 5,
+    "clip": "v06_c01",
+    "alert_id": "3fdae3ec-55c8-5e4d-a3f2-20ed5ea87197",
+    "condicion": "CR-01",
+    "track": "subject_424",
+    "cuadro_alerta": 2491,
+    "caja_sujeto": [
+      1141.9,
+      150.0,
+      1205.4,
+      241.8
+    ],
+    "causa": "P-disputado"
+  },
+  {
+    "n": 6,
+    "clip": "v06_c01",
+    "alert_id": "cc40cc28-7196-5a0e-b79d-8102af0d682e",
+    "condicion": "CR-01",
+    "track": "subject_988",
+    "cuadro_alerta": 6321,
+    "caja_sujeto": [
+      1886.9,
+      133.3,
+      1919.9,
+      384.5
+    ],
+    "causa": "F-sin-persona"
+  },
+  {
+    "n": 7,
+    "clip": "v06_c01",
+    "alert_id": "c35f76d2-bfb4-57b2-ac6a-20a5364686d1",
+    "condicion": "CR-02",
+    "track": "subject_008",
+    "cuadro_alerta": 212,
+    "caja_sujeto": [
+      932.6,
+      192.5,
+      1040.7,
+      399.5
+    ],
+    "causa": "P-no-detectado"
+  },
+  {
+    "n": 8,
+    "clip": "v06_c01",
+    "alert_id": "28211953-4203-5941-859f-0fdc9c5edb05",
+    "condicion": "CR-01",
+    "track": "subject_704",
+    "cuadro_alerta": 4216,
+    "caja_sujeto": [
+      882.6,
+      259.0,
+      961.7,
+      368.9
+    ],
+    "causa": "P-intermitente"
+  },
+  {
+    "n": 9,
+    "clip": "v07_c01",
+    "alert_id": "1d337ad6-2efe-5de1-adaa-930de32d9867",
+    "condicion": "CR-01",
+    "track": "subject_107",
+    "cuadro_alerta": 555,
+    "caja_sujeto": [
+      1430.0,
+      769.1,
+      1486.2,
+      938.9
+    ],
+    "causa": "U"
+  },
+  {
+    "n": 10,
+    "clip": "v06_c01",
+    "alert_id": "28feb22b-14d9-583a-b1d0-a4e4586135b1",
+    "condicion": "CR-01",
+    "track": "subject_1290",
+    "cuadro_alerta": 9181,
+    "caja_sujeto": [
+      525.1,
+      372.5,
+      639.1,
+      527.3
+    ],
+    "causa": "U"
+  },
+  {
+    "n": 11,
+    "clip": "v06_c01",
+    "alert_id": "8f8f832f-28d9-5ffd-b0bb-b44141cfe3d8",
+    "condicion": "CR-01",
+    "track": "subject_135",
+    "cuadro_alerta": 842,
+    "caja_sujeto": [
+      1026.4,
+      825.4,
+      1108.8,
+      978.1
+    ],
+    "causa": "F-parcial"
+  },
+  {
+    "n": 12,
+    "clip": "v06_c01",
+    "alert_id": "7247f02d-58a3-57ec-8560-197fbf2cf055",
+    "condicion": "CR-02",
+    "track": "subject_1339",
+    "cuadro_alerta": 9737,
+    "caja_sujeto": [
+      1722.4,
+      638.6,
+      1799.2,
+      794.5
+    ],
+    "causa": "P-no-detectado"
+  },
+  {
+    "n": 13,
+    "clip": "v06_c01",
+    "alert_id": "f654b593-8a30-50ef-bc1f-d26bec2250d7",
+    "condicion": "CR-02",
+    "track": "subject_906",
+    "cuadro_alerta": 5798,
+    "caja_sujeto": [
+      426.3,
+      530.6,
+      537.6,
+      671.3
+    ],
+    "causa": "P-no-detectado"
+  },
+  {
+    "n": 14,
+    "clip": "v10_c01",
+    "alert_id": "b9588f75-5f7a-5422-aca4-28afd337f33d",
+    "condicion": "CR-01",
+    "track": "subject_013",
+    "cuadro_alerta": 218,
+    "caja_sujeto": [
+      839.2,
+      666.5,
+      877.1,
+      823.9
+    ],
+    "causa": "F-parcial"
+  },
+  {
+    "n": 15,
+    "clip": "v05_c01",
+    "alert_id": "0b737b0d-5c0e-54c5-9741-dc5e866531f3",
+    "condicion": "CR-01",
+    "track": "subject_098",
+    "cuadro_alerta": 834,
+    "caja_sujeto": [
+      228.0,
+      86.1,
+      334.5,
+      337.4
+    ],
+    "causa": "F-sin-persona"
+  },
+  {
+    "n": 16,
+    "clip": "v06_c01",
+    "alert_id": "dbec9f93-1d06-5650-be11-be9eda582b9d",
+    "condicion": "CR-01",
+    "track": "subject_163",
+    "cuadro_alerta": 1049,
+    "caja_sujeto": [
+      487.6,
+      232.9,
+      575.5,
+      403.1
+    ],
+    "causa": "F-sin-persona"
+  },
+  {
+    "n": 17,
+    "clip": "v06_c01",
+    "alert_id": "443d4916-75fe-5791-bdf8-acab4f1f5b70",
+    "condicion": "CR-02",
+    "track": "subject_619",
+    "cuadro_alerta": 3711,
+    "caja_sujeto": [
+      1167.1,
+      1010.2,
+      1254.5,
+      1083.6
+    ],
+    "causa": "U"
+  },
+  {
+    "n": 18,
+    "clip": "v06_c01",
+    "alert_id": "7786fdd9-0d39-5c74-b305-0aefaca98a15",
+    "condicion": "CR-01",
+    "track": "subject_1118",
+    "cuadro_alerta": 7749,
+    "caja_sujeto": [
+      215.4,
+      269.1,
+      281.0,
+      512.3
+    ],
+    "causa": "P-disputado"
+  },
+  {
+    "n": 19,
+    "clip": "v05_c01",
+    "alert_id": "a255e72b-f030-572f-8ff4-ee96535e01ba",
+    "condicion": "CR-02",
+    "track": "subject_293",
+    "cuadro_alerta": 2143,
+    "caja_sujeto": [
+      444.8,
+      542.0,
+      515.7,
+      772.9
+    ],
+    "causa": "V"
+  },
+  {
+    "n": 20,
+    "clip": "v06_c01",
+    "alert_id": "c7c54791-51af-545f-9be8-0483bf8eebe7",
+    "condicion": "CR-02",
+    "track": "subject_808",
+    "cuadro_alerta": 4868,
+    "caja_sujeto": [
+      1844.3,
+      557.2,
+      1919.5,
+      930.3
+    ],
+    "causa": "P-intermitente"
+  },
+  {
+    "n": 21,
+    "clip": "v06_c01",
+    "alert_id": "85835ca1-1409-5239-bc4c-2c134c4a9402",
+    "condicion": "CR-01",
+    "track": "subject_1229",
+    "cuadro_alerta": 8727,
+    "caja_sujeto": [
+      1663.9,
+      692.8,
+      1754.3,
+      944.2
+    ],
+    "causa": "P-disputado"
+  },
+  {
+    "n": 22,
+    "clip": "v06_c01",
+    "alert_id": "ec27bb4e-b162-5734-95a1-004136c5aa35",
+    "condicion": "CR-02",
+    "track": "subject_878",
+    "cuadro_alerta": 5613,
+    "caja_sujeto": [
+      372.2,
+      260.4,
+      421.3,
+      446.1
+    ],
+    "causa": "F-parcial"
+  },
+  {
+    "n": 23,
+    "clip": "v06_c01",
+    "alert_id": "34ec2446-9097-5919-8a2c-707306ee9cdf",
+    "condicion": "CR-01",
+    "track": "subject_731",
+    "cuadro_alerta": 4362,
+    "caja_sujeto": [
+      139.0,
+      315.0,
+      184.9,
+      473.6
+    ],
+    "causa": "F-parcial"
+  },
+  {
+    "n": 24,
+    "clip": "v06_c01",
+    "alert_id": "ac46e59e-ff3b-50b8-a163-8b874d7e9898",
+    "condicion": "CR-01",
+    "track": "subject_396",
+    "cuadro_alerta": 2279,
+    "caja_sujeto": [
+      1223.6,
+      244.1,
+      1307.7,
+      446.2
+    ],
+    "causa": "P-disputado"
+  },
+  {
+    "n": 25,
+    "clip": "v10_c01",
+    "alert_id": "86826a28-099a-569b-8eb0-5bfbe92f30a1",
+    "condicion": "CR-01",
+    "track": "subject_045",
+    "cuadro_alerta": 823,
+    "caja_sujeto": [
+      756.0,
+      116.5,
+      823.0,
+      242.1
+    ],
+    "causa": "F-sin-persona"
+  },
+  {
+    "n": 26,
+    "clip": "v06_c01",
+    "alert_id": "58a39756-93ee-58e1-8f9a-edeb5d4cd3bc",
+    "condicion": "CR-02",
+    "track": "subject_033",
+    "cuadro_alerta": 362,
+    "caja_sujeto": [
+      0.7,
+      729.4,
+      46.8,
+      881.1
+    ],
+    "causa": "P-intermitente"
+  },
+  {
+    "n": 27,
+    "clip": "v06_c01",
+    "alert_id": "5a304008-36a5-5e38-8b5a-8276803c7527",
+    "condicion": "CR-02",
+    "track": "subject_684",
+    "cuadro_alerta": 4122,
+    "caja_sujeto": [
+      1426.2,
+      188.6,
+      1480.2,
+      264.9
+    ],
+    "causa": "P-no-detectado"
+  },
+  {
+    "n": 28,
+    "clip": "v09_c01",
+    "alert_id": "29ce00a7-e718-5c3f-8f21-8fc52f6031db",
+    "condicion": "CR-02",
+    "track": "subject_032",
+    "cuadro_alerta": 334,
+    "caja_sujeto": [
+      1210.2,
+      398.0,
+      1254.1,
+      569.3
+    ],
+    "causa": "P-intermitente"
+  },
+  {
+    "n": 29,
+    "clip": "v06_c01",
+    "alert_id": "6efb3b5f-cbb0-5bc3-bd5a-2128dae596e7",
+    "condicion": "CR-02",
+    "track": "subject_179",
+    "cuadro_alerta": 1202,
+    "caja_sujeto": [
+      1425.8,
+      813.6,
+      1494.8,
+      971.1
+    ],
+    "causa": "F-parcial"
+  },
+  {
+    "n": 30,
+    "clip": "v04_c02",
+    "alert_id": "3a962a88-0f3c-59c5-8aaa-90d719871909",
+    "condicion": "CR-01",
+    "track": "subject_032",
+    "cuadro_alerta": 546,
+    "caja_sujeto": [
+      1879.9,
+      532.9,
+      1919.8,
+      814.3
+    ],
+    "causa": "U"
+  },
+  {
+    "n": 31,
+    "clip": "v10_c01",
+    "alert_id": "2f31f40c-b682-5e14-a730-46c7d32a8844",
+    "condicion": "CR-02",
+    "track": "subject_003",
+    "cuadro_alerta": 210,
+    "caja_sujeto": [
+      805.7,
+      140.1,
+      906.9,
+      355.1
+    ],
+    "causa": "U"
+  }
+]

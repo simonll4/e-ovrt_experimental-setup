@@ -1,0 +1,71 @@
+{
+  "schema_version": "control.eval.temporal.v1",
+  "scenario_id": "a_p2_c01",
+  "alerts_path": "$EOVRT_WORKSPACE/e-ovrt_control-plane/runs/gen2_alr05_a_p2_c01_20261031T010443Z_cec61f/alerts.jsonl",
+  "ground_truth_path": "$EOVRT_WORKSPACE/e-ovrt_datasets/datasets/processed/clip_bench/gt/a_p2_c01.json",
+  "expected_alerts_count": 1,
+  "observed_alerts_count": 4,
+  "matched_alerts_count": 1,
+  "missed_alerts_count": 0,
+  "unexpected_alerts_count": 2,
+  "duplicate_alerts_count": 0,
+  "precision": 0.333333,
+  "recall": 1.0,
+  "f1": 0.5,
+  "avg_latency_frames_from_first_evidence": null,
+  "avg_latency_ms_from_first_evidence": null,
+  "re_alerts_count": 1,
+  "sub_threshold_count": 0,
+  "censored_episodes_count": 0,
+  "observed_duration_ms": 36433.0,
+  "far_per_hour": 197.623034,
+  "applicability_state": "computed",
+  "applicability_cause": null,
+  "avg_latency_ms_from_episode_start": 9000.33,
+  "effective_matching_windows": {
+    "CR-02": {
+      "persistencia_min_ms": 7000.0,
+      "t_alert_max_ms": 20000.0,
+      "origin": "gt_provenance"
+    }
+  },
+  "warnings": [],
+  "matches": [],
+  "missed_alerts": [],
+  "unexpected_alerts": [
+    {
+      "alert_id": "21e70f9a-6ab7-5b5c-80a0-2627a093cd4e",
+      "condition_id": "CR-01",
+      "subject_key": "CR-01:a_p2_c01",
+      "frame_index": 126,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "7eda898f-1c25-56b4-a21f-4d409dbd7912",
+      "condition_id": "CR-01",
+      "subject_key": "CR-01:a_p2_c01",
+      "frame_index": 926,
+      "reason": "outside_all_episode_windows"
+    }
+  ],
+  "censored_episodes": [],
+  "avg_ttfd_ms": 1567.0,
+  "avg_sdr": 0.137054,
+  "ttfd_by_episode": [
+    {
+      "episode_id": "ep1",
+      "ttfd_ms": 1567.0,
+      "cause": null
+    }
+  ],
+  "sdr_by_episode": [
+    {
+      "episode_id": "ep1",
+      "sdr": 0.13705371759241716,
+      "cause": null
+    }
+  ],
+  "ttfd_sdr_applicability": "computed",
+  "positive_criterion": "spatial_absence(cr01_cr02_hyb_or_v1) >=1 evidencia",
+  "detections_path": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/ALR-05/fusion_a_p2_c01/detections.jsonl"
+}

@@ -1,0 +1,57 @@
+schema: prueba.gen2.v1
+id: IMG-04
+titulo: "Resolución sin confusión de umbral: gdino-tiny a 800 px contra 560 px, ambos con caja 0,35"
+informe: ["Tabla 51", "§17.5.2"]
+fase: F4
+familia: imagenes
+depende_de: [IMG-01]
+pregunta: >
+  Sobre las 6.477 imágenes de bench_v3, ¿cuánto cambia el AP por clase y por estrato entre 800 px
+  y 560 px cuando el umbral de caja es el mismo (0,35)? El informe comparó tiny a 800 px con caja
+  0,35 contra tiny-560 con caja 0,30 (doc 130 R-04): resolución y umbral confundidos.
+gen1:
+  result_id: (no corrió con el mismo umbral)
+  doc: operacion/137
+  relacion: otra_combinacion
+  motivo: >
+    Combinación nueva (doc 137 §3.3, decisión abierta 4 del doc 134 §11, aprobada el 2026-10-29).
+    El brazo de 800 px corre en la Victus; el de 560 px con caja 0,35 sale de las corridas de
+    IMG-01 filtradas a puntaje > 0,35 (`clips.reumbralar`, exacto para GDINO: el umbral se aplica
+    antes del NMS) y se evalúa con el mismo código. Va en `comparador` del resultado, con la
+    diferencia 800 − 560 por clase y por estrato.
+esperado: >
+  Sin cifra pre-registrada. Se informa al lado de la Tabla 51, nunca en su reemplazo: el campeón
+  sigue siendo tiny-560 con caja 0,30.
+veredictos_posibles: [otra_combinacion]
+config:
+  modelo: grounding-dino/gdino-tiny (800 px, caja 0,35) contra gdino-tiny-560 re-umbralado a 0,35
+  prompt_set: cr01_cr02_bench_v2 (person, helmet, vest, bare_head)
+  evaluacion: COCO curado por estrato, GT restringido a las imágenes procesadas, IoU 0,5
+receta:
+  instancia: mp-gdino-tiny  # la misma de ALR-09; crearla antes de la noche (doc 136 §2)
+  modelo: grounding-dino/gdino-tiny
+  prompts:
+    set_id: cr01_cr02_bench_v2
+    fuente: prompts/cr01_cr02_bench_v2.yaml
+    clases: [person, helmet, vest, bare_head]
+    frozen: {prompts/cr01_cr02_bench_v2.yaml: 9775f75b66aea610882075047a640bbc51176373864a0793fdb15e036b5437e8}
+  clases: [person, helmet, vest, bare_head]
+  estratos:
+    - {id: obra_test, imagenes: datasets/raw/construction_site_safety/test/images,
+       coco: datasets/processed/coco/bench/curated/construction_site_safety_bench_obra_test.json,
+       person_gt: datasets/processed/coco/bench/curated/person_gt_bench_obra.json}
+    - {id: obra_val, imagenes: datasets/raw/construction_site_safety/valid/images,
+       coco: datasets/processed/coco/bench/curated/construction_site_safety_bench_obra_val.json,
+       person_gt: datasets/processed/coco/bench/curated/person_gt_bench_obra.json}
+    - {id: chv, imagenes: datasets/raw/chv/CHV_dataset/images,
+       coco: datasets/processed/coco/bench/curated/bench_stratum_chv.json,
+       person_gt: datasets/processed/coco/bench/curated/person_gt_bench_obra.json}
+    - {id: shel5k, imagenes: "datasets/raw/shel5k/9rcv8mm682-4/Safety Helmet Wearing Dataset/Images",
+       coco: datasets/processed/coco/bench/curated/bench_stratum_shel5k.json,
+       person_gt: datasets/processed/coco/bench/curated/person_gt_shel5k.json}
+  comparador:
+    de: IMG-01
+    umbral: 0.35
+    descripcion: "gdino-tiny-560 con caja 0,35 (corridas de IMG-01 re-umbraladas)"
+  timeout_s: 7200
+salida: e-ovrt_experimental-setup/results/gen2/IMG-04/

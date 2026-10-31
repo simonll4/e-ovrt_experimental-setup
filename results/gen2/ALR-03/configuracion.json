@@ -1,0 +1,80 @@
+{
+  "tipo": "inferencia",
+  "clips": [
+    "a_p1_c02",
+    "a_p1_c03",
+    "a_p1_c04",
+    "a_p1_c05",
+    "a_p1_c06",
+    "a_p1_c07",
+    "a_p1_c08",
+    "a_p1_c09",
+    "a_p1_c10",
+    "a_p1_c11",
+    "a_p1_c12",
+    "a_p2_c01",
+    "a_p2_c02",
+    "a_p2_c03",
+    "a_p2_c04",
+    "a_p2_c05",
+    "a_p3_c01",
+    "a_p3_c02",
+    "a_p4_c01",
+    "a_p4_c02",
+    "a_p5_c01",
+    "a_p5_c02",
+    "a_p6_c01",
+    "a_p6_c02",
+    "a_p7_c01",
+    "a_p7_c02",
+    "a_p7_c03",
+    "a_p7_c04",
+    "a_p8_c01",
+    "a_p9_c01",
+    "a_p9_c02",
+    "a_p9_c03",
+    "a_p9_c06",
+    "a_p9_c08"
+  ],
+  "prompts": {
+    "set_id": "cr01_cr02_v2_short",
+    "fuentes": {
+      "prompts/cr01_cr02_v2_short.yaml": {
+        "status": "frozen",
+        "frozen_sha256": "df81fd48b6daf8924b5fb66aa1ce4acc0c880ac6ed8cd1245c6aca1babdb309a",
+        "clases_sha256": "df81fd48b6daf8924b5fb66aa1ce4acc0c880ac6ed8cd1245c6aca1babdb309a"
+      }
+    },
+    "payload_sha256": "5b91e6cff4f29ee8357ca3bfb9236f90c4eb1a7a71d0688e734d685a1411b2fa"
+  },
+  "modelo_cargado": {
+    "service_url": "http://localhost:8080",
+    "healthy": true,
+    "ready": true,
+    "model": {
+      "ref": "grounding-dino/gdino-base-560",
+      "name": "grounding_dino",
+      "adapter": "grounding_dino",
+      "device": "cuda",
+      "thresholds": {
+        "box": 0.3,
+        "text": 0.25,
+        "confidence": 0.25,
+        "iou": 0.5
+      },
+      "runtime": {
+        "half_precision": true,
+        "warmup": true
+      }
+    }
+  },
+  "control": {
+    "patrones": "cr01_cr02_v2",
+    "activos": [
+      "CR-01",
+      "CR-02"
+    ]
+  },
+  "variantes": [],
+  "stride": 1
+}

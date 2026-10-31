@@ -1,0 +1,86 @@
+{
+  "schema": "corridas.gen2.v1",
+  "prueba": "PER-03",
+  "corridas": {
+    "video02_clip07": {
+      "estado": "ok",
+      "experiment_id": "exp_20261031T012401Z_gen2_per03_video02_clip07",
+      "media_run_id": "run_20261031_012401_dbe_grounding_dino_1e8d94",
+      "media_status": "succeeded",
+      "inicio": "2026-10-31T01:24:01+00:00",
+      "fin": "2026-10-31T01:24:55+00:00",
+      "segundos": 54.1,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/PER-03/gen2_per03_video02_clip07/media.yaml",
+      "sha256": {
+        "media_config": "397edf05d8cad6100b3d87b7fe69991d0b892d6665ae24d5efd57ca21dcde8f7"
+      },
+      "unidades": 360,
+      "detecciones_totales": 11632,
+      "por_clase": {
+        "person": 5386,
+        "helmet": 3620,
+        "vest": 2626
+      }
+    },
+    "video15_clip01": {
+      "estado": "ok",
+      "experiment_id": "exp_20261031T012455Z_gen2_per03_video15_clip01",
+      "media_run_id": "run_20261031_012455_dbe_grounding_dino_e7306c",
+      "media_status": "succeeded",
+      "inicio": "2026-10-31T01:24:55+00:00",
+      "fin": "2026-10-31T01:25:46+00:00",
+      "segundos": 51.1,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/PER-03/gen2_per03_video15_clip01/media.yaml",
+      "sha256": {
+        "media_config": "62f0e9b377d8fca97da99d050545f5d495edfb082879faccbc13aead56e2244f"
+      },
+      "unidades": 360,
+      "detecciones_totales": 4430,
+      "por_clase": {
+        "helmet": 1958,
+        "person": 1873,
+        "vest": 599
+      }
+    },
+    "video16_clip10": {
+      "estado": "ok",
+      "experiment_id": "exp_20261031T012546Z_gen2_per03_video16_clip10",
+      "media_run_id": "run_20261031_012546_dbe_grounding_dino_16e8ae",
+      "media_status": "succeeded",
+      "inicio": "2026-10-31T01:25:46+00:00",
+      "fin": "2026-10-31T01:26:37+00:00",
+      "segundos": 51.1,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/PER-03/gen2_per03_video16_clip10/media.yaml",
+      "sha256": {
+        "media_config": "2606ec5e5f205f2d4f8c61393081c25bf2061c4af39f61b751a56905fc7a939a"
+      },
+      "unidades": 360,
+      "detecciones_totales": 8395,
+      "por_clase": {
+        "person": 3202,
+        "helmet": 2837,
+        "vest": 2356
+      }
+    },
+    "video16_clip14": {
+      "estado": "ok",
+      "experiment_id": "exp_20261031T012637Z_gen2_per03_video16_clip14",
+      "media_run_id": "run_20261031_012637_dbe_grounding_dino_2cd453",
+      "media_status": "succeeded",
+      "inicio": "2026-10-31T01:26:37+00:00",
+      "fin": "2026-10-31T01:27:28+00:00",
+      "segundos": 51.0,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/PER-03/gen2_per03_video16_clip14/media.yaml",
+      "sha256": {
+        "media_config": "ad8673ef54248b50f05ab87dca2eef71e5bf09c280e7fc82aee651112bd070e2"
+      },
+      "unidades": 360,
+      "detecciones_totales": 5230,
+      "por_clase": {
+        "person": 2723,
+        "helmet": 1674,
+        "vest": 833
+      }
+    }
+  }
+}

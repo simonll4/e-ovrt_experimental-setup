@@ -1,0 +1,60 @@
+{
+  "prompts": {
+    "set_id": "cr01_cr02_bench_v2",
+    "fuentes": {
+      "prompts/cr01_cr02_bench_v2.yaml": {
+        "status": "exploratory",
+        "frozen_sha256": null,
+        "clases_sha256": "9775f75b66aea610882075047a640bbc51176373864a0793fdb15e036b5437e8"
+      }
+    },
+    "payload_sha256": "a0adede546bc5b3d51d2da9623938a649145f93b9e0cdb86c629e45776c1704f"
+  },
+  "modelo_cargado": {
+    "service_url": "http://localhost:8080",
+    "healthy": true,
+    "ready": true,
+    "model": {
+      "ref": "grounding-dino/gdino-base-560",
+      "name": "grounding_dino",
+      "adapter": "grounding_dino",
+      "device": "cuda",
+      "thresholds": {
+        "box": 0.3,
+        "text": 0.25,
+        "confidence": 0.25,
+        "iou": 0.5
+      },
+      "runtime": {
+        "half_precision": true,
+        "warmup": true
+      }
+    }
+  },
+  "estratos": [
+    {
+      "id": "obra_test",
+      "imagenes": "datasets/raw/construction_site_safety/test/images",
+      "coco": "datasets/processed/coco/bench/curated/construction_site_safety_bench_obra_test.json",
+      "person_gt": "datasets/processed/coco/bench/curated/person_gt_bench_obra.json"
+    },
+    {
+      "id": "obra_val",
+      "imagenes": "datasets/raw/construction_site_safety/valid/images",
+      "coco": "datasets/processed/coco/bench/curated/construction_site_safety_bench_obra_val.json",
+      "person_gt": "datasets/processed/coco/bench/curated/person_gt_bench_obra.json"
+    },
+    {
+      "id": "chv",
+      "imagenes": "datasets/raw/chv/CHV_dataset/images",
+      "coco": "datasets/processed/coco/bench/curated/bench_stratum_chv.json",
+      "person_gt": "datasets/processed/coco/bench/curated/person_gt_bench_obra.json"
+    },
+    {
+      "id": "shel5k",
+      "imagenes": "datasets/raw/shel5k/9rcv8mm682-4/Safety Helmet Wearing Dataset/Images",
+      "coco": "datasets/processed/coco/bench/curated/bench_stratum_shel5k.json",
+      "person_gt": "datasets/processed/coco/bench/curated/person_gt_shel5k.json"
+    }
+  ]
+}

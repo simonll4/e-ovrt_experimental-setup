@@ -1,0 +1,55 @@
+{
+  "schema_version": "control.eval.temporal.v1",
+  "scenario_id": "v03_c01",
+  "alerts_path": "$EOVRT_WORKSPACE/e-ovrt_control-plane/runs/gen2_alr07_v03_c01_20261030T081543Z_56456f/alerts.jsonl",
+  "ground_truth_path": "$EOVRT_WORKSPACE/e-ovrt_datasets/datasets/processed/clip_bench/gt/v03_c01.json",
+  "expected_alerts_count": 0,
+  "observed_alerts_count": 2,
+  "matched_alerts_count": 0,
+  "missed_alerts_count": 0,
+  "unexpected_alerts_count": 2,
+  "duplicate_alerts_count": 0,
+  "precision": 0.0,
+  "recall": 0.0,
+  "f1": 0.0,
+  "avg_latency_frames_from_first_evidence": null,
+  "avg_latency_ms_from_first_evidence": null,
+  "re_alerts_count": 0,
+  "sub_threshold_count": 0,
+  "censored_episodes_count": 0,
+  "observed_duration_ms": 22000.0,
+  "far_per_hour": 327.272727,
+  "applicability_state": "not_applicable",
+  "applicability_cause": "negative_clip_no_episodes",
+  "avg_latency_ms_from_episode_start": null,
+  "effective_matching_windows": {},
+  "warnings": [
+    "clip negativo (0 episodios en el GT): precision/recall/F1 no son evaluables (denominador 0) y NO deben promediarse. Lo que si es dato real: 2 falso(s) positivo(s) y far_per_hour — este clip es control de falsos positivos, no de recall."
+  ],
+  "matches": [],
+  "missed_alerts": [],
+  "unexpected_alerts": [
+    {
+      "alert_id": "da75a6a4-ca59-5649-847b-d019b49d251c",
+      "condition_id": "CR-01",
+      "subject_key": "CR-01:v03_c01",
+      "frame_index": 294,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "a1d41ed3-2136-55db-bf11-2294222c5769",
+      "condition_id": "CR-02",
+      "subject_key": "CR-02:v03_c01",
+      "frame_index": 336,
+      "reason": "outside_all_episode_windows"
+    }
+  ],
+  "censored_episodes": [],
+  "avg_ttfd_ms": null,
+  "avg_sdr": null,
+  "ttfd_by_episode": [],
+  "sdr_by_episode": [],
+  "ttfd_sdr_applicability": "computed",
+  "positive_criterion": "spatial_absence(cr01_cr02_v2) >=1 evidencia",
+  "detections_path": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_081418_dbe_grounding_dino_12719e/detections.jsonl"
+}

@@ -1,0 +1,90 @@
+{
+  "schema": "corridas.gen2.v1",
+  "prueba": "IMG-04",
+  "corridas": {
+    "obra_test": {
+      "estado": "ok",
+      "experiment_id": "exp_20261030T224840Z_gen2_img04_obra_test",
+      "media_run_id": "run_20261030_224840_dbe_grounding_dino_cb7664",
+      "media_status": "succeeded",
+      "inicio": "2026-10-30T22:48:40+00:00",
+      "fin": "2026-10-30T22:48:58+00:00",
+      "segundos": 18.0,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/IMG-04/gen2_img04_obra_test/media.yaml",
+      "sha256": {
+        "media_config": "7d2a27dc677cd85535d8cb90b96afb6572f23576328a7bb1662660a070589c74"
+      },
+      "unidades": 82,
+      "detecciones_totales": 339,
+      "por_clase": {
+        "person": 138,
+        "helmet": 101,
+        "vest": 61,
+        "bare_head": 39
+      }
+    },
+    "obra_val": {
+      "estado": "ok",
+      "experiment_id": "exp_20261030T224858Z_gen2_img04_obra_val",
+      "media_run_id": "run_20261030_224858_dbe_grounding_dino_0c34fe",
+      "media_status": "succeeded",
+      "inicio": "2026-10-30T22:48:58+00:00",
+      "fin": "2026-10-30T22:49:22+00:00",
+      "segundos": 24.0,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/IMG-04/gen2_img04_obra_val/media.yaml",
+      "sha256": {
+        "media_config": "3e7a268f11e60eb165b7d42d81212d8ba5820f5421eb89bf969bfe773c3237ba"
+      },
+      "unidades": 114,
+      "detecciones_totales": 368,
+      "por_clase": {
+        "person": 151,
+        "vest": 77,
+        "helmet": 73,
+        "bare_head": 67
+      }
+    },
+    "chv": {
+      "estado": "ok",
+      "experiment_id": "exp_20261030T224922Z_gen2_img04_chv",
+      "media_run_id": "run_20261030_224922_dbe_grounding_dino_c8ed4d",
+      "media_status": "succeeded",
+      "inicio": "2026-10-30T22:49:22+00:00",
+      "fin": "2026-10-30T22:53:49+00:00",
+      "segundos": 267.2,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/IMG-04/gen2_img04_chv/media.yaml",
+      "sha256": {
+        "media_config": "145ed2dc86b0a1b93d7cb5294af98037f0a54155574d95bdc72a098ef651f6c8"
+      },
+      "unidades": 1330,
+      "detecciones_totales": 11014,
+      "por_clase": {
+        "person": 4129,
+        "helmet": 3571,
+        "vest": 2051,
+        "bare_head": 1263
+      }
+    },
+    "shel5k": {
+      "estado": "ok",
+      "experiment_id": "exp_20261030T225349Z_gen2_img04_shel5k",
+      "media_run_id": "run_20261030_225349_dbe_grounding_dino_983e25",
+      "media_status": "succeeded",
+      "inicio": "2026-10-30T22:53:49+00:00",
+      "fin": "2026-10-30T23:10:23+00:00",
+      "segundos": 993.6,
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/IMG-04/gen2_img04_shel5k/media.yaml",
+      "sha256": {
+        "media_config": "abb46a334d2ecf82160552bb00547e4b1c721e87f7cb0c996d213848d9da031b"
+      },
+      "unidades": 5000,
+      "detecciones_totales": 39310,
+      "por_clase": {
+        "person": 18356,
+        "helmet": 13700,
+        "vest": 4229,
+        "bare_head": 3025
+      }
+    }
+  }
+}

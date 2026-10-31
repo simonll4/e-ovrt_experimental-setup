@@ -1,0 +1,34 @@
+schema: prueba.gen2.v1
+id: VIS-01
+titulo: "Cuadros anotados: aciertos y fallos del rodaje y de obra real"
+informe: ["§17.5.4", "§18.3", "Anexo E"]
+fase: F5
+familia: figuras
+depende_de: [ALR-01, ALR-02, ALR-07, ALR-08, ERR-01]
+pregunta: >
+  ¿Cómo se ven, sobre el cuadro, un acierto y un fallo del sistema: las cajas predichas con su
+  puntaje, el track de cada persona, la región que evalúa la regla y la referencia?
+gen1:
+  result_id: (no corrió)
+  doc: operacion/137
+  relacion: otra_combinacion
+  motivo: "Figuras nuevas: no hay cifra de la generación 1 que comparar."
+esperado: >
+  Selección fijada de antemano, sin elegir a mano:
+  - éxitos: la primera alerta acertada de cada escenario, en ALR-02 (rodaje, por sujeto) y en ALR-08
+    (obra real, por sujeto);
+  - fallos del rodaje: toda falsa alarma y todo episodio perdido de ALR-01 (escena) y ALR-02 (sujeto);
+    fallos de obra real: los episodios perdidos de ALR-08 (sus falsas alarmas, por la muestra de ERR-01);
+  - obra real: la muestra de ERR-01, en versión ciega (solo el sujeto y su región) para la
+    revisión humana y en versión completa para el informe.
+  Los cuadros quedan en `defensa/figuras/VIS-01/` (git-ignorado). Los de clips de internet nunca
+  van a un repo público ni a un canal nuevo; antes de llevar uno al informe se recorta y se
+  difuminan las caras a mano (doc 137, D2). En `results/gen2/VIS-01/` queda solo el índice con la
+  huella de cada cuadro.
+veredictos_posibles: [otra_combinacion]
+receta:
+  patrones: cr01_cr02_v2_subject  # la región que se dibuja (es la misma en el pattern set de escena)
+  detecciones: {rodaje: ALR-01, obra_real: ALR-07}
+  rodaje: {pruebas: {escena: ALR-01, sujeto: ALR-02}, exitos_de: sujeto}
+  obra_real: {muestra_de: ERR-01, pruebas: {sujeto: ALR-08}, exitos_de: sujeto}
+salida: e-ovrt_experimental-setup/results/gen2/VIS-01/

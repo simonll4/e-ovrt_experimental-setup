@@ -1,0 +1,87 @@
+{
+  "schema": "resultado.gen2.v1",
+  "id": "PER-03",
+  "titulo": "Estado por persona en video de obra real (17 clips)",
+  "informe": [
+    "Tabla 52 (video)",
+    "§17.5.3"
+  ],
+  "generado": "2026-10-31T01:27:42+00:00",
+  "familia": "nivel_a_video",
+  "estado": "completo",
+  "metricas": {
+    "CR-01.tp": 43,
+    "CR-01.fp": 2671,
+    "CR-01.fn": 49,
+    "CR-01.n_gt": 10356,
+    "CR-01.n_gt_positive": 92,
+    "CR-01.precision": 0.015843773028739867,
+    "CR-01.recall": 0.4673913043478261,
+    "CR-01.f1": 0.030648610121168922,
+    "CR-02.tp": 54,
+    "CR-02.fp": 5762,
+    "CR-02.fn": 116,
+    "CR-02.n_gt": 10361,
+    "CR-02.n_gt_positive": 170,
+    "CR-02.precision": 0.009284731774415406,
+    "CR-02.recall": 0.3176470588235294,
+    "CR-02.f1": 0.01804209822920147
+  },
+  "resumen": [
+    {
+      "clave": "CR-01/f1",
+      "nombre": "F1 por persona-cuadro — CR-01",
+      "valor": 0.030648610121168922,
+      "unidad": null,
+      "gen1": 0.030648610121168922
+    },
+    {
+      "clave": "CR-01/precision",
+      "nombre": "Precisión por persona-cuadro — CR-01",
+      "valor": 0.015843773028739867,
+      "unidad": null,
+      "gen1": 0.015843773028739867
+    },
+    {
+      "clave": "CR-01/recall",
+      "nombre": "Recall por persona-cuadro — CR-01",
+      "valor": 0.4673913043478261,
+      "unidad": null,
+      "gen1": 0.4673913043478261
+    },
+    {
+      "clave": "CR-02/f1",
+      "nombre": "F1 por persona-cuadro — CR-02",
+      "valor": 0.01804209822920147,
+      "unidad": null,
+      "gen1": 0.01804209822920147
+    },
+    {
+      "clave": "CR-02/precision",
+      "nombre": "Precisión por persona-cuadro — CR-02",
+      "valor": 0.009284731774415406,
+      "unidad": null,
+      "gen1": 0.009284731774415406
+    },
+    {
+      "clave": "CR-02/recall",
+      "nombre": "Recall por persona-cuadro — CR-02",
+      "valor": 0.3176470588235294,
+      "unidad": null,
+      "gen1": 0.3176470588235294
+    }
+  ],
+  "clips": 17,
+  "veredicto": {
+    "confirmado": {
+      "valor": "identico",
+      "motivo": "Coincide con la referencia del pre-registro valor por valor (revisado el 2026-10-31 sobre el zip de results/gen2; doc 134 13.12)",
+      "quien": "equipo E-OVRT-VDP",
+      "fecha": "2026-10-31T03:24:22+00:00"
+    },
+    "referencia": "results/bench_nivel_a/na1_gdinotiny560_v2short_video/metrics.json",
+    "propuesto": "identico",
+    "motivo": "los 16 campos coinciden con la generación 1",
+    "diferencias": {}
+  }
+}

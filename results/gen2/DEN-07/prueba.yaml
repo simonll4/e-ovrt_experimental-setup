@@ -1,0 +1,51 @@
+schema: prueba.gen2.v1
+id: DEN-07
+titulo: "Ganancia por identidad y costo de la densidad, con remuestreo pareado por clip"
+informe: ["Tabla 54 (fila «Identidad», F-96.4)", "§17.5.5"]
+fase: F5
+familia: analisis
+depende_de: [ALR-01, ALR-02, DEN-01, DEN-02, DEN-03, DEN-04, DEN-05, DEN-06]
+pregunta: >
+  ¿La ganancia por identidad (sujeto contra escena a la misma densidad) excluye el cero en cada
+  densidad? ¿Y la pérdida por densidad?
+gen1:
+  result_id: (doc 96, revisión adversarial)
+  doc: operacion/96
+  referencia:
+    fuente: docs/operacion/datos/96-critica-verificacion.json (GT anterior)
+    valores:
+      "R1−T1.obs": 0.005385
+      "R3−T1.obs": -0.050271
+      "R5−T1.obs": -0.142579
+      "R2−G1.obs": -0.063906
+      "R4−G1.obs": -0.054577
+      "R6−G1.obs": -0.187642
+      "R2−T1.obs": 0.076939
+      "G1−T1.obs": 0.140845
+      "R2−R1.obs": 0.071554
+      "R4−R3.obs": 0.136538
+      "R6−R5.obs": 0.095782
+diferencia_esperada: >
+  La generación 1 se calculó contra el GT anterior; con el GT corregido cambian T1 (0,789 → 0,841)
+  y G1 (0,930 → 0,899), así que los deltas no pueden coincidir. Se comparan al lado.
+esperado: >
+  Mismo método, misma semilla y mismos 10.000 remuestreos que el 96-critica. Con el GT corregido
+  la ganancia G1 − T1 baja de +0,141 a +0,058 (piloto 134): puede dejar de excluir el cero.
+veredictos_posibles: [equivalente_con_diferencia, otra_combinacion]
+receta:
+  campanas: {T1: ALR-01, R1: DEN-01, R3: DEN-03, R5: DEN-05, G1: ALR-02, R2: DEN-02, R4: DEN-04, R6: DEN-06}
+  contrastes:
+    - ["R1−T1", T1, R1]
+    - ["R3−T1", T1, R3]
+    - ["R5−T1", T1, R5]
+    - ["R2−G1", G1, R2]
+    - ["R4−G1", G1, R4]
+    - ["R6−G1", G1, R6]
+    - ["R2−T1", T1, R2]
+    - ["G1−T1", T1, G1]
+    - ["R2−R1", R1, R2]
+    - ["R4−R3", R3, R4]
+    - ["R6−R5", R5, R6]
+  n_boot: 10000
+  semilla: 96
+salida: e-ovrt_experimental-setup/results/gen2/DEN-07/

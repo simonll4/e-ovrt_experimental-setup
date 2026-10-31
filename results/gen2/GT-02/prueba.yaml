@@ -1,0 +1,45 @@
+schema: prueba.gen2.v1
+id: GT-02
+titulo: "Sensibilidad de cada conclusión a los bordes de la referencia"
+informe: ["§17.5.7 (limitaciones)"]
+fase: F5
+familia: analisis
+depende_de: [ALR-01, ALR-02, ALR-03, ALR-04, ALR-05, ALR-06, ALR-07, ALR-08, DEN-01, DEN-02, DEN-03,
+             DEN-04, DEN-05, DEN-06]
+pregunta: >
+  Si los bordes del GT estuvieran corridos hasta ±0,5 / ±1 / ±2 s, ¿en qué fracción de las
+  referencias simuladas se sostiene cada conclusión comparativa del informe?
+gen1:
+  result_id: (piloto 134)
+  doc: operacion/134
+  relacion: otra_combinacion
+  motivo: >
+    El piloto 134 corrió sobre las alertas de la generación 1; acá corre sobre las de la
+    generación 2. Mismo arnés, misma semilla y mismo número de réplicas.
+esperado: >
+  Las 12 conclusiones (C1–C8) con su fracción sostenida por J, al lado de la del piloto. Desde la
+  enmienda del 2026-10-30 (doc 134 §13.10) los contrastes ALR-03…06 se regeneran, así que C2–C5
+  también se evalúan sobre las alertas de la generación 2. El arnés
+  primero verifica (V1) que, sin perturbar, reproduce el metrics.json de cada prueba; si no, aborta.
+veredictos_posibles: [otra_combinacion]
+receta:
+  n: 5000
+  semilla: 20261025
+  J_ms: [500, 1000, 2000]
+  piloto_gen1: docs/operacion/datos/134-piloto-gt02-sensibilidad-bordes/gt02_todas_gt_corregido.json
+  campanas:
+    T1: {prueba: ALR-01, banco: a}
+    G1: {prueba: ALR-02, banco: a}
+    T2: {prueba: ALR-03, banco: a}
+    D1: {prueba: ALR-04, banco: a}
+    H1: {prueba: ALR-05, banco: a}
+    B1: {prueba: ALR-06, banco: a}
+    R1: {prueba: DEN-01, banco: a}
+    R2: {prueba: DEN-02, banco: a}
+    R3: {prueba: DEN-03, banco: a}
+    R4: {prueba: DEN-04, banco: a}
+    R5: {prueba: DEN-05, banco: a}
+    R6: {prueba: DEN-06, banco: a}
+    I1: {prueba: ALR-07, banco: v}
+    I2: {prueba: ALR-08, banco: v}
+salida: e-ovrt_experimental-setup/results/gen2/GT-02/
