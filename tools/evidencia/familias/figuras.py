@@ -178,8 +178,11 @@ def episodios_perdidos(ev: dict, gt: dict, alertas: list[dict]) -> list[tuple[st
     """(condición, cuadro en que la alerta tendría que haber salido, episodio) de cada perdido.
 
     El evaluador por episodio cuenta los perdidos (`missed_alerts_count`) pero no los lista; se
-    derivan con sus mismas ventanas (`effective_matching_windows`): un episodio sin ninguna alerta
-    de su condición entre su inicio y `t_alert_max_ms`. El cuadro dibujado es el del inicio más la
+    derivan con su misma ventana (`_alert_in_episode_window` de `eovrt_control.evaluation.temporal`):
+    desde el inicio más la persistencia mínima hasta el inicio más `t_alert_max_ms`, las dos puntas
+    ensanchadas por la tolerancia de bordes que declara el GT. Una alerta anterior a la persistencia
+    es prematura: el evaluador la cuenta falsa alarma y el episodio, perdido. Cada alerta acierta un
+    solo episodio, y los episodios censurados no cuentan. El cuadro dibujado es el del inicio más la
     persistencia mínima. Quien llama compara la cantidad con la del evaluador y lo anota.
     """
     if ev.get("missed_alerts"):
@@ -188,16 +191,26 @@ def episodios_perdidos(ev: dict, gt: dict, alertas: list[dict]) -> list[tuple[st
     if not ev.get("missed_alerts_count"):
         return []
     ventanas = ev.get("effective_matching_windows") or {}
+    tolerancia = float((gt.get("annotation") or {}).get("start_end_tolerance_ms") or 0)
+    censurados = {c.get("episode_id") for c in ev.get("censored_episodes") or []}
     fps = float(gt.get("fps_nominal") or 30)
-    out = []
-    for epi in gt.get("episodes") or []:
+    con_tiempo = sorted((a for a in alertas if a.get("timestamp_ms") is not None), key=lambda a: float(a["timestamp_ms"]))
+    usadas, out = set(), []
+    for epi in sorted(gt.get("episodes") or [], key=lambda e: e["start_ms"]):
+        if epi.get("id") in censurados:
+            continue
         w = ventanas.get(epi["condition_id"]) or {}
-        fin = epi["start_ms"] + float(w.get("t_alert_max_ms") or (epi["end_ms"] - epi["start_ms"]))
-        acertado = any(a["condition_id"] == epi["condition_id"] and epi["start_ms"] <= float(a["timestamp_ms"]) <= fin
-                       for a in alertas)
-        if not acertado:
-            t = epi["start_ms"] + float(w.get("persistencia_min_ms") or 0)
-            out.append((epi["condition_id"], int(t / 1000 * fps), epi.get("id")))
+        persistencia = float(w.get("persistencia_min_ms") or 0)
+        desde = epi["start_ms"] + persistencia - tolerancia
+        hasta = epi["start_ms"] + float(w.get("t_alert_max_ms") or (epi["end_ms"] - epi["start_ms"])) + tolerancia
+        acierto = next((a for a in con_tiempo if a.get("alert_id") not in usadas
+                        and a["condition_id"] == epi["condition_id"]
+                        and (epi.get("level") != "subject" or a.get("subject_key") == epi.get("subject_key"))
+                        and desde <= float(a["timestamp_ms"]) <= hasta), None)
+        if acierto:
+            usadas.add(acierto.get("alert_id"))
+            continue
+        out.append((epi["condition_id"], int((epi["start_ms"] + persistencia) / 1000 * fps), epi.get("id")))
     return out
 
 

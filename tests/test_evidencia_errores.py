@@ -285,6 +285,27 @@ def test_episodios_perdidos_se_derivan_con_las_ventanas_del_evaluador():
     assert figuras.episodios_perdidos({"missed_alerts_count": 0}, gt, []) == []
 
 
+def test_una_alerta_prematura_no_acierta_el_episodio():
+    # El evaluador abre la ventana en inicio + persistencia (ensanchada por la tolerancia del GT):
+    # una alerta antes es prematura, cuenta como falsa alarma, y el episodio queda perdido. La
+    # derivación vieja abría la ventana en el inicio y en la Victus dio 2 perdidos en vez de 6.
+    gt = {"fps_nominal": 30, "annotation": {"start_end_tolerance_ms": 500}, "episodes": [
+        {"id": "ep1", "condition_id": "CR-01", "level": "scene", "start_ms": 3000, "end_ms": 30000}]}
+    ev = {"missed_alerts": [], "missed_alerts_count": 1,
+          "effective_matching_windows": {"CR-01": {"persistencia_min_ms": 4000, "t_alert_max_ms": 10000}}}
+    prematura = [{"alert_id": "a", "condition_id": "CR-01", "timestamp_ms": 5000}]
+    assert figuras.episodios_perdidos(ev, gt, prematura) == [("CR-01", 210, "ep1")]
+    dentro_de_la_tolerancia = [{"alert_id": "a", "condition_id": "CR-01", "timestamp_ms": 6600}]
+    assert figuras.episodios_perdidos(ev, gt, dentro_de_la_tolerancia) == []
+    # un episodio censurado no es un perdido, y una alerta acierta un solo episodio
+    ev_censurado = {**ev, "censored_episodes": [{"episode_id": "ep1"}]}
+    assert figuras.episodios_perdidos(ev_censurado, gt, prematura) == []
+    dos = {**gt, "episodes": gt["episodes"] + [{"id": "ep2", "condition_id": "CR-01", "level": "scene",
+                                                "start_ms": 3200, "end_ms": 30000}]}
+    una = [{"alert_id": "a", "condition_id": "CR-01", "timestamp_ms": 8000}]
+    assert figuras.episodios_perdidos(ev, dos, una) == [("CR-01", 216, "ep2")]
+
+
 def test_los_cuadros_quedan_fuera_de_git(banco):  # noqa: F811
     ctx = Contexto(ent=banco, consola=None, catalogo={}, avisar=lambda *_: None)
     destino = figuras.carpeta_cuadros(ctx, "VIS-01")
