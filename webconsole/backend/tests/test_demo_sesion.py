@@ -486,6 +486,82 @@ async def test_exploracion_fuera_de_la_lista_o_sin_la_oakd_no_arranca(entorno):
     assert not any(entorno.sesiones.glob("demo_*"))
 
 
+# --- el modo de prompts (✎ 2026-11-01, modos.yaml) -------------------------------------------
+
+
+async def test_modo_edir_manda_lo_medido_y_marca_la_sesion(entorno):
+    """Otro par prompt set + pattern set ya medido: lo congelado queda en amarillo (no bloquea),
+    los prompts van por corrida sin tocar el motor, y la sesión queda marcada de punta a punta."""
+    from eovrt_webconsole.demo import modos as demo_modos
+
+    dm = entorno.dm
+    edir = demo_modos.resolver(dm.repo_root, "edir")
+    pf = await dm.preflight(None, edir)
+    por_id = {i["id"]: i for i in pf["items"]}
+    assert por_id["congelado"]["estado"] == "aviso" and "E-DIR" in por_id["congelado"]["detalle"]
+    assert por_id["modo"]["estado"] == "ok" and "ALR-04" in por_id["modo"]["detalle"]
+    assert pf["listo"] is True and pf["congelado"]["ok"] is False
+    assert pf["modo_prompts"]["id"] == "edir" and pf["modo_prompts"]["verificacion"]["ok"] is True
+
+    sid = (await dm.start("oakd", modo="edir"))["session_id"]
+    assert sid.endswith("_modo-edir")
+    await _esperar(lambda: entorno.media.lanzadas)
+    assert entorno.media.lanzadas[0]["prompts"] == demo_modos.payload(edir)
+    control = entorno.control.lanzadas[0][0]
+    assert control["patterns"]["file"].endswith("/cr01_cr02_edir_v1.yaml")
+    assert dm.estado()["modo_prompts"]["id"] == "edir"
+    datos = json.loads((entorno.sesiones / sid / "session.json").read_text())
+    assert datos["modo_prompts"]["prompt_set"] == "edir_v1_pair_nivel_b"
+    assert datos["modo_prompts"]["pattern_set"]["id"] == "cr01_cr02_edir_v1"
+    assert datos["modo_prompts"]["verificacion"]["ok"] is True
+    assert datos["congelado"]["ok"] is False  # se registra igual
+    assert datos["exploracion"] is None
+    await dm.finish()
+    await _esperar(lambda: dm.estado()["fase"] in {"done", "failed"})
+    assert dm.sesiones()[0]["modo_prompts"]["id"] == "edir"
+    assert dm.sesion(sid)["session"]["modo_prompts"]["id"] == "edir"
+
+
+async def test_el_campeon_pedido_por_nombre_es_la_demo_congelada(entorno):
+    dm = entorno.dm
+    sid = (await dm.start("oakd", "DEMO", modo="campeon"))["session_id"]
+    assert sid.endswith("_DEMO")
+    datos = json.loads((entorno.sesiones / sid / "session.json").read_text())
+    assert datos["modo_prompts"] is None and datos["congelado"]["ok"] is True
+    await _esperar(lambda: entorno.media.lanzadas)
+    assert entorno.media.lanzadas[0]["prompts"]["set_inline"]["id"] == "cr01_cr02_v2_short"
+    await dm.finish()
+    await _esperar(lambda: dm.estado()["fase"] in {"done", "failed"})
+
+
+async def test_modo_fuera_de_la_lista_o_con_exploracion_no_arranca(entorno):
+    from eovrt_webconsole.demo.config import ConfigDemoError
+
+    dm = entorno.dm
+    with pytest.raises(ConfigDemoError, match="fuera de la lista"):
+        await dm.start("oakd", modo="vocabulario_libre")
+    with pytest.raises(ValueError, match="no se combina"):
+        await dm.start("oakd", "DEMO", {"motor": "mp-gdino-tiny-560", "camara": "960x540@5"}, modo="edir")
+    assert not any(entorno.sesiones.glob("demo_*"))
+
+
+async def test_un_modo_que_ya_no_es_el_medido_queda_en_rojo(entorno):
+    """Una frase cambiada en prompts/ después de la medición: el modo ya no es lo que midió su
+    prueba, el chequeo previo lo pone en rojo y la sesión no arranca."""
+    from eovrt_webconsole.demo import modos as demo_modos
+
+    dm = entorno.dm
+    archivo = dm.repo_root / "prompts" / "edir_v1.yaml"
+    archivo.write_text(archivo.read_text(encoding="utf-8").replace(
+        "construction worker without safety helmet", "worker with no helmet"), encoding="utf-8")
+    pf = await dm.preflight(None, demo_modos.resolver(dm.repo_root, "edir"))
+    modo = next(i for i in pf["items"] if i["id"] == "modo")
+    assert modo["estado"] == "error" and "ALR-04" in modo["detalle"] and pf["listo"] is False
+    with pytest.raises(DemoNoLista):
+        await dm.start("oakd", modo="edir")
+    assert not any(entorno.sesiones.glob("demo_*"))
+
+
 # --- la cámara elegida en la pantalla (✎ 2026-11-01) -------------------------------------------
 
 CLAVE_DVR = "S3cr3ta"

@@ -38,6 +38,7 @@ import httpx
 
 from eovrt_webconsole.demo import camara as demo_camara
 from eovrt_webconsole.demo import config as demo_config
+from eovrt_webconsole.demo import modos as demo_modos
 from eovrt_webconsole.demo.cifras import leer_cifras
 from eovrt_webconsole.demo.estado import Derivador
 from eovrt_webconsole.demo.render import render_sesion
@@ -67,7 +68,8 @@ RESPALDO = "RESPALDO"
 # P7c, DEMO; RT-04 del doc 134). No cambia nada de lo que corre: solo nombra la sesión
 # para que el driver de evidencia la encuentre y la compare con su guion.
 _ESCENA = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_-]{0,23}$")
-# Sufijos: la variante (`_ensayo`), la escena del rodaje (`_P1`, `_P7a`, `_DEMO`) y `_exp`.
+# Sufijos: la variante (`_ensayo`), la escena del rodaje (`_P1`, `_P7a`, `_DEMO`), `_exp` y el
+# modo de prompts que no es el campeón (`_modo-edir`).
 # Sin puntos ni barras: el id es un nombre de carpeta y no puede salir de `sesiones/`.
 _ID_RE = re.compile(r"^demo_\d{8}T\d{6}Z(_[A-Za-z0-9-]+)*$")
 _PREFLIGHT_HOST = "preflight_host.json"
@@ -147,6 +149,9 @@ class _Sesion:
     # La cámara elegida en la pantalla ({id, nombre, plugin, destino}, sin credenciales). None =
     # la OAK-D de la plantilla.
     camara: dict | None = None
+    # Otro par prompt set + pattern set ya medido (modos.yaml), con su verificación. None = el
+    # campeón, la demo congelada.
+    modo_prompts: dict | None = None
     fase: str = "preparing"
     ids: dict[str, str] = field(default_factory=dict)
     derivador: Derivador = field(default_factory=Derivador)
@@ -248,6 +253,7 @@ class DemoManager:
             "escena": s.escena,
             "exploracion": s.exploracion,
             "camara": s.camara,
+            "modo_prompts": s.modo_prompts,
             "fase": s.fase,
             "stack": s.despliegue.modo,
             "experiment_id": s.experiment_id,
@@ -452,10 +458,12 @@ class DemoManager:
             self._comprobaciones[preset["id"]] = (resultado, self._reloj())
         return resultado
 
-    async def preflight(self, exploracion: dict | None = None) -> dict[str, Any]:
+    async def preflight(self, exploracion: dict | None = None, modo: dict | None = None) -> dict[str, Any]:
         """Chequeo previo. Con `exploracion` (RT-05, `demo_config.resolver_exploracion`) el
         motor esperado es el de la exploración y lo congelado no bloquea: se muestra en
-        amarillo, porque la sesión no es la demo congelada y queda marcada como tal."""
+        amarillo, porque la sesión no es la demo congelada y queda marcada como tal. Con `modo`
+        (`demo_modos.resolver`) lo congelado también queda en amarillo, y un ítem más exige
+        que lo que se manda sea exactamente lo que midió la prueba del modo."""
         app = self._app
         items: list[dict[str, Any]] = []
 
@@ -541,17 +549,34 @@ class DemoManager:
              f"{desp.mqtt_host}:{desp.mqtt_port} — {ping.get('detalle')}",
              None if ping.get("ok") else "revisar el contenedor mosquitto (docker ps)")
 
+        verificacion: dict | None = None
         try:
-            configs = demo_config.resolver_configs(self._repo_root, "oakd", desp, exploracion)
+            configs = demo_config.resolver_configs(self._repo_root, "oakd", desp, exploracion, modo=modo)
             congelado = demo_config.verificar_congelado(self._repo_root, configs, modelo)
+            if modo:
+                verificacion = demo_modos.verificar(configs, modo, congelado)
         except (demo_config.ConfigDemoError, KeyError, TypeError) as exc:
             congelado = {"ok": False, "tag": congelado_esperado.get("tag"), "items": [],
                          "error": f"no se pudo verificar lo congelado: {exc}"}
+            if modo:
+                verificacion = {"ok": False, "items": [], "error": str(exc)}
         if exploracion:
             item("congelado", "configuración congelada", "aviso",
                  f"exploración: {exploracion['motor']} con la cámara a {exploracion['camara']}. "
                  "No es la configuración congelada: la sesión queda marcada y no cuenta como ensayo",
                  None)
+        elif modo and verificacion:
+            item("congelado", "configuración congelada", "aviso",
+                 f"modo {modo['nombre']}: {modo['prompt_set']} + {modo['pattern_set']['id']}. "
+                 "No es la configuración congelada: la sesión queda marcada y no cuenta como ensayo",
+                 None)
+            distintos = [i["nombre"] for i in verificacion["items"] if not i["ok"]]
+            item("modo", "prompts del modo", "ok" if verificacion["ok"] else "error",
+                 f"iguales a los que midió {modo['medido_en']}; modelo, umbrales y distribución iguales al tag"
+                 if verificacion["ok"] else
+                 f"no es lo que midió {modo['medido_en']}: "
+                 + ("; ".join(distintos) or verificacion.get("error") or "?"),
+                 None if verificacion["ok"] else "no correr este modo: volver al campeón")
         else:
             item("congelado", "configuración congelada", "ok" if congelado["ok"] else "error",
                  f"igual al tag {congelado.get('tag')}" if congelado["ok"]
@@ -582,6 +607,7 @@ class DemoManager:
             "items": items,
             "congelado": congelado,
             "exploracion": exploracion,
+            "modo_prompts": {**modo, "verificacion": verificacion} if modo else None,
             "motor": {k: v for k, v in motor.items() if k != "runs"},
             "stack": desp.modo,
             "comprobado_en": _ahora_iso(self._reloj()),
@@ -590,10 +616,13 @@ class DemoManager:
     # --- arranque ---------------------------------------------------------------
 
     async def start(self, variante: str = "oakd", escena: str | None = None,
-                    exploracion: dict | None = None, camara: str | None = None) -> dict[str, Any]:
+                    exploracion: dict | None = None, camara: str | None = None,
+                    modo: str | None = None) -> dict[str, Any]:
         """Arranca una sesión. `exploracion` ({"motor", "camara"}, RT-05) corre la misma
         escena con otro motor u otra cámara de la lista cerrada de `exploracion.yaml`: solo
-        con la OAK-D, y la sesión queda marcada (id con `_exp`, `exploracion` en session.json)."""
+        con la OAK-D, y la sesión queda marcada (id con `_exp`, `exploracion` en session.json).
+        `modo` (un id de `modos.yaml`) corre otro par prompt set + pattern set ya medido: si no
+        es el campeón, la sesión queda marcada (id con `_modo-<id>`, `modo_prompts`)."""
         async with self._arranque:
             if self._sesion is not None and self._sesion.fase in FASES_ACTIVAS:
                 raise DemoOcupada(f"hay una sesión en curso: {self._sesion.id}")
@@ -606,6 +635,9 @@ class DemoManager:
                     raise ValueError("la exploración es con la OAK-D (variante oakd)")
                 exploracion = demo_config.resolver_exploracion(
                     self._repo_root, exploracion.get("motor"), exploracion.get("camara"))
+            modo_prompts = demo_modos.resolver(self._repo_root, modo)
+            if modo_prompts is not None and exploracion is not None:
+                raise ValueError("la exploración (RT-05) es con el prompt set congelado: no se combina con otro modo")
             preset = None
             if camara is not None:
                 if exploracion is not None:
@@ -617,18 +649,20 @@ class DemoManager:
             manager = self._app.state.experiment_manager
             if manager.current() is not None:
                 raise DemoOcupada("hay un experimento en curso en la consola")
-            preflight = await self.preflight(exploracion)
+            preflight = await self.preflight(exploracion, modo_prompts)
             if not preflight["listo"]:
                 raise DemoNoLista(preflight)
 
             ahora = self._reloj()
             sello = datetime.fromtimestamp(ahora, tz=UTC).strftime("%Y%m%dT%H%M%SZ")
             session_id = (f"demo_{sello}" + ("" if variante == "oakd" else f"_{variante}")
-                          + (f"_{escena}" if escena else "") + ("_exp" if exploracion else ""))
+                          + (f"_{escena}" if escena else "") + ("_exp" if exploracion else "")
+                          + (f"_modo-{modo_prompts['id']}" if modo_prompts else ""))
             carpeta = self.sesiones_dir / session_id
             carpeta.mkdir(parents=True, exist_ok=False)
             desp = self._despliegue()
-            configs = demo_config.resolver_configs(self._repo_root, variante, desp, exploracion, preset)
+            configs = demo_config.resolver_configs(self._repo_root, variante, desp, exploracion, preset,
+                                                   modo_prompts)
             modelo = None
             try:
                 modelo = (await self._app.state.http.get("/api/model")).json()
@@ -639,6 +673,14 @@ class DemoManager:
                 # Se registra el modelo que el motor dice tener (umbrales incluidos): es lo
                 # que distingue una celda de la otra en RT-05.
                 exploracion = {**exploracion, "modelo_cargado": modelo}
+            elif modo_prompts:
+                # La verificación queda en session.json: es la constancia de que se mandó lo medido.
+                verificacion = demo_modos.verificar(configs, modo_prompts, congelado)
+                if not verificacion["ok"]:
+                    raise DemoNoLista({**preflight, "items": [
+                        {"id": "modo", "nombre": "prompts del modo", "estado": "error",
+                         "detalle": f"no es lo que midió {modo_prompts['medido_en']}", "accion": None}]})
+                modo_prompts = {**modo_prompts, "verificacion": verificacion}
             elif not congelado["ok"]:
                 raise DemoNoLista({**preflight, "items": [
                     {"id": "congelado", "nombre": "configuración congelada", "estado": "error",
@@ -670,7 +712,7 @@ class DemoManager:
                 id=session_id, dir=carpeta, variante=variante, despliegue=desp,
                 experiment_id=experiment_id, hooks=hooks, testigo=testigo,
                 congelado=congelado, iniciada=ahora, escena=escena, exploracion=exploracion,
-                camara=demo_camara.resumen(preset) if preset else None,
+                camara=demo_camara.resumen(preset) if preset else None, modo_prompts=modo_prompts,
             )
             hooks.on_ids = lambda ids: self._ids(s, ids)
             manifest = ExperimentManifest.model_validate({
@@ -691,7 +733,11 @@ class DemoManager:
                 "frozen": {"tag": congelado["tag"], "ok": congelado["ok"],
                            "huellas": {i["id"]: i["actual"] for i in congelado["items"]},
                            **({"exploracion": {k: exploracion[k] for k in ("motor", "modelo", "camara")}}
-                              if exploracion else {})},
+                              if exploracion else {}),
+                           **({"modo_prompts": {"id": modo_prompts["id"], "prompt_set": modo_prompts["prompt_set"],
+                                                "pattern_set": modo_prompts["pattern_set"]["id"],
+                                                "medido_en": modo_prompts["medido_en"]}}
+                              if modo_prompts else {})},
             })
             await self._liberar_vista()
             self._motor = {**self._motor, "estado": "usado"}
@@ -714,7 +760,8 @@ class DemoManager:
             self._evento(s, "inicio", variante=variante, escena=escena, experiment_id=experiment_id,
                          **({"camara": preset["id"]} if preset else {}),
                          **({"exploracion": f"{exploracion['motor']} @ {exploracion['camara']}"}
-                            if exploracion else {}))
+                            if exploracion else {}),
+                         **({"modo": modo_prompts["id"]} if modo_prompts else {}))
             self._guardar(s)
             self._tarea(self._vigilar(s))
             if self._telemetria:
@@ -957,6 +1004,7 @@ class DemoManager:
             "escena": s.escena,
             "exploracion": s.exploracion,
             "camara_elegida": s.camara,
+            "modo_prompts": s.modo_prompts,
             "stack": s.despliegue.modo,
             "experiment_id": s.experiment_id,
             "ids": s.ids,
@@ -1032,6 +1080,7 @@ class DemoManager:
                 "fase": data.get("fase"), "iniciada_en": data.get("iniciada_en"),
                 "ended_by": data.get("ended_by"), "respaldo": data.get("session_id") == respaldo,
                 "escena": data.get("escena"), "exploracion": data.get("exploracion"),
+                "modo_prompts": data.get("modo_prompts"),
             })
         return filas
 
@@ -1110,6 +1159,9 @@ class DemoManager:
 
     def cifras(self) -> list[dict[str, Any]]:
         return leer_cifras(self._repo_root / "results")
+
+    def modos(self) -> dict[str, Any]:
+        return demo_modos.describir(self._repo_root)
 
     async def aclose(self) -> None:
         for tarea in list(self._tareas):

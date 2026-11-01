@@ -121,3 +121,31 @@ def test_comprobar_una_camara_inexistente_es_404(two_plane_client):
 def test_start_con_camara_que_no_es_texto_es_422(two_plane_client):
     _sin_red(two_plane_client)
     assert two_plane_client.post("/api/demo/start", json={"variante": "oakd", "camara": 5}).status_code == 422
+
+
+def test_modos_sin_lista_es_503_y_un_modo_mal_pedido_es_422(client):
+    """Sin `modos.yaml` la pantalla se queda con el campeón; un modo se pide por id, de la lista."""
+    assert client.get("/api/demo/modos").status_code == 503
+    assert client.get("/api/demo/preflight", params={"modo": "edir"}).status_code == 422
+    assert client.post("/api/demo/start", json={"variante": "oakd", "modo": ["edir"]}).status_code == 422
+
+
+def test_modos_lista_los_tres_con_frases_y_cifras(client):
+    import shutil
+
+    from tests.demo_fixtures import PROMPT_SETS, REPO_REAL
+
+    repo = client.app.state.settings.repo_root
+    destino = repo / "experiments" / "demo_defensa"
+    destino.mkdir(parents=True)
+    shutil.copy2(REPO_REAL / "experiments" / "demo_defensa" / "modos.yaml", destino)
+    for archivo in PROMPT_SETS:
+        shutil.copy2(REPO_REAL / "prompts" / archivo, repo / "prompts")
+    body = client.get("/api/demo/modos").json()
+    assert body["default"] == "campeon"
+    assert [m["id"] for m in body["modos"]] == ["campeon", "edir", "clase_nueva"]
+    edir = body["modos"][1]
+    assert edir["prompt_set"] == "edir_v1_pair_nivel_b" and edir["pattern_set"] == "cr01_cr02_edir_v1"
+    assert edir["clases"][1]["frases"] == ["construction worker without safety helmet"]
+    assert edir["cifras"][0]["prueba"] == "ALR-04"
+    assert client.get("/api/demo/preflight", params={"modo": "nada"}).status_code == 422
