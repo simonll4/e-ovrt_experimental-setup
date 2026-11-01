@@ -1,0 +1,9 @@
+[2026-11-01T19:20:36+00:00] python -m tools.evidencia vivo RT-03 --toma lat_960_a --config 960x540@5
+[2026-11-01T19:20:36+00:00] docker compose restart mp-gdino-tiny-560
+[2026-11-01T19:20:56+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/RT-03/gen2_rt03_lat_960_a/manifest.yaml
+[2026-11-01T19:26:58+00:00] python -m tools.evidencia vivo RT-03 --toma lat_960_b --config 960x540@5
+[2026-11-01T19:26:58+00:00] docker compose restart mp-gdino-tiny-560
+[2026-11-01T19:27:13+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/RT-03/gen2_rt03_lat_960_b/manifest.yaml
+[2026-11-01T19:35:52+00:00] python -m tools.evidencia vivo RT-03 --toma lat_960_c --config 960x540@5
+[2026-11-01T19:35:52+00:00] docker compose restart mp-gdino-tiny-560
+[2026-11-01T19:36:09+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/RT-03/gen2_rt03_lat_960_c/manifest.yaml

@@ -1,0 +1,126 @@
+{
+  "schema": "corridas.gen2.v1",
+  "prueba": "RT-08",
+  "corridas": {
+    "demo_20261101T210406Z_P1": {
+      "estado": "ok",
+      "escena": "P1",
+      "experiment_id": "exp_20261101T210406Z_demo_defensa",
+      "control_run_id": "control_demo_defensa_20261101T210406Z_2b06be",
+      "media_run_id": "run_20261101_210406_dbe_grounding_dino_5aa90d",
+      "distribution_run_id": "dist_20261101T210406Z_84b8d8",
+      "sujeto": {
+        "estado": "fallo",
+        "experiment_id": "exp_20261101T211826Z_gen2_rt04_sujeto_demo_20261101T210406Z_P1",
+        "control_run_id": null,
+        "segundos": 0.0,
+        "sha256": {
+          "control_config": "0cafeae808879f9b95a1795d7e76c31ca2add4b7f13ca8ca1e7fa5d2ae420254",
+          "patrones": "0b88e5cd159ba49676f7723fe34d48c81f1b9a6b2ecb9c973e076570d164a391"
+        },
+        "error": "control=None"
+      },
+      "importada": "2026-11-01T21:18:26+00:00"
+    },
+    "demo_20261101T210608Z_P2": {
+      "estado": "ok",
+      "escena": "P2",
+      "experiment_id": "exp_20261101T210608Z_demo_defensa",
+      "control_run_id": "control_demo_defensa_20261101T210608Z_1b66b2",
+      "media_run_id": "run_20261101_210608_dbe_grounding_dino_dcfe14",
+      "distribution_run_id": "dist_20261101T210608Z_cd59f3",
+      "sujeto": {
+        "estado": "fallo",
+        "experiment_id": "exp_20261101T211826Z_gen2_rt04_sujeto_demo_20261101T210608Z_P2",
+        "control_run_id": null,
+        "segundos": 0.0,
+        "sha256": {
+          "control_config": "171e92ba3d4abe24055efe4cd134e52ed21cac4a045e0482f6fd4751e25beaf5",
+          "patrones": "0b88e5cd159ba49676f7723fe34d48c81f1b9a6b2ecb9c973e076570d164a391"
+        },
+        "error": "control=None"
+      },
+      "importada": "2026-11-01T21:18:27+00:00"
+    },
+    "demo_20261101T210851Z_P1": {
+      "estado": "ok",
+      "escena": "P1",
+      "experiment_id": "exp_20261101T210851Z_demo_defensa",
+      "control_run_id": "control_demo_defensa_20261101T210851Z_6ce864",
+      "media_run_id": "run_20261101_210851_dbe_grounding_dino_2d8690",
+      "distribution_run_id": "dist_20261101T210851Z_df4fda",
+      "sujeto": {
+        "estado": "fallo",
+        "experiment_id": "exp_20261101T211827Z_gen2_rt04_sujeto_demo_20261101T210851Z_P1",
+        "control_run_id": null,
+        "segundos": 0.0,
+        "sha256": {
+          "control_config": "597f2dfe8c05958f7d7bd7ea9509ba3c3dd670a3fbf1e0c07642524887d2f583",
+          "patrones": "0b88e5cd159ba49676f7723fe34d48c81f1b9a6b2ecb9c973e076570d164a391"
+        },
+        "error": "control=None"
+      },
+      "importada": "2026-11-01T21:18:27+00:00"
+    },
+    "demo_20261101T211110Z_P2": {
+      "estado": "ok",
+      "escena": "P2",
+      "experiment_id": "exp_20261101T211110Z_demo_defensa",
+      "control_run_id": "control_demo_defensa_20261101T211110Z_1e4a64",
+      "media_run_id": "run_20261101_211110_dbe_grounding_dino_858fb4",
+      "distribution_run_id": "dist_20261101T211110Z_aeaca8",
+      "sujeto": {
+        "estado": "fallo",
+        "experiment_id": "exp_20261101T211827Z_gen2_rt04_sujeto_demo_20261101T211110Z_P2",
+        "control_run_id": null,
+        "segundos": 0.0,
+        "sha256": {
+          "control_config": "d6fe9b880e0629a8447d941280a100d9ddc81ad3a082e08cc0eb401f0bc85332",
+          "patrones": "0b88e5cd159ba49676f7723fe34d48c81f1b9a6b2ecb9c973e076570d164a391"
+        },
+        "error": "control=None"
+      },
+      "importada": "2026-11-01T21:18:27+00:00"
+    },
+    "demo_20261101T211315Z_P1": {
+      "estado": "ok",
+      "escena": "P1",
+      "experiment_id": "exp_20261101T211315Z_demo_defensa",
+      "control_run_id": "control_demo_defensa_20261101T211316Z_d9604a",
+      "media_run_id": "run_20261101_211316_dbe_grounding_dino_e83335",
+      "distribution_run_id": "dist_20261101T211316Z_b2fd0b",
+      "sujeto": {
+        "estado": "fallo",
+        "experiment_id": "exp_20261101T211827Z_gen2_rt04_sujeto_demo_20261101T211315Z_P1",
+        "control_run_id": null,
+        "segundos": 0.0,
+        "sha256": {
+          "control_config": "8017a33c13d32f7160279a835e5e397a3ebca5cdad41c7d8ee1e18d06766d99b",
+          "patrones": "0b88e5cd159ba49676f7723fe34d48c81f1b9a6b2ecb9c973e076570d164a391"
+        },
+        "error": "control=None"
+      },
+      "importada": "2026-11-01T21:18:27+00:00"
+    },
+    "demo_20261101T211456Z_P2": {
+      "estado": "ok",
+      "escena": "P2",
+      "experiment_id": "exp_20261101T211456Z_demo_defensa",
+      "control_run_id": "control_demo_defensa_20261101T211456Z_fc6958",
+      "media_run_id": "run_20261101_211456_dbe_grounding_dino_af8d4f",
+      "distribution_run_id": "dist_20261101T211456Z_24a772",
+      "sujeto": {
+        "estado": "fallo",
+        "experiment_id": "exp_20261101T211827Z_gen2_rt04_sujeto_demo_20261101T211456Z_P2",
+        "control_run_id": null,
+        "segundos": 0.0,
+        "sha256": {
+          "control_config": "d147d5ca316e86a0fc0f399b6d9cfb9428c669c1b074c2797307d5222d86edbf",
+          "patrones": "0b88e5cd159ba49676f7723fe34d48c81f1b9a6b2ecb9c973e076570d164a391"
+        },
+        "error": "control=None"
+      },
+      "importada": "2026-11-01T21:18:27+00:00"
+    }
+  }
+}

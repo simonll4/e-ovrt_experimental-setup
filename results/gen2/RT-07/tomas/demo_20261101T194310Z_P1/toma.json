@@ -1,0 +1,75 @@
+{
+  "escena": "P1",
+  "session_id": "demo_20261101T194310Z_P1",
+  "experiment_id": "exp_20261101T194310Z_demo_defensa",
+  "ids": {
+    "control_run_id": "control_demo_defensa_20261101T194310Z_108677",
+    "media_run_id": "run_20261101_194310_dbe_grounding_dino_893d06",
+    "distribution_run_id": "dist_20261101T194310Z_9705fa"
+  },
+  "marcas": true,
+  "alertas": [
+    {
+      "condicion": "CR-01",
+      "alert_id": "c678429a-b620-59f0-86d0-35cb0ed8a33e",
+      "subject_key": "CR-01:169.254.31.137",
+      "captura_primera_evidencia_ms": 1793562212897.506,
+      "captura_confirmacion_ms": 1793562216906.907,
+      "confirmada_ms": 1793562217046.579,
+      "broker_ms": 1793562217070.51,
+      "confirmacion_a_broker_ms": 23.9,
+      "primera_evidencia_a_confirmacion_ms": 4149.1,
+      "accion": "sacar_casco",
+      "accion_a_confirmacion_ms": 6741.0,
+      "accion_a_primera_evidencia_ms": 2591.9,
+      "accion_a_broker_ms": 6764.9,
+      "resuelta": true,
+      "accion_fin_a_resolucion_ms": 5201.3
+    }
+  ],
+  "por_condicion": {
+    "CR-01": {
+      "esperado": "alerta",
+      "alertas": 1,
+      "ok": true
+    },
+    "CR-02": {
+      "esperado": "sin_alerta",
+      "alertas": 0,
+      "ok": true
+    }
+  },
+  "como_se_esperaba": true,
+  "alertas_antes_de_la_accion": 0,
+  "bus_dropped_events": 0,
+  "resultado_listo_s": 8.7,
+  "latencia": {
+    "unidades": 150,
+    "descartadas": 0,
+    "fps_efectivos": 3.43,
+    "inferencia_p50_ms": 152.59,
+    "inferencia_p95_ms": 201.9,
+    "g2a": {
+      "n": 150,
+      "p50": 154.895,
+      "p95": 269.932,
+      "max": 530.229
+    },
+    "captura_a_host": {
+      "n": 150,
+      "p50": 62.59,
+      "p95": 81.94,
+      "max": 110.81
+    },
+    "vidrio_a_resultado": {
+      "n": 150,
+      "p50": 216.829,
+      "p95": 342.101,
+      "max": 588.139
+    },
+    "hueco_max_ms": 246.005126953125,
+    "hueco_mediana_ms": 204.6552734375,
+    "contaminada": false,
+    "reloj_pared_menos_monotonico_ms": 1793558800660.77
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "escena": "P2",
+  "session_id": "demo_20261101T195513Z_P2",
+  "experiment_id": "exp_20261101T195513Z_demo_defensa",
+  "ids": {
+    "control_run_id": "control_demo_defensa_20261101T195514Z_22bd5e",
+    "media_run_id": "run_20261101_195514_dbe_grounding_dino_fc9b8b",
+    "distribution_run_id": "dist_20261101T195514Z_0d216e"
+  },
+  "marcas": true,
+  "alertas": [],
+  "por_condicion": {
+    "CR-01": {
+      "esperado": "sin_alerta",
+      "alertas": 0,
+      "ok": true
+    },
+    "CR-02": {
+      "esperado": "alerta",
+      "alertas": 0,
+      "ok": false
+    }
+  },
+  "como_se_esperaba": false,
+  "alertas_antes_de_la_accion": 0,
+  "bus_dropped_events": 0,
+  "resultado_listo_s": 8.9,
+  "latencia": {
+    "unidades": 189,
+    "descartadas": 0,
+    "fps_efectivos": 3.66,
+    "inferencia_p50_ms": 165.28,
+    "inferencia_p95_ms": 218.04,
+    "g2a": {
+      "n": 189,
+      "p50": 166.757,
+      "p95": 304.517,
+      "max": 391.413
+    },
+    "captura_a_host": {
+      "n": 189,
+      "p50": 69.68,
+      "p95": 94.65,
+      "max": 104.49
+    },
+    "vidrio_a_resultado": {
+      "n": 189,
+      "p50": 238.106,
+      "p95": 378.441,
+      "max": 446.853
+    },
+    "hueco_max_ms": 238.246337890625,
+    "hueco_mediana_ms": 197.03857421875,
+    "contaminada": false,
+    "reloj_pared_menos_monotonico_ms": 1793558800615.6306
+  }
+}

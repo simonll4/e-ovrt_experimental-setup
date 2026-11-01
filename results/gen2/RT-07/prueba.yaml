@@ -1,0 +1,58 @@
+schema: prueba.gen2.v1
+id: RT-07
+titulo: "Obra simulada en vivo con otro chaleco: amarillo y sin bandas reflectantes"
+informe: ["Tabla 54", "§17.5.5"]
+fase: F7
+familia: rodaje
+# Enmienda del 2026-11-01 (doc 134 §13.14), escrita y commiteada ANTES de correr: en la jornada en vivo
+# había un solo chaleco y no era como los del rodaje de julio. En lugar de mezclarlo en RT-04/RT-05/RT-06
+# (que fijan los de julio), se mide aparte.
+pregunta: >
+  Con un chaleco distinto de los del rodaje de julio —amarillo y sin bandas reflectantes— y el resto de la
+  configuración de la demo igual (OAK-D, una persona), ¿el sistema lo reconoce como chaleco (CR-02 no
+  alerta mientras está puesto) y alerta CR-02 cuando la persona se lo saca? ¿Y el guion de la demo pasa
+  con este chaleco?
+gen1:
+  result_id: "rodaje del 2026-07-25, con dos chalecos reflectantes (doc 69 §2; doc 71)"
+  doc: operacion/71
+  relacion: otra_combinacion
+  motivo: >
+    En julio las tomas en vivo y las grabadas usaron chalecos reflectantes. Con este chaleco no hay
+    ninguna medición previa: no hay una cifra de julio con la que comparar 1:1. Antecedente: con ropa
+    clara, estampada o con franjas, Grounding DINO marca un `vest` falso que apaga CR-02 (F-RT1; doc 133
+    §5.7), así que el aspecto de la prenda pesa en lo que el modelo llama chaleco.
+esperado: >
+  No hay una predicción fuerte; se miran dos riesgos opuestos. (a) Que el amarillo sin bandas no se
+  reconozca como chaleco: CR-02 alertaría con el chaleco puesto, ANTES de la acción (en P1 en cualquier
+  momento; en P6 y en DEMO antes de que el guion diga «sacate el chaleco»). Esas alertas se cuentan
+  aparte. (b) Que se lo reconozca bien: P2, P6 y DEMO alertan CR-02 después de sacárselo, con la ventana
+  de persistencia (≈ 7 s, NO es latencia), y P1 no alerta CR-02. CR-01 no depende del chaleco y se
+  espera como en RT-04. Las tomas DEMO se evalúan con el criterio de ensayo de la demo, pero NO cuentan
+  para G3, que se mide con el chaleco que se use en la defensa. Con 1 a 3 tomas por escena se reporta
+  «k de n», no una tasa.
+veredictos_posibles: [otra_combinacion]
+config:
+  modelo: grounding-dino/gdino-tiny-560
+  prompt_set: cr01_cr02_v2_short
+  pattern_set: cr01_cr02_v2 (escena, la de la demo) y, sobre las mismas detecciones, cr01_cr02_v2_subject
+  camara: OAK-D a 960×540 y 5 fps (experiments/demo_defensa)
+  chaleco: amarillo, sin bandas reflectantes (uno solo; una persona en cuadro)
+  distribucion: MQTT QoS 1, enfriamiento 30 s
+como_se_corre: >
+  Igual que RT-04, toma por toma con `rodaje.ps1 -Escena <id> -Chaleco amarillo`, con remera lisa y oscura
+  (F-RT1) y lo que se saca, fuera de cuadro. Después, `evidencia correr RT-07` importa SOLO las sesiones
+  que declararon el chaleco amarillo, con la OAK-D y de las escenas de esta prueba. RT-04, RT-05 y RT-06
+  no las cuentan.
+receta:
+  escenas: ../RT-04/escenas.json       # el mismo guion que RT-04
+  escenas_incluidas: [P1, P2, P6, DEMO]
+  chaleco: amarillo
+  tomas_minimas: {P1: 2, P2: 3, P6: 1, DEMO: 3}
+  sesiones: defensa/sesiones
+  sujeto: {patrones: cr01_cr02_v2_subject, activos: [CR-01, CR-02], track_persons: true}
+  ensayo_demo:
+    escena: DEMO
+    cr01_max_s_desde_la_accion: 6.0
+    resultado_max_s: 60.0
+  timeout_s: 900
+salida: e-ovrt_experimental-setup/results/gen2/RT-07/

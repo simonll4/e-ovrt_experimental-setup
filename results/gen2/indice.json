@@ -1,6 +1,6 @@
 {
   "schema": "indice.gen2.v1",
-  "generado": "2026-10-31T03:24:51+00:00",
+  "generado": "2026-11-01T21:18:28+00:00",
   "pruebas": [
     {
       "id": "GT-01",
@@ -296,7 +296,7 @@
           "gen1": null
         }
       ],
-      "generado": "2026-10-31T02:49:32+00:00"
+      "generado": "2026-11-01T19:13:35+00:00"
     },
     {
       "id": "ALR-01",
@@ -3351,10 +3351,10 @@
       "fase": "F7",
       "familia": "vivo",
       "registro": "activa",
-      "estado": "sin_correr",
-      "corridas_ok": 0,
-      "corridas": 0,
-      "veredicto": null,
+      "estado": "completo",
+      "corridas_ok": 3,
+      "corridas": 3,
+      "veredicto": "otra_combinacion",
       "confirmado": false,
       "titulo": "Latencia en vivo con la OAK-D y personas en escena",
       "informe": [
@@ -3367,8 +3367,37 @@
         "doc": "operacion/133",
         "relacion": "otra_combinacion"
       },
-      "resumen": [],
-      "generado": null
+      "resumen": [
+        {
+          "clave": "fps_efectivos",
+          "nombre": "Cuadros por segundo procesados (960x540@5)",
+          "valor": 3.94,
+          "unidad": "fps",
+          "gen1": null
+        },
+        {
+          "clave": "g2a_p95_ms",
+          "nombre": "G2A p95 (960x540@5)",
+          "valor": 426.509,
+          "unidad": "ms",
+          "gen1": null
+        },
+        {
+          "clave": "capture_to_host_p50_ms",
+          "nombre": "Captura → host p50 (960x540@5)",
+          "valor": 65.25,
+          "unidad": "ms",
+          "gen1": null
+        },
+        {
+          "clave": "vidrio_a_resultado_p95_ms",
+          "nombre": "Vidrio → resultado p95 (960x540@5)",
+          "valor": 495.256,
+          "unidad": "ms",
+          "gen1": null
+        }
+      ],
+      "generado": "2026-11-01T19:37:27+00:00"
     },
     {
       "id": "RT-04",
@@ -3417,6 +3446,256 @@
       },
       "resumen": [],
       "generado": null
+    },
+    {
+      "id": "RT-06",
+      "fase": "F7",
+      "familia": "rodaje",
+      "registro": "activa",
+      "estado": "sin_correr",
+      "corridas_ok": 0,
+      "corridas": 0,
+      "veredicto": null,
+      "confirmado": false,
+      "titulo": "Obra simulada en vivo con la cámara IP (RTSP): el subset de comparación del guion",
+      "informe": [
+        "Tabla 54",
+        "§17.5.5",
+        "§17.3.10"
+      ],
+      "pregunta": "Con la cámara IP por RTSP —la segunda fuente del guion— en lugar de la OAK-D, y el resto de la configuración de la demo igual, ¿las escenas del subset de comparación del guion (P1 sin casco, P2 sin chaleco, P5 dos personas en regla) se comportan en vivo como su guion espera, cuánto tarda de la acción a la alerta confirmada y al broker, y cuál es la latencia por cuadro (G2A)? En las dos configuraciones de la cámara: el stream secundario (768×432 a 10 fps, el más cercano a lo medido con la OAK-D) y el principal (1920×1080 a 15 fps).\n",
+      "gen1": {
+        "result_id": "rodaje del 2026-07-25, subset de la cámara IP (doc 69 §6; doc 71)",
+        "doc": "operacion/71",
+        "relacion": "otra_combinacion"
+      },
+      "resumen": [],
+      "generado": null
+    },
+    {
+      "id": "RT-07",
+      "fase": "F7",
+      "familia": "rodaje",
+      "registro": "activa",
+      "estado": "completo",
+      "corridas_ok": 9,
+      "corridas": 9,
+      "veredicto": "otra_combinacion",
+      "confirmado": false,
+      "titulo": "Obra simulada en vivo con otro chaleco: amarillo y sin bandas reflectantes",
+      "informe": [
+        "Tabla 54",
+        "§17.5.5"
+      ],
+      "pregunta": "Con un chaleco distinto de los del rodaje de julio —amarillo y sin bandas reflectantes— y el resto de la configuración de la demo igual (OAK-D, una persona), ¿el sistema lo reconoce como chaleco (CR-02 no alerta mientras está puesto) y alerta CR-02 cuando la persona se lo saca? ¿Y el guion de la demo pasa con este chaleco?\n",
+      "gen1": {
+        "result_id": "rodaje del 2026-07-25, con dos chalecos reflectantes (doc 69 §2; doc 71)",
+        "doc": "operacion/71",
+        "relacion": "otra_combinacion"
+      },
+      "resumen": [
+        {
+          "clave": "tomas_como_se_esperaba",
+          "nombre": "Tomas que se comportaron como su guion (escena)",
+          "valor": "2/9",
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "tomas_sujeto_como_se_esperaba",
+          "nombre": "Las mismas tomas releídas por sujeto",
+          "valor": "0/9",
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "alertas_antes_de_la_accion",
+          "nombre": "Alertas antes de la acción (el guion no había abierto la infracción)",
+          "valor": 0,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "cr01_accion_a_alerta_s",
+          "nombre": "CR-01: de la acción a la alerta confirmada (mediana)",
+          "valor": 6.54,
+          "unidad": "s",
+          "gen1": null
+        },
+        {
+          "clave": "cr02_accion_a_alerta_s",
+          "nombre": "CR-02: de la acción a la alerta confirmada (mediana)",
+          "valor": null,
+          "unidad": "s",
+          "gen1": null
+        },
+        {
+          "clave": "confirmacion_a_broker_p95_ms",
+          "nombre": "De la confirmación al broker MQTT, p95",
+          "valor": 23.9,
+          "unidad": "ms",
+          "gen1": null
+        },
+        {
+          "clave": "vidrio_a_resultado_p95_ms",
+          "nombre": "Vidrio → resultado por cuadro, p95 (960×540 a 5 fps)",
+          "valor": 287.654,
+          "unidad": "ms",
+          "gen1": null
+        },
+        {
+          "clave": "fps_efectivos",
+          "nombre": "Cuadros por segundo procesados",
+          "valor": 3.75,
+          "unidad": "fps",
+          "gen1": null
+        },
+        {
+          "clave": "ensayos_demo_aprobados",
+          "nombre": "Ensayos de la demo aprobados (mejor racha)",
+          "valor": "1/3 (1)",
+          "unidad": null,
+          "gen1": null
+        }
+      ],
+      "generado": "2026-11-01T21:18:24+00:00"
+    },
+    {
+      "id": "RT-08",
+      "fase": "F7",
+      "familia": "rodaje",
+      "registro": "activa",
+      "estado": "completo",
+      "corridas_ok": 6,
+      "corridas": 6,
+      "veredicto": "otra_combinacion",
+      "confirmado": false,
+      "titulo": "El chaleco amarillo sin bandas reflectantes, con la cámara IP (RTSP)",
+      "informe": [
+        "Tabla 54",
+        "§17.5.5"
+      ],
+      "pregunta": "Con el chaleco amarillo sin bandas reflectantes de RT-07, pero con la cámara IP por RTSP en lugar de la OAK-D (una persona, el resto de la configuración de la demo igual), ¿el sistema lo reconoce como chaleco (CR-02 no alerta mientras está puesto, P1) y alerta CR-02 cuando la persona se lo saca (P2)? En los dos streams de la cámara: el secundario (768×432 a 10 fps) y el principal (1920×1080 a 15 fps).\n",
+      "gen1": {
+        "result_id": "sin equivalente: en julio la cámara IP solo grabó, y con chalecos reflectantes (doc 71)",
+        "doc": "operacion/71",
+        "relacion": "otra_combinacion"
+      },
+      "resumen": [
+        {
+          "clave": "tomas_como_se_esperaba_secundario",
+          "nombre": "Tomas que se comportaron como su guion (escena) — stream secundario",
+          "valor": "2/4",
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "tomas_sujeto_como_se_esperaba_secundario",
+          "nombre": "Las mismas tomas releídas por sujeto — stream secundario",
+          "valor": "0/4",
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "alertas_antes_de_la_accion_secundario",
+          "nombre": "Alertas antes de la acción (el guion no había abierto la infracción) — stream secundario",
+          "valor": 0,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "cr01_accion_a_alerta_s_secundario",
+          "nombre": "CR-01: de la acción a la alerta confirmada (mediana) — stream secundario",
+          "valor": 7.31,
+          "unidad": "s",
+          "gen1": null
+        },
+        {
+          "clave": "cr02_accion_a_alerta_s_secundario",
+          "nombre": "CR-02: de la acción a la alerta confirmada (mediana) — stream secundario",
+          "valor": null,
+          "unidad": "s",
+          "gen1": null
+        },
+        {
+          "clave": "confirmacion_a_broker_p95_ms_secundario",
+          "nombre": "De la confirmación al broker MQTT, p95 — stream secundario",
+          "valor": 15.8,
+          "unidad": "ms",
+          "gen1": null
+        },
+        {
+          "clave": "fps_efectivos_secundario",
+          "nombre": "Cuadros por segundo procesados — stream secundario",
+          "valor": 6.3,
+          "unidad": "fps",
+          "gen1": null
+        },
+        {
+          "clave": "g2a_p95_ms_secundario",
+          "nombre": "G2A por cuadro, p95 (cámara IP, 768×432 a 10 fps) — stream secundario",
+          "valor": 357.961,
+          "unidad": "ms",
+          "gen1": null
+        },
+        {
+          "clave": "tomas_como_se_esperaba_principal",
+          "nombre": "Tomas que se comportaron como su guion (escena) — stream principal",
+          "valor": "1/2",
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "tomas_sujeto_como_se_esperaba_principal",
+          "nombre": "Las mismas tomas releídas por sujeto — stream principal",
+          "valor": "0/2",
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "alertas_antes_de_la_accion_principal",
+          "nombre": "Alertas antes de la acción (el guion no había abierto la infracción) — stream principal",
+          "valor": 0,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "cr01_accion_a_alerta_s_principal",
+          "nombre": "CR-01: de la acción a la alerta confirmada (mediana) — stream principal",
+          "valor": 6.56,
+          "unidad": "s",
+          "gen1": null
+        },
+        {
+          "clave": "cr02_accion_a_alerta_s_principal",
+          "nombre": "CR-02: de la acción a la alerta confirmada (mediana) — stream principal",
+          "valor": null,
+          "unidad": "s",
+          "gen1": null
+        },
+        {
+          "clave": "confirmacion_a_broker_p95_ms_principal",
+          "nombre": "De la confirmación al broker MQTT, p95 — stream principal",
+          "valor": 14.5,
+          "unidad": "ms",
+          "gen1": null
+        },
+        {
+          "clave": "fps_efectivos_principal",
+          "nombre": "Cuadros por segundo procesados — stream principal",
+          "valor": 5.99,
+          "unidad": "fps",
+          "gen1": null
+        },
+        {
+          "clave": "g2a_p95_ms_principal",
+          "nombre": "G2A por cuadro, p95 (cámara IP, 1920×1080 a 15 fps) — stream principal",
+          "valor": 334.513,
+          "unidad": "ms",
+          "gen1": null
+        }
+      ],
+      "generado": "2026-11-01T21:18:27+00:00"
     }
   ]
 }

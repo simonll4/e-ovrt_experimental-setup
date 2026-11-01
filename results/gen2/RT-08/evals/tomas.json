@@ -1,0 +1,368 @@
+[
+  {
+    "escena": "P1",
+    "session_id": "demo_20261101T210406Z_P1",
+    "experiment_id": "exp_20261101T210406Z_demo_defensa",
+    "ids": {
+      "control_run_id": "control_demo_defensa_20261101T210406Z_2b06be",
+      "media_run_id": "run_20261101_210406_dbe_grounding_dino_5aa90d",
+      "distribution_run_id": "dist_20261101T210406Z_84b8d8"
+    },
+    "marcas": true,
+    "alertas": [
+      {
+        "condicion": "CR-01",
+        "alert_id": "d5d517f5-3120-521b-913c-26f308c3bd12",
+        "subject_key": "CR-01:2",
+        "captura_primera_evidencia_ms": 1793567060792.7197,
+        "captura_confirmacion_ms": 1793567065003.9832,
+        "confirmada_ms": 1793567065259.055,
+        "broker_ms": 1793567065273.045,
+        "confirmacion_a_broker_ms": 14.0,
+        "primera_evidencia_a_confirmacion_ms": 4466.3,
+        "accion": "sacar_casco",
+        "accion_a_confirmacion_ms": 7293.1,
+        "accion_a_primera_evidencia_ms": 2826.7,
+        "accion_a_broker_ms": 7307.0,
+        "resuelta": true,
+        "accion_fin_a_resolucion_ms": 5613.1
+      }
+    ],
+    "por_condicion": {
+      "CR-01": {
+        "esperado": "alerta",
+        "alertas": 1,
+        "ok": true
+      },
+      "CR-02": {
+        "esperado": "sin_alerta",
+        "alertas": 0,
+        "ok": true
+      }
+    },
+    "como_se_esperaba": true,
+    "alertas_antes_de_la_accion": 0,
+    "bus_dropped_events": 0,
+    "resultado_listo_s": 7.0,
+    "latencia": {
+      "unidades": 209,
+      "descartadas": 111,
+      "fps_efectivos": 6.09,
+      "inferencia_p50_ms": 140.76,
+      "inferencia_p95_ms": 196.43,
+      "g2a": {
+        "n": 209,
+        "p50": 285.706,
+        "p95": 371.244,
+        "max": 498.759
+      },
+      "captura_a_host": {
+        "n": 0
+      },
+      "vidrio_a_resultado": {
+        "n": 0
+      },
+      "hueco_max_ms": 353.20947265625,
+      "hueco_mediana_ms": 155.5245361328125,
+      "contaminada": false,
+      "reloj_pared_menos_monotonico_ms": 1793558800417.0723
+    },
+    "stream": "secundario"
+  },
+  {
+    "escena": "P2",
+    "session_id": "demo_20261101T210608Z_P2",
+    "experiment_id": "exp_20261101T210608Z_demo_defensa",
+    "ids": {
+      "control_run_id": "control_demo_defensa_20261101T210608Z_1b66b2",
+      "media_run_id": "run_20261101_210608_dbe_grounding_dino_dcfe14",
+      "distribution_run_id": "dist_20261101T210608Z_cd59f3"
+    },
+    "marcas": true,
+    "alertas": [],
+    "por_condicion": {
+      "CR-01": {
+        "esperado": "sin_alerta",
+        "alertas": 0,
+        "ok": true
+      },
+      "CR-02": {
+        "esperado": "alerta",
+        "alertas": 0,
+        "ok": false
+      }
+    },
+    "como_se_esperaba": false,
+    "alertas_antes_de_la_accion": 0,
+    "bus_dropped_events": 0,
+    "resultado_listo_s": 8.4,
+    "latencia": {
+      "unidades": 273,
+      "descartadas": 126,
+      "fps_efectivos": 6.47,
+      "inferencia_p50_ms": 132.52,
+      "inferencia_p95_ms": 192.29,
+      "g2a": {
+        "n": 273,
+        "p50": 281.225,
+        "p95": 368.543,
+        "max": 427.062
+      },
+      "captura_a_host": {
+        "n": 0
+      },
+      "vidrio_a_resultado": {
+        "n": 0
+      },
+      "hueco_max_ms": 252.628173828125,
+      "hueco_mediana_ms": 150.331298828125,
+      "contaminada": false,
+      "reloj_pared_menos_monotonico_ms": 1793558800411.4463
+    },
+    "stream": "secundario"
+  },
+  {
+    "escena": "P1",
+    "session_id": "demo_20261101T210851Z_P1",
+    "experiment_id": "exp_20261101T210851Z_demo_defensa",
+    "ids": {
+      "control_run_id": "control_demo_defensa_20261101T210851Z_6ce864",
+      "media_run_id": "run_20261101_210851_dbe_grounding_dino_2d8690",
+      "distribution_run_id": "dist_20261101T210851Z_df4fda"
+    },
+    "marcas": true,
+    "alertas": [
+      {
+        "condicion": "CR-01",
+        "alert_id": "7080c528-3403-56d9-b866-4d4abd630a34",
+        "subject_key": "CR-01:2",
+        "captura_primera_evidencia_ms": 1793567345829.693,
+        "captura_confirmacion_ms": 1793567350150.0032,
+        "confirmada_ms": 1793567350514.6934,
+        "broker_ms": 1793567350530.479,
+        "confirmacion_a_broker_ms": 15.8,
+        "primera_evidencia_a_confirmacion_ms": 4685.0,
+        "accion": "sacar_casco",
+        "accion_a_confirmacion_ms": 7317.9,
+        "accion_a_primera_evidencia_ms": 2632.9,
+        "accion_a_broker_ms": 7333.7,
+        "resuelta": true,
+        "accion_fin_a_resolucion_ms": 6235.0
+      }
+    ],
+    "por_condicion": {
+      "CR-01": {
+        "esperado": "alerta",
+        "alertas": 1,
+        "ok": true
+      },
+      "CR-02": {
+        "esperado": "sin_alerta",
+        "alertas": 0,
+        "ok": true
+      }
+    },
+    "como_se_esperaba": true,
+    "alertas_antes_de_la_accion": 0,
+    "bus_dropped_events": 0,
+    "resultado_listo_s": 7.0,
+    "latencia": {
+      "unidades": 204,
+      "descartadas": 110,
+      "fps_efectivos": 6.06,
+      "inferencia_p50_ms": 142.22,
+      "inferencia_p95_ms": 194.68,
+      "g2a": {
+        "n": 204,
+        "p50": 295.881,
+        "p95": 359.5,
+        "max": 414.141
+      },
+      "captura_a_host": {
+        "n": 0
+      },
+      "vidrio_a_resultado": {
+        "n": 0
+      },
+      "hueco_max_ms": 241.13818359375,
+      "hueco_mediana_ms": 154.038330078125,
+      "contaminada": false,
+      "reloj_pared_menos_monotonico_ms": 1793558800404.867
+    },
+    "stream": "secundario"
+  },
+  {
+    "escena": "P2",
+    "session_id": "demo_20261101T211110Z_P2",
+    "experiment_id": "exp_20261101T211110Z_demo_defensa",
+    "ids": {
+      "control_run_id": "control_demo_defensa_20261101T211110Z_1e4a64",
+      "media_run_id": "run_20261101_211110_dbe_grounding_dino_858fb4",
+      "distribution_run_id": "dist_20261101T211110Z_aeaca8"
+    },
+    "marcas": true,
+    "alertas": [],
+    "por_condicion": {
+      "CR-01": {
+        "esperado": "sin_alerta",
+        "alertas": 0,
+        "ok": true
+      },
+      "CR-02": {
+        "esperado": "alerta",
+        "alertas": 0,
+        "ok": false
+      }
+    },
+    "como_se_esperaba": false,
+    "alertas_antes_de_la_accion": 0,
+    "bus_dropped_events": 0,
+    "resultado_listo_s": 8.0,
+    "latencia": {
+      "unidades": 273,
+      "descartadas": 119,
+      "fps_efectivos": 6.6,
+      "inferencia_p50_ms": 130.71,
+      "inferencia_p95_ms": 184.19,
+      "g2a": {
+        "n": 273,
+        "p50": 285.092,
+        "p95": 347.869,
+        "max": 385.656
+      },
+      "captura_a_host": {
+        "n": 0
+      },
+      "vidrio_a_resultado": {
+        "n": 0
+      },
+      "hueco_max_ms": 250.900390625,
+      "hueco_mediana_ms": 104.4326171875,
+      "contaminada": false,
+      "reloj_pared_menos_monotonico_ms": 1793558800397.9358
+    },
+    "stream": "secundario"
+  },
+  {
+    "escena": "P1",
+    "session_id": "demo_20261101T211315Z_P1",
+    "experiment_id": "exp_20261101T211315Z_demo_defensa",
+    "ids": {
+      "control_run_id": "control_demo_defensa_20261101T211316Z_d9604a",
+      "media_run_id": "run_20261101_211316_dbe_grounding_dino_e83335",
+      "distribution_run_id": "dist_20261101T211316Z_b2fd0b"
+    },
+    "marcas": true,
+    "alertas": [
+      {
+        "condicion": "CR-01",
+        "alert_id": "f823c2f0-3a32-57cc-99da-e09cb19a514d",
+        "subject_key": "CR-01:1",
+        "captura_primera_evidencia_ms": 1793567608965.422,
+        "captura_confirmacion_ms": 1793567613078.0107,
+        "confirmada_ms": 1793567613325.0645,
+        "broker_ms": 1793567613339.601,
+        "confirmacion_a_broker_ms": 14.5,
+        "primera_evidencia_a_confirmacion_ms": 4359.6,
+        "accion": "sacar_casco",
+        "accion_a_confirmacion_ms": 6555.7,
+        "accion_a_primera_evidencia_ms": 2196.0,
+        "accion_a_broker_ms": 6570.2,
+        "resuelta": true,
+        "accion_fin_a_resolucion_ms": 5363.8
+      }
+    ],
+    "por_condicion": {
+      "CR-01": {
+        "esperado": "alerta",
+        "alertas": 1,
+        "ok": true
+      },
+      "CR-02": {
+        "esperado": "sin_alerta",
+        "alertas": 0,
+        "ok": true
+      }
+    },
+    "como_se_esperaba": true,
+    "alertas_antes_de_la_accion": 0,
+    "bus_dropped_events": 0,
+    "resultado_listo_s": 7.3,
+    "latencia": {
+      "unidades": 205,
+      "descartadas": 270,
+      "fps_efectivos": 6.08,
+      "inferencia_p50_ms": 147.31,
+      "inferencia_p95_ms": 197.55,
+      "g2a": {
+        "n": 205,
+        "p50": 251.499,
+        "p95": 329.305,
+        "max": 485.506
+      },
+      "captura_a_host": {
+        "n": 0
+      },
+      "vidrio_a_resultado": {
+        "n": 0
+      },
+      "hueco_max_ms": 256.920166015625,
+      "hueco_mediana_ms": 152.380859375,
+      "contaminada": false,
+      "reloj_pared_menos_monotonico_ms": 1793558800393.4482
+    },
+    "stream": "principal"
+  },
+  {
+    "escena": "P2",
+    "session_id": "demo_20261101T211456Z_P2",
+    "experiment_id": "exp_20261101T211456Z_demo_defensa",
+    "ids": {
+      "control_run_id": "control_demo_defensa_20261101T211456Z_fc6958",
+      "media_run_id": "run_20261101_211456_dbe_grounding_dino_af8d4f",
+      "distribution_run_id": "dist_20261101T211456Z_24a772"
+    },
+    "marcas": true,
+    "alertas": [],
+    "por_condicion": {
+      "CR-01": {
+        "esperado": "sin_alerta",
+        "alertas": 0,
+        "ok": true
+      },
+      "CR-02": {
+        "esperado": "alerta",
+        "alertas": 0,
+        "ok": false
+      }
+    },
+    "como_se_esperaba": false,
+    "alertas_antes_de_la_accion": 0,
+    "bus_dropped_events": 0,
+    "resultado_listo_s": 7.8,
+    "latencia": {
+      "unidades": 241,
+      "descartadas": 345,
+      "fps_efectivos": 5.9,
+      "inferencia_p50_ms": 155.67,
+      "inferencia_p95_ms": 204.66,
+      "g2a": {
+        "n": 241,
+        "p50": 256.552,
+        "p95": 339.795,
+        "max": 420.134
+      },
+      "captura_a_host": {
+        "n": 0
+      },
+      "vidrio_a_resultado": {
+        "n": 0
+      },
+      "hueco_max_ms": 300.52197265625,
+      "hueco_mediana_ms": 155.2607421875,
+      "contaminada": false,
+      "reloj_pared_menos_monotonico_ms": 1793558800387.7786
+    },
+    "stream": "principal"
+  }
+]

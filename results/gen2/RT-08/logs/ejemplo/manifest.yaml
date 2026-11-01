@@ -1,0 +1,16 @@
+schema_version: experiment.manifest.v1
+slug: gen2_rt08
+experiment_id: exp_20261101T211826Z_gen2_rt04_sujeto_demo_20261101T210406Z_P1
+runs:
+  media:
+    service: media-plane
+    config: $EOVRT_WORKSPACE/e-ovrt_experimental-setup/defensa/sesiones/demo_20261101T210406Z_P1/config/media.yaml
+    mode: run
+    reuse_run_id: run_20261101_210406_dbe_grounding_dino_5aa90d
+  control:
+    service: control-plane
+    config: $EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/RT-08/gen2_rt04_sujeto_demo_20261101T210406Z_P1/control.yaml
+    mode: replay
+sequencing: media_first
+timeout_s: 900.0
+changes: 'generación 2 — RT-08: relectura por sujeto de demo_20261101T210406Z_P1'

@@ -1,0 +1,18 @@
+{
+  "escenas": "524db6125a7fa5ebbec0479d3d70bb6751a783a0d336c4e69d175eb61d9d8d3d",
+  "fuente": "rtsp",
+  "escenas_incluidas": [
+    "P1",
+    "P2"
+  ],
+  "chaleco": "amarillo",
+  "stream": null,
+  "sesiones_encontradas": [
+    "demo_20261101T210406Z_P1",
+    "demo_20261101T210608Z_P2",
+    "demo_20261101T210851Z_P1",
+    "demo_20261101T211110Z_P2",
+    "demo_20261101T211315Z_P1",
+    "demo_20261101T211456Z_P2"
+  ]
+}

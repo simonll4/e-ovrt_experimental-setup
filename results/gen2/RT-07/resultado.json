@@ -1,0 +1,168 @@
+{
+  "schema": "resultado.gen2.v1",
+  "id": "RT-07",
+  "titulo": "Obra simulada en vivo con otro chaleco: amarillo y sin bandas reflectantes",
+  "informe": [
+    "Tabla 54",
+    "§17.5.5"
+  ],
+  "generado": "2026-11-01T21:18:24+00:00",
+  "familia": "rodaje",
+  "estado": "completo",
+  "metricas": {
+    "tomas": 9,
+    "tomas_como_se_esperaba": 2,
+    "tomas_sujeto_como_se_esperaba": 0,
+    "alertas_antes_de_la_accion": 0,
+    "por_escena": {
+      "P1": {
+        "tomas": 2,
+        "como_se_esperaba": 2,
+        "sujeto_como_se_esperaba": 0,
+        "alertas_antes_de_la_accion": 0
+      },
+      "P2": {
+        "tomas": 3,
+        "como_se_esperaba": 0,
+        "sujeto_como_se_esperaba": 0,
+        "alertas_antes_de_la_accion": 0
+      },
+      "P6": {
+        "tomas": 1,
+        "como_se_esperaba": 0,
+        "sujeto_como_se_esperaba": 0,
+        "alertas_antes_de_la_accion": 0
+      },
+      "DEMO": {
+        "tomas": 3,
+        "como_se_esperaba": 0,
+        "sujeto_como_se_esperaba": 0,
+        "alertas_antes_de_la_accion": 0
+      }
+    },
+    "accion_a_confirmacion_mediana_ms": {
+      "CR-01": 6539.9,
+      "CR-02": null
+    },
+    "confirmacion_a_broker": {
+      "n": 6,
+      "p50": 14.4,
+      "p95": 23.9,
+      "max": 23.9
+    },
+    "latencia_por_cuadro": {
+      "g2a": {
+        "n": 1889,
+        "p50": 148.351,
+        "p95": 216.589,
+        "max": 643.878
+      },
+      "captura_a_host": {
+        "n": 1889,
+        "p50": 63.92,
+        "p95": 85.59,
+        "max": 150.41
+      },
+      "vidrio_a_resultado": {
+        "n": 1889,
+        "p50": 214.521,
+        "p95": 287.654,
+        "max": 774.178
+      }
+    },
+    "fps_efectivos_media": 3.75,
+    "ensayos_demo": {
+      "total": 3,
+      "aprobados": 1,
+      "mejor_racha": 1,
+      "cr02_en_vivo": 0
+    },
+    "faltan_tomas": {
+      "P1": 0,
+      "P2": 0,
+      "P6": 0,
+      "DEMO": 0
+    },
+    "escenas_sin_tomas": [],
+    "no_evaluables": [
+      {
+        "session_id": "demo_20261101T200354Z_P6",
+        "escena": "P6",
+        "motivo": "chaleco sin declarar (el pre-registro fija 'amarillo'; rodaje.ps1 -Chaleco)"
+      }
+    ],
+    "fuente": "oak_d"
+  },
+  "resumen": [
+    {
+      "clave": "tomas_como_se_esperaba",
+      "nombre": "Tomas que se comportaron como su guion (escena)",
+      "valor": "2/9",
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "tomas_sujeto_como_se_esperaba",
+      "nombre": "Las mismas tomas releídas por sujeto",
+      "valor": "0/9",
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "alertas_antes_de_la_accion",
+      "nombre": "Alertas antes de la acción (el guion no había abierto la infracción)",
+      "valor": 0,
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "cr01_accion_a_alerta_s",
+      "nombre": "CR-01: de la acción a la alerta confirmada (mediana)",
+      "valor": 6.54,
+      "unidad": "s",
+      "gen1": null
+    },
+    {
+      "clave": "cr02_accion_a_alerta_s",
+      "nombre": "CR-02: de la acción a la alerta confirmada (mediana)",
+      "valor": null,
+      "unidad": "s",
+      "gen1": null
+    },
+    {
+      "clave": "confirmacion_a_broker_p95_ms",
+      "nombre": "De la confirmación al broker MQTT, p95",
+      "valor": 23.9,
+      "unidad": "ms",
+      "gen1": null
+    },
+    {
+      "clave": "vidrio_a_resultado_p95_ms",
+      "nombre": "Vidrio → resultado por cuadro, p95 (960×540 a 5 fps)",
+      "valor": 287.654,
+      "unidad": "ms",
+      "gen1": null
+    },
+    {
+      "clave": "fps_efectivos",
+      "nombre": "Cuadros por segundo procesados",
+      "valor": 3.75,
+      "unidad": "fps",
+      "gen1": null
+    },
+    {
+      "clave": "ensayos_demo_aprobados",
+      "nombre": "Ensayos de la demo aprobados (mejor racha)",
+      "valor": "1/3 (1)",
+      "unidad": null,
+      "gen1": null
+    }
+  ],
+  "veredicto": {
+    "propuesto": "otra_combinacion",
+    "motivo": "En julio las tomas en vivo y las grabadas usaron chalecos reflectantes. Con este chaleco no hay ninguna medición previa: no hay una cifra de julio con la que comparar 1:1. Antecedente: con ropa clara, estampada o con franjas, Grounding DINO marca un `vest` falso que apaga CR-02 (F-RT1; doc 133 §5.7), así que el aspecto de la prenda pesa en lo que el modelo llama chaleco.\n",
+    "referencia": "operacion/71",
+    "diferencias": {},
+    "confirmado": null
+  }
+}

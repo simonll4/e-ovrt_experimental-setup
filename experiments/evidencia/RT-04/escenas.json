@@ -108,7 +108,7 @@
       "tomas_sugeridas": 1,
       "guion": [
         {"s": 2, "texto": "Entrá a la marca con casco y chaleco puestos", "accion": "entrar"},
-        {"s": 7, "texto": "Sacate el casco", "accion": "sacar_casco", "condicion": "CR-01"},
+        {"s": 7, "texto": "Sacate el casco y dejalo fuera de cuadro", "accion": "sacar_casco", "condicion": "CR-01"},
         {"s": 10, "texto": "Sacate el chaleco y dejalo fuera de cuadro", "accion": "sacar_chaleco", "condicion": "CR-02"},
         {"s": 27, "texto": "Ponete el chaleco", "accion": "poner_chaleco", "condicion": "CR-02"},
         {"s": 30, "texto": "Ponete el casco", "accion": "poner_casco", "condicion": "CR-01"}

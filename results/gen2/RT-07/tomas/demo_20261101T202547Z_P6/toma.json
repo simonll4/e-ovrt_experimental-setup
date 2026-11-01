@@ -1,0 +1,75 @@
+{
+  "escena": "P6",
+  "session_id": "demo_20261101T202547Z_P6",
+  "experiment_id": "exp_20261101T202547Z_demo_defensa",
+  "ids": {
+    "control_run_id": "control_demo_defensa_20261101T202548Z_3850e8",
+    "media_run_id": "run_20261101_202548_dbe_grounding_dino_7023a8",
+    "distribution_run_id": "dist_20261101T202548Z_7596d0"
+  },
+  "marcas": true,
+  "alertas": [
+    {
+      "condicion": "CR-01",
+      "alert_id": "ab2b63b9-b28e-55bf-8b9f-b3e20f8f5377",
+      "subject_key": "CR-01:169.254.31.137",
+      "captura_primera_evidencia_ms": 1793564769995.2346,
+      "captura_confirmacion_ms": 1793564773998.7046,
+      "confirmada_ms": 1793564774181.0332,
+      "broker_ms": 1793564774196.958,
+      "confirmacion_a_broker_ms": 15.9,
+      "primera_evidencia_a_confirmacion_ms": 4185.8,
+      "accion": "sacar_casco",
+      "accion_a_confirmacion_ms": 6277.6,
+      "accion_a_primera_evidencia_ms": 2091.8,
+      "accion_a_broker_ms": 6293.5,
+      "resuelta": true,
+      "accion_fin_a_resolucion_ms": 6580.9
+    }
+  ],
+  "por_condicion": {
+    "CR-01": {
+      "esperado": "alerta",
+      "alertas": 1,
+      "ok": true
+    },
+    "CR-02": {
+      "esperado": "alerta",
+      "alertas": 0,
+      "ok": false
+    }
+  },
+  "como_se_esperaba": false,
+  "alertas_antes_de_la_accion": 0,
+  "bus_dropped_events": 0,
+  "resultado_listo_s": 7.9,
+  "latencia": {
+    "unidades": 195,
+    "descartadas": 0,
+    "fps_efectivos": 3.76,
+    "inferencia_p50_ms": 149.37,
+    "inferencia_p95_ms": 206.63,
+    "g2a": {
+      "n": 195,
+      "p50": 152.103,
+      "p95": 217.237,
+      "max": 503.079
+    },
+    "captura_a_host": {
+      "n": 195,
+      "p50": 61.33,
+      "p95": 82.46,
+      "max": 93.69
+    },
+    "vidrio_a_resultado": {
+      "n": 195,
+      "p50": 215.453,
+      "p95": 290.707,
+      "max": 569.859
+    },
+    "hueco_max_ms": 237.474853515625,
+    "hueco_mediana_ms": 196.439697265625,
+    "contaminada": false,
+    "reloj_pared_menos_monotonico_ms": 1793558800521.1333
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "prompts": {
+    "set_id": "cr01_cr02_v2_short",
+    "fuentes": {
+      "prompts/cr01_cr02_v2_short.yaml": {
+        "status": "frozen",
+        "frozen_sha256": "df81fd48b6daf8924b5fb66aa1ce4acc0c880ac6ed8cd1245c6aca1babdb309a",
+        "clases_sha256": "df81fd48b6daf8924b5fb66aa1ce4acc0c880ac6ed8cd1245c6aca1babdb309a"
+      }
+    },
+    "payload_sha256": "5b91e6cff4f29ee8357ca3bfb9236f90c4eb1a7a71d0688e734d685a1411b2fa"
+  }
+}

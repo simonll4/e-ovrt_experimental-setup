@@ -1,0 +1,78 @@
+{
+  "schema": "resultado.gen2.v1",
+  "id": "RT-03",
+  "titulo": "Latencia en vivo con la OAK-D y personas en escena",
+  "informe": [
+    "Tabla 54",
+    "§17.5.5"
+  ],
+  "generado": "2026-11-01T19:37:27+00:00",
+  "familia": "vivo",
+  "estado": "completo",
+  "metricas": {
+    "960x540@5": {
+      "g2a": {
+        "n": 894,
+        "p50": 154.266,
+        "p95": 426.509,
+        "max": 645.654
+      },
+      "captura_a_host": {
+        "n": 894,
+        "p50": 65.25,
+        "p95": 88.6,
+        "max": 207.0
+      },
+      "vidrio_a_resultado": {
+        "n": 894,
+        "p50": 219.703,
+        "p95": 495.256,
+        "max": 727.764
+      },
+      "fps_efectivos": 3.94,
+      "tomas": [
+        "lat_960_a",
+        "lat_960_b",
+        "lat_960_c"
+      ]
+    }
+  },
+  "resumen": [
+    {
+      "clave": "fps_efectivos",
+      "nombre": "Cuadros por segundo procesados (960x540@5)",
+      "valor": 3.94,
+      "unidad": "fps",
+      "gen1": null
+    },
+    {
+      "clave": "g2a_p95_ms",
+      "nombre": "G2A p95 (960x540@5)",
+      "valor": 426.509,
+      "unidad": "ms",
+      "gen1": null
+    },
+    {
+      "clave": "capture_to_host_p50_ms",
+      "nombre": "Captura → host p50 (960x540@5)",
+      "valor": 65.25,
+      "unidad": "ms",
+      "gen1": null
+    },
+    {
+      "clave": "vidrio_a_resultado_p95_ms",
+      "nombre": "Vidrio → resultado p95 (960x540@5)",
+      "valor": 495.256,
+      "unidad": "ms",
+      "gen1": null
+    }
+  ],
+  "tomas_validas": 3,
+  "veredicto": {
+    "confirmado": null,
+    "referencia": null,
+    "propuesto": "otra_combinacion",
+    "motivo": "El rodaje midió 1080p@30 en la PC de desarrollo (G2A p95 630–890 ms, 1,16–4,42 fps); la validación en la Victus sin personas: 960x540@5 → G2A p95 192–204 ms, vidrio → resultado p95 272–285 ms. Es la medición que el informe necesita para sostener «tiempo real»: se toma con personas y en las dos configs.\n",
+    "diferencias": {}
+  }
+}

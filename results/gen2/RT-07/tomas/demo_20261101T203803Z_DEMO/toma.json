@@ -1,0 +1,81 @@
+{
+  "escena": "DEMO",
+  "session_id": "demo_20261101T203803Z_DEMO",
+  "experiment_id": "exp_20261101T203803Z_demo_defensa",
+  "ids": {
+    "control_run_id": "control_demo_defensa_20261101T203804Z_028162",
+    "media_run_id": "run_20261101_203804_dbe_grounding_dino_a55f75",
+    "distribution_run_id": "dist_20261101T203804Z_063fa1"
+  },
+  "marcas": true,
+  "alertas": [
+    {
+      "condicion": "CR-01",
+      "alert_id": "310173f3-3200-50dd-a29c-998226c62174",
+      "subject_key": "CR-01:169.254.31.137",
+      "captura_primera_evidencia_ms": 1793565505456.4236,
+      "captura_confirmacion_ms": 1793565510667.414,
+      "confirmada_ms": 1793565510835.7612,
+      "broker_ms": 1793565510850.174,
+      "confirmacion_a_broker_ms": 14.4,
+      "primera_evidencia_a_confirmacion_ms": 5379.3,
+      "accion": "sacar_casco",
+      "accion_a_confirmacion_ms": 6932.8,
+      "accion_a_primera_evidencia_ms": 1553.4,
+      "accion_a_broker_ms": 6947.2,
+      "resuelta": true
+    }
+  ],
+  "por_condicion": {
+    "CR-01": {
+      "esperado": "alerta",
+      "alertas": 1,
+      "ok": true
+    },
+    "CR-02": {
+      "esperado": "alerta",
+      "alertas": 0,
+      "ok": false
+    }
+  },
+  "como_se_esperaba": false,
+  "alertas_antes_de_la_accion": 0,
+  "bus_dropped_events": 0,
+  "resultado_listo_s": 12.4,
+  "latencia": {
+    "unidades": 272,
+    "descartadas": 4,
+    "fps_efectivos": 4.01,
+    "inferencia_p50_ms": 143.82,
+    "inferencia_p95_ms": 214.13,
+    "g2a": {
+      "n": 272,
+      "p50": 144.843,
+      "p95": 270.98,
+      "max": 643.878
+    },
+    "captura_a_host": {
+      "n": 272,
+      "p50": 65.32,
+      "p95": 87.04,
+      "max": 150.41
+    },
+    "vidrio_a_resultado": {
+      "n": 272,
+      "p50": 213.601,
+      "p95": 335.92,
+      "max": 774.178
+    },
+    "hueco_max_ms": 405.367431640625,
+    "hueco_mediana_ms": 197.57470703125,
+    "contaminada": false,
+    "reloj_pared_menos_monotonico_ms": 1793558800487.5903
+  },
+  "ensayo_demo": {
+    "aprobado": false,
+    "motivos": [
+      "CR-01 confirmó a 6.9 s de la acción"
+    ],
+    "cr02_en_vivo": false
+  }
+}

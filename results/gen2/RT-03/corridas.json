@@ -1,0 +1,156 @@
+{
+  "schema": "corridas.gen2.v1",
+  "prueba": "RT-03",
+  "corridas": {
+    "lat_960_a": {
+      "estado": "ok",
+      "inicio": "2026-11-01T19:20:56+00:00",
+      "fin": "2026-11-01T19:22:14+00:00",
+      "segundos": 78.1,
+      "experiment_id": "exp_20261101T192056Z_gen2_rt03_lat_960_a",
+      "media_run_id": "run_20261101_192056_dbe_grounding_dino_53dd31",
+      "control_run_id": "gen2_rt03_lat_960_a_20261101T192056Z_23d399",
+      "media_status": "succeeded",
+      "control_status": "succeeded",
+      "distribution_status": null,
+      "consolidated_dir": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/exp_20261101T192056Z_gen2_rt03_lat_960_a",
+      "error": null,
+      "config": "960x540@5",
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/RT-03/gen2_rt03_lat_960_a/media.yaml",
+      "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/RT-03/gen2_rt03_lat_960_a/control.yaml",
+      "sha256": {
+        "media_config": "a13faebaad2d15df143bd9991e79ac0c15ffb0567931ae7c774f3b6bc6af0aa5",
+        "control_config": "3e96ad3866287a75bfb480ec3a0d2c20a0d12b342485342499dddf8d28c23677"
+      },
+      "metricas": {
+        "unidades": 300,
+        "descartadas": 0,
+        "fps_efectivos": 3.96,
+        "inferencia_p50_ms": 150.3,
+        "inferencia_p95_ms": 216.41,
+        "g2a": {
+          "n": 300,
+          "p50": 151.52,
+          "p95": 237.018,
+          "max": 440.807
+        },
+        "captura_a_host": {
+          "n": 300,
+          "p50": 65.35,
+          "p95": 88.5,
+          "max": 116.26
+        },
+        "vidrio_a_resultado": {
+          "n": 300,
+          "p50": 217.267,
+          "p95": 308.991,
+          "max": 493.827
+        },
+        "hueco_max_ms": 242.2578125,
+        "hueco_mediana_ms": 196.636474609375,
+        "contaminada": false,
+        "reloj_pared_menos_monotonico_ms": 1793558800724.8052
+      }
+    },
+    "lat_960_b": {
+      "estado": "ok",
+      "inicio": "2026-11-01T19:27:13+00:00",
+      "fin": "2026-11-01T19:28:31+00:00",
+      "segundos": 78.1,
+      "experiment_id": "exp_20261101T192713Z_gen2_rt03_lat_960_b",
+      "media_run_id": "run_20261101_192713_dbe_grounding_dino_ccbf7f",
+      "control_run_id": "gen2_rt03_lat_960_b_20261101T192713Z_e0a1fc",
+      "media_status": "succeeded",
+      "control_status": "succeeded",
+      "distribution_status": null,
+      "consolidated_dir": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/exp_20261101T192713Z_gen2_rt03_lat_960_b",
+      "error": null,
+      "config": "960x540@5",
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/RT-03/gen2_rt03_lat_960_b/media.yaml",
+      "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/RT-03/gen2_rt03_lat_960_b/control.yaml",
+      "sha256": {
+        "media_config": "b692188e72f0f2b0329d8568f83e8604a15dfedffb15f4f00ee29585f93c0a26",
+        "control_config": "69ecb71575270c9c9daefed65b82660f64796297d6265772135297b56ec1d511"
+      },
+      "metricas": {
+        "unidades": 294,
+        "descartadas": 6,
+        "fps_efectivos": 3.89,
+        "inferencia_p50_ms": 159.91,
+        "inferencia_p95_ms": 237.97,
+        "g2a": {
+          "n": 294,
+          "p50": 164.427,
+          "p95": 542.019,
+          "max": 645.654
+        },
+        "captura_a_host": {
+          "n": 294,
+          "p50": 64.85,
+          "p95": 90.07,
+          "max": 207.0
+        },
+        "vidrio_a_resultado": {
+          "n": 294,
+          "p50": 227.583,
+          "p95": 610.867,
+          "max": 727.764
+        },
+        "hueco_max_ms": 432.117919921875,
+        "hueco_mediana_ms": 198.287353515625,
+        "contaminada": false,
+        "reloj_pared_menos_monotonico_ms": 1793558800708.6553
+      }
+    },
+    "lat_960_c": {
+      "estado": "ok",
+      "inicio": "2026-11-01T19:36:09+00:00",
+      "fin": "2026-11-01T19:37:27+00:00",
+      "segundos": 78.1,
+      "experiment_id": "exp_20261101T193609Z_gen2_rt03_lat_960_c",
+      "media_run_id": "run_20261101_193609_dbe_grounding_dino_3f66f5",
+      "control_run_id": "gen2_rt03_lat_960_c_20261101T193609Z_41a83f",
+      "media_status": "succeeded",
+      "control_status": "succeeded",
+      "distribution_status": null,
+      "consolidated_dir": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/exp_20261101T193609Z_gen2_rt03_lat_960_c",
+      "error": null,
+      "config": "960x540@5",
+      "media_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/RT-03/gen2_rt03_lat_960_c/media.yaml",
+      "control_config": "$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/RT-03/gen2_rt03_lat_960_c/control.yaml",
+      "sha256": {
+        "media_config": "9b7d6578cc0f3de79d1d59102499ba5ab9fd36a13db2dc0454d991be662f1bb7",
+        "control_config": "322586b93c2b35067148bddd9fc083c1db83e6445c61645f19369329390aad5c"
+      },
+      "metricas": {
+        "unidades": 300,
+        "descartadas": 0,
+        "fps_efectivos": 3.96,
+        "inferencia_p50_ms": 149.16,
+        "inferencia_p95_ms": 199.92,
+        "g2a": {
+          "n": 300,
+          "p50": 149.59,
+          "p95": 200.827,
+          "max": 422.986
+        },
+        "captura_a_host": {
+          "n": 300,
+          "p50": 65.53,
+          "p95": 87.2,
+          "max": 97.01
+        },
+        "vidrio_a_resultado": {
+          "n": 300,
+          "p50": 217.983,
+          "p95": 272.731,
+          "max": 477.076
+        },
+        "hueco_max_ms": 235.914794921875,
+        "hueco_mediana_ms": 196.4716796875,
+        "contaminada": false,
+        "reloj_pared_menos_monotonico_ms": 1793558800685.7366
+      }
+    }
+  }
+}

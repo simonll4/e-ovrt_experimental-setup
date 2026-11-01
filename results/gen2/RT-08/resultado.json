@@ -1,0 +1,253 @@
+{
+  "schema": "resultado.gen2.v1",
+  "id": "RT-08",
+  "titulo": "El chaleco amarillo sin bandas reflectantes, con la cámara IP (RTSP)",
+  "informe": [
+    "Tabla 54",
+    "§17.5.5"
+  ],
+  "generado": "2026-11-01T21:18:27+00:00",
+  "familia": "rodaje",
+  "estado": "completo",
+  "metricas": {
+    "tomas": 6,
+    "tomas_como_se_esperaba": 3,
+    "por_stream": {
+      "secundario": {
+        "ruta": "/Streaming/Channels/2",
+        "tomas": 4,
+        "tomas_como_se_esperaba": 2,
+        "tomas_sujeto_como_se_esperaba": 0,
+        "alertas_antes_de_la_accion": 0,
+        "por_escena": {
+          "P1": {
+            "tomas": 2,
+            "como_se_esperaba": 2,
+            "sujeto_como_se_esperaba": 0,
+            "alertas_antes_de_la_accion": 0
+          },
+          "P2": {
+            "tomas": 2,
+            "como_se_esperaba": 0,
+            "sujeto_como_se_esperaba": 0,
+            "alertas_antes_de_la_accion": 0
+          }
+        },
+        "accion_a_confirmacion_mediana_ms": {
+          "CR-01": 7305.5,
+          "CR-02": null
+        },
+        "confirmacion_a_broker": {
+          "n": 2,
+          "p50": 14.0,
+          "p95": 15.8,
+          "max": 15.8
+        },
+        "latencia_por_cuadro": {
+          "g2a": {
+            "n": 959,
+            "p50": 286.651,
+            "p95": 357.961,
+            "max": 498.759
+          },
+          "captura_a_host": {
+            "n": 0
+          },
+          "vidrio_a_resultado": {
+            "n": 0
+          }
+        },
+        "fps_efectivos_media": 6.3,
+        "ensayos_demo": {
+          "total": 0,
+          "aprobados": 0,
+          "mejor_racha": 0,
+          "cr02_en_vivo": 0
+        },
+        "faltan_tomas": {
+          "P1": 0,
+          "P2": 0
+        }
+      },
+      "principal": {
+        "ruta": "/Streaming/Channels/1",
+        "tomas": 2,
+        "tomas_como_se_esperaba": 1,
+        "tomas_sujeto_como_se_esperaba": 0,
+        "alertas_antes_de_la_accion": 0,
+        "por_escena": {
+          "P1": {
+            "tomas": 1,
+            "como_se_esperaba": 1,
+            "sujeto_como_se_esperaba": 0,
+            "alertas_antes_de_la_accion": 0
+          },
+          "P2": {
+            "tomas": 1,
+            "como_se_esperaba": 0,
+            "sujeto_como_se_esperaba": 0,
+            "alertas_antes_de_la_accion": 0
+          }
+        },
+        "accion_a_confirmacion_mediana_ms": {
+          "CR-01": 6555.7,
+          "CR-02": null
+        },
+        "confirmacion_a_broker": {
+          "n": 1,
+          "p50": 14.5,
+          "p95": 14.5,
+          "max": 14.5
+        },
+        "latencia_por_cuadro": {
+          "g2a": {
+            "n": 446,
+            "p50": 254.018,
+            "p95": 334.513,
+            "max": 485.506
+          },
+          "captura_a_host": {
+            "n": 0
+          },
+          "vidrio_a_resultado": {
+            "n": 0
+          }
+        },
+        "fps_efectivos_media": 5.99,
+        "ensayos_demo": {
+          "total": 0,
+          "aprobados": 0,
+          "mejor_racha": 0,
+          "cr02_en_vivo": 0
+        },
+        "faltan_tomas": {
+          "P1": 0,
+          "P2": 0
+        }
+      }
+    },
+    "no_evaluables": [],
+    "fuente": "rtsp"
+  },
+  "resumen": [
+    {
+      "clave": "tomas_como_se_esperaba_secundario",
+      "nombre": "Tomas que se comportaron como su guion (escena) — stream secundario",
+      "valor": "2/4",
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "tomas_sujeto_como_se_esperaba_secundario",
+      "nombre": "Las mismas tomas releídas por sujeto — stream secundario",
+      "valor": "0/4",
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "alertas_antes_de_la_accion_secundario",
+      "nombre": "Alertas antes de la acción (el guion no había abierto la infracción) — stream secundario",
+      "valor": 0,
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "cr01_accion_a_alerta_s_secundario",
+      "nombre": "CR-01: de la acción a la alerta confirmada (mediana) — stream secundario",
+      "valor": 7.31,
+      "unidad": "s",
+      "gen1": null
+    },
+    {
+      "clave": "cr02_accion_a_alerta_s_secundario",
+      "nombre": "CR-02: de la acción a la alerta confirmada (mediana) — stream secundario",
+      "valor": null,
+      "unidad": "s",
+      "gen1": null
+    },
+    {
+      "clave": "confirmacion_a_broker_p95_ms_secundario",
+      "nombre": "De la confirmación al broker MQTT, p95 — stream secundario",
+      "valor": 15.8,
+      "unidad": "ms",
+      "gen1": null
+    },
+    {
+      "clave": "fps_efectivos_secundario",
+      "nombre": "Cuadros por segundo procesados — stream secundario",
+      "valor": 6.3,
+      "unidad": "fps",
+      "gen1": null
+    },
+    {
+      "clave": "g2a_p95_ms_secundario",
+      "nombre": "G2A por cuadro, p95 (cámara IP, 768×432 a 10 fps) — stream secundario",
+      "valor": 357.961,
+      "unidad": "ms",
+      "gen1": null
+    },
+    {
+      "clave": "tomas_como_se_esperaba_principal",
+      "nombre": "Tomas que se comportaron como su guion (escena) — stream principal",
+      "valor": "1/2",
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "tomas_sujeto_como_se_esperaba_principal",
+      "nombre": "Las mismas tomas releídas por sujeto — stream principal",
+      "valor": "0/2",
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "alertas_antes_de_la_accion_principal",
+      "nombre": "Alertas antes de la acción (el guion no había abierto la infracción) — stream principal",
+      "valor": 0,
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "cr01_accion_a_alerta_s_principal",
+      "nombre": "CR-01: de la acción a la alerta confirmada (mediana) — stream principal",
+      "valor": 6.56,
+      "unidad": "s",
+      "gen1": null
+    },
+    {
+      "clave": "cr02_accion_a_alerta_s_principal",
+      "nombre": "CR-02: de la acción a la alerta confirmada (mediana) — stream principal",
+      "valor": null,
+      "unidad": "s",
+      "gen1": null
+    },
+    {
+      "clave": "confirmacion_a_broker_p95_ms_principal",
+      "nombre": "De la confirmación al broker MQTT, p95 — stream principal",
+      "valor": 14.5,
+      "unidad": "ms",
+      "gen1": null
+    },
+    {
+      "clave": "fps_efectivos_principal",
+      "nombre": "Cuadros por segundo procesados — stream principal",
+      "valor": 5.99,
+      "unidad": "fps",
+      "gen1": null
+    },
+    {
+      "clave": "g2a_p95_ms_principal",
+      "nombre": "G2A por cuadro, p95 (cámara IP, 1920×1080 a 15 fps) — stream principal",
+      "valor": 334.513,
+      "unidad": "ms",
+      "gen1": null
+    }
+  ],
+  "veredicto": {
+    "propuesto": "otra_combinacion",
+    "motivo": "En julio la cámara IP solo grabó (9 tomas a 15 fps, bitrate bajo) y nunca corrió en vivo por la plataforma; además, los chalecos eran reflectantes. No hay una cifra de julio con la que comparar 1:1.\n",
+    "referencia": "operacion/71",
+    "diferencias": {},
+    "confirmado": null
+  }
+}

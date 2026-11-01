@@ -1,0 +1,24 @@
+{
+  "escenas": "524db6125a7fa5ebbec0479d3d70bb6751a783a0d336c4e69d175eb61d9d8d3d",
+  "fuente": "oak_d",
+  "escenas_incluidas": [
+    "P1",
+    "P2",
+    "P6",
+    "DEMO"
+  ],
+  "chaleco": "amarillo",
+  "stream": null,
+  "sesiones_encontradas": [
+    "demo_20261101T194310Z_P1",
+    "demo_20261101T194602Z_P1",
+    "demo_20261101T194950Z_P2",
+    "demo_20261101T195513Z_P2",
+    "demo_20261101T195749Z_P2",
+    "demo_20261101T200354Z_P6",
+    "demo_20261101T202547Z_P6",
+    "demo_20261101T203219Z_DEMO",
+    "demo_20261101T203535Z_DEMO",
+    "demo_20261101T203803Z_DEMO"
+  ]
+}

@@ -4158,5 +4158,97 @@
         "sha256_despues": "6e7d502435ebe88973f8930f33165fd2727a6eebf3a06199c1d3c8e659bd663b"
       }
     ]
+  },
+  {
+    "fecha": "2026-11-01T21:56:54+00:00",
+    "marca": "$EOVRT_WORKSPACE",
+    "de": "el workspace de la máquina que corrió las pruebas (ruta con el usuario de Windows; no se publica)",
+    "nota": "Las huellas sha256.*_config de corridas.json son de la configuración tal como se envió, con la ruta original; la de cada copia de logs/ejemplo/ antes de limpiar es sha256_antes.",
+    "archivos": [
+      {
+        "ruta": "PLAT-01/entorno.json",
+        "reemplazos": 66,
+        "sha256_antes": "97d4a47223e5dbd70b8148428a629cea530e6b6adea94e8686750f2456ec51c7",
+        "sha256_despues": "2f61511f8c8eb5c6b575342ebcf6e2126bdc1e1371970624c6b763487b2bf370"
+      },
+      {
+        "ruta": "PLAT-01/plataforma.json",
+        "reemplazos": 66,
+        "sha256_antes": "275fc85bc9c12327a9650ecdc4a1409f5b1354751194b03d076a9003a4b0e820",
+        "sha256_despues": "3e7d528113e8a891aedf2980bd59a3ed30fa6705adf1a029e18ee3d5aeefa76d"
+      },
+      {
+        "ruta": "PLAT-01/resultado.json",
+        "reemplazos": 65,
+        "sha256_antes": "a26eb28e431f4875a8e21d31a2624ad7f2ad1774fd595cd55109bc9fd207a047",
+        "sha256_despues": "13c7575b21dfc7c90269b2cc3e3369968a2bcc10b728cd880b7843468c60eacb"
+      },
+      {
+        "ruta": "RT-03/comandos.txt",
+        "reemplazos": 3,
+        "sha256_antes": "9491b5c854d04e9ddc24ddac51f77f65af06a0b16799a0964486946ada2a0b96",
+        "sha256_despues": "d79bce85b141a8fff7ae3e02c7475d8639a5d209fecab8aa402ece54128b7c41"
+      },
+      {
+        "ruta": "RT-03/corridas.json",
+        "reemplazos": 9,
+        "sha256_antes": "32654ebbb04c771091c49de6043af8934611c82eb6d83bda6ab962ecc259c74e",
+        "sha256_despues": "9bc010bd424871ef6ade979f037f82b426b30adbd19c69f94f7858f37f79e1a9"
+      },
+      {
+        "ruta": "RT-03/entorno.json",
+        "reemplazos": 66,
+        "sha256_antes": "5ab718cc489d874d3bc3840f1143c4f20f31f4af635e4acba97713fe8d38bc2f",
+        "sha256_despues": "1538851b25d123d0342b5bb34daf38bcafc350ff483965caed548fc4cdd1cb51"
+      },
+      {
+        "ruta": "RT-07/comandos.txt",
+        "reemplazos": 9,
+        "sha256_antes": "7d9cc298c357cda150728a37c60bee2e3543ce6404ee229367baa9288d93a343",
+        "sha256_despues": "f59c80ef85fc60e0613e9e95eae926f0d0ab97dee084d29aeecdbc1aed66db0e"
+      },
+      {
+        "ruta": "RT-07/entorno.json",
+        "reemplazos": 66,
+        "sha256_antes": "e08ce79b1f1088b2b707f2d9aa43bcccb46b58ba17230e79f891718bb4ed10b8",
+        "sha256_despues": "d0770f0dbd35ec8bafefd7fb00b4982f1dbe395ba5929d637a5d53176741ce64"
+      },
+      {
+        "ruta": "RT-07/logs/ejemplo/control.yaml",
+        "reemplazos": 2,
+        "sha256_antes": "667551b6e240558ca7762405b09d3dd8709f38f3aeb92273a13b047ddc8597a4",
+        "sha256_despues": "637c13b67fe5bf482025fb09dc764dc7f86e7f72e1903d75cfe96d7ffd61f07d"
+      },
+      {
+        "ruta": "RT-07/logs/ejemplo/manifest.yaml",
+        "reemplazos": 2,
+        "sha256_antes": "3e3ef7d26c74ad768d8533896e83a681360f65161bea9d085bf70ff3f973c931",
+        "sha256_despues": "3b580ca78a91b020f09c43f294c93ff6a9fe5e103cfe2e6e9f2fe852d45fbd54"
+      },
+      {
+        "ruta": "RT-08/comandos.txt",
+        "reemplazos": 6,
+        "sha256_antes": "897530f35aa09a3ff8d409c6affdb070826e660733fe8abd7c57064554baaa51",
+        "sha256_despues": "f7ce56244b2ea55be6bd7a65c9af84b796ca78f62de50365d23df2fe58f43e8b"
+      },
+      {
+        "ruta": "RT-08/entorno.json",
+        "reemplazos": 66,
+        "sha256_antes": "33aa9b3c8fea9600c7637851db26717ccbb185004b9301f085192c7b8875b45b",
+        "sha256_despues": "bcd77c6d6ecda53ef727b751d5aa4d21c7e797128e40f92ce9e30fb255bc3bfc"
+      },
+      {
+        "ruta": "RT-08/logs/ejemplo/control.yaml",
+        "reemplazos": 2,
+        "sha256_antes": "0cafeae808879f9b95a1795d7e76c31ca2add4b7f13ca8ca1e7fa5d2ae420254",
+        "sha256_despues": "5d5ab62526fc93f73ea032a6435f2766a1fc928cdf5030fc4807d8f593d0a708"
+      },
+      {
+        "ruta": "RT-08/logs/ejemplo/manifest.yaml",
+        "reemplazos": 2,
+        "sha256_antes": "5b8f9029e886d32b9491f90233e278b9af8938c8e128b3d6fd096355f8481ee8",
+        "sha256_despues": "c6add333e8a459df71163357cec80888f1387c8edbe1be36a4b0392500a401b8"
+      }
+    ]
   }
 ]

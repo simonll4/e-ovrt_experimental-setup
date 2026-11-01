@@ -1,0 +1,75 @@
+{
+  "escena": "P1",
+  "session_id": "demo_20261101T194602Z_P1",
+  "experiment_id": "exp_20261101T194602Z_demo_defensa",
+  "ids": {
+    "control_run_id": "control_demo_defensa_20261101T194602Z_bd8353",
+    "media_run_id": "run_20261101_194602_dbe_grounding_dino_26f79a",
+    "distribution_run_id": "dist_20261101T194602Z_c72455"
+  },
+  "marcas": true,
+  "alertas": [
+    {
+      "condicion": "CR-01",
+      "alert_id": "0c684e20-0f25-5116-9f43-c9cc58c40d21",
+      "subject_key": "CR-01:169.254.31.137",
+      "captura_primera_evidencia_ms": 1793562384620.8774,
+      "captura_confirmacion_ms": 1793562388843.9795,
+      "confirmada_ms": 1793562389024.4612,
+      "broker_ms": 1793562389038.857,
+      "confirmacion_a_broker_ms": 14.4,
+      "primera_evidencia_a_confirmacion_ms": 4403.6,
+      "accion": "sacar_casco",
+      "accion_a_confirmacion_ms": 6977.7,
+      "accion_a_primera_evidencia_ms": 2574.1,
+      "accion_a_broker_ms": 6992.1,
+      "resuelta": true,
+      "accion_fin_a_resolucion_ms": 4976.5
+    }
+  ],
+  "por_condicion": {
+    "CR-01": {
+      "esperado": "alerta",
+      "alertas": 1,
+      "ok": true
+    },
+    "CR-02": {
+      "esperado": "sin_alerta",
+      "alertas": 0,
+      "ok": true
+    }
+  },
+  "como_se_esperaba": true,
+  "alertas_antes_de_la_accion": 0,
+  "bus_dropped_events": 0,
+  "resultado_listo_s": 8.2,
+  "latencia": {
+    "unidades": 151,
+    "descartadas": 0,
+    "fps_efectivos": 3.45,
+    "inferencia_p50_ms": 145.11,
+    "inferencia_p95_ms": 207.76,
+    "g2a": {
+      "n": 151,
+      "p50": 146.434,
+      "p95": 210.625,
+      "max": 295.916
+    },
+    "captura_a_host": {
+      "n": 151,
+      "p50": 63.61,
+      "p95": 83.41,
+      "max": 96.28
+    },
+    "vidrio_a_resultado": {
+      "n": 151,
+      "p50": 211.73,
+      "p95": 272.588,
+      "max": 363.456
+    },
+    "hueco_max_ms": 236.1796875,
+    "hueco_mediana_ms": 204.943115234375,
+    "contaminada": false,
+    "reloj_pared_menos_monotonico_ms": 1793558800649.1992
+  }
+}

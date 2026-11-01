@@ -1,0 +1,80 @@
+{
+  "escena": "DEMO",
+  "session_id": "demo_20261101T203219Z_DEMO",
+  "experiment_id": "exp_20261101T203219Z_demo_defensa",
+  "ids": {
+    "control_run_id": "control_demo_defensa_20261101T203219Z_267283",
+    "media_run_id": "run_20261101_203219_dbe_grounding_dino_4917f5",
+    "distribution_run_id": "dist_20261101T203219Z_834818"
+  },
+  "marcas": true,
+  "alertas": [
+    {
+      "condicion": "CR-01",
+      "alert_id": "1ed6000b-6dba-5593-85ed-75dfc9c0a4e5",
+      "subject_key": "CR-01:169.254.31.137",
+      "captura_primera_evidencia_ms": 1793565161274.756,
+      "captura_confirmacion_ms": 1793565165479.8955,
+      "confirmada_ms": 1793565165650.1064,
+      "broker_ms": 1793565165665.338,
+      "confirmacion_a_broker_ms": 15.2,
+      "primera_evidencia_a_confirmacion_ms": 4375.4,
+      "accion": "sacar_casco",
+      "accion_a_confirmacion_ms": 5822.3,
+      "accion_a_primera_evidencia_ms": 1447.0,
+      "accion_a_broker_ms": 5837.6,
+      "resuelta": true,
+      "accion_fin_a_resolucion_ms": 467.3
+    }
+  ],
+  "por_condicion": {
+    "CR-01": {
+      "esperado": "alerta",
+      "alertas": 1,
+      "ok": true
+    },
+    "CR-02": {
+      "esperado": "alerta",
+      "alertas": 0,
+      "ok": false
+    }
+  },
+  "como_se_esperaba": false,
+  "alertas_antes_de_la_accion": 0,
+  "bus_dropped_events": 0,
+  "resultado_listo_s": 9.7,
+  "latencia": {
+    "unidades": 277,
+    "descartadas": 0,
+    "fps_efectivos": 4.07,
+    "inferencia_p50_ms": 147.17,
+    "inferencia_p95_ms": 200.86,
+    "g2a": {
+      "n": 277,
+      "p50": 147.429,
+      "p95": 224.584,
+      "max": 556.507
+    },
+    "captura_a_host": {
+      "n": 277,
+      "p50": 62.04,
+      "p95": 83.07,
+      "max": 101.31
+    },
+    "vidrio_a_resultado": {
+      "n": 277,
+      "p50": 213.186,
+      "p95": 295.069,
+      "max": 612.107
+    },
+    "hueco_max_ms": 227.5712890625,
+    "hueco_mediana_ms": 199.6982421875,
+    "contaminada": false,
+    "reloj_pared_menos_monotonico_ms": 1793558800501.6018
+  },
+  "ensayo_demo": {
+    "aprobado": true,
+    "motivos": [],
+    "cr02_en_vivo": false
+  }
+}

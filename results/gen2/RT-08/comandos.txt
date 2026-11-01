@@ -1,0 +1,7 @@
+[2026-11-01T21:18:26+00:00] python -m tools.evidencia correr RT-08
+[2026-11-01T21:18:26+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/RT-08/gen2_rt04_sujeto_demo_20261101T210406Z_P1/manifest.yaml
+[2026-11-01T21:18:27+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/RT-08/gen2_rt04_sujeto_demo_20261101T210608Z_P2/manifest.yaml
+[2026-11-01T21:18:27+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/RT-08/gen2_rt04_sujeto_demo_20261101T210851Z_P1/manifest.yaml
+[2026-11-01T21:18:27+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/RT-08/gen2_rt04_sujeto_demo_20261101T211110Z_P2/manifest.yaml
+[2026-11-01T21:18:27+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/RT-08/gen2_rt04_sujeto_demo_20261101T211315Z_P1/manifest.yaml
+[2026-11-01T21:18:27+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/RT-08/gen2_rt04_sujeto_demo_20261101T211456Z_P2/manifest.yaml

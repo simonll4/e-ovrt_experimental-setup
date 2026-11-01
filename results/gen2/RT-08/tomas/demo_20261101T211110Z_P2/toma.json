@@ -1,0 +1,52 @@
+{
+  "escena": "P2",
+  "session_id": "demo_20261101T211110Z_P2",
+  "experiment_id": "exp_20261101T211110Z_demo_defensa",
+  "ids": {
+    "control_run_id": "control_demo_defensa_20261101T211110Z_1e4a64",
+    "media_run_id": "run_20261101_211110_dbe_grounding_dino_858fb4",
+    "distribution_run_id": "dist_20261101T211110Z_aeaca8"
+  },
+  "marcas": true,
+  "alertas": [],
+  "por_condicion": {
+    "CR-01": {
+      "esperado": "sin_alerta",
+      "alertas": 0,
+      "ok": true
+    },
+    "CR-02": {
+      "esperado": "alerta",
+      "alertas": 0,
+      "ok": false
+    }
+  },
+  "como_se_esperaba": false,
+  "alertas_antes_de_la_accion": 0,
+  "bus_dropped_events": 0,
+  "resultado_listo_s": 8.0,
+  "latencia": {
+    "unidades": 273,
+    "descartadas": 119,
+    "fps_efectivos": 6.6,
+    "inferencia_p50_ms": 130.71,
+    "inferencia_p95_ms": 184.19,
+    "g2a": {
+      "n": 273,
+      "p50": 285.092,
+      "p95": 347.869,
+      "max": 385.656
+    },
+    "captura_a_host": {
+      "n": 0
+    },
+    "vidrio_a_resultado": {
+      "n": 0
+    },
+    "hueco_max_ms": 250.900390625,
+    "hueco_mediana_ms": 104.4326171875,
+    "contaminada": false,
+    "reloj_pared_menos_monotonico_ms": 1793558800397.9358
+  },
+  "stream": "secundario"
+}
