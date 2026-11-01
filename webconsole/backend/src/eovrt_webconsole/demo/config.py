@@ -9,7 +9,8 @@ y en un entorno nativo, y la carpeta de la sesión guarda exactamente lo que se 
 
 El prompt set va por referencia (`prompts.ref`) y se resuelve al set congelado completo
 de `prompts/`, el mismo dict que manda «Nueva corrida»: la demo no puede usar otra
-redacción que la evaluada.
+redacción que la evaluada. Un modo de `modos.yaml` (`demo.modos`) cambia ese set por otro
+también evaluado, el que midió su prueba, y deja la sesión marcada.
 """
 from __future__ import annotations
 
@@ -144,10 +145,12 @@ def resolver_exploracion(repo_root: Path, motor: str | None, camara: str | None)
 
 
 def resolver_configs(repo_root: Path, variante: str, desp: Despliegue,
-                     exploracion: dict | None = None, camara: dict | None = None) -> dict[str, dict]:
+                     exploracion: dict | None = None, camara: dict | None = None,
+                     modo: dict | None = None) -> dict[str, dict]:
     """Las tres configs de la sesión, ya resueltas (media, control, distribution). Con una
     exploración, la cámara de la plantilla se pisa con la de la lista (el resto, igual). Con
-    `camara` (un preset de `cameras/`, ver `demo.camara`) la fuente es la elegida en la pantalla."""
+    `camara` (un preset de `cameras/`, ver `demo.camara`) la fuente es la elegida en la pantalla.
+    Con `modo` (`demo.modos.resolver`), los prompts y el pattern set son los del modo."""
     if variante not in VARIANTES:
         raise ConfigDemoError(f"variante desconocida: {variante!r} (opciones: {sorted(VARIANTES)})")
     experiments = Path(repo_root) / "experiments"
@@ -161,6 +164,9 @@ def resolver_configs(repo_root: Path, variante: str, desp: Despliegue,
         media["ingest"] = demo_camara.aplicar(media.get("ingest"), camara)
     control = _render(experiments / _BASE / "control.template.yaml", marcadores)
     distribucion = _render(experiments / _BASE / "distribution.template.yaml", marcadores)
+    if modo:
+        from eovrt_webconsole.demo import modos as demo_modos
+        demo_modos.aplicar(media, control, modo, marcadores["EOVRT_WORKSPACE"])
     return {
         "media": _resolver_prompts(Path(repo_root) / "prompts", media),
         "control": control,

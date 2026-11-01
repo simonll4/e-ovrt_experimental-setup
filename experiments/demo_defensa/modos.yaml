@@ -1,0 +1,102 @@
+# Modos de prompts de la demo (✎ 2026-11-01, pedido del equipo en la jornada F7).
+#
+# /demo corre por defecto la configuración congelada (congelado.yaml): el campeón. Este archivo
+# habilita, desde el selector «Prompts» de /demo (y por la API: `modo` en /start y /preflight),
+# otros dos pares prompt set + pattern set YA MEDIDOS en la generación 2, para mostrar con la misma
+# cámara y el mismo motor una formulación que la evidencia descartó y una que la respalda.
+#
+# No es vocabulario improvisado: cada modo manda EXACTAMENTE el set que midió su prueba, con la
+# misma composición de clases (`clases`, cada una de su archivo congelado de prompts/). El chequeo
+# previo recalcula la huella de lo que se va a mandar con la convención del driver de evidencia
+# (`payload_sha256` de tools/evidencia/huellas.armar_prompts) y la compara con la que quedó en
+# results/gen2/<prueba>/configuracion.json; la del pattern set, con la del commit del control-plane
+# con el que corrió la prueba (results/gen2/<prueba>/entorno.json). Si alguna no coincide, rojo.
+#
+# Una sesión con un modo que no es el campeón:
+#   - queda marcada en su session.json (`modo_prompts`) y su id termina en `_modo-<id>`;
+#   - no pasa el chequeo de lo congelado: amarillo, no rojo (se registra igual, con `ok: false`),
+#     siempre que lo que el modo NO cambia (modelo, umbrales, distribución) siga igual al tag;
+#   - no cuenta como ensayo de la demo (G3) ni entra a RT-04…RT-08: el driver la descarta;
+#   - no se combina con la exploración de RT-05 (exploracion.yaml), que es con el set congelado.
+# Los prompts van por corrida (`set_inline`): el motor no se recarga. El modelo es siempre el
+# campeón (gdino-tiny-560 a 0,30/0,25), el mismo con el que se midieron las cifras de cada modo.
+# Las cifras NO se escriben acá: la consola las lee de results/gen2/<prueba>/resultado.json.
+# La lista es cerrada: un modo que no esté acá no arranca.
+default: campeon
+modos:
+  campeon:
+    nombre: Campeón
+    evidencia: congelada
+    resumen: >-
+      La configuración del informe: el modelo marca persona, casco y chaleco, y las reglas alertan por
+      la ausencia del EPP en la región de la persona (E-IND). Es la única que cuenta como ensayo.
+    nota: >-
+      CR-01 es la condición confiable. CR-02 es frágil con ropa oscura o estampada: el modelo ve un
+      chaleco que no está y la alerta no sale (F-RT1).
+    # Lo manda la plantilla tal cual (prompts.ref) y lo verifica congelado.yaml.
+    congelado: true
+    prompts:
+      set_id: cr01_cr02_v2_short
+      fuente: prompts/cr01_cr02_v2_short.yaml
+      clases: [person, helmet, vest]
+    patrones:
+      id: cr01_cr02_v2
+      archivo: e-ovrt_control-plane/configs/patterns/cr01_cr02_v2.yaml
+    cifras:
+      - {prueba: ALR-01, clave: f1, que_es: "F1 de alertas por episodio en el rodaje guionado (granularidad escena, la de esta demo)"}
+  edir:
+    nombre: E-DIR
+    evidencia: mala
+    resumen: >-
+      Pedirle al modelo la infracción con una frase («construction worker without safety helmet»), en vez
+      de marcar el EPP y alertar por su ausencia. Es la formulación directa que la evidencia descartó.
+    nota: >-
+      Las frases son las ganadoras por condición en la calibración con imágenes (cr01_spec, cr02_obs), con
+      el mismo modelo y las mismas ventanas de persistencia. Es la evidencia detrás de ADR-001 (E-IND).
+    prompts:
+      # La composición de ALR-04 (el set `edir_v1_pair_nivel_b` del pre-registro): person del
+      # núcleo E-IND y las dos frases E-DIR que lee el pattern set.
+      set_id: edir_v1_pair_nivel_b
+      clases:
+        - {id: person, fuente: prompts/eind_v1.yaml}
+        - {id: cr01_spec, fuente: prompts/edir_v1.yaml}
+        - {id: cr02_obs, fuente: prompts/edir_v1.yaml}
+      # results/gen2/ALR-04/configuracion.json → prompts.payload_sha256
+      payload_sha256: d8c4593caae0d119e7f9cd4bc7d219c11c97c15dc134a71a73fc24fa84b22572
+      medido_en: ALR-04
+    patrones:
+      id: cr01_cr02_edir_v1
+      archivo: e-ovrt_control-plane/configs/patterns/cr01_cr02_edir_v1.yaml
+      # git -C e-ovrt_control-plane show ba3286b:configs/patterns/cr01_cr02_edir_v1.yaml | sha256sum
+      # (ba3286b: el commit del control-plane de results/gen2/ALR-04/entorno.json)
+      sha256_archivo: 7200f0874502d0717b0a867eabad566babcef3daffef80e2fb6e0988ccb43141
+    cifras:
+      - {prueba: ALR-04, clave: f1, que_es: "F1 de alertas por episodio en el rodaje guionado, con las mismas reglas temporales"}
+      - {prueba: ALR-04, clave: falsas_alarmas_en_positivos, que_es: "Falsas alarmas en clips con episodios"}
+      - {prueba: PER-01, clave: bench_obra/CR-01/f1_edir, que_es: "F1 por persona de CR-01 con la frase E-DIR (bench de obra)"}
+      - {prueba: PER-01, clave: bench_obra/CR-01/f1_eind, que_es: "Lo mismo con E-IND, la formulación del campeón"}
+  clase_nueva:
+    nombre: Clase nueva
+    evidencia: buena
+    resumen: >-
+      Vocabulario abierto: suma machinery y vehicle, dos clases que la plataforma jamás configuró ni
+      entrenó, con dos líneas de prompt. Persona, casco y chaleco siguen con las frases del campeón.
+    nota: >-
+      Las cajas de las clases nuevas se ven en el Resultado (en vivo hace falta una máquina o una foto).
+      EXT-01 las mide en imágenes; con este caption las alertas CR-01/CR-02 no se midieron en video.
+    prompts:
+      # La composición de las corridas `obra_val` y `obra_test` de EXT-01.
+      set_id: clase_nueva_v1
+      fuente: prompts/clase_nueva_v1.yaml
+      clases: [person, helmet, vest, machinery, vehicle]
+      # results/gen2/EXT-01/configuracion.json → prompts.obra_val.payload_sha256
+      payload_sha256: 9228f83b5e5b3a4f30633b1209d25c4f2d24c820c2911d7248d7b53c43401a87
+      medido_en: EXT-01
+    patrones:
+      id: cr01_cr02_v2
+      archivo: e-ovrt_control-plane/configs/patterns/cr01_cr02_v2.yaml
+      # el pattern set oficial: la misma huella que congelado.yaml
+      sha256_archivo: 4f80f5d3b4e78046f8a033044475a667cd0aed930cfeca05295cf63a323570e8
+    cifras:
+      - {prueba: EXT-01, clave: ap50_machinery_obra, que_es: "AP50 de machinery en el bench de obra, clase jamás configurada ni entrenada"}
+      - {prueba: EXT-01, clave: ap50_vehicle_obra, que_es: "AP50 de vehicle en el mismo bench, con machinery en el caption"}

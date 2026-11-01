@@ -33,27 +33,29 @@ def _resultado(results_dir: Path, prueba: str) -> dict | None:
     return data if isinstance(data, dict) else None
 
 
-def leer_cifras(results_dir: Path) -> list[dict[str, Any]]:
-    salida: list[dict[str, Any]] = []
-    for prueba, clave, que_es in CIFRAS:
-        data = _resultado(results_dir, prueba)
-        fila: dict[str, Any] = {
-            "prueba": prueba, "clave": clave, "que_es": que_es,
-            "valor": None, "unidad": None, "estado": None, "pendiente": True, "texto": PENDIENTE,
-        }
-        if data is not None:
-            item = next(
-                (r for r in data.get("resumen") or [] if isinstance(r, dict) and r.get("clave") == clave),
-                None,
+def leer_cifra(results_dir: Path, prueba: str, clave: str, que_es: str) -> dict[str, Any]:
+    """Una cifra del resumen de `results/gen2/<prueba>/resultado.json`, o «pendiente»."""
+    fila: dict[str, Any] = {
+        "prueba": prueba, "clave": clave, "que_es": que_es,
+        "valor": None, "unidad": None, "estado": None, "pendiente": True, "texto": PENDIENTE,
+    }
+    data = _resultado(results_dir, prueba)
+    if data is not None:
+        item = next(
+            (r for r in data.get("resumen") or [] if isinstance(r, dict) and r.get("clave") == clave),
+            None,
+        )
+        if item is not None and item.get("valor") is not None:
+            fila.update(
+                valor=item.get("valor"),
+                unidad=item.get("unidad"),
+                estado=data.get("estado"),
+                pendiente=False,
+                texto=None,
+                fuente=f"results/gen2/{prueba}/resultado.json",
             )
-            if item is not None and item.get("valor") is not None:
-                fila.update(
-                    valor=item.get("valor"),
-                    unidad=item.get("unidad"),
-                    estado=data.get("estado"),
-                    pendiente=False,
-                    texto=None,
-                    fuente=f"results/gen2/{prueba}/resultado.json",
-                )
-        salida.append(fila)
-    return salida
+    return fila
+
+
+def leer_cifras(results_dir: Path) -> list[dict[str, Any]]:
+    return [leer_cifra(results_dir, prueba, clave, que_es) for prueba, clave, que_es in CIFRAS]

@@ -527,7 +527,7 @@ from tools.evidencia.familias import rodaje  # noqa: E402
 
 
 def _sesion(ent, sesiones: Path, sid: str, escena: str, *, alertas, eventos, marcas, testigo,
-            unidades=40, fase="done", exploracion=None, rtsp_url=None, chaleco=None):
+            unidades=40, fase="done", exploracion=None, rtsp_url=None, chaleco=None, modo_prompts=None):
     """Una sesión de la demo. Con `rtsp_url`, la cámara elegida es una RTSP: queda en session.json
     (sin credenciales) y en la config guardada (con la clave ya redactada), y sus métricas no traen
     la hora de captura del dispositivo."""
@@ -544,7 +544,8 @@ def _sesion(ent, sesiones: Path, sid: str, escena: str, *, alertas, eventos, mar
         "session_id": sid, "escena": escena, "fase": fase, "experiment_id": f"exp_{sid}",
         "ids": {"media_run_id": media_id, "control_run_id": control_id},
         "fin_pedido_en": "2026-11-01T10:00:00+00:00", "terminada_en": "2026-11-01T10:00:12+00:00",
-        "exploracion": exploracion, "camara": camara}))
+        "exploracion": exploracion, "camara": camara,
+        **({"modo_prompts": modo_prompts} if modo_prompts else {})}))
     (d / "witness.jsonl").write_text("".join(json.dumps(m) + "\n" for m in testigo))
     if chaleco is not None:  # lo que declara rodaje.ps1 -Chaleco
         marcas = {**(marcas or {"desfase_contenedor_menos_host_ms": 0.0, "acciones": []}), "chaleco": chaleco}
@@ -704,6 +705,72 @@ def test_rt05_agrupa_la_exploracion_por_celda_y_rt04_no_la_cuenta(tmp_path, monk
     carpeta4.preparar()
     rodaje.correr(ctx4, prueba4, carpeta4)
     assert [t["session_id"] for t in carpeta4.leer("evals/tomas.json")] == ["demo_g_DEMO"]
+
+
+def test_una_sesion_con_otro_modo_de_prompts_no_entra_a_ninguna_prueba_del_rodaje(tmp_path, monkeypatch):
+    """Modo de prompts (✎ 2026-11-01, modos.yaml): una sesión de /demo con E-DIR o la clase nueva no
+    es un ensayo (G3) ni una toma de RT-04…RT-08, ni siquiera como no evaluable; y RT-05 no la suma a
+    su matriz, aunque además fuera de exploración y de la misma escena."""
+    monkeypatch.setenv("EOVRT_EVIDENCIA_SALIDA", str(tmp_path / "salida"))
+    ent = _entorno(tmp_path)
+    for d in (ent.media_runs, ent.control_runs, ent.patrones):
+        d.mkdir(parents=True)
+    shutil.copy(REPO.parent / "e-ovrt_control-plane/configs/patterns/cr01_cr02_v2_subject.yaml", ent.patrones)
+    sesiones = tmp_path / "sesiones"
+    shutil.copy(REPO / "experiments/evidencia/RT-04/escenas.json", tmp_path / "escenas.json")
+    marcas = {"desfase_contenedor_menos_host_ms": 0.0, "acciones": [
+        {"accion": "sacar_casco", "condicion": "CR-01", "pared_ms": 1_001_500},
+        {"accion": "poner_casco", "condicion": "CR-01", "pared_ms": 1_007_000}]}
+    cr01 = {"alert_id": "al-1", "condition_id": "CR-01", "subject_key": "CR-01:oak",
+            "first_evidence_unit_id": "u10", "unit_id": "u30"}
+    testigo = [{"recibido_ms": 1_006_520.0, "payload": {"alert_id": "al-1", "condition_id": "CR-01",
+                                                        "confirmed_wall_ms": 1_006_500.0}}]
+    edir = {"id": "edir", "nombre": "E-DIR", "prompt_set": "edir_v1_pair_nivel_b",
+            "pattern_set": {"id": "cr01_cr02_edir_v1"}, "medido_en": "ALR-04"}
+    tiny = {"motor": "mp-gdino-tiny-560", "camara": "960x540@5", "modelo": "grounding-dino/gdino-tiny-560"}
+    _sesion(ent, sesiones, "demo_a_DEMO", "DEMO", alertas=[cr01], eventos=[], marcas=marcas, testigo=testigo,
+            chaleco="julio")
+    _sesion(ent, sesiones, "demo_b_DEMO_modo-edir", "DEMO", alertas=[cr01], eventos=[], marcas=marcas,
+            testigo=testigo, chaleco="julio", modo_prompts=edir)
+    _sesion(ent, sesiones, "demo_c_P2_modo-clase_nueva", "P2", alertas=[], eventos=[], marcas=marcas, testigo=[],
+            chaleco="amarillo", modo_prompts={**edir, "id": "clase_nueva"})
+    _sesion(ent, sesiones, "demo_d_DEMO_exp", "DEMO", alertas=[cr01], eventos=[], marcas=marcas,
+            testigo=testigo, chaleco="julio", exploracion=tiny)
+    # Una que dijera ser de exploración y además de otro modo (la API no la deja arrancar): tampoco.
+    _sesion(ent, sesiones, "demo_e_DEMO_exp_modo-edir", "DEMO", alertas=[cr01], eventos=[], marcas=marcas,
+            testigo=testigo, chaleco="julio", exploracion=tiny, modo_prompts=edir)
+
+    escenas = rodaje.cargar_escenas(cat.cargar_prueba(_prueba(tmp_path / "cat0", "RT-04", familia="rodaje", receta={
+        "escenas": str(tmp_path / "escenas.json"), "sesiones": str(sesiones)})))
+    assert [s["session_id"] for s in rodaje.sesiones_del_rodaje(sesiones, escenas)] == ["demo_a_DEMO"]
+    assert [s["session_id"] for s in rodaje.sesiones_del_rodaje(sesiones, escenas, exploracion=True)] \
+        == ["demo_d_DEMO_exp"]
+
+    # RT-04 (con su criterio de ensayo, G3) y RT-07: solo la congelada; la del modo no aparece ni como no evaluable.
+    for pid, chaleco in (("RT-04", "julio"), ("RT-07", "amarillo")):
+        prueba = cat.cargar_prueba(_prueba(tmp_path / f"cat_{pid}", pid, familia="rodaje", receta={
+            "escenas": str(tmp_path / "escenas.json"), "sesiones": str(sesiones), "chaleco": chaleco,
+            "sujeto": {"patrones": "cr01_cr02_v2_subject", "activos": ["CR-01", "CR-02"], "track_persons": True},
+            "ensayo_demo": {"escena": "DEMO", "cr01_max_s_desde_la_accion": 6.0, "resultado_max_s": 60.0}}))
+        ctx = Contexto(ent=ent, consola=ConsolaSujeto(ent), catalogo={pid: prueba}, avisar=lambda *_: None)
+        carpeta = Carpeta(ent, prueba)
+        carpeta.preparar()
+        rodaje.correr(ctx, prueba, carpeta)
+        encontradas = carpeta.leer("configuracion.json")["sesiones_encontradas"]
+        assert not any("modo-" in sid for sid in encontradas), (pid, encontradas)
+        assert not any("modo-" in n["session_id"] for n in carpeta.leer("resultado.json")["metricas"]["no_evaluables"])
+    ensayos = carpeta.leer("resultado.json")["metricas"]["ensayos_demo"]  # RT-07: la congelada es de julio
+    assert ensayos["total"] == 0
+
+    # RT-05: la matriz pre-registrada solo ve la exploración con el set congelado.
+    prueba5 = cat.cargar_prueba(_prueba(tmp_path / "cat_rt05", "RT-05", familia="rodaje", receta={
+        "escenas": str(tmp_path / "escenas.json"), "escena": "DEMO", "sesiones": str(sesiones), "chaleco": "julio",
+        "matriz": {"motores": ["mp-gdino-tiny-560"], "camaras": ["960x540@5"], "tomas_por_celda": 1}}))
+    ctx5 = Contexto(ent=ent, consola=ConsolaSujeto(ent), catalogo={"RT-05": prueba5}, avisar=lambda *_: None)
+    carpeta5 = Carpeta(ent, prueba5)
+    carpeta5.preparar()
+    assert rodaje.correr(ctx5, prueba5, carpeta5) == {"estado": "completo", "tomas": 1, "celdas_completas": 1}
+    assert carpeta5.leer("configuracion.json")["sesiones_encontradas"] == ["demo_d_DEMO_exp"]
 
 
 def test_rt06_cuenta_solo_la_camara_ip_por_stream_y_rt04_solo_la_oak_d(tmp_path, monkeypatch):

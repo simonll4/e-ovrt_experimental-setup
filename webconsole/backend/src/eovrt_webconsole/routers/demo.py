@@ -14,6 +14,7 @@ from fastapi.responses import FileResponse, JSONResponse, Response
 
 from eovrt_webconsole.demo import camara as demo_camara
 from eovrt_webconsole.demo import config as demo_config
+from eovrt_webconsole.demo import modos as demo_modos
 from eovrt_webconsole.demo.config import ConfigDemoError
 from eovrt_webconsole.demo.sesion import (
     DemoManager,
@@ -45,14 +46,29 @@ def hora() -> dict:
 
 
 @router.get("/preflight")
-async def preflight(request: Request, motor: str | None = None, camara: str | None = None) -> dict:
-    """Con `motor`/`camara` (query), el chequeo de una sesión de exploración (RT-05)."""
+async def preflight(request: Request, motor: str | None = None, camara: str | None = None,
+                    modo: str | None = None) -> dict:
+    """Con `motor`/`camara` (query), el chequeo de una sesión de exploración (RT-05). Con
+    `modo`, el de una sesión con otro par de prompts y patrones de `modos.yaml`."""
     demo = _demo(request)
     try:
         exploracion = demo_config.resolver_exploracion(demo.repo_root, motor, camara)
+        modo_prompts = demo_modos.resolver(demo.repo_root, modo)
     except ConfigDemoError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
-    return await demo.preflight(exploracion)
+    if exploracion and modo_prompts:
+        raise HTTPException(status_code=422, detail="la exploración (RT-05) no se combina con otro modo de prompts")
+    return await demo.preflight(exploracion, modo_prompts)
+
+
+@router.get("/modos")
+async def modos(request: Request) -> dict:
+    """La lista cerrada de modos de prompts (`experiments/demo_defensa/modos.yaml`), cada uno con
+    sus frases por clase y sus cifras de la generación 2."""
+    try:
+        return _demo(request).modos()
+    except ConfigDemoError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
 
 
 @router.post("/start", status_code=202)
@@ -65,8 +81,11 @@ async def start(request: Request, body: dict | None = None):
     camara = (body or {}).get("camara")
     if camara is not None and not isinstance(camara, str):
         raise HTTPException(status_code=422, detail="camara: el id de un preset de cameras/")
+    modo = (body or {}).get("modo")
+    if modo is not None and not isinstance(modo, str):
+        raise HTTPException(status_code=422, detail="modo: el id de un modo de modos.yaml")
     try:
-        return await _demo(request).start(variante, escena, exploracion, camara)
+        return await _demo(request).start(variante, escena, exploracion, camara, modo)
     except DemoOcupada as exc:
         return JSONResponse(status_code=409, content={"detail": str(exc)})
     except DemoNoLista as exc:

@@ -11,6 +11,8 @@ el manifiesto en código (control → distribución → medios, live) y guarda l
 | `control.template.yaml` | pattern set oficial `cr01_cr02_v2`, escena, bus de alertas habilitado |
 | `distribution.template.yaml` | MQTT QoS 1, enfriamiento de 30 s por `[condition_id, source_id]` |
 | `congelado.yaml` | huellas del tag `informe-2026` que el chequeo previo compara |
+| `exploracion.yaml` | lista cerrada de motores y cadencias de la exploración (RT-05), solo por API y `rodaje.ps1` |
+| `modos.yaml` | lista cerrada de modos de prompts (campeón, E-DIR, clase nueva), cada uno con las huellas de lo que midió su prueba de la generación 2 |
 | `../demo_defensa_ensayo/media.template.yaml` | la variante con la cámara de ensayo (RTSP) |
 
 Marcadores (`EOVRT_*`) que resuelve la consola según el despliegue: `EOVRT_WORKSPACE`,

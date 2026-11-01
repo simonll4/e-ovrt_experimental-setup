@@ -34,6 +34,11 @@ El chaleco (✎ 2026-11-01, doc 134 §13.14): CR-02 depende de él, así que cad
 (`receta.chaleco`) y cada toma lo declara (`rodaje.ps1 -Chaleco` → marcas.json). RT-04, RT-05 y RT-06
 cuentan solo el de julio; RT-07 (OAK-D) y RT-08 (cámara IP), solo el amarillo no reflectivo. Una toma con otro, o sin declararlo,
 queda como no evaluable con el motivo.
+
+El modo de prompts (✎ 2026-11-01, `experiments/demo_defensa/modos.yaml`): una sesión de /demo con
+otro par prompt set + pattern set que el campeón (`modo_prompts` en session.json, id con
+`_modo-<id>`) no es ninguna de estas pruebas. Ninguna la importa —ni siquiera como no evaluable—:
+sus pre-registros fijan el set congelado, y RT-05 compara motores con ese set.
 """
 from __future__ import annotations
 
@@ -96,7 +101,8 @@ def sesiones_del_rodaje(directorio: Path, escenas: dict[str, dict], *,
                         exploracion: bool = False, fuente: str = "oak_d") -> list[dict]:
     """Las sesiones de la demo etiquetadas con una escena del catálogo, en orden: las de la
     demo congelada (RT-04) o, con `exploracion`, solo las de exploración (RT-05). Solo las de la
-    `fuente` pedida: RT-04 y RT-05 son con la OAK-D; RT-06, con la cámara IP (`rtsp`)."""
+    `fuente` pedida: RT-04 y RT-05 son con la OAK-D; RT-06, con la cámara IP (`rtsp`). Nunca las
+    de un modo de prompts que no es el campeón (`modo_prompts`): no son de ninguna prueba."""
     filas = []
     if not directorio.is_dir():
         return filas
@@ -109,7 +115,7 @@ def sesiones_del_rodaje(directorio: Path, escenas: dict[str, dict], *,
         except json.JSONDecodeError:
             continue
         if (datos.get("escena") in escenas and bool(datos.get("exploracion")) == exploracion
-                and fuente_de(datos) == fuente):
+                and fuente_de(datos) == fuente and not datos.get("modo_prompts")):
             filas.append({**datos, "_dir": carpeta})
     return filas
 
