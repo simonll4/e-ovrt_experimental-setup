@@ -1,12 +1,13 @@
 import { useState, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import {
-  Badge, Button, Card, EmptyState, ErrorBanner, LoadingState, MonoCell, PageHeader, StaleNotice,
+  Ayuda, Badge, Button, Card, EmptyState, ErrorBanner, LoadingState, MonoCell, PageHeader, StaleNotice,
   Table, TableScroll,
 } from '../components/ui'
 import { useTargetQuery } from '../api/queries/platform'
 import { useCatalogPromptSets, useDatasets, useIngestPlugins } from '../api/queries/catalog'
 import { sourceLabel } from '../runview'
+import { ayudaDeClase, ayudaDeConjunto } from '../ayudaPrompts'
 import type { PromptSet } from '../types'
 
 /** Nombre legible de cada umbral del modelo. Las claves son de la API. */
@@ -50,11 +51,18 @@ function EstadoCatalogo({ q, que }: { q: Consulta; que: string }): ReactNode {
 function ClasesDelConjunto({ set }: { set: PromptSet }) {
   const [todas, setTodas] = useState(false)
   const ids = set.classes.map((c) => c.id)
-  const visibles = todas ? ids : ids.slice(0, CLASES_VISIBLES)
+  const visibles = todas ? set.classes : set.classes.slice(0, CLASES_VISIBLES)
   const listaId = `clases-${set.id}`
   return (
     <div>
-      <span className="eo-mono" id={listaId}>{visibles.join(', ')}</span>
+      <span className="eo-mono" id={listaId}>
+        {visibles.map((c, i) => (
+          <span key={c.id}>
+            {i > 0 && ', '}
+            <Ayuda {...ayudaDeClase(c)}>{c.id}</Ayuda>
+          </span>
+        ))}
+      </span>
       {ids.length > CLASES_VISIBLES && (
         <>
           {!todas && <span className="eo-cell--muted"> … </span>}
@@ -233,7 +241,7 @@ export default function CatalogPage() {
               <tbody>
                 {sets.map((s) => (
                   <tr key={s.id}>
-                    <MonoCell>{s.id}</MonoCell>
+                    <MonoCell><Ayuda {...ayudaDeConjunto(s)}>{s.id}</Ayuda></MonoCell>
                     <td>
                       {s.frozen ? <Badge tone="ok">Congelado</Badge> : <Badge tone="neutral">Abierto</Badge>}
                     </td>

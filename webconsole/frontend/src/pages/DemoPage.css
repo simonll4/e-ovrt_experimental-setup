@@ -3,9 +3,7 @@
    styles/tokens.css; los colores de estado son los de la consola (--ok, --wn, --er). */
 
 .eo-demo {
-  min-height: 100vh;
   box-sizing: border-box;
-  padding: 28px 40px 72px;
   background: var(--sunken);
   color: var(--tx);
   font-family: var(--fs);
@@ -30,14 +28,108 @@
 .eo-demo__cab { margin-bottom: 24px; }
 .eo-demo__variante { color: var(--wn); margin: 0; }
 .eo-demo__teclas {
-  position: fixed;
-  left: 0; right: 0; bottom: 0;
   padding: 12px 40px;
   background: var(--s1);
   border-top: 1px solid var(--bd);
   color: var(--tx3);
   font-size: 18px;
 }
+
+/* Proyección (?proyectar=1, tecla P): pantalla completa, sin armazón, la que ve el
+   tribunal. Es el aspecto original de la spec §5. */
+.eo-demo--proyeccion {
+  min-height: 100vh;
+  padding: 28px 40px 72px;
+}
+.eo-demo--proyeccion .eo-demo__teclas {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+}
+
+/* Dentro de la consola (por defecto, ✎ 2026-10-31): una pantalla más, con el PageHeader,
+   los Button, el Banner y las Card de la consola. Las piezas propias de la demo
+   (chequeos, tarjetas de condición, franja del broker, Resultado) reusan sus clases, pero
+   a la escala y con la superficie de la consola, no la del proyector. */
+.eo-demo-consola__acciones { display: flex; flex-wrap: wrap; gap: 8px; }
+.eo-demo-consola .eo-btn kbd {
+  margin-left: 6px;
+  min-width: 0;
+  padding: 0 5px;
+  font-size: 11px;
+  background: transparent;
+  border-color: currentColor;
+  color: inherit;
+  opacity: .75;
+}
+.eo-demo-consola__teclas { color: var(--tx3); font-size: 13px; margin: 14px 0 0; }
+.eo-demo-consola__teclas kbd {
+  display: inline-block; padding: 0 5px; border: 1px solid var(--bds);
+  border-radius: var(--r); background: var(--s2); font-family: var(--fm); font-size: 11px;
+}
+.eo-demo-consola .eo-banner { margin-bottom: 16px; }
+.eo-demo-consola .eo-card { margin-bottom: 16px; }
+/* Cámara (selector, comprobación, vista previa) */
+.eo-demo-camara-fila { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 0 0 12px; }
+.eo-demo-camaras { border: 0; margin: 0 0 12px; padding: 0; display: grid; gap: 8px; }
+.eo-demo-camaras legend { font-size: 13px; color: var(--tx2); padding: 0; margin: 0 0 6px; }
+.eo-demo-camaras__fila {
+  display: grid; grid-template-columns: auto minmax(160px, 1fr) auto auto; gap: 4px 12px; align-items: center;
+  padding: 10px 14px; border: 1px solid var(--bd); border-radius: var(--r); background: var(--s1); cursor: pointer;
+}
+.eo-demo-camaras__fila--elegida { border-color: var(--ac-bd); background: var(--ac-bg); }
+.eo-demo-camaras__fila input { margin: 0; }
+.eo-demo-camaras__nombre { font-weight: 600; font-size: 14px; }
+.eo-demo-camaras__destino { color: var(--tx3); font-size: 12px; }
+.eo-demo-camaras__detalle { grid-column: 2 / -1; color: var(--tx3); font-size: 12px; }
+.eo-demo-camara-chequeo { margin: 4px 0 12px; padding: 12px 14px; border: 1px solid var(--bd); border-radius: var(--r); background: var(--s2); font-size: 13px; }
+.eo-demo-camara-chequeo__titulo { margin: 0 0 8px; font-weight: 600; font-size: 14px; }
+.eo-demo-camara-chequeo__sub { margin: 10px 0 4px; font-weight: 600; color: var(--tx2); }
+.eo-demo-camara-pasos, .eo-demo-camara-ayuda { margin: 0; padding-left: 20px; }
+.eo-demo-camara-pasos { list-style: none; padding-left: 0; }
+.eo-demo-camara-paso--ok span { color: var(--ok); }
+.eo-demo-camara-paso--mal span { color: var(--er); }
+.eo-demo-camara-acciones { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.eo-demo-camara-vista { max-width: 760px; margin: 4px 0 12px; }
+.eo-demo-camara-nota { color: var(--tx3); font-size: 12px; margin: 8px 0 0; }
+.eo-demo-consola__nota { color: var(--tx3); font-size: 12px; margin: 12px 0 0; }
+
+/* Listo */
+.eo-demo-consola .eo-demo-chequeos { gap: 8px; margin: 0 0 12px; }
+.eo-demo-consola .eo-demo-chequeo { padding: 2px 10px; font-size: 13px; }
+.eo-demo-consola .eo-demo-listo__meta { font-size: 13px; margin: 0 0 8px; }
+/* El «Iniciar I» enorme es para el proyector: en la consola está el botón. */
+.eo-demo-consola .eo-demo-listo__accion { display: none; }
+.eo-demo-consola .eo-demo-listo__bloqueo { font-size: 14px; }
+.eo-demo-consola .eo-demo-listo__problemas { font-size: 14px; margin: 8px 0 0; }
+/* Corriendo */
+.eo-demo-consola .eo-demo-preparando { font-size: 15px; margin: 0 0 8px; }
+.eo-demo-consola .eo-demo-listo-ya { font-size: 17px; margin: 0 0 4px; }
+.eo-demo-consola .eo-demo-crono { font-size: 20px; margin: 0 0 14px; }
+.eo-demo-consola .eo-demo-cards { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
+.eo-demo-consola .eo-demo-card { border-width: 1px; padding: 14px 18px; min-height: 0; }
+.eo-demo-consola .eo-demo-card__titulo { font-size: 15px; margin: 0; color: var(--tx2); }
+.eo-demo-consola .eo-demo-card__cara { font-size: 20px; margin: 6px 0 10px; }
+.eo-demo-consola .eo-demo-card__broker { font-size: 13px; margin: 0; }
+.eo-demo-consola .eo-demo-card__nota { font-size: 12px; margin: 6px 0 0; }
+.eo-demo-consola .eo-demo-barra { height: 8px; }
+.eo-demo-consola .eo-demo-strip { margin-top: 14px; padding: 8px 12px; font-size: 13px; gap: 12px; }
+.eo-demo-consola .eo-demo-camara { font-size: 13px; margin: 10px 0 0; }
+.eo-demo-consola .eo-demo-camara--sin-senal { font-size: 15px; }
+.eo-demo-consola .eo-demo-cerrando { font-size: 16px; margin: 24px 0; }
+.eo-demo-consola .eo-demo-aviso { font-size: 14px; }
+/* Resultado */
+.eo-demo-consola .eo-demo-resultado__video video { max-width: 960px; }
+.eo-demo-consola .eo-demo-resultado__rotulo { font-size: 13px; margin: 8px 0 0; }
+.eo-demo-consola .eo-demo-alerta { margin-top: 16px; padding: 14px 18px; }
+.eo-demo-consola .eo-demo-alerta h2 { font-size: 15px; margin: 0 0 10px; }
+.eo-demo-consola .eo-demo-alerta__cuadros { gap: 12px; }
+.eo-demo-consola .eo-demo-alerta__cuadros figure { width: 280px; }
+.eo-demo-consola .eo-demo-alerta__cuadros figcaption { font-size: 12px; }
+.eo-demo-consola .eo-demo-alerta__tramos { font-size: 13px; padding-left: 20px; }
+.eo-demo-consola .eo-demo-alerta__nota { font-size: 12px; }
+.eo-demo-consola .eo-demo-tarjeta { margin-top: 16px; padding: 14px 18px; border-width: 1px; font-size: 13px; }
+.eo-demo-consola .eo-demo-tarjeta h2 { font-size: 15px; margin: 0 0 8px; }
+.eo-demo-consola .eo-demo-tarjeta__nota { font-size: 12px; }
 
 /* Listo */
 .eo-demo-chequeos { display: flex; flex-wrap: wrap; gap: 10px; list-style: none; margin: 0 0 16px; padding: 0; }

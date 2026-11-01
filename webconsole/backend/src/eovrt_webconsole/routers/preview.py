@@ -9,7 +9,7 @@ import websockets.exceptions
 from fastapi import APIRouter, HTTPException, Request, WebSocket, WebSocketDisconnect
 from fastapi.responses import JSONResponse, Response
 
-from eovrt_webconsole.routers.stream import _safe_close_code
+from eovrt_webconsole.routers.stream import _safe_close_code, servicio_activo
 from eovrt_webconsole.run_backend import PreviewConflict, ServiceRejected, ServiceUnavailable
 
 logger = logging.getLogger(__name__)
@@ -58,11 +58,10 @@ async def stop_preview(request: Request):
 async def preview_stream_ws(websocket: WebSocket) -> None:
     """Passthrough binario/texto del WS de preview: sin coalescing (el
     media-plane ya pacea enviando solo el último frame)."""
-    settings = websocket.app.state.settings
     await websocket.accept()
     close_code = 1000
     try:
-        async with websockets.connect(_preview_ws_url(settings.service_url)) as upstream:
+        async with websockets.connect(_preview_ws_url(servicio_activo(websocket.app))) as upstream:
 
             async def _pump() -> None:
                 async for raw in upstream:

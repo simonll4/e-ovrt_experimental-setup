@@ -94,3 +94,30 @@ def test_hora_del_servidor_para_el_director_del_rodaje(client):
 def test_start_con_escena_invalida_es_422(client):
     r = client.post("/api/demo/start", json={"escena": "../fuera"})
     assert r.status_code in (422, 503)
+
+
+def test_camaras_lista_los_presets_aptos_sin_credenciales(two_plane_client, tmp_path):
+    import yaml
+    client = two_plane_client
+    cameras = client.app.state.settings.cameras_dir
+    cameras.mkdir(exist_ok=True)
+    (cameras / "dvr.yaml").write_text(yaml.safe_dump({"camera": {
+        "id": "dvr", "name": "DVR", "plugin": "rtsp", "config": {"url": "rtsp://admin:Clave1@10.0.0.5:554/s"}}}))
+    async def sin_camino(host, puerto):  # sin red real: en WSL espejo un puerto cerrado cuelga
+        raise TimeoutError
+
+    client.app.state.demo_manager._conectar = sin_camino
+    filas = client.get("/api/demo/camaras").json()
+    assert [f["id"] for f in filas] == ["dvr"] and filas[0]["destino"] == "10.0.0.5:554"
+    assert filas[0]["estado"] == "inactiva" and "no contesta" in filas[0]["detalle"]
+    assert "Clave1" not in str(filas)
+
+
+def test_comprobar_una_camara_inexistente_es_404(two_plane_client):
+    r = two_plane_client.post("/api/demo/camaras/no_existe/comprobar")
+    assert r.status_code == 404
+
+
+def test_start_con_camara_que_no_es_texto_es_422(two_plane_client):
+    _sin_red(two_plane_client)
+    assert two_plane_client.post("/api/demo/start", json={"variante": "oakd", "camara": 5}).status_code == 422

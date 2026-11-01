@@ -36,13 +36,19 @@ from typing import Any, Callable
 
 import httpx
 
+from eovrt_webconsole.demo import camara as demo_camara
 from eovrt_webconsole.demo import config as demo_config
 from eovrt_webconsole.demo.cifras import leer_cifras
 from eovrt_webconsole.demo.estado import Derivador
 from eovrt_webconsole.demo.render import render_sesion
 from eovrt_webconsole.demo.testigo import TestigoError, TestigoMqtt, ping_broker
 from eovrt_webconsole.experiment.manifest import ExperimentManifest
-from eovrt_webconsole.experiment.runner import RunHooks, _default_dest_root, _default_resolve_run_dir
+from eovrt_webconsole.experiment.runner import (
+    RunHooks,
+    _default_dest_root,
+    _default_resolve_run_dir,
+)
+from eovrt_webconsole.orchestrator import PROJECT_NAME
 
 logger = logging.getLogger(__name__)
 
@@ -138,6 +144,9 @@ class _Sesion:
     escena: str | None = None
     # RT-05: otro motor u otra cámara (exploracion.yaml). None = la demo congelada.
     exploracion: dict | None = None
+    # La cámara elegida en la pantalla ({id, nombre, plugin, destino}, sin credenciales). None =
+    # la OAK-D de la plantilla.
+    camara: dict | None = None
     fase: str = "preparing"
     ids: dict[str, str] = field(default_factory=dict)
     derivador: Derivador = field(default_factory=Derivador)
@@ -176,8 +185,14 @@ class DemoManager:
         run_distribution: Callable[..., Any] | None = None,
         resolve_run_dir: Callable[[str, str], Path] = _default_resolve_run_dir,
         dest_root: Path | None = None,
+        ejecutar: demo_camara.Ejecutor = demo_camara.ejecutar_subproceso,
+        conectar: demo_camara.Conectar = asyncio.open_connection,
     ) -> None:
         self._app = app
+        self._ejecutar = ejecutar
+        self._conectar = conectar
+        # Última comprobación COMPLETA de cada cámara: (resultado, reloj). Alimenta el estado a la vista.
+        self._comprobaciones: dict[str, tuple[dict, float]] = {}
         settings = app.state.settings
         self._repo_root = Path(settings.repo_root)
         self.sesiones_dir = sesiones_dir or (self._repo_root / "defensa" / "sesiones")
@@ -232,6 +247,7 @@ class DemoManager:
             "variante": s.variante,
             "escena": s.escena,
             "exploracion": s.exploracion,
+            "camara": s.camara,
             "fase": s.fase,
             "stack": s.despliegue.modo,
             "experiment_id": s.experiment_id,
@@ -351,6 +367,90 @@ class DemoManager:
         except (OSError, json.JSONDecodeError):
             return {"presente": False}
         return {"presente": True, "edad_s": round(edad, 1), "datos": data}
+
+    async def camaras(self) -> list[dict]:
+        """Las cámaras de la demo, cada una con su estado (`demo.camara.estado_pasivo`): se muestra
+        siempre en el selector y no abre ninguna cámara."""
+        filas = demo_camara.listar(self._settings.cameras_dir)
+        ahora = self._reloj()
+        presets = []
+        for fila in filas:
+            try:
+                presets.append(demo_camara.cargar(self._settings.cameras_dir, fila["id"]))
+            except demo_camara.CamaraDesconocida:  # se borró entre el listado y la carga
+                continue
+        estados = await asyncio.gather(*(
+            demo_camara.estado_pasivo(p, ultimo=self._comprobaciones.get(p["id"]), ahora_s=ahora,
+                                      conectar=self._conectar)
+            for p in presets))
+        por_id = {p["id"]: e for p, e in zip(presets, estados, strict=True)}
+        return [{**fila, **por_id.get(fila["id"], {"estado": "inactiva", "detalle": "el preset desapareció"}),
+                 "medido_en": _ahora_iso(ahora)} for fila in filas]
+
+    def _ocupada(self) -> bool:
+        return ((self._sesion is not None and self._sesion.fase in FASES_ACTIVAS)
+                or self._app.state.experiment_manager.current() is not None)
+
+    async def iniciar_vista(self, camara_id: str) -> dict[str, Any]:
+        """Vista previa de la cámara elegida, para ver el encuadre ANTES de iniciar.
+
+        Va por el canal de preview del motor (`/api/preview`, el de la pantalla Cámaras), en modo
+        crudo (sin modelo, sin costo de inferencia), con la misma fuente que va a usar la sesión
+        (la OAK-D a 960×540 y 5 fps de la plantilla: ver el encuadre real, y no 1080p a 30 que
+        satura la red de WSL). Las credenciales de un RTSP se arman acá, en el servidor: a la
+        pantalla solo llega el id. El stream de cuadros sigue siendo `/api/preview/stream`.
+        """
+        preset = demo_camara.cargar(self._settings.cameras_dir, camara_id)
+        if self._ocupada():
+            raise DemoOcupada("hay una sesión o un experimento en curso: no se previsualiza ahora")
+        configs = demo_config.resolver_configs(self._repo_root, "oakd", self._despliegue(), None, preset)
+        ingest = configs["media"]["ingest"]
+        await self._app.state.backend.preview_start(
+            {"mode": "raw", "ingest": {"plugin": ingest["plugin"], "config": ingest.get("config") or {}}})
+        if preset["plugin"] == "oak_d":
+            # La OAK-D abierta en el proceso del motor cuenta como un uso (F-101.5: la segunda
+            # apertura en la misma vida del proceso puede tirarlo al cerrar): el motor queda sin
+            # «fresco» y el chequeo previo pide reiniciarlo antes de la sesión.
+            self._motor = {**self._motor, "estado": "usado"}
+        return demo_camara.resumen(preset)
+
+    async def detener_vista(self) -> None:
+        backend = self._app.state.backend
+        try:
+            await backend.preview_stop()
+        except Exception:  # parar es best-effort: sin preview o sin motor, no hay nada que cortar
+            logger.info("demo: no había vista previa que detener", exc_info=True)
+
+    async def _liberar_vista(self) -> None:
+        """Antes de lanzar la corrida: el preview y la corrida se excluyen (y la OAK-D admite una
+        sola conexión). Corta el preview y espera, hasta 5 s, a que el motor lo suelte."""
+        backend = self._app.state.backend
+        if not hasattr(backend, "preview_stop"):
+            return
+        await self.detener_vista()
+        for _ in range(25):
+            try:
+                if (await backend.preview_status()).get("status") != "streaming":
+                    return
+            except Exception:  # noqa: BLE001 - sin motor no hay preview que esperar
+                return
+            await asyncio.sleep(0.2)
+        logger.warning("demo: el preview no se soltó en 5 s")
+
+    async def comprobar_camara(self, camara_id: str) -> dict[str, Any]:
+        """Comprueba que la cámara se ve (`demo.camara.comprobar`). Con una sesión o un experimento
+        en curso no abre la OAK-D: admite una sola conexión a la vez."""
+        preset = demo_camara.cargar(self._settings.cameras_dir, camara_id)
+        tm = getattr(self._app.state, "target_manager", None)
+        activo = tm.active if tm is not None else None
+        en_uso = self._ocupada()
+        resultado = await demo_camara.comprobar(
+            preset, ahora=_ahora_iso(self._reloj()), ejecutar=self._ejecutar,
+            motor_contenedor=f"{PROJECT_NAME}-{activo}-1" if activo else None,
+            sonda=demo_camara.leer_sonda_oakd(self._repo_root), en_uso=en_uso, host=self._host())
+        if resultado["estado"] in ("ok", "falla"):  # «en uso» no dice nada de la cámara
+            self._comprobaciones[preset["id"]] = (resultado, self._reloj())
+        return resultado
 
     async def preflight(self, exploracion: dict | None = None) -> dict[str, Any]:
         """Chequeo previo. Con `exploracion` (RT-05, `demo_config.resolver_exploracion`) el
@@ -490,7 +590,7 @@ class DemoManager:
     # --- arranque ---------------------------------------------------------------
 
     async def start(self, variante: str = "oakd", escena: str | None = None,
-                    exploracion: dict | None = None) -> dict[str, Any]:
+                    exploracion: dict | None = None, camara: str | None = None) -> dict[str, Any]:
         """Arranca una sesión. `exploracion` ({"motor", "camara"}, RT-05) corre la misma
         escena con otro motor u otra cámara de la lista cerrada de `exploracion.yaml`: solo
         con la OAK-D, y la sesión queda marcada (id con `_exp`, `exploracion` en session.json)."""
@@ -506,6 +606,14 @@ class DemoManager:
                     raise ValueError("la exploración es con la OAK-D (variante oakd)")
                 exploracion = demo_config.resolver_exploracion(
                     self._repo_root, exploracion.get("motor"), exploracion.get("camara"))
+            preset = None
+            if camara is not None:
+                if exploracion is not None:
+                    raise ValueError("la exploración (RT-05) es con la cámara de la demo: no se combina con otra")
+                try:
+                    preset = demo_camara.cargar(self._settings.cameras_dir, camara)
+                except demo_camara.CamaraDesconocida as exc:
+                    raise ValueError(str(exc)) from exc
             manager = self._app.state.experiment_manager
             if manager.current() is not None:
                 raise DemoOcupada("hay un experimento en curso en la consola")
@@ -520,7 +628,7 @@ class DemoManager:
             carpeta = self.sesiones_dir / session_id
             carpeta.mkdir(parents=True, exist_ok=False)
             desp = self._despliegue()
-            configs = demo_config.resolver_configs(self._repo_root, variante, desp, exploracion)
+            configs = demo_config.resolver_configs(self._repo_root, variante, desp, exploracion, preset)
             modelo = None
             try:
                 modelo = (await self._app.state.http.get("/api/model")).json()
@@ -550,6 +658,7 @@ class DemoManager:
                 await asyncio.to_thread(testigo.esperar_suscripcion, 5.0)
             except TestigoError as exc:
                 await asyncio.to_thread(testigo.cerrar)
+                demo_camara.limpiar_credenciales(carpeta / "config")
                 raise DemoNoLista({**preflight, "items": [
                     {"id": "broker", "nombre": "broker", "estado": "error", "detalle": str(exc),
                      "accion": None}]}) from exc
@@ -561,6 +670,7 @@ class DemoManager:
                 id=session_id, dir=carpeta, variante=variante, despliegue=desp,
                 experiment_id=experiment_id, hooks=hooks, testigo=testigo,
                 congelado=congelado, iniciada=ahora, escena=escena, exploracion=exploracion,
+                camara=demo_camara.resumen(preset) if preset else None,
             )
             hooks.on_ids = lambda ids: self._ids(s, ids)
             manifest = ExperimentManifest.model_validate({
@@ -583,6 +693,7 @@ class DemoManager:
                            **({"exploracion": {k: exploracion[k] for k in ("motor", "modelo", "camara")}}
                               if exploracion else {})},
             })
+            await self._liberar_vista()
             self._motor = {**self._motor, "estado": "usado"}
             extra: dict[str, Any] = {"resolve_run_dir": self._resolve_run_dir}
             if self._run_distribution is not None:
@@ -601,6 +712,7 @@ class DemoManager:
             )
             self._sesion = s
             self._evento(s, "inicio", variante=variante, escena=escena, experiment_id=experiment_id,
+                         **({"camara": preset["id"]} if preset else {}),
                          **({"exploracion": f"{exploracion['motor']} @ {exploracion['camara']}"}
                             if exploracion else {}))
             self._guardar(s)
@@ -762,6 +874,8 @@ class DemoManager:
         ok = estado_exp.get("status") == "succeeded" and s.error is None
         if not ok and s.error is None:
             s.error = estado_exp.get("error") or "el experimento terminó con fallas"
+        # La config guardada tuvo que ser la real mientras corría; ahora se le quita la clave.
+        await asyncio.to_thread(demo_camara.limpiar_credenciales, s.dir / "config")
         s.fase = "done" if ok else "failed"
         s.terminada = self._reloj()
         self._evento(s, f"sesión {s.fase}", resultado_en=str(s.dir / "resultado"))
@@ -842,6 +956,7 @@ class DemoManager:
             "variante": s.variante,
             "escena": s.escena,
             "exploracion": s.exploracion,
+            "camara_elegida": s.camara,
             "stack": s.despliegue.modo,
             "experiment_id": s.experiment_id,
             "ids": s.ids,

@@ -1,7 +1,8 @@
 import { useQuery } from '@tanstack/react-query'
 import {
-  getDemoCifras, getDemoPreflight, getDemoSession, getDemoStack, getDemoState,
+  getDemoCifras, getDemoPreflight, getDemoSession, getDemoStack, getDemoState, listDemoCamaras,
 } from '..'
+import { POLL } from '../queryClient'
 import { qk } from '../keys'
 import type { DemoFase } from '../../types'
 
@@ -51,4 +52,15 @@ export function useDemoCifras() {
 
 export function useDemoStack(enabled: boolean) {
   return useQuery({ queryKey: qk.demo.stack, queryFn: getDemoStack, enabled, retry: false })
+}
+
+/** Las cámaras que sirven para la demo. Solo se piden en la pantalla dentro de la consola (la
+ *  proyección no hace consultas más allá de `/api/demo/*`; esta lo es, pero no la necesita). */
+export function useDemoCamaras(enabled = true) {
+  return useQuery({
+    queryKey: qk.demo.camaras, queryFn: listDemoCamaras, enabled, staleTime: 5_000, retry: false,
+    // El estado de cada cámara (¿está activa?) se ve siempre y se mantiene al día solo, mientras la
+    // pantalla está en Listo: sondear una RTSP es un intento de conexión, liviano.
+    refetchInterval: enabled ? POLL.plataforma : false,
+  })
 }

@@ -5,9 +5,10 @@ import { qk } from '../api/keys'
 import { usePromptSetDetail, usePromptSetList } from '../api/queries/promptSets'
 import type { PromptSetDetail, PromptSetDiff } from '../types'
 import { promptStatusTone } from '../promptview'
+import { ayudaDeClase } from '../ayudaPrompts'
 import PromptSetEditor from '../components/PromptSetEditor'
 import {
-  Badge, Button, Card, DiscardPrompt, EmptyState, ErrorBanner, IconChevron, LoadingState,
+  Ayuda, Badge, Button, Card, DiscardPrompt, EmptyState, ErrorBanner, IconChevron, LoadingState,
   PageHeader, StaleNotice, enfocarCuandoAparezca,
 } from '../components/ui'
 
@@ -245,7 +246,8 @@ export default function PromptSetsPage() {
         >
           {seleccionado.classes.map((c) => (
             <div key={c.id} className="eo-phrases">
-              <b>{c.id}</b>
+              {/* La frase ya está al lado: el tooltip aporta lo que no se ve (condición y estrategia). */}
+              <Ayuda {...ayudaDeClase(c)} ejemplo={undefined}><b>{c.id}</b></Ayuda>
               <span>
                 {Object.values(c.phrasings)
                   .flat()

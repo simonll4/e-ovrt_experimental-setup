@@ -10,10 +10,11 @@ import {
 import { useCameras } from '../api/queries/cameras'
 import type { PlaneStatus } from '../types'
 import {
-  Button, Card, Disclosure, ErrorBanner, Field, IconCheck, IconCircle, IconInfo, IconPlay,
+  Ayuda, Button, Card, Disclosure, ErrorBanner, Field, IconCheck, IconCircle, IconInfo, IconPlay,
   IconWarn, LoadingState, PageHeader, Select, Tag, TextInput,
 } from '../components/ui'
 import { sourceLabel } from '../runview'
+import { ayudaDeClase, ayudaDeConjunto } from '../ayudaPrompts'
 
 /** Un requisito del panel *Antes de lanzar*: si está cumplido, y por qué.
  *  `corto` es cómo se nombra en el resumen de pendientes de una columna. */
@@ -347,6 +348,7 @@ export default function ComposePage() {
       <PageHeader
         title="Nueva corrida"
         meta="Elegí de dónde salen las imágenes y qué se busca en ellas"
+        bajada="Ejecuta un solo plano, la detección sobre una fuente, sin reglas ni alertas. Para la cadena completa (detección, reglas y distribución) usá «Nuevo experimento»."
       />
 
       {/* En una columna el panel de verificación queda después del formulario:
@@ -496,7 +498,9 @@ export default function ComposePage() {
             title={<><NumeroDePaso n={2} ok={Boolean(setId) && activeIds.length > 0} />Qué buscar</>}
             meta={
               selectedSet ? (
-                <Tag>{selectedSet.frozen ? 'Congelado' : 'Editable'}</Tag>
+                <Ayuda {...ayudaDeConjunto(selectedSet)}>
+                  <Tag>{selectedSet.frozen ? 'Congelado' : 'Editable'}</Tag>
+                </Ayuda>
               ) : undefined
             }
           >
@@ -525,20 +529,24 @@ export default function ComposePage() {
               <>
                 <div className="eo-clsw" role="group" aria-label="Clases a buscar">
                   {selectedSet.classes.map((c) => (
-                    <button
-                      key={c.id}
-                      type="button"
-                      className="eo-cls"
-                      aria-pressed={activeIds.includes(c.id)}
-                      onClick={() => toggleClase(c.id)}
-                    >
-                      {c.id}
-                    </button>
+                    <Ayuda key={c.id} {...ayudaDeClase(c)}>
+                      {(ayuda) => (
+                        <button
+                          type="button"
+                          className="eo-cls"
+                          aria-pressed={activeIds.includes(c.id)}
+                          onClick={() => toggleClase(c.id)}
+                          {...ayuda}
+                        >
+                          {c.id}
+                        </button>
+                      )}
+                    </Ayuda>
                   ))}
                 </div>
                 <p className="eo-cap">
                   Las clases desactivadas no se buscan en las imágenes. Los nombres vienen del
-                  archivo del conjunto.
+                  archivo del conjunto; pasá el cursor por uno para ver qué busca.
                 </p>
               </>
             ) : (

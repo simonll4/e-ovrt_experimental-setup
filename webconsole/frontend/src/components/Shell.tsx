@@ -7,6 +7,7 @@ import Breadcrumbs from './Breadcrumbs'
 import { GlosarioProvider } from './Glosario'
 import TargetBadge from './TargetBadge'
 import LiveRunPill from './LiveRunPill'
+import { esProyeccion } from './demo/proyeccion'
 import { useSidebarCounts, type SidebarCounts } from '../api/queries/sidebar'
 import { useServiceHealth, type ServiceHealth, type ServiceStatus } from '../api/queries/platform'
 
@@ -199,12 +200,12 @@ function Navegacion({
 }
 
 export default function Shell({ children }: { children: ReactNode }) {
-  const { pathname } = useLocation()
+  const { pathname, search } = useLocation()
   const archive = pathname === '/evidencia' || pathname.startsWith('/evidencia/')
-  // La demo en vivo de la defensa va a pantalla completa, sin el armazón y sin
-  // ninguna consulta global (spec 2026-10-23 §6.5), decidido por pathname igual
-  // que el modo archivo.
-  const demo = pathname === '/demo' || pathname.startsWith('/demo/')
+  // La demo en vivo vive dentro de la consola; solo su modo proyección
+  // (`?proyectar=1`, tecla P) va a pantalla completa, sin el armazón y sin ninguna
+  // consulta global (spec 2026-10-23 §6.5; ✎ 2026-10-31, components/demo/proyeccion.ts).
+  const demo = (pathname === '/demo' || pathname.startsWith('/demo/')) && esProyeccion(search)
   const desktop = useMediaQuery(DESKTOP_QUERY)
   const [open, setOpen] = useState(false)
   // Al cerrar por navegación el foco va al encabezado del destino, no de

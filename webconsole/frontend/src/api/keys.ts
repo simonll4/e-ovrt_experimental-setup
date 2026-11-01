@@ -106,5 +106,6 @@ export const qk = {
     session: (id: string) => ['demo', 'session', id] as const,
     cifras: ['demo', 'cifras'] as const,
     stack: ['demo', 'stack'] as const,
+    camaras: ['demo', 'camaras'] as const,
   },
 } as const

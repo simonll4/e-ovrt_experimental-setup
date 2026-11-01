@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
-import { cleanup, fireEvent, render, screen } from '../test-utils'
+import { cleanup, fireEvent, render, screen, within } from '../test-utils'
 import ExperimentsPage from '../pages/ExperimentsPage'
 import type { ExperimentManifestSummary } from '../types'
 
@@ -193,4 +193,48 @@ it('sin las cabeceras no afirma ni que está ni que falta', async () => {
   page()
   await screen.findByText('talert_integrated_video')
   expect(screen.queryByText(/no disponible/)).toBeNull()
+})
+
+// Un manifiesto que nunca se ejecutó no está «fuera del registro»: no tiene corridas que
+// clasificar. Esa etiqueta se leía como «esto no sirve» y abría una pregunta que no existe.
+it('un manifiesto sin ejecuciones dice «Sin ejecuciones», no «Fuera del registro»', async () => {
+  page()
+  await screen.findByText('talert_integrated_video')
+  const fila = screen.getByText('recipe').closest('tr') as HTMLElement
+  expect(fila.textContent).toContain('Sin ejecuciones')
+  expect(fila.textContent).not.toContain('Fuera del registro')
+  // Y el que sí tiene ejecuciones conserva su clase.
+  const medida = screen.getByText('talert_integrated_video').closest('tr') as HTMLElement
+  expect(medida.textContent).toContain('Resultado')
+})
+
+it('no ofrece un chip de clase para lo que no se ejecutó', async () => {
+  page()
+  await screen.findByText('talert_integrated_video')
+  expect(screen.queryByRole('button', { name: /Fuera del registro/ })).toBeNull()
+  expect(screen.getByRole('button', { name: /Resultado/ })).toBeTruthy()
+})
+
+it('dice dónde se consultan las ejecuciones de la generación 2', async () => {
+  page()
+  await screen.findByText('talert_integrated_video')
+  const enlace = screen.getByRole('link', { name: /Resultados/ })
+  expect(enlace.getAttribute('href')).toBe('/resultados')
+})
+
+it('la vista principal muestra solo lo que es evidencia del informe; lo demás queda archivado aparte', async () => {
+  page()
+  const principal = await screen.findByRole('table', { name: 'Manifiestos' })
+  expect(within(principal).getByText('talert_integrated_video')).toBeTruthy()
+  expect(within(principal).queryByText('recipe')).toBeNull()
+  // Lo que no respalda ninguna cifra se conserva (ingeniería visible), plegado y fuera de la tabla principal.
+  const archivo = screen.getByText(/Archivados · 1/).closest('details') as HTMLDetailsElement
+  expect(archivo.open).toBe(false)
+  expect(within(archivo).getByRole('table', { name: 'Manifiestos archivados' })).toBeTruthy()
+  expect(within(archivo).getByText('recipe')).toBeTruthy()
+  expect(archivo.textContent).toMatch(/no respaldan\s+ninguna cifra del informe/)
+  // Y se sigue pudiendo ejecutar o derivar desde ahí.
+  expect(within(archivo).getByRole('button', { name: 'Ejecutar' })).toBeTruthy()
+  expect(within(archivo).getByRole('button', { name: 'Partir de este' })).toBeTruthy()
+  expect(screen.getByText(/1 con evidencia del informe · 1 archivados/)).toBeTruthy()
 })

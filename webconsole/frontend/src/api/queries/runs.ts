@@ -23,12 +23,19 @@ import type {
  *  el `setTimeout` reagendado a mano, ahora expresado como una condición sobre
  *  los datos en caché.
  */
+/** El listado de corridas lo contesta el motor de detección activo. Después de cada sesión de la
+ *  demo la consola lo reinicia (F-101.5, ~30 s) y en esa ventana no hay motor: el listado da 502
+ *  ("Name or service not known"). Es un fallo que se arregla solo, así que mientras la consulta
+ *  esté en error se vuelve a pedir cada pocos segundos, sin que nadie apriete «Reintentar». */
+export const reintentoSiFalla = (query: { state: { status: string } }) =>
+  query.state.status === 'error' ? POLL.plataforma : false
+
 export function useRuns() {
   return useQuery<RunRow[]>({
     queryKey: qk.runs.list(),
     queryFn: listRuns,
     refetchInterval: (query) =>
-      query.state.data?.some((r) => r.status === 'running') ? POLL.enCurso : false,
+      query.state.data?.some((r) => r.status === 'running') ? POLL.enCurso : reintentoSiFalla(query),
   })
 }
 
@@ -69,7 +76,7 @@ export function useRunsPaged(filtros: RunsFiltros, hayCorridaViva: boolean, enab
     // garantiza ver el estado final, porque la página tiene que refrescarse una
     // vez más DESPUÉS de que la corrida dejó de estar viva.
     refetchInterval: (query) =>
-      hayCorridaViva || query.state.data?.items.some(isRunning) ? POLL.enCurso : false,
+      hayCorridaViva || query.state.data?.items.some(isRunning) ? POLL.enCurso : reintentoSiFalla(query),
   })
 }
 
@@ -88,7 +95,8 @@ export function useRunsEnCurso(enabled = true) {
     queryFn: () => listRunsPaged({ estado: 'running', pageSize: 5 }),
     // Mientras haya alguna, se sigue mirando; con cero, el historial está quieto
     // y el próximo lanzamiento invalida la clave por su cuenta.
-    refetchInterval: (query) => (enabled && query.state.data?.total ? POLL.enCurso : false),
+    refetchInterval: (query) =>
+      enabled && query.state.data?.total ? POLL.enCurso : enabled ? reintentoSiFalla(query) : false,
   })
 }
 
@@ -102,6 +110,7 @@ export function useRunsTotal() {
   return useQuery({
     queryKey: [...qk.runs.list(), 'total'],
     queryFn: async () => (await listRunsPaged({ pageSize: 1 })).total,
+    refetchInterval: reintentoSiFalla,
   })
 }
 
@@ -119,6 +128,7 @@ export function useRunGroups(clase?: Clase) {
   const q = useQuery({
     queryKey: qk.runs.groups(clase),
     queryFn: () => listRunGroups(clase),
+    refetchInterval: reintentoSiFalla,
   })
   return {
     ...q,

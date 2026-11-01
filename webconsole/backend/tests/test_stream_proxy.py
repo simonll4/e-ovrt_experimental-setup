@@ -120,6 +120,38 @@ def test_ws_preview_reenvia_binario(live_client):
         assert msg[4 + hlen :] == b"\xff\xd8fake"
 
 
+def test_ws_preview_va_al_motor_activo_y_no_a_la_url_configurada(live_client):
+    """En compose, `settings.service_url` queda en el default (localhost:8080, inexistente en el
+    contenedor) y el motor activo es el que apunta `app.state.http`: el WS tiene que ir a ese."""
+    import json
+    import struct
+
+    vivo = live_client.app.state.settings.service_url
+    live_client.app.state.settings = dataclasses.replace(
+        live_client.app.state.settings, service_url="http://127.0.0.1:9")
+    assert str(live_client.app.state.http.base_url).rstrip("/") == vivo  # el motor activo
+    with live_client.websocket_connect("/api/preview/stream") as ws:
+        msg = ws.receive_bytes()
+        hlen = struct.unpack(">I", msg[:4])[0]
+        assert json.loads(msg[4 : 4 + hlen].decode("utf-8"))["seq"] == 1
+
+
+def test_ws_stream_de_corrida_va_al_motor_activo(live_client, fake_state):
+    fake_state.active_run_id = "run_active_1"
+    vivo = live_client.app.state.settings.service_url
+    live_client.app.state.settings = dataclasses.replace(
+        live_client.app.state.settings, service_url="http://127.0.0.1:9")
+    assert str(live_client.app.state.http.base_url).rstrip("/") == vivo
+    recibidos = []
+    with live_client.websocket_connect("/api/runs/run_active_1/stream") as ws:
+        try:
+            while True:
+                recibidos.append(ws.receive_json())
+        except Exception:  # noqa: BLE001 — el cierre del WS corta el loop
+            pass
+    assert "state" in [e["type"] for e in recibidos]  # llegaron los eventos del motor vivo
+
+
 def test_ws_preview_servicio_inaccesible_no_crashea(settings):
     # Mismo mecanismo que test_ws_servicio_inaccesible_no_crashea: puerto muerto,
     # websockets.connect falla al conectar -> el handler debe cerrar 4503 sin

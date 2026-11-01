@@ -1,6 +1,7 @@
 """Factory de la app FastAPI del BFF de la consola."""
 from __future__ import annotations
 
+import asyncio
 import logging
 from contextlib import asynccontextmanager
 
@@ -10,11 +11,16 @@ from fastapi.staticfiles import StaticFiles
 
 from eovrt_webconsole.demo.sesion import DemoManager
 from eovrt_webconsole.documentacion import Documentacion
-from eovrt_webconsole.evidence import EvidenceRegistry
+from eovrt_webconsole.evidence import (
+    ClasificacionCompartida,
+    EvidenceRegistry,
+    clasificar_ejecuciones,
+)
 from eovrt_webconsole.evidence_archive import EvidenceArchive
-from eovrt_webconsole.gen2 import Gen2
 from eovrt_webconsole.experiment.control_backend import ControlPlaneBackend
 from eovrt_webconsole.experiment.run_manager import ExperimentRunManager
+from eovrt_webconsole.gen2 import Gen2
+from eovrt_webconsole.http_reintento import ReintentoKeepAlive
 from eovrt_webconsole.orchestrator import ComposeOrchestrator, RunCmd, TargetManager
 from eovrt_webconsole.recording.manager import RecordingManager
 from eovrt_webconsole.recording.oakd_recorder import InterpreterUnavailable, check_interpreter
@@ -67,23 +73,30 @@ def create_app(
             # Modo static: target fijo, comportamiento histórico intacto.
             app.state.target_manager = None
             app.state.http = httpx.AsyncClient(
-                base_url=settings.service_url, transport=service_transport, timeout=30.0
+                base_url=settings.service_url,
+                transport=ReintentoKeepAlive(service_transport),
+                timeout=30.0,
             )
             app.state.backend = RunBackend(app.state.http)
         # Segundo backend (control-plane :8081): target fijo siempre, independiente
         # del swap de fleet del modo orquestado (ese swap es solo media-plane).
         app.state.control_http = httpx.AsyncClient(
-            base_url=settings.control_service_url, transport=control_transport, timeout=30.0
+            base_url=settings.control_service_url,
+            transport=ReintentoKeepAlive(control_transport),
+            timeout=30.0,
         )
         app.state.control_backend = ControlPlaneBackend(app.state.control_http)
         app.state.distribution_http = httpx.AsyncClient(
             base_url=settings.distribution_service_url,
-            transport=distribution_transport,
+            transport=ReintentoKeepAlive(distribution_transport),
             timeout=2.0,
         )
         # Manager del disparo orquestado (Tarea 3): un experimento activo por vez,
         # corrido como asyncio.Task en este mismo loop (ver run_manager.py).
         app.state.experiment_manager = ExperimentRunManager()
+        # Precalienta la clasificación de ejecuciones (Experimentos): leerla en frío
+        # tarda segundos y así ninguna pantalla paga el primer cálculo.
+        app.state.precalentamiento = asyncio.create_task(_precalentar(settings, app))
         # Demo en vivo de la defensa (spec 2026-10-23): una sesión a la vez, encima
         # del mismo ejecutor de experimentos. Solo observación.
         app.state.demo_manager = DemoManager(app)
@@ -107,15 +120,33 @@ def create_app(
         # clientes HTTP que usa -- evita un task pendiente huerfano al apagar.
         await app.state.demo_manager.aclose()
         await app.state.experiment_manager.aclose()
+        await app.state.precalentamiento
         await app.state.http.aclose()
         await app.state.control_http.aclose()
         await app.state.distribution_http.aclose()
 
+    async def _precalentar(settings, app) -> None:
+        try:
+            await app.state.clasificacion.obtener(settings.repo_root / "runs", id(app.state.evidence))
+        except Exception:  # es solo una optimización: nunca debe tumbar el arranque
+            logging.getLogger(__name__).warning("Precalentamiento de la clasificación falló", exc_info=True)
+
     app = FastAPI(title="eovrt-webconsole", lifespan=_lifespan)
     app.state.settings = settings
+    # Lecturas de traza en curso, para que /trace y /trace/index no repitan el trabajo.
+    app.state.trace_en_vuelo = {}
     # Estado local sin recursos que cerrar: disponible también cuando se usan
     # las rutas de catálogo sin abrir clientes HTTP mediante el lifespan.
     app.state.evidence = EvidenceRegistry(settings.repo_root / "results" / "evidence-runs")
+    # Lo que citan las pruebas de la generación 2: sin esto, sus corridas figuraban como
+    # «Fuera del registro de evidencia» (el archivo congelado es de la generación 1).
+    app.state.evidence.cargar_gen2(settings.repo_root / "results" / "gen2")
+    app.state.clasificacion = ClasificacionCompartida(
+        lambda runs_dir, _registro: (
+            experiments._ejecuciones_por_slug(runs_dir),
+            clasificar_ejecuciones(runs_dir, app.state.evidence),
+        )
+    )
     app.state.evidence_archive = EvidenceArchive(settings.repo_root, app.state.evidence)
     # Los conteos de la tabla «qué aporta cada cosa» salen del registro, no del
     # YAML: un número escrito a mano envejece en cuanto el inventario crece.

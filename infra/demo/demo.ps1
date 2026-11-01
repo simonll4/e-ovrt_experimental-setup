@@ -67,7 +67,7 @@ function Up {
     Write-Host "Activando $Motor (espera readyz, hasta 5 min la primera vez)..."
     Api 'POST' "/api/platform/instances/$Motor/activate" $null 330 | Out-Null
     RestartMotor
-    Write-Host 'Listo: abrir http://localhost:8090/demo (F11), y correr demo.ps1 check.'
+    Write-Host 'Listo: abrir http://localhost:8090/#/demo (F11), y correr demo.ps1 check.'
 }
 
 function RestartMotor {
@@ -95,8 +95,15 @@ function Check {
     # Red: la Ethernet de la camara en 169.254.x.x y la camara respondiendo.
     $eth = Get-NetIPAddress -AddressFamily IPv4 -ErrorAction SilentlyContinue | Where-Object IPAddress -like '169.254.*'
     $chequeos.ethernet_link_local = @{ ok = [bool]$eth; detalle = $(if ($eth) { "$($eth[0].InterfaceAlias) $($eth[0].IPAddress)" } else { 'ninguna interfaz en 169.254.x.x (cable directo a la camara, IP automatica)' }) }
-    $ping = Test-Connection -ComputerName 169.254.31.137 -Count 1 -Quiet -ErrorAction SilentlyContinue
-    $chequeos.camara_ping = @{ ok = [bool]$ping; detalle = '169.254.31.137 (el ping es un primer filtro; la prueba que vale es una corrida)' }
+    # Si 169.254.31.137 es una IP de ESTA misma PC (la Ethernet la tomo por link-local), el ping se
+    # contesta a si mismo y daba OK sin camara en el cable: se detecta antes de hacer ping.
+    $propia = Get-NetIPAddress -AddressFamily IPv4 -ErrorAction SilentlyContinue | Where-Object IPAddress -eq '169.254.31.137'
+    if ($propia) {
+        $chequeos.camara_ping = @{ ok = $false; detalle = "169.254.31.137 es la IP de esta misma PC ($($propia[0].InterfaceAlias)): la camara no esta en el cable, o hay IP duplicada" }
+    } else {
+        $ping = Test-Connection -ComputerName 169.254.31.137 -Count 1 -Quiet -ErrorAction SilentlyContinue
+        $chequeos.camara_ping = @{ ok = [bool]$ping; detalle = '169.254.31.137 (el ping es un primer filtro; la prueba que vale es una corrida)' }
+    }
     # Wi-Fi de la sede en 172.20.x.x choca con la subred de Docker (doc 133, sec. 5.6).
     $choque = Get-NetIPAddress -AddressFamily IPv4 -ErrorAction SilentlyContinue | Where-Object IPAddress -like '172.20.*'
     $chequeos.subred_docker = @{ ok = -not $choque; detalle = $(if ($choque) { "una interfaz del host esta en 172.20.x.x ($($choque[0].InterfaceAlias))" } else { 'sin choque con 172.20.0.0/16' }) }

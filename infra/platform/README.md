@@ -107,6 +107,38 @@ que media — PUB/SUB pierde lo anterior a la suscripción).
 
 ## Operación
 
+### Levantar y verificar la plataforma: `plataforma.sh` / `plataforma.ps1`
+
+Un solo comando que deja todo listo para ejecutar cualquier cosa (corridas, experimentos, demo,
+evidencia). Es idempotente: con todo arriba no toca nada (~3 s); en frío tarda ~50 s.
+
+```bash
+infra/platform/plataforma.sh            # up: asegura la plataforma (default)
+infra/platform/plataforma.sh estado     # solo mira e informa (exit 1 si algo no está listo)
+infra/platform/plataforma.sh construir [svc...] [--con-media] [--recrear]
+infra/platform/plataforma.sh bajar      # detiene todo SIN borrar contenedores
+```
+
+En PowerShell (la PC de la demo): `.\infra\platform\plataforma.ps1 [up|estado|construir|bajar]`, con
+`-Modelo`, `-SinModelo`, `-SinMotorFresco`, `-Forzar`, `-ConMedia`, `-Recrear`.
+
+`up` verifica en este orden: Docker responde → recursos (`C:` y memoria de la VM de WSL) → núcleo
+(mosquitto, control-plane, distribution, console: arranca los contenedores que existen, crea los que
+faltan y espera `healthy`) → consola → instancia del modelo activa y lista (`--modelo`, default el
+campeón `mp-gdino-tiny-560`) → motor «fresco» (lo pide la demo, F-101.5) → `/api/preflight` y
+`/api/demo/preflight`. Termina con un resumen y **exit 0 solo si todo está en verde**; el único aviso
+esperable en la PC de desarrollo es el chequeo del host de la demo (`infra/demo/demo.sh check`), que no bloquea.
+
+Lo que **no** hace, a propósito: nunca `docker compose up -d` a secas (el `.env` trae
+`COMPOSE_PROFILES=models` y arrancaría los 9 modelos juntos → OOM de la VM de WSL; acá siempre se
+nombran los servicios), nunca recrea un contenedor que ya existe (recrear es explícito:
+`construir … --recrear`, y en la Victus se hace en la preparación), ni construye el media-plane sin
+`--con-media` y ≥ 35 GB libres en `C:`. Con una sesión de demo o un experimento en curso no reinicia
+el motor ni baja nada salvo `--forzar`. En PowerShell 5.1 el script usa `127.0.0.1` y no `localhost`
+(ahí `localhost` puede colgarse por IPv6 aunque la consola esté sana).
+
+### Detalles de la consola sobre compose
+
 - La consola ejecuta `docker compose --project-name eovrt up -d --no-build <instancia>`
   / `stop` contra este directorio (visible por paridad de rutas en
   `${EOVRT_WORKSPACE}/e-ovrt_experimental-setup/infra/platform`). El `.env` con

@@ -10,8 +10,9 @@ import logging
 import time
 
 from fastapi import APIRouter, HTTPException, Request
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, Response
 
+from eovrt_webconsole.demo import camara as demo_camara
 from eovrt_webconsole.demo import config as demo_config
 from eovrt_webconsole.demo.config import ConfigDemoError
 from eovrt_webconsole.demo.sesion import (
@@ -21,6 +22,7 @@ from eovrt_webconsole.demo.sesion import (
     DemoSinSesion,
     SesionDesconocida,
 )
+from eovrt_webconsole.run_backend import PreviewConflict, ServiceRejected, ServiceUnavailable
 
 logger = logging.getLogger(__name__)
 
@@ -60,14 +62,60 @@ async def start(request: Request, body: dict | None = None):
     exploracion = (body or {}).get("exploracion")
     if exploracion is not None and not isinstance(exploracion, dict):
         raise HTTPException(status_code=422, detail="exploracion: {\"motor\": ..., \"camara\": ...}")
+    camara = (body or {}).get("camara")
+    if camara is not None and not isinstance(camara, str):
+        raise HTTPException(status_code=422, detail="camara: el id de un preset de cameras/")
     try:
-        return await _demo(request).start(variante, escena, exploracion)
+        return await _demo(request).start(variante, escena, exploracion, camara)
     except DemoOcupada as exc:
         return JSONResponse(status_code=409, content={"detail": str(exc)})
     except DemoNoLista as exc:
         return JSONResponse(status_code=503, content={"detail": str(exc), "preflight": exc.preflight})
     except (ConfigDemoError, ValueError) as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+@router.get("/camaras")
+async def camaras(request: Request) -> list[dict]:
+    """Los presets de `cameras/` que sirven para la demo (OAK-D y RTSP), sin credenciales y cada uno
+    con su estado (activa / inactiva / problema / sin_comprobar). No abre ninguna cámara: una RTSP se
+    sondea por el puerto; la OAK-D (una sola conexión) muestra su última comprobación."""
+    return await _demo(request).camaras()
+
+
+@router.post("/camaras/{camara_id}/comprobar")
+async def comprobar_camara(camara_id: str, request: Request) -> dict:
+    """Comprueba que la cámara se ve. POST porque abre la cámara (la OAK-D admite una sola
+    conexión): no es algo para llamar solo por mirar. Siempre 200: un fallo es un resultado."""
+    try:
+        return await _demo(request).comprobar_camara(camara_id)
+    except demo_camara.CamaraDesconocida as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
+@router.post("/camaras/{camara_id}/vista", status_code=201)
+async def iniciar_vista(camara_id: str, request: Request):
+    """Vista previa de la cámara elegida, antes de iniciar. Los cuadros se leen de
+    `/api/preview/stream`; las credenciales de un RTSP no salen del servidor."""
+    try:
+        return await _demo(request).iniciar_vista(camara_id)
+    except demo_camara.CamaraDesconocida as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except DemoOcupada as exc:
+        return JSONResponse(status_code=409, content={"detail": str(exc)})
+    except PreviewConflict as exc:
+        return JSONResponse(status_code=409, content=exc.body)
+    except ServiceRejected as exc:
+        raise HTTPException(status_code=422, detail=str(exc.detail)) from exc
+    except ServiceUnavailable as exc:
+        logger.warning("demo vista previa: servicio inaccesible: %s", exc)
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+
+@router.delete("/vista", status_code=204)
+async def detener_vista(request: Request) -> Response:
+    await _demo(request).detener_vista()
+    return Response(status_code=204)
 
 
 @router.post("/finish", status_code=202)

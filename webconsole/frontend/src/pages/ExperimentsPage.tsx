@@ -37,7 +37,7 @@ import {
   Tag,
 } from '../components/ui'
 import { applyPlaneGlossary } from '../labels'
-import type { Clase } from '../types'
+import type { Clase, ExperimentManifestSummary } from '../types'
 
 /** Antigüedad legible de la última ejecución. */
 function cuando(iso: string | null | undefined): string {
@@ -88,6 +88,13 @@ function Ejecucion({ id }: { id: string }) {
     )
   }
   return <Link style={{ overflowWrap: 'anywhere' }} to={`/experiments/${id}`}>{id}</Link>
+}
+
+/** La clase de un manifiesto, o null si todavía no tiene ejecuciones que clasificar. Un
+ *  manifiesto que nunca se ejecutó no está «fuera del registro»: no tiene corridas. */
+function claseDe(r: ExperimentManifestSummary): Clase | null {
+  const ejecuciones = r.evidence?.n_executions ?? r.n_runs ?? 0
+  return ejecuciones > 0 ? (r.evidence?.clase ?? 'sin_clasificar') : null
 }
 
 export default function ExperimentsPage() {
@@ -213,13 +220,13 @@ export default function ExperimentsPage() {
   // si no, elegir un chip haría desaparecer al resto de los chips.
   const conteos: Partial<Record<Clase, number>> = {}
   for (const r of rows) {
-    const c = r.evidence?.clase ?? 'sin_clasificar'
-    conteos[c] = (conteos[c] ?? 0) + 1
+    const c = claseDe(r)
+    if (c) conteos[c] = (conteos[c] ?? 0) + 1
   }
 
   const aguja = filtro.trim().toLowerCase()
   const visibles = rows.filter((r) => {
-    if (clase && (r.evidence?.clase ?? 'sin_clasificar') !== clase) return false
+    if (clase && claseDe(r) !== clase) return false
     if (!aguja) return true
     return `${r.slug} ${r.group ?? ''}`.toLowerCase().includes(aguja)
   })
@@ -234,6 +241,100 @@ export default function ExperimentsPage() {
   const proporcionPlataforma = platformTestCount != null && totalExecutions
     ? Math.round((platformTestCount / totalExecutions) * 100)
     : null
+
+  // Lo que no respalda ninguna cifra del informe se archiva: no está en la vista principal, pero se
+  // conserva (es la ingeniería visible: cómo se fue probando la plataforma). Una fila sin la marca
+  // de evidencia —la fixture del contrato congelado no la manda— queda en la principal.
+  const esArchivado = (r: ExperimentManifestSummary) => Boolean(r.evidence && !r.evidence.is_evidence)
+  const principales = visibles.filter((r) => !esArchivado(r))
+  const archivados = visibles.filter(esArchivado)
+  const totalArchivados = rows.filter(esArchivado).length
+
+  const tabla = (lista: ExperimentManifestSummary[], etiqueta: string) => (
+    <TableScroll label={etiqueta}>
+      <Table aria-label={etiqueta}>
+        <thead>
+          <tr>
+            <th>Manifiesto</th>
+            <th>Grupo</th>
+            <th>Clase</th>
+            <th>Última ejecución</th>
+            <th>Estado</th>
+            <th className="eo-th--numeric">Corridas</th>
+            <th>Cuándo</th>
+            <th aria-label="Acciones" />
+          </tr>
+        </thead>
+        <tbody>
+          {lista.map((r) => {
+            const ultima = r.last_experiment_id ?? r.experiment_id ?? null
+            return (
+              <tr key={r.slug}>
+                <RowNameCell
+                  title={<span className="eo-mono">{r.slug}</span>}
+                  subtitle={<>{r.description} <EvidenceBadge evidence={r.evidence} /></>}
+                />
+                <td>{r.group ?? '—'}</td>
+                <td>
+                  {claseDe(r) ? (
+                    <Tag>
+                      <Termino id={TERMINO_DE_CLASE[claseDe(r)!]}>
+                        {ETIQUETA_CLASE[claseDe(r)!]}
+                      </Termino>
+                    </Tag>
+                  ) : (
+                    <span className="eo-cell--muted">Sin ejecuciones</span>
+                  )}
+                </td>
+                {/* Un manifiesto que nunca se ejecutó no tiene resultado
+                    que ver: se muestra apagado y sin enlace. */}
+                <MonoCell>
+                  {r.evidence?.executions?.length ? (
+                    <div style={{ maxWidth: '36ch' }}>
+                      <span className="eo-cell--muted">{r.evidence.executions.length} ejecuciones de evidencia</span>
+                      {r.evidence.executions.map(id => (
+                        <div key={id}><Ejecucion id={id} /></div>
+                      ))}
+                    </div>
+                  ) : ultima ? (
+                    <Ejecucion id={ultima} />
+                  ) : (
+                    <span className="eo-cell--muted">Nunca se ejecutó</span>
+                  )}
+                </MonoCell>
+                <td>
+                  {r.last_status ? (
+                    <Badge tone={experimentStatusTone({ status: r.last_status })}>
+                      {experimentStatusLabel({ status: r.last_status })}
+                    </Badge>
+                  ) : (
+                    <Badge tone="neutral">{r.evidence?.executions?.length ? 'Con evidencia' : 'Sin ejecutar'}</Badge>
+                  )}
+                </td>
+                <td className="eo-num">{r.n_runs || '—'}</td>
+                <td className="eo-cell--muted">{cuando(r.last_run_at)}</td>
+                <td className="eo-cell--actions">
+                  <Button onClick={() => pedir({ tipo: 'abrir', modo: { source: r.slug, selectable: false } })}>
+                    Partir de este
+                  </Button>
+                  {/* Lanzar desde la fila evita elegir el manifiesto dos
+                      veces. En tratamiento secundario: once acciones
+                      violetas iguales no dejaban ver la de la pantalla. */}
+                  <Button
+                    disabled={busy || blocked}
+                    aria-busy={(busy && slug === r.slug) || undefined}
+                    onClick={() => void trigger(r.slug)}
+                  >
+                    {busy && slug === r.slug ? 'Lanzando…' : 'Ejecutar'}
+                  </Button>
+                </td>
+              </tr>
+            )
+          })}
+        </tbody>
+      </Table>
+    </TableScroll>
+  )
 
   const antesDeEjecutar = (
     <Card
@@ -281,7 +382,7 @@ export default function ExperimentsPage() {
         </span>
       </div>
 
-      <Card title="Manifiestos" meta={`${rows.length}`} flush level={formMode ? 3 : 2}>
+      <Card title="Manifiestos" meta={`${rows.length - totalArchivados} con evidencia del informe`} flush level={formMode ? 3 : 2}>
         {consultaManifiestos.error && (
           <StaleNotice
             what="el catálogo de manifiestos"
@@ -289,91 +390,32 @@ export default function ExperimentsPage() {
             retrying={consultaManifiestos.isFetching}
           />
         )}
-        <TableScroll label="Manifiestos">
-          <Table aria-label="Manifiestos">
-            <thead>
-              <tr>
-                <th>Manifiesto</th>
-                <th>Grupo</th>
-                <th>Clase</th>
-                <th>Última ejecución</th>
-                <th>Estado</th>
-                <th className="eo-th--numeric">Corridas</th>
-                <th>Cuándo</th>
-                <th aria-label="Acciones" />
-              </tr>
-            </thead>
-            <tbody>
-              {visibles.map((r) => {
-                const ultima = r.last_experiment_id ?? r.experiment_id ?? null
-                return (
-                  <tr key={r.slug}>
-                    <RowNameCell
-                      title={<span className="eo-mono">{r.slug}</span>}
-                      subtitle={<>{r.description} <EvidenceBadge evidence={r.evidence} /></>}
-                    />
-                    <td>{r.group ?? '—'}</td>
-                    <td>
-                      <Tag>
-                        <Termino id={TERMINO_DE_CLASE[r.evidence?.clase ?? 'sin_clasificar']}>
-                          {ETIQUETA_CLASE[r.evidence?.clase ?? 'sin_clasificar']}
-                        </Termino>
-                      </Tag>
-                    </td>
-                    {/* Un manifiesto que nunca se ejecutó no tiene resultado
-                        que ver: se muestra apagado y sin enlace. */}
-                    <MonoCell>
-                      {r.evidence?.executions?.length ? (
-                        <div style={{ maxWidth: '36ch' }}>
-                          <span className="eo-cell--muted">{r.evidence.executions.length} ejecuciones de evidencia</span>
-                          {r.evidence.executions.map(id => (
-                            <div key={id}><Ejecucion id={id} /></div>
-                          ))}
-                        </div>
-                      ) : ultima ? (
-                        <Ejecucion id={ultima} />
-                      ) : (
-                        <span className="eo-cell--muted">Nunca se ejecutó</span>
-                      )}
-                    </MonoCell>
-                    <td>
-                      {r.last_status ? (
-                        <Badge tone={experimentStatusTone({ status: r.last_status })}>
-                          {experimentStatusLabel({ status: r.last_status })}
-                        </Badge>
-                      ) : (
-                        <Badge tone="neutral">{r.evidence?.executions?.length ? 'Con evidencia' : 'Sin ejecutar'}</Badge>
-                      )}
-                    </td>
-                    <td className="eo-num">{r.n_runs || '—'}</td>
-                    <td className="eo-cell--muted">{cuando(r.last_run_at)}</td>
-                    <td className="eo-cell--actions">
-                      <Button onClick={() => pedir({ tipo: 'abrir', modo: { source: r.slug, selectable: false } })}>
-                        Partir de este
-                      </Button>
-                      {/* Lanzar desde la fila evita elegir el manifiesto dos
-                          veces. En tratamiento secundario: once acciones
-                          violetas iguales no dejaban ver la de la pantalla. */}
-                      <Button
-                        disabled={busy || blocked}
-                        aria-busy={(busy && slug === r.slug) || undefined}
-                        onClick={() => void trigger(r.slug)}
-                      >
-                        {busy && slug === r.slug ? 'Lanzando…' : 'Ejecutar'}
-                      </Button>
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </Table>
-        </TableScroll>
-        {visibles.length === 0 && (
-          <EmptyState hint="Probá con otro texto o quitá el filtro de clase.">
-            Ningún manifiesto coincide con la búsqueda
+        {tabla(principales, 'Manifiestos')}
+        {principales.length === 0 && (
+          <EmptyState hint={archivados.length ? 'Los que coinciden están en Archivados, abajo.' : 'Probá con otro texto o quitá el filtro de clase.'}>
+            Ningún manifiesto con evidencia del informe coincide
           </EmptyState>
         )}
       </Card>
+
+      {totalArchivados > 0 && (
+        <Disclosure
+          className="eo-archivados"
+          summary={<>Archivados · {totalArchivados} <span className="eo-cell--muted">— no son evidencia del informe</span></>}
+        >
+          <p className="eo-note">
+            Se conservan como ingeniería visible —cómo se fue probando la plataforma—, pero no respaldan
+            ninguna cifra del informe: manifiestos de la etapa nativa, diagnósticos y plantillas. Varios
+            de la etapa nativa no corren en el despliegue en contenedores (escuchan el bus en 127.0.0.1).
+            Se pueden abrir, derivar y ejecutar igual.
+          </p>
+          {archivados.length > 0 ? tabla(archivados, 'Manifiestos archivados') : (
+            <EmptyState hint="Probá con otro texto o quitá el filtro de clase.">
+              Ningún archivado coincide con la búsqueda
+            </EmptyState>
+          )}
+        </Disclosure>
+      )}
 
       {/* Sólo si la cabecera está y cuenta algo: la fixture del contrato
           congelado no la manda, y el bloque tiene que desaparecer, no
@@ -416,7 +458,18 @@ export default function ExperimentsPage() {
 
   return (
     <>
-      <PageHeader title={titulo} meta={`${rows.length} manifiestos`} />
+      <PageHeader
+        title={titulo}
+        meta={`${rows.length - totalArchivados} con evidencia del informe · ${totalArchivados} archivados`}
+        bajada={
+          <>
+            Un experimento ejecuta la cadena completa (detección, reglas y distribución) a partir de un
+            manifiesto, y reúne las corridas de cada plano bajo un mismo experiment_id. Es la «ejecución
+            experimental» del informe (§17.3.4.1). Las ejecuciones de la generación 2 no se listan acá: se
+            consultan por prueba, en <Link to="/resultados">Resultados</Link>.
+          </>
+        }
+      />
 
       {/* Antes de cualquier clase en pantalla: sin el registro o sin la
           taxonomía, la columna Clase y los chips son una clasificación

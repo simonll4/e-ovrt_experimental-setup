@@ -17,6 +17,7 @@ from typing import Any, Awaitable, Callable
 import httpx
 from fastapi import FastAPI
 
+from eovrt_webconsole.http_reintento import ReintentoKeepAlive
 from eovrt_webconsole.run_backend import RunBackend
 from eovrt_webconsole.settings import ConsoleSettings
 
@@ -211,7 +212,7 @@ class TargetManager:
         old = getattr(self._app.state, "http", None)
         client = httpx.AsyncClient(
             base_url=self._url(name) if name else NO_TARGET_URL,
-            transport=self._transport,
+            transport=ReintentoKeepAlive(self._transport),
             timeout=30.0,
         )
         self._app.state.http = client

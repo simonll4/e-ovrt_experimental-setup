@@ -6,6 +6,8 @@ import type { DemoCifra, DemoSessionDetail, DemoState } from '../types'
 
 let rutas: Record<string, () => Response> = {}
 let inesperadas: string[] = []
+// Modo consola: el armazón hace sus consultas globales; se responden neutras.
+let globales = false
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } })
@@ -43,6 +45,7 @@ function instalar(motor: DemoState['motor'], cifras: DemoCifra[] = CIFRAS_PENDIE
   rutas = {
     [`/api/demo/sessions/${SID}`]: () => json(DETALLE),
     '/api/demo/cifras': () => json(cifras),
+    '/api/demo/camaras': () => json([]),
     '/api/demo/state': () => json({ fase: 'done', session_id: SID, stack: 'compose', motor }),
     '/api/demo/preflight': () => json({ listo: true, items: [], congelado: { tag: null, ok: true, items: [] }, motor, stack: 'compose', comprobado_en: '' }),
     '/api/documentacion': () => json({ terminos: {} }),
@@ -51,10 +54,12 @@ function instalar(motor: DemoState['motor'], cifras: DemoCifra[] = CIFRAS_PENDIE
 
 beforeEach(() => {
   inesperadas = []
+  globales = false
   vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
     const path = new URL(String(input), 'http://localhost').pathname
     const ruta = rutas[path]
     if (ruta) return ruta()
+    if (globales && !path.startsWith('/api/demo/')) return json({ detail: 'fuera de la demo' }, 503)
     inesperadas.push(path)
     return json({ detail: 'sin fixture' }, 500)
   }))
@@ -65,7 +70,7 @@ afterEach(() => {
   expect(inesperadas).toEqual([])
 })
 
-const montar = (ruta = `/demo/resultado/${SID}`) =>
+const montar = (ruta = `/demo/resultado/${SID}?proyectar=1`) =>
   render(<MemoryRouter initialEntries={[ruta]}><App /></MemoryRouter>)
 const tecla = (key: string) => act(() => { fireEvent.keyDown(window, { key }) })
 
@@ -94,7 +99,7 @@ describe('/demo/resultado/:id', () => {
 
   it('con ?respaldo=1 se rotula como el ensayo en esta sala', async () => {
     instalar({ estado: 'fresco' })
-    montar(`/demo/resultado/${SID}?respaldo=1`)
+    montar(`/demo/resultado/${SID}?respaldo=1&proyectar=1`)
     expect(await screen.findByText(/Ensayo del .* en esta sala/)).toBeTruthy()
   })
 
@@ -116,5 +121,46 @@ describe('/demo/resultado/:id', () => {
     await new Promise((r) => setTimeout(r, 50))
     await tecla('l')
     expect(await screen.findByRole('heading', { name: /Demo en vivo/ })).toBeTruthy()
+  })
+})
+
+describe('/demo/resultado/:id — moverse y modos', () => {
+  it('L conserva la variante de ensayo y la proyección al volver a Listo', async () => {
+    instalar({ estado: 'fresco' })
+    montar(`/demo/resultado/${SID}?variante=ensayo&proyectar=1`)
+    await screen.findByRole('heading', { name: 'Resultado de la demo' })
+    await waitFor(() => expect(screen.getByLabelText('Teclas').textContent).not.toMatch(/reiniciando/))
+    await new Promise((r) => setTimeout(r, 50))
+    await tecla('l')
+    expect(await screen.findByRole('heading', { name: /Demo en vivo/ })).toBeTruthy()
+    expect(screen.getByText(/la entrada es una grabación/)).toBeTruthy()
+    expect(screen.queryByRole('complementary', { name: 'Navegación principal' })).toBeNull()
+  })
+
+  it('dentro de la consola se ve con la navegación y el botón Volver a Listo', async () => {
+    instalar({ estado: 'fresco' })
+    globales = true
+    montar(`/demo/resultado/${SID}`)
+    expect(await screen.findByRole('heading', { name: 'Resultado de la demo' })).toBeTruthy()
+    expect(screen.getByRole('complementary', { name: 'Navegación principal' })).toBeTruthy()
+    // Deshabilitado hasta que el motor queda fresco (no hay carrera con el estado). Se
+    // relee el botón: al llegar el detalle la cabecera se vuelve a montar.
+    const volver = () => screen.getByRole('button', { name: /Volver a Listo/ }) as HTMLButtonElement
+    await waitFor(() => expect(volver().disabled).toBe(false))
+    fireEvent.click(volver())
+    expect(await screen.findByRole('heading', { name: /Demo en vivo/ })).toBeTruthy()
+    expect(screen.getByRole('complementary', { name: 'Navegación principal' })).toBeTruthy()
+  })
+})
+
+describe('/demo/resultado/:id — Volver a Listo con el motor reiniciando', () => {
+  it('el botón queda deshabilitado y lo explica', async () => {
+    instalar({ estado: 'reiniciando' })
+    globales = true
+    montar(`/demo/resultado/${SID}`)
+    await screen.findByRole('toolbar', { name: 'Acciones del resultado' })
+    const volver = () => screen.getByRole('button', { name: /Volver a Listo/ }) as HTMLButtonElement
+    await waitFor(() => expect(volver().title).toMatch(/se está reiniciando/))
+    expect(volver().disabled).toBe(true)
   })
 })

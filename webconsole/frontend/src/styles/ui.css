@@ -204,6 +204,74 @@
 .eo-termino:focus-visible + .eo-termino__def,
 .eo-termino-wrap:hover > .eo-termino__def { display: block; }
 
+/* Ayuda — descripción breve de un nombre técnico (componente `Ayuda`). Se ve igual
+   que la de `Termino`. La envoltura no tiene caja propia: no mueve el diseño. */
+.eo-pageheader__bajada {
+  margin: 6px 0 0;
+  max-width: 78ch;
+  color: var(--tx2);
+  font-size: var(--fz-body);
+  line-height: 1.5;
+}
+.eo-ayuda { position: relative; display: inline-flex; max-width: 100%; }
+.eo-ayuda:not(:has(button, a))[tabindex]:focus-visible {
+  outline: 2px solid var(--ac-bd);
+  outline-offset: 2px;
+  border-radius: var(--r);
+}
+.eo-ayuda__def {
+  visibility: hidden;
+  opacity: 0;
+  /* La posición (fixed, a la ventana) la calcula `Ayuda` al mostrarse: así no la recorta
+     una tabla con scroll. */
+  position: fixed;
+  z-index: 60;
+  /* Sin hueco con el elemento: el cursor puede pasar a la descripción sin cerrarla. */
+  padding: 4px 0;
+  width: max-content;
+  max-width: min(44ch, 80vw);
+  transition: opacity 0.1s, visibility 0s;
+}
+/* Aparece tras una pausa corta con el cursor (no al pasar de largo) y al instante
+   con el teclado; se va sin demora. */
+.eo-ayuda:hover > .eo-ayuda__def {
+  visibility: visible;
+  opacity: 1;
+  transition: opacity 0.12s 0.3s, visibility 0s 0.3s;
+}
+.eo-ayuda:focus-within > .eo-ayuda__def { visibility: visible; opacity: 1; }
+.eo-ayuda[data-oculto] > .eo-ayuda__def { visibility: hidden; opacity: 0; }
+.eo-ayuda__caja {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 7px 10px;
+  background: var(--s3);
+  border: 1px solid var(--bds);
+  border-radius: var(--r);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+  color: var(--tx);
+  font-family: var(--fs);
+  font-size: var(--fz-meta);
+  font-weight: 400;
+  font-style: normal;
+  line-height: 1.5;
+  text-align: left;
+  white-space: normal;
+}
+.eo-ayuda__tit { font-weight: 600; color: var(--tx); }
+.eo-ayuda__txt { color: var(--tx2); }
+.eo-ayuda__ej {
+  font-family: var(--fm);
+  font-size: var(--fz-meta);
+  color: var(--ac-tx);
+  background: var(--s1);
+  border-radius: var(--r);
+  padding: 2px 6px;
+  overflow-wrap: anywhere;
+}
+.eo-ayuda__nota { color: var(--tx3); font-style: italic; }
+
 /* Plegables (`Disclosure` y los <details> del kit). El triángulo del sistema se
    reemplaza por el chevrón del kit, que gira al abrir. */
 .eo-adv > summary {

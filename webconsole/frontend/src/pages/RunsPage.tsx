@@ -22,6 +22,7 @@ import {
   Banner,
   Button,
   Card,
+  Disclosure,
   EmptyState,
   ErrorBanner,
   IconChevron,
@@ -238,6 +239,11 @@ function columnas(
  *  proyecto persigue. Por eso el rótulo lleva el paso pegado y el encabezado de
  *  la columna dice «Cifra del paso». */
 function CifraDeGrupo({ g }: { g: RunGroup }) {
+  // Una prueba de la generación 2 sí tiene cifra: vive en Resultados, con su veredicto.
+  // Decir «sin cifra reportada» sería afirmar una ausencia que no es cierta.
+  if (g.generacion === 2 && g.result_id) {
+    return <Link to={`/resultados/${g.result_id}`}>ver la cifra en Resultados</Link>
+  }
   if (g.cifra == null) return <span className="eo-na">sin cifra reportada</span>
   const label = g.cifra_label && g.paso != null
     ? `Paso ${g.paso} — ${g.cifra_label}`
@@ -417,6 +423,13 @@ export default function RunsPage() {
       (g.result_id ?? 'fuera del registro de evidencia').toLowerCase().includes(aguja))
   }, [gruposFiltrados.data, aguja])
 
+  // En la vista principal quedan solo los grupos que respaldan un resultado del informe. El de
+  // «Fuera del registro» (ninguna prueba cita esas corridas) se archiva aparte, plegado: se
+  // conserva como ingeniería visible, pero no compite con la evidencia.
+  const gruposDeEvidencia = gruposVisibles.filter((g) => g.result_id != null)
+  const gruposArchivados = gruposVisibles.filter((g) => g.result_id == null)
+  const corridasArchivadas = gruposArchivados.reduce((n, g) => n + g.n_runs, 0)
+
   const listado = useRunsPaged(
     {
       estado: segment === 'all' ? undefined : segment,
@@ -536,10 +549,82 @@ export default function RunsPage() {
   const hayFiltroGrupos = clase != null || busqueda.trim() !== ''
   const sumaGrupos = (gruposTodos.data ?? []).reduce((n, g) => n + g.n_runs, 0)
 
+  const cabeceraGrupos = (
+    <thead>
+      <tr>
+        <th>Resultado que la cita</th>
+        {/* «del paso», no del resultado: ver `CifraDeGrupo`. */}
+        <th>Cifra del paso</th>
+        <th>Paso</th>
+        <th>Clase</th>
+        <th className="eo-th--numeric">Corridas</th>
+        <th className="eo-th--numeric">Última</th>
+      </tr>
+    </thead>
+  )
+
+  const filaDeGrupo = (g: RunGroup, i: number) => {
+      const clave = claveDe(g)
+      const abierto = expandido?.clave === clave
+      const subId = `eo-grupo-${i}`
+      const nombre = nombreDeGrupo(g)
+      return (
+        <Fragment key={clave}>
+          <tr
+            className="eo-row--click"
+            // Agranda el blanco del mouse a la fila; el camino de
+            // teclado es el botón de expansión.
+            onClick={(e) => {
+              if ((e.target as HTMLElement).closest('a,button')) return
+              alternarGrupo(g)
+            }}
+          >
+            <td>
+              <div className="eo-grp">
+                <button
+                  type="button"
+                  className="eo-grp__toggle"
+                  aria-expanded={abierto}
+                  aria-controls={abierto ? subId : undefined}
+                  aria-label={`${abierto ? 'Ocultar' : 'Mostrar'} las corridas de ${nombre}`}
+                  onClick={() => alternarGrupo(g)}
+                >
+                  <IconChevron />
+                </button>
+                <span className="eo-grp__n">
+                  <b>{nombre}</b>
+                  <span>{g.result_id ?? 'Ninguna prueba las cita: no sostienen ninguna cifra del informe.'}</span>
+                </span>
+              </div>
+            </td>
+            <td><CifraDeGrupo g={g} /></td>
+            <td>{g.paso != null ? <span className="eo-paso">{g.paso}</span> : <span className="eo-na">—</span>}</td>
+            <td>
+              <Tag>
+                <Termino id={TERMINO_DE_CLASE[g.clase]}>{ETIQUETA_CLASE[g.clase]}</Termino>
+              </Tag>
+            </td>
+            <td className="eo-num eo-mono">{g.n_runs}</td>
+            <td className="eo-num eo-mono">{hace({ run_id: '', created_at: g.last_run_at })}</td>
+          </tr>
+          {abierto && (
+            <FilasDeGrupo
+              grupo={g}
+              id={subId}
+              todas={expandidoTodas}
+              onVerTodas={() => setExpandidoTodas(true)}
+              onAbrir={(runId) => nav(`/runs/${runId}`)}
+            />
+          )}
+        </Fragment>
+      )
+  }
+
   return (
     <>
       <PageHeader
         title="Corridas"
+        bajada="Una corrida es la ejecución de un solo plano; acá, la detección sobre una fuente. Las que respaldan un resultado de la generación 2 se agrupan bajo la prueba que las cita."
         meta={
           <>
             {total != null && <span>{total} corridas del plano de medios</span>}
@@ -638,74 +723,9 @@ export default function RunsPage() {
             )}
             <TableScroll label="Corridas agrupadas por resultado">
               <Table aria-label="Corridas agrupadas por resultado">
-                <thead>
-                  <tr>
-                    <th>Resultado que la cita</th>
-                    {/* «del paso», no del resultado: ver `CifraDeGrupo`. */}
-                    <th>Cifra del paso</th>
-                    <th>Paso</th>
-                    <th>Clase</th>
-                    <th className="eo-th--numeric">Corridas</th>
-                    <th className="eo-th--numeric">Última</th>
-                  </tr>
-                </thead>
+                {cabeceraGrupos}
                 <tbody>
-                  {gruposVisibles.map((g, i) => {
-                    const clave = claveDe(g)
-                    const abierto = expandido?.clave === clave
-                    const subId = `eo-grupo-${i}`
-                    const nombre = nombreDeGrupo(g)
-                    return (
-                      <Fragment key={clave}>
-                        <tr
-                          className="eo-row--click"
-                          // Agranda el blanco del mouse a la fila; el camino de
-                          // teclado es el botón de expansión.
-                          onClick={(e) => {
-                            if ((e.target as HTMLElement).closest('a,button')) return
-                            alternarGrupo(g)
-                          }}
-                        >
-                          <td>
-                            <div className="eo-grp">
-                              <button
-                                type="button"
-                                className="eo-grp__toggle"
-                                aria-expanded={abierto}
-                                aria-controls={abierto ? subId : undefined}
-                                aria-label={`${abierto ? 'Ocultar' : 'Mostrar'} las corridas de ${nombre}`}
-                                onClick={() => alternarGrupo(g)}
-                              >
-                                <IconChevron />
-                              </button>
-                              <span className="eo-grp__n">
-                                <b>{nombre}</b>
-                                <span>{g.result_id ?? 'sin resultado citado'}</span>
-                              </span>
-                            </div>
-                          </td>
-                          <td><CifraDeGrupo g={g} /></td>
-                          <td>{g.paso != null ? <span className="eo-paso">{g.paso}</span> : <span className="eo-na">—</span>}</td>
-                          <td>
-                            <Tag>
-                              <Termino id={TERMINO_DE_CLASE[g.clase]}>{ETIQUETA_CLASE[g.clase]}</Termino>
-                            </Tag>
-                          </td>
-                          <td className="eo-num eo-mono">{g.n_runs}</td>
-                          <td className="eo-num eo-mono">{hace({ run_id: '', created_at: g.last_run_at })}</td>
-                        </tr>
-                        {abierto && (
-                          <FilasDeGrupo
-                            grupo={g}
-                            id={subId}
-                            todas={expandidoTodas}
-                            onVerTodas={() => setExpandidoTodas(true)}
-                            onAbrir={(runId) => nav(`/runs/${runId}`)}
-                          />
-                        )}
-                      </Fragment>
-                    )
-                  })}
+                  {gruposDeEvidencia.map(filaDeGrupo)}
                 </tbody>
               </Table>
             </TableScroll>
@@ -718,7 +738,8 @@ export default function RunsPage() {
                 retrying={gruposFiltrados.isFetching}
               >
                 No se pudieron leer los grupos de corridas. No se sabe si hay corridas: el listado
-                no respondió.
+                no respondió. Se vuelve a intentar solo cada pocos segundos: si el motor de detección
+                se está reiniciando (pasa después de cada sesión de la demo, unos 30 s), vuelve solo.
               </ErrorBanner>
             ) : gruposVisibles.length === 0 && (
               hayFiltroGrupos ? (
@@ -735,6 +756,25 @@ export default function RunsPage() {
               )
             )}
           </Card>
+          {gruposArchivados.length > 0 && (
+            <Disclosure
+              className="eo-archivados"
+              summary={<>Archivadas · {corridasArchivadas} corridas <span className="eo-cell--muted">— fuera del registro: no son evidencia del informe</span></>}
+            >
+              <p className="eo-note">
+                Ninguna prueba del informe las cita: ensayos, diagnósticos y pruebas de la plataforma.
+                Se conservan como ingeniería visible y se pueden abrir una por una.
+              </p>
+              <TableScroll label="Corridas archivadas">
+                <Table aria-label="Corridas archivadas">
+                  {cabeceraGrupos}
+                  <tbody>
+                    {gruposArchivados.map((g, i) => filaDeGrupo(g, gruposDeEvidencia.length + i))}
+                  </tbody>
+                </Table>
+              </TableScroll>
+            </Disclosure>
+          )}
           {total != null && (
             <p className="eo-cap">
               {total} corridas en total, {sumaGrupos} citaciones en {gruposTodos.data?.length ?? 0} grupos:

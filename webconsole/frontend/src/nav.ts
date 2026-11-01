@@ -71,8 +71,8 @@ export const GEN1 = { to: '/evidencia/generacion-1', label: 'Validación inicial
 const STANDALONE: Record<string, string> = {
   '/compose': 'Nueva corrida',
   '/experiments/new': 'Nuevo experimento',
-  // La demo en vivo va a pantalla completa (sin armazón ni migas visibles), pero
-  // su destino se declara igual: no vive en NAV_GROUPS (spec 2026-10-23 §6.5).
+  // La demo en vivo vive en la consola (con migas); en modo proyección va sin
+  // armazón (components/demo/proyeccion.ts). El crumb se declara acá igual.
   '/demo': 'Demo en vivo',
 }
 

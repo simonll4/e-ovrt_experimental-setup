@@ -1,6 +1,7 @@
 """Runs: lanzar (compose→launch), listar hidratado, estado y stop (Spec B §5.5/§6)."""
 from __future__ import annotations
 
+import asyncio
 import logging
 import re
 from datetime import UTC, datetime
@@ -232,13 +233,14 @@ async def list_runs(
             fila.setdefault("created_at", _created_at(fila))
         _ordenar(base, campo, direccion)
         seleccion = base[inicio : inicio + page_size]
-        return [dict(await _hidratar(backend, item), evidence=evidence[item["run_id"]])
-                for item in seleccion]
+        filas = await _hidratar_todas(backend, seleccion)
+        return [dict(fila, evidence=evidence[item["run_id"]])
+                for fila, item in zip(filas, seleccion, strict=True)]
 
     # Orden por una métrica: hay que hidratar antes de poder comparar. Se acota
     # con `hydration_limit` para no disparar una lectura por corrida sobre un
     # historial largo; las que quedan afuera van al final, sin métricas.
-    hidratadas = [await _hidratar(backend, item) for item in base[: settings.hydration_limit]]
+    hidratadas = await _hidratar_todas(backend, base[: settings.hydration_limit])
     resto = [_fila_flaca(item) for item in base[settings.hydration_limit :]]
     _ordenar(hidratadas, campo, direccion)
     return [dict(row, evidence=evidence[row["run_id"]])
@@ -298,6 +300,7 @@ async def list_grupos(
     conteos = dict.fromkeys(CLASES, 0)
     response.headers.update(cabeceras_de_disponibilidad(registry))
 
+    titulos_gen2 = request.app.state.gen2.titulos()
     grupos: dict[str | None, dict] = {}
     for fila in base:
         descripcion = registry.describe([fila["run_id"]])
@@ -312,7 +315,13 @@ async def list_grupos(
             if clave not in grupos:
                 grupos[clave] = {
                     "result_id": clave,
-                    "titulo": archive.titles.get(clave) if clave else "Fuera del registro de evidencia",
+                    "titulo": (
+                        "Fuera del registro de evidencia" if clave is None
+                        else titulos_gen2.get(clave) or archive.titles.get(clave)
+                    ),
+                    # 2 = una prueba de la generación 2 (la cifra está en /resultados/<id>),
+                    # 1 = un resultado del archivo congelado, None = sin resultado citado.
+                    "generacion": None if clave is None else 2 if clave in titulos_gen2 else 1,
                     # El fallback de nombre lo calcula el backend, con la ÚNICA
                     # `etiqueta()` que existe (`evidence_archive.py`): antes el
                     # frontend tenía una segunda copia que partía por el ÚLTIMO
@@ -355,6 +364,23 @@ def _fila_flaca(item: dict) -> dict:
         "evaluated": item.get("evaluated"),
         "live": item.get("live", False),
     }
+
+
+# Lecturas simultáneas al media-plane al hidratar una página. Antes era una por una:
+# 200 filas (Comparar) eran 200 pedidos en serie, ~2,5 s. Acotado para no abrir
+# cientos de conexiones a la vez.
+_HIDRATACION_SIMULTANEA = 16
+
+
+async def _hidratar_todas(backend, items: list[dict], limite: int = _HIDRATACION_SIMULTANEA) -> list[dict]:
+    """Hidrata las filas en paralelo, conservando el orden de `items`."""
+    cupo = asyncio.Semaphore(limite)
+
+    async def una(item: dict) -> dict:
+        async with cupo:
+            return await _hidratar(backend, item)
+
+    return list(await asyncio.gather(*(una(item) for item in items)))
 
 
 async def _hidratar(backend, item: dict) -> dict:
@@ -650,6 +676,26 @@ async def _fetch_all(fetch, run_id: str) -> list[dict]:
 async def _gather_trace(
     run_id: str, request: Request, control_run_id: str | None
 ) -> tuple[dict, str | None]:
+    """`_calcular_trace`, pero una sola vez por corrida mientras haya pedidos en vuelo.
+
+    El detalle de un run pide `/trace` y `/trace/index` a la vez, y cada una repetía
+    la lectura completa (detecciones, descartes y cuatro lecturas del control). Cada
+    quien recibe su propia copia superficial: `/trace` hace `pop("frames")`.
+    """
+    vuelos = request.app.state.trace_en_vuelo
+    clave = (run_id, control_run_id)
+    tarea = vuelos.get(clave)
+    if tarea is None:
+        tarea = asyncio.ensure_future(_calcular_trace(run_id, request, control_run_id))
+        vuelos[clave] = tarea
+        tarea.add_done_callback(lambda _t, c=clave: vuelos.pop(c, None))
+    composed, control_error = await asyncio.shield(tarea)
+    return dict(composed), control_error
+
+
+async def _calcular_trace(
+    run_id: str, request: Request, control_run_id: str | None
+) -> tuple[dict, str | None]:
     """Junta las cuatro fuentes y compone la traza completa.
 
     Lo comparten `/trace` (que después pagina) y `/trace/index` (que proyecta el
@@ -665,24 +711,22 @@ async def _gather_trace(
     except ServiceUnavailable as exc:
         logger.warning("trace(%s): servicio media inaccesible: %s", run_id, exc)
         raise HTTPException(status_code=502, detail=str(exc)) from exc
-    # Trae TODAS las paginas de detections y dropped (page_size=1000, loop hasta total).
-    # UnknownRun en cualquiera de las dos lecturas se tolera como lista vacia: el
-    # run ya fue validado por status() arriba, asi que un 404 puntual de detections
-    # o dropped no debe tumbar el trace (I2 del review).
-    try:
-        detections_rows = await _fetch_all(backend.detections, run_id)
-    except UnknownRun:
-        detections_rows = []
-    except ServiceUnavailable as exc:
-        logger.warning("trace(%s): servicio media inaccesible (detections): %s", run_id, exc)
-        raise HTTPException(status_code=502, detail=str(exc)) from exc
-    try:
-        dropped_rows = await _fetch_all(backend.dropped, run_id)
-    except UnknownRun:
-        dropped_rows = []
-    except ServiceUnavailable as exc:
-        logger.warning("trace(%s): servicio media inaccesible (dropped): %s", run_id, exc)
-        raise HTTPException(status_code=502, detail=str(exc)) from exc
+    # Trae TODAS las paginas de detections y dropped (page_size=1000, loop hasta total),
+    # las dos a la vez. UnknownRun en cualquiera de las dos lecturas se tolera como lista
+    # vacia: el run ya fue validado por status() arriba, asi que un 404 puntual de
+    # detections o dropped no debe tumbar el trace (I2 del review).
+    async def _media(fetch, que: str) -> list[dict]:
+        try:
+            return await _fetch_all(fetch, run_id)
+        except UnknownRun:
+            return []
+        except ServiceUnavailable as exc:
+            logger.warning("trace(%s): servicio media inaccesible (%s): %s", run_id, que, exc)
+            raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+    detections_rows, dropped_rows = await asyncio.gather(
+        _media(backend.detections, "detections"), _media(backend.dropped, "dropped")
+    )
     # Lado control: best-effort (degradacion del spec §6). ControlUnknownRun en
     # el lookup o en las lecturas se trata como "sin control run" (no 404 del
     # trace); ControlServiceUnavailable puebla control_error y deja todo en n/d.
@@ -692,10 +736,13 @@ async def _gather_trace(
             candidates = await control.list_runs(media_run_id=run_id)
             control_run_id = candidates[0]["control_run_id"] if candidates else None
         if control_run_id is not None:
-            progress = await control.pattern_progress(control_run_id)
-            alerts = await control.alerts(control_run_id)
-            pattern_events = await control.pattern_events(control_run_id)
-            received = {u["unit_id"] for u in await control.received_units(control_run_id)}
+            progress, alerts, pattern_events, unidades = await asyncio.gather(
+                control.pattern_progress(control_run_id),
+                control.alerts(control_run_id),
+                control.pattern_events(control_run_id),
+                control.received_units(control_run_id),
+            )
+            received = {u["unit_id"] for u in unidades}
     except ControlServiceUnavailable as exc:
         logger.warning("trace(%s): servicio control inaccesible: %s", run_id, exc)
         control_error = str(exc)

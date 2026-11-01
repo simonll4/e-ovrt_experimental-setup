@@ -81,7 +81,7 @@ up() {
   echo "Activando $MOTOR (espera readyz)..."
   api POST "/api/platform/instances/$MOTOR/activate" "" 330 >/dev/null
   restart_motor
-  echo "Listo: http://localhost:8090/demo (F11); después, demo.sh check."
+  echo "Listo: http://localhost:8090/#/demo (F11); después, demo.sh check."
 }
 
 check() {
@@ -105,7 +105,14 @@ chequeos["disco_c"] = {"ok": libre >= 8, "detalle": f"{libre:.1f} GB libres en /
 zt = [l for l in sh("ip", "-br", "link").splitlines() if l.startswith("zt") and " UP " in f" {l} "]
 chequeos["zerotier_caido"] = {"ok": not zt, "detalle": "ZeroTier arriba: bajarlo" if zt else "ok"}
 ruta = sh("ip", "route", "get", ip)
-chequeos["ruta_camara"] = {"ok": bool(ruta) and " via " not in f" {ruta} ", "detalle": ruta or "sin ruta (¿modo espejo?)"}
+# «local ... dev lo» = la IP de la camara es una IP de ESTA misma PC (p. ej. la Ethernet tomo .137 por
+# link-local): no hay camara en el cable, o hay IP duplicada. Antes pasaba como OK (falso positivo).
+propia = ruta.startswith("local ")
+chequeos["ruta_camara"] = {
+    "ok": bool(ruta) and " via " not in f" {ruta} " and not propia,
+    "detalle": ("la IP de la camara (" + ip + ") es la de esta misma PC: la camara no esta en el cable, o hay IP duplicada") if propia
+               else (ruta or "sin ruta (¿modo espejo?)"),
+}
 vecino = sh("ip", "neigh", "show", ip)
 chequeos["arp_camara"] = {"ok": mac in vecino.lower(), "detalle": vecino or f"sin entrada ARP para {ip} (no se abre el dispositivo: F-101.5)"}
 gpu = sh("nvidia-smi", "--query-gpu=name,memory.used,memory.total,temperature.gpu", "--format=csv,noheader")

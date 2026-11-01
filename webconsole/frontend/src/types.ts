@@ -28,6 +28,8 @@ export interface ModelInfo {
 export interface PromptClass {
   id: string
   role: string | null
+  strategy?: string | null
+  condition_id?: string | null
   enabled_by_default: boolean
   phrasings: Record<string, string[]>
 }
@@ -199,6 +201,9 @@ export interface RunGroup {
   cifra_origen: 'leida' | 'citada' | null
   fuente: string | null
   paso: number | null
+  /** 1 = un resultado del archivo congelado, 2 = una prueba de la generación 2 (su
+   *  cifra está en `/resultados/<id>`), null = corridas sin resultado citado. */
+  generacion?: 1 | 2 | null
   clase: Clase
   n_runs: number
   last_run_at: string | null
@@ -821,12 +826,46 @@ export interface DemoExploracion {
   familia?: string | null
   camara: string
 }
+/** Una cámara que sirve para la demo (preset de `cameras/`, OAK-D o RTSP). Sin credenciales. */
+export interface DemoCamara {
+  id: string
+  nombre: string
+  plugin: string
+  /** `host:puerto` (RTSP) o la IP (OAK-D). */
+  destino: string
+  por_defecto: boolean
+  /** Si está activa, sin abrir la cámara: una RTSP se sondea por el puerto; la OAK-D (una sola
+   *  conexión) muestra su última comprobación explícita. */
+  estado: 'activa' | 'inactiva' | 'problema' | 'sin_comprobar'
+  detalle: string
+  medido_en: string
+}
+
+export interface DemoCamaraPaso { id: string; nombre: string; ok: boolean; detalle: string }
+
+/** Resultado de comprobar que la cámara se ve. `en_uso`: hay una sesión o un experimento y no se
+ *  abrió la OAK-D (admite una sola conexión). Un fallo es un resultado, nunca un error HTTP. */
+export interface DemoCamaraChequeo {
+  camara: string
+  nombre: string
+  plugin: string
+  destino: string
+  estado: 'ok' | 'falla' | 'en_uso'
+  causa: string | null
+  pasos: DemoCamaraPaso[]
+  ayuda: string[]
+  acciones: { id: 'reintentar' | 'reiniciar_motor' | string; etiqueta: string }[]
+  comprobado_en: string
+}
+
 export interface DemoState {
   fase: DemoFase
   session_id: string | null
   variante?: string
   escena?: string | null
   exploracion?: DemoExploracion | null
+  /** La cámara que eligió la pantalla para esta sesión (null = la OAK-D de la plantilla). */
+  camara_elegida?: Pick<DemoCamara, 'id' | 'nombre' | 'plugin' | 'destino'> | null
   stack?: 'compose' | 'nativo'
   experiment_id?: string
   ids?: Record<string, string>

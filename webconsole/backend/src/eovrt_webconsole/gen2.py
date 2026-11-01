@@ -142,6 +142,11 @@ class Gen2:
             "veredicto": resultado.get("veredicto"),
         }
 
+    def titulos(self) -> dict[str, str]:
+        """{id de prueba: título}, del pre-registro. Sin cargar sus resultados."""
+        return {pid: datos["titulo"] for pid, datos in self._catalogo().items()
+                if isinstance(datos.get("titulo"), str)}
+
     def pruebas(self) -> list[dict]:
         return [self._fila(pid, datos) for pid, datos in sorted(self._catalogo().items())]
 

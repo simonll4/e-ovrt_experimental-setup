@@ -20,8 +20,8 @@ from eovrt_webconsole import camera_store as cs
 from eovrt_webconsole.evidence import (
     Vista,
     cabeceras_de_disponibilidad,
+    cargar_yaml_archivo,
     clase_mas_fuerte,
-    clasificar_ejecuciones,
     coincide_vista,
     directorios_consolidados,
 )
@@ -105,7 +105,7 @@ def _ejecuciones_por_slug(runs_dir) -> dict[str, list[tuple[str, float]]]:
         if not efectivo.is_file():
             continue
         try:
-            datos = yaml.safe_load(efectivo.read_text(encoding="utf-8")) or {}
+            datos = cargar_yaml_archivo(efectivo) or {}
             slug = datos.get("slug")
             if slug:
                 por_slug.setdefault(slug, []).append((run_dir.name, run_dir.stat().st_mtime))
@@ -132,9 +132,10 @@ def _estado_de(consolidated_dir) -> str | None:
 async def list_manifests(request: Request, response: Response, vista: Vista = "todas") -> list[dict]:
     settings = request.app.state.settings
     runs_dir = settings.repo_root / "runs"
-    ejecuciones = _ejecuciones_por_slug(runs_dir)
     registry = request.app.state.evidence
-    classification = clasificar_ejecuciones(runs_dir, registry)
+    # Un solo cálculo compartido entre pedidos concurrentes, y fuera del event loop
+    # (ver ClasificacionCompartida: dos pedidos a la vez tardaban 5 s en vez de 1,2).
+    ejecuciones, classification = await request.app.state.clasificacion.obtener(runs_dir, id(registry))
     response.headers.update(cabeceras_de_disponibilidad(registry))
     response.headers["X-Archived-Executions-Count"] = str(sum(
         not execution["evidence"]["is_evidence"] for execution in classification

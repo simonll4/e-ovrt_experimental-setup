@@ -484,3 +484,190 @@ async def test_exploracion_fuera_de_la_lista_o_sin_la_oakd_no_arranca(entorno):
     with pytest.raises(DemoNoLista):
         await dm.start("oakd", "DEMO", {"motor": "mp-yoloe-26s", "camara": "960x540@5"})
     assert not any(entorno.sesiones.glob("demo_*"))
+
+
+# --- la cámara elegida en la pantalla (✎ 2026-11-01) -------------------------------------------
+
+CLAVE_DVR = "S3cr3ta"
+URL_DVR = f"rtsp://admin:{CLAVE_DVR}@169.254.31.140:554/Streaming/Channels/2"
+
+
+def _presets(entorno) -> None:
+    import yaml
+    cameras = Path(entorno.app.state.settings.repo_root) / "cameras"
+    cameras.mkdir(exist_ok=True)
+    for id_, plugin, config in (("oak_d_lab", "oak_d", {"url": "169.254.31.137"}),
+                                ("rtsp_dvr_1", "rtsp", {"url": URL_DVR})):
+        (cameras / f"{id_}.yaml").write_text(yaml.safe_dump(
+            {"camera": {"id": id_, "name": id_, "plugin": plugin, "config": config}}))
+
+
+async def test_arrancar_con_una_camara_rtsp_manda_su_fuente_y_deja_la_clave_solo_mientras_corre(entorno):
+    _presets(entorno)
+    dm, media = entorno.dm, entorno.media
+    inicio = await dm.start("oakd", camara="rtsp_dvr_1")
+    carpeta = entorno.sesiones / inicio["session_id"]
+    await _esperar(lambda: media.lanzadas)
+    # Lo que corre es la fuente de la cámara elegida, con la URL real (hay que abrirla)...
+    assert media.lanzadas[0]["ingest"] == {"plugin": "rtsp", "config": {"url": URL_DVR}}
+    assert CLAVE_DVR in (carpeta / "config" / "media.yaml").read_text()
+    # ...y la pantalla/estado dicen cuál es, sin credenciales.
+    assert dm.estado()["camara_elegida"] == {
+        "id": "rtsp_dvr_1", "nombre": "rtsp_dvr_1", "plugin": "rtsp", "destino": "169.254.31.140:554"}
+    assert CLAVE_DVR not in json.dumps(dm.estado())
+
+    entorno.control.unidades = 1
+    await _esperar(lambda: dm.estado()["fase"] == "live")
+    await dm.finish()
+    await _esperar(lambda: dm.estado()["fase"] in {"done", "failed"})
+    assert dm.estado()["fase"] == "done", dm.estado()["error"]
+    # Al cerrar, la config guardada se limpia: la clave no queda en disco en la carpeta de la sesión.
+    assert CLAVE_DVR not in (carpeta / "config" / "media.yaml").read_text()
+    sesion = json.loads((carpeta / "session.json").read_text())
+    assert sesion["camara"]["id"] == "rtsp_dvr_1" and CLAVE_DVR not in json.dumps(sesion)
+    textos = [f for f in carpeta.rglob("*") if f.is_file() and f.suffix in {".json", ".yaml", ".jsonl"}]
+    assert textos and all(CLAVE_DVR not in f.read_text() for f in textos)
+
+
+async def test_con_la_oak_d_elegida_la_plantilla_manda_y_solo_cambia_la_direccion(entorno):
+    _presets(entorno)
+    await entorno.dm.start("oakd", camara="oak_d_lab")
+    await _esperar(lambda: entorno.media.lanzadas)
+    ingest = entorno.media.lanzadas[0]["ingest"]
+    assert ingest["plugin"] == "oak_d" and ingest["config"]["url"] == "169.254.31.137"
+    assert ingest["config"]["isp_scale"] == [1, 2] and ingest["config"]["fps"] == 5  # lo medido
+
+
+async def test_sin_camara_elegida_sigue_la_de_la_plantilla(entorno):
+    await entorno.dm.start("oakd")
+    await _esperar(lambda: entorno.media.lanzadas)
+    assert entorno.media.lanzadas[0]["ingest"]["plugin"] == "oak_d"
+    assert entorno.dm.estado()["camara_elegida"] is None
+
+
+async def test_camara_desconocida_o_con_exploracion_no_arranca(entorno):
+    _presets(entorno)
+    with pytest.raises(ValueError, match="no hay un preset"):
+        await entorno.dm.start("oakd", camara="no_existe")
+    with pytest.raises(ValueError, match="no se combina"):
+        await entorno.dm.start("oakd", camara="rtsp_dvr_1", exploracion={"motor": "mp-gdino-tiny-560"})
+    assert entorno.dm.estado()["fase"] == "idle"
+
+
+async def test_comprobar_camara_con_una_sesion_en_curso_no_abre_la_oak_d(entorno):
+    _presets(entorno)
+    llamadas: list = []
+
+    async def ejecutar(cmd, entrada, timeout):
+        llamadas.append(cmd)
+        return 0, "OK: cuadro", ""
+    entorno.dm._ejecutar = ejecutar
+    await entorno.dm.start("oakd")
+    r = await entorno.dm.comprobar_camara("oak_d_lab")
+    assert r["estado"] == "en_uso" and not llamadas
+
+
+# --- vista previa de la cámara, antes de iniciar -----------------------------------------------
+
+
+class _Preview:
+    """Lo que el motor hace con el canal de preview: anota las llamadas y simula que se suelta."""
+
+    def __init__(self, suelta_tras: int = 0):
+        self.arranques: list[dict] = []
+        self.paradas = 0
+        self._consultas = 0
+        self._suelta_tras = suelta_tras
+
+    async def preview_start(self, body):
+        self.arranques.append(body)
+        return {"preview_id": "pv1"}
+
+    async def preview_stop(self):
+        self.paradas += 1
+
+    async def preview_status(self):
+        self._consultas += 1
+        return {"status": "streaming" if self._consultas <= self._suelta_tras else "idle"}
+
+
+async def test_vista_previa_oak_d_usa_la_fuente_de_la_demo_y_deja_el_motor_sin_fresco(entorno):
+    _presets(entorno)
+    entorno.dm._motor = {**entorno.dm._motor, "estado": "fresco"}
+    pv = _Preview()
+    entorno.media.preview_start = pv.preview_start
+    r = await entorno.dm.iniciar_vista("oak_d_lab")
+    assert r["id"] == "oak_d_lab" and r["plugin"] == "oak_d"
+    (cuerpo,) = pv.arranques
+    assert cuerpo["mode"] == "raw"  # sin modelo: es para ver el encuadre
+    assert cuerpo["ingest"]["plugin"] == "oak_d"
+    assert cuerpo["ingest"]["config"]["isp_scale"] == [1, 2] and cuerpo["ingest"]["config"]["fps"] == 5
+    # F-101.5: la OAK-D abierta en el proceso del motor es un uso; el chequeo previo pide reiniciarlo.
+    assert entorno.dm.estado()["motor"]["estado"] == "usado"
+
+
+async def test_vista_previa_rtsp_arma_la_url_en_el_servidor_y_no_toca_la_frescura(entorno):
+    _presets(entorno)
+    entorno.dm._motor = {**entorno.dm._motor, "estado": "fresco"}
+    pv = _Preview()
+    entorno.media.preview_start = pv.preview_start
+    r = await entorno.dm.iniciar_vista("rtsp_dvr_1")
+    assert pv.arranques[0]["ingest"] == {"plugin": "rtsp", "config": {"url": URL_DVR}}  # al motor, completa
+    assert CLAVE_DVR not in json.dumps(r)  # a la pantalla, nunca
+    assert entorno.dm.estado()["motor"]["estado"] == "fresco"  # un RTSP no tiene el límite de la OAK-D
+
+
+async def test_no_se_previsualiza_con_una_sesion_en_curso(entorno):
+    _presets(entorno)
+    entorno.media.preview_start = _Preview().preview_start
+    await entorno.dm.start("oakd")
+    with pytest.raises(DemoOcupada):
+        await entorno.dm.iniciar_vista("rtsp_dvr_1")
+
+
+async def test_al_iniciar_la_sesion_se_corta_el_preview_y_se_espera_a_que_se_suelte(entorno):
+    pv = _Preview(suelta_tras=3)
+    entorno.media.preview_stop = pv.preview_stop
+    entorno.media.preview_status = pv.preview_status
+    await entorno.dm.start("oakd")
+    assert pv.paradas == 1 and pv._consultas == 4  # preguntó hasta que dejó de estar «streaming»
+    await _esperar(lambda: entorno.media.lanzadas)  # y recién después lanzó la corrida
+
+
+async def test_detener_la_vista_sin_motor_o_sin_preview_no_revienta(entorno):
+    async def cae():
+        raise RuntimeError("sin motor")
+    entorno.media.preview_stop = cae
+    await entorno.dm.detener_vista()
+
+
+async def test_camaras_traen_su_estado_y_la_oak_d_lo_toma_de_la_ultima_comprobacion(entorno):
+    _presets(entorno)
+    conectados: list = []
+
+    class _W:
+        def close(self): pass
+        async def wait_closed(self): return None
+
+    async def conectar(host, puerto):
+        conectados.append((host, puerto))
+        return None, _W()
+    entorno.dm._conectar = conectar
+
+    async def ejecutar(cmd, entrada, timeout):
+        return 0, "conectada en 9.4 s: OAK-D-PRO-POE 1944\nOK: cuadro 320x180 recibido.\n", ""
+    entorno.dm._ejecutar = ejecutar
+
+    filas = {f["id"]: f for f in await entorno.dm.camaras()}
+    assert filas["rtsp_dvr_1"]["estado"] == "activa" and conectados == [("169.254.31.140", 554)]
+    assert filas["oak_d_lab"]["estado"] == "sin_comprobar"  # y no se la sondeó
+    assert CLAVE_DVR not in json.dumps(filas)
+    assert filas["rtsp_dvr_1"]["medido_en"]
+
+    sonda = Path(entorno.app.state.settings.repo_root) / "infra" / "platform" / "oakd_probe.py"
+    sonda.parent.mkdir(parents=True, exist_ok=True)
+    sonda.write_text("print('sonda')\n")
+    entorno.app.state.target_manager = SimpleNamespace(active="mp-gdino-tiny-560")
+    assert (await entorno.dm.comprobar_camara("oak_d_lab"))["estado"] == "ok"
+    filas = {f["id"]: f for f in await entorno.dm.camaras()}
+    assert filas["oak_d_lab"]["estado"] == "activa"

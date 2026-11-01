@@ -1,7 +1,9 @@
+import type { ReactNode } from 'react'
 import Termino from '../Glosario'
 import { demoArchivoUrl } from '../../api'
 import { conditionLabel } from '../../labels'
 import type { DemoCifra, DemoSessionDetail } from '../../types'
+import { Banner, PageHeader } from '../ui'
 import { fechaCorta, hora, numero, segundos } from './formato'
 
 const TIPO: Record<string, string> = {
@@ -22,27 +24,47 @@ function cifra(cifras: DemoCifra[], prueba: string, clave: string): string {
 /** El Resultado de una sesión: video anotado, cuadros clave, línea de tiempo de cada
  *  alerta y la tarjeta «Qué muestra y qué no muestra esta demo». */
 export default function ResultView({
-  detalle, cifras, rotuloRespaldo,
-}: { detalle: DemoSessionDetail; cifras: DemoCifra[]; rotuloRespaldo: boolean }) {
+  detalle, cifras, rotuloRespaldo, acciones,
+}: {
+  detalle: DemoSessionDetail
+  cifras: DemoCifra[]
+  rotuloRespaldo: boolean
+  /** Si se pasa, el Resultado va dentro de la consola: cabecera `PageHeader` con estas
+   *  acciones y tarjetas de la consola. Sin esto es la proyección (spec §5.3). */
+  acciones?: ReactNode
+}) {
   const sesion = detalle.session
   const resumen = detalle.resumen
   const id = sesion?.session_id ?? ''
+  const meta = sesion
+    ? `${hora(sesion.iniciada_en)} → ${hora(sesion.terminada_en)} · ${
+        sesion.ended_by === 'operator' ? 'cerrada por el operador' : 'terminó sola'} · ${
+        sesion.fase === 'done' ? 'completa' : `con fallas${sesion.error ? `: ${sesion.error}` : ''}`}`
+    : null
   const captura = cifras.find((c) => c.prueba === 'RT-03' && c.clave === 'capture_to_host_p50_ms')
   return (
     <div className="eo-demo-resultado">
-      <header className="eo-demo-resultado__cab">
-        <h1>Resultado de la demo</h1>
-        {rotuloRespaldo && sesion && (
-          <p className="eo-demo-resultado__respaldo">Ensayo del {fechaCorta(sesion.iniciada_en)} en esta sala</p>
-        )}
-        {sesion && (
-          <p className="eo-demo-resultado__meta">
-            {hora(sesion.iniciada_en)} → {hora(sesion.terminada_en)} ·{' '}
-            {sesion.ended_by === 'operator' ? 'cerrada por el operador' : 'terminó sola'} ·{' '}
-            {sesion.fase === 'done' ? 'completa' : `con fallas${sesion.error ? `: ${sesion.error}` : ''}`}
-          </p>
-        )}
-      </header>
+      {acciones !== undefined ? (
+        <>
+          <PageHeader
+            title="Resultado de la demo"
+            meta={meta}
+            bajada="El video muestra exactamente los cuadros que procesó el sistema, con sus detecciones y el estado de cada condición. Los cuadros clave de cada alerta están más abajo."
+            actions={acciones}
+          />
+          {rotuloRespaldo && sesion && (
+            <Banner tone="warn">Ensayo del {fechaCorta(sesion.iniciada_en)} en esta sala</Banner>
+          )}
+        </>
+      ) : (
+        <header className="eo-demo-resultado__cab">
+          <h1>Resultado de la demo</h1>
+          {rotuloRespaldo && sesion && (
+            <p className="eo-demo-resultado__respaldo">Ensayo del {fechaCorta(sesion.iniciada_en)} en esta sala</p>
+          )}
+          {meta && <p className="eo-demo-resultado__meta">{meta}</p>}
+        </header>
+      )}
 
       <section aria-label="Video anotado" className="eo-demo-resultado__video">
         {resumen?.video ? (

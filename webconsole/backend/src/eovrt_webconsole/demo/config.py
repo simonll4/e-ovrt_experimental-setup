@@ -144,9 +144,10 @@ def resolver_exploracion(repo_root: Path, motor: str | None, camara: str | None)
 
 
 def resolver_configs(repo_root: Path, variante: str, desp: Despliegue,
-                     exploracion: dict | None = None) -> dict[str, dict]:
+                     exploracion: dict | None = None, camara: dict | None = None) -> dict[str, dict]:
     """Las tres configs de la sesión, ya resueltas (media, control, distribution). Con una
-    exploración, la cámara de la plantilla se pisa con la de la lista (el resto, igual)."""
+    exploración, la cámara de la plantilla se pisa con la de la lista (el resto, igual). Con
+    `camara` (un preset de `cameras/`, ver `demo.camara`) la fuente es la elegida en la pantalla."""
     if variante not in VARIANTES:
         raise ConfigDemoError(f"variante desconocida: {variante!r} (opciones: {sorted(VARIANTES)})")
     experiments = Path(repo_root) / "experiments"
@@ -155,6 +156,9 @@ def resolver_configs(repo_root: Path, variante: str, desp: Despliegue,
     if exploracion:
         ingest = media.setdefault("ingest", {})
         ingest["config"] = {**(ingest.get("config") or {}), **exploracion["ingest"]}
+    if camara:
+        from eovrt_webconsole.demo import camara as demo_camara
+        media["ingest"] = demo_camara.aplicar(media.get("ingest"), camara)
     control = _render(experiments / _BASE / "control.template.yaml", marcadores)
     distribucion = _render(experiments / _BASE / "distribution.template.yaml", marcadores)
     return {

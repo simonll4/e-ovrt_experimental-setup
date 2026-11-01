@@ -37,6 +37,8 @@ def list_prompt_sets(prompts_dir: Path, frozen_ids: frozenset[str]) -> list[dict
                     {
                         "id": c.get("id"),
                         "role": c.get("role"),
+                        "strategy": c.get("strategy"),
+                        "condition_id": c.get("condition_id"),
                         "enabled_by_default": c.get("enabled_by_default", True),
                         "phrasings": c.get("phrasings", {}),
                     }

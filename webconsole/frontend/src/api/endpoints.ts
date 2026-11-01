@@ -7,7 +7,7 @@ import type {
   RecordingStatus, RunDetail, RunGroup, RunRow, StartRecordingBody, TargetStatus, TracePage,
   ArtifactEntry, ConditionInfo, RunComparison, TraceIndex, EvidenceListingMeta, EvidenceView,
   EvidenceRecorrido, EvidenceStepPage, EvidenceResultPage, ArchivedRunDetail, PlatformTestSlug,
-  Documentacion, DemoPreflight, DemoState, DemoSessionDetail, DemoCifra, DemoStack,
+  Documentacion, DemoCamara, DemoCamaraChequeo, DemoPreflight, DemoState, DemoSessionDetail, DemoCifra, DemoStack,
   Gen2Detalle, Gen2Observaciones, Gen2Prueba,
 } from '../types'
 
@@ -440,10 +440,20 @@ export const clipMediaUrl = (clipId: string) =>
 // --- Demo en vivo de la defensa (spec 2026-10-23) ---
 export const getDemoPreflight = () => request<DemoPreflight>('/api/demo/preflight')
 export const getDemoState = () => request<DemoState>('/api/demo/state')
-export const startDemo = (variante: 'oakd' | 'ensayo' = 'oakd') =>
+export const startDemo = (variante: 'oakd' | 'ensayo' = 'oakd', camara?: string | null) =>
   request<{ session_id: string; experiment_id: string }>('/api/demo/start', {
-    method: 'POST', body: JSON.stringify({ variante }),
+    method: 'POST', body: JSON.stringify(camara ? { variante, camara } : { variante }),
   })
+/** La cámara de la demo (✎ 2026-11-01): elegirla, comprobarla y previsualizarla antes de iniciar. */
+export const listDemoCamaras = () => request<DemoCamara[]>('/api/demo/camaras')
+export const comprobarDemoCamara = (id: string) =>
+  request<DemoCamaraChequeo>(`/api/demo/camaras/${encodeURIComponent(id)}/comprobar`, { method: 'POST' })
+/** Los cuadros de la vista previa se leen de `previewStreamUrl()`; la fuente (y la clave de un
+ *  RTSP) se arma en el servidor: acá solo viaja el id. */
+export const iniciarVistaDemo = (id: string) =>
+  request<DemoCamara>(`/api/demo/camaras/${encodeURIComponent(id)}/vista`, { method: 'POST' })
+export const detenerVistaDemo = () => request<undefined>('/api/demo/vista', { method: 'DELETE' })
+export const reiniciarMotorDemo = () => request<{ motor: string }>('/api/demo/motor/reiniciar', { method: 'POST' })
 export const finishDemo = () =>
   request<{ session_id: string; fase: string }>('/api/demo/finish', { method: 'POST' })
 export const getDemoSession = (id: string) =>

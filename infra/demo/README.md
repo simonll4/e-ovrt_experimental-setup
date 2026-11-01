@@ -6,9 +6,34 @@ distribución → broker, en vivo, con la configuración congelada que evaluó e
 la corrida solo se ve el estado (dos tarjetas: Casco y Chaleco); el video anotado, los cuadros
 clave y la línea de tiempo se arman **después**, en el Resultado.
 
-**Teclas** (proyector duplicado: todo por teclado): `I` iniciar · `F` `F` finalizar (dos veces
+**Dos modos** (✎ 2026-10-31): por defecto `/demo` vive **dentro de la consola** (barra lateral,
+migas y botones Iniciar · Finalizar · Evidencia · Proyectar), para preparar, ensayar y revisar sin
+salir de ella. Con **`P`** (o el botón Proyectar) pasa a la **proyección**:
+`http://localhost:8090/#/demo?proyectar=1`, oscura, letra grande, sin el armazón y sin consultas
+globales, que es lo que se proyecta el día de la defensa (con el navegador en F11). `P` vuelve a
+la consola. Al ir y volver del Resultado se conservan el modo y la variante.
+
+**Cámara de la demo** (✎ 2026-11-01): en la consola, antes de iniciar, la tarjeta **Cámara** deja:
+- **Ver el estado de cada cámara, siempre** (se actualiza sola cada 5 s mientras la pantalla está en Listo):
+  *Activa*, *Sin respuesta*, *Con problemas* o *Sin comprobar*. Una RTSP se sondea por el puerto (liviano). La
+  OAK-D **no se sondea sola** (abrirla ocupa su única conexión, F-101.5): su estado es el de la última
+  comprobación explícita, con su antigüedad (vale 15 min).
+- **Elegir** entre los presets de `cameras/` (OAK-D y RTSP). Se recuerda en el navegador y la proyección usa la
+  misma. Con la OAK-D la plantilla manda (960×540 a 5 fps, lo medido): del preset solo se toma la dirección;
+  un RTSP usa lo que dice su preset.
+- **Comprobar** que se ve, con la causa y cómo arreglarlo. RTSP: puerto + `ffprobe` (resolución y cuadros por
+  segundo). OAK-D: la prueba de `oakd_probe.py` en un proceso aparte dentro del motor activo (con una sesión o
+  un experimento en curso no se abre: admite una sola conexión). Si falla ofrece acciones (volver a comprobar;
+  reiniciar el motor cuando la causa es una cámara ocupada) y los pasos físicos del inyector PoE.
+- **Ver la cámara**: vista previa en vivo para encuadrar, sin modelo (imagen directa). Al iniciar se corta sola y
+  **durante la corrida la consola no recibe video, solo telemetría** (medido: ~7 KiB/s de JSON, 0 imágenes, 0
+  WebSockets). Los cuadros se guardan en el motor y el **video con las detecciones se arma al terminar**
+  (Resultado). Cortar la vista de la OAK-D reinicia el motor (F-101.5: queda «usado»).
+- Las credenciales de un RTSP no viajan al navegador ni se guardan: al cerrar la sesión se redactan en `config/`.
+
+**Teclas** (en proyección, todo por teclado): `I` iniciar · `F` `F` finalizar (dos veces
 en menos de 2 s) · `E` / `Esc` capa de evidencia · `R` respaldo nivel 1 · `L` (en el
-Resultado) volver a Listo, solo con el motor fresco.
+Resultado) volver a Listo, solo con el motor fresco · `P` proyectar / volver a la consola.
 
 Scripts: `demo.ps1` (PowerShell, el camino principal en la Victus) y `demo.sh` (los mismos
 comandos desde WSL; el chequeo del host que mira WSL —ruta a la cámara sin `via`, ARP, memoria
@@ -16,6 +41,10 @@ de la VM— solo se ve desde ahí). **La Victus no tiene entorno nativo**: el re
 spec (D-3) no aplica; los comandos `native-up/down` solo lo dicen.
 
 ---
+
+> ✎ 2026-11-01: para dejar **toda la plataforma** lista (núcleo, modelo activo, motor fresco y los dos
+> chequeos previos) hay un solo comando: `infra/platform/plataforma.sh` (`plataforma.ps1` en PowerShell). `demo.ps1 up`
+> sigue siendo el de la demo, y lo suyo es un subconjunto: ver `infra/platform/README.md`, «Levantar y verificar».
 
 ## 1. Preparación (una vez, después del `git pull`) — NO el día de la demo
 
@@ -41,7 +70,7 @@ Después:
 .\infra\demo\demo.ps1 check    # chequeo del host -> defensa\sesiones\preflight_host.json
 ```
 
-y abrir `http://localhost:8090/demo` (F11). Todo en verde = la tecla `I` funciona.
+y abrir `http://localhost:8090/#/demo` (F11). Todo en verde = la tecla `I` funciona.
 
 ## 2. G1 — la cadena sin hardware (cámara de ensayo)
 
@@ -55,7 +84,7 @@ CR-01 confirmado **y** su mensaje en el testigo MQTT, la finaliza, revisa que el
 video y apaga la cámara. Termina en `SMOKE G1 EN VERDE` o `EN ROJO`. Es también el build + smoke
 del compose.
 
-Para verlo en pantalla: `demo.ps1 camara-ensayo on` y `http://localhost:8090/demo?variante=ensayo`
+Para verlo en pantalla: `demo.ps1 camara-ensayo on` y `http://localhost:8090/#/demo?variante=ensayo`
 (la pantalla anuncia «la entrada es una grabación; todo lo demás corre en vivo»).
 
 Requisito: el clip en `e-ovrt_datasets/datasets/raw/clip_bench/clips/` (doc 134 §2).
@@ -100,7 +129,7 @@ guiones.
 |---|---|
 | T−60 | Inicio → **Reiniciar** (no Apagar). Trípode, cinta, PoE, cargador. `demo.ps1 up`, `demo.ps1 check` (y `demo.sh check` desde WSL para la ruta y el ARP de la cámara). Wi-Fi de la sede sin `172.20.x.x` |
 | T−30 | Corrida de verificación completa: un ciclo de CR-01, `F` `F`, revisar el Resultado. El motor se reinicia solo |
-| T−10 | `/demo` en Listo y todo en verde, F11, notificaciones y suspensión desactivadas, la pestaña del nivel 2 abierta |
+| T−10 | `/demo` en Listo y todo en verde, **en proyección (`P`)**, F11, notificaciones y suspensión desactivadas, la pestaña del nivel 2 abierta |
 | T0 | Se proyecta. Dos intentos fallidos → respaldo, sin depurar delante del tribunal |
 
 Si una corrida queda colgada: `demo.ps1 reset` (reinicia control y distribución sin recrearlos, y el

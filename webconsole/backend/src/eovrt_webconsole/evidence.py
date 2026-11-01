@@ -1,9 +1,12 @@
 """Registro curado, cargado una vez; archivar sólo cambia la visibilidad."""
 from __future__ import annotations
 
+import asyncio
 import csv
 import json
 import logging
+import os
+import time
 from collections import defaultdict
 from pathlib import Path
 from typing import Literal
@@ -51,6 +54,39 @@ def cabeceras_de_disponibilidad(registry: EvidenceRegistry) -> dict[str, str]:
     }
 
 
+def _indice_gen2(archivos: list[Path]) -> dict[str, list[dict]]:
+    """run_id -> las pruebas de la generación 2 que lo citan.
+
+    Toda corrida que cita una prueba pre-registrada sostiene una cifra del informe,
+    así que es `resultado` (la definición de la clase). Solo cuentan las identidades
+    reales: texto no vacío. Un archivo ilegible se salta sin tumbar a los demás.
+    """
+    indice: dict[str, list[dict]] = defaultdict(list)
+    for archivo in archivos:
+        try:
+            datos = json.loads(archivo.read_text(encoding="utf-8-sig"))
+        except (OSError, ValueError):
+            continue  # el driver puede estar escribiéndolo ahora mismo
+        corridas = datos.get("corridas") if isinstance(datos, dict) else None
+        if not isinstance(corridas, dict):
+            continue
+        prueba = archivo.parent.name
+        vistos: set[tuple[str, str]] = set()
+        for corrida in corridas.values():
+            if not isinstance(corrida, dict):
+                continue
+            for plano, clave in (("media-plane", "media_run_id"), ("control-plane", "control_run_id")):
+                run_id = corrida.get(clave)
+                if isinstance(run_id, str) and run_id and (run_id, prueba) not in vistos:
+                    vistos.add((run_id, prueba))
+                    indice[run_id].append({
+                        "collection": "generacion_2", "result_id": prueba, "role": "prueba_gen2",
+                        "clase": "resultado", "plane": plano, "run_id": run_id,
+                        "source_ref": f"results/gen2/{prueba}/corridas.json",
+                    })
+    return dict(indice)
+
+
 def clase_mas_fuerte(clases) -> str:
     """La primera clase presente en el orden de precedencia de `CLASES`.
 
@@ -74,6 +110,14 @@ class EvidenceRegistry:
         self.config_dir = config_dir or archive_dir.parent / "evidence-vista"
         presentes = all((archive_dir / "collections" / name).is_file() for name in CSV_FILES)
         self._rows: dict[str, list[dict]] = defaultdict(list)
+        # La generación 2 vive APARTE del archivo congelado: lo que cita cada prueba
+        # en `results/gen2/*/corridas.json`. No entra en `roles()`, `resultados()` ni
+        # `filas()` (los conteos de la generación 1 no se mueven).
+        self._gen2_dir: Path | None = None
+        self._gen2_refresco_s = 1.0
+        self._gen2_firma: tuple = ()
+        self._gen2_revisado = float("-inf")
+        self._gen2: dict[str, list[dict]] = {}
         self._force: dict[str, bool] = {}
         if presentes:
             for name in CSV_FILES:
@@ -142,8 +186,39 @@ class EvidenceRegistry:
         )
         self.clasificacion_disponible = bool(self._clase_de_rol) and alcanza_al_registro
 
+    def cargar_gen2(self, gen2_dir: Path, refresco_s: float = 1.0) -> None:
+        """Suma lo que citan las pruebas de la generación 2 (`corridas.json`).
+
+        El índice se rearma solo cuando cambia algún `corridas.json`: el driver lo
+        escribe mientras corre, y la consola no se reinicia por eso.
+        """
+        self._gen2_dir = gen2_dir
+        self._gen2_refresco_s = refresco_s
+        self._gen2_firma = ()
+        self._gen2_revisado = float("-inf")
+        self._gen2 = {}
+
+    def _filas_gen2(self, run_id: str) -> list[dict]:
+        if self._gen2_dir is None:
+            return []
+        ahora = time.monotonic()
+        if ahora - self._gen2_revisado >= self._gen2_refresco_s:
+            self._gen2_revisado = ahora
+            try:
+                archivos = sorted(self._gen2_dir.glob("*/corridas.json"))
+                firma = tuple((a.parent.name, a.stat().st_mtime_ns) for a in archivos)
+            except OSError:
+                archivos, firma = [], ()
+            if firma != self._gen2_firma:
+                self._gen2_firma = firma
+                self._gen2 = _indice_gen2(archivos)
+        return self._gen2.get(run_id, [])
+
+    def _todas_las_filas(self, run_id: str) -> list[dict]:
+        return [*self._rows.get(run_id, []), *self._filas_gen2(run_id)]
+
     def es_evidencia(self, run_id: str) -> bool:
-        return run_id in self._rows
+        return run_id in self._rows or bool(self._filas_gen2(run_id))
 
     def clase_de_rol(self, rol: str) -> str:
         return self._clase_de_rol.get(rol, "sin_clasificar")
@@ -158,7 +233,8 @@ class EvidenceRegistry:
         if run_id in self._clase_forzada:
             return self._clase_forzada[run_id]
         return clase_mas_fuerte(
-            self.clase_de_rol(row["role"]) for row in self._rows.get(run_id, []))
+            row.get("clase") or self.clase_de_rol(row["role"])
+            for row in self._todas_las_filas(run_id))
 
     def clase_de_slug(self, slug: str, default: str = "sin_clasificar") -> str:
         """La excepción explícita del slug, o lo que decida el llamador.
@@ -185,7 +261,7 @@ class EvidenceRegistry:
     def relaciones(self, run_id: str) -> list[dict]:
         keys = ("collection", "result_id", "role", "source_ref")
         return [dict(zip(keys, values)) for values in sorted({
-            tuple(row[key] for key in keys) for row in self._rows.get(run_id, [])
+            tuple(row.get(key, "") for key in keys) for row in self._todas_las_filas(run_id)
         })]
 
     def resultados(self) -> list[dict]:
@@ -202,7 +278,7 @@ class EvidenceRegistry:
         } for result_id, runs in sorted(groups.items())]
 
     def describe(self, run_ids: list[str]) -> dict:
-        rows = [row for run_id in run_ids for row in self._rows.get(run_id, [])]
+        rows = [row for run_id in run_ids for row in self._todas_las_filas(run_id)]
         return {
             "is_evidence": bool(rows),
             "result_ids": sorted({row["result_id"] for row in rows}),
@@ -267,6 +343,89 @@ def _identidades(data) -> set[str]:
     return ids
 
 
+# PyYAML trae un parser en C; el de Python puro es ~10x más lento y se usa en los
+# listados, que releen cientos de archivos.
+_YAML_LOADER = getattr(yaml, "CSafeLoader", yaml.SafeLoader)
+
+# ruta -> (mtime_ns, tamaño, identidades). Clasificar las ejecuciones releía ~12.000
+# archivos (822.000 líneas de JSONL) en cada pedido, ~50 s en frío: ahora solo se
+# vuelve a abrir lo que cambió. Un archivo que no se pudo leer NO se guarda.
+_IDENTIDADES_POR_ARCHIVO: dict[str, tuple[int, int, frozenset[str]]] = {}
+
+
+def cargar_yaml(text: str):
+    return yaml.load(text, Loader=_YAML_LOADER)  # SafeLoader en C o en Python
+
+
+_YAML_POR_ARCHIVO: dict[str, tuple[int, int, object]] = {}
+
+
+def cargar_yaml_archivo(path: Path):
+    """YAML de un archivo, sin reparsearlo mientras no cambie (los manifiestos de
+    ejecución son cientos y se piden en cada listado). Quien lo llama no lo muta."""
+    info = path.stat()
+    guardado = _YAML_POR_ARCHIVO.get(str(path))
+    if guardado is not None and guardado[:2] == (info.st_mtime_ns, info.st_size):
+        return guardado[2]
+    datos = cargar_yaml(path.read_text(encoding="utf-8"))
+    _YAML_POR_ARCHIVO[str(path)] = (info.st_mtime_ns, info.st_size, datos)
+    return datos
+
+
+def _identidades_de_archivo(path: Path) -> frozenset[str]:
+    info = path.stat()
+    guardado = _IDENTIDADES_POR_ARCHIVO.get(str(path))
+    if guardado is not None and guardado[:2] == (info.st_mtime_ns, info.st_size):
+        return guardado[2]
+    ids: set[str] = set()
+    if path.suffix == ".jsonl":
+        with path.open(encoding="utf-8") as src:
+            for line in src:
+                if "run_id" in line:
+                    ids.update(_identidades(json.loads(line)))
+    else:
+        text = path.read_text(encoding="utf-8")
+        if "run_id" in text:
+            data = json.loads(text) if path.suffix == ".json" else cargar_yaml(text)
+            ids.update(_identidades(data))
+    resultado = frozenset(ids)
+    _IDENTIDADES_POR_ARCHIVO[str(path)] = (info.st_mtime_ns, info.st_size, resultado)
+    return resultado
+
+
+_SUFIJOS = frozenset({".json", ".jsonl", ".yaml", ".yml"})
+
+
+def _archivos_de_identidad(directory: Path, base: Path):
+    """Archivos con identidades dentro del subárbol, sin salirse de `directory`.
+
+    os.scandir en lugar de rglob + resolve() por archivo: con ~12.000 archivos
+    el resolve() solo costaba más de un segundo por pedido. Solo se resuelve lo
+    que es un symlink (lo único que puede apuntar afuera).
+    """
+    pendientes = [directory]
+    while pendientes:
+        try:
+            with os.scandir(pendientes.pop()) as entradas:
+                entradas = list(entradas)
+        except OSError as exc:
+            logger.warning("No se pudo listar %s: %s", directory, exc)
+            continue
+        for entrada in entradas:
+            if entrada.is_symlink():
+                ruta = Path(entrada.path)
+                if not ruta.resolve().is_relative_to(base):
+                    continue
+                if ruta.is_dir():
+                    pendientes.append(ruta)
+                    continue
+            elif entrada.is_dir(follow_symlinks=False):
+                pendientes.append(Path(entrada.path))
+                continue
+            if os.path.splitext(entrada.name)[1] in _SUFIJOS and entrada.is_file():
+                yield Path(entrada.path)
+
+
 def corridas_consolidadas(directory: Path) -> list[str]:
     """Recorre todo el subárbol local; nunca abre destinos de archivos .ref.
 
@@ -274,23 +433,9 @@ def corridas_consolidadas(directory: Path) -> list[str]:
     procesan individualmente para no cargar detecciones y métricas completas.
     """
     ids: set[str] = set()
-    for path in sorted(directory.rglob("*")):
-        if path.suffix not in {".json", ".jsonl", ".yaml", ".yml"}:
-            continue
-        if not path.is_file() or not path.resolve().is_relative_to(directory.resolve()):
-            continue
+    for path in _archivos_de_identidad(directory, directory.resolve()):
         try:
-            if path.suffix == ".jsonl":
-                with path.open(encoding="utf-8") as src:
-                    for line in src:
-                        if "run_id" in line:
-                            ids.update(_identidades(json.loads(line)))
-            else:
-                text = path.read_text(encoding="utf-8")
-                if "run_id" not in text:
-                    continue
-                data = json.loads(text) if path.suffix == ".json" else yaml.safe_load(text)
-                ids.update(_identidades(data))
+            ids.update(_identidades_de_archivo(path))
         except (OSError, ValueError, yaml.YAMLError) as exc:
             logger.warning("No se pudo leer la identidad consolidada de %s: %s", path, exc)
     return sorted(ids)
@@ -307,7 +452,7 @@ def clasificar_ejecuciones(runs_dir: Path, registry: EvidenceRegistry) -> list[d
     executions = []
     for directory in directorios_consolidados(runs_dir):
         try:
-            manifest = yaml.safe_load((directory / "manifest.effective.yaml").read_text())
+            manifest = cargar_yaml_archivo(directory / "manifest.effective.yaml")
             slug = manifest.get("slug") if isinstance(manifest, dict) else None
             if not isinstance(slug, str) or not slug:
                 continue
@@ -322,3 +467,39 @@ def clasificar_ejecuciones(runs_dir: Path, registry: EvidenceRegistry) -> list[d
         except (OSError, yaml.YAMLError) as exc:
             logger.warning("No se pudo clasificar %s: %s", directory, exc)
     return executions
+
+
+class ClasificacionCompartida:
+    """Un único cálculo en vuelo, compartido por los pedidos concurrentes.
+
+    Clasificar las ejecuciones son miles de `stat`/lecturas cortas. Con varios hilos
+    a la vez el GIL se disputa en cada una (efecto convoy): uno tardaba 1,2 s, dos
+    5 s y cuatro 20 s, y Experimentos pide el listado dos veces al abrir. Acá el
+    cálculo corre una vez, en un hilo, y quienes llegan mientras tanto esperan el
+    mismo resultado. `ttl_s` además sirve el último resultado unos segundos; un
+    error nunca se guarda.
+    """
+
+    def __init__(self, calculo, ttl_s: float = 2.0, reloj=time.monotonic) -> None:
+        self._calculo = calculo
+        self._ttl_s = ttl_s
+        self._reloj = reloj
+        self._guardado: tuple[tuple, float, object] | None = None  # (clave, instante, valor)
+        self._en_vuelo: tuple[tuple, asyncio.Future] | None = None
+
+    async def obtener(self, runs_dir: Path, *claves):
+        clave = (runs_dir, *claves)
+        guardado = self._guardado
+        if guardado and guardado[0] == clave and self._reloj() - guardado[1] < self._ttl_s:
+            return guardado[2]
+        if self._en_vuelo and self._en_vuelo[0] == clave:
+            return await asyncio.shield(self._en_vuelo[1])
+        tarea = asyncio.ensure_future(asyncio.to_thread(self._calculo, runs_dir, *claves))
+        self._en_vuelo = (clave, tarea)
+        try:
+            valor = await asyncio.shield(tarea)
+        finally:
+            if self._en_vuelo and self._en_vuelo[1] is tarea:
+                self._en_vuelo = None
+        self._guardado = (clave, self._reloj(), valor)
+        return valor

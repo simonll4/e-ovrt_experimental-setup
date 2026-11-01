@@ -33,3 +33,23 @@ def test_endpoints_catalogo_in_repo(client):
     assert {s["id"] for s in sets} == {"demo_set", "frozen_set"}
     exps = client.get("/api/catalog/experiments").json()
     assert {e["id"] for e in exps} == {"demo_manifest", "bench_v2/bench_manifest"}
+
+
+def test_list_prompt_sets_expone_estrategia_y_condicion_de_cada_clase(tmp_path):
+    prompts = tmp_path / "prompts"
+    prompts.mkdir()
+    (prompts / "s.yaml").write_text(
+        "prompt_set:\n"
+        "  id: s\n"
+        "  classes:\n"
+        "    - {id: cr01_neg, strategy: syntactic_negation, condition_id: CR-01,\n"
+        "       phrasings: {default: [person without hard hat]}}\n"
+        "    - {id: person, phrasings: {default: [person]}}\n"
+    )
+    clases = {c["id"]: c for c in list_prompt_sets(prompts, frozenset())[0]["classes"]}
+    # Con ellos la consola explica la clase al pasar el cursor, sin una tabla escrita a mano.
+    assert clases["cr01_neg"]["strategy"] == "syntactic_negation"
+    assert clases["cr01_neg"]["condition_id"] == "CR-01"
+    # Una clase que no los declara no inventa nada.
+    assert clases["person"]["strategy"] is None
+    assert clases["person"]["condition_id"] is None

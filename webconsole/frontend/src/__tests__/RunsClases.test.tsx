@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
-import { cleanup, fireEvent, render, screen } from '../test-utils'
+import { cleanup, fireEvent, render, screen, within } from '../test-utils'
 import App from '../App'
 
 /** Los dos grupos comparten las MISMAS 34 corridas (una corrida que es
@@ -13,6 +13,7 @@ type Grupo = {
   // porque la mayoría de estos casos no la ejercita; el que sí, la manda entera.
   paso?: number | null; cifra?: string | null; cifra_label?: string | null
   cifra_origen?: 'leida' | 'citada' | null; fuente?: string | null
+  generacion?: 1 | 2 | null
 }
 const GRUPOS: Grupo[] = [
   { result_id: 'clip_bench/t1', titulo: 'Línea de base del Nivel B', etiqueta: 't1',
@@ -39,13 +40,19 @@ const ROLES: Record<Variante, string> = {
 }
 let variante: Variante
 let urls: URL[]
+/** El motor de detección reiniciándose: el BFF contesta 502 al listado. */
+let motorCaido: boolean
 
 beforeEach(() => {
   urls = []
   variante = 'completo'
+  motorCaido = false
   grupos = GRUPOS
   vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
     const url = new URL(String(input), 'http://localhost'); urls.push(url)
+    if (motorCaido && (url.pathname === '/api/runs/grupos' || url.pathname === '/api/runs')) {
+      return new Response(JSON.stringify({ detail: '[Errno -2] Name or service not known' }), { status: 502 })
+    }
     if (url.pathname === '/api/runs/grupos') {
       const headers: Record<string, string> = {}
       if (variante !== 'sin_cabeceras') {
@@ -183,7 +190,9 @@ it('sólo declara fuera del registro al grupo que no cita ningún resultado', as
   grupos = [{ ...GRUPOS[0], result_id: null, titulo: null, etiqueta: null }]
   montar()
   expect(await screen.findByText('Fuera del registro de evidencia')).toBeTruthy()
-  expect(screen.getByText('sin resultado citado')).toBeTruthy()
+  // No solo «sin resultado citado»: dice qué significa, con la definición y sin fechas.
+  expect(screen.getByText(/Ninguna prueba las cita: no sostienen ninguna cifra del informe/)).toBeTruthy()
+  expect(screen.queryByText('sin resultado citado')).toBeNull()
 })
 
 it('la cifra de una fila se declara DEL PASO, no del resultado de esa fila', async () => {
@@ -222,4 +231,55 @@ it('un grupo sin paso no inventa un rótulo de paso', async () => {
   await screen.findByText('La claqueta con reloj externo')
   expect(screen.getByText('sin cifra reportada')).toBeTruthy()
   expect(screen.queryByText(/^Paso /)).toBeNull()
+})
+
+it('un grupo de la generación 2 manda a su prueba en vez de decir «sin cifra reportada»', async () => {
+  // La cifra de una prueba de la gen 2 existe: está en Resultados. Decir que no hay cifra
+  // sería afirmar una ausencia que no es cierta.
+  grupos = [
+    { result_id: 'ALR-01', titulo: 'Alerta por episodio, escena, campeón (T1)', etiqueta: 'ALR-01',
+      clase: 'resultado', n_runs: 46, last_run_at: '2026-10-30T10:00:00Z', generacion: 2 },
+  ]
+  montar()
+  await screen.findByText('Alerta por episodio, escena, campeón (T1)')
+  const enlace = screen.getByRole('link', { name: /ver (la cifra )?en Resultados/i })
+  expect(enlace.getAttribute('href')).toBe('/resultados/ALR-01')
+  expect(screen.queryByText('sin cifra reportada')).toBeNull()
+})
+
+it('un grupo de la generación 1 sin cifra sigue diciéndolo', async () => {
+  grupos = [{ ...GRUPOS[2], generacion: 1 }]
+  montar()
+  await screen.findByText('La claqueta con reloj externo')
+  expect(screen.getByText('sin cifra reportada')).toBeTruthy()
+  expect(screen.queryByRole('link', { name: /en Resultados/i })).toBeNull()
+})
+
+it('con el motor reiniciándose explica la causa y avisa que vuelve solo', async () => {
+  motorCaido = true
+  montar()
+  const alerta = await screen.findByRole('alert')
+  expect(alerta.textContent).toMatch(/No se pudieron leer los grupos de corridas/)
+  expect(alerta.textContent).toMatch(/se está reiniciando/)
+  expect(alerta.textContent).toMatch(/vuelve solo/)
+  // El detalle técnico sigue disponible.
+  expect(alerta.textContent).toMatch(/Detalle técnico.*502/)
+})
+
+it('la tabla principal muestra solo lo que respalda el informe; «fuera del registro» queda archivado aparte', async () => {
+  grupos = [...GRUPOS, { result_id: null, titulo: null, etiqueta: null, clase: 'sin_clasificar', n_runs: 62,
+    last_run_at: '2026-11-01T00:00:00Z' }]
+  montar()
+  await screen.findByText('Línea de base del Nivel B')
+  const principal = screen.getByRole('table', { name: 'Corridas agrupadas por resultado' })
+  expect(within(principal).getByText('Línea de base del Nivel B')).toBeTruthy()
+  expect(within(principal).queryByText('Fuera del registro de evidencia')).toBeNull()
+  const archivo = screen.getByText(/Archivadas · 62 corridas/).closest('details') as HTMLDetailsElement
+  expect(archivo.open).toBe(false)
+  const tabla = within(archivo).getByRole('table', { name: 'Corridas archivadas' })
+  expect(within(tabla).getByText('Fuera del registro de evidencia')).toBeTruthy()
+  // Se siguen pudiendo desplegar: pide sus corridas como cualquier grupo.
+  fireEvent.click(within(tabla).getByRole('button', { name: /Mostrar las corridas de Fuera del registro/ }))
+  await vi.waitFor(() => expect(urls.some((u) => u.searchParams.get('clase') === 'sin_clasificar'
+    && u.pathname === '/api/runs')).toBe(true))
 })

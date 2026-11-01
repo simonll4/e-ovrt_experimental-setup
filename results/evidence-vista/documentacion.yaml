@@ -225,9 +225,11 @@ vocabulario:
         termino: experiment_id
         mono: true
         definicion: >
-          Corrida paraguas del experimental-setup. Agrupa las corridas de los
-          dos planos y consolida sus artefactos: lo liviano se copia, el JSONL
-          de detecciones se referencia.
+          Identificador de la ejecución experimental: la unidad que agrupa las
+          corridas independientes de los componentes que participan en una misma
+          instancia del experimento (informe, §17.3.4.1). Cada componente conserva
+          su propio run_id; el experimental-setup consolida los artefactos: lo
+          liviano se copia y el JSONL de detecciones se referencia.
       - id: unit_id
         termino: unit_id
         mono: true

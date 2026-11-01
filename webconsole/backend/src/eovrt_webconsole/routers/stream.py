@@ -61,15 +61,26 @@ def _safe_close_code(raw: int | None) -> int:
     return 4503
 
 
+def servicio_activo(app) -> str:
+    """URL del motor que contesta AHORA.
+
+    En el despliegue en compose la consola cambia de motor al activar una instancia
+    (`TargetManager` reemplaza `app.state.http`), mientras que `settings.service_url` queda en su
+    valor por defecto (`http://localhost:8080`): usarlo para los WebSockets los mandaba a un puerto
+    que en el contenedor no existe, y ni el preview de Cámaras ni el stream en vivo de una corrida
+    llegaban al motor. Sin orquestación (nativo) las dos son la misma URL."""
+    base = str(getattr(getattr(app.state, "http", None), "base_url", "") or "")
+    return (base or app.state.settings.service_url).rstrip("/")
+
+
 @router.websocket("/api/runs/{run_id}/stream")
 async def stream(websocket: WebSocket, run_id: str) -> None:
     await websocket.accept()
-    settings = websocket.app.state.settings
     buffer = _CoalescingBuffer()
     close_code = 1000
     client_gone = False
     try:
-        async with websockets.connect(_ws_url(settings.service_url, run_id)) as upstream:
+        async with websockets.connect(_ws_url(servicio_activo(websocket.app), run_id)) as upstream:
 
             async def _pump() -> None:
                 """Lee del upstream y coalesce en el buffer (termina al cerrar upstream)."""
