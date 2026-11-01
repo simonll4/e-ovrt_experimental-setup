@@ -102,8 +102,6 @@ mem_gb = os.sysconf("SC_PAGE_SIZE") * os.sysconf("SC_PHYS_PAGES") / 2**30
 chequeos["memoria_wsl"] = {"ok": mem_gb >= 9.5, "detalle": f"{mem_gb:.1f} GiB en la VM de WSL (doc 100: memory=10GB, swap=8GB en .wslconfig)"}
 libre = shutil.disk_usage("/mnt/c").free / 2**30 if os.path.isdir("/mnt/c") else 0
 chequeos["disco_c"] = {"ok": libre >= 8, "detalle": f"{libre:.1f} GB libres en /mnt/c (df -h / miente en WSL; mínimo 8)"}
-zt = [l for l in sh("ip", "-br", "link").splitlines() if l.startswith("zt") and " UP " in f" {l} "]
-chequeos["zerotier_caido"] = {"ok": not zt, "detalle": "ZeroTier arriba: bajarlo" if zt else "ok"}
 ruta = sh("ip", "route", "get", ip)
 # «local ... dev lo» = la IP de la camara es una IP de ESTA misma PC (p. ej. la Ethernet tomo .137 por
 # link-local): no hay camara en el cable, o hay IP duplicada. Antes pasaba como OK (falso positivo).

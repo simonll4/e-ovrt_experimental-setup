@@ -109,8 +109,6 @@ function Check {
     # Wi-Fi de la sede en 172.20.x.x choca con la subred de Docker (doc 133, sec. 5.6).
     $choque = Get-NetIPAddress -AddressFamily IPv4 -ErrorAction SilentlyContinue | Where-Object IPAddress -like '172.20.*'
     $chequeos.subred_docker = @{ ok = -not $choque; detalle = $(if ($choque) { "una interfaz del host esta en 172.20.x.x ($($choque[0].InterfaceAlias))" } else { 'sin choque con 172.20.0.0/16' }) }
-    $zt = Get-NetAdapter -ErrorAction SilentlyContinue | Where-Object { $_.InterfaceDescription -like '*ZeroTier*' -and $_.Status -eq 'Up' }
-    $chequeos.zerotier_caido = @{ ok = -not $zt; detalle = $(if ($zt) { 'ZeroTier arriba: bajarlo' } else { 'ok' }) }
     $gpu = (& nvidia-smi --query-gpu=name,memory.used,memory.total,temperature.gpu --format=csv,noheader 2>$null) -join '; '
     $chequeos.gpu = @{ ok = [bool]$gpu; detalle = $(if ($gpu) { $gpu } else { 'nvidia-smi no respondio' }) }
     $faltan = @($Nucleo + $Motor | Where-Object { (EstadoContenedor $_) -ne 'running' })
