@@ -178,7 +178,10 @@ async def estado_pasivo(preset: dict, *, ultimo: tuple[dict, float] | None, ahor
     except TimeoutError:
         return {"estado": "inactiva", "detalle": f"{host}:{puerto} no contesta."}
     except ConnectionRefusedError:
-        return {"estado": "inactiva", "detalle": f"{host} responde, pero rechaza el puerto {puerto}."}
+        # El rechazo puede darlo la cámara (otro servicio en ese puerto) o, con la cámara
+        # desconectada, la propia PC o el router de la ruta: no se afirma que la cámara responda.
+        return {"estado": "inactiva",
+                "detalle": f"{host} rechaza el puerto {puerto}: no hay una cámara RTSP escuchando ahí."}
     except OSError as exc:
         return {"estado": "inactiva", "detalle": f"{host}: {exc.strerror or exc}."}
     ms = (asyncio.get_running_loop().time() - t0) * 1000.0
@@ -263,10 +266,12 @@ async def _comprobar_rtsp(preset: dict, ejecutar: Ejecutor, ahora: str) -> dict:
                           f"No hay respuesta de {host}:{puerto}: la cámara no está en el cable, está apagada o la IP es otra.",
                           _PASOS_RTSP, _acciones(), ahora)
     except ConnectionRefusedError:
-        pasos.append(_paso("red", "Red", False, f"{host} responde pero rechaza el puerto {puerto}"))
+        pasos.append(_paso("red", "Red", False, f"{host} rechaza el puerto {puerto}"))
         return _resultado(preset, "falla", pasos,
-                          f"{host} responde, pero no hay una cámara RTSP en el puerto {puerto}.",
-                          ["Revisá la URL del preset en Cámaras."], _acciones(), ahora)
+                          f"No hay una cámara RTSP escuchando en {host}:{puerto}: la conexión fue rechazada "
+                          "(cámara desconectada o apagada, otra IP, o la Ethernet de la PC caída).",
+                          [*_PASOS_RTSP, "Si la cámara está bien conectada, revisá la URL del preset en Cámaras."],
+                          _acciones(), ahora)
     except OSError as exc:
         pasos.append(_paso("red", "Red", False, redactar(str(exc.strerror or exc))))
         return _resultado(preset, "falla", pasos, f"No se pudo conectar a {host}: {exc.strerror or exc}.",

@@ -17,6 +17,20 @@
       "fin_s": 27
     },
     {
+      "id": "P1b",
+      "titulo": "Sin casco, lejos de la cámara (enmienda del 2026-11-01)",
+      "personas": 1,
+      "preparacion": "Igual que P1, pero con una segunda marca de cinta lo más lejos de la cámara que permita el lugar: la persona entera y chica en el cuadro, sin salir del plano. Anotar la distancia en la bitácora. Se mira si el casco puesto deja de verse y CR-01 alerta antes de la acción (la causa principal de las falsas alarmas en obra real, ERR-01).",
+      "espera": {"CR-01": "alerta", "CR-02": "sin_alerta"},
+      "tomas_sugeridas": 2,
+      "guion": [
+        {"s": 2, "texto": "Entrá a la marca lejana con casco y chaleco puestos", "accion": "entrar"},
+        {"s": 7, "texto": "Sacate el casco y tenelo en la mano", "accion": "sacar_casco", "condicion": "CR-01"},
+        {"s": 21, "texto": "Ponete el casco", "accion": "poner_casco", "condicion": "CR-01"}
+      ],
+      "fin_s": 27
+    },
+    {
       "id": "P1c",
       "titulo": "Sin casco con oclusión parcial",
       "personas": 1,

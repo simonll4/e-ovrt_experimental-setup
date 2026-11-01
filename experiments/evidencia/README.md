@@ -36,7 +36,7 @@ clip, estrato por estrato).
 | F4 | `IMG-01`, `IMG-02`, `IMG-03`, `IMG-04`, `EXT-01`, `PER-01`, `PER-02`, `DEN-01`, `DEN-03`, `DEN-05` | sí | ~4 h (`IMG-04` a 800 px, ~0,4 h; `IMG-02` y `PER-02` con base-560) |
 | F5 | `ALR-02`, `ALR-05`, `ALR-08`, `ALR-10`, `DEN-02`, `DEN-04`, `DEN-06`, `DEN-07`, `PER-03`, `GT-02`, `ERR-01`, `ERR-02`, `SEG-01`, `VIS-01` | casi no (PER-03 infiere 4 clips cortos) | ~1,5 h (GT-02 es lo largo; `VIS-01` extrae ~50 cuadros con ffmpeg) |
 | F6 | `RT-01`, `RT-02`, `DIST-01` | sí | ~30 min |
-| F7 | `RT-04` (la obra simulada en vivo, toma por toma por `/demo`), `RT-05` (el compromiso entre familias de modelo y cadencias, con la misma escena), `RT-03` (latencia) — con el equipo, OAK-D, casco y chaleco | sí | una jornada (~14 escenas, ensayos de la demo y la matriz de RT-05) |
+| F7 | `RT-04` (la obra simulada en vivo, toma por toma por `/demo`), `RT-05` (el compromiso entre familias de modelo y cadencias, con la misma escena), `RT-03` (latencia), `RT-06` (el subset del guion con la cámara IP por RTSP; enmienda del 2026-11-01), `RT-07` (el chaleco amarillo no reflectivo, una persona; enmienda del 2026-11-01) — con el equipo, OAK-D y cámara IP (de a una), dos cascos y los dos chalecos reflectantes de julio (RT-07: el amarillo) | sí | una jornada (~14 escenas, ensayos de la demo, la matriz de RT-05 13 tomas con la cámara IP, en sus dos streams, y ~9 con el chaleco amarillo) |
 
 F3 y F4 llevan **dos noches**, una por fase (~9 h + ~4 h de GPU, estimadas desde la enmienda del 2026-10-30, que
 regenera los contrastes: `.\evidencia.ps1 -Fondo correr F3` y, la noche siguiente, `correr F4`; el driver retoma
@@ -103,14 +103,22 @@ ventana. Roles del doc 69: un OPERADOR (nunca en cuadro) y uno o dos actores.
 
 ```powershell
 cd e-ovrt_experimental-setup\infra\platform
-.\rodaje.ps1 -Lista              # las 14 escenas, su guion y qué se espera de cada una
-.\rodaje.ps1 -Escena P1          # una toma: espera el chequeo previo, la lanza, dice el guion
-                                 # por los parlantes, la cierra y deja marcas.json
+.\rodaje.ps1 -Lista                       # las 15 escenas, su guion y qué se espera de cada una
+.\rodaje.ps1 -Escena P1 -Chaleco julio    # una toma: espera el chequeo previo, la lanza, dice el guion
+                                          # por los parlantes, la cierra y deja marcas.json
 ```
 
-Orden sugerido (de menos a más cambio de vestuario, doc 69 §6): `P1` ×3, `P1c`, `P3` ×2, `P4`,
-`P9b` (y `P9a` si hay gorra) → `P2` ×3, `P6` → `P8` → `P5`, `P7a`, `P7b`, `P7c` → `DEMO` ×5 o más
-(los ensayos de la demo: 5 aprobados seguidos es la etapa G3). Después:
+**`-Chaleco` es obligatorio en cada toma** (enmienda del 2026-11-01, doc 134 §13.14): CR-02 depende del
+chaleco, así que cada pre-registro fija uno. RT-04, RT-05 y RT-06 cuentan solo `-Chaleco julio` (los dos
+chalecos reflectantes del rodaje); RT-07, solo `-Chaleco amarillo`. Una toma con otro chaleco o sin
+declararlo queda como no evaluable, con el motivo.
+
+Orden sugerido (de menos a más cambio de vestuario, doc 69 §6): `P1` ×3, `P1b` ×2 (lejos de la cámara,
+con una segunda marca de cinta), `P1c`, `P3` ×2, `P4`,
+`P9b` (y `P9a` si hay gorra) → `P2` ×3, `P6` → `P8` → `P5`, `P7a`, `P7b`, `P7c` (dos cascos y dos
+chalecos) → `DEMO` ×5 o más (los ensayos de la demo: 5 aprobados seguidos es la etapa G3). Una escena sin
+ninguna toma no desaparece: el resultado la nombra (`escenas_sin_tomas`) y RT-04 queda `parcial`. Las
+alertas que llegan antes de la acción se cuentan aparte (es lo que busca `P1b`). Después:
 
 ```powershell
 .\evidencia.ps1 correr RT-04     # importa las sesiones, las compara con su guion y relee por sujeto
@@ -137,7 +145,7 @@ fresco y marca la sesión como exploración: su id termina en `_exp`, RT-04 no l
 demo de la defensa sigue siendo la congelada. Conviene agrupar por motor.
 
 ```powershell
-.\rodaje.ps1 -Escena DEMO -Motor mp-yoloe-26s -Camara 960x540@15
+.\rodaje.ps1 -Escena DEMO -Chaleco julio -Motor mp-yoloe-26s -Camara 960x540@15
 .\evidencia.ps1 correr RT-05     # importa las sesiones de exploración por celda
 ..\demo\demo.ps1 up              # al terminar: de vuelta al campeón
 ```
@@ -145,6 +153,38 @@ demo de la defensa sigue siendo la congelada. Conviene agrupar por motor.
 Requisito: las cuatro instancias creadas con la imagen actual **antes** de la jornada. Crear o
 recrear un contenedor puede tirar la red de WSL. El protocolo de la jornada está en el doc 136
 del repo `docs`.
+
+**RT-06 (la cámara IP del guion, enmienda del 2026-11-01, doc 134 §13.13).** El guion de julio filmó un
+subset de escenas con la cámara IP por RTSP como segunda fuente. RT-06 lo repite en vivo, con el mismo guion de voz
+que RT-04, la cámara **sola, directo a la Ethernet** (la OAK-D desconectada) y sus **dos streams**, que se agregan por
+separado:
+
+| Stream | Ruta | Preset sugerido | Tomas mínimas |
+|---|---|---|---|
+| secundario, 768×432 a 10 fps | `/Streaming/Channels/2` | `rtsp_dvr_sub` | P1 ×3, P2 ×3, P5 ×2 |
+| principal, 1920×1080 a 15 fps | `/Streaming/Channels/1` | `rtsp_dvr_1` | P1 ×2, P2 ×2, P5 ×1 |
+
+Antes, crear en Cámaras los dos presets con sus URL y credenciales (`cameras/` no viaja por git), comprobar la cámara en
+`/demo` y encuadrar sobre la misma cinta. Conviene agrupar las tomas por stream. Con esta fuente se mide G2A; «vidrio →
+resultado» no existe (el RTSP no trae la hora de captura del dispositivo). Si falta alguna toma mínima, RT-06 queda
+`parcial` y dice qué falta en cada stream.
+
+```powershell
+.\rodaje.ps1 -Escena P1 -Chaleco julio -Fuente rtsp_dvr_sub    # secundario; comprueba la cámara y, si no se ve, no lanza
+.\rodaje.ps1 -Escena P1 -Chaleco julio -Fuente rtsp_dvr_1      # principal
+.\evidencia.ps1 correr RT-06                                    # solo las tomas con la cámara IP, por stream
+```
+
+**RT-07 (el chaleco amarillo no reflectivo, enmienda del 2026-11-01, doc 134 §13.14).** En la jornada hubo un
+solo chaleco, amarillo y sin bandas reflectantes, distinto de los de julio. No se mezcla con RT-04/05/06: se mide
+aparte, con una persona y la OAK-D, en `P1` ×2 (el chaleco puesto todo el clip: ¿lo reconoce o dispara CR-02 en
+falso?), `P2` ×3 (CR-02 sola), `P6` ×1 (las dos) y `DEMO` ×3 (el guion de la demo; se evalúa con el criterio de
+ensayo, pero NO cuenta para G3, que se mide con el chaleco de la defensa).
+
+```powershell
+.\rodaje.ps1 -Escena P2 -Chaleco amarillo
+.\evidencia.ps1 correr RT-07                    # solo las tomas que declararon el chaleco amarillo
+```
 
 **RT-03 (latencia por cuadro en dos configs)** sigue por el driver, sin guion: una persona
 moviéndose en cuadro, 2–3 tomas por config.

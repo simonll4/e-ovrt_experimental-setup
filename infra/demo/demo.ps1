@@ -21,11 +21,13 @@ param(
 )
 $ErrorActionPreference = 'Stop'
 
-$Consola = if ($env:EOVRT_CONSOLE_URL) { $env:EOVRT_CONSOLE_URL } else { 'http://localhost:8090' }
+# 127.0.0.1 y no localhost: en Windows PowerShell 5.1 `localhost` puede resolver primero a IPv6 y
+# colgarse hasta el timeout aunque la consola este sana.
+$Consola = if ($env:EOVRT_CONSOLE_URL) { $env:EOVRT_CONSOLE_URL } else { 'http://127.0.0.1:8090' }
 $Motor = 'mp-gdino-tiny-560'
 $Proyecto = 'eovrt'
 $Platform = Join-Path $PSScriptRoot '..\platform'
-$Repo = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
+$Repo = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).ProviderPath
 $Sesiones = Join-Path $Repo 'defensa\sesiones'
 $Nucleo = @('mosquitto', 'control-plane', 'distribution', 'console')
 

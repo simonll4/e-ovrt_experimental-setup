@@ -4,7 +4,7 @@
     python -m tools.evidencia verificar [ID|FASE ...]        # sin correr nada
     python -m tools.evidencia correr ID|FASE|todas [...] [--solo a_p1_c02,...] [--reagregar] [--forzar]
     python -m tools.evidencia vivo RT-03 --toma t1 --config 960x540@5 [--unidades 250]
-    python -m tools.evidencia descartar RT-04 <session_id> --motivo "..." --quien NOMBRE
+    python -m tools.evidencia descartar RT-04|RT-05|RT-06|RT-07 <session_id> --motivo "..." --quien NOMBRE
     python -m tools.evidencia estado [ID|FASE ...]
     python -m tools.evidencia veredicto ID identico|equivalente_con_diferencia|otra_combinacion --motivo "..." --quien NOMBRE
     python -m tools.evidencia indice
@@ -384,8 +384,8 @@ def main(argv=None) -> int:
     p.add_argument("--csv", help="cerrar: el CSV que bajó la página (default: defensa/figuras/VIS-01/"
                                  "revision_ciega_completa.csv)")
     p.set_defaults(f=cmd_revision_ciega)
-    p = sub.add_parser("descartar", help="saca una toma del rodaje en vivo (RT-04) del agregado, con motivo")
-    p.add_argument("prueba", choices=["RT-04"])
+    p = sub.add_parser("descartar", help="saca una toma del rodaje en vivo (RT-04 a RT-07) del agregado, con motivo")
+    p.add_argument("prueba", choices=["RT-04", "RT-05", "RT-06", "RT-07"])
     p.add_argument("session_id")
     p.add_argument("--motivo", required=True)
     p.add_argument("--quien", required=True)

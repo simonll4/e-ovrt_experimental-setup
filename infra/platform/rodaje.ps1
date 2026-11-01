@@ -11,17 +11,27 @@
 # La pantalla /demo (en el proyector o en otra ventana) muestra todo en vivo y, al final, el
 # Resultado de la toma. Despues: .\evidencia.ps1 correr RT-04 importa las sesiones.
 #
-# Uso:
-#   .\rodaje.ps1 -Lista                 # las escenas y su guion
-#   .\rodaje.ps1 -Escena P1             # una toma de P1
-#   .\rodaje.ps1 -Escena DEMO           # un ensayo de la demo (cuenta para G3)
-#   .\rodaje.ps1 -Escena P2 -SinVoz     # sin parlantes: el guion sale solo por pantalla
+# Uso (-Chaleco es obligatorio en cada toma: julio = los chalecos reflectantes del rodaje de julio,
+# los de RT-04/RT-05/RT-06; amarillo = el amarillo no reflectivo, prueba RT-07; doc 134 13.14):
+#   .\rodaje.ps1 -Lista                                  # las escenas y su guion
+#   .\rodaje.ps1 -Escena P1 -Chaleco julio               # una toma de P1 (RT-04)
+#   .\rodaje.ps1 -Escena DEMO -Chaleco julio             # un ensayo de la demo (cuenta para G3)
+#   .\rodaje.ps1 -Escena P2 -Chaleco amarillo            # una toma de RT-07 (chaleco amarillo)
+#   .\rodaje.ps1 -Escena P2 -Chaleco julio -SinVoz       # sin parlantes: el guion sale solo por pantalla
 #
 # Exploracion (prueba RT-05): la misma escena con otro motor u otra cadencia de camara, de la
 # lista cerrada de experiments\demo_defensa\exploracion.yaml. Activa la instancia si no es la
 # activa, deja el motor fresco y marca la sesion como exploracion (RT-04 no la cuenta):
-#   .\rodaje.ps1 -Escena DEMO -Motor mp-yoloe-26s -Camara 960x540@15
+#   .\rodaje.ps1 -Escena DEMO -Chaleco julio -Motor mp-yoloe-26s -Camara 960x540@15
 # Al terminar la exploracion, volver al campeon: ..\demo\demo.ps1 up
+#
+# Camara IP (prueba RT-06, enmienda 2026-11-01): las escenas del subset del guion (P1, P2, P5) con
+# la camara IP por RTSP en vez de la OAK-D. Una camara a la vez, directo a la Ethernet. -Fuente es
+# el id del preset de cameras/, uno por stream: el secundario (/Streaming/Channels/2) y el
+# principal (/Streaming/Channels/1). Antes de cada toma se comprueba que la camara entregue video:
+#   .\rodaje.ps1 -Escena P1 -Chaleco julio -Fuente rtsp_dvr_sub     # secundario
+#   .\rodaje.ps1 -Escena P1 -Chaleco julio -Fuente rtsp_dvr_1       # principal
+#   ..\evidencia.ps1 correr RT-06
 #
 # No se graba ni se anota nada: son tomas en vivo. La marca de cada accion es el instante del
 # tono; el tiempo de reaccion del actor queda DENTRO de la medicion (declarado).
@@ -29,13 +39,19 @@ param(
     [string]$Escena,
     [string]$Motor,
     [string]$Camara,
+    [string]$Fuente,
+    # CR-02 depende del chaleco: cada toma lo declara y el driver la cuenta solo en la prueba que fija ese.
+    [ValidateSet('julio', 'amarillo')]
+    [string]$Chaleco,
     [switch]$Lista,
     [switch]$SinVoz,
     [switch]$SinConfirmar,
-    [string]$Consola = 'http://localhost:8090'
+    # 127.0.0.1 y no localhost: en Windows PowerShell 5.1 `localhost` puede resolver primero a IPv6
+    # y colgarse hasta el timeout aunque la consola este sana.
+    [string]$Consola = 'http://127.0.0.1:8090'
 )
 $ErrorActionPreference = 'Stop'
-$repo = (Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
+$repo = (Resolve-Path (Join-Path $PSScriptRoot '../..')).ProviderPath
 $archivoEscenas = Join-Path $repo 'experiments\evidencia\RT-04\escenas.json'
 $sesionesDir = Join-Path $repo 'defensa\sesiones'
 $escenas = (Get-Content -LiteralPath $archivoEscenas -Raw -Encoding UTF8 | ConvertFrom-Json).escenas
@@ -53,6 +69,9 @@ if ($Lista -or -not $Escena) {
 }
 $esc = $escenas | Where-Object { $_.id -eq $Escena } | Select-Object -First 1
 if (-not $esc) { throw "No existe la escena '$Escena'. Ver: .\rodaje.ps1 -Lista" }
+if (-not $Chaleco) {
+    throw 'Falta -Chaleco: julio (los reflectantes del rodaje de julio: RT-04, RT-05, RT-06) o amarillo (el amarillo no reflectivo: RT-07).'
+}
 
 function Ahora-Ms { [double][DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds() }
 function Pedir([string]$metodo, [string]$ruta, $cuerpo, [int]$Espera = 30) {
@@ -86,8 +105,28 @@ if (-not $SinVoz) {
 Write-Host ''
 Write-Host "=== Escena $($esc.id): $($esc.titulo) ===" -ForegroundColor Cyan
 Write-Host "Preparacion: $($esc.preparacion)"
+Write-Host "Chaleco: $Chaleco" -ForegroundColor Cyan
 foreach ($p in $esc.guion) { Write-Host ("  {0,3} s  {1}" -f $p.s, $p.texto) }
 Write-Host ("  {0,3} s  fin" -f $esc.fin_s)
+
+# 0a. Camara IP (RT-06): que exista, que sea la de la prueba y que entregue video ANTES de lanzar.
+if ($Fuente) {
+    if ($Motor -or $Camara) { throw 'La exploracion (RT-05, -Motor/-Camara) es con la OAK-D: no se combina con -Fuente.' }
+    $camaras = @(Pedir 'GET' '/api/demo/camaras' $null) | ForEach-Object { $_ }
+    $cam = $camaras | Where-Object { $_.id -eq $Fuente } | Select-Object -First 1
+    if (-not $cam) { throw "No existe la camara '$Fuente' en cameras/. Hay: $(($camaras | ForEach-Object { $_.id }) -join ', ')" }
+    Write-Host "Camara: $($cam.nombre) ($($cam.destino), $($cam.plugin))" -ForegroundColor Cyan
+    if ($cam.plugin -eq 'rtsp') {
+        $chk = Pedir 'POST' "/api/demo/camaras/$Fuente/comprobar" $null 60
+        if ($chk.estado -ne 'ok') {
+            Write-Host "La camara no se ve: $($chk.causa)" -ForegroundColor Red
+            foreach ($a in $chk.ayuda) { Write-Host "  - $a" }
+            throw 'Arreglar la camara (o comprobarla en /demo) y volver a lanzar la toma.'
+        }
+        $video = ($chk.pasos | Where-Object { $_.id -eq 'video' } | Select-Object -First 1).detalle
+        Write-Host "  se ve: $video" -ForegroundColor Green
+    }
+}
 
 # 0. Exploracion (RT-05): el motor pedido activo y fresco.
 $exploracion = $null
@@ -138,6 +177,7 @@ $desfase = ($desfases | Sort-Object)[2]
 # 3. Lanzar la sesion etiquetada.
 $cuerpo = @{ escena = $esc.id }
 if ($exploracion) { $cuerpo.exploracion = $exploracion }
+if ($Fuente) { $cuerpo.camara = $Fuente }
 $inicio = Pedir 'POST' '/api/demo/start' $cuerpo
 $sid = $inicio.session_id
 Write-Host "Sesion $sid lanzada. Nadie entra a cuadro hasta el primer aviso." -ForegroundColor Green
@@ -185,6 +225,7 @@ try {
     $salida = [pscustomobject]@{
         session_id = $sid
         escena = $esc.id
+        chaleco = $Chaleco
         exploracion = $exploracion
         desfase_contenedor_menos_host_ms = $desfase
         desfases_ms = $desfases
@@ -205,6 +246,10 @@ try {
     }
     if ($exploracion) {
         Write-Host 'Toma de exploracion. Para importar: .\evidencia.ps1 correr RT-05 (al final, volver al campeon: ..\demo\demo.ps1 up)'
+    } elseif ($Chaleco -eq 'amarillo') {
+        Write-Host 'Toma con el chaleco amarillo. Para importar: .\evidencia.ps1 correr RT-07 (RT-04 no la cuenta)'
+    } elseif ($Fuente -and $cam.plugin -eq 'rtsp') {
+        Write-Host 'Toma con la camara IP. Para importar: .\evidencia.ps1 correr RT-06 (RT-04 no la cuenta)'
     } else {
         Write-Host 'El Resultado de la toma esta en /demo. Para importar el rodaje: .\evidencia.ps1 correr RT-04'
     }

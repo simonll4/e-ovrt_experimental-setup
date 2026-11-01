@@ -40,12 +40,17 @@ V2_SHORT = {
 # --- catálogo ------------------------------------------------------------------------
 
 
-def test_el_catalogo_real_carga_y_tiene_las_41_pruebas():
+def test_el_catalogo_real_carga_y_tiene_las_43_pruebas():
     catalogo = cat.cargar_catalogo(CATALOGO)
-    assert len(catalogo) == 41
+    assert len(catalogo) == 43
     assert {"ALR-01", "ALR-02", "IMG-01", "PER-03", "RT-04", "RT-05", "DIST-01", "GT-02"} <= set(catalogo)
     # la enmienda del doc 137 (2026-10-29)
     assert {"ALR-09", "ALR-10", "IMG-04", "ERR-01", "ERR-02", "SEG-01", "VIS-01"} <= set(catalogo)
+    # la enmienda del doc 134 §13.13 (2026-11-01): la cámara IP del guion en vivo
+    assert catalogo["RT-06"].fase == "F7" and catalogo["RT-06"].familia == "rodaje"
+    # la del §13.14 (2026-11-01): el chaleco amarillo aparte; RT-04/05/06 fijan el de julio
+    assert catalogo["RT-07"].receta["chaleco"] == "amarillo"
+    assert {catalogo[i].receta["chaleco"] for i in ("RT-04", "RT-05", "RT-06")} == {"julio"}
     for prueba in catalogo.values():
         assert prueba.familia in cat.FAMILIAS
 
@@ -520,24 +525,34 @@ from tools.evidencia.familias import rodaje  # noqa: E402
 
 
 def _sesion(ent, sesiones: Path, sid: str, escena: str, *, alertas, eventos, marcas, testigo,
-            unidades=40, fase="done", exploracion=None):
+            unidades=40, fase="done", exploracion=None, rtsp_url=None, chaleco=None):
+    """Una sesión de la demo. Con `rtsp_url`, la cámara elegida es una RTSP: queda en session.json
+    (sin credenciales) y en la config guardada (con la clave ya redactada), y sus métricas no traen
+    la hora de captura del dispositivo."""
     media_id, control_id = f"run_{sid}", f"ctl_{sid}"
     d = sesiones / sid
     (d / "config").mkdir(parents=True)
-    (d / "config" / "media.yaml").write_text("ingest: {plugin: oak_d}\n")
+    if rtsp_url:
+        (d / "config" / "media.yaml").write_text(f"ingest:\n  plugin: rtsp\n  config:\n    url: {rtsp_url}\n")
+    else:
+        (d / "config" / "media.yaml").write_text("ingest: {plugin: oak_d}\n")
+    camara = ({"id": "rtsp_dvr_sub", "nombre": "DVR", "plugin": "rtsp", "destino": "169.254.31.140:554"}
+              if rtsp_url else None)
     (d / "session.json").write_text(json.dumps({
         "session_id": sid, "escena": escena, "fase": fase, "experiment_id": f"exp_{sid}",
         "ids": {"media_run_id": media_id, "control_run_id": control_id},
         "fin_pedido_en": "2026-11-01T10:00:00+00:00", "terminada_en": "2026-11-01T10:00:12+00:00",
-        "exploracion": exploracion}))
+        "exploracion": exploracion, "camara": camara}))
     (d / "witness.jsonl").write_text("".join(json.dumps(m) + "\n" for m in testigo))
+    if chaleco is not None:  # lo que declara rodaje.ps1 -Chaleco
+        marcas = {**(marcas or {"desfase_contenedor_menos_host_ms": 0.0, "acciones": []}), "chaleco": chaleco}
     if marcas is not None:
         (d / "marcas.json").write_text("﻿" + json.dumps(marcas))  # con BOM, como PowerShell
     mr = ent.media_runs / media_id
     mr.mkdir(parents=True)
     (mr / "metrics.jsonl").write_text("".join(json.dumps({
         "unit_id": f"u{i}", "capture_wallclock_ms": 1_000_000 + 200 * i, "capture_monotonic_ns": i * 200_000_000,
-        "capture_to_host_ms": 70.0, "g2a_ms": 150.0}) + "\n" for i in range(unidades)))
+        **({} if rtsp_url else {"capture_to_host_ms": 70.0}), "g2a_ms": 150.0}) + "\n" for i in range(unidades)))
     (mr / "summary.json").write_text(json.dumps({"units_processed": unidades, "fps_effective": 5.0}))
     cr = ent.control_runs / control_id
     cr.mkdir(parents=True)
@@ -582,6 +597,14 @@ def test_rodaje_importa_las_sesiones_y_las_compara_con_su_guion(tmp_path, monkey
     # P3: no debía alertar y alertó.
     _sesion(ent, sesiones, "demo_b_P3", "P3", alertas=[{**alerta, "alert_id": "al-2"}], eventos=[],
             marcas=None, testigo=[])
+    # P1b (lejos): CR-01 confirma ANTES de que el actor se saque el casco (el casco puesto no se ve).
+    # Para la escena «alertó», pero la alerta antes de la acción se cuenta aparte.
+    _sesion(ent, sesiones, "demo_e_P1b", "P1b", alertas=[{**alerta, "alert_id": "al-3"}], eventos=[],
+            marcas={"desfase_contenedor_menos_host_ms": 0.0, "acciones": [
+                {"accion": "sacar_casco", "condicion": "CR-01", "pared_ms": 1_010_000},
+                {"accion": "poner_casco", "condicion": "CR-01", "pared_ms": 1_024_000}]},
+            testigo=[{"recibido_ms": 1_006_520.0, "payload": {"alert_id": "al-3", "condition_id": "CR-01",
+                                                              "confirmed_wall_ms": 1_006_500.0}}])
     # Una sesión de la demo sin escena no es del rodaje; una fallida queda como no evaluable.
     _sesion(ent, sesiones, "demo_c", "NINGUNA", alertas=[], eventos=[], marcas=None, testigo=[])
     _sesion(ent, sesiones, "demo_d_P2", "P2", alertas=[], eventos=[], marcas=None, testigo=[], fase="failed")
@@ -592,7 +615,13 @@ def test_rodaje_importa_las_sesiones_y_las_compara_con_su_guion(tmp_path, monkey
     carpeta = Carpeta(ent, prueba)
     carpeta.preparar()
     salida = rodaje.correr(ctx, prueba, carpeta)
-    assert salida == {"estado": "completo", "tomas": 2, "como_se_esperaba": 1}
+    # Solo 3 de las 15 escenas tienen tomas: las demás se nombran y la prueba queda «parcial».
+    assert salida == {"estado": "parcial", "tomas": 3, "como_se_esperaba": 2}
+    m = carpeta.leer("resultado.json")["metricas"]
+    assert "P1" not in m["escenas_sin_tomas"] and "P3" not in m["escenas_sin_tomas"]
+    assert {"P5", "P7a", "P7b", "P7c"} <= set(m["escenas_sin_tomas"])
+    assert m["por_escena"]["P1b"]["alertas_antes_de_la_accion"] == 1 and m["alertas_antes_de_la_accion"] == 1
+    assert m["por_escena"]["P1"]["alertas_antes_de_la_accion"] == 0
 
     tomas = {t["session_id"]: t for t in carpeta.leer("evals/tomas.json")}
     p1 = tomas["demo_a_P1"]
@@ -609,7 +638,8 @@ def test_rodaje_importa_las_sesiones_y_las_compara_con_su_guion(tmp_path, monkey
     m = consola.manifiestos[0]
     assert m["runs"]["media"]["reuse_run_id"] == "run_demo_a_P1" and m["runs"]["control"]["mode"] == "replay"
     resultado = carpeta.leer("resultado.json")
-    assert resultado["metricas"]["por_escena"]["P1"] == {"tomas": 1, "como_se_esperaba": 1, "sujeto_como_se_esperaba": 1}
+    assert resultado["metricas"]["por_escena"]["P1"] == {"tomas": 1, "como_se_esperaba": 1, "sujeto_como_se_esperaba": 1,
+                                                         "alertas_antes_de_la_accion": 0}
     assert [n["session_id"] for n in resultado["metricas"]["no_evaluables"]] == ["demo_d_P2"]
     assert resultado["metricas"]["latencia_por_cuadro"]["vidrio_a_resultado"]["p95"] == 220.0
 
@@ -672,6 +702,133 @@ def test_rt05_agrupa_la_exploracion_por_celda_y_rt04_no_la_cuenta(tmp_path, monk
     carpeta4.preparar()
     rodaje.correr(ctx4, prueba4, carpeta4)
     assert [t["session_id"] for t in carpeta4.leer("evals/tomas.json")] == ["demo_g_DEMO"]
+
+
+def test_rt06_cuenta_solo_la_camara_ip_por_stream_y_rt04_solo_la_oak_d(tmp_path, monkeypatch):
+    """RT-06 (enmienda 2026-11-01): el subset del guion con la cámara IP, en sus dos streams. Importa solo
+    las sesiones con cámara RTSP, del subset y con un stream del pre-registro, y agrega cada stream por
+    separado; RT-04 no las cuenta."""
+    monkeypatch.setenv("EOVRT_EVIDENCIA_SALIDA", str(tmp_path / "salida"))
+    ent = _entorno(tmp_path)
+    for d in (ent.media_runs, ent.control_runs, ent.patrones):
+        d.mkdir(parents=True)
+    shutil.copy(REPO.parent / "e-ovrt_control-plane/configs/patterns/cr01_cr02_v2_subject.yaml", ent.patrones)
+    sesiones = tmp_path / "sesiones"
+    shutil.copy(REPO / "experiments/evidencia/RT-04/escenas.json", tmp_path / "escenas.json")
+    marcas = {"desfase_contenedor_menos_host_ms": 0.0, "acciones": [
+        {"accion": "sacar_casco", "condicion": "CR-01", "pared_ms": 1_001_500},
+        {"accion": "poner_casco", "condicion": "CR-01", "pared_ms": 1_007_000}]}
+    cr01 = {"alert_id": "al-1", "condition_id": "CR-01", "subject_key": "CR-01:cam",
+            "first_evidence_unit_id": "u10", "unit_id": "u30"}
+    testigo = [{"recibido_ms": 1_006_520.0, "payload": {"alert_id": "al-1", "condition_id": "CR-01",
+                                                        "confirmed_wall_ms": 1_006_500.0}}]
+    url = "rtsp://admin:***@169.254.31.140:554/Streaming/Channels/{}"
+    _sesion(ent, sesiones, "demo_a_P1", "P1", alertas=[cr01], eventos=[], marcas=marcas, testigo=testigo,
+            rtsp_url=url.format(2), chaleco="julio")
+    _sesion(ent, sesiones, "demo_b_P5", "P5", alertas=[], eventos=[], marcas=None, testigo=[], rtsp_url=url.format(2),
+            chaleco="julio")
+    _sesion(ent, sesiones, "demo_c_P1", "P1", alertas=[cr01], eventos=[], marcas=marcas, testigo=testigo,
+            rtsp_url=url.format(1), chaleco="julio")
+    # Un stream que el pre-registro no fija: otra configuración, no evaluable.
+    _sesion(ent, sesiones, "demo_f_P2", "P2", alertas=[], eventos=[], marcas=None, testigo=[], rtsp_url=url.format(3),
+            chaleco="julio")
+    # Una escena fuera del subset (P3) con la cámara IP: no es de RT-06.
+    _sesion(ent, sesiones, "demo_d_P3", "P3", alertas=[], eventos=[], marcas=None, testigo=[], rtsp_url=url.format(2),
+            chaleco="julio")
+    # Con la OAK-D: es de RT-04, no de RT-06.
+    _sesion(ent, sesiones, "demo_e_P1", "P1", alertas=[cr01], eventos=[], marcas=marcas, testigo=testigo)
+
+    real = cat.cargar_prueba(CATALOGO / "RT-06" / "prueba.yaml")
+    receta = {**real.receta, "escenas": str(tmp_path / "escenas.json"), "sesiones": str(sesiones)}
+    ruta = _prueba(tmp_path / "cat", "RT-06", familia="rodaje", receta=receta)
+    prueba = cat.cargar_prueba(ruta)
+    consola = ConsolaSujeto(ent)  # una sola: numera sus corridas y la segunda prueba no las pisa
+    ctx = Contexto(ent=ent, consola=consola, catalogo={"RT-06": prueba}, avisar=lambda *_: None)
+    carpeta = Carpeta(ent, prueba)
+    carpeta.preparar()
+    # Faltan tomas mínimas en los dos streams: el resultado queda «parcial».
+    assert rodaje.correr(ctx, prueba, carpeta) == {"estado": "parcial", "tomas": 3, "como_se_esperaba": 3}
+    resultado = carpeta.leer("resultado.json")
+    m = resultado["metricas"]
+    tomas = {t["session_id"]: t for t in carpeta.leer("evals/tomas.json")}
+    assert {sid: t["stream"] for sid, t in tomas.items()} == {
+        "demo_a_P1": "secundario", "demo_b_P5": "secundario", "demo_c_P1": "principal"}
+    assert [(n["session_id"], n["motivo"].startswith("otro stream")) for n in m["no_evaluables"]] == [("demo_f_P2", True)]
+    sec, pri = m["por_stream"]["secundario"], m["por_stream"]["principal"]
+    assert (sec["tomas"], pri["tomas"]) == (2, 1) and sec["ruta"] == "/Streaming/Channels/2"
+    assert sec["faltan_tomas"] == {"P1": 2, "P2": 3, "P5": 1} and pri["faltan_tomas"] == {"P1": 1, "P2": 2, "P5": 1}
+    # Sin hora de captura: solo G2A; «vidrio → resultado» no se inventa.
+    assert sec["latencia_por_cuadro"]["g2a"]["p95"] == 150.0 and not sec["latencia_por_cuadro"]["vidrio_a_resultado"].get("p95")
+    claves = [r["clave"] for r in resultado["resumen"]]
+    assert {"g2a_p95_ms_secundario", "g2a_p95_ms_principal", "tomas_como_se_esperaba_principal"} <= set(claves)
+    assert not any(c.startswith(("vidrio_a_resultado", "ensayos_demo")) for c in claves)
+    assert any("1920×1080 a 15 fps" in r["nombre"] for r in resultado["resumen"])
+
+    # RT-04 sobre las mismas sesiones: solo la de la OAK-D.
+    ruta4 = _prueba(tmp_path / "cat", "RT-04", familia="rodaje", receta={
+        "escenas": str(tmp_path / "escenas.json"), "sesiones": str(sesiones),
+        "sujeto": {"patrones": "cr01_cr02_v2_subject", "activos": ["CR-01", "CR-02"], "track_persons": True},
+        "ensayo_demo": {"escena": "DEMO", "cr01_max_s_desde_la_accion": 6.0, "resultado_max_s": 60.0}})
+    prueba4 = cat.cargar_prueba(ruta4)
+    ctx4 = Contexto(ent=ent, consola=consola, catalogo={"RT-04": prueba4}, avisar=lambda *_: None)
+    carpeta4 = Carpeta(ent, prueba4)
+    carpeta4.preparar()
+    rodaje.correr(ctx4, prueba4, carpeta4)
+    assert [t["session_id"] for t in carpeta4.leer("evals/tomas.json")] == ["demo_e_P1"]
+
+
+def test_el_chaleco_separa_rt04_de_rt07(tmp_path, monkeypatch):
+    """Enmienda del 2026-11-01 (doc 134 §13.14): CR-02 depende del chaleco. RT-04 cuenta solo las tomas
+    que declararon el chaleco de julio y RT-07 solo las del amarillo; una toma sin declararlo no entra en
+    ninguna. RT-07 pide sus tomas mínimas y nombra la escena que falta."""
+    monkeypatch.setenv("EOVRT_EVIDENCIA_SALIDA", str(tmp_path / "salida"))
+    ent = _entorno(tmp_path)
+    for d in (ent.media_runs, ent.control_runs, ent.patrones):
+        d.mkdir(parents=True)
+    shutil.copy(REPO.parent / "e-ovrt_control-plane/configs/patterns/cr01_cr02_v2_subject.yaml", ent.patrones)
+    sesiones = tmp_path / "sesiones"
+    shutil.copy(REPO / "experiments/evidencia/RT-04/escenas.json", tmp_path / "escenas.json")
+    marcas = {"desfase_contenedor_menos_host_ms": 0.0, "acciones": [
+        {"accion": "sacar_casco", "condicion": "CR-01", "pared_ms": 1_001_500},
+        {"accion": "poner_casco", "condicion": "CR-01", "pared_ms": 1_007_000}]}
+    cr01 = {"alert_id": "al-1", "condition_id": "CR-01", "subject_key": "CR-01:oak",
+            "first_evidence_unit_id": "u10", "unit_id": "u30"}
+    testigo = [{"recibido_ms": 1_006_520.0, "payload": {"alert_id": "al-1", "condition_id": "CR-01",
+                                                        "confirmed_wall_ms": 1_006_500.0}}]
+    _sesion(ent, sesiones, "demo_a_P1", "P1", alertas=[cr01], eventos=[], marcas=marcas, testigo=testigo,
+            chaleco="julio")
+    _sesion(ent, sesiones, "demo_b_P1", "P1", alertas=[cr01], eventos=[], marcas=marcas, testigo=testigo,
+            chaleco="amarillo")
+    _sesion(ent, sesiones, "demo_c_P2", "P2", alertas=[], eventos=[], marcas=None, testigo=[], chaleco="amarillo")
+    _sesion(ent, sesiones, "demo_d_DEMO", "DEMO", alertas=[cr01], eventos=[], marcas=marcas, testigo=testigo,
+            chaleco="amarillo")
+    # Sin declarar el chaleco (marcas sin el campo): no entra en ninguna de las dos.
+    _sesion(ent, sesiones, "demo_e_P1", "P1", alertas=[cr01], eventos=[], marcas=marcas, testigo=testigo)
+
+    consola = ConsolaSujeto(ent)  # una sola: numera sus corridas y la segunda prueba no las pisa
+    resultados = {}
+    for pid in ("RT-04", "RT-07"):
+        real = cat.cargar_prueba(CATALOGO / pid / "prueba.yaml")
+        receta = {**real.receta, "escenas": str(tmp_path / "escenas.json"), "sesiones": str(sesiones)}
+        prueba = cat.cargar_prueba(_prueba(tmp_path / "cat", pid, familia="rodaje", receta=receta))
+        ctx = Contexto(ent=ent, consola=consola, catalogo={pid: prueba}, avisar=lambda *_: None)
+        carpeta = Carpeta(ent, prueba)
+        carpeta.preparar()
+        rodaje.correr(ctx, prueba, carpeta)
+        resultados[pid] = (carpeta.leer("resultado.json"), [t["session_id"] for t in carpeta.leer("evals/tomas.json")])
+
+    (r4, tomas4), (r7, tomas7) = resultados["RT-04"], resultados["RT-07"]
+    assert tomas4 == ["demo_a_P1"]
+    assert tomas7 == ["demo_b_P1", "demo_c_P2", "demo_d_DEMO"]
+    motivos4 = {n["session_id"]: n["motivo"] for n in r4["metricas"]["no_evaluables"]}
+    assert motivos4["demo_b_P1"].startswith("otro chaleco: 'amarillo'")
+    assert motivos4["demo_e_P1"].startswith("chaleco sin declarar")
+    motivos7 = {n["session_id"]: n["motivo"] for n in r7["metricas"]["no_evaluables"]}
+    assert motivos7["demo_a_P1"].startswith("otro chaleco: 'julio'") and "demo_e_P1" in motivos7
+    m7 = r7["metricas"]
+    assert r7["estado"] == "parcial" and m7["escenas_sin_tomas"] == ["P6"]
+    assert m7["faltan_tomas"] == {"P1": 1, "P2": 2, "P6": 1, "DEMO": 2}
+    assert m7["ensayos_demo"]["total"] == 1  # las DEMO con el amarillo se evalúan, pero en RT-07
 
 
 def test_ensayo_de_la_demo_aprobado_y_reprobado():

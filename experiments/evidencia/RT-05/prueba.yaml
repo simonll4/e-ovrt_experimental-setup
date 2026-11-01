@@ -38,7 +38,7 @@ config:
   camara: OAK-D a 960×540, a 5 y a 15 fps (experiments/demo_defensa/exploracion.yaml)
   escena: DEMO (experiments/evidencia/RT-04/escenas.json)
 como_se_corre: >
-  En la jornada en vivo, después de RT-04. Por celda, `rodaje.ps1 -Escena DEMO -Motor <instancia>
+  En la jornada en vivo, después de RT-04. Por celda, `rodaje.ps1 -Escena DEMO -Chaleco julio -Motor <instancia>
   -Camara <cámara>` tantas veces como pide `tomas_por_celda`: el script activa la instancia si no
   es la activa, deja el motor fresco, espera el chequeo previo y dirige la toma por voz (la consola
   reinicia el motor después de cada una). Conviene agrupar por motor: cambiar de instancia tarda
@@ -50,6 +50,10 @@ como_se_corre: >
 receta:
   escenas: ../RT-04/escenas.json
   escena: DEMO
+  # Enmienda del 2026-11-01 (doc 134 §13.14), antes de correr: CR-02 depende del chaleco. Solo cuentan las
+  # tomas con los chalecos reflectantes del rodaje de julio (rodaje.ps1 -Chaleco julio); el amarillo no
+  # reflectivo es RT-07.
+  chaleco: julio
   sesiones: defensa/sesiones
   matriz:
     motores: [mp-gdino-tiny-560, mp-gdino-base-560, mp-yoloe-26s, mp-yoloe-26x]
