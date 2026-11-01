@@ -40,9 +40,9 @@ V2_SHORT = {
 # --- catálogo ------------------------------------------------------------------------
 
 
-def test_el_catalogo_real_carga_y_tiene_las_43_pruebas():
+def test_el_catalogo_real_carga_y_tiene_las_44_pruebas():
     catalogo = cat.cargar_catalogo(CATALOGO)
-    assert len(catalogo) == 43
+    assert len(catalogo) == 44
     assert {"ALR-01", "ALR-02", "IMG-01", "PER-03", "RT-04", "RT-05", "DIST-01", "GT-02"} <= set(catalogo)
     # la enmienda del doc 137 (2026-10-29)
     assert {"ALR-09", "ALR-10", "IMG-04", "ERR-01", "ERR-02", "SEG-01", "VIS-01"} <= set(catalogo)
@@ -51,6 +51,8 @@ def test_el_catalogo_real_carga_y_tiene_las_43_pruebas():
     # la del §13.14 (2026-11-01): el chaleco amarillo aparte; RT-04/05/06 fijan el de julio
     assert catalogo["RT-07"].receta["chaleco"] == "amarillo"
     assert {catalogo[i].receta["chaleco"] for i in ("RT-04", "RT-05", "RT-06")} == {"julio"}
+    # §13.15: el amarillo también con la cámara IP
+    assert catalogo["RT-08"].receta["chaleco"] == "amarillo" and catalogo["RT-08"].receta["fuente"] == "rtsp"
     for prueba in catalogo.values():
         assert prueba.familia in cat.FAMILIAS
 
@@ -829,6 +831,45 @@ def test_el_chaleco_separa_rt04_de_rt07(tmp_path, monkeypatch):
     assert r7["estado"] == "parcial" and m7["escenas_sin_tomas"] == ["P6"]
     assert m7["faltan_tomas"] == {"P1": 1, "P2": 2, "P6": 1, "DEMO": 2}
     assert m7["ensayos_demo"]["total"] == 1  # las DEMO con el amarillo se evalúan, pero en RT-07
+
+
+def test_rt08_cuenta_la_camara_ip_con_el_chaleco_amarillo_y_rt06_rt07_no(tmp_path, monkeypatch):
+    """§13.15: una toma con la cámara IP y el chaleco amarillo es de RT-08 (por stream); RT-06 la deja
+    como no evaluable por el chaleco y RT-07 (OAK-D) ni la ve."""
+    monkeypatch.setenv("EOVRT_EVIDENCIA_SALIDA", str(tmp_path / "salida"))
+    ent = _entorno(tmp_path)
+    for d in (ent.media_runs, ent.control_runs, ent.patrones):
+        d.mkdir(parents=True)
+    shutil.copy(REPO.parent / "e-ovrt_control-plane/configs/patterns/cr01_cr02_v2_subject.yaml", ent.patrones)
+    sesiones = tmp_path / "sesiones"
+    shutil.copy(REPO / "experiments/evidencia/RT-04/escenas.json", tmp_path / "escenas.json")
+    url = "rtsp://admin:***@169.254.31.140:554/Streaming/Channels/{}"
+    _sesion(ent, sesiones, "demo_a_P2", "P2", alertas=[], eventos=[], marcas=None, testigo=[],
+            rtsp_url=url.format(2), chaleco="amarillo")
+    _sesion(ent, sesiones, "demo_b_P1", "P1", alertas=[], eventos=[], marcas=None, testigo=[],
+            rtsp_url=url.format(1), chaleco="amarillo")
+    _sesion(ent, sesiones, "demo_c_P1", "P1", alertas=[], eventos=[], marcas=None, testigo=[],
+            rtsp_url=url.format(2), chaleco="julio")
+
+    consola = ConsolaSujeto(ent)
+    res = {}
+    for pid in ("RT-06", "RT-07", "RT-08"):
+        real = cat.cargar_prueba(CATALOGO / pid / "prueba.yaml")
+        receta = {**real.receta, "escenas": str(tmp_path / "escenas.json"), "sesiones": str(sesiones)}
+        prueba = cat.cargar_prueba(_prueba(tmp_path / "cat", pid, familia="rodaje", receta=receta))
+        ctx = Contexto(ent=ent, consola=consola, catalogo={pid: prueba}, avisar=lambda *_: None)
+        carpeta = Carpeta(ent, prueba)
+        carpeta.preparar()
+        rodaje.correr(ctx, prueba, carpeta)
+        res[pid] = (carpeta.leer("resultado.json"), {t["session_id"]: t.get("stream") for t in carpeta.leer("evals/tomas.json")})
+
+    assert res["RT-08"][1] == {"demo_a_P2": "secundario", "demo_b_P1": "principal"}
+    assert res["RT-06"][1] == {"demo_c_P1": "secundario"}
+    motivos6 = {n["session_id"]: n["motivo"] for n in res["RT-06"][0]["metricas"]["no_evaluables"]}
+    assert motivos6["demo_a_P2"].startswith("otro chaleco: 'amarillo'")
+    assert res["RT-07"][1] == {}  # RT-07 es con la OAK-D
+    m8 = res["RT-08"][0]["metricas"]["por_stream"]
+    assert m8["secundario"]["faltan_tomas"] == {"P1": 2, "P2": 1} and m8["principal"]["faltan_tomas"] == {"P1": 0, "P2": 1}
 
 
 def test_ensayo_de_la_demo_aprobado_y_reprobado():

@@ -17,6 +17,7 @@
 #   .\rodaje.ps1 -Escena P1 -Chaleco julio               # una toma de P1 (RT-04)
 #   .\rodaje.ps1 -Escena DEMO -Chaleco julio             # un ensayo de la demo (cuenta para G3)
 #   .\rodaje.ps1 -Escena P2 -Chaleco amarillo            # una toma de RT-07 (chaleco amarillo)
+#   .\rodaje.ps1 -Escena P2 -Chaleco amarillo -Fuente rtsp_dvr_sub   # RT-08 (amarillo + camara IP)
 #   .\rodaje.ps1 -Escena P2 -Chaleco julio -SinVoz       # sin parlantes: el guion sale solo por pantalla
 #
 # Exploracion (prueba RT-05): la misma escena con otro motor u otra cadencia de camara, de la
@@ -246,10 +247,12 @@ try {
     }
     if ($exploracion) {
         Write-Host 'Toma de exploracion. Para importar: .\evidencia.ps1 correr RT-05 (al final, volver al campeon: ..\demo\demo.ps1 up)'
-    } elseif ($Chaleco -eq 'amarillo') {
-        Write-Host 'Toma con el chaleco amarillo. Para importar: .\evidencia.ps1 correr RT-07 (RT-04 no la cuenta)'
+    } elseif ($Fuente -and $cam.plugin -eq 'rtsp' -and $Chaleco -eq 'amarillo') {
+        Write-Host 'Toma con la camara IP y el chaleco amarillo. Para importar: .\evidencia.ps1 correr RT-08'
     } elseif ($Fuente -and $cam.plugin -eq 'rtsp') {
         Write-Host 'Toma con la camara IP. Para importar: .\evidencia.ps1 correr RT-06 (RT-04 no la cuenta)'
+    } elseif ($Chaleco -eq 'amarillo') {
+        Write-Host 'Toma con el chaleco amarillo. Para importar: .\evidencia.ps1 correr RT-07 (RT-04 no la cuenta)'
     } else {
         Write-Host 'El Resultado de la toma esta en /demo. Para importar el rodaje: .\evidencia.ps1 correr RT-04'
     }

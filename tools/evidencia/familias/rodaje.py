@@ -32,7 +32,7 @@ dispositivo: se mide G2A, no «captura → host» ni «vidrio → resultado».
 
 El chaleco (✎ 2026-11-01, doc 134 §13.14): CR-02 depende de él, así que cada pre-registro lo fija
 (`receta.chaleco`) y cada toma lo declara (`rodaje.ps1 -Chaleco` → marcas.json). RT-04, RT-05 y RT-06
-cuentan solo el de julio; RT-07, solo el amarillo no reflectivo. Una toma con otro, o sin declararlo,
+cuentan solo el de julio; RT-07 (OAK-D) y RT-08 (cámara IP), solo el amarillo no reflectivo. Una toma con otro, o sin declararlo,
 queda como no evaluable con el motivo.
 """
 from __future__ import annotations

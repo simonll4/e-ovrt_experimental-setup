@@ -36,7 +36,7 @@ clip, estrato por estrato).
 | F4 | `IMG-01`, `IMG-02`, `IMG-03`, `IMG-04`, `EXT-01`, `PER-01`, `PER-02`, `DEN-01`, `DEN-03`, `DEN-05` | sí | ~4 h (`IMG-04` a 800 px, ~0,4 h; `IMG-02` y `PER-02` con base-560) |
 | F5 | `ALR-02`, `ALR-05`, `ALR-08`, `ALR-10`, `DEN-02`, `DEN-04`, `DEN-06`, `DEN-07`, `PER-03`, `GT-02`, `ERR-01`, `ERR-02`, `SEG-01`, `VIS-01` | casi no (PER-03 infiere 4 clips cortos) | ~1,5 h (GT-02 es lo largo; `VIS-01` extrae ~50 cuadros con ffmpeg) |
 | F6 | `RT-01`, `RT-02`, `DIST-01` | sí | ~30 min |
-| F7 | `RT-04` (la obra simulada en vivo, toma por toma por `/demo`), `RT-05` (el compromiso entre familias de modelo y cadencias, con la misma escena), `RT-03` (latencia), `RT-06` (el subset del guion con la cámara IP por RTSP; enmienda del 2026-11-01), `RT-07` (el chaleco amarillo no reflectivo, una persona; enmienda del 2026-11-01) — con el equipo, OAK-D y cámara IP (de a una), dos cascos y los dos chalecos reflectantes de julio (RT-07: el amarillo) | sí | una jornada (~14 escenas, ensayos de la demo, la matriz de RT-05 13 tomas con la cámara IP, en sus dos streams, y ~9 con el chaleco amarillo) |
+| F7 | `RT-04` (la obra simulada en vivo, toma por toma por `/demo`), `RT-05` (el compromiso entre familias de modelo y cadencias, con la misma escena), `RT-03` (latencia), `RT-06` (el subset del guion con la cámara IP por RTSP; enmienda del 2026-11-01), `RT-07` y `RT-08` (el chaleco amarillo no reflectivo, una persona, con la OAK-D y con la cámara IP; enmiendas del 2026-11-01) — con el equipo, OAK-D y cámara IP (de a una), dos cascos y los dos chalecos reflectantes de julio (RT-07: el amarillo) | sí | una jornada (~14 escenas, ensayos de la demo, la matriz de RT-05 13 tomas con la cámara IP, en sus dos streams, y ~15 con el chaleco amarillo) |
 
 F3 y F4 llevan **dos noches**, una por fase (~9 h + ~4 h de GPU, estimadas desde la enmienda del 2026-10-30, que
 regenera los contrastes: `.\evidencia.ps1 -Fondo correr F3` y, la noche siguiente, `correr F4`; el driver retoma
@@ -184,6 +184,17 @@ ensayo, pero NO cuenta para G3, que se mide con el chaleco de la defensa).
 ```powershell
 .\rodaje.ps1 -Escena P2 -Chaleco amarillo
 .\evidencia.ps1 correr RT-07                    # solo las tomas que declararon el chaleco amarillo
+```
+
+**RT-08 (el chaleco amarillo con la cámara IP, enmienda del 2026-11-01, doc 134 §13.15).** La misma pregunta que RT-07,
+pero con la cámara IP y en sus dos streams, agregados por separado: secundario `P1` ×2 y `P2` ×2, principal `P1` ×1 y
+`P2` ×1. Va después de RT-07, sin cambiar el vestuario: se desconecta la OAK-D, se conecta la cámara IP directo a la
+Ethernet, se crean los dos presets y se comprueba. Es además el primer uso del camino de RT-06 en la Victus. Si CR-02
+difiere de RT-07, la diferencia no se atribuye al sensor (doc 69 §6.0.1).
+
+```powershell
+.\rodaje.ps1 -Escena P2 -Chaleco amarillo -Fuente rtsp_dvr_sub    # secundario (rtsp_dvr_1: principal)
+.\evidencia.ps1 correr RT-08                                       # RT-06 y RT-07 no las cuentan
 ```
 
 **RT-03 (latencia por cuadro en dos configs)** sigue por el driver, sin guion: una persona

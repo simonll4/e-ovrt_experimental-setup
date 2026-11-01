@@ -1,0 +1,65 @@
+schema: prueba.gen2.v1
+id: RT-08
+titulo: "El chaleco amarillo sin bandas reflectantes, con la cámara IP (RTSP)"
+informe: ["Tabla 54", "§17.5.5"]
+fase: F7
+familia: rodaje
+# Enmienda del 2026-11-01 (doc 134 §13.15), escrita y commiteada ANTES de correr: RT-07 con la segunda
+# fuente del guion. De paso, es el primer uso de punta a punta del camino de la cámara IP en la Victus
+# (presets, comprobación previa y rodaje.ps1 -Fuente), antes del día de RT-06.
+pregunta: >
+  Con el chaleco amarillo sin bandas reflectantes de RT-07, pero con la cámara IP por RTSP en lugar de la
+  OAK-D (una persona, el resto de la configuración de la demo igual), ¿el sistema lo reconoce como chaleco
+  (CR-02 no alerta mientras está puesto, P1) y alerta CR-02 cuando la persona se lo saca (P2)? En los dos
+  streams de la cámara: el secundario (768×432 a 10 fps) y el principal (1920×1080 a 15 fps).
+gen1:
+  result_id: "sin equivalente: en julio la cámara IP solo grabó, y con chalecos reflectantes (doc 71)"
+  doc: operacion/71
+  relacion: otra_combinacion
+  motivo: >
+    En julio la cámara IP solo grabó (9 tomas a 15 fps, bitrate bajo) y nunca corrió en vivo por la
+    plataforma; además, los chalecos eran reflectantes. No hay una cifra de julio con la que comparar 1:1.
+esperado: >
+  Lo mismo que RT-07 para P1 y P2, con dos riesgos opuestos: que el amarillo sin bandas no se reconozca
+  como chaleco (CR-02 alertaría con el chaleco puesto, antes de la acción, y se cuenta aparte) o que se lo
+  reconozca bien (P2 alerta CR-02 después de sacárselo, con la ventana de persistencia de ≈ 7 s, que NO es
+  latencia; P1 no alerta CR-02). Si CR-02 se comporta igual que en RT-07, el efecto es de la prenda y no de
+  la cámara; si difiere, la diferencia está confundida con la resolución, el códec, la cadencia y la
+  actuación (doc 69 §6.0.1) y no se atribuye al sensor. Con esta fuente se mide G2A: el RTSP no trae la
+  hora de captura del dispositivo, así que «captura → host» y «vidrio → resultado» no existen. Con el
+  principal se espera que el motor descarte la mayoría de los cuadros (en la PC de desarrollo, ~2,6 fps
+  efectivos y G2A p95 ~500 ms; ~6 fps y p95 ~370 ms con el secundario) y que las alertas igual confirmen.
+  Cada stream se agrega por separado; con 1 o 2 tomas por escena se reporta «k de n», no una tasa.
+veredictos_posibles: [otra_combinacion]
+config:
+  modelo: grounding-dino/gdino-tiny-560
+  prompt_set: cr01_cr02_v2_short
+  pattern_set: cr01_cr02_v2 (escena, la de la demo) y, sobre las mismas detecciones, cr01_cr02_v2_subject
+  camara: >
+    cámara IP RTSP (la del guion, 169.254.31.140:554), conectada SOLA y directo a la Ethernet de la PC de
+    la demo (la OAK-D desconectada), en sus dos streams: secundario /Streaming/Channels/2 (preset sugerido
+    rtsp_dvr_sub) y principal /Streaming/Channels/1 (preset sugerido rtsp_dvr_1)
+  chaleco: amarillo, sin bandas reflectantes (el de RT-07; una persona en cuadro)
+  distribucion: MQTT QoS 1, enfriamiento 30 s
+como_se_corre: >
+  Después de RT-07, sin cambiar el vestuario: desconectar la OAK-D, conectar la cámara IP directo a la
+  Ethernet, crear en Cámaras los dos presets con sus credenciales (cameras/ no viaja por git), comprobar la
+  cámara en /demo y encuadrar sobre la misma cinta. Cada toma con
+  `rodaje.ps1 -Escena P2 -Chaleco amarillo -Fuente rtsp_dvr_sub` (o `-Fuente rtsp_dvr_1`), agrupadas por
+  stream; el script comprueba que la cámara entregue video antes de lanzar. Después, `evidencia correr
+  RT-08` importa SOLO las sesiones con cámara RTSP, con uno de esos dos streams y con el chaleco amarillo
+  declarado. RT-06 y RT-07 no las cuentan.
+receta:
+  escenas: ../RT-04/escenas.json       # el mismo guion que RT-04
+  escenas_incluidas: [P1, P2]
+  fuente: rtsp
+  chaleco: amarillo
+  streams:                             # cada uno se agrega por separado
+    secundario: {ruta: /Streaming/Channels/2, etiqueta: "cámara IP, 768×432 a 10 fps",
+                 tomas_minimas: {P1: 2, P2: 2}}
+    principal:  {ruta: /Streaming/Channels/1, etiqueta: "cámara IP, 1920×1080 a 15 fps",
+                 tomas_minimas: {P1: 1, P2: 1}}
+  sesiones: defensa/sesiones
+  sujeto: {patrones: cr01_cr02_v2_subject, activos: [CR-01, CR-02], track_persons: true}
+  timeout_s: 900
+salida: e-ovrt_experimental-setup/results/gen2/RT-08/
