@@ -1,7 +1,7 @@
 import { cleanup, fireEvent, render, screen, waitFor } from '../test-utils'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import CamerasPage from '../pages/CamerasPage'
+import CamerasPage, { ocultarClave } from '../pages/CamerasPage'
 
 const mocks = vi.hoisted(() => ({
   listCameras: vi.fn(),
@@ -185,5 +185,32 @@ describe('CamerasPage', () => {
     ])
     renderPage()
     expect(await screen.findByText(/Cámara OAK-D Pro · sin dirección/)).toBeTruthy()
+  })
+
+  it('la lista no muestra la clave de una URL guardada; el formulario la conserva', async () => {
+    mocks.listCameras.mockResolvedValue([
+      { id: 'dvr', name: 'DVR', plugin: 'rtsp', config: { url: 'rtsp://admin:s3creta@169.254.31.140:554/ch1' } },
+    ])
+    renderPage()
+    expect(await screen.findByText('Cámara RTSP · rtsp://admin:•••@169.254.31.140:554/ch1')).toBeTruthy()
+    expect(screen.queryByText(/s3creta/)).toBeNull()
+    // Lo que se edita (y se guarda) sigue siendo la URL completa.
+    fireEvent.click(screen.getByRole('button', { name: 'Editar' }))
+    const config = await screen.findByLabelText(/Configuración/) as HTMLTextAreaElement
+    expect(config.value).toMatch(/rtsp:\/\/admin:s3creta@169\.254\.31\.140:554\/ch1/)
+  })
+})
+
+describe('ocultarClave', () => {
+  it('tapa la clave y deja el usuario, el host, el puerto y la ruta', () => {
+    expect(ocultarClave('rtsp://user:pass@host:554/x')).toBe('rtsp://user:•••@host:554/x')
+    // Una clave con @ o / sin escapar no asoma por la mitad.
+    expect(ocultarClave('rtsp://admin:p@ss/w@10.0.0.5:554/s')).toBe('rtsp://admin:•••@10.0.0.5:554/s')
+  })
+
+  it('deja igual lo que no trae clave', () => {
+    for (const url of ['rtsp://10.0.0.5/s', 'rtsp://host:554/x', 'rtsp://solo_usuario@host/x', '192.168.1.50']) {
+      expect(ocultarClave(url)).toBe(url)
+    }
   })
 })

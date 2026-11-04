@@ -1,0 +1,70 @@
+schema: prueba.gen2.v1
+id: RT-09
+titulo: "La prenda bajo el chaleco, en vivo (F-RT1)"
+informe: ["Tabla 54", "§17.5.5", "§17.5.7"]
+fase: F7
+familia: rodaje
+# Enmienda del 2026-11-04 (doc 134 §13.18), escrita y commiteada ANTES de la segunda jornada de F7.
+# En la primera (2026-11-01, doc 140), CR-02 no alertó en 0 de 10 tomas: el campeón marcó `vest` sobre
+# la remera negra lisa en el 99–100 % de los cuadros sin chaleco (F-RT1). La preparación pre-registrada
+# de RT-04 («remera lisa y oscura») quedó refutada, y la azul marino también dispara el falso. Esta
+# prueba mide, ANTES de RT-04 y con los chalecos de julio, qué remera deja medir CR-02 con el campeón.
+# La clase distractora («t-shirt») que se pensó como segunda parte NO se corre: su piloto en datasets
+# (PC de desarrollo, 2026-11-04, doc 141 §4) la descartó con la regla fijada antes de correrlo (duplicó
+# el `vest` falso: 27,5 % → 52,8 % de las personas sin chaleco). Se sacó antes de correr nada.
+pregunta: >
+  Con el campeón y la OAK-D en la configuración de la demo, una persona y los chalecos de julio: ¿con qué
+  remera, al sacarse el chaleco, el modelo deja de ver un `vest` en el torso de forma continua y CR-02
+  alerta como el guion (P2)?
+gen1:
+  result_id: "F-RT1 en el rodaje del 2026-07-25 (docs 70 y 71) y en la primera jornada de F7 (doc 140)"
+  doc: operacion/140
+  relacion: otra_combinacion
+  motivo: >
+    No hay una medición previa de la prenda como variable. En julio, con remera negra, el falso llegó a
+    0,73 y las P2 en vivo dieron 0 alertas (doc 71 §2.2); `safety vest` no lo evitó (doc 70); en la Victus,
+    sin personas, una remera negra lisa no dio ningún `vest` en 309 cuadros (doc 133 §5.7), y el 2026-11-01
+    la misma condición dio 99–100 % (doc 140). Se muestra al lado, nunca en reemplazo.
+esperado: >
+  No hay una predicción fuerte: las dos observaciones previas sobre la remera negra se contradicen. Lo que
+  decide CR-02 es la continuidad del falso, no su frecuencia (doc 140 §4.4): CR-02 confirma con 7 s de
+  ausencia continua, y una racha de `vest` más corta que los 3 s de resolución no la cierra. Por eso se
+  reportan, por remera, la fracción de cuadros con `vest` en el torso Y las rachas continuas más largas,
+  además de las alertas contra el guion. Con una toma por remera se reporta «k de n», no una tasa. El
+  resultado elige la remera de RT-04, RT-05 y RT-06 (regla en `eleccion_remera`); NO cambia el campeón ni
+  ninguna otra prueba.
+veredictos_posibles: [otra_combinacion]
+config:
+  modelo: grounding-dino/gdino-tiny-560
+  prompt_set: cr01_cr02_v2_short (el campeón; congelado)
+  pattern_set: cr01_cr02_v2 (escena; la misma regla de CR-02 mide el `vest` en el torso)
+  camara: OAK-D a 960×540 y 5 fps (experiments/demo_defensa)
+  chaleco: los de julio (reflectantes); una persona en cuadro
+como_se_corre: >
+  Al arrancar la segunda jornada, antes de RT-04, con `rodaje.ps1 -Proposito prendas` (RT-04…RT-08 no
+  cuentan estas tomas) y `-Remera` con un texto estable por prenda (el mismo para la misma remera). Con el
+  campeón: P2 ×1 por remera candidata, al menos dos y siempre la de referencia ("negra lisa"); conviene
+  sumar una clara lisa y una de color medio. Después, `evidencia correr RT-09` propone la remera para RT-04
+  con la regla de abajo; la firma el equipo en la bitácora antes de la primera toma de RT-04. Si ninguna
+  remera deja alertar CR-02, RT-04 se corre igual con la propuesta, y P2/P6/DEMO quedan como evidencia de
+  F-RT1.
+receta:
+  escenas: ../RT-04/escenas.json       # el mismo guion que RT-04
+  proposito: prendas                   # solo las tomas `rodaje.ps1 -Proposito prendas`
+  escenas_incluidas: [P2]
+  chaleco: julio
+  sesiones: defensa/sesiones
+  patrones: cr01_cr02_v2               # de acá salen la región del torso y los umbrales de la regla
+  modos: [campeon]                     # la distractora no se corre (doc 141 §4)
+  remera_referencia: "negra lisa"
+  # Dónde se mira el `vest`: desde «sacate el chaleco» + `margen_s` (el actor tarda en sacárselo; el
+  # 2026-11-01 se usaron 5 s) hasta «ponete el chaleco».
+  ventanas:
+    P2: {desde: sacar_chaleco, margen_s: 5, hasta: poner_chaleco, vest: ausente}
+  grupos_minimos:
+    - {modo: campeon, escena: P2, remeras_distintas: 2, incluye: referencia}
+  # La remera para RT-04/05/06: entre las del campeón en P2, las que alertaron CR-02 como el guion y, de
+  # ellas, la de racha continua de `vest` más corta; si ninguna alertó, la de menor fracción con `vest`.
+  eleccion_remera: {escena: P2}
+  timeout_s: 900
+salida: e-ovrt_experimental-setup/results/gen2/RT-09/

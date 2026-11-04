@@ -2,13 +2,15 @@ import { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import { ApiError, detenerVistaDemo, finishDemo, getDemoRespaldo, qk, startDemo } from '../api'
-import { useDemoCamaras, useDemoPreflight, useDemoState } from '../api/queries/demo'
+import { useDemoCamaras, useDemoModos, useDemoPreflight, useDemoState } from '../api/queries/demo'
 import BrokerStrip from '../components/demo/BrokerStrip'
 import CamaraPanel from '../components/demo/CamaraPanel'
 import CameraIndicator from '../components/demo/CameraIndicator'
 import { guardarCamaraElegida, leerCamaraElegida, resolverCamara } from '../components/demo/camaraElegida'
 import ConditionCard from '../components/demo/ConditionCard'
 import EvidenceLayer from '../components/demo/EvidenceLayer'
+import LineaModo from '../components/demo/LineaModo'
+import ModoPanel from '../components/demo/ModoPanel'
 import { cronometro, hora } from '../components/demo/formato'
 import { Banner, Button, Card, PageHeader } from '../components/ui'
 import { IconPlay, IconStop } from '../components/ui/icons'
@@ -23,8 +25,9 @@ const PASOS: Record<string, string> = {
 const CHEQUEOS: Record<string, string> = {
   sesion: 'sesión', deteccion: 'detección', motor: 'motor fresco', reglas: 'reglas',
   distribucion: 'distribución', broker: 'broker', congelado: 'configuración congelada',
-  host: 'cámara y host',
+  host: 'cámara y host', modo: 'prompts del modo',
 }
+const FASES_ACTIVAS: DemoFase[] = ['preparing', 'live', 'finishing', 'rendering']
 const SIN_LISTO_S = 30
 const SIN_SENAL_RESPALDO_S = 15
 
@@ -138,7 +141,14 @@ export default function DemoPage() {
   const fase: DemoFase = estado?.fase ?? 'idle'
   const corriendo = fase === 'preparing' || fase === 'live'
   const cerrando = fase === 'finishing' || fase === 'rendering'
-  const preflightQ = useDemoPreflight(!corriendo && !cerrando)
+  // El modo de prompts: SOLO en el estado de la pantalla (null = el default, el campeón). Sin
+  // almacenamiento a propósito: cada carga arranca en el campeón y vuelve a él al terminar una sesión,
+  // para que la defensa nunca arranque en un modo que quedó de un ensayo. Con el campeón no se manda
+  // `modo` (ni en el chequeo ni al iniciar): las peticiones son las de siempre.
+  const [modoElegido, setModoElegido] = useState<string | null>(null)
+  const modosQ = useDemoModos(!proyectando)
+  const modos = modosQ.data
+  const preflightQ = useDemoPreflight(!corriendo && !cerrando, modoElegido)
   const preflight = preflightQ.data
   const [capa, setCapa] = useState(false)
   const [aviso, setAviso] = useState<string | null>(null)
@@ -158,9 +168,11 @@ export default function DemoPage() {
   useEffect(() => {
     const anterior = faseVista.current
     faseVista.current = fase
+    // Terminó una sesión: el modo vuelve al campeón (el próximo Listo nunca hereda uno de ensayo).
+    if (anterior && FASES_ACTIVAS.includes(anterior) && !FASES_ACTIVAS.includes(fase)) setModoElegido(null)
     if (
       anterior && anterior !== fase && (fase === 'done' || fase === 'failed')
-      && ['preparing', 'live', 'finishing', 'rendering'].includes(anterior) && estado?.session_id
+      && FASES_ACTIVAS.includes(anterior) && estado?.session_id
     ) {
       navigate(rutaDemo(`/demo/resultado/${estado.session_id}`, search))
     }
@@ -172,6 +184,10 @@ export default function DemoPage() {
   useEffect(() => () => {
     if (vistaRef.current) void detenerVistaDemo().catch(() => undefined)
   }, [])
+
+  const elegirModo = (id: string) => {
+    setModoElegido(modos && id === modos.default ? null : id)
+  }
 
   const elegirCamara = (id: string) => {
     setGuardada(id)
@@ -189,7 +205,7 @@ export default function DemoPage() {
     // El motor corta la vista por su cuenta antes de lanzar; acá se cierra el visor.
     setVista(false)
     try {
-      await startDemo(variante, camaraElegida)
+      await startDemo(variante, camaraElegida, modoElegido)
     } catch (error) {
       setAviso(`No se pudo iniciar: ${detalleDe(error)}`)
     } finally {
@@ -267,6 +283,7 @@ export default function DemoPage() {
         <header className="eo-demo__cab">
           <h1>Demo en vivo · E-OVRT</h1>
           {avisoVariante && <p className="eo-demo__variante">{avisoVariante}</p>}
+          {(corriendo || cerrando) && <LineaModo modo={estado?.modo_prompts} />}
         </header>
         {cuerpo}
         <footer className="eo-demo__teclas" aria-label="Teclas">{teclas}</footer>
@@ -309,6 +326,14 @@ export default function DemoPage() {
           onElegir={elegirCamara}
           vista={vista}
           onVista={setVista}
+        />
+      )}
+      {modos && (
+        <ModoPanel
+          modos={modos}
+          elegido={corriendo || cerrando ? (estado?.modo_prompts?.id ?? modos.default) : (modoElegido ?? modos.default)}
+          onElegir={elegirModo}
+          soloLectura={corriendo || cerrando}
         />
       )}
       <Card title={corriendo || cerrando ? 'Corrida en curso' : 'Chequeo previo'}>{cuerpo}</Card>

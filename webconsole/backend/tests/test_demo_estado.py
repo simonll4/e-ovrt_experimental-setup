@@ -85,3 +85,17 @@ def test_con_varios_sujetos_gana_el_mas_avanzado():
         [_ep("CR-01", "candidate", elapsed_ms=100.0), _ep("CR-01", "confirmed")], 1.0
     )
     assert _cara(d, "CR-01")["estado"] == "alerta"
+
+
+def test_un_episodio_visto_primero_resolviendo_cuenta_una_alerta():
+    """Jornada F7 (P6 y RT-08 P1): el sondeo vio el episodio ya confirmado con cobertura en curso,
+    confirmando → resolviendo → alerta, y la tarjeta decía «alertas 0» aunque el control alertó."""
+    d = Derivador()
+    d.actualizar([_ep("CR-01", "candidate", elapsed_ms=3500.0)], 1.0)
+    d.actualizar([_ep("CR-01", "confirmed", elapsed_ms=4200.0, clear_elapsed_ms=300.0)], 2.0)
+    cara = _cara(d, "CR-01")
+    assert cara["estado"] == "resolviendo" and cara["alertas"] == 1 and cara["alerta_desde"] == 2.0
+    d.actualizar([_ep("CR-01", "sustained", elapsed_ms=6000.0)], 3.0)
+    assert _cara(d, "CR-01")["alertas"] == 1  # mismo episodio: no re-alerta
+    d.actualizar([], 4.0)
+    assert _cara(d, "CR-01")["estado"] == "resuelta" and _cara(d, "CR-01")["alertas"] == 1

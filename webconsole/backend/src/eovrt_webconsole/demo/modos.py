@@ -10,8 +10,15 @@ importa.
 Lo que lo separa del «vocabulario improvisado» que la spec de la demo deja afuera: cada modo
 manda EXACTAMENTE el set que midió su prueba, y `verificar` lo comprueba por huella antes de
 dejar iniciar: la del payload de prompts con la convención del driver
-(`tools/evidencia/huellas.armar_prompts`, `payload_sha256` de
-results/gen2/<prueba>/configuracion.json) y la del archivo del pattern set.
+(`tools/evidencia/huellas.armar_prompts`), contra la declarada en `modos.yaml` y contra la
+constancia de la medición (`payload_sha256` de results/gen2/<prueba>/configuracion.json, que se
+lee en cada chequeo: sin ella, rojo), y la del archivo del pattern set.
+
+✎ 2026-11-04 (doc 134 §13.18): un modo `evidencia: exploratoria` es un set TODAVÍA SIN MEDIR en
+la generación 2 (la clase distractora para F-RT1). Se verifica igual por huella (lo que se manda
+es exactamente lo declarado) y por pattern set, pero no tiene constancia de medición: el ítem
+«prompts del modo» queda en amarillo, no en verde, y dice que es exploración. Su prueba en vivo
+(RT-09) importa esas sesiones; RT-04…RT-08 no.
 """
 from __future__ import annotations
 
@@ -33,6 +40,12 @@ _MODO_ID = re.compile(r"^[a-z0-9][a-z0-9_-]{0,23}$")
 # Lo que un modo cambia de la configuración congelada (ítems de `verificar_congelado`). Todo lo
 # demás —el modelo, sus umbrales y la distribución— tiene que seguir igual al tag.
 _CAMBIA = frozenset({"prompt_set_archivo", "prompt_set_enviado", "pattern_set"})
+# Un modo sin medición en la generación 2 (todavía): se verifica por huella, sin constancia.
+EXPLORATORIA = "exploratoria"
+
+
+def es_exploratorio(modo: Mapping) -> bool:
+    return modo.get("evidencia") == EXPLORATORIA
 
 
 def cargar(repo_root: Path) -> dict:
@@ -79,6 +92,18 @@ def _clases(repo_root: Path, prompts: Mapping) -> list[dict]:
     return clases
 
 
+def _huella_medida(repo_root: Path, prueba: str | None, corrida: str | None) -> tuple[str | None, str]:
+    """La huella del payload que quedó en la constancia de la prueba (results/gen2), o None."""
+    ruta = Path(repo_root) / "results" / "gen2" / str(prueba) / "configuracion.json"
+    try:
+        prompts = json.loads(ruta.read_text(encoding="utf-8")).get("prompts") or {}
+    except (OSError, ValueError):
+        return None, str(ruta)
+    if corrida:
+        prompts = prompts.get(corrida) or {}
+    return prompts.get("payload_sha256"), str(ruta)
+
+
 def resolver(repo_root: Path, modo: str | None) -> dict | None:
     """Valida un modo contra la lista cerrada. Sin modo, o con el default (el campeón), no hay
     nada que cambiar: None, la demo congelada. Con otro, devuelve lo que la sesión usa y registra."""
@@ -94,6 +119,14 @@ def resolver(repo_root: Path, modo: str | None) -> dict | None:
     prompts, patrones = m.get("prompts") or {}, m.get("patrones") or {}
     if not prompts.get("payload_sha256") or not patrones.get("sha256_archivo"):
         raise ConfigDemoError(f"el modo {modo!r} no declara las huellas de lo que midió su prueba")
+    if es_exploratorio(m):
+        # Sin medición todavía: no hay constancia que leer. Un exploratorio no puede decir que
+        # lo midió una prueba (eso lo volvería un modo medido sin pasar por la constancia).
+        if prompts.get("medido_en"):
+            raise ConfigDemoError(f"el modo exploratorio {modo!r} no puede declarar `medido_en`")
+        medido, constancia = None, None
+    else:
+        medido, constancia = _huella_medida(repo_root, prompts.get("medido_en"), prompts.get("corrida"))
     return {
         "id": modo,
         "nombre": m.get("nombre", modo),
@@ -101,6 +134,8 @@ def resolver(repo_root: Path, modo: str | None) -> dict | None:
         "prompt_set": prompts["set_id"],
         "clases": _clases(repo_root, prompts),
         "payload_sha256": prompts["payload_sha256"],
+        "payload_sha256_medido": medido,
+        "constancia": constancia,
         "medido_en": prompts.get("medido_en"),
         "pattern_set": {"id": patrones["id"], "archivo": patrones["archivo"],
                         "sha256_archivo": patrones["sha256_archivo"]},
@@ -139,10 +174,22 @@ def verificar(configs: Mapping[str, dict], modo: Mapping, congelado: Mapping) ->
     items: list[dict] = []
     prompts = (configs.get("media") or {}).get("prompts") or {}
     huella = huella_prompts(prompts)
+    exploratorio = es_exploratorio(modo)
     items.append(_item(
-        "modo_prompts", f"Prompts de {modo['nombre']} ({modo['prompt_set']}), los que midió {modo['medido_en']}",
+        "modo_prompts",
+        f"Prompts de {modo['nombre']} ({modo['prompt_set']}), "
+        + ("los declarados en modos.yaml (exploración: sin medir)" if exploratorio
+           else f"los que midió {modo['medido_en']}"),
         huella == modo["payload_sha256"], modo["payload_sha256"], huella,
     ))
+    if not exploratorio:
+        medido = modo.get("payload_sha256_medido")
+        items.append(_item(
+            "modo_constancia", f"La huella declarada es la que quedó en la constancia de {modo['medido_en']}",
+            medido is not None and medido == modo["payload_sha256"], modo["payload_sha256"],
+            medido if medido is not None else f"sin constancia: {modo.get('constancia')}",
+            ruta=modo.get("constancia"),
+        ))
     pat = modo["pattern_set"]
     archivo = Path(((configs.get("control") or {}).get("patterns") or {}).get("file") or "")
     sha = _sha256(archivo) if archivo.name else None
@@ -158,7 +205,7 @@ def verificar(configs: Mapping[str, dict], modo: Mapping, congelado: Mapping) ->
         bool(resto) and not distintos and not congelado.get("error"),
         sorted(i["id"] for i in resto), distintos or congelado.get("error"),
     ))
-    return {"ok": all(i["ok"] for i in items), "items": items}
+    return {"ok": all(i["ok"] for i in items), "items": items, "exploratorio": exploratorio}
 
 
 def describir(repo_root: Path) -> dict[str, Any]:

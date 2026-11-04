@@ -3,6 +3,7 @@ import { act, cleanup, fireEvent, render, screen, waitFor, within } from '../tes
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import App from '../App'
 import type { DemoCifra, DemoSessionDetail, DemoState } from '../types'
+import { MODOS, MODO_EDIR_SESION } from './fixtures/demoModos'
 
 let rutas: Record<string, () => Response> = {}
 let inesperadas: string[] = []
@@ -41,11 +42,12 @@ const CIFRAS_PENDIENTES: DemoCifra[] = [
   { prueba: 'ALR-01', clave: 'f1', que_es: 'F1', valor: null, unidad: null, pendiente: true, texto: 'cifra pendiente (generación 2)' },
 ]
 
-function instalar(motor: DemoState['motor'], cifras: DemoCifra[] = CIFRAS_PENDIENTES) {
+function instalar(motor: DemoState['motor'], cifras: DemoCifra[] = CIFRAS_PENDIENTES, detalle: DemoSessionDetail = DETALLE) {
   rutas = {
-    [`/api/demo/sessions/${SID}`]: () => json(DETALLE),
+    [`/api/demo/sessions/${SID}`]: () => json(detalle),
     '/api/demo/cifras': () => json(cifras),
     '/api/demo/camaras': () => json([]),
+    '/api/demo/modos': () => json(MODOS),
     '/api/demo/state': () => json({ fase: 'done', session_id: SID, stack: 'compose', motor }),
     '/api/demo/preflight': () => json({ listo: true, items: [], congelado: { tag: null, ok: true, items: [] }, motor, stack: 'compose', comprobado_en: '' }),
     '/api/documentacion': () => json({ terminos: {} }),
@@ -162,5 +164,46 @@ describe('/demo/resultado/:id — Volver a Listo con el motor reiniciando', () =
     const volver = () => screen.getByRole('button', { name: /Volver a Listo/ }) as HTMLButtonElement
     await waitFor(() => expect(volver().title).toMatch(/se está reiniciando/))
     expect(volver().disabled).toBe(true)
+  })
+})
+
+describe('/demo/resultado/:id — sesión con otro modo de prompts', () => {
+  const CON_MODO: DemoSessionDetail = {
+    ...DETALLE,
+    session: { ...DETALLE.session!, session_id: SID, modo_prompts: MODO_EDIR_SESION },
+  }
+
+  it('en la consola avisa que no es la configuración congelada ni cuenta como ensayo', async () => {
+    instalar({ estado: 'fresco' }, CIFRAS_PENDIENTES, CON_MODO)
+    globales = true
+    montar(`/demo/resultado/${SID}`)
+    expect(await screen.findByText('Modo E-DIR: no es la configuración congelada; no cuenta como ensayo.')).toBeTruthy()
+  })
+
+  it('en la proyección lo dice en la cabecera, con las frases', async () => {
+    instalar({ estado: 'fresco' }, CIFRAS_PENDIENTES, CON_MODO)
+    montar()
+    const linea = await screen.findByRole('note', { name: 'Modo de prompts' })
+    expect(linea.textContent).toMatch(/^Modo E-DIR: no es la configuración congelada; no cuenta como ensayo/)
+    expect(linea.textContent).toMatch(/cr02_obs «person without bright colored safety clothing»/)
+  })
+
+  it('la capa de evidencia también lo dice', async () => {
+    instalar({ estado: 'fresco' }, CIFRAS_PENDIENTES, CON_MODO)
+    rutas['/api/demo/stack'] = () => json({ modo: 'compose', contenedores: [], error: null, host: { presente: false }, repos: [], servicios: {} })
+    montar()
+    await screen.findByRole('heading', { name: 'Resultado de la demo' })
+    await tecla('e')
+    const capa = await screen.findByRole('dialog', { name: 'Capa de evidencia' })
+    expect(within(capa).getByRole('region', { name: 'Configuración congelada' }).textContent)
+      .toMatch(/Modo E-DIR: no es la configuración congelada; no cuenta como ensayo/)
+  })
+
+  it('con el campeón no hay aviso de modo', async () => {
+    instalar({ estado: 'fresco' })
+    montar()
+    await screen.findByRole('heading', { name: 'Resultado de la demo' })
+    expect(screen.queryByRole('note', { name: 'Modo de prompts' })).toBeNull()
+    expect(screen.queryByText(/no es la configuración congelada/)).toBeNull()
   })
 })

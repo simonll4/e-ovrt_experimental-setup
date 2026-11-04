@@ -571,12 +571,21 @@ class DemoManager:
                  "No es la configuración congelada: la sesión queda marcada y no cuenta como ensayo",
                  None)
             distintos = [i["nombre"] for i in verificacion["items"] if not i["ok"]]
-            item("modo", "prompts del modo", "ok" if verificacion["ok"] else "error",
-                 f"iguales a los que midió {modo['medido_en']}; modelo, umbrales y distribución iguales al tag"
-                 if verificacion["ok"] else
-                 f"no es lo que midió {modo['medido_en']}: "
-                 + ("; ".join(distintos) or verificacion.get("error") or "?"),
-                 None if verificacion["ok"] else "no correr este modo: volver al campeón")
+            if verificacion.get("exploratorio"):
+                # Sin medición en la generación 2 (doc 134 §13.18): amarillo aunque todo coincida.
+                item("modo", "prompts del modo", "aviso" if verificacion["ok"] else "error",
+                     "exploración, sin medir en la generación 2: los prompts son los declarados en modos.yaml; "
+                     "modelo, umbrales y distribución iguales al tag" if verificacion["ok"] else
+                     "no es lo declarado en modos.yaml: "
+                     + ("; ".join(distintos) or verificacion.get("error") or "?"),
+                     None if verificacion["ok"] else "no correr este modo: volver al campeón")
+            else:
+                item("modo", "prompts del modo", "ok" if verificacion["ok"] else "error",
+                     f"iguales a los que midió {modo['medido_en']}; modelo, umbrales y distribución iguales al tag"
+                     if verificacion["ok"] else
+                     f"no es lo que midió {modo['medido_en']}: "
+                     + ("; ".join(distintos) or verificacion.get("error") or "?"),
+                     None if verificacion["ok"] else "no correr este modo: volver al campeón")
         else:
             item("congelado", "configuración congelada", "ok" if congelado["ok"] else "error",
                  f"igual al tag {congelado.get('tag')}" if congelado["ok"]
@@ -679,7 +688,8 @@ class DemoManager:
                 if not verificacion["ok"]:
                     raise DemoNoLista({**preflight, "items": [
                         {"id": "modo", "nombre": "prompts del modo", "estado": "error",
-                         "detalle": f"no es lo que midió {modo_prompts['medido_en']}", "accion": None}]})
+                         "detalle": "no es lo declarado en modos.yaml" if demo_modos.es_exploratorio(modo_prompts)
+                         else f"no es lo que midió {modo_prompts['medido_en']}", "accion": None}]})
                 modo_prompts = {**modo_prompts, "verificacion": verificacion}
             elif not congelado["ok"]:
                 raise DemoNoLista({**preflight, "items": [

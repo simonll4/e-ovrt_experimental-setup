@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import {
-  getDemoCifras, getDemoPreflight, getDemoSession, getDemoStack, getDemoState, listDemoCamaras,
+  getDemoCifras, getDemoModos, getDemoPreflight, getDemoSession, getDemoStack, getDemoState, listDemoCamaras,
 } from '..'
 import { POLL } from '../queryClient'
 import { qk } from '../keys'
@@ -26,11 +26,12 @@ export function useDemoState() {
   })
 }
 
-/** El chequeo previo hace una ida y vuelta real por el broker: cada 5 s alcanza. */
-export function useDemoPreflight(enabled: boolean) {
+/** El chequeo previo hace una ida y vuelta real por el broker: cada 5 s alcanza. Con `modo` (uno
+ *  que no es el campeón) chequea además los prompts del modo; con el campeón no se pasa. */
+export function useDemoPreflight(enabled: boolean, modo?: string | null) {
   return useQuery({
-    queryKey: qk.demo.preflight,
-    queryFn: getDemoPreflight,
+    queryKey: qk.demo.preflight(modo),
+    queryFn: () => getDemoPreflight(modo),
     enabled,
     refetchInterval: enabled ? 5_000 : false,
     retry: false,
@@ -63,4 +64,10 @@ export function useDemoCamaras(enabled = true) {
     // pantalla está en Listo: sondear una RTSP es un intento de conexión, liviano.
     refetchInterval: enabled ? POLL.plataforma : false,
   })
+}
+
+/** Los modos de prompts (lista cerrada, con sus cifras de la generación 2): cambian solo al editar
+ *  `modos.yaml`. Un 503 (sin `modos.yaml`) deja la pantalla como antes: solo el campeón. */
+export function useDemoModos(enabled = true) {
+  return useQuery({ queryKey: qk.demo.modos, queryFn: getDemoModos, enabled, staleTime: 5 * 60_000, retry: false })
 }

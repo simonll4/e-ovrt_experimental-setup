@@ -5,6 +5,8 @@ import { conditionLabel } from '../../labels'
 import type { DemoCifra, DemoSessionDetail } from '../../types'
 import { Banner, PageHeader } from '../ui'
 import { fechaCorta, hora, numero, segundos } from './formato'
+import LineaModo from './LineaModo'
+import { avisoModo } from './modoPrompts'
 
 const TIPO: Record<string, string> = {
   evidencia: 'Primera evidencia',
@@ -41,6 +43,8 @@ export default function ResultView({
         sesion.ended_by === 'operator' ? 'cerrada por el operador' : 'terminó sola'} · ${
         sesion.fase === 'done' ? 'completa' : `con fallas${sesion.error ? `: ${sesion.error}` : ''}`}`
     : null
+  // Una sesión con otro modo de prompts (no el campeón) lo dice arriba: no es la demo congelada.
+  const modo = sesion?.modo_prompts ?? null
   const captura = cifras.find((c) => c.prueba === 'RT-03' && c.clave === 'capture_to_host_p50_ms')
   return (
     <div className="eo-demo-resultado">
@@ -55,6 +59,7 @@ export default function ResultView({
           {rotuloRespaldo && sesion && (
             <Banner tone="warn">Ensayo del {fechaCorta(sesion.iniciada_en)} en esta sala</Banner>
           )}
+          {modo && <Banner tone="warn">{avisoModo(modo.nombre)}.</Banner>}
         </>
       ) : (
         <header className="eo-demo-resultado__cab">
@@ -63,6 +68,7 @@ export default function ResultView({
             <p className="eo-demo-resultado__respaldo">Ensayo del {fechaCorta(sesion.iniciada_en)} en esta sala</p>
           )}
           {meta && <p className="eo-demo-resultado__meta">{meta}</p>}
+          <LineaModo modo={modo} />
         </header>
       )}
 

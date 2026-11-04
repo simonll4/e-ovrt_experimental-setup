@@ -1,0 +1,39 @@
+prompt_set:
+  id: cr01_cr02_v2_tshirt
+  description: >
+    Variante de cr01_cr02_v2_short con un solo cambio: suma una clase DISTRACTORA, "t-shirt",
+    que ninguna regla lee. Motivación (F-RT1, docs 70, 71 y 140): sobre una remera lisa oscura
+    el campeón marca `vest` en el torso de una persona sin chaleco y CR-02 no alerta en vivo
+    (0 de 10 tomas el 2026-11-01). En Grounding DINO cada caja toma la frase del caption que
+    mejor le calza; con `vest` como única prenda de torso nombrada, la remera cae ahí. La
+    hipótesis es que "t-shirt" le dispute esa caja a `vest` sin robarle la del chaleco real.
+    El riesgo es el inverso (un chaleco puesto sobre una remera etiquetado como t-shirt: CR-02
+    en falso), y por eso se mide en imágenes, en clips y en vivo antes de usarse (doc 134
+    §13.18; prueba RT-09 y las de datasets). "person", "helmet" y "vest" quedan idénticos al
+    set congelado, en el mismo orden, para que la comparación aísle el efecto de la distractora.
+    ✎ 2026-11-04, el piloto (PC de desarrollo, doc 141 §4): DESCARTADA. Con este set el `vest` sobre
+    personas sin chaleco del banco de obra pasó de 27,5 % a 52,8 % y el F1 de CR-02 por persona de
+    0,513 a 0,297. No entra a la demo ni a RT-09; se conserva como constancia del piloto.
+  language: en
+  derives_from: cr01_cr02_v2_short
+  status: exploratory
+  track: core
+  classes:
+    - id: person
+      role: entity
+      strategy: canonical_positive
+      phrasings: { default: ["person"] }
+    - id: helmet
+      role: ppe
+      strategy: canonical_positive
+      phrasings: { default: ["helmet"] }
+    - id: vest
+      role: ppe
+      strategy: canonical_positive
+      phrasings: { default: ["vest"] }
+    # La estrategia es la de la frase (una etiqueta nominal, como `vest`); lo que la distingue es el
+    # rol: ninguna regla la lee (docs/prompt-strategy.md §2, sin eje nuevo).
+    - id: t_shirt
+      role: distractor
+      strategy: canonical_positive
+      phrasings: { default: ["t-shirt"] }

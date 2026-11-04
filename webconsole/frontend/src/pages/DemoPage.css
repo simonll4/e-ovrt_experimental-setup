@@ -27,6 +27,7 @@
 .eo-demo code { font-family: var(--fm); font-size: .85em; }
 .eo-demo__cab { margin-bottom: 24px; }
 .eo-demo__variante { color: var(--wn); margin: 0; }
+.eo-demo__modo { color: var(--wn); margin: 4px 0 0; }
 .eo-demo__teclas {
   padding: 12px 40px;
   background: var(--s1);
@@ -92,6 +93,24 @@
 .eo-demo-camara-vista { max-width: 760px; margin: 4px 0 12px; }
 .eo-demo-camara-nota { color: var(--tx3); font-size: 12px; margin: 8px 0 0; }
 .eo-demo-consola__nota { color: var(--tx3); font-size: 12px; margin: 12px 0 0; }
+/* Modo de prompts (selector, frases y cifras del elegido) */
+.eo-demo-modos { border: 0; margin: 0 0 12px; padding: 0; display: grid; gap: 8px; }
+.eo-demo-modos legend { font-size: 13px; color: var(--tx2); padding: 0; margin: 0 0 6px; }
+.eo-demo-modos__fila {
+  display: grid; grid-template-columns: auto minmax(160px, 1fr) auto; gap: 4px 12px; align-items: center;
+  padding: 10px 14px; border: 1px solid var(--bd); border-radius: var(--r); background: var(--s1); cursor: pointer;
+}
+.eo-demo-modos__fila--elegida { border-color: var(--ac-bd); background: var(--ac-bg); }
+.eo-demo-modos__fila--deshabilitada { cursor: default; }
+.eo-demo-modos__fila input { margin: 0; }
+.eo-demo-modos__nombre { font-weight: 600; font-size: 14px; }
+.eo-demo-modos__error { grid-column: 2 / -1; color: var(--er); font-size: 12px; }
+.eo-demo-modo { font-size: 13px; }
+.eo-demo-modo p { margin: 0 0 8px; }
+.eo-demo-modo__nota { color: var(--tx3); font-size: 12px; }
+.eo-demo-modo__aviso { color: var(--wn); }
+.eo-demo-modo__sub { margin: 10px 0 4px; font-weight: 600; color: var(--tx2); }
+.eo-demo-modo__lista { margin: 0 0 8px; padding-left: 20px; }
 
 /* Listo */
 .eo-demo-consola .eo-demo-chequeos { gap: 8px; margin: 0 0 12px; }
@@ -211,6 +230,7 @@
 .eo-demo-capa__tabla th, .eo-demo-capa__tabla td { text-align: left; padding: 4px 8px; border-bottom: 1px solid var(--bd); }
 .eo-demo-capa__pre { white-space: pre-wrap; word-break: break-all; font-family: var(--fm); font-size: 14px; background: var(--sunken); padding: 12px; border-radius: var(--r); }
 .eo-demo-capa__nota { color: var(--tx3); font-size: 15px; }
+.eo-demo-capa__modo { color: var(--wn); }
 .eo-demo-capa__log { font-family: var(--fm); font-size: 14px; padding-left: 20px; }
 .eo-demo-capa a { color: var(--ac-tx); }
 

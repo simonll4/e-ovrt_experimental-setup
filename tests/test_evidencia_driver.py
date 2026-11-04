@@ -40,9 +40,9 @@ V2_SHORT = {
 # --- catálogo ------------------------------------------------------------------------
 
 
-def test_el_catalogo_real_carga_y_tiene_las_44_pruebas():
+def test_el_catalogo_real_carga_y_tiene_las_45_pruebas():
     catalogo = cat.cargar_catalogo(CATALOGO)
-    assert len(catalogo) == 44
+    assert len(catalogo) == 45  # ✎ 2026-11-04: RT-09 (doc 134 §13.18)
     assert {"ALR-01", "ALR-02", "IMG-01", "PER-03", "RT-04", "RT-05", "DIST-01", "GT-02"} <= set(catalogo)
     # la enmienda del doc 137 (2026-10-29)
     assert {"ALR-09", "ALR-10", "IMG-04", "ERR-01", "ERR-02", "SEG-01", "VIS-01"} <= set(catalogo)
@@ -641,8 +641,9 @@ def test_rodaje_importa_las_sesiones_y_las_compara_con_su_guion(tmp_path, monkey
     m = consola.manifiestos[0]
     assert m["runs"]["media"]["reuse_run_id"] == "run_demo_a_P1" and m["runs"]["control"]["mode"] == "replay"
     resultado = carpeta.leer("resultado.json")
-    assert resultado["metricas"]["por_escena"]["P1"] == {"tomas": 1, "como_se_esperaba": 1, "sujeto_como_se_esperaba": 1,
-                                                         "alertas_antes_de_la_accion": 0}
+    assert resultado["metricas"]["por_escena"]["P1"] == {"tomas": 1, "como_se_esperaba": 1, "sujeto_releidas": 1,
+                                                         "sujeto_como_se_esperaba": 1, "alertas_antes_de_la_accion": 0}
+    assert resultado["metricas"]["relecturas_fallidas"] == []
     assert [n["session_id"] for n in resultado["metricas"]["no_evaluables"]] == ["demo_d_P2"]
     assert resultado["metricas"]["latencia_por_cuadro"]["vidrio_a_resultado"]["p95"] == 220.0
 
@@ -709,8 +710,8 @@ def test_rt05_agrupa_la_exploracion_por_celda_y_rt04_no_la_cuenta(tmp_path, monk
 
 def test_una_sesion_con_otro_modo_de_prompts_no_entra_a_ninguna_prueba_del_rodaje(tmp_path, monkeypatch):
     """Modo de prompts (✎ 2026-11-01, modos.yaml): una sesión de /demo con E-DIR o la clase nueva no
-    es un ensayo (G3) ni una toma de RT-04…RT-08, ni siquiera como no evaluable; y RT-05 no la suma a
-    su matriz, aunque además fuera de exploración y de la misma escena."""
+    es un ensayo (G3) ni una toma de RT-04…RT-08, y RT-05 no la suma a su matriz, aunque además fuera
+    de exploración y de la misma escena. Pero no desaparece: queda como no evaluable, con el motivo."""
     monkeypatch.setenv("EOVRT_EVIDENCIA_SALIDA", str(tmp_path / "salida"))
     ent = _entorno(tmp_path)
     for d in (ent.media_runs, ent.control_runs, ent.patrones):
@@ -742,11 +743,12 @@ def test_una_sesion_con_otro_modo_de_prompts_no_entra_a_ninguna_prueba_del_rodaj
 
     escenas = rodaje.cargar_escenas(cat.cargar_prueba(_prueba(tmp_path / "cat0", "RT-04", familia="rodaje", receta={
         "escenas": str(tmp_path / "escenas.json"), "sesiones": str(sesiones)})))
-    assert [s["session_id"] for s in rodaje.sesiones_del_rodaje(sesiones, escenas)] == ["demo_a_DEMO"]
+    assert [s["session_id"] for s in rodaje.sesiones_del_rodaje(sesiones, escenas)] \
+        == ["demo_a_DEMO", "demo_b_DEMO_modo-edir", "demo_c_P2_modo-clase_nueva"]
     assert [s["session_id"] for s in rodaje.sesiones_del_rodaje(sesiones, escenas, exploracion=True)] \
-        == ["demo_d_DEMO_exp"]
+        == ["demo_d_DEMO_exp", "demo_e_DEMO_exp_modo-edir"]
 
-    # RT-04 (con su criterio de ensayo, G3) y RT-07: solo la congelada; la del modo no aparece ni como no evaluable.
+    # RT-04 (con su criterio de ensayo, G3) y RT-07: solo la congelada es toma; las del modo, no evaluables.
     for pid, chaleco in (("RT-04", "julio"), ("RT-07", "amarillo")):
         prueba = cat.cargar_prueba(_prueba(tmp_path / f"cat_{pid}", pid, familia="rodaje", receta={
             "escenas": str(tmp_path / "escenas.json"), "sesiones": str(sesiones), "chaleco": chaleco,
@@ -756,9 +758,11 @@ def test_una_sesion_con_otro_modo_de_prompts_no_entra_a_ninguna_prueba_del_rodaj
         carpeta = Carpeta(ent, prueba)
         carpeta.preparar()
         rodaje.correr(ctx, prueba, carpeta)
-        encontradas = carpeta.leer("configuracion.json")["sesiones_encontradas"]
-        assert not any("modo-" in sid for sid in encontradas), (pid, encontradas)
-        assert not any("modo-" in n["session_id"] for n in carpeta.leer("resultado.json")["metricas"]["no_evaluables"])
+        tomas = [t["session_id"] for t in carpeta.leer("evals/tomas.json")]
+        assert not any("modo-" in sid for sid in tomas), (pid, tomas)
+        no_eval = {n["session_id"]: n["motivo"] for n in carpeta.leer("resultado.json")["metricas"]["no_evaluables"]}
+        assert {"demo_b_DEMO_modo-edir", "demo_c_P2_modo-clase_nueva"} <= set(no_eval), (pid, no_eval)
+        assert "otro modo de prompts: 'edir'" in no_eval["demo_b_DEMO_modo-edir"]
     ensayos = carpeta.leer("resultado.json")["metricas"]["ensayos_demo"]  # RT-07: la congelada es de julio
     assert ensayos["total"] == 0
 
@@ -770,7 +774,59 @@ def test_una_sesion_con_otro_modo_de_prompts_no_entra_a_ninguna_prueba_del_rodaj
     carpeta5 = Carpeta(ent, prueba5)
     carpeta5.preparar()
     assert rodaje.correr(ctx5, prueba5, carpeta5) == {"estado": "completo", "tomas": 1, "celdas_completas": 1}
-    assert carpeta5.leer("configuracion.json")["sesiones_encontradas"] == ["demo_d_DEMO_exp"]
+    assert [t["session_id"] for t in carpeta5.leer("evals/tomas.json")] == ["demo_d_DEMO_exp"]
+    no_eval5 = carpeta5.leer("resultado.json")["metricas"]["no_evaluables"]
+    assert [n["session_id"] for n in no_eval5] == ["demo_e_DEMO_exp_modo-edir"]
+
+
+class ConsolaSujetoQueFalla(ConsolaFalsa):
+    """La relectura por sujeto falla como en la jornada F7 (el runner no disparaba el control)."""
+
+    def correr(self, manifiesto, *, timeout_s):
+        return {"ok": False, "experiment_id": "exp_x", "control_run_id": None, "control_status": None}
+
+
+def test_una_relectura_por_sujeto_fallida_no_se_cuenta_como_resultado(tmp_path, monkeypatch):
+    """Jornada F7: «las mismas tomas releídas por sujeto = 0/9» era la falla de la relectura, no un
+    resultado. Ahora la toma guarda la causa, el resumen dice cuántas no se releyeron y la prueba
+    queda `parcial` (veredicto no la firma). Al volver a correr, se reintenta y se completa."""
+    monkeypatch.setenv("EOVRT_EVIDENCIA_SALIDA", str(tmp_path / "salida"))
+    ent = _entorno(tmp_path)
+    for d in (ent.media_runs, ent.control_runs, ent.patrones):
+        d.mkdir(parents=True)
+    shutil.copy(REPO.parent / "e-ovrt_control-plane/configs/patterns/cr01_cr02_v2_subject.yaml", ent.patrones)
+    sesiones = tmp_path / "sesiones"
+    shutil.copy(REPO / "experiments/evidencia/RT-04/escenas.json", tmp_path / "escenas.json")
+    marcas = {"desfase_contenedor_menos_host_ms": 0.0, "acciones": [
+        {"accion": "sacar_casco", "condicion": "CR-01", "pared_ms": 1_001_500},
+        {"accion": "poner_casco", "condicion": "CR-01", "pared_ms": 1_007_000}]}
+    cr01 = {"alert_id": "al-1", "condition_id": "CR-01", "subject_key": "CR-01:oak",
+            "first_evidence_unit_id": "u10", "unit_id": "u30"}
+    testigo = [{"recibido_ms": 1_006_520.0, "payload": {"alert_id": "al-1", "condition_id": "CR-01",
+                                                        "confirmed_wall_ms": 1_006_500.0}}]
+    _sesion(ent, sesiones, "demo_a_P1", "P1", alertas=[cr01], eventos=[], marcas=marcas, testigo=testigo,
+            chaleco="julio")
+    prueba = cat.cargar_prueba(_prueba(tmp_path / "cat", "RT-04", familia="rodaje", receta={
+        "escenas": str(tmp_path / "escenas.json"), "sesiones": str(sesiones), "chaleco": "julio",
+        "escenas_incluidas": ["P1"],
+        "sujeto": {"patrones": "cr01_cr02_v2_subject", "activos": ["CR-01", "CR-02"], "track_persons": True}}))
+    carpeta = Carpeta(ent, prueba)
+    carpeta.preparar()
+
+    ctx = Contexto(ent=ent, consola=ConsolaSujetoQueFalla(ent), catalogo={"RT-04": prueba}, avisar=lambda *_: None)
+    assert rodaje.correr(ctx, prueba, carpeta)["estado"] == "parcial"
+    resultado = carpeta.leer("resultado.json")
+    assert resultado["metricas"]["relecturas_fallidas"] == ["demo_a_P1"]
+    assert resultado["metricas"]["tomas_como_se_esperaba"] == 1  # la escena sí se comportó
+    fila = next(x for x in resultado["resumen"] if x["clave"] == "tomas_sujeto_como_se_esperaba")
+    assert fila["valor"] == "0/0 (1 sin releer: falló la relectura)"
+    assert carpeta.leer("tomas/demo_a_P1/toma.json")["sujeto_fallo"]
+
+    ctx = Contexto(ent=ent, consola=ConsolaSujeto(ent), catalogo={"RT-04": prueba}, avisar=lambda *_: None)
+    assert rodaje.correr(ctx, prueba, carpeta)["estado"] == "completo"
+    resultado = carpeta.leer("resultado.json")
+    assert resultado["metricas"]["relecturas_fallidas"] == []
+    assert next(x for x in resultado["resumen"] if x["clave"] == "tomas_sujeto_como_se_esperaba")["valor"] == "1/1"
 
 
 def test_rt06_cuenta_solo_la_camara_ip_por_stream_y_rt04_solo_la_oak_d(tmp_path, monkeypatch):

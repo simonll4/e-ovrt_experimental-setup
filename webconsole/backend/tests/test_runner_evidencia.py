@@ -505,3 +505,28 @@ def test_ruta_rechaza_timeout_invalido(two_plane_client, repo, valor):
         "/api/experiments/run", json={"slug": "img_bench3", "timeout_s": valor}
     )
     assert r.status_code == 422
+
+
+@pytest.mark.parametrize(("stop_cause", "dispara"), [("stop", True), ("shutdown", False), (None, False)])
+async def test_reuso_de_una_sesion_en_vivo_cerrada_por_el_operador_si_se_relee(tmp_path, stop_cause, dispara):
+    """Jornada F7 (2026-11-01): las corridas de medios de /demo terminan en `stopped` porque las
+    cierra el operador (F F o rodaje.ps1), y la relectura por sujeto del driver las reusa. Con
+    `stop_cause == "stop"` sus detecciones están completas hasta el cierre: se releen. Un
+    `stopped` por apagado del servicio, o sin causa, no."""
+    reused = tmp_path / "media_runs" / "run_demo"
+    _write_media_run(reused, summary={"run_id": "run_demo", "status": "stopped", "stop_cause": stop_cause})
+    (tmp_path / "control_runs" / "ctl_1").mkdir(parents=True)
+    control = FakeControl()
+
+    result = await run_experiment(
+        _manifest({"media": {**MEDIA_RUN, "reuse_run_id": "run_demo"}, "control": CONTROL_REPLAY}),
+        media_backend=FakeMedia(),
+        control_backend=control,
+        now=NOW,
+        load_config=_loader({"control.yaml": CONTROL_CONFIG}),
+        resolve_run_dir=lambda plane, run_id: tmp_path / f"{plane}_runs" / run_id,
+        dest_root=tmp_path / "consolidado",
+    )
+    assert result.media_status == "stopped"
+    assert result.ok is dispara
+    assert (control.launched != []) is dispara

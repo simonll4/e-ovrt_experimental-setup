@@ -43,6 +43,11 @@ receta:
   # tomas con los chalecos reflectantes del rodaje de julio (rodaje.ps1 -Chaleco julio); el amarillo no
   # reflectivo es RT-07.
   chaleco: julio
+  # Enmienda del 2026-11-04 (doc 134 §13.18), antes de correr: la preparación «remera lisa y oscura»
+  # de escenas.json quedó refutada (F-RT1, doc 140). La remera la propone RT-09 con su regla escrita y la
+  # firma el equipo en la bitácora antes de la primera toma; cada toma la declara (rodaje.ps1 -Remera) y
+  # queda en su toma.json. escenas.json NO se toca: su huella la registran RT-07 y RT-08. Las tomas con
+  # -Proposito prendas (RT-09) o ensayo (G3, después del informe) no cuentan acá.
   sesiones: defensa/sesiones
   sujeto: {patrones: cr01_cr02_v2_subject, activos: [CR-01, CR-02], track_persons: true}
   # Ensayo aprobado de la demo (spec 2026-10-23 §9), para las tomas DEMO.

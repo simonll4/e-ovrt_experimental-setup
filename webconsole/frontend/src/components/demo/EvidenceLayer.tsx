@@ -3,6 +3,7 @@ import Termino from '../Glosario'
 import { useDemoCifras, useDemoStack } from '../../api/queries/demo'
 import type { DemoCongelado, DemoSessionDetail, DemoState } from '../../types'
 import { hora, numero } from './formato'
+import { avisoModo } from './modoPrompts'
 
 function corto(valor: unknown): string {
   if (typeof valor === 'string' && /^[0-9a-f]{64}$/.test(valor)) return `${valor.slice(0, 12)}…`
@@ -54,6 +55,10 @@ export default function EvidenceLayer({
     : estado?.broker?.ultimo?.crudo
   const host = stack?.host?.datos as Record<string, unknown> | undefined
   const ids = sesion?.session?.ids ?? estado?.ids ?? {}
+  // El modo de prompts de la sesión que se mira: la guardada, o la que está corriendo. El estado de
+  // una sesión ya cerrada no cuenta: lo que sigue en Listo vuelve al campeón.
+  const enCurso = estado && ['preparing', 'live', 'finishing', 'rendering'].includes(estado.fase)
+  const modo = sesion ? sesion.session?.modo_prompts : enCurso ? estado?.modo_prompts : null
 
   return (
     <div className="eo-demo-capa" role="dialog" aria-label="Capa de evidencia" tabIndex={-1} ref={ref}>
@@ -100,6 +105,7 @@ export default function EvidenceLayer({
 
         <section aria-label="Configuración congelada">
           <h3>Configuración congelada</h3>
+          {modo && <p className="eo-demo-capa__modo" role="note">{avisoModo(modo.nombre)}.</p>}
           <Congelado congelado={sesion?.session?.congelado ?? congelado} />
         </section>
 

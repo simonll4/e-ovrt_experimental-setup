@@ -562,6 +562,56 @@ async def test_un_modo_que_ya_no_es_el_medido_queda_en_rojo(entorno):
     assert not any(entorno.sesiones.glob("demo_*"))
 
 
+async def test_un_modo_exploratorio_queda_en_amarillo_y_arranca(entorno):
+    """✎ 2026-11-04 (doc 134 §13.18): la distractora no tiene medición todavía. El chequeo previo
+    verifica igual que se manda exactamente lo declarado, pero lo deja en amarillo (no verde) y dice
+    que es exploración; la sesión arranca y queda marcada como cualquier modo."""
+    from eovrt_webconsole.demo import modos as demo_modos
+
+    from tests.demo_fixtures import agregar_modo_exploratorio
+
+    dm = entorno.dm
+    agregar_modo_exploratorio(dm.repo_root)
+    distractora = demo_modos.resolver(dm.repo_root, "distractora")
+    pf = await dm.preflight(None, distractora)
+    por_id = {i["id"]: i for i in pf["items"]}
+    assert por_id["modo"]["estado"] == "aviso" and "exploración" in por_id["modo"]["detalle"]
+    assert por_id["congelado"]["estado"] == "aviso"
+    assert pf["listo"] is True
+    assert pf["modo_prompts"]["verificacion"]["exploratorio"] is True
+
+    sid = (await dm.start("oakd", "P2", modo="distractora"))["session_id"]
+    assert sid.endswith("_modo-distractora")
+    await _esperar(lambda: entorno.media.lanzadas)
+    enviados = entorno.media.lanzadas[0]["prompts"]
+    assert [c["id"] for c in enviados["set_inline"]["classes"]] == ["person", "helmet", "vest", "t_shirt"]
+    assert demo_modos.huella_prompts(enviados) == distractora["payload_sha256"]
+    control = entorno.control.lanzadas[0][0]
+    assert control["patterns"]["file"].endswith("/cr01_cr02_v2.yaml")
+    datos = json.loads((entorno.sesiones / sid / "session.json").read_text())
+    assert datos["modo_prompts"]["evidencia"] == "exploratoria"
+    assert datos["modo_prompts"]["medido_en"] is None
+    await dm.finish()
+    await _esperar(lambda: dm.estado()["fase"] in {"done", "failed"})
+
+
+async def test_un_modo_exploratorio_con_una_frase_cambiada_queda_en_rojo(entorno):
+    from eovrt_webconsole.demo import modos as demo_modos
+
+    from tests.demo_fixtures import agregar_modo_exploratorio
+
+    dm = entorno.dm
+    agregar_modo_exploratorio(dm.repo_root)
+    archivo = dm.repo_root / "prompts" / "cr01_cr02_v2_tshirt.yaml"
+    archivo.write_text(archivo.read_text(encoding="utf-8").replace('["t-shirt"]', '["shirt"]'), encoding="utf-8")
+    pf = await dm.preflight(None, demo_modos.resolver(dm.repo_root, "distractora"))
+    modo = next(i for i in pf["items"] if i["id"] == "modo")
+    assert modo["estado"] == "error" and "modos.yaml" in modo["detalle"] and pf["listo"] is False
+    with pytest.raises(DemoNoLista):
+        await dm.start("oakd", modo="distractora")
+    assert not any(entorno.sesiones.glob("demo_*"))
+
+
 # --- la cámara elegida en la pantalla (✎ 2026-11-01) -------------------------------------------
 
 CLAVE_DVR = "S3cr3ta"

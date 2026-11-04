@@ -3,6 +3,7 @@ import { act, cleanup, fireEvent, render, screen, waitFor, within } from '../tes
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import App from '../App'
 import type { DemoCamara, DemoCamaraChequeo, DemoCondicion, DemoPreflight, DemoState } from '../types'
+import { MODOS, MODO_EDIR_SESION } from './fixtures/demoModos'
 
 // Estilo del contrato: se mockea `fetch` (no el módulo de API) y se verifican las
 // peticiones y los nombres accesibles. Una petición sin respuesta preparada hace
@@ -10,6 +11,8 @@ import type { DemoCamara, DemoCamaraChequeo, DemoCondicion, DemoPreflight, DemoS
 
 interface Peticion { path: string; method: string; body: unknown }
 let peticiones: Peticion[] = []
+// La URL completa (con la query) de cada petición: el modo viaja en `?modo=`.
+let urls: string[] = []
 let inesperadas: string[] = []
 let rutas: Record<string, (p: Peticion) => Response> = {}
 // En el modo consola el armazón hace sus consultas globales (barra lateral, salud):
@@ -84,12 +87,14 @@ function instalar(estado: () => DemoState, preflight: DemoPreflight = PREFLIGHT_
     'GET /api/demo/stack': () => json({ modo: 'compose', contenedores: [], error: null, host: { presente: false }, repos: [], servicios: {} }),
     'GET /api/demo/cifras': () => json([]),
     'GET /api/demo/camaras': () => json(CAMARAS),
+    'GET /api/demo/modos': () => json(MODOS),
     'GET /api/documentacion': () => json({ terminos: {} }),
   }
 }
 
 beforeEach(() => {
   peticiones = []
+  urls = []
   inesperadas = []
   globales = false
   localStorage.clear()
@@ -98,6 +103,7 @@ beforeEach(() => {
     const url = new URL(String(input), 'http://localhost')
     const p = { path: url.pathname, method: init?.method ?? 'GET', body: init?.body ? JSON.parse(String(init.body)) : null }
     peticiones.push(p)
+    urls.push(`${p.method} ${url.pathname}${url.search}`)
     const ruta = rutas[`${p.method} ${p.path}`]
     if (ruta) return ruta(p)
     if (globales && !p.path.startsWith('/api/demo/')) return json({ detail: 'fuera de la demo' }, 503)
@@ -429,5 +435,133 @@ describe('/demo — la cámara de la demo', () => {
     await screen.findByRole('region', { name: /Casco/ })
     expect(screen.queryByRole('radiogroup', { name: 'Cámara de la demo' })).toBeNull()
     expect(screen.getByText(/La consola no recibe video durante la corrida: solo el estado/)).toBeTruthy()
+  })
+})
+
+describe('/demo — modos de prompts', () => {
+  const tarjeta = () => screen.findByRole('radiogroup', { name: 'Modo de prompts' })
+  const radio = (nombre: RegExp) => screen.getByRole('radio', { name: nombre }) as HTMLInputElement
+  const preflights = () => urls.filter((u) => u.startsWith('GET /api/demo/preflight'))
+
+  it('con el campeón (el default) el chequeo y el inicio son los de siempre: sin modo', async () => {
+    instalar(() => IDLE)
+    globales = true
+    montar('/demo')
+    await tarjeta()
+    expect(radio(/Campeón/).checked).toBe(true)
+    await screen.findByRole('radiogroup', { name: 'Cámara de la demo' })
+    fireEvent.click(screen.getByRole('button', { name: /^Iniciar/ }))
+    await waitFor(() => expect(peticiones.find((p) => p.path === '/api/demo/start')?.body)
+      .toEqual({ variante: 'oakd', camara: 'oak_d_lab' }))
+    expect(preflights().length).toBeGreaterThan(0)
+    expect(preflights().every((u) => u === 'GET /api/demo/preflight')).toBe(true)
+  })
+
+  it('con otro modo, el chequeo y el inicio lo llevan; volver al campeón lo saca', async () => {
+    instalar(() => IDLE)
+    globales = true
+    rutas['GET /api/demo/preflight'] = () => json({
+      ...PREFLIGHT_VERDE,
+      items: [...PREFLIGHT_VERDE.items, { id: 'modo', nombre: 'prompts del modo', estado: 'ok', detalle: 'iguales a ALR-04', accion: null }],
+      modo_prompts: MODO_EDIR_SESION,
+    })
+    montar('/demo')
+    await tarjeta()
+    fireEvent.click(radio(/E-DIR/))
+    await waitFor(() => expect(urls).toContain('GET /api/demo/preflight?modo=edir'))
+    const chequeos = screen.getByRole('list', { name: 'Chequeo previo' })
+    await waitFor(() => expect(within(chequeos).getByText('prompts del modo')).toBeTruthy())
+    expect(screen.getByRole('region', { name: 'Modo E-DIR' }).textContent)
+      .toMatch(/«construction worker without safety helmet»/)
+    fireEvent.click(screen.getByRole('button', { name: /^Iniciar/ }))
+    await waitFor(() => expect(peticiones.find((p) => p.path === '/api/demo/start')?.body)
+      .toEqual({ variante: 'oakd', camara: 'oak_d_lab', modo: 'edir' }))
+
+    // De vuelta al campeón: el próximo chequeo va sin `?modo=`.
+    const antes = preflights().length
+    fireEvent.click(radio(/Campeón/))
+    await waitFor(() => expect(preflights().slice(antes)).toContain('GET /api/demo/preflight'))
+  })
+
+  it('el modo no se guarda en el navegador: cada carga arranca en el campeón', async () => {
+    instalar(() => IDLE)
+    globales = true
+    const { unmount } = montar('/demo')
+    await tarjeta()
+    fireEvent.click(radio(/E-DIR/))
+    await waitFor(() => expect(urls).toContain('GET /api/demo/preflight?modo=edir'))
+    const guardado = [localStorage, sessionStorage].flatMap((almacen) =>
+      Object.keys(almacen).map((k) => `${k}=${almacen.getItem(k)}`))
+    expect(guardado.filter((x) => /edir|modo/i.test(x))).toEqual([])
+    unmount()
+    montar('/demo')
+    await tarjeta()
+    expect(radio(/Campeón/).checked).toBe(true)
+  })
+
+  it('durante la corrida la tarjeta muestra el modo de la sesión y no deja cambiarlo', async () => {
+    instalar(() => ({ ...EN_VIVO, modo_prompts: MODO_EDIR_SESION }))
+    globales = true
+    montar('/demo')
+    await screen.findByRole('region', { name: /Casco/ })
+    await tarjeta()
+    expect(radio(/E-DIR/).checked).toBe(true)
+    expect((screen.getAllByRole('radio') as HTMLInputElement[]).every((r) => r.disabled)).toBe(true)
+  })
+
+  it('al terminar la sesión el modo vuelve al campeón', async () => {
+    let estado: DemoState = IDLE
+    instalar(() => estado)
+    globales = true
+    montar('/demo')
+    await tarjeta()
+    fireEvent.click(radio(/E-DIR/))
+    // El chequeo del modo tiene que volver en verde antes de poder iniciar.
+    await waitFor(() => expect(urls).toContain('GET /api/demo/preflight?modo=edir'))
+    const chequeos = screen.getByRole('list', { name: 'Chequeo previo' })
+    await waitFor(() => expect(within(chequeos).getAllByRole('listitem')).toHaveLength(8))
+    fireEvent.click(screen.getByRole('button', { name: /^Iniciar/ }))
+    await waitFor(() => expect(peticiones.find((p) => p.path === '/api/demo/start')?.body)
+      .toEqual({ variante: 'oakd', camara: 'oak_d_lab', modo: 'edir' }))
+    estado = { ...EN_VIVO, modo_prompts: MODO_EDIR_SESION }
+    // Quieta, la pantalla mira el estado cada 5 s.
+    await screen.findByRole('region', { name: /Casco/ }, { timeout: 7000 })
+    // La sesión termina sin pasar por el Resultado (vuelve a Listo en esta misma pantalla).
+    estado = { ...IDLE }
+    await screen.findByRole('radiogroup', { name: 'Cámara de la demo' }, { timeout: 6000 })
+    expect(radio(/Campeón/).checked).toBe(true)
+    const antes = preflights().length
+    await waitFor(() => expect(preflights().length).toBeGreaterThan(antes), { timeout: 6000 })
+    expect(preflights().slice(antes).every((u) => u === 'GET /api/demo/preflight')).toBe(true)
+  }, 20_000)
+
+  it('si /modos no está (503), la pantalla es la de siempre: sin selector y sin modo', async () => {
+    instalar(() => IDLE)
+    globales = true
+    rutas['GET /api/demo/modos'] = () => json({ detail: 'no se pudo leer modos.yaml' }, 503)
+    montar('/demo')
+    await screen.findByRole('radiogroup', { name: 'Cámara de la demo' })
+    await waitFor(() => expect(urls).toContain('GET /api/demo/modos'))
+    expect(screen.queryByRole('radiogroup', { name: 'Modo de prompts' })).toBeNull()
+    fireEvent.click(screen.getByRole('button', { name: /^Iniciar/ }))
+    await waitFor(() => expect(peticiones.find((p) => p.path === '/api/demo/start')?.body)
+      .toEqual({ variante: 'oakd', camara: 'oak_d_lab' }))
+    expect(preflights().every((u) => u === 'GET /api/demo/preflight')).toBe(true)
+  })
+
+  it('la proyección muestra la línea del modo solo si la sesión no es el campeón', async () => {
+    instalar(() => ({ ...EN_VIVO, modo_prompts: MODO_EDIR_SESION }))
+    const { unmount } = montar('/demo?proyectar=1')
+    const linea = await screen.findByRole('note', { name: 'Modo de prompts' })
+    expect(linea.textContent).toMatch(/^Modo E-DIR: no es la configuración congelada/)
+    expect(linea.textContent).toMatch(/cr01_spec «construction worker without safety helmet»/)
+    // La proyección no pide la lista de modos: no conoce la elección del operador.
+    expect(urls.some((u) => u.includes('/api/demo/modos'))).toBe(false)
+    unmount()
+
+    instalar(() => EN_VIVO)
+    montar('/demo?proyectar=1')
+    await screen.findByRole('region', { name: /Casco/ })
+    expect(screen.queryByRole('note', { name: 'Modo de prompts' })).toBeNull()
   })
 })

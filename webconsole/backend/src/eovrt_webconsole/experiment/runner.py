@@ -323,6 +323,18 @@ def _read_reused_media_run(media_run_dir: Path) -> dict:
     return {**summary, "status": summary.get("status", "succeeded")}
 
 
+def _reused_media_usable(media_summary: dict) -> bool:
+    """¿Sirven las detecciones de una corrida reusada para un replay?
+
+    `succeeded`, sí. `stopped` con `stop_cause == "stop"` también: es una corrida en vivo
+    (p. ej. una sesión de /demo) que el operador cerró a propósito, y su detections.jsonl
+    está completo hasta el cierre. Ese es el fin NORMAL de toda corrida en vivo, y sin esto
+    la relectura por sujeto del driver de evidencia (RT-04…RT-08) fallaba en todas las tomas
+    (jornada F7, 2026-11-01). `stalled` (→ `failed`), `shutdown` o un error no sirven."""
+    status = media_summary.get("status")
+    return status == "succeeded" or (status == "stopped" and media_summary.get("stop_cause") == "stop")
+
+
 def _replay_input(loaded_input: Any, detections_path: str) -> dict:
     """`input` del replay: el detections.jsonl de la corrida de medios. Conserva
     `track_persons` (identidad por sujeto, doc 89) si la config lo declara; sin
@@ -1226,8 +1238,11 @@ async def _run_dbe_replay(
             media_backend.status, media_run_id, poll_interval_s=poll_interval_s, timeout_s=timeout_s
         )
     media_status = media_summary.get("status")
+    # Con reuso, una corrida en vivo cerrada por el operador (`stopped`/`stop`) también sirve.
+    media_ok = (_reused_media_usable(media_summary) if reused_run_id is not None
+                else media_status == "succeeded")
 
-    if media_status != "succeeded":
+    if not media_ok:
         # Falla temprana: nunca se dispara el control-plane.
         return ExperimentResult(
             experiment_id=experiment_id,
@@ -1262,7 +1277,7 @@ async def _run_dbe_replay(
         control_run_id=control_run_id,
         media_status=media_status,
         control_status=control_status,
-        ok=media_status == "succeeded" and control_status == "succeeded",
+        ok=media_ok and control_status == "succeeded",
     )
 
 

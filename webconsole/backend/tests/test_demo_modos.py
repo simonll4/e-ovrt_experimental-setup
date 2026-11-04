@@ -15,7 +15,7 @@ import yaml
 from eovrt_webconsole.demo import config as demo_config
 from eovrt_webconsole.demo import modos as demo_modos
 from eovrt_webconsole.settings import ConsoleSettings
-from tests.demo_fixtures import MODELO_OK, REPO_REAL
+from tests.demo_fixtures import MODELO_OK, REPO_REAL, agregar_modo_exploratorio
 from tests.demo_fixtures import repo_demo as _repo_demo
 
 # La prueba de la generación 2 que midió cada modo y la corrida cuyo payload es el del modo.
@@ -56,8 +56,7 @@ def test_cada_modo_manda_exactamente_el_payload_que_midio_su_prueba(tmp_path, mo
     prueba, corrida = MEDIDO[modo]
     assert resuelto["medido_en"] == prueba
     constancia = REPO_REAL / "results" / "gen2" / prueba / "configuracion.json"
-    if not constancia.is_file():
-        pytest.skip(f"sin {constancia}")
+    assert resuelto["payload_sha256_medido"] == resuelto["payload_sha256"]
     prompts = json.loads(constancia.read_text(encoding="utf-8"))["prompts"]
     medido = (prompts[corrida] if corrida else prompts)["payload_sha256"]
     assert resuelto["payload_sha256"] == medido
@@ -91,7 +90,8 @@ def test_un_modo_no_es_lo_congelado_pero_si_lo_medido(tmp_path, modo, cambia):
     assert [i["id"] for i in congelado["items"] if not i["ok"]] == cambia
     verificacion = demo_modos.verificar(configs, resuelto, congelado)
     assert verificacion["ok"], verificacion["items"]
-    assert [i["id"] for i in verificacion["items"]] == ["modo_prompts", "modo_patrones", "modo_resto"]
+    assert [i["id"] for i in verificacion["items"]] == ["modo_prompts", "modo_constancia", "modo_patrones",
+                                                        "modo_resto"]
 
 
 def test_verificar_detecta_una_frase_cambiada_un_pattern_set_tocado_y_otro_modelo(tmp_path):
@@ -146,7 +146,7 @@ def test_describir_trae_las_frases_y_las_cifras_de_la_generacion_2(tmp_path):
     # Con los resultados de la generación 2, los valores salen de resultado.json.
     for prueba in ("ALR-01", "ALR-04", "EXT-01"):
         destino = repo / "results" / "gen2" / prueba
-        destino.mkdir(parents=True)
+        destino.mkdir(parents=True, exist_ok=True)
         (destino / "resultado.json").write_text(
             (REPO_REAL / "results" / "gen2" / prueba / "resultado.json").read_text(encoding="utf-8"),
             encoding="utf-8")
@@ -176,3 +176,53 @@ def test_modos_yaml_no_toca_lo_congelado_ni_la_exploracion():
     campeon = demo_modos.cargar(REPO_REAL)["modos"]["campeon"]
     assert campeon["prompts"]["set_id"] == congelado["prompt_set"]["id"]
     assert campeon["patrones"]["id"] == congelado["pattern_set"]["id"]
+
+
+def test_sin_la_constancia_de_la_medicion_el_modo_queda_en_rojo(tmp_path):
+    """La huella declarada en modos.yaml no alcanza: se compara en cada chequeo contra la que quedó
+    en results/gen2/<prueba>/configuracion.json. Si la constancia falta o dice otra cosa, rojo."""
+    repo = _repo_demo(tmp_path)
+    constancia = repo / "results" / "gen2" / "ALR-04" / "configuracion.json"
+    datos = json.loads(constancia.read_text(encoding="utf-8"))
+    datos["prompts"]["payload_sha256"] = "0" * 64
+    constancia.write_text(json.dumps(datos), encoding="utf-8")
+
+    def fallan():
+        edir = demo_modos.resolver(repo, "edir")
+        configs = _configs(repo, edir)
+        congelado = demo_config.verificar_congelado(repo, configs, MODELO_OK)
+        return [i["id"] for i in demo_modos.verificar(configs, edir, congelado)["items"] if not i["ok"]]
+
+    assert fallan() == ["modo_constancia"]
+    constancia.unlink()
+    assert fallan() == ["modo_constancia"]
+
+
+def test_las_etiquetas_dicen_que_representa_cada_modo_no_si_la_evidencia_es_buena():
+    lista = {m: d["evidencia"] for m, d in demo_modos.cargar(REPO_REAL)["modos"].items()}
+    assert lista == {"campeon": "congelada", "edir": "descartada", "clase_nueva": "extension"}
+
+
+def test_un_modo_exploratorio_se_verifica_por_huella_sin_constancia(tmp_path):
+    """✎ 2026-11-04 (doc 134 §13.18): sin medición todavía, pero lo que se manda es exactamente lo
+    declarado; no hay ítem de constancia, y un exploratorio no puede decir que lo midió una prueba."""
+    repo = _repo_demo(tmp_path)
+    agregar_modo_exploratorio(repo)
+    lista = {m["id"]: m for m in demo_modos.describir(repo)["modos"]}
+    assert lista["distractora"]["evidencia"] == "exploratoria" and lista["distractora"]["cifras"] == []
+    assert [c["id"] for c in lista["distractora"]["clases"]] == ["person", "helmet", "vest", "t_shirt"]
+    resuelto = demo_modos.resolver(repo, "distractora")
+    assert resuelto["medido_en"] is None and resuelto["payload_sha256_medido"] is None
+    configs = _configs(repo, resuelto)
+    v = demo_modos.verificar(configs, resuelto, demo_config.verificar_congelado(repo, configs, MODELO_OK))
+    assert v["ok"] is True and v["exploratorio"] is True
+    assert [i["id"] for i in v["items"]] == ["modo_prompts", "modo_patrones", "modo_resto"]
+    # La distractora no la lee ninguna regla: el pattern set es el oficial.
+    assert configs["control"]["patterns"]["file"].endswith("/cr01_cr02_v2.yaml")
+
+    archivo = repo / "experiments" / "demo_defensa" / "modos.yaml"
+    datos = yaml.safe_load(archivo.read_text(encoding="utf-8"))
+    datos["modos"]["distractora"]["prompts"]["medido_en"] = "ALR-01"
+    archivo.write_text(yaml.safe_dump(datos, allow_unicode=True), encoding="utf-8")
+    with pytest.raises(demo_config.ConfigDemoError, match="exploratorio"):
+        demo_modos.resolver(repo, "distractora")

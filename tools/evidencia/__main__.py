@@ -6,7 +6,7 @@
     python -m tools.evidencia vivo RT-03 --toma t1 --config 960x540@5 [--unidades 250]
     python -m tools.evidencia descartar RT-04|RT-05|RT-06|RT-07|RT-08 <session_id> --motivo "..." --quien NOMBRE
     python -m tools.evidencia estado [ID|FASE ...]
-    python -m tools.evidencia veredicto ID identico|equivalente_con_diferencia|otra_combinacion --motivo "..." --quien NOMBRE
+    python -m tools.evidencia veredicto ID identico|equivalente_con_diferencia|otra_combinacion --motivo "..." --quien NOMBRE [--parcial]
     python -m tools.evidencia indice
     python -m tools.evidencia limpiar-rutas [--simular] [--desde RUTA]   # antes de cada commit
     python -m tools.evidencia revision-ciega pagina|cerrar [--csv RUTA]   # ERR-01, asistida por Claude
@@ -261,6 +261,31 @@ def cmd_estado(args) -> int:
     return 0
 
 
+def _faltante(resultado: dict) -> dict:
+    """Lo que una prueba `parcial` no tiene: configuraciones, escenas o tomas pre-registradas que no
+    se corrieron. Es lo que `veredicto --parcial` deja escrito en `confirmado.faltante`."""
+    m = resultado.get("metricas") or {}
+    faltante = {}
+    if resultado.get("configs_sin_tomas"):
+        faltante["configs_sin_tomas"] = resultado["configs_sin_tomas"]
+    if m.get("escenas_sin_tomas"):
+        faltante["escenas_sin_tomas"] = m["escenas_sin_tomas"]
+    faltan = {e: n for e, n in (m.get("faltan_tomas") or {}).items() if n}
+    for nombre, s in (m.get("por_stream") or {}).items():
+        faltan.update({f"{nombre}:{e}": n for e, n in (s.get("faltan_tomas") or {}).items() if n})
+    if faltan:
+        faltante["faltan_tomas"] = faltan
+    return faltante
+
+
+def _relecturas_fallidas(resultado: dict) -> list[str]:
+    m = resultado.get("metricas") or {}
+    fallidas = list(m.get("relecturas_fallidas") or [])
+    for s in (m.get("por_stream") or {}).values():
+        fallidas += list(s.get("relecturas_fallidas") or [])
+    return fallidas
+
+
 def cmd_veredicto(args) -> int:
     ent = detectar()
     catalogo = cargar_catalogo(ent.catalogo)
@@ -268,14 +293,31 @@ def cmd_veredicto(args) -> int:
         raise SystemExit(f"no existe la prueba {args.prueba}")
     carpeta = Carpeta(ent, catalogo[args.prueba])
     resultado = carpeta.leer("resultado.json")
-    if not resultado or resultado.get("estado") != "completo":
-        raise SystemExit(f"{args.prueba} no está completa: no hay veredicto que confirmar")
-    resultado.setdefault("veredicto", {})["confirmado"] = {
-        "valor": args.valor, "motivo": args.motivo, "quien": args.quien, "fecha": ahora()}
+    if not resultado:
+        raise SystemExit(f"{args.prueba} no corrió: no hay veredicto que confirmar")
+    parcial = resultado.get("estado") != "completo"
+    confirmado = {"valor": args.valor, "motivo": args.motivo, "quien": args.quien, "fecha": ahora()}
+    if parcial:
+        # Una prueba parcial se firma solo a propósito (`--parcial`): cuando lo que falta no se va a
+        # correr y el motivo dice por qué (doc 134 §13.17). Una relectura fallida no es eso: se
+        # corrige y se vuelve a correr.
+        fallidas = _relecturas_fallidas(resultado)
+        if fallidas:
+            raise SystemExit(f"{args.prueba}: la relectura por sujeto falló en {len(fallidas)} tomas "
+                             f"({', '.join(fallidas[:3])}): eso se corrige y se vuelve a correr, no se firma")
+        faltante = _faltante(resultado)
+        if not args.parcial:
+            raise SystemExit(f"{args.prueba} está {resultado.get('estado')!r} (falta: {faltante or 'sin detalle'}): "
+                             "no hay veredicto que confirmar. Si lo que falta no se va a correr, "
+                             "`--parcial` con el motivo (doc 134 §13.17)")
+        confirmado.update({"parcial": True, "faltante": faltante})
+    resultado.setdefault("veredicto", {})["confirmado"] = confirmado
     carpeta.escribir("resultado.json", resultado)
-    carpeta.comando(f"veredicto confirmado: {args.valor} ({args.quien}): {args.motivo}")
+    carpeta.comando(f"veredicto confirmado{' (prueba parcial)' if parcial else ''}: "
+                    f"{args.valor} ({args.quien}): {args.motivo}")
     escribir_indice(ent, catalogo)
-    print(f"{args.prueba}: veredicto {args.valor} confirmado por {args.quien}")
+    print(f"{args.prueba}: veredicto {args.valor} confirmado por {args.quien}"
+          + (" (prueba parcial)" if parcial else ""))
     return 0
 
 
@@ -372,6 +414,9 @@ def main(argv=None) -> int:
     p.add_argument("valor", choices=VEREDICTOS)
     p.add_argument("--motivo", required=True)
     p.add_argument("--quien", required=True)
+    p.add_argument("--parcial", action="store_true",
+                   help="firma una prueba parcial: lo que falta no se va a correr y el motivo dice por qué "
+                        "(queda en confirmado.faltante; doc 134 §13.17)")
     p.set_defaults(f=cmd_veredicto)
     p = sub.add_parser("indice")
     p.set_defaults(f=cmd_indice)

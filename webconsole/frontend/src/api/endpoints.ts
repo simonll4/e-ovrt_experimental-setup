@@ -7,7 +7,7 @@ import type {
   RecordingStatus, RunDetail, RunGroup, RunRow, StartRecordingBody, TargetStatus, TracePage,
   ArtifactEntry, ConditionInfo, RunComparison, TraceIndex, EvidenceListingMeta, EvidenceView,
   EvidenceRecorrido, EvidenceStepPage, EvidenceResultPage, ArchivedRunDetail, PlatformTestSlug,
-  Documentacion, DemoCamara, DemoCamaraChequeo, DemoPreflight, DemoState, DemoSessionDetail, DemoCifra, DemoStack,
+  Documentacion, DemoCamara, DemoCamaraChequeo, DemoPreflight, DemoState, DemoSessionDetail, DemoCifra, DemoStack, DemoModos,
   Gen2Detalle, Gen2Observaciones, Gen2Prueba,
 } from '../types'
 
@@ -438,12 +438,17 @@ export const clipMediaUrl = (clipId: string) =>
   `/api/clips/media/clip/${encodeURIComponent(clipId)}`
 
 // --- Demo en vivo de la defensa (spec 2026-10-23) ---
-export const getDemoPreflight = () => request<DemoPreflight>('/api/demo/preflight')
+/** Con el campeón (el default) `modo` no se pasa: la petición es la de siempre, byte a byte. */
+export const getDemoPreflight = (modo?: string | null) =>
+  request<DemoPreflight>(modo ? `/api/demo/preflight?modo=${encodeURIComponent(modo)}` : '/api/demo/preflight')
 export const getDemoState = () => request<DemoState>('/api/demo/state')
-export const startDemo = (variante: 'oakd' | 'ensayo' = 'oakd', camara?: string | null) =>
+export const startDemo = (variante: 'oakd' | 'ensayo' = 'oakd', camara?: string | null, modo?: string | null) =>
   request<{ session_id: string; experiment_id: string }>('/api/demo/start', {
-    method: 'POST', body: JSON.stringify(camara ? { variante, camara } : { variante }),
+    method: 'POST',
+    body: JSON.stringify({ variante, ...(camara ? { camara } : {}), ...(modo ? { modo } : {}) }),
   })
+/** Los modos de prompts de la demo (✎ 2026-11-01). 503 si falta `modos.yaml`: solo el campeón. */
+export const getDemoModos = () => request<DemoModos>('/api/demo/modos')
 /** La cámara de la demo (✎ 2026-11-01): elegirla, comprobarla y previsualizarla antes de iniciar. */
 export const listDemoCamaras = () => request<DemoCamara[]>('/api/demo/camaras')
 export const comprobarDemoCamara = (id: string) =>

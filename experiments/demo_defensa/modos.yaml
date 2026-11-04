@@ -8,9 +8,16 @@
 # No es vocabulario improvisado: cada modo manda EXACTAMENTE el set que midió su prueba, con la
 # misma composición de clases (`clases`, cada una de su archivo congelado de prompts/). El chequeo
 # previo recalcula la huella de lo que se va a mandar con la convención del driver de evidencia
-# (`payload_sha256` de tools/evidencia/huellas.armar_prompts) y la compara con la que quedó en
-# results/gen2/<prueba>/configuracion.json; la del pattern set, con la del commit del control-plane
-# con el que corrió la prueba (results/gen2/<prueba>/entorno.json). Si alguna no coincide, rojo.
+# (`payload_sha256` de tools/evidencia/huellas.armar_prompts) y la compara con la declarada acá Y con
+# la que quedó en results/gen2/<prueba>/configuracion.json (la constancia de la medición: si falta,
+# rojo); la del pattern set, con la del commit del control-plane con el que corrió la prueba
+# (results/gen2/<prueba>/entorno.json). Si alguna no coincide, rojo.
+#
+# `evidencia` es lo que el modo representa, no un juicio de la evidencia: `congelada` (la
+# configuración del informe), `descartada` (una formulación que la evidencia descartó),
+# `extension` (algo que la plataforma no configuró ni entrenó) y, desde el 2026-11-04,
+# `exploratoria` (un set todavía sin medir: amarillo en el chequeo previo, sin cifras). En la pantalla el modo vuelve
+# siempre al campeón: no se recuerda entre sesiones ni entre cargas de la página.
 #
 # Una sesión con un modo que no es el campeón:
 #   - queda marcada en su session.json (`modo_prompts`) y su id termina en `_modo-<id>`;
@@ -46,13 +53,15 @@ modos:
       - {prueba: ALR-01, clave: f1, que_es: "F1 de alertas por episodio en el rodaje guionado (granularidad escena, la de esta demo)"}
   edir:
     nombre: E-DIR
-    evidencia: mala
+    evidencia: descartada
     resumen: >-
       Pedirle al modelo la infracción con una frase («construction worker without safety helmet»), en vez
       de marcar el EPP y alertar por su ausencia. Es la formulación directa que la evidencia descartó.
     nota: >-
       Las frases son las ganadoras por condición en la calibración con imágenes (cr01_spec, cr02_obs), con
       el mismo modelo y las mismas ventanas de persistencia. Es la evidencia detrás de ADR-001 (E-IND).
+      ALR-04 midió exactamente este par en el rodaje; PER-01 midió cada frase sola, en imágenes. En
+      CR-02 la diferencia por persona es chica (PER-01): una toma en vivo no la decide.
     prompts:
       # La composición de ALR-04 (el set `edir_v1_pair_nivel_b` del pre-registro): person del
       # núcleo E-IND y las dos frases E-DIR que lee el pattern set.
@@ -73,17 +82,20 @@ modos:
     cifras:
       - {prueba: ALR-04, clave: f1, que_es: "F1 de alertas por episodio en el rodaje guionado, con las mismas reglas temporales"}
       - {prueba: ALR-04, clave: falsas_alarmas_en_positivos, que_es: "Falsas alarmas en clips con episodios"}
-      - {prueba: PER-01, clave: bench_obra/CR-01/f1_edir, que_es: "F1 por persona de CR-01 con la frase E-DIR (bench de obra)"}
-      - {prueba: PER-01, clave: bench_obra/CR-01/f1_eind, que_es: "Lo mismo con E-IND, la formulación del campeón"}
+      - {prueba: PER-01, clave: bench_obra/CR-01/f1_edir, que_es: "CR-01, F1 por persona con la frase E-DIR sola (imágenes de obra)"}
+      - {prueba: PER-01, clave: bench_obra/CR-01/f1_eind, que_es: "CR-01, lo mismo con E-IND, la formulación del campeón"}
+      - {prueba: PER-01, clave: bench_obra/CR-02/f1_edir, que_es: "CR-02, F1 por persona con la frase E-DIR sola (imágenes de obra)"}
+      - {prueba: PER-01, clave: bench_obra/CR-02/f1_eind, que_es: "CR-02, lo mismo con E-IND"}
   clase_nueva:
     nombre: Clase nueva
-    evidencia: buena
+    evidencia: extension
     resumen: >-
       Vocabulario abierto: suma machinery y vehicle, dos clases que la plataforma jamás configuró ni
       entrenó, con dos líneas de prompt. Persona, casco y chaleco siguen con las frases del campeón.
     nota: >-
       Las cajas de las clases nuevas se ven en el Resultado (en vivo hace falta una máquina o una foto).
       EXT-01 las mide en imágenes; con este caption las alertas CR-01/CR-02 no se midieron en video.
+      vehicle va en el caption porque es lo que midió EXT-01, y ahí no se detectó (AP50 0,0).
     prompts:
       # La composición de las corridas `obra_val` y `obra_test` de EXT-01.
       set_id: clase_nueva_v1
@@ -91,6 +103,7 @@ modos:
       clases: [person, helmet, vest, machinery, vehicle]
       # results/gen2/EXT-01/configuracion.json → prompts.obra_val.payload_sha256
       payload_sha256: 9228f83b5e5b3a4f30633b1209d25c4f2d24c820c2911d7248d7b53c43401a87
+      corrida: obra_val
       medido_en: EXT-01
     patrones:
       id: cr01_cr02_v2

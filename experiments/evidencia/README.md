@@ -36,7 +36,7 @@ clip, estrato por estrato).
 | F4 | `IMG-01`, `IMG-02`, `IMG-03`, `IMG-04`, `EXT-01`, `PER-01`, `PER-02`, `DEN-01`, `DEN-03`, `DEN-05` | sí | ~4 h (`IMG-04` a 800 px, ~0,4 h; `IMG-02` y `PER-02` con base-560) |
 | F5 | `ALR-02`, `ALR-05`, `ALR-08`, `ALR-10`, `DEN-02`, `DEN-04`, `DEN-06`, `DEN-07`, `PER-03`, `GT-02`, `ERR-01`, `ERR-02`, `SEG-01`, `VIS-01` | casi no (PER-03 infiere 4 clips cortos) | ~1,5 h (GT-02 es lo largo; `VIS-01` extrae ~50 cuadros con ffmpeg) |
 | F6 | `RT-01`, `RT-02`, `DIST-01` | sí | ~30 min |
-| F7 | `RT-04` (la obra simulada en vivo, toma por toma por `/demo`), `RT-05` (el compromiso entre familias de modelo y cadencias, con la misma escena), `RT-03` (latencia), `RT-06` (el subset del guion con la cámara IP por RTSP; enmienda del 2026-11-01), `RT-07` y `RT-08` (el chaleco amarillo no reflectivo, una persona, con la OAK-D y con la cámara IP; enmiendas del 2026-11-01) — con el equipo, OAK-D y cámara IP (de a una), dos cascos y los dos chalecos reflectantes de julio (RT-07: el amarillo) | sí | una jornada (~14 escenas, ensayos de la demo, la matriz de RT-05 13 tomas con la cámara IP, en sus dos streams, y ~15 con el chaleco amarillo) |
+| F7 | `RT-04` (la obra simulada en vivo, toma por toma por `/demo`), `RT-05` (el compromiso entre familias de modelo y cadencias, con la misma escena), `RT-03` (latencia), `RT-06` (el subset del guion con la cámara IP por RTSP; enmienda del 2026-11-01), `RT-07` y `RT-08` (el chaleco amarillo no reflectivo, una persona, con la OAK-D y con la cámara IP; enmiendas del 2026-11-01; corridas el 2026-11-01), `RT-09` (la prenda bajo el chaleco; enmienda del 2026-11-04, va antes de RT-04) — con el equipo, OAK-D y cámara IP (de a una), dos cascos y los dos chalecos reflectantes de julio (RT-07: el amarillo) | sí | una jornada (~14 escenas, ensayos de la demo, la matriz de RT-05 13 tomas con la cámara IP, en sus dos streams, y ~15 con el chaleco amarillo) |
 
 F3 y F4 llevan **dos noches**, una por fase (~9 h + ~4 h de GPU, estimadas desde la enmienda del 2026-10-30, que
 regenera los contrastes: `.\evidencia.ps1 -Fondo correr F3` y, la noche siguiente, `correr F4`; el driver retoma
@@ -197,8 +197,26 @@ difiere de RT-07, la diferencia no se atribuye al sensor (doc 69 §6.0.1).
 .\evidencia.ps1 correr RT-08                                       # RT-06 y RT-07 no las cuentan
 ```
 
+**RT-09 (la prenda bajo el chaleco, enmienda del 2026-11-04, doc 134 §13.18).** Va al arrancar la segunda jornada,
+ANTES de RT-04, con los chalecos de julio, el campeón y una persona: `P2` ×1 por remera candidata (al menos dos,
+siempre la de referencia, "negra lisa"). `correr RT-09` mide el `vest` en el torso con la regla de CR-02 (fracción y
+rachas) y propone la remera de RT-04/05/06; el equipo la firma en la bitácora. Desde esta jornada, **toda toma
+declara `-Remera`**, y `-Proposito prendas|ensayo` saca la toma de RT-04…RT-08. (La clase distractora «t-shirt» se
+pensó como segunda parte y salió antes de correr: su piloto en datasets duplicó el `vest` falso; doc 141 §4.)
+
+```powershell
+.\rodaje.ps1 -Escena P2 -Chaleco julio -Remera 'negra lisa' -Proposito prendas
+.\rodaje.ps1 -Escena P2 -Chaleco julio -Remera 'gris clara lisa' -Proposito prendas
+.\evidencia.ps1 correr RT-09                                       # propone la remera; RT-04 no las cuenta
+.\rodaje.ps1 -Escena P1 -Chaleco julio -Remera 'gris clara lisa'   # después, RT-04 con la remera firmada
+```
+
+Una prueba que queda **`parcial`** porque algo pre-registrado no se va a correr (p. ej. RT-03 a 1080p@30) se
+firma con `veredicto … --parcial` y el motivo (ver «Veredictos»).
+
 **RT-03 (latencia por cuadro en dos configs)** sigue por el driver, sin guion: una persona
-moviéndose en cuadro, 2–3 tomas por config.
+moviéndose en cuadro, 2–3 tomas por config. ✎ 2026-11-04: la config 1080p@30 se retira sin correr (doc 134
+§13.17): RT-03 se cierra con las tres tomas a 960x540@5 y `veredicto --parcial`.
 
 ```powershell
 .\evidencia.ps1 vivo RT-03 --toma lat_960_a --config 960x540@5
@@ -220,6 +238,12 @@ declarada). Lo confirma una persona:
 
 Para el banco temporal, la referencia de la generación 1 es la **re-evaluada con el GT
 corregido** (revisión dirigida del 2026-10-26), no la publicada en el v0.1.
+
+Una prueba **`parcial`** (una escena, una configuración o una toma mínima pre-registrada sin
+correr) no se firma, salvo a propósito: `veredicto … --parcial`, con un motivo que diga por qué
+lo que falta no se va a correr. La firma deja `confirmado.parcial: true` y `confirmado.faltante`;
+el estado sigue siendo `parcial`. Una relectura por sujeto fallida no se firma nunca: se corrige y
+se vuelve a correr (doc 134 §13.17; el caso fue RT-03 sin 1080p@30 en F7).
 
 ## Antes de empezar (una vez)
 

@@ -799,6 +799,49 @@ export interface DemoPreflight {
   motor: DemoMotor
   stack: 'compose' | 'nativo'
   comprobado_en: string
+  /** Con `?modo=` (un modo que no es el campeón): lo que se va a mandar y su verificación. */
+  modo_prompts?: DemoModoSesion | null
+}
+/** Modos de prompts de la demo (✎ 2026-11-01): la lista cerrada de
+ *  `experiments/demo_defensa/modos.yaml`. `evidencia` dice qué representa el modo, no lo juzga. */
+export type DemoModoEvidencia = 'congelada' | 'descartada' | 'extension' | 'exploratoria'
+export interface DemoModoClase {
+  id: string
+  frases: string[]
+  fuente: string
+}
+export interface DemoModo {
+  id: string
+  nombre: string
+  evidencia: DemoModoEvidencia
+  resumen: string | null
+  nota: string | null
+  por_defecto: boolean
+  prompt_set: string | null
+  pattern_set: string | null
+  medido_en: string | null
+  clases: DemoModoClase[]
+  cifras: DemoCifra[]
+  /** Las clases del modo no se pudieron leer: se muestra, pero no se puede elegir. */
+  error: string | null
+}
+export interface DemoModos {
+  default: string
+  modos: DemoModo[]
+}
+/** El modo de una sesión (o del chequeo previo) que NO es el campeón. `null` = el campeón. */
+export interface DemoModoSesion {
+  id: string
+  nombre: string
+  evidencia: DemoModoEvidencia
+  prompt_set: string
+  clases: DemoModoClase[]
+  payload_sha256: string
+  payload_sha256_medido?: string | null
+  constancia?: string
+  medido_en: string | null
+  pattern_set: { id: string; archivo: string; sha256_archivo: string }
+  verificacion?: { ok: boolean; items: DemoCongeladoItem[] } | null
 }
 /** La cara de una tarjeta (Casco / Chaleco). */
 export type DemoCara = 'ok' | 'confirmando' | 'alerta' | 'resolviendo' | 'resuelta'
@@ -866,6 +909,8 @@ export interface DemoState {
   exploracion?: DemoExploracion | null
   /** La cámara que eligió la pantalla para esta sesión (null = la OAK-D de la plantilla). */
   camara_elegida?: Pick<DemoCamara, 'id' | 'nombre' | 'plugin' | 'destino'> | null
+  /** El modo de prompts de la sesión; null = el campeón (la configuración congelada). */
+  modo_prompts?: DemoModoSesion | null
   stack?: 'compose' | 'nativo'
   experiment_id?: string
   ids?: Record<string, string>
@@ -937,12 +982,27 @@ export interface DemoSessionDetail {
     ended_by: string | null
     error: string | null
     congelado: DemoCongelado
+    /** null o ausente = el campeón. */
+    modo_prompts?: DemoModoSesion | null
   } | null
   resumen: DemoResumen | null
   linea_de_tiempo: DemoLineaAlerta[]
   testigo: Array<{ recibido_en: string; topic: string; crudo: string; payload: unknown }>
   state_log: unknown[]
   respaldo: boolean
+}
+/** Una fila de `GET /api/demo/sessions`. */
+export interface DemoSesionFila {
+  session_id: string
+  variante: string
+  fase: DemoFase
+  iniciada_en: string
+  ended_by: string | null
+  respaldo: boolean
+  escena: string | null
+  exploracion: DemoExploracion | null
+  /** null = el campeón. */
+  modo_prompts: DemoModoSesion | null
 }
 export interface DemoCifra {
   prueba: string

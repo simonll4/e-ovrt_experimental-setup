@@ -311,6 +311,10 @@ def _toma(ctx: Contexto, prueba: Prueba, carpeta: Carpeta) -> dict:
         datos["fps_efectivos"] = round(statistics.mean(agg["fps"]), 2) if agg["fps"] else None
         datos["tomas"] = agg["tomas"]
         metricas[cfg] = datos
+    # Una configuración pre-registrada sin ninguna toma válida se nombra, como una escena sin
+    # tomas en el rodaje (doc 134 §13.14). En F7 (2026-11-01) RT-03 salió `completo` con 1080p@30
+    # sin correr: el estado lo decide `correr` con esta lista (doc 134 §13.17).
+    configs_sin_tomas = [cfg for cfg in r["configs"] if cfg not in por_config]
     demo = r.get("config_demo")
     if demo in metricas:
         d = metricas[demo]
@@ -320,7 +324,8 @@ def _toma(ctx: Contexto, prueba: Prueba, carpeta: Carpeta) -> dict:
             {"clave": "capture_to_host_p50_ms", "nombre": f"Captura → host p50 ({demo})", "valor": d["captura_a_host"].get("p50"), "unidad": "ms", "gen1": None},
             {"clave": "vidrio_a_resultado_p95_ms", "nombre": f"Vidrio → resultado p95 ({demo})", "valor": d["vidrio_a_resultado"].get("p95"), "unidad": "ms", "gen1": None},
         ]
-    return {"metricas": metricas, "resumen": resumen, "tomas_validas": sum(len(a["tomas"]) for a in por_config.values())}
+    return {"metricas": metricas, "resumen": resumen, "tomas_validas": sum(len(a["tomas"]) for a in por_config.values()),
+            "configs_sin_tomas": configs_sin_tomas}
 
 
 def _correr_toma(ctx: Contexto, prueba: Prueba, carpeta: Carpeta, toma: str, config: str) -> None:
@@ -467,7 +472,10 @@ def correr(ctx: Contexto, prueba: Prueba, carpeta: Carpeta) -> dict:
     salida = funcion(ctx, prueba, carpeta)
     datos = {"familia": "vivo", "estado": "completo", **salida,
              "veredicto": proponer(salida["metricas"], prueba)}
-    if prueba.id == "RT-03" and not salida.get("tomas_validas"):
+    # Por tomas (RT-03): sin ninguna toma válida, o con una configuración pre-registrada sin
+    # tomas, la prueba queda `parcial`. Lo que falta queda nombrado en `configs_sin_tomas`; si no
+    # se va a correr, el veredicto se firma con `--parcial` y el motivo (doc 134 §13.17).
+    if "tomas_validas" in salida and (not salida["tomas_validas"] or salida.get("configs_sin_tomas")):
         datos["estado"] = "parcial"
     carpeta.resultado(datos)
     return {"estado": datos["estado"], "veredicto": datos["veredicto"]["propuesto"]}

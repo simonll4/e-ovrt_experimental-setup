@@ -23,6 +23,7 @@ from typing import Any
 
 CONDICIONES = {"CR-01": "Casco", "CR-02": "Chaleco"}
 HOLD_RESUELTA_S = 5.0
+_CONFIRMADO = frozenset({"alerta", "resolviendo"})
 _ORDEN = {"ok": 0, "resuelta": 0, "confirmando": 1, "resolviendo": 2, "alerta": 3}
 
 
@@ -75,10 +76,13 @@ class Derivador:
                 estado, transcurrido, umbral = "ok", None, None
 
             if estado != cond.estado:
-                # Una alerta NUEVA es entrar a "alerta" desde algo que no era el mismo
-                # episodio (ok, confirmando, resuelta). Volver de "resolviendo" a
-                # "alerta" es el mismo episodio: la histéresis no re-alerta.
-                if estado == "alerta" and cond.estado != "resolviendo":
+                # Una alerta NUEVA es entrar a un episodio confirmado ("alerta" o
+                # "resolviendo") desde algo que no lo era (ok, confirmando, resuelta). Ir
+                # y volver entre "alerta" y "resolviendo" es el mismo episodio: la
+                # histéresis no re-alerta. Entrar directo a "resolviendo" también cuenta:
+                # el sondeo puede ver el episodio ya confirmado con cobertura en curso
+                # (jornada F7: confirmando → resolviendo → alerta daba «alertas 0»).
+                if estado in _CONFIRMADO and cond.estado not in _CONFIRMADO:
                     cond.alertas += 1
                     cond.alerta_desde = ahora
                 transiciones.append({"condicion": codigo, "de": cond.estado, "a": estado})

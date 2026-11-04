@@ -36,6 +36,18 @@
 #
 # No se graba ni se anota nada: son tomas en vivo. La marca de cada accion es el instante del
 # tono; el tiempo de reaccion del actor queda DENTRO de la medicion (declarado).
+#
+# Segunda jornada de F7 (enmienda 2026-11-04, doc 134 13.18):
+#   -Remera es obligatoria en cada toma: la prenda bajo el chaleco decide CR-02 (F-RT1, doc 140).
+#     Texto corto y estable, el mismo para la misma prenda: 'negra lisa', 'gris clara lisa', 'A negra / B blanca'.
+#   -Proposito dice para que es la toma (por defecto 'toma': cuenta en la prueba de su escena):
+#     'prendas' = la prueba de prendas (RT-09; RT-04..RT-08 no la cuentan);
+#     'ensayo'  = un ensayo del guion de la demo (G3, despues del informe; no entra a ninguna prueba).
+#   -Modo corre un modo de prompts de experiments\demo_defensa\modos.yaml (p. ej. 'edir');
+#     la sesion queda marcada y RT-04..RT-08 no la cuentan. No se combina con -Motor/-Camara.
+#   .\rodaje.ps1 -Escena P2 -Chaleco julio -Remera 'negra lisa' -Proposito prendas
+#   .\rodaje.ps1 -Escena P2 -Chaleco julio -Remera 'gris clara lisa' -Proposito prendas
+#   .\rodaje.ps1 -Escena P1 -Chaleco julio -Remera 'gris clara lisa'                    # RT-04
 param(
     [string]$Escena,
     [string]$Motor,
@@ -44,6 +56,11 @@ param(
     # CR-02 depende del chaleco: cada toma lo declara y el driver la cuenta solo en la prueba que fija ese.
     [ValidateSet('julio', 'amarillo')]
     [string]$Chaleco,
+    # Y de la prenda de abajo (F-RT1): se declara en cada toma (doc 134 13.18).
+    [string]$Remera,
+    [ValidateSet('toma', 'prendas', 'ensayo')]
+    [string]$Proposito = 'toma',
+    [string]$Modo,
     [switch]$Lista,
     [switch]$SinVoz,
     [switch]$SinConfirmar,
@@ -72,6 +89,13 @@ $esc = $escenas | Where-Object { $_.id -eq $Escena } | Select-Object -First 1
 if (-not $esc) { throw "No existe la escena '$Escena'. Ver: .\rodaje.ps1 -Lista" }
 if (-not $Chaleco) {
     throw 'Falta -Chaleco: julio (los reflectantes del rodaje de julio: RT-04, RT-05, RT-06) o amarillo (el amarillo no reflectivo: RT-07).'
+}
+if (-not $Remera -or -not $Remera.Trim()) {
+    throw "Falta -Remera: la prenda bajo el chaleco decide CR-02 (F-RT1). Ej.: -Remera 'gris clara lisa' (doc 134 13.18)."
+}
+$Remera = $Remera.Trim()
+if ($Modo -and ($Motor -or $Camara)) {
+    throw '-Modo (otro prompt set) no se combina con -Motor/-Camara (la exploracion de RT-05 es con el set congelado).'
 }
 
 function Ahora-Ms { [double][DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds() }
@@ -106,7 +130,11 @@ if (-not $SinVoz) {
 Write-Host ''
 Write-Host "=== Escena $($esc.id): $($esc.titulo) ===" -ForegroundColor Cyan
 Write-Host "Preparacion: $($esc.preparacion)"
-Write-Host "Chaleco: $Chaleco" -ForegroundColor Cyan
+Write-Host "Chaleco: $Chaleco   Remera: $Remera" -ForegroundColor Cyan
+if ($Proposito -ne 'toma') {
+    Write-Host "Proposito: $Proposito (RT-04..RT-08 no cuentan esta toma)" -ForegroundColor Magenta
+}
+if ($Modo) { Write-Host "Modo de prompts: $Modo (experiments\demo_defensa\modos.yaml)" -ForegroundColor Magenta }
 foreach ($p in $esc.guion) { Write-Host ("  {0,3} s  {1}" -f $p.s, $p.texto) }
 Write-Host ("  {0,3} s  fin" -f $esc.fin_s)
 
@@ -150,6 +178,18 @@ if ($Motor -or $Camara) {
     }
 }
 
+# 0b. Modo de prompts: el chequeo previo verifica lo que se va a mandar (huella) con ese modo.
+if ($Modo) {
+    $consulta = '?modo=' + [uri]::EscapeDataString($Modo)
+}
+
+# 0c. Una sesion que quedo abierta (p. ej. un lanzamiento cortado) no se espera: se avisa ya.
+# (Jornada del 2026-11-01: una sesion huerfana quedo 16 min en vivo; doc 140, defecto 6.)
+$st0 = Pedir 'GET' '/api/demo/state' $null
+if ($st0.fase -in @('preparing', 'live')) {
+    throw "Hay una sesion abierta ($($st0.session_id), $($st0.fase)): cerrarla con F F en /demo antes de lanzar otra toma."
+}
+
 # 1. Chequeo previo de la demo en verde (el motor se reinicia solo despues de cada toma).
 $limite = (Get-Date).AddSeconds(180)
 $ultimo = ''
@@ -179,6 +219,7 @@ $desfase = ($desfases | Sort-Object)[2]
 $cuerpo = @{ escena = $esc.id }
 if ($exploracion) { $cuerpo.exploracion = $exploracion }
 if ($Fuente) { $cuerpo.camara = $Fuente }
+if ($Modo) { $cuerpo.modo = $Modo }
 $inicio = Pedir 'POST' '/api/demo/start' $cuerpo
 $sid = $inicio.session_id
 Write-Host "Sesion $sid lanzada. Nadie entra a cuadro hasta el primer aviso." -ForegroundColor Green
@@ -227,6 +268,9 @@ try {
         session_id = $sid
         escena = $esc.id
         chaleco = $Chaleco
+        remera = $Remera
+        proposito = $Proposito
+        modo = $(if ($Modo) { $Modo } else { $null })
         exploracion = $exploracion
         desfase_contenedor_menos_host_ms = $desfase
         desfases_ms = $desfases
@@ -245,7 +289,13 @@ try {
         $esperado = $esc.espera.($c.condicion)
         Write-Host ("  {0}: alertas {1}  (el guion espera: {2})" -f $c.condicion, $c.alertas, $esperado)
     }
-    if ($exploracion) {
+    if ($Proposito -eq 'prendas') {
+        Write-Host 'Toma de la prueba de prendas. Para importar: .\evidencia.ps1 correr RT-09 (RT-04..RT-08 no la cuentan)'
+    } elseif ($Proposito -eq 'ensayo') {
+        Write-Host 'Ensayo de la demo: no entra a ninguna prueba (RT-04..RT-09 no lo cuentan).'
+    } elseif ($Modo) {
+        Write-Host "Toma con el modo $Modo`: RT-04..RT-08 no la cuentan (no es el set congelado)."
+    } elseif ($exploracion) {
         Write-Host 'Toma de exploracion. Para importar: .\evidencia.ps1 correr RT-05 (al final, volver al campeon: ..\demo\demo.ps1 up)'
     } elseif ($Fuente -and $cam.plugin -eq 'rtsp' -and $Chaleco -eq 'amarillo') {
         Write-Host 'Toma con la camara IP y el chaleco amarillo. Para importar: .\evidencia.ps1 correr RT-08'

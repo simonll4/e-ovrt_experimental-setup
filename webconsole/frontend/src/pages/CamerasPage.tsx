@@ -41,8 +41,17 @@ function draftToSetInline(draft: PromptSetDetail): Record<string, unknown> {
  *  archivo que usa el entorno de prueba. Mirando solo `url`, esas últimas
  *  aparecían como «sin dirección» teniendo una perfectamente visible. */
 function direccionDe(config: Record<string, unknown>): string {
+  if (typeof config.url === 'string' && config.url) return ocultarClave(config.url)
   const valor = config.url ?? config.path
   return typeof valor === 'string' && valor ? valor : 'sin dirección'
+}
+
+/** La lista se ve en pantalla (y en una pantalla compartida): la clave de una URL guardada
+ *  (`rtsp://usuario:clave@host`) no se muestra. Solo cambia lo que se ve; lo guardado y el
+ *  formulario de edición quedan igual. La clave llega hasta la ÚLTIMA `@`: una clave con `@` o
+ *  `/` sin escapar no asoma por la mitad (ante la duda, se tapa de más, nunca de menos). */
+export function ocultarClave(url: string): string {
+  return url.replace(/^([a-z][a-z0-9+.-]*:\/\/[^:@/\s]*):\S*@/i, '$1:•••@')
 }
 
 function aggregateByLabel(detections: PreviewDetection[] | undefined): Array<[string, number]> {

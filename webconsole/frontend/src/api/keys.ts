@@ -101,11 +101,13 @@ export const qk = {
   /** La demo en vivo de la defensa (`/demo`). */
   demo: {
     all: ['demo'] as const,
-    preflight: ['demo', 'preflight'] as const,
+    /** El modo va en la clave: cambiar de modo es otro chequeo (null = el campeón). */
+    preflight: (modo?: string | null) => ['demo', 'preflight', modo ?? null] as const,
     state: ['demo', 'state'] as const,
     session: (id: string) => ['demo', 'session', id] as const,
     cifras: ['demo', 'cifras'] as const,
     stack: ['demo', 'stack'] as const,
     camaras: ['demo', 'camaras'] as const,
+    modos: ['demo', 'modos'] as const,
   },
 } as const
