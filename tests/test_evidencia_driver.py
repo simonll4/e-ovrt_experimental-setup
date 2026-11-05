@@ -881,7 +881,8 @@ def test_rt06_cuenta_solo_la_camara_ip_por_stream_y_rt04_solo_la_oak_d(tmp_path,
     assert [(n["session_id"], n["motivo"].startswith("otro stream")) for n in m["no_evaluables"]] == [("demo_f_P2", True)]
     sec, pri = m["por_stream"]["secundario"], m["por_stream"]["principal"]
     assert (sec["tomas"], pri["tomas"]) == (2, 1) and sec["ruta"] == "/Streaming/Channels/2"
-    assert sec["faltan_tomas"] == {"P1": 2, "P2": 3, "P5": 1} and pri["faltan_tomas"] == {"P1": 1, "P2": 2, "P5": 1}
+    # Enmienda del 2026-11-05 (doc 134 §13.20): secundario P1 2, P2 2, P5 1; principal P1 1, P2 1 (sin P5).
+    assert sec["faltan_tomas"] == {"P1": 1, "P2": 2, "P5": 0} and pri["faltan_tomas"] == {"P1": 0, "P2": 1}
     # Sin hora de captura: solo G2A; «vidrio → resultado» no se inventa.
     assert sec["latencia_por_cuadro"]["g2a"]["p95"] == 150.0 and not sec["latencia_por_cuadro"]["vidrio_a_resultado"].get("p95")
     claves = [r["clave"] for r in resultado["resumen"]]

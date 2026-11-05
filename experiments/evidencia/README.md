@@ -36,7 +36,7 @@ clip, estrato por estrato).
 | F4 | `IMG-01`, `IMG-02`, `IMG-03`, `IMG-04`, `EXT-01`, `PER-01`, `PER-02`, `DEN-01`, `DEN-03`, `DEN-05` | sí | ~4 h (`IMG-04` a 800 px, ~0,4 h; `IMG-02` y `PER-02` con base-560) |
 | F5 | `ALR-02`, `ALR-05`, `ALR-08`, `ALR-10`, `DEN-02`, `DEN-04`, `DEN-06`, `DEN-07`, `PER-03`, `GT-02`, `ERR-01`, `ERR-02`, `SEG-01`, `VIS-01` | casi no (PER-03 infiere 4 clips cortos) | ~1,5 h (GT-02 es lo largo; `VIS-01` extrae ~50 cuadros con ffmpeg) |
 | F6 | `RT-01`, `RT-02`, `DIST-01` | sí | ~30 min |
-| F7 | `RT-04` (la obra simulada en vivo, toma por toma por `/demo`), `RT-05` (el compromiso entre familias de modelo y cadencias, con la misma escena), `RT-03` (latencia), `RT-06` (el subset del guion con la cámara IP por RTSP; enmienda del 2026-11-01), `RT-07` y `RT-08` (el chaleco amarillo no reflectivo, una persona, con la OAK-D y con la cámara IP; enmiendas del 2026-11-01; corridas el 2026-11-01), `RT-09` (la prenda bajo el chaleco; enmienda del 2026-11-04, va antes de RT-04) — con el equipo, OAK-D y cámara IP (de a una), dos cascos y los dos chalecos reflectantes de julio (RT-07: el amarillo) | sí | una jornada (~14 escenas, ensayos de la demo, la matriz de RT-05 13 tomas con la cámara IP, en sus dos streams, y ~15 con el chaleco amarillo) |
+| F7 | `RT-04` (la obra simulada en vivo, toma por toma por `/demo`), `RT-05` (el compromiso entre familias de modelo y cadencias, con la misma escena), `RT-03` (latencia), `RT-06` (el subset del guion con la cámara IP por RTSP; enmienda del 2026-11-01), `RT-07` y `RT-08` (el chaleco amarillo no reflectivo, una persona, con la OAK-D y con la cámara IP; enmiendas del 2026-11-01; corridas el 2026-11-01), `RT-09` (la prenda bajo el chaleco; enmienda del 2026-11-04, va antes de RT-04) — con el equipo, OAK-D y cámara IP (de a una), dos cascos y los dos chalecos reflectantes de julio (RT-07: el amarillo) | sí | una jornada (~14 escenas, ensayos de la demo, la matriz de RT-05, 7 tomas con la cámara IP en sus dos streams (✎ 11-05; antes 13), y ~15 con el chaleco amarillo) |
 
 F3 y F4 llevan **dos noches**, una por fase (~9 h + ~4 h de GPU, estimadas desde la enmienda del 2026-10-30, que
 regenera los contrastes: `.\evidencia.ps1 -Fondo correr F3` y, la noche siguiente, `correr F4`; el driver retoma
@@ -161,8 +161,12 @@ separado:
 
 | Stream | Ruta | Preset sugerido | Tomas mínimas |
 |---|---|---|---|
-| secundario, 768×432 a 10 fps | `/Streaming/Channels/2` | `rtsp_dvr_sub` | P1 ×3, P2 ×3, P5 ×2 |
-| principal, 1920×1080 a 15 fps | `/Streaming/Channels/1` | `rtsp_dvr_1` | P1 ×2, P2 ×2, P5 ×1 |
+| secundario, 768×432 a 10 fps | `/Streaming/Channels/2` | `rtsp_dvr_sub` | P1 ×2, P2 ×2, P5 ×1 |
+| principal, 1920×1080 a 15 fps | `/Streaming/Channels/1` | `rtsp_dvr_1` | P1 ×1, P2 ×1 |
+
+✎ Enmienda del 2026-11-05 (doc 134 §13.20), antes de correr: 7 tomas mínimas en lugar de 13 (antes, secundario P1 ×3,
+P2 ×3, P5 ×2 y principal P1 ×2, P2 ×2, P5 ×1). La OAK-D cubre las 15 escenas en RT-04; la cámara IP muestra que el
+sistema no depende del sensor. La cámara IP también se calibra antes de su primera toma (doc 134 §13.19).
 
 Antes, crear en Cámaras los dos presets con sus URL y credenciales (`cameras/` no viaja por git), comprobar la cámara en
 `/demo` y encuadrar sobre la misma cinta. Conviene agrupar las tomas por stream. Con esta fuente se mide G2A; «vidrio →
@@ -197,18 +201,33 @@ difiere de RT-07, la diferencia no se atribuye al sensor (doc 69 §6.0.1).
 .\evidencia.ps1 correr RT-08                                       # RT-06 y RT-07 no las cuentan
 ```
 
-**RT-09 (la prenda bajo el chaleco, enmienda del 2026-11-04, doc 134 §13.18).** Va al arrancar la segunda jornada,
-ANTES de RT-04, con los chalecos de julio, el campeón y una persona: `P2` ×1 por remera candidata (al menos dos,
-siempre la de referencia, "negra lisa"). `correr RT-09` mide el `vest` en el torso con la regla de CR-02 (fracción y
-rachas) y propone la remera de RT-04/05/06; el equipo la firma en la bitácora. Desde esta jornada, **toda toma
-declara `-Remera`**, y `-Proposito prendas|ensayo` saca la toma de RT-04…RT-08. (La clase distractora «t-shirt» se
-pensó como segunda parte y salió antes de correr: su piloto en datasets duplicó el `vest` falso; doc 141 §4.)
+**RT-09 (la prenda bajo el chaleco, enmienda del 2026-11-04, doc 134 §13.18; ✎ 2026-11-05, §13.19: más la frase y
+el encuadre).** Va al arrancar la segunda jornada, ANTES de RT-04, con los chalecos de julio, el campeón y una
+persona: `P2` ×2 por remera candidata (✎ 2026-11-05: la remera se decide al inicio de la jornada, clara contra
+"negra lisa", la de referencia; regla en doc 144 §5.1), más el modo
+exploratorio `reflective` (el campeón con «reflective vest» en vez de «vest»: P2 ×2 con la negra y P1 ×1) y,
+opcional, GDINO base por la exploración de RT-05. `correr RT-09` mide el `vest` en el torso con la regla de CR-02
+(fracción y rachas), agrupa por modo × motor × encuadre × escena × remera y propone la remera de RT-04/05/06 solo
+con el campeón calibrado; el equipo la firma en la bitácora. Desde esta jornada, **toda toma declara `-Remera`**, y
+`-Proposito prendas|ensayo` saca la toma de RT-04…RT-08. (La clase distractora «t-shirt» se pensó como segunda parte
+y salió antes de correr: su piloto en datasets duplicó el `vest` falso; doc 141 §4.)
+
+**La calibración de encuadre (✎ 2026-11-05, doc 134 §13.19; doc 143).** Antes de la primera toma de cada cámara, con
+la cámara ya ubicada (alta, mirando hacia abajo): `rodaje.ps1 -Calibrar -Altura <m> -Cerca <m> -Lejos <m>` (una
+persona en regla se para en la marca cercana, camina a la lejana y vuelve; escena `CAL`, 30 s) y `evidencia.ps1
+calibrar`, que compara la geometría de la persona con los criterios de `experiments/demo_defensa/calibracion.json`
+y deja la constancia en `results/gen2/_calibraciones/` y la vigente por cámara. **Sin una vigente que haya pasado
+(o aceptada con motivo: `calibrar --aceptar`), `rodaje.ps1` no lanza tomas.** Cada toma lleva la calibración en
+`marcas.json`, y RT-04…RT-09 cuentan las tomas por encuadre.
 
 ```powershell
+.\rodaje.ps1 -Calibrar -Altura 1.9 -Cerca 3 -Lejos 6 ; .\evidencia.ps1 calibrar       # primero, hasta que pase
 .\rodaje.ps1 -Escena P2 -Chaleco julio -Remera 'negra lisa' -Proposito prendas
 .\rodaje.ps1 -Escena P2 -Chaleco julio -Remera 'gris clara lisa' -Proposito prendas
+.\rodaje.ps1 -Escena P2 -Chaleco julio -Remera 'negra lisa' -Proposito prendas -Modo reflective   # ×2
 .\evidencia.ps1 correr RT-09                                       # propone la remera; RT-04 no las cuenta
-.\rodaje.ps1 -Escena P1 -Chaleco julio -Remera 'gris clara lisa'   # después, RT-04 con la remera firmada
+.\rodaje.ps1 -Escena P1 -Chaleco julio -Remera '<la propuesta>' -Proposito prendas -Modo reflective
+.\rodaje.ps1 -Escena P1 -Chaleco julio -Remera '<la firmada>'    # después, RT-04 con la remera firmada
 ```
 
 Una prueba que queda **`parcial`** porque algo pre-registrado no se va a correr (p. ej. RT-03 a 1080p@30) se

@@ -7,6 +7,7 @@
 #   .\evidencia.ps1 -Fondo correr F3       # sigue aunque se cierre la terminal
 #   .\evidencia.ps1 estado
 #   .\evidencia.ps1 vivo RT-03 --toma lat_a --config 960x540@5   (el rodaje en vivo, RT-04: .\rodaje.ps1)
+#   .\evidencia.ps1 calibrar                    (el encuadre, despues de .\rodaje.ps1 -Calibrar; doc 134 13.19)
 #   .\evidencia.ps1 veredicto ALR-01 identico --motivo "..." --quien "Nombre"
 #
 # Con -Fondo la salida va a e-ovrt_experimental-setup\results\gen2\_registro\<hora>.log.

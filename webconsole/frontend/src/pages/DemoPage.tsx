@@ -25,7 +25,7 @@ const PASOS: Record<string, string> = {
 const CHEQUEOS: Record<string, string> = {
   sesion: 'sesión', deteccion: 'detección', motor: 'motor fresco', reglas: 'reglas',
   distribucion: 'distribución', broker: 'broker', congelado: 'configuración congelada',
-  host: 'cámara y host', modo: 'prompts del modo',
+  host: 'cámara y host', modo: 'prompts del modo', encuadre: 'encuadre calibrado',
 }
 const FASES_ACTIVAS: DemoFase[] = ['preparing', 'live', 'finishing', 'rendering']
 const SIN_LISTO_S = 30

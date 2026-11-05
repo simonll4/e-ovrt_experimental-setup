@@ -73,6 +73,11 @@ _ESCENA = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_-]{0,23}$")
 # Sin puntos ni barras: el id es un nombre de carpeta y no puede salir de `sesiones/`.
 _ID_RE = re.compile(r"^demo_\d{8}T\d{6}Z(_[A-Za-z0-9-]+)*$")
 _PREFLIGHT_HOST = "preflight_host.json"
+# La calibración de encuadre vigente por cámara (tools/evidencia/calibracion.py; doc 134 §13.19): la deja
+# `evidencia calibrar` y la lee `rodaje.ps1` antes de cada toma. El chequeo previo la muestra, no bloquea.
+_VIGENTE_ENCUADRE = Path("results") / "gen2" / "_calibraciones" / "vigente.json"
+_SPEC_ENCUADRE = Path("experiments") / "demo_defensa" / "calibracion.json"
+_VIGENCIA_ENCUADRE_H = 12.0
 
 REPOS = (
     ("e-ovrt_media-plane", "simonll4"),
@@ -374,6 +379,32 @@ class DemoManager:
             return {"presente": False}
         return {"presente": True, "edad_s": round(edad, 1), "datos": data}
 
+    def _encuadre(self) -> dict[str, Any]:
+        """La calibración de encuadre vigente por cámara (`plugin` → resumen), con su edad y si
+        sirve para lanzar tomas: pasó o se aceptó con motivo, y es más nueva que la vigencia
+        máxima de `calibracion.json` (12 h si no se puede leer)."""
+        try:
+            vigente = json.loads((self._repo_root / _VIGENTE_ENCUADRE).read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            return {"presente": False, "por_camara": {}}
+        try:
+            spec = json.loads((self._repo_root / _SPEC_ENCUADRE).read_text(encoding="utf-8"))
+            max_h = float(spec["umbrales"]["vigencia_max_h"])
+        except (OSError, ValueError, KeyError, TypeError):
+            max_h = _VIGENCIA_ENCUADRE_H
+        ahora = self._reloj()
+        por_camara: dict[str, dict] = {}
+        for plugin, r in (vigente.get("por_camara") or {}).items():
+            if not isinstance(r, dict):
+                continue
+            try:
+                edad_h = (ahora - datetime.fromisoformat(r["fecha"]).timestamp()) / 3600
+            except (KeyError, ValueError, TypeError):
+                continue
+            por_camara[plugin] = {**r, "edad_h": round(edad_h, 2),
+                                  "sirve": edad_h <= max_h and bool(r.get("ok") or r.get("aceptada"))}
+        return {"presente": True, "por_camara": por_camara, "vigencia_max_h": max_h}
+
     async def camaras(self) -> list[dict]:
         """Las cámaras de la demo, cada una con su estado (`demo.camara.estado_pasivo`): se muestra
         siempre en el selector y no abre ninguna cámara."""
@@ -608,7 +639,35 @@ class DemoManager:
                  else f"hace {host['edad_s'] / 60:.0f} min",
                  "ver la capa de evidencia (E)" if fallas else None)
 
+        # El encuadre calibrado (doc 134 §13.19): la OAK-D es la cámara de la demo; si hay una IP
+        # calibrada se nombra también. Amarillo, nunca rojo: lo que frena una toma sin calibrar es
+        # rodaje.ps1, y la tecla I de la demo no se bloquea por esto.
+        encuadre = self._encuadre()
+        oakd = encuadre["por_camara"].get("oak_d")
+        otras = ", ".join(f"{p}: {'sirve' if r['sirve'] else 'no sirve'} ({r.get('session_id')})"
+                          for p, r in sorted(encuadre["por_camara"].items()) if p != "oak_d")
+        if oakd is None:
+            item("encuadre", "encuadre calibrado", "aviso",
+                 "sin calibración de encuadre para la OAK-D" + (f" (otras cámaras: {otras})" if otras else ""),
+                 "ubicar la cámara y calibrar: rodaje.ps1 -Calibrar -Altura <m>; después evidencia.ps1 calibrar")
+        elif not oakd["sirve"]:
+            causa = (f"tiene {oakd['edad_h']:.1f} h" if oakd.get("ok") or oakd.get("aceptada")
+                     else "no pasó (" + ", ".join(oakd.get("fallan") or []) + ")")
+            item("encuadre", "encuadre calibrado", "aviso",
+                 f"la calibración vigente de la OAK-D ({oakd.get('session_id')}) no sirve: {causa}",
+                 "repetir la calibración (rodaje.ps1 -Calibrar) o aceptarla con motivo (evidencia.ps1 calibrar --aceptar)")
+        elif oakd.get("ok"):
+            obs = oakd.get("observaciones") or []
+            item("encuadre", "encuadre calibrado", "ok",
+                 f"OAK-D: {oakd.get('session_id')}, hace {oakd['edad_h'] * 60:.0f} min, lente a {oakd.get('altura_m')} m"
+                 + (f"; observaciones: {', '.join(obs)}" if obs else "") + (f"; {otras}" if otras else ""), None)
+        else:
+            item("encuadre", "encuadre calibrado", "aviso",
+                 f"OAK-D: la calibración vigente ({oakd.get('session_id')}) no pasó "
+                 f"({', '.join(oakd.get('fallan') or [])}) y fue aceptada con motivo: {oakd.get('motivo')}", None)
+
         return {
+            "encuadre": encuadre,
             # Solo los rojos frenan la tecla I. Los amarillos (p.ej. un chequeo del host
             # de hace más de 15 min, que en plena defensa es lo normal) se muestran pero
             # no bloquean: decisión de implementación, ver infra/demo/README.md.

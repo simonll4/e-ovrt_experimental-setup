@@ -32,7 +32,7 @@ def test_preflight_lista_los_chequeos_y_no_revienta_sin_plantillas(two_plane_cli
     body = client.get("/api/demo/preflight").json()
     ids = [i["id"] for i in body["items"]]
     assert ids == ["sesion", "deteccion", "motor", "reglas", "distribucion", "broker",
-                   "congelado", "host"]
+                   "congelado", "host", "encuadre"]
     assert body["listo"] is False  # sin broker y sin plantillas: rojo
     congelado = next(i for i in body["items"] if i["id"] == "congelado")
     assert congelado["estado"] == "error"
@@ -143,7 +143,7 @@ def test_modos_lista_los_tres_con_frases_y_cifras(client):
         shutil.copy2(REPO_REAL / "prompts" / archivo, repo / "prompts")
     body = client.get("/api/demo/modos").json()
     assert body["default"] == "campeon"
-    assert [m["id"] for m in body["modos"]] == ["campeon", "edir", "clase_nueva"]
+    assert [m["id"] for m in body["modos"]] == ["campeon", "edir", "clase_nueva", "reflective"]
     edir = body["modos"][1]
     assert edir["prompt_set"] == "edir_v1_pair_nivel_b" and edir["pattern_set"] == "cr01_cr02_edir_v1"
     assert edir["clases"][1]["frases"] == ["construction worker without safety helmet"]

@@ -163,10 +163,45 @@ async def test_preflight_nativo_todo_verde_salvo_el_motor_en_amarillo(entorno):
     pf = await entorno.dm.preflight()
     por_id = {i["id"]: i["estado"] for i in pf["items"]}
     assert por_id["motor"] == "aviso"  # nativo: la consola no puede verificarlo
-    assert all(v == "ok" for k, v in por_id.items() if k != "motor"), pf["items"]
+    assert por_id["encuadre"] == "aviso"  # sin calibración de encuadre todavía (doc 134 §13.19)
+    assert all(v == "ok" for k, v in por_id.items() if k not in ("motor", "encuadre")), pf["items"]
     assert pf["listo"] is True
     assert pf["congelado"]["ok"] is True
     assert pf["stack"] == "nativo"
+
+
+def _vigente(repo: Path, fecha: str, **resto) -> None:
+    ruta = repo / "results" / "gen2" / "_calibraciones" / "vigente.json"
+    ruta.parent.mkdir(parents=True, exist_ok=True)
+    ruta.write_text(json.dumps({"schema": "calibraciones.vigentes.v1", "por_camara": {"oak_d": {
+        "session_id": "demo_x_CAL", "fecha": fecha, "ok": True, "aceptada": False, "motivo": None,
+        "altura_m": 1.9, "fallan": [], "observaciones": [], **resto}}}))
+
+
+async def test_preflight_encuadre_calibrado_verde_vencido_o_sin_pasar_amarillo(entorno):
+    """✎ 2026-11-05 (doc 134 §13.19): la calibración vigente de la OAK-D se muestra en el chequeo
+    previo. Pasó y es reciente: verde. Vencida (más de la vigencia máxima), o aceptada sin pasar:
+    amarillo, y nunca bloquea (lo que frena una toma es rodaje.ps1)."""
+    from datetime import UTC, datetime, timedelta
+
+    dm = entorno.dm
+    ahora = datetime.now(UTC)
+    _vigente(dm.repo_root, (ahora - timedelta(minutes=10)).isoformat(timespec="seconds"), observaciones=["pies_visibles"])
+    pf = await dm.preflight()
+    enc = next(i for i in pf["items"] if i["id"] == "encuadre")
+    assert enc["estado"] == "ok" and "1.9 m" in enc["detalle"] and "pies_visibles" in enc["detalle"]
+    assert pf["encuadre"]["por_camara"]["oak_d"]["sirve"] is True
+
+    _vigente(dm.repo_root, (ahora - timedelta(hours=13)).isoformat(timespec="seconds"))
+    pf = await dm.preflight()
+    enc = next(i for i in pf["items"] if i["id"] == "encuadre")
+    assert enc["estado"] == "aviso" and "no sirve" in enc["detalle"] and pf["listo"] is True
+
+    _vigente(dm.repo_root, ahora.isoformat(timespec="seconds"), ok=False, aceptada=True,
+             motivo="control del encuadre del 11-01", fallan=["cerca_no_cortada"])
+    pf = await dm.preflight()
+    enc = next(i for i in pf["items"] if i["id"] == "encuadre")
+    assert enc["estado"] == "aviso" and "aceptada con motivo" in enc["detalle"] and pf["listo"] is True
 
 
 async def test_preflight_con_broker_caido_bloquea(entorno):

@@ -44,6 +44,14 @@ en `no_evaluables` con el motivo, como una toma con otro chaleco u otro stream.
 La relectura por sujeto (✎ 2026-11-01, jornada F7): si falla, la toma no cuenta como «no se comportó
 como el guion por sujeto». Queda contada aparte (`relecturas_fallidas`) y la prueba queda `parcial`:
 un 0/9 que en realidad es la falla de la relectura no puede leerse como resultado.
+
+El encuadre (✎ 2026-11-05, doc 134 §13.19): antes de la primera toma se calibra la cámara ya ubicada
+(`rodaje.ps1 -Calibrar` + `evidencia calibrar`, `calibracion.py`) y cada toma lleva en `marcas.json` la
+calibración vigente de su cámara (`calibracion`). El driver la copia a cada `toma.json` y cuenta las
+tomas por encuadre (`ok` / `no_ok`, aceptada sin pasar, con motivo / `sin_calibrar`, las de antes de la
+enmienda); no excluye ninguna. RT-09 agrupa además por motor (GDINO base entra por la exploración de
+RT-05, con el set congelado) y por encuadre, y elige la remera solo entre las tomas del campeón con el
+encuadre que pasó.
 """
 from __future__ import annotations
 
@@ -112,12 +120,14 @@ def motivo_de_otro_modo(sesion: dict) -> str | None:
 
 
 def sesiones_del_rodaje(directorio: Path, escenas: dict[str, dict], *,
-                        exploracion: bool = False, fuente: str = "oak_d") -> list[dict]:
+                        exploracion: bool | None = False, fuente: str = "oak_d") -> list[dict]:
     """Las sesiones de la demo etiquetadas con una escena del catálogo, en orden: las de la
-    demo congelada (RT-04) o, con `exploracion`, solo las de exploración (RT-05). Solo las de la
-    `fuente` pedida: RT-04 y RT-05 son con la OAK-D; RT-06, con la cámara IP (`rtsp`). Incluye las de
-    un modo de prompts que no es el campeón (`modo_prompts`): quien las importa las deja como no
-    evaluables con `motivo_de_otro_modo`, para que no desaparezcan en silencio."""
+    demo congelada (RT-04) o, con `exploracion`, solo las de exploración (RT-05); con `None`, las
+    dos (RT-09, que compara motores). Solo las de la `fuente` pedida: RT-04 y RT-05 son con la
+    OAK-D; RT-06, con la cámara IP (`rtsp`). Incluye las de un modo de prompts que no es el campeón
+    (`modo_prompts`): quien las importa las deja como no evaluables con `motivo_de_otro_modo`, para
+    que no desaparezcan en silencio. La calibración de encuadre (escena `CAL`) nunca está en el
+    catálogo de escenas, así que nunca entra como toma."""
     filas = []
     if not directorio.is_dir():
         return filas
@@ -129,7 +139,8 @@ def sesiones_del_rodaje(directorio: Path, escenas: dict[str, dict], *,
             datos = json.loads(sesion_json.read_text(encoding="utf-8"))
         except json.JSONDecodeError:
             continue
-        if (datos.get("escena") in escenas and bool(datos.get("exploracion")) == exploracion
+        if (datos.get("escena") in escenas
+                and (exploracion is None or bool(datos.get("exploracion")) == exploracion)
                 and fuente_de(datos) == fuente):
             filas.append({**datos, "_dir": carpeta})
     return filas
@@ -158,6 +169,7 @@ def _marcas(carpeta: Path) -> dict | None:
 PROPOSITOS_FUERA = {
     "prendas": "toma de la prueba de prendas y de la distractora (RT-09)",
     "ensayo": "ensayo del guion de la demo (G3, después del informe): no entra a ninguna prueba",
+    "calibracion": "calibración de encuadre (doc 134 §13.19): no es una toma",
 }
 
 
@@ -191,6 +203,27 @@ def motivo_de_otro_chaleco(receta: dict, carpeta: Path) -> str | None:
     if not declarado:
         return f"chaleco sin declarar (el pre-registro fija {fijado!r}; rodaje.ps1 -Chaleco)"
     return f"otro chaleco: {declarado!r} (el pre-registro fija {fijado!r})"
+
+
+def calibracion_de(marcas: dict | None) -> dict | None:
+    """La calibración de encuadre bajo la que corrió la toma: `rodaje.ps1` la copia de la vigente de
+    su cámara a `marcas.json` (enmienda del 2026-11-05, doc 134 §13.19). None en las tomas de antes."""
+    return (marcas or {}).get("calibracion") or None
+
+
+def encuadre_de(marcas: dict | None) -> str:
+    """`ok` (la calibración pasó), `no_ok` (no pasó y se aceptó con motivo y firma) o `sin_calibrar`."""
+    c = calibracion_de(marcas)
+    if not c:
+        return "sin_calibrar"
+    return "ok" if c.get("ok") else "no_ok"
+
+
+def _contar_encuadre(tomas: list[dict]) -> dict[str, int]:
+    cuenta = {"ok": 0, "no_ok": 0, "sin_calibrar": 0}
+    for t in tomas:
+        cuenta[t.get("encuadre") or "sin_calibrar"] += 1
+    return cuenta
 
 
 def evaluar_toma(ctx: Contexto, escena: dict, sesion: dict) -> dict:
@@ -273,6 +306,9 @@ def evaluar_toma(ctx: Contexto, escena: dict, sesion: dict) -> dict:
         "marcas": bool(marcas),
         # La prenda bajo el chaleco (rodaje.ps1 -Remera, desde el 2026-11-04): decide CR-02 (F-RT1).
         "remera": (marcas or {}).get("remera"),
+        # El encuadre calibrado bajo el que corrió (desde el 2026-11-05): decide la continuidad del falso.
+        "calibracion": calibracion_de(marcas),
+        "encuadre": encuadre_de(marcas),
         "alertas": filas_alertas,
         "por_condicion": por_condicion,
         "como_se_esperaba": all(c["ok"] for c in por_condicion.values()),
@@ -462,7 +498,8 @@ def _exploracion(ctx: Contexto, prueba: Prueba, carpeta: Carpeta, escenas: dict[
             "unidad": None, "gen1": None})
     metricas = {"tomas": len(tomas), "celdas": celdas,
                 "celdas_completas": sum(1 for c in celdas.values() if c["tomas"] and not c["faltan"]),
-                "celdas_totales": len(celdas), "no_evaluables": no_evaluables}
+                "celdas_totales": len(celdas), "no_evaluables": no_evaluables,
+                "encuadre": _contar_encuadre(tomas)}
     carpeta.escribir("evals/tomas.json", [{k: v for k, v in t.items() if k != "_series"} for t in tomas])
     completa = bool(tomas) and metricas["celdas_completas"] == metricas["celdas_totales"]
     datos = {
@@ -519,12 +556,17 @@ def _agregar(tomas: list[dict], *, fuente: str, etiqueta: str, minimas: dict | N
         "fps_efectivos_media": round(statistics.mean(fps), 2) if fps else None,
         "ensayos_demo": {"total": len(ensayos), "aprobados": sum(1 for e in ensayos if e["aprobado"]),
                          "mejor_racha": mejor, "cr02_en_vivo": sum(1 for e in ensayos if e["cr02_en_vivo"])},
+        # Bajo qué encuadre corrió cada toma (doc 134 §13.19): se cuenta, no se excluye.
+        "encuadre": _contar_encuadre(tomas),
     }
     if minimas:
         metricas["faltan_tomas"] = {e: max(0, n - por_escena.get(e, {}).get("tomas", 0)) for e, n in minimas.items()}
+    enc = metricas["encuadre"]
     resumen = [
         {"clave": "tomas_como_se_esperaba", "nombre": "Tomas que se comportaron como su guion (escena)",
          "valor": f"{metricas['tomas_como_se_esperaba']}/{len(tomas)}", "unidad": None, "gen1": None},
+        {"clave": "tomas_encuadre", "nombre": "Tomas por encuadre (calibrado / aceptado sin pasar / sin calibrar)",
+         "valor": f"{enc['ok']} / {enc['no_ok']} / {enc['sin_calibrar']}", "unidad": None, "gen1": None},
         {"clave": "tomas_sujeto_como_se_esperaba", "nombre": "Las mismas tomas releídas por sujeto",
          "valor": (f"{metricas['tomas_sujeto_como_se_esperaba']}/{metricas['tomas_sujeto_releidas']}"
                    + (f" ({len(metricas['relecturas_fallidas'])} sin releer: falló la relectura)"
@@ -657,44 +699,84 @@ def _ventana(marcas: dict | None, spec: dict) -> tuple[float, float | None] | No
     return desde, hasta
 
 
-def _cumple(minimo: dict, grupos: dict, referencia: str | None) -> str | None:
-    """None si el grupo mínimo del pre-registro está; si no, qué falta."""
+MOTOR_CAMPEON = "mp-gdino-tiny-560"
+
+
+def _motor_de(sesion: dict, motor_campeon: str) -> tuple[str, str | None]:
+    """(instancia del motor, cámara de exploración) de una toma: el campeón, o el motor y la cámara
+    de una sesión de exploración (`rodaje.ps1 -Motor … -Camara …`, con el set congelado)."""
+    x = sesion.get("exploracion") or {}
+    return x.get("motor") or motor_campeon, x.get("camara")
+
+
+def _nombre_grupo(modo: str, motor: str, encuadre: str, escena: str, remera: str, motor_campeon: str) -> tuple[str, str]:
+    """(clave, etiqueta) de una celda de RT-09: motor y encuadre aparecen solo cuando no son los del
+    campeón con el encuadre calibrado, así las claves de las celdas base no cambian."""
+    partes, texto = [escena, modo], f"{escena} · {modo}"
+    if motor != motor_campeon:
+        partes.append(motor.removeprefix("mp-"))
+        texto += f" · {motor.removeprefix('mp-')}"
+    if encuadre != "ok":
+        partes.append("encuadre-" + encuadre.replace("_", "-"))
+        texto += f" · encuadre {encuadre}"
+    partes.append(remera)
+    return "/".join(partes), texto + f" · remera «{remera}»"
+
+
+def _cumple(minimo: dict, grupos: dict, referencia: str | None, motor_campeon: str = MOTOR_CAMPEON) -> str | None:
+    """None si el grupo mínimo del pre-registro está; si no, qué falta. Un mínimo nombra modo y escena;
+    `motor` (default: el campeón), `encuadre` (default: `ok`) y la remera (`referencia`, un texto,
+    o `cualquiera` / ausente = se suman todas) son opcionales."""
     modo, escena = minimo["modo"], minimo["escena"]
+    motor, encuadre = minimo.get("motor") or motor_campeon, minimo.get("encuadre") or "ok"
     remera = referencia if minimo.get("remera") == "referencia" else minimo.get("remera")
-    del_par = {k: g for k, g in grupos.items() if k[0] == modo and k[1] == escena}
+    del_par = {k: g for k, g in grupos.items() if k[:4] == (modo, motor, encuadre, escena)}
+    etiqueta = (f"{escena} · {modo}" + (f" · {motor.removeprefix('mp-')}" if motor != motor_campeon else "")
+                + (f" · encuadre {encuadre}" if encuadre != "ok" else ""))
     if minimo.get("remeras_distintas"):
-        remeras = {k[2] for k in del_par}
+        remeras = {k[4] for k in del_par}
         faltan = []
         if len(remeras) < minimo["remeras_distintas"]:
             faltan.append(f"{minimo['remeras_distintas']} remeras distintas (hay {len(remeras)})")
         if minimo.get("incluye") == "referencia" and referencia not in remeras:
             faltan.append(f"la de referencia ({referencia!r})")
-        return f"{escena} · {modo}: " + " y ".join(faltan) if faltan else None
-    n = len((del_par.get((modo, escena, remera)) or {}).get("tomas") or [])
-    return None if n >= minimo["tomas"] else f"{escena} · {modo} · {remera}: {n} de {minimo['tomas']} tomas"
+        return f"{etiqueta}: " + " y ".join(faltan) if faltan else None
+    if remera in (None, "cualquiera"):
+        n = sum(len(g["tomas"]) for g in del_par.values())
+        return None if n >= minimo["tomas"] else f"{etiqueta}: {n} de {minimo['tomas']} tomas"
+    n = len((del_par.get((modo, motor, encuadre, escena, remera)) or {}).get("tomas") or [])
+    return None if n >= minimo["tomas"] else f"{etiqueta} · {remera}: {n} de {minimo['tomas']} tomas"
 
 
 def _prendas(ctx: Contexto, prueba: Prueba, carpeta: Carpeta, escenas: dict[str, dict], descartes: dict) -> dict:
-    """RT-09: las tomas `rodaje.ps1 -Proposito prendas`, con el campeón o con un modo de prompts,
-    agrupadas por modo × escena × remera. Por toma: lo que pasó contra el guion (como RT-04) y el
-    perfil del `vest` en la ventana de la escena (`perfil_vest`)."""
+    """RT-09: las tomas `rodaje.ps1 -Proposito prendas`, con el campeón o con un modo de prompts, y
+    con el campeón o con otro motor de la lista (por la exploración de RT-05), agrupadas por
+    modo × motor × encuadre × escena × remera. Por toma: lo que pasó contra el guion (como RT-04) y
+    el perfil del `vest` en la ventana de la escena (`perfil_vest`)."""
     from ..comparar import proponer
 
     r = prueba.receta
     regla = regla_cr02(ctx.ent.patrones / f"{r.get('patrones', 'cr01_cr02_v2')}.yaml")
     incluidas = r.get("escenas_incluidas") or list(r["ventanas"])
-    sesiones = [s for s in sesiones_del_rodaje(ctx.ent.repo / r["sesiones"], escenas)
+    motor_campeon = r.get("motor_campeon") or MOTOR_CAMPEON
+    motores = r.get("motores") or [motor_campeon]
+    modos = r.get("modos") or ["campeon"]
+    # Las tomas de prendas con la demo congelada y, desde el 2026-11-05, también las de exploración
+    # (otro motor, el mismo set): `exploracion=None` trae las dos.
+    sesiones = [s for s in sesiones_del_rodaje(ctx.ent.repo / r["sesiones"], escenas, exploracion=None)
                 if (_marcas(s["_dir"]) or {}).get("proposito") == "prendas"]
     carpeta.escribir("configuracion.json", {
         "escenas": sha256_archivo(prueba.ruta.parent / r["escenas"]), "chaleco": r.get("chaleco"),
         "regla_cr02": regla, "ventanas": r["ventanas"], "remera_referencia": r.get("remera_referencia"),
+        "modos": modos, "motores": motores, "camara_exploracion": r.get("camara_exploracion"),
         "sesiones_encontradas": [s.get("session_id") for s in sesiones]})
     grupos: dict[tuple, dict] = {}
-    no_evaluables = []
+    no_evaluables, calibraciones, todas = [], {}, []
     for sesion in sesiones:
         sid, escena_id = sesion.get("session_id"), sesion.get("escena")
         marcas = _marcas(sesion["_dir"]) or {}
         modo = (sesion.get("modo_prompts") or {}).get("id") or "campeon"
+        motor, camara_x = _motor_de(sesion, motor_campeon)
         motivo = None
         if escena_id not in incluidas:
             motivo = f"escena {escena_id} fuera de la prueba ({incluidas})"
@@ -704,8 +786,12 @@ def _prendas(ctx: Contexto, prueba: Prueba, carpeta: Carpeta, escenas: dict[str,
             motivo = f"la sesión terminó en {sesion.get('fase')!r}: {sesion.get('error')}"
         elif not marcas.get("remera"):
             motivo = "remera sin declarar (rodaje.ps1 -Remera)"
-        elif modo not in (r.get("modos") or ["campeon"]):
-            motivo = f"modo {modo!r} fuera de la prueba ({r.get('modos')})"
+        elif modo not in modos:
+            motivo = f"modo {modo!r} fuera de la prueba ({modos})"
+        elif motor not in motores:
+            motivo = f"motor {motor!r} fuera de la prueba ({motores})"
+        elif camara_x and r.get("camara_exploracion") and camara_x != r["camara_exploracion"]:
+            motivo = f"cámara de exploración {camara_x!r} (la prueba fija {r['camara_exploracion']!r})"
         else:
             motivo = motivo_de_otro_chaleco(r, sesion["_dir"])
         if motivo:
@@ -716,23 +802,30 @@ def _prendas(ctx: Contexto, prueba: Prueba, carpeta: Carpeta, escenas: dict[str,
         series = toma.pop("_series")
         ventana = _ventana(marcas, r["ventanas"][escena_id])
         toma["modo"] = modo
+        toma["motor"] = motor
+        toma["modelo"] = (sesion.get("exploracion") or {}).get("modelo")
         toma["ventana_vest"] = {**r["ventanas"][escena_id], "desde_ms": ventana and ventana[0],
                                 "hasta_ms": ventana and ventana[1]}
         toma["vest"] = perfil_vest(_cuadros_en_ventana(ctx, sesion, *ventana), regla) if ventana else None
+        if toma.get("calibracion"):
+            calibraciones[str(toma["calibracion"].get("session_id"))] = toma["calibracion"]
         (carpeta.dir / "tomas" / sid).mkdir(parents=True, exist_ok=True)
         carpeta.escribir(f"tomas/{sid}/series.json", series)
         carpeta.escribir(f"tomas/{sid}/toma.json", toma)
-        carpeta.guardar_corrida(sid, {"estado": "ok", "escena": escena_id, "modo": modo, "remera": toma["remera"],
+        carpeta.guardar_corrida(sid, {"estado": "ok", "escena": escena_id, "modo": modo, "motor": motor,
+                                      "encuadre": toma["encuadre"], "remera": toma["remera"],
                                       "experiment_id": toma["experiment_id"], **toma["ids"], "importada": ahora()})
-        grupos.setdefault((modo, escena_id, toma["remera"]), {"tomas": []})["tomas"].append(toma)
+        grupos.setdefault((modo, motor, toma["encuadre"], escena_id, toma["remera"]), {"tomas": []})["tomas"].append(toma)
+        todas.append(toma)
 
     filas, resumen = [], []
-    for (modo, escena_id, remera), g in sorted(grupos.items()):
+    for (modo, motor, encuadre, escena_id, remera), g in sorted(grupos.items()):
         tomas = g["tomas"]
         perfiles = [t["vest"] for t in tomas if t.get("vest")]
         cr02 = [t["por_condicion"]["CR-02"]["ok"] for t in tomas if "CR-02" in t["por_condicion"]]
         fila = {
-            "modo": modo, "escena": escena_id, "remera": remera, "tomas": len(tomas),
+            "modo": modo, "motor": motor, "encuadre": encuadre, "escena": escena_id, "remera": remera,
+            "tomas": len(tomas),
             "esperado_cr02": escenas[escena_id]["espera"].get("CR-02"),
             "cr02_como_el_guion": sum(cr02), "cr01_como_el_guion": sum(
                 1 for t in tomas if (t["por_condicion"].get("CR-01") or {}).get("ok")),
@@ -742,8 +835,7 @@ def _prendas(ctx: Contexto, prueba: Prueba, carpeta: Carpeta, escenas: dict[str,
             "session_ids": [t["session_id"] for t in tomas],
         }
         filas.append(fila)
-        etiqueta = f"{escena_id} · {modo} · remera «{remera}»"
-        clave = f"{escena_id}/{modo}/{remera}"
+        clave, etiqueta = _nombre_grupo(modo, motor, encuadre, escena_id, remera, motor_campeon)
         resumen += [
             {"clave": f"{clave}/cr02", "nombre": f"CR-02 como el guion ({fila['esperado_cr02']}) — {etiqueta}",
              "valor": f"{fila['cr02_como_el_guion']}/{len(tomas)}", "unidad": None, "gen1": None},
@@ -753,11 +845,13 @@ def _prendas(ctx: Contexto, prueba: Prueba, carpeta: Carpeta, escenas: dict[str,
              "valor": fila["racha_max_con_vest_s"], "unidad": "s", "gen1": None},
         ]
 
-    # La remera para RT-04/05/06, con la regla escrita en el pre-registro: entre las del campeón en
-    # la escena de prueba, las que alertaron CR-02 como el guion; de ellas, la de racha de `vest` más
-    # corta. Si ninguna alertó, la de menor fracción con `vest`. La propone el driver; la firma el equipo.
+    # La remera para RT-04/05/06, con la regla escrita en el pre-registro: entre las del campeón (modo
+    # y motor) con el encuadre calibrado en la escena de prueba, las que alertaron CR-02 como el guion;
+    # de ellas, la de racha de `vest` más corta. Si ninguna alertó, la de menor fracción con `vest`. La
+    # propone el driver; la firma el equipo.
     regla_remera = r.get("eleccion_remera") or {}
-    candidatas = [f for f in filas if f["modo"] == "campeon" and f["escena"] == regla_remera.get("escena", "P2")]
+    candidatas = [f for f in filas if f["modo"] == "campeon" and f["motor"] == motor_campeon
+                  and f["encuadre"] == "ok" and f["escena"] == regla_remera.get("escena", "P2")]
     alertaron = [f for f in candidatas if f["cr02_como_el_guion"] >= 1]
     if alertaron:
         elegida = min(alertaron, key=lambda f: (f["racha_max_con_vest_s"] or 0, f["fraccion_con_vest_p50"] or 0))
@@ -769,9 +863,11 @@ def _prendas(ctx: Contexto, prueba: Prueba, carpeta: Carpeta, escenas: dict[str,
                   "fraccion_con_vest_p50": elegida["fraccion_con_vest_p50"],
                   "racha_max_con_vest_s": elegida["racha_max_con_vest_s"]} if elegida else None)
 
-    faltan = [f for m in r.get("grupos_minimos") or [] if (f := _cumple(m, grupos, r.get("remera_referencia")))]
+    faltan = [f for m in r.get("grupos_minimos") or []
+              if (f := _cumple(m, grupos, r.get("remera_referencia"), motor_campeon))]
     metricas = {"tomas": sum(f["tomas"] for f in filas), "grupos": filas, "remera_propuesta": propuesta,
-                "faltan": faltan, "no_evaluables": no_evaluables}
+                "faltan": faltan, "no_evaluables": no_evaluables, "encuadre": _contar_encuadre(todas),
+                "calibraciones": calibraciones}
     datos = {"familia": "rodaje", "estado": "completo" if filas and not faltan else "parcial",
              "metricas": metricas, "resumen": resumen, "veredicto": proponer(metricas, prueba)}
     carpeta.resultado(datos)

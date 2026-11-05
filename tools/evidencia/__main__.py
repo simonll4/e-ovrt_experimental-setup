@@ -4,7 +4,8 @@
     python -m tools.evidencia verificar [ID|FASE ...]        # sin correr nada
     python -m tools.evidencia correr ID|FASE|todas [...] [--solo a_p1_c02,...] [--reagregar] [--forzar]
     python -m tools.evidencia vivo RT-03 --toma t1 --config 960x540@5 [--unidades 250]
-    python -m tools.evidencia descartar RT-04|RT-05|RT-06|RT-07|RT-08 <session_id> --motivo "..." --quien NOMBRE
+    python -m tools.evidencia descartar RT-04|...|RT-09 <session_id> --motivo "..." --quien NOMBRE
+    python -m tools.evidencia calibrar [--sesion ID] [--aceptar --motivo "..." --quien NOMBRE] [--listar]  # encuadre
     python -m tools.evidencia estado [ID|FASE ...]
     python -m tools.evidencia veredicto ID identico|equivalente_con_diferencia|otra_combinacion --motivo "..." --quien NOMBRE [--parcial]
     python -m tools.evidencia indice
@@ -23,7 +24,7 @@ import sys
 import traceback
 from pathlib import Path
 
-from . import revision_ciega, rutas
+from . import calibracion, revision_ciega, rutas
 from .catalogo import CatalogoInvalido, cargar_catalogo, seleccionar
 from .consola import Consola, ConsolaError
 from .entorno import detectar, foto
@@ -376,6 +377,52 @@ def cmd_revision_ciega(args) -> int:
     return 0
 
 
+def cmd_calibrar(args) -> int:
+    """La calibración de encuadre (calibracion.py, doc 134 §13.19): mide la última sesión `CAL` (o
+    la pedida) contra los criterios pre-registrados, deja la constancia en
+    `results/gen2/_calibraciones/` y la vigente de su cámara. Sale 0 si el encuadre sirve para
+    lanzar tomas (pasó, o se aceptó con motivo y firma)."""
+    ent = detectar()
+    spec = calibracion.cargar_spec(ent.repo)
+    sesiones_dir = Path(args.sesiones) if args.sesiones else ent.repo / "defensa" / "sesiones"
+    sesiones = calibracion.sesiones_cal(sesiones_dir)
+    if args.listar:
+        vigente = calibracion.leer_vigente(ent)
+        for plugin, r in sorted((vigente.get("por_camara") or {}).items()):
+            sirve, detalle = calibracion.vigencia(r, spec)
+            print(f"{plugin:8} {r.get('session_id')}  ok={r.get('ok')} aceptada={r.get('aceptada')}  "
+                  f"→ {'sirve' if sirve else 'NO sirve'}: {detalle}")
+        print(f"sesiones de calibración en {sesiones_dir}: {len(sesiones)}")
+        return 0
+    if args.sesion:
+        sesion = next((s for s in sesiones if s.get("session_id") == args.sesion), None)
+        if sesion is None:
+            raise SystemExit(f"no hay una sesión de calibración {args.sesion!r} en {sesiones_dir}")
+    elif sesiones:
+        sesion = sesiones[-1]
+    else:
+        raise SystemExit(f"no hay ninguna sesión de calibración en {sesiones_dir} "
+                         "(rodaje.ps1 -Calibrar -Altura <m>)")
+    if sesion.get("fase") != "done":
+        raise SystemExit(f"{sesion.get('session_id')} terminó en {sesion.get('fase')!r}: repetir la calibración")
+    try:
+        evaluacion = calibracion.evaluar(ent, sesion, spec)
+    except calibracion.CalibracionInvalida as exc:
+        print(f"calibración inválida: {exc}", file=sys.stderr)
+        return 1
+    if args.aceptar:
+        if not args.motivo or not args.quien:
+            raise SystemExit("--aceptar pide --motivo y --quien (queda firmado en la constancia)")
+        if evaluacion["ok"]:
+            print("la calibración pasó: no hace falta aceptarla")
+        else:
+            evaluacion["aceptada"] = {"motivo": args.motivo, "quien": args.quien, "fecha": ahora()}
+    ruta = calibracion.guardar(ent, evaluacion)
+    print(calibracion.informe(evaluacion))
+    print(f"constancia: {ruta}\nvigente ({evaluacion['camara']['plugin']}): {ruta.parent / calibracion.VIGENTE}")
+    return 0 if (evaluacion["ok"] or evaluacion.get("aceptada")) else 1
+
+
 def cmd_indice(_args) -> int:
     ent = detectar()
     print(escribir_indice(ent, cargar_catalogo(ent.catalogo)))
@@ -429,12 +476,23 @@ def main(argv=None) -> int:
     p.add_argument("--csv", help="cerrar: el CSV que bajó la página (default: defensa/figuras/VIS-01/"
                                  "revision_ciega_completa.csv)")
     p.set_defaults(f=cmd_revision_ciega)
-    p = sub.add_parser("descartar", help="saca una toma del rodaje en vivo (RT-04 a RT-08) del agregado, con motivo")
-    p.add_argument("prueba", choices=["RT-04", "RT-05", "RT-06", "RT-07", "RT-08"])
+    p = sub.add_parser("descartar", help="saca una toma del rodaje en vivo (RT-04 a RT-09) del agregado, con motivo")
+    p.add_argument("prueba", choices=["RT-04", "RT-05", "RT-06", "RT-07", "RT-08", "RT-09"])
     p.add_argument("session_id")
     p.add_argument("--motivo", required=True)
     p.add_argument("--quien", required=True)
     p.set_defaults(f=cmd_descartar)
+    p = sub.add_parser("calibrar", help="la calibración de encuadre: mide la última sesión CAL contra "
+                                        "experiments/demo_defensa/calibracion.json y deja la vigente por cámara")
+    p.add_argument("--sesion", help="una sesión CAL en particular (default: la última)")
+    p.add_argument("--aceptar", action="store_true",
+                   help="acepta una calibración que NO pasó, con --motivo y --quien (p. ej. el control del encuadre "
+                        "del 11-01 en RT-09): las tomas quedan marcadas con encuadre no_ok")
+    p.add_argument("--motivo")
+    p.add_argument("--quien")
+    p.add_argument("--listar", action="store_true", help="las vigentes por cámara, sin medir nada")
+    p.add_argument("--sesiones", help=argparse.SUPPRESS)  # otra carpeta de sesiones (tests)
+    p.set_defaults(f=cmd_calibrar)
     args = ap.parse_args(argv)
     try:
         return args.f(args)

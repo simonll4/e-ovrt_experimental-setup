@@ -1,6 +1,6 @@
 schema: prueba.gen2.v1
 id: RT-09
-titulo: "La prenda bajo el chaleco, en vivo (F-RT1)"
+titulo: "La prenda bajo el chaleco, en vivo (F-RT1): remera, frase y encuadre"
 informe: ["Tabla 54", "§17.5.5", "§17.5.7"]
 fase: F7
 familia: rodaje
@@ -12,59 +12,105 @@ familia: rodaje
 # La clase distractora («t-shirt») que se pensó como segunda parte NO se corre: su piloto en datasets
 # (PC de desarrollo, 2026-11-04, doc 141 §4) la descartó con la regla fijada antes de correrlo (duplicó
 # el `vest` falso: 27,5 % → 52,8 % de las personas sin chaleco). Se sacó antes de correr nada.
+#
+# Enmienda del 2026-11-05 (doc 134 §13.19; propuesta completa en doc 143), también ANTES de correr nada
+# de RT-09. El análisis de las 10 tomas del 11-01 (doc 142) mostró que CR-02 decide por la CONTINUIDAD
+# del `vest` falso y que esa continuidad depende, antes que nada, del ENCUADRE: la OAK-D del 11-01
+# estaba a la altura del pecho, de frente y de cerca (persona cortada en la cadera, falso continuo,
+# p50 0,56–0,75); la misma cámara alta y mirando hacia abajo (el rodaje de julio) da un falso débil e
+# intermitente, y la cámara IP alta del 11-01 también. Con la cámara alta, la frase «reflective vest»
+# bajó el falso del 83 % al 12,5–17 % de los cuadros (IP) y del 62 % al 18 % (rodaje) en los pilotos,
+# sin perder el chaleco puesto; de frente y de cerca, ninguna frase alcanza. Por eso esta prueba suma:
+#   1. el ENCUADRE como variable medida: antes de la primera toma, la cámara ubicada por el operador se
+#      calibra con criterios geométricos pre-registrados (experiments/demo_defensa/calibracion.json;
+#      `rodaje.ps1 -Calibrar` + `evidencia calibrar`), y cada toma lleva la calibración vigente;
+#   2. el modo exploratorio `reflective` (modos.yaml: el campeón con «reflective vest» en vez de «vest»,
+#      mismas clases y reglas; prompts/cr01_cr02_v2_reflective.yaml, sin congelar y sin medir);
+#   3. opcional, GDINO base (mp-gdino-base-560, el set congelado) por la exploración de RT-05, porque en
+#      el rodaje casi no marca falso (2–28 % de los cuadros contra 66–95 % del campeón).
+# Nada de esto cambia el campeón ni ninguna otra prueba: RT-04, RT-05 y RT-06 siguen con el campeón y
+# la remera que elige esta prueba, con el encuadre calibrado.
 pregunta: >
-  Con el campeón y la OAK-D en la configuración de la demo, una persona y los chalecos de julio: ¿con qué
-  remera, al sacarse el chaleco, el modelo deja de ver un `vest` en el torso de forma continua y CR-02
-  alerta como el guion (P2)?
+  Con la OAK-D en la configuración de la demo, calibrada alta y mirando hacia abajo, una persona y los
+  chalecos de julio: ¿con qué remera, al sacarse el chaleco, el campeón deja de ver un `vest` en el torso de
+  forma continua y CR-02 alerta como el guion (P2)? ¿Y alcanza con cambiar la frase del chaleco a
+  «reflective vest» (el mismo modelo, las mismas reglas) para que alerte aun con la remera negra, sin que
+  el chaleco puesto dispare CR-02 (P1)?
 gen1:
-  result_id: "F-RT1 en el rodaje del 2026-07-25 (docs 70 y 71) y en la primera jornada de F7 (doc 140)"
-  doc: operacion/140
+  result_id: "F-RT1 en el rodaje del 2026-07-25 (docs 70 y 71), en la primera jornada de F7 (doc 140) y los pilotos del doc 142"
+  doc: operacion/142
   relacion: otra_combinacion
   motivo: >
-    No hay una medición previa de la prenda como variable. En julio, con remera negra, el falso llegó a
-    0,73 y las P2 en vivo dieron 0 alertas (doc 71 §2.2); `safety vest` no lo evitó (doc 70); en la Victus,
-    sin personas, una remera negra lisa no dio ningún `vest` en 309 cuadros (doc 133 §5.7), y el 2026-11-01
-    la misma condición dio 99–100 % (doc 140). Se muestra al lado, nunca en reemplazo.
+    No hay una medición previa de la prenda, la frase ni el encuadre como variables en vivo. En julio, con
+    remera negra y la cámara alta, el falso llegó a 0,73 y las P2 en vivo dieron 0 alertas a 1,2–1,8
+    cuadros/s (doc 71 §2.2); `safety vest` no lo evitó (doc 70); el 2026-11-01, de frente y de cerca, dio
+    99–100 % (doc 140). Los pilotos de «reflective vest» son de la PC de desarrollo (doc 142 §4.2) y no son
+    evidencia. Se muestra al lado, nunca en reemplazo.
 esperado: >
-  No hay una predicción fuerte: las dos observaciones previas sobre la remera negra se contradicen. Lo que
-  decide CR-02 es la continuidad del falso, no su frecuencia (doc 140 §4.4): CR-02 confirma con 7 s de
-  ausencia continua, y una racha de `vest` más corta que los 3 s de resolución no la cierra. Por eso se
-  reportan, por remera, la fracción de cuadros con `vest` en el torso Y las rachas continuas más largas,
-  además de las alertas contra el guion. Con una toma por remera se reporta «k de n», no una tasa. El
-  resultado elige la remera de RT-04, RT-05 y RT-06 (regla en `eleccion_remera`); NO cambia el campeón ni
-  ninguna otra prueba.
+  Lo que decide CR-02 es la continuidad del falso, no su frecuencia (doc 140 §4.4, doc 142 §1): confirma con
+  7 s de ausencia continua, y una racha de `vest` más corta que los 3 s de resolución no la cierra. Por eso se
+  reportan, por celda, la fracción de cuadros con `vest` en el torso Y las rachas continuas más largas, además
+  de las alertas contra el guion. Pronóstico (de los pilotos, no evidencia): con el encuadre calibrado y el
+  campeón, la remera negra sigue sin alertar o alerta a medias (la IP alta del 11-01 dio 0/3; el rodaje a 4,3
+  cuadros/s, 3/5); con `reflective` y la remera negra, CR-02 alerta en P2 y no alerta en P1 con el chaleco
+  puesto. Con una o dos tomas por celda se reporta «k de n», no una tasa. El resultado elige la remera de
+  RT-04, RT-05 y RT-06 (regla en `eleccion_remera`, solo entre las tomas del campeón con el encuadre
+  calibrado); NO cambia el campeón ni ninguna otra prueba. Si `reflective` alerta donde el campeón no, es
+  exploración en vivo: para citarlo como evidencia hace falta su propia prueba pre-registrada (bench de
+  imágenes + banco temporal con la frase).
 veredictos_posibles: [otra_combinacion]
 config:
-  modelo: grounding-dino/gdino-tiny-560
-  prompt_set: cr01_cr02_v2_short (el campeón; congelado)
+  modelo: grounding-dino/gdino-tiny-560 (y, opcional, grounding-dino/gdino-base-560 por la exploración de RT-05)
+  prompt_set: cr01_cr02_v2_short (el campeón; congelado) y cr01_cr02_v2_reflective (modo `reflective`; exploratorio)
   pattern_set: cr01_cr02_v2 (escena; la misma regla de CR-02 mide el `vest` en el torso)
-  camara: OAK-D a 960×540 y 5 fps (experiments/demo_defensa)
+  camara: OAK-D a 960×540 y 5 fps (experiments/demo_defensa), alta y mirando hacia abajo (calibracion.json)
   chaleco: los de julio (reflectantes); una persona en cuadro
 como_se_corre: >
-  Al arrancar la segunda jornada, antes de RT-04, con `rodaje.ps1 -Proposito prendas` (RT-04…RT-08 no
-  cuentan estas tomas) y `-Remera` con un texto estable por prenda (el mismo para la misma remera). Con el
-  campeón: P2 ×1 por remera candidata, al menos dos y siempre la de referencia ("negra lisa"); conviene
-  sumar una clara lisa y una de color medio. Después, `evidencia correr RT-09` propone la remera para RT-04
-  con la regla de abajo; la firma el equipo en la bitácora antes de la primera toma de RT-04. Si ninguna
-  remera deja alertar CR-02, RT-04 se corre igual con la propuesta, y P2/P6/DEMO quedan como evidencia de
-  F-RT1.
+  Al arrancar la segunda jornada, antes de RT-04. Primero la calibración de encuadre con la cámara ya ubicada
+  (`rodaje.ps1 -Calibrar -Altura <m> -Cerca <m> -Lejos <m>` y `evidencia calibrar`: tiene que pasar; si no,
+  se mueve la cámara y se repite). Después las tomas, todas con `rodaje.ps1 -Proposito prendas` (RT-04…RT-08
+  no las cuentan) y `-Remera` con un texto estable por prenda. Celdas, en este orden: (a) el campeón, P2 ×2 por
+  remera candidata (desde el 2026-11-05 la remera se decide al inicio de la jornada, clara contra oscura: la clara y
+  la "negra lisa", que es siempre la de referencia; una tercera toma de cada una si empatan, y una tercera remera,
+  azul lisa, solo si ninguna alerta CR-02; regla en doc 144 §5.1); (b) `-Modo reflective`, P2 ×2 con la
+  negra lisa, P2 ×1 con la remera que (a) propone (si no es la negra) y P1 ×1 con esa misma remera; (c) opcional, si hay tiempo:
+  `-Motor mp-gdino-base-560 -Camara 960x540@5`, P2 ×1–2 con la negra lisa y P1 ×1; y el control del encuadre
+  del 11-01 (la cámara a la altura del pecho, de frente y de cerca: se calibra, no pasa, se acepta con motivo
+  con `calibrar --aceptar`, y se hace P2 ×1 con el campeón y la negra lisa; es la última toma con la OAK-D del día, y
+  la cámara que se monta después en la posición calibrada, la IP, se calibra de nuevo antes de su primera toma). `evidencia correr RT-09` agrupa por modo × motor × encuadre × escena × remera y
+  propone la remera para RT-04 con la regla de abajo; la firma el equipo en la bitácora antes de la primera
+  toma de RT-04. Si ninguna remera deja alertar CR-02 con el campeón, RT-04 se corre igual con la propuesta,
+  y P2/P6/DEMO quedan como evidencia de F-RT1.
 receta:
   escenas: ../RT-04/escenas.json       # el mismo guion que RT-04
   proposito: prendas                   # solo las tomas `rodaje.ps1 -Proposito prendas`
-  escenas_incluidas: [P2]
+  escenas_incluidas: [P1, P2]
   chaleco: julio
   sesiones: defensa/sesiones
   patrones: cr01_cr02_v2               # de acá salen la región del torso y los umbrales de la regla
-  modos: [campeon]                     # la distractora no se corre (doc 141 §4)
+  modos: [campeon, reflective]         # la distractora no se corre (doc 141 §4); `reflective` desde el 2026-11-05
+  motor_campeon: mp-gdino-tiny-560
+  motores: [mp-gdino-tiny-560, mp-gdino-base-560]   # base entra por la exploración de RT-05 (set congelado)
+  camara_exploracion: "960x540@5"      # con otro motor, la misma cadencia que la demo; @15 queda no evaluable
+  encuadre: ../../demo_defensa/calibracion.json     # los criterios con los que se calibra; cada toma lleva la vigente
   remera_referencia: "negra lisa"
-  # Dónde se mira el `vest`: desde «sacate el chaleco» + `margen_s` (el actor tarda en sacárselo; el
-  # 2026-11-01 se usaron 5 s) hasta «ponete el chaleco».
+  # Dónde se mira el `vest`: en P2, desde «sacate el chaleco» + `margen_s` (el actor tarda en sacárselo; el
+  # 2026-11-01 se usaron 5 s) hasta «ponete el chaleco»; en P1, con el chaleco puesto todo el tiempo, desde
+  # «entrá» + `margen_s` hasta el fin (¿el chaleco puesto se ve, y no dispara CR-02?).
   ventanas:
     P2: {desde: sacar_chaleco, margen_s: 5, hasta: poner_chaleco, vest: ausente}
+    P1: {desde: entrar, margen_s: 3, hasta: null, vest: presente}
+  # Lo que vuelve la prueba `completo` (todo con el encuadre calibrado, `ok`, y el campeón como motor):
   grupos_minimos:
     - {modo: campeon, escena: P2, remeras_distintas: 2, incluye: referencia}
-  # La remera para RT-04/05/06: entre las del campeón en P2, las que alertaron CR-02 como el guion y, de
-  # ellas, la de racha continua de `vest` más corta; si ninguna alertó, la de menor fracción con `vest`.
+    - {modo: reflective, escena: P2, remera: referencia, tomas: 2}
+    - {modo: reflective, escena: P1, remera: cualquiera, tomas: 1}
+  # Celdas opcionales (no cuentan para `completo`; se reportan si están): reflective · P2 · la remera
+  # propuesta; base (mp-gdino-base-560) · P2 · negra lisa ×1–2 y · P1 ×1; campeon · P2 · negra lisa con el
+  # encuadre del 11-01 (calibración aceptada sin pasar: encuadre `no_ok`).
+  # La remera para RT-04/05/06: entre las del campeón (modo y motor) con el encuadre calibrado en P2, las que
+  # alertaron CR-02 como el guion y, de ellas, la de racha continua de `vest` más corta; si ninguna alertó, la
+  # de menor fracción con `vest`.
   eleccion_remera: {escena: P2}
   timeout_s: 900
 salida: e-ovrt_experimental-setup/results/gen2/RT-09/

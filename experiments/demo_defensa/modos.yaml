@@ -113,3 +113,30 @@ modos:
     cifras:
       - {prueba: EXT-01, clave: ap50_machinery_obra, que_es: "AP50 de machinery en el bench de obra, clase jamás configurada ni entrenada"}
       - {prueba: EXT-01, clave: ap50_vehicle_obra, que_es: "AP50 de vehicle en el mismo bench, con machinery en el caption"}
+  # ✎ 2026-11-05 (enmienda del doc 134 §13.19; doc 143): el primer modo EXPLORATORIO real. Es el
+  # campeón con una sola frase cambiada: el chaleco se pide como «reflective vest». Sin medir en la
+  # generación 2 (amarillo, sin cifras); lo corre RT-09 en vivo, con el encuadre calibrado, y RT-04…RT-08
+  # no lo cuentan. Los pilotos que lo motivan (PC de desarrollo, no evidencia): doc 142 §4.2.
+  reflective:
+    nombre: Chaleco reflectante
+    evidencia: exploratoria
+    resumen: >-
+      El campeón con una frase distinta para el chaleco: «reflective vest» en vez de «vest». Mismas clases,
+      mismas reglas. Se prueba en vivo porque con «vest» el modelo ve un chaleco sobre una remera oscura
+      (F-RT1) y CR-02 no alerta.
+    nota: >-
+      Exploración: todavía sin medir en la generación 2. En los pilotos de la PC de desarrollo (doc 142), con la
+      cámara alta la frase sacó casi todo el chaleco falso sobre la remera negra y siguió viendo el chaleco
+      puesto; de frente y de cerca no alcanza. Para citarla como evidencia hace falta su propia prueba.
+    prompts:
+      set_id: cr01_cr02_v2_reflective
+      fuente: prompts/cr01_cr02_v2_reflective.yaml
+      clases: [person, helmet, vest]
+      # tools/evidencia/huellas.armar_prompts sobre prompts/cr01_cr02_v2_reflective.yaml (2026-11-05)
+      payload_sha256: bb6ef0c4c0a632f1614adfaf8a31e24c76bab1d2b508c4c19d026bd9e3c6ece9
+    patrones:
+      id: cr01_cr02_v2
+      archivo: e-ovrt_control-plane/configs/patterns/cr01_cr02_v2.yaml
+      # el pattern set oficial: la misma huella que congelado.yaml
+      sha256_archivo: 4f80f5d3b4e78046f8a033044475a667cd0aed930cfeca05295cf63a323570e8
+    cifras: []

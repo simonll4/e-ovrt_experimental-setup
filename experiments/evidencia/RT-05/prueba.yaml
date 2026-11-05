@@ -59,6 +59,10 @@ receta:
   # firma el equipo en la bitácora antes de la primera toma; cada toma la declara (rodaje.ps1 -Remera) y
   # queda en su toma.json. escenas.json NO se toca: su huella la registran RT-07 y RT-08. Las tomas con
   # -Proposito prendas (RT-09) o ensayo (G3, después del informe) no cuentan acá.
+  # Enmienda del 2026-11-05 (doc 134 §13.19), antes de correr: el encuadre es una variable medida (se calibra
+  # antes de la primera toma, rodaje.ps1 -Calibrar + evidencia calibrar; cada toma lleva la calibración
+  # vigente y el driver cuenta las tomas por encuadre, sin excluir ninguna). Las tomas de prendas con otro
+  # motor (-Proposito prendas -Motor …) son de RT-09, no de acá.
   sesiones: defensa/sesiones
   matriz:
     motores: [mp-gdino-tiny-560, mp-gdino-base-560, mp-yoloe-26s, mp-yoloe-26x]

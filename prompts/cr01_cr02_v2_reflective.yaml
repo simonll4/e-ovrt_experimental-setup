@@ -1,0 +1,36 @@
+prompt_set:
+  id: cr01_cr02_v2_reflective
+  description: >
+    El campeón (cr01_cr02_v2_short) con UNA frase cambiada: el chaleco se pide como
+    "reflective vest" en vez de "vest". Las clases, los ids y las reglas son los mismos
+    (el pattern set lee `vest`; el adaptador de GDINO etiqueta la caja con el id de la
+    clase, no con la frase). Es un set EXPLORATORIO para F-RT1: con la cámara alta, el
+    campeón marca un `vest` falso sobre una remera negra lisa en la mayoría de los
+    cuadros y CR-02 no alerta; en los pilotos de la PC de desarrollo (doc 142 §4.2,
+    2026-11-04; no son evidencia) "reflective vest" bajó ese falso del 83 % al 12,5 % de
+    los cuadros con la cámara IP alta y del 62 % al 18 % en el rodaje de julio, sin
+    perder el chaleco real (puesto: confianza mediana 0,86–0,90, también el amarillo sin
+    bandas) y sin mover persona ni casco en el bench de obra (AP del chaleco 0,57 → 0,65).
+    De frente y de cerca (la OAK-D del 11-01, cortada en la cadera) NO alcanza.
+    Se corre en vivo como modo exploratorio de /demo (modos.yaml: `reflective`) dentro de
+    RT-09 (enmienda del 2026-11-05, doc 134 §13.19), siempre con el encuadre calibrado.
+    NO está congelado y NO está medido en la generación 2: para citarlo como evidencia
+    hace falta su propia prueba en la Victus (bench de imágenes + banco temporal).
+  language: en
+  status: exploratory
+  # sha256 del bloque `classes` con la convención de la consola (tools/evidencia/huellas.hash_clases):
+  # lo verifica el chequeo previo de /demo por `payload_sha256` en modos.yaml, no por este archivo.
+  track: core
+  classes:
+    - id: person
+      role: entity
+      strategy: canonical_positive
+      phrasings: { default: ["person"] }
+    - id: helmet
+      role: ppe
+      strategy: canonical_positive
+      phrasings: { default: ["helmet"] }
+    - id: vest
+      role: ppe
+      strategy: canonical_positive
+      phrasings: { default: ["reflective vest"] }

@@ -34,7 +34,7 @@ def test_la_lista_es_cerrada_y_el_campeon_no_cambia_nada(tmp_path):
     repo = _repo_demo(tmp_path)
     datos = demo_modos.cargar(repo)
     assert datos["default"] == "campeon"
-    assert list(datos["modos"]) == ["campeon", "edir", "clase_nueva"]
+    assert list(datos["modos"]) == ["campeon", "edir", "clase_nueva", "reflective"]
     assert demo_modos.resolver(repo, None) is None
     assert demo_modos.resolver(repo, "campeon") is None
     with pytest.raises(demo_config.ConfigDemoError, match="fuera de la lista"):
@@ -133,7 +133,7 @@ def test_describir_trae_las_frases_y_las_cifras_de_la_generacion_2(tmp_path):
     lista = demo_modos.describir(repo)
     assert lista["default"] == "campeon"
     por_id = {m["id"]: m for m in lista["modos"]}
-    assert [m["id"] for m in lista["modos"]] == ["campeon", "edir", "clase_nueva"]
+    assert [m["id"] for m in lista["modos"]] == ["campeon", "edir", "clase_nueva", "reflective"]
     assert por_id["campeon"]["por_defecto"] and not por_id["edir"]["por_defecto"]
     assert [(c["id"], c["frases"]) for c in por_id["campeon"]["clases"]] == [
         ("person", ["person"]), ("helmet", ["helmet"]), ("vest", ["vest"])]
@@ -200,7 +200,26 @@ def test_sin_la_constancia_de_la_medicion_el_modo_queda_en_rojo(tmp_path):
 
 def test_las_etiquetas_dicen_que_representa_cada_modo_no_si_la_evidencia_es_buena():
     lista = {m: d["evidencia"] for m, d in demo_modos.cargar(REPO_REAL)["modos"].items()}
-    assert lista == {"campeon": "congelada", "edir": "descartada", "clase_nueva": "extension"}
+    assert lista == {"campeon": "congelada", "edir": "descartada", "clase_nueva": "extension",
+                     "reflective": "exploratoria"}
+
+
+def test_reflective_es_el_campeon_con_una_sola_frase_cambiada(tmp_path):
+    """✎ 2026-11-05 (doc 134 §13.19): el primer exploratorio real. Mismas clases e ids que el campeón,
+    el chaleco pedido como «reflective vest», el pattern set oficial, sin cifras ni constancia; la huella
+    declarada en modos.yaml es la del payload que arma la consola (la convención del driver)."""
+    repo = _repo_demo(tmp_path)
+    resuelto = demo_modos.resolver(repo, "reflective")
+    assert resuelto["evidencia"] == "exploratoria" and resuelto["medido_en"] is None
+    assert [(c["id"], c["frases"]) for c in resuelto["clases"]] == [
+        ("person", ["person"]), ("helmet", ["helmet"]), ("vest", ["reflective vest"])]
+    configs = _configs(repo, resuelto)
+    assert demo_modos.huella_prompts(configs["media"]["prompts"]) == resuelto["payload_sha256"]
+    assert configs["control"]["patterns"]["file"].endswith("/cr01_cr02_v2.yaml")
+    v = demo_modos.verificar(configs, resuelto, demo_config.verificar_congelado(repo, configs, MODELO_OK))
+    assert v["ok"] is True and v["exploratorio"] is True
+    descrito = {m["id"]: m for m in demo_modos.describir(repo)["modos"]}["reflective"]
+    assert descrito["cifras"] == [] and descrito["error"] is None
 
 
 def test_un_modo_exploratorio_se_verifica_por_huella_sin_constancia(tmp_path):

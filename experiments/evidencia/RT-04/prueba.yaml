@@ -48,6 +48,11 @@ receta:
   # firma el equipo en la bitácora antes de la primera toma; cada toma la declara (rodaje.ps1 -Remera) y
   # queda en su toma.json. escenas.json NO se toca: su huella la registran RT-07 y RT-08. Las tomas con
   # -Proposito prendas (RT-09) o ensayo (G3, después del informe) no cuentan acá.
+  # Enmienda del 2026-11-05 (doc 134 §13.19), antes de correr: el encuadre es una variable medida. Antes de
+  # la primera toma se calibra la cámara ya ubicada (rodaje.ps1 -Calibrar + evidencia calibrar, criterios en
+  # experiments/demo_defensa/calibracion.json: alta, mirando hacia abajo, persona no cortada en la cadera) y
+  # cada toma lleva la calibración vigente en marcas.json; el driver la copia a toma.json y cuenta las tomas
+  # por encuadre (pasó / aceptado sin pasar / sin calibrar). No excluye ninguna.
   sesiones: defensa/sesiones
   sujeto: {patrones: cr01_cr02_v2_subject, activos: [CR-01, CR-02], track_persons: true}
   # Ensayo aprobado de la demo (spec 2026-10-23 §9), para las tomas DEMO.

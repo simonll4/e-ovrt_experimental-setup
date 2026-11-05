@@ -1,0 +1,68 @@
+{
+  "schema": "calibracion.encuadre.v1",
+  "version": "2026-11-05",
+  "nota": "Calibración de encuadre (enmienda del 2026-11-05, doc 134 §13.19; propuesta completa en doc 143). Antes de la primera toma de una jornada y antes de la demo, con la cámara ya ubicada por el operador, una persona en regla (casco y chaleco) se para en la marca cercana, camina a la lejana y vuelve. La toma es una sesión de /demo con escena CAL (rodaje.ps1 -Calibrar); `evidencia calibrar` la mide con las cajas de `person` del detector y la compara con estos criterios, que son GEOMÉTRICOS y se fijan acá antes de medir: nunca se mira cuánto `vest` falso hay (eso sería ajustar la cámara al resultado). Salen del encuadre con el que se midió la evidencia (el rodaje de julio: cámara alta, mirando hacia abajo, persona con la cabeza en el quinto superior del cuadro y no cortada en la cadera) y del 11-01 (OAK-D a la altura del pecho, de frente y de cerca: cabeza al 30 % del cuadro, caja cortada en la cadera con ancho/alto 0,52–0,86), que es el encuadre que hay que evitar. Una calibración vale para una cámara ubicada; si se mueve la cámara, se repite.",
+  "escena": "CAL",
+  "titulo": "Calibración de encuadre",
+  "preparacion": "Una persona con casco y chaleco puestos (en regla: no tiene que alertar nada), cualquier remera. Dos marcas de cinta en el piso: la cercana (donde se para el actor en todas las escenas) y la lejana (la de P1b, lo más lejos que permita el lugar). Nadie más en cuadro. El operador declara la altura de la lente (cinta métrica) y las distancias de las marcas a la cámara.",
+  "guion": [
+    {"s": 2, "texto": "Entrá a la marca cercana con casco y chaleco, quedate quieto de frente a la cámara, con los brazos abajo", "accion": "cerca"},
+    {"s": 12, "texto": "Caminá hasta la marca lejana y quedate quieto, de frente a la cámara", "accion": "lejos"},
+    {"s": 22, "texto": "Volvé a la marca cercana y quedate quieto, de frente", "accion": "cerca_2"}
+  ],
+  "fin_s": 30,
+  "segmentos": {
+    "cerca": {"desde": "cerca", "margen_s": 3, "hasta": "lejos", "nota": "parado en la marca cercana"},
+    "lejos": {"desde": "lejos", "margen_s": 4, "hasta": "cerca_2", "nota": "parado en la marca lejana"},
+    "cerca_2": {"desde": "cerca_2", "margen_s": 4, "hasta": null, "nota": "de vuelta en la cercana: repetibilidad"}
+  },
+  "persona": {"confianza_min": 0.35, "area_min_px": 400, "nota": "los mismos umbrales de sujeto de cr01_cr02_v2 (min_subject_confidence, min_subject_area_px)"},
+  "borde": 0.02,
+  "umbrales": {
+    "persona_detectada_min": 0.85,
+    "lejos_persona_detectada_min": 0.80,
+    "dos_personas_max": 0.05,
+    "cabeza_visible_min": 0.90,
+    "pies_visibles_min": 0.90,
+    "cerca_alto_min": 0.40,
+    "cerca_alto_max": 0.95,
+    "cerca_ancho_alto_max": 0.50,
+    "cerca_cabeza_top_max": 0.20,
+    "lejos_alto_min": 0.20,
+    "desnivel_cabeza_max": 0.03,
+    "altura_camara_min_m": 1.6,
+    "altura_camara_recomendada_m": 1.8,
+    "chaleco_puesto_visto_min": 0.80,
+    "vigencia_max_h": 12
+  },
+  "criterios": {
+    "bloqueantes": {
+      "una_persona": "en «cerca» y «lejos», hay una persona en ≥ persona_detectada_min de los cuadros (lejos: ≥ lejos_persona_detectada_min) y dos o más en ≤ dos_personas_max",
+      "altura_declarada": "la altura de la lente declarada (-Altura) es ≥ altura_camara_min_m",
+      "cabeza_visible": "en «cerca» y «lejos», el borde superior de la caja está por debajo del borde del cuadro (> borde) en ≥ cabeza_visible_min de los cuadros",
+      "cerca_no_cortada": "en «cerca», ancho/alto de la caja (mediana) ≤ cerca_ancho_alto_max: la persona no está cortada en la cadera (el 11-01 dio 0,52–0,86; el rodaje, 0,35–0,46)",
+      "cerca_tamano": "en «cerca», alto de la caja / alto del cuadro (mediana) entre cerca_alto_min y cerca_alto_max",
+      "camara_alta": "la cámara está por encima de la cabeza y mira hacia abajo: en «cerca» el borde superior de la caja (mediana) está en el quinto superior del cuadro (≤ cerca_cabeza_top_max; el 11-01 dio 0,29–0,31, el rodaje 0,01–0,15) y en «lejos» la cabeza no baja respecto de «cerca» (top_lejos − top_cerca ≤ desnivel_cabeza_max; con la cámara a la altura del pecho la cabeza lejana baja hacia el centro)",
+      "lejos_tamano": "en «lejos», alto de la caja / alto del cuadro (mediana) ≥ lejos_alto_min (una persona más chica no se detecta de forma estable: ERR-01)"
+    },
+    "recomendados": {
+      "pies_visibles": "en «cerca» y «lejos», el borde inferior de la caja está por encima del borde del cuadro en ≥ pies_visibles_min de los cuadros (cuerpo entero; el rodaje lo cumplía solo en parte y la cámara IP del 11-01 no: no bloquea)",
+      "altura_recomendada": "altura de la lente ≥ altura_camara_recomendada_m",
+      "chaleco_puesto_visto": "en «cerca» y «lejos», con el chaleco puesto el detector lo ve en el torso en ≥ chaleco_puesto_visto_min de los cuadros (informativo: si no lo ve lejos, P1b y la demo lo van a sufrir)",
+      "repetible": "«cerca_2» da el mismo veredicto geométrico que «cerca» (ancho/alto y cabeza)"
+    }
+  },
+  "sugerencias": {
+    "una_persona": "despejar el cuadro: una sola persona; si no se la detecta, acercar la marca o mejorar la luz",
+    "altura_declarada": "subir la cámara (trípode extendido, o sobre un mueble) a 1,8 m o más",
+    "cabeza_visible": "inclinar la cámara un poco menos hacia abajo, o alejar la marca",
+    "cerca_no_cortada": "la persona está cortada en la cadera: alejar la marca cercana y/o inclinar la cámara más hacia abajo",
+    "cerca_tamano": "si es chica, acercar la marca cercana; si es enorme, alejarla",
+    "camara_alta": "subir la cámara por encima de la cabeza (≥ 1,8 m) e inclinarla hacia abajo, como una cámara de obra",
+    "lejos_tamano": "acercar la marca lejana",
+    "pies_visibles": "para el cuerpo entero: alejar la marca o inclinar un poco más la cámara (no bloquea)",
+    "altura_recomendada": "si se puede, 1,8 m o más",
+    "chaleco_puesto_visto": "el chaleco puesto no se ve bien: revisar la luz y que el chaleco quede de frente",
+    "repetible": "la persona no volvió a la misma marca o se movió: repetir la calibración"
+  }
+}

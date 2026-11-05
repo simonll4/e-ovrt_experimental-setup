@@ -34,9 +34,18 @@ def _entorno(tmp_path: Path) -> Entorno:
     return ent
 
 
+CALIBRADA = {"session_id": "demo_0_CAL", "ok": True, "aceptada": False, "fecha": "2026-11-07T09:00:00+00:00",
+             "altura_m": 1.9}
+ACEPTADA_SIN_PASAR = {"session_id": "demo_1_CAL", "ok": False, "aceptada": True, "fecha": "2026-11-07T09:30:00+00:00",
+                      "altura_m": 1.3}
+BASE = {"motor": "mp-gdino-base-560", "camara": "960x540@5", "modelo": "grounding-dino/gdino-base-560"}
+
+
 def _sesion(ent: Entorno, sesiones: Path, sid: str, escena: str, *, acciones: list[dict], cuadros,
-            proposito="prendas", remera="negra lisa", chaleco="julio", modo=None, alertas=()):
-    """Una toma de la demo a 5 fps: `cuadros(i)` da las detecciones de la unidad i."""
+            proposito="prendas", remera="negra lisa", chaleco="julio", modo=None, alertas=(),
+            calibracion=CALIBRADA, exploracion=None):
+    """Una toma de la demo a 5 fps: `cuadros(i)` da las detecciones de la unidad i. Desde el
+    2026-11-05 toda toma lleva la calibración de encuadre vigente (`calibracion`, doc 134 §13.19)."""
     media_id, control_id = f"run_{sid}", f"ctl_{sid}"
     d = sesiones / sid
     (d / "config").mkdir(parents=True)
@@ -45,11 +54,11 @@ def _sesion(ent: Entorno, sesiones: Path, sid: str, escena: str, *, acciones: li
         "session_id": sid, "escena": escena, "fase": "done", "experiment_id": f"exp_{sid}",
         "ids": {"media_run_id": media_id, "control_run_id": control_id},
         "fin_pedido_en": "2026-11-07T10:00:00+00:00", "terminada_en": "2026-11-07T10:00:09+00:00",
-        "exploracion": None, "camara": None,
+        "exploracion": exploracion, "camara": None,
         **({"modo_prompts": {"id": modo, "evidencia": "exploratoria"}} if modo else {})}))
     (d / "witness.jsonl").write_text("")
     marcas = {"desfase_contenedor_menos_host_ms": 0.0, "chaleco": chaleco, "remera": remera,
-              "proposito": proposito, "modo": modo, "acciones": acciones}
+              "proposito": proposito, "modo": modo, "calibracion": calibracion, "acciones": acciones}
     (d / "marcas.json").write_text("﻿" + json.dumps(marcas))  # con BOM, como PowerShell
     mr = ent.media_runs / media_id
     mr.mkdir(parents=True)
@@ -143,6 +152,11 @@ def test_rt04_no_cuenta_las_tomas_de_prendas_ni_los_ensayos(tmp_path, monkeypatc
     assert m["tomas"] == 1  # solo la toma de verdad
     toma = carpeta.leer("tomas/demo_a_P1/toma.json")
     assert toma["remera"] == "negra lisa"
+    # El encuadre bajo el que corrió queda en la toma y contado en el agregado (doc 134 §13.19).
+    assert toma["calibracion"]["session_id"] == "demo_0_CAL" and toma["encuadre"] == "ok"
+    assert m["encuadre"] == {"ok": 1, "no_ok": 0, "sin_calibrar": 0}
+    assert any(r["clave"] == "tomas_encuadre" and r["valor"] == "1 / 0 / 0"
+               for r in carpeta.leer("resultado.json")["resumen"])
 
 
 def test_rt09_importa_solo_prendas_perfila_el_vest_y_propone_la_remera(tmp_path, monkeypatch):
@@ -193,9 +207,11 @@ def test_rt09_importa_solo_prendas_perfila_el_vest_y_propone_la_remera(tmp_path,
     assert any(r["clave"] == "P2/campeon/gris clara lisa/cr02" and r["valor"] == "1/1" for r in resultado["resumen"])
 
 
-def test_rt09_real_es_solo_la_prueba_de_prendas_con_el_campeon(tmp_path, monkeypatch):
-    """El pre-registro real (doc 134 §13.18): P2 con el campeón, dos remeras como mínimo (una, la de
-    referencia). Una toma con un modo de prompts queda no evaluable; con las dos remeras, completa."""
+def test_rt09_real_es_prendas_con_el_campeon_mas_reflective_con_el_encuadre_calibrado(tmp_path, monkeypatch):
+    """El pre-registro real (doc 134 §13.18 + §13.19): P2 con el campeón, dos remeras como mínimo (una, la
+    de referencia), más el modo exploratorio `reflective` (P2 ×2 con la de referencia y una P1), todo con el
+    encuadre calibrado. Una toma con otro modo (E-DIR) queda no evaluable; la remera se elige solo entre las
+    del campeón; con las celdas mínimas, completa."""
     monkeypatch.setenv("EOVRT_EVIDENCIA_SALIDA", str(tmp_path / "salida"))
     ent = _entorno(tmp_path)
     sesiones = tmp_path / "sesiones"
@@ -203,13 +219,115 @@ def test_rt09_real_es_solo_la_prueba_de_prendas_con_el_campeon(tmp_path, monkeyp
     _sesion(ent, sesiones, "demo_a_P2", "P2", acciones=P2, cuadros=lambda i: [PERSONA, VEST_TORSO])
     _sesion(ent, sesiones, "demo_b_P2_modo-edir", "P2", acciones=P2, cuadros=sin_falso, modo="edir")
     prueba = _rt09(tmp_path, sesiones)
-    assert prueba.receta["modos"] == ["campeon"] and list(prueba.receta["ventanas"]) == ["P2"]
+    r = prueba.receta
+    assert r["modos"] == ["campeon", "reflective"] and set(r["ventanas"]) == {"P2", "P1"}
+    assert r["motores"] == ["mp-gdino-tiny-560", "mp-gdino-base-560"] and r["camara_exploracion"] == "960x540@5"
+    assert (prueba.ruta.parent / r["encuadre"]).is_file() or (REPO / "experiments/demo_defensa/calibracion.json").is_file()
     ctx = Contexto(ent=ent, consola=None, catalogo={"RT-09": prueba}, avisar=lambda *_: None)
     carpeta = Carpeta(ent, prueba)
     carpeta.preparar()
-    assert rodaje.correr(ctx, prueba, carpeta)["estado"] == "parcial"  # una sola remera
+    assert rodaje.correr(ctx, prueba, carpeta)["estado"] == "parcial"  # una sola remera, sin reflective
     m = carpeta.leer("resultado.json")["metricas"]
     assert [x["session_id"] for x in m["no_evaluables"]] == ["demo_b_P2_modo-edir"]
+    assert any(f.startswith("P2 · reflective · negra lisa: 0 de 2") for f in m["faltan"])
+    assert any(f.startswith("P1 · reflective: 0 de 1") for f in m["faltan"])
     _sesion(ent, sesiones, "demo_c_P2", "P2", acciones=P2, cuadros=sin_falso, remera="blanca lisa", alertas=[CR02])
+    assert rodaje.correr(ctx, prueba, carpeta)["estado"] == "parcial"  # faltan las celdas de reflective
+    # reflective con la negra: el falso queda intermitente (rachas de 0,8 s) y CR-02 alerta; en P1 no alerta.
+    for sid in ("demo_d_P2_modo-reflective", "demo_e_P2_modo-reflective"):
+        _sesion(ent, sesiones, sid, "P2", acciones=P2, modo="reflective",
+                cuadros=lambda i: [PERSONA, VEST_TORSO] if (i < 60 or i > 145 or i % 10 < 4) else [PERSONA], alertas=[CR02])
+    _sesion(ent, sesiones, "demo_f_P1_modo-reflective", "P1", acciones=P1, modo="reflective",
+            cuadros=lambda i: [PERSONA, VEST_TORSO])
     salida = rodaje.correr(ctx, prueba, carpeta)
     assert salida["estado"] == "completo" and salida["remera_propuesta"]["remera"] == "blanca lisa"
+    resultado = carpeta.leer("resultado.json")
+    grupos = {(g["modo"], g["escena"], g["remera"]): g for g in resultado["metricas"]["grupos"]}
+    assert grupos[("reflective", "P2", "negra lisa")]["cr02_como_el_guion"] == 2
+    assert grupos[("reflective", "P2", "negra lisa")]["racha_max_con_vest_s"] < 1.0
+    assert grupos[("reflective", "P1", "negra lisa")]["fraccion_con_vest_p50"] == 1.0
+    assert all(g["motor"] == "mp-gdino-tiny-560" and g["encuadre"] == "ok" for g in resultado["metricas"]["grupos"])
+    assert any(r_["clave"] == "P2/reflective/negra lisa/cr02" and r_["valor"] == "2/2" for r_ in resultado["resumen"])
+    assert resultado["metricas"]["calibraciones"] == {"demo_0_CAL": CALIBRADA}
+
+
+def test_rt09_agrupa_por_motor_y_por_encuadre_y_elige_solo_con_el_campeon_calibrado(tmp_path, monkeypatch):
+    """Base entra por la exploración de RT-05 (otro motor, el set congelado, la misma cadencia); una toma con
+    la cadencia de 15 fps o con un motor fuera de la lista queda no evaluable. Una toma bajo una calibración
+    aceptada sin pasar (el control del encuadre del 11-01) se agrupa aparte (`no_ok`) y no elige la remera."""
+    monkeypatch.setenv("EOVRT_EVIDENCIA_SALIDA", str(tmp_path / "salida"))
+    ent = _entorno(tmp_path)
+    sesiones = tmp_path / "sesiones"
+    sin_falso = lambda i: [PERSONA, VEST_TORSO] if (i < 60 or i > 145) else [PERSONA]
+    con_falso = lambda i: [PERSONA, VEST_TORSO]
+    # El campeón calibrado: la negra no alerta; la gris sí.
+    _sesion(ent, sesiones, "demo_a_P2", "P2", acciones=P2, cuadros=con_falso)
+    _sesion(ent, sesiones, "demo_b_P2", "P2", acciones=P2, cuadros=sin_falso, remera="gris clara lisa", alertas=[CR02])
+    # Base con la negra: sin falso, alerta. Pero no elige la remera (no es el campeón).
+    _sesion(ent, sesiones, "demo_c_P2_exp", "P2", acciones=P2, cuadros=sin_falso, alertas=[CR02], exploracion=BASE)
+    _sesion(ent, sesiones, "demo_d_P2_exp", "P2", acciones=P2, cuadros=sin_falso, alertas=[CR02],
+            exploracion={**BASE, "camara": "960x540@15"})
+    _sesion(ent, sesiones, "demo_e_P2_exp", "P2", acciones=P2, cuadros=sin_falso, alertas=[CR02],
+            exploracion={"motor": "mp-yoloe-26s", "camara": "960x540@5", "modelo": "yoloe/yoloe-26s"})
+    # El control del encuadre del 11-01: la negra con el campeón, calibración aceptada sin pasar. Alerta
+    # (sin falso) pero no cuenta para elegir: su encuadre es otro.
+    _sesion(ent, sesiones, "demo_f_P2", "P2", acciones=P2, cuadros=sin_falso, alertas=[CR02], calibracion=ACEPTADA_SIN_PASAR)
+    _sesion(ent, sesiones, "demo_g_P2", "P2", acciones=P2, cuadros=sin_falso, alertas=[CR02], calibracion=None)
+    prueba = _rt09(tmp_path, sesiones, grupos_minimos=[
+        {"modo": "campeon", "escena": "P2", "remeras_distintas": 2, "incluye": "referencia"},
+        {"modo": "campeon", "motor": "mp-gdino-base-560", "escena": "P2", "remera": "referencia", "tomas": 2},
+        {"modo": "campeon", "encuadre": "no_ok", "escena": "P2", "remera": "referencia", "tomas": 1},
+    ])
+    ctx = Contexto(ent=ent, consola=None, catalogo={"RT-09": prueba}, avisar=lambda *_: None)
+    carpeta = Carpeta(ent, prueba)
+    carpeta.preparar()
+    salida = rodaje.correr(ctx, prueba, carpeta)
+    assert salida["remera_propuesta"]["remera"] == "gris clara lisa"
+    m = carpeta.leer("resultado.json")["metricas"]
+    motivos = {x["session_id"]: x["motivo"] for x in m["no_evaluables"]}
+    assert "960x540@15" in motivos["demo_d_P2_exp"] and "mp-yoloe-26s" in motivos["demo_e_P2_exp"]
+    grupos = {(g["modo"], g["motor"], g["encuadre"], g["escena"], g["remera"]): g for g in m["grupos"]}
+    assert grupos[("campeon", "mp-gdino-base-560", "ok", "P2", "negra lisa")]["cr02_como_el_guion"] == 1
+    assert grupos[("campeon", "mp-gdino-tiny-560", "no_ok", "P2", "negra lisa")]["cr02_como_el_guion"] == 1
+    assert grupos[("campeon", "mp-gdino-tiny-560", "sin_calibrar", "P2", "negra lisa")]["tomas"] == 1
+    assert m["encuadre"] == {"ok": 3, "no_ok": 1, "sin_calibrar": 1}
+    assert set(m["calibraciones"]) == {"demo_0_CAL", "demo_1_CAL"}
+    assert salida["estado"] == "parcial" and any("gdino-base-560 · negra lisa: 1 de 2" in f for f in m["faltan"])
+    claves = {r_["clave"] for r_ in carpeta.leer("resultado.json")["resumen"]}
+    assert {"P2/campeon/gris clara lisa/cr02", "P2/campeon/gdino-base-560/negra lisa/cr02",
+            "P2/campeon/encuadre-no-ok/negra lisa/cr02", "P2/campeon/encuadre-sin-calibrar/negra lisa/cr02"} <= claves
+
+
+def test_rt09_dos_tomas_por_remera_k_de_2_racha_maxima_y_la_propuesta_puede_discrepar_de_la_regla_del_guion(tmp_path, monkeypatch):
+    """Doc 144 §5.1 (2026-11-05): la remera del día se decide con 2 tomas por remera, clara contra negra. El grupo
+    suma las alertas (k de 2) y toma la racha MÁS LARGA de `vest` de sus tomas. La propuesta automática del driver
+    (pre-registrada: entre las que alertaron al menos una vez, la de racha más corta) puede discrepar de la regla del
+    guion (más k primero): el guion lo dice y manda la regla; acá se fija que la discrepancia existe tal como se escribió."""
+    monkeypatch.setenv("EOVRT_EVIDENCIA_SALIDA", str(tmp_path / "salida"))
+    ent = _entorno(tmp_path)
+    sesiones = tmp_path / "sesiones"
+
+    def p2(con_falso):  # `vest` falso en el torso según `con_falso(i)` dentro de la ventana sin chaleco (12–29 s)
+        return lambda i: [PERSONA, VEST_TORSO] if (i < 60 or i > 145 or con_falso(i)) else [PERSONA]
+
+    # clara: las dos alertan, con una racha de 3,8 s de `vest` falso al principio de la ventana.
+    for sid in ("demo_a_P2", "demo_b_P2"):
+        _sesion(ent, sesiones, sid, "P2", acciones=P2, cuadros=p2(lambda i: i < 80), remera="blanca lisa", alertas=[CR02])
+    # negra: una alerta con ráfagas de 0,8 s y otra sin alerta con una racha de 2 s: 1 de 2, racha máxima 2 s.
+    _sesion(ent, sesiones, "demo_c_P2", "P2", acciones=P2, cuadros=p2(lambda i: i % 20 < 5), remera="negra lisa", alertas=[CR02])
+    _sesion(ent, sesiones, "demo_d_P2", "P2", acciones=P2, cuadros=p2(lambda i: i < 71), remera="negra lisa")
+
+    prueba = _rt09(tmp_path, sesiones)
+    ctx = Contexto(ent=ent, consola=None, catalogo={"RT-09": prueba}, avisar=lambda *_: None)
+    carpeta = Carpeta(ent, prueba)
+    carpeta.preparar()
+    salida = rodaje.correr(ctx, prueba, carpeta)
+    grupos = {g["remera"]: g for g in carpeta.leer("resultado.json")["metricas"]["grupos"] if g["modo"] == "campeon"}
+    assert grupos["blanca lisa"]["tomas"] == 2 and grupos["blanca lisa"]["cr02_como_el_guion"] == 2
+    assert grupos["negra lisa"]["tomas"] == 2 and grupos["negra lisa"]["cr02_como_el_guion"] == 1
+    assert grupos["negra lisa"]["racha_max_con_vest_s"] < grupos["blanca lisa"]["racha_max_con_vest_s"]
+    # La regla del driver elige la negra (racha más corta entre las que alertaron al menos una vez); la del guion, la
+    # clara (2 de 2 contra 1 de 2): por eso el guion pide anotar el motivo cuando firma otra que la propuesta.
+    assert salida["remera_propuesta"]["remera"] == "negra lisa"
+    k = {r: g["cr02_como_el_guion"] for r, g in grupos.items()}
+    assert max(k, key=k.get) == "blanca lisa"

@@ -10,7 +10,7 @@ REPO_REAL = Path(__file__).resolve().parents[3]
 WORKSPACE_REAL = REPO_REAL.parent
 MODELO_OK = {"ref": "grounding-dino/gdino-tiny-560", "thresholds": {"box": 0.3, "text": 0.25}}
 PROMPT_SETS = ("cr01_cr02_v2_short.yaml", "eind_v1.yaml", "edir_v1.yaml", "clase_nueva_v1.yaml",
-               "cr01_cr02_v2_tshirt.yaml")
+               "cr01_cr02_v2_tshirt.yaml", "cr01_cr02_v2_reflective.yaml")
 PATTERN_SETS = ("cr01_cr02_v2.yaml", "cr01_cr02_edir_v1.yaml")
 # La constancia de lo que midió cada modo (results/gen2/<prueba>/configuracion.json): el chequeo
 # previo compara la huella del modo contra ella. Sin resultado.json: las cifras quedan pendientes.

@@ -67,11 +67,21 @@ receta:
   # firma el equipo en la bitácora antes de la primera toma; cada toma la declara (rodaje.ps1 -Remera) y
   # queda en su toma.json. escenas.json NO se toca: su huella la registran RT-07 y RT-08. Las tomas con
   # -Proposito prendas (RT-09) o ensayo (G3, después del informe) no cuentan acá.
+  # Enmienda del 2026-11-05 (doc 134 §13.19), antes de correr: el encuadre es una variable medida. La cámara IP
+  # también se calibra antes de su primera toma (rodaje.ps1 -Calibrar -Fuente rtsp_dvr_sub + evidencia
+  # calibrar; una calibración por cámara física, vale para los dos streams); cada toma lleva la vigente y el
+  # driver cuenta las tomas por encuadre, sin excluir ninguna.
+  # Enmienda del 2026-11-05 (doc 134 §13.20), antes de correr: 7 tomas mínimas en lugar de 13. La OAK-D es la cámara
+  # principal y RT-04 cubre con ella las 15 escenas; la cámara IP tiene que mostrar que el sistema no depende del
+  # sensor: P1 y P2 en los dos streams (2 en el secundario, 1 en el principal) y P5 solo en el secundario. Con 3 tomas
+  # por celda o menos ninguna cifra se vuelve una tasa (3 de 3 solo acota la tasa por encima del 37 % con 95 % de
+  # confianza), y RT-08 ya llevó la cadena completa por los dos streams (con el chaleco amarillo). Antes: secundario
+  # P1 3, P2 3, P5 2; principal P1 2, P2 2, P5 1. Hacer más tomas no rompe nada: son mínimos.
   streams:                             # cada uno se agrega por separado
     secundario: {ruta: /Streaming/Channels/2, etiqueta: "cámara IP, 768×432 a 10 fps",
-                 tomas_minimas: {P1: 3, P2: 3, P5: 2}}
-    principal:  {ruta: /Streaming/Channels/1, etiqueta: "cámara IP, 1920×1080 a 15 fps",
                  tomas_minimas: {P1: 2, P2: 2, P5: 1}}
+    principal:  {ruta: /Streaming/Channels/1, etiqueta: "cámara IP, 1920×1080 a 15 fps",
+                 tomas_minimas: {P1: 1, P2: 1}}
   sesiones: defensa/sesiones
   sujeto: {patrones: cr01_cr02_v2_subject, activos: [CR-01, CR-02], track_persons: true}
   timeout_s: 900
