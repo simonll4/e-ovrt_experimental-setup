@@ -1,6 +1,9 @@
 {
   "schema": "calibracion.encuadre.v1",
-  "version": "2026-11-05",
+  "version": "2026-11-07",
+  "enmiendas": [
+    {"fecha": "2026-11-07", "que": "el desnivel de la cabeza (top_lejos − top_cerca ≤ desnivel_cabeza_max) deja de ser parte del bloqueante camara_alta y pasa a la observación recomendada desnivel_cabeza; camara_alta queda con la cabeza en el quinto superior del cuadro en «cerca»", "por_que": "decidido en la segunda jornada de F7 (Victus), después de dos calibraciones de la OAK-D que fallaron solo por el desnivel (0,041 y 0,049), con la lente a más de 2 m y la cabeza cercana en 0,10–0,12 (el rodaje de julio dio 0,01–0,15; el 11-01, 0,29–0,31). El desnivel mezcla la altura de la cámara con la posición lateral de las marcas y el giro de la cámara: con la misma cámara cambió 0,008 según dónde se paró el actor, y con las marcas a menos de 1 m de profundidad entre sí no separa una cámara alta de una al pecho. La parte que separa el encuadre del 11-01 del bueno es la cabeza en el quinto superior, que sigue bloqueando. Criterio geométrico: no se miró ningún resultado de chaleco. Constancias con la versión 2026-11-05: defensa/jornada/2026-11-07/ (fuera de git)"}
+  ],
   "nota": "Calibración de encuadre (enmienda del 2026-11-05, doc 134 §13.19; propuesta completa en doc 143). Antes de la primera toma de una jornada y antes de la demo, con la cámara ya ubicada por el operador, una persona en regla (casco y chaleco) se para en la marca cercana, camina a la lejana y vuelve. La toma es una sesión de /demo con escena CAL (rodaje.ps1 -Calibrar); `evidencia calibrar` la mide con las cajas de `person` del detector y la compara con estos criterios, que son GEOMÉTRICOS y se fijan acá antes de medir: nunca se mira cuánto `vest` falso hay (eso sería ajustar la cámara al resultado). Salen del encuadre con el que se midió la evidencia (el rodaje de julio: cámara alta, mirando hacia abajo, persona con la cabeza en el quinto superior del cuadro y no cortada en la cadera) y del 11-01 (OAK-D a la altura del pecho, de frente y de cerca: cabeza al 30 % del cuadro, caja cortada en la cadera con ancho/alto 0,52–0,86), que es el encuadre que hay que evitar. Una calibración vale para una cámara ubicada; si se mueve la cámara, se repite.",
   "escena": "CAL",
   "titulo": "Calibración de encuadre",
@@ -42,11 +45,12 @@
       "cabeza_visible": "en «cerca» y «lejos», el borde superior de la caja está por debajo del borde del cuadro (> borde) en ≥ cabeza_visible_min de los cuadros",
       "cerca_no_cortada": "en «cerca», ancho/alto de la caja (mediana) ≤ cerca_ancho_alto_max: la persona no está cortada en la cadera (el 11-01 dio 0,52–0,86; el rodaje, 0,35–0,46)",
       "cerca_tamano": "en «cerca», alto de la caja / alto del cuadro (mediana) entre cerca_alto_min y cerca_alto_max",
-      "camara_alta": "la cámara está por encima de la cabeza y mira hacia abajo: en «cerca» el borde superior de la caja (mediana) está en el quinto superior del cuadro (≤ cerca_cabeza_top_max; el 11-01 dio 0,29–0,31, el rodaje 0,01–0,15) y en «lejos» la cabeza no baja respecto de «cerca» (top_lejos − top_cerca ≤ desnivel_cabeza_max; con la cámara a la altura del pecho la cabeza lejana baja hacia el centro)",
+      "camara_alta": "la cámara está por encima de la cabeza y mira hacia abajo: en «cerca» el borde superior de la caja (mediana) está en el quinto superior del cuadro (≤ cerca_cabeza_top_max; el 11-01 dio 0,29–0,31, el rodaje 0,01–0,15). Hasta la versión 2026-11-05 también exigía el desnivel, que ahora es la observación desnivel_cabeza",
       "lejos_tamano": "en «lejos», alto de la caja / alto del cuadro (mediana) ≥ lejos_alto_min (una persona más chica no se detecta de forma estable: ERR-01)"
     },
     "recomendados": {
       "pies_visibles": "en «cerca» y «lejos», el borde inferior de la caja está por encima del borde del cuadro en ≥ pies_visibles_min de los cuadros (cuerpo entero; el rodaje lo cumplía solo en parte y la cámara IP del 11-01 no: no bloquea)",
+      "desnivel_cabeza": "en «lejos» la cabeza no baja respecto de «cerca» (top_lejos − top_cerca ≤ desnivel_cabeza_max; con la cámara a la altura del pecho la cabeza lejana baja hacia el centro). Informativo desde 2026-11-07: también lo mueven la posición lateral de las marcas y el giro de la cámara, y con las marcas cerca en profundidad no separa una cámara alta de una al pecho",
       "altura_recomendada": "altura de la lente ≥ altura_camara_recomendada_m",
       "chaleco_puesto_visto": "en «cerca» y «lejos», con el chaleco puesto el detector lo ve en el torso en ≥ chaleco_puesto_visto_min de los cuadros (informativo: si no lo ve lejos, P1b y la demo lo van a sufrir)",
       "repetible": "«cerca_2» da el mismo veredicto geométrico que «cerca» (ancho/alto y cabeza)"
@@ -60,6 +64,7 @@
     "cerca_tamano": "si es chica, acercar la marca cercana; si es enorme, alejarla",
     "camara_alta": "subir la cámara por encima de la cabeza (≥ 1,8 m) e inclinarla hacia abajo, como una cámara de obra",
     "lejos_tamano": "acercar la marca lejana",
+    "desnivel_cabeza": "si la lente está por encima de la cabeza, la causa suele ser la marca lejana corrida hacia un costado o la cámara girada de costado: alinear las marcas en la misma columna del cuadro o nivelar la cámara (no bloquea)",
     "pies_visibles": "para el cuerpo entero: alejar la marca o inclinar un poco más la cámara (no bloquea)",
     "altura_recomendada": "si se puede, 1,8 m o más",
     "chaleco_puesto_visto": "el chaleco puesto no se ve bien: revisar la luz y que el chaleco quede de frente",

@@ -95,11 +95,50 @@ $sesionesDir = Join-Path $repo 'defensa\sesiones'
 $escenas = (Get-Content -LiteralPath $archivoEscenas -Raw -Encoding UTF8 | ConvertFrom-Json).escenas
 $calibracion = Get-Content -LiteralPath $archivoCalibracion -Raw -Encoding UTF8 | ConvertFrom-Json
 
+# Aviso previo (pedido del equipo, 2026-11-07, segunda jornada de F7): 3 s antes de "ponete el casco" o
+# "ponete el chaleco" la voz dice "preparate", para que el actor no se tome por sorpresa. Es SOLO voz:
+# no suena el tono (el tono es la marca de la accion), no entra en `acciones` (el evaluador no lo ve) y
+# escenas.json no cambia. Se omite si no hay al menos 2 s despues de la indicacion anterior (P3, P6 casco,
+# P7b). Queda anotado en marcas.json como `avisos`. Texto corto y a velocidad rapida (Sabina tarda 1,8-2,3 s;
+# "preparate, en tres segundos el casco" a velocidad normal tardaba 4,4-5,3 s y no entraba en los 3 s).
+$AvisoAnticipoS = 3
+$AvisoHuecoMinS = 2
+function Get-Avisos($guion) {
+    $avisos = @()
+    $previo = 0.0
+    foreach ($p in $guion) {
+        $s = [double]$p.s
+        if ([string]$p.accion -like 'poner_*') {
+            $t = $s - $AvisoAnticipoS
+            if ($t -ge $previo + $AvisoHuecoMinS) {
+                $objeto = if ($p.accion -eq 'poner_chaleco') { 'chaleco' } else { 'casco' }
+                $quien = if ([string]$p.texto -match '^(Actor [AB]),') { "$($Matches[1]), preparate" } else { 'Preparate' }
+                $avisos += [pscustomobject]@{ s = $t; antes_de = [string]$p.accion; texto = "$quien, $objeto" }
+            }
+        }
+        $previo = $s
+    }
+    return $avisos
+}
+# El guion y sus avisos en orden de tiempo, para mostrarlos y para decirlos.
+function Get-Agenda($guion) {
+    $filas = @()
+    foreach ($p in $guion) { $filas += [pscustomobject]@{ s = [double]$p.s; aviso = $null; paso = $p } }
+    foreach ($a in @(Get-Avisos $guion)) { $filas += [pscustomobject]@{ s = [double]$a.s; aviso = $a; paso = $null } }
+    return ($filas | Sort-Object -Property s)
+}
+function Write-Agenda($guion, [string]$sangria) {
+    foreach ($f in @(Get-Agenda $guion)) {
+        if ($f.aviso) { Write-Host ("{0}{1,3} s  (aviso) {2}" -f $sangria, $f.s, $f.aviso.texto) -ForegroundColor DarkGray }
+        else { Write-Host ("{0}{1,3} s  {2}" -f $sangria, $f.s, $f.paso.texto) }
+    }
+}
+
 if ($Lista -or (-not $Escena -and -not $Calibrar)) {
     foreach ($e in $escenas) {
         $esp = ($e.espera.PSObject.Properties | ForEach-Object { "$($_.Name)=$($_.Value)" }) -join ', '
         Write-Host ("{0,-5} {1}  [{2}]  tomas sugeridas: {3}" -f $e.id, $e.titulo, $esp, $e.tomas_sugeridas)
-        foreach ($p in $e.guion) { Write-Host ("        {0,3} s  {1}" -f $p.s, $p.texto) }
+        Write-Agenda $e.guion '        '
         Write-Host ("        {0,3} s  fin de la toma" -f $e.fin_s)
     }
     Write-Host ''
@@ -179,7 +218,7 @@ if ($Proposito -ne 'toma') {
     Write-Host "Proposito: $Proposito (RT-04..RT-08 no cuentan esta toma)" -ForegroundColor Magenta
 }
 if ($Modo) { Write-Host "Modo de prompts: $Modo (experiments\demo_defensa\modos.yaml)" -ForegroundColor Magenta }
-foreach ($p in $esc.guion) { Write-Host ("  {0,3} s  {1}" -f $p.s, $p.texto) }
+Write-Agenda $esc.guion '  '
 Write-Host ("  {0,3} s  fin" -f $esc.fin_s)
 
 # 0a. Camara IP (RT-06): que exista, que sea la de la prueba y que entregue video ANTES de lanzar.
@@ -315,9 +354,28 @@ try {
     Write-Host 'Primer cuadro procesado. Arranca el guion.' -ForegroundColor Green
 
     $acciones = @()
-    foreach ($paso in $esc.guion) {
-        $objetivo = $inicioHost + 1000 * [double]$paso.s
+    $avisosDichos = @()
+    foreach ($fila in @(Get-Agenda $esc.guion)) {
+        $objetivo = $inicioHost + 1000 * [double]$fila.s
         while ((Ahora-Ms) -lt ($objetivo - 3)) { Start-Sleep -Milliseconds 2 }
+        if ($fila.aviso) {
+            # Solo voz y sin esperar: si todavia esta hablando cuando llega la accion, se corta (abajo).
+            $realAviso = Ahora-Ms
+            $avisosDichos += [pscustomobject]@{
+                antes_de = $fila.aviso.antes_de; texto = $fila.aviso.texto; programado_ms = $objetivo; pared_ms = $realAviso
+            }
+            Write-Host ("{0,6:N1} s  (aviso) {1}" -f (($realAviso - $inicioHost) / 1000), $fila.aviso.texto) -ForegroundColor DarkGray
+            if ($voz) {
+                $pb = New-Object System.Speech.Synthesis.PromptBuilder
+                $estilo = New-Object System.Speech.Synthesis.PromptStyle
+                $estilo.Rate = [System.Speech.Synthesis.PromptRate]::Fast
+                $pb.StartStyle($estilo); $pb.AppendText($fila.aviso.texto); $pb.EndStyle()
+                $voz.SpeakAsync($pb) | Out-Null
+            }
+            continue
+        }
+        $paso = $fila.paso
+        if ($voz) { $voz.SpeakAsyncCancelAll() }
         [console]::Beep(1000, 150)
         $real = Ahora-Ms
         $acciones += [pscustomobject]@{
@@ -329,7 +387,7 @@ try {
     }
     $fin = $inicioHost + 1000 * [double]$esc.fin_s
     while ((Ahora-Ms) -lt $fin) { Start-Sleep -Milliseconds 20 }
-    if ($voz) { $voz.Speak('Fin de la toma') }
+    if ($voz) { $voz.SpeakAsyncCancelAll(); $voz.Speak('Fin de la toma') }
 
     # 5. Cerrar (como F F) y esperar el Resultado.
     Pedir 'POST' '/api/demo/finish' $null | Out-Null
@@ -356,7 +414,9 @@ try {
         desfases_ms = $desfases
         primer_cuadro_contenedor_ms = [double]$st.en_vivo_desde_ms
         acciones = $acciones
-        nota = 'pared_ms: hora del host al sonar el tono, antes de la voz. Incluye la reaccion del actor.'
+        # Desde 2026-11-07: el "preparate" 3 s antes de ponerse el casco o el chaleco (solo voz, sin tono).
+        avisos = $avisosDichos
+        nota = 'pared_ms: hora del host al sonar el tono, antes de la voz. Incluye la reaccion del actor. Los avisos (solo voz, sin tono) no son acciones.'
     }
     $destino = Join-Path $sesionesDir $sid
     if (-not (Test-Path -LiteralPath $destino)) { New-Item -ItemType Directory -Path $destino | Out-Null }

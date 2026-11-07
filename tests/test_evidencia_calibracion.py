@@ -96,7 +96,8 @@ def test_el_pre_registro_de_la_calibracion_es_el_esperado(spec):
     assert spec["escena"] == "CAL" and [p["accion"] for p in spec["guion"]] == ["cerca", "lejos", "cerca_2"]
     assert set(spec["criterios"]["bloqueantes"]) == {"una_persona", "altura_declarada", "cabeza_visible", "cerca_no_cortada",
                                                      "cerca_tamano", "camara_alta", "lejos_tamano"}
-    assert set(spec["criterios"]["recomendados"]) == {"pies_visibles", "altura_recomendada", "chaleco_puesto_visto", "repetible"}
+    assert set(spec["criterios"]["recomendados"]) == {"pies_visibles", "desnivel_cabeza", "altura_recomendada",
+                                                      "chaleco_puesto_visto", "repetible"}
     assert spec["umbrales"]["cerca_ancho_alto_max"] == 0.50 and spec["umbrales"]["cerca_cabeza_top_max"] == 0.20
     assert spec["_sha256"]
     # `rodaje.ps1` lee el mismo archivo (guion, escena y vigencia): tiene que seguir siendo JSON plano.
@@ -133,6 +134,17 @@ def test_la_camara_ip_alta_pasa_con_la_observacion_de_los_pies(tmp_path, spec):
     ev = cal.evaluar(ent, cal.sesiones_cal(tmp_path / "s")[0], spec)
     assert ev["ok"] is True and ev["observaciones"] == ["pies_visibles"]
     assert ev["camara"]["plugin"] == "rtsp" and ev["camara"]["id"] == "rtsp_dvr_sub"
+
+
+def test_el_desnivel_de_la_cabeza_es_observacion_desde_la_enmienda_del_11_07(tmp_path, spec):
+    # La OAK-D de la segunda jornada de F7: lente a más de 2 m y cabeza cercana en el quinto superior,
+    # con la marca lejana corrida hacia un costado: la cabeza lejana baja 0,05. Pasa, con la observación.
+    ent = _entorno(tmp_path)
+    _sesion(ent, tmp_path / "s", "demo_e_CAL", cerca=(0.104, 0.93, 0.37), lejos=(0.153, 0.82, 0.41), altura=2.1)
+    ev = cal.evaluar(ent, cal.sesiones_cal(tmp_path / "s")[0], spec)
+    assert ev["ok"] is True and ev["fallan"] == [] and "desnivel_cabeza" in ev["observaciones"]
+    fila = next(c for c in ev["criterios"] if c["id"] == "desnivel_cabeza")
+    assert fila["tipo"] == "recomendado" and fila["valor"]["desnivel"] == pytest.approx(0.049, abs=0.002)
 
 
 def test_altura_baja_intruso_y_chaleco_no_visto(tmp_path, spec):
