@@ -22,6 +22,7 @@ from eovrt_webconsole.demo.sesion import (
     DemoOcupada,
     DemoSinSesion,
     SesionDesconocida,
+    VistaFallida,
 )
 from eovrt_webconsole.run_backend import PreviewConflict, ServiceRejected, ServiceUnavailable
 
@@ -115,13 +116,19 @@ async def comprobar_camara(camara_id: str, request: Request) -> dict:
 @router.post("/camaras/{camara_id}/vista", status_code=201)
 async def iniciar_vista(camara_id: str, request: Request):
     """Vista previa de la cámara elegida, antes de iniciar. Los cuadros se leen de
-    `/api/preview/stream`; las credenciales de un RTSP no salen del servidor."""
+    `/api/preview/stream`; las credenciales de un RTSP no salen del servidor.
+
+    Responde cuando ya llegó el primer cuadro (puede tardar hasta ~2 min si hay que esperar o
+    reiniciar el motor): ver `DemoManager.iniciar_vista`. Un fallo trae la causa y qué hacer."""
     try:
         return await _demo(request).iniciar_vista(camara_id)
     except demo_camara.CamaraDesconocida as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     except DemoOcupada as exc:
         return JSONResponse(status_code=409, content={"detail": str(exc)})
+    except VistaFallida as exc:
+        logger.warning("demo vista previa: %s", exc)
+        return JSONResponse(status_code=502, content={"detail": str(exc)})
     except PreviewConflict as exc:
         return JSONResponse(status_code=409, content=exc.body)
     except ServiceRejected as exc:

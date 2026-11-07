@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import time
 
 import websockets
 import websockets.exceptions
@@ -57,8 +58,31 @@ async def stop_preview(request: Request):
 @router.websocket("/stream")
 async def preview_stream_ws(websocket: WebSocket) -> None:
     """Passthrough binario/texto del WS de preview: sin coalescing (el
-    media-plane ya pacea enviando solo el último frame)."""
+    media-plane ya pacea enviando solo el último frame).
+
+    Cuenta los visores (`app.state.preview_espectadores`): una vista que no mira nadie es una
+    vista huérfana (pestaña cerrada o recargada) y la demo la corta sola (`DemoManager`)."""
     await websocket.accept()
+    espectadores = _espectadores(websocket.app)
+    espectadores["n"] += 1
+    try:
+        await _passthrough(websocket)
+    finally:
+        espectadores["n"] -= 1
+        if espectadores["n"] <= 0:
+            espectadores["n"] = 0
+            espectadores["desde"] = time.monotonic()
+
+
+def _espectadores(app) -> dict:
+    estado = getattr(app.state, "preview_espectadores", None)
+    if estado is None:
+        estado = {"n": 0, "desde": time.monotonic()}
+        app.state.preview_espectadores = estado
+    return estado
+
+
+async def _passthrough(websocket: WebSocket) -> None:
     close_code = 1000
     try:
         async with websockets.connect(_preview_ws_url(servicio_activo(websocket.app))) as upstream:

@@ -15,8 +15,18 @@ from types import SimpleNamespace
 import httpx
 import pytest
 
-from eovrt_webconsole.demo.sesion import DemoManager, DemoNoLista, DemoOcupada, DemoSinSesion
+from eovrt_webconsole.demo.sesion import (
+    VISTA_CUADRO_OAKD_S,
+    VISTA_REUSO_S,
+    DemoManager,
+    DemoNoLista,
+    DemoOcupada,
+    DemoSinSesion,
+    VistaFallida,
+    _SinCuadro,
+)
 from eovrt_webconsole.experiment.run_manager import ExperimentRunManager
+from eovrt_webconsole.run_backend import PreviewConflict, ServiceUnavailable
 from eovrt_webconsole.settings import ConsoleSettings
 from tests.demo_fixtures import MODELO_OK, repo_demo
 from tests.test_demo_testigo import FakeBroker
@@ -90,6 +100,10 @@ async def _esperar(condicion, timeout: float = 5.0) -> None:
         await asyncio.sleep(0.01)
 
 
+async def _cuadro_llega(timeout: float) -> None:
+    """El primer cuadro de la vista previa llega (en los tests no hay motor detrás)."""
+
+
 @pytest.fixture
 def entorno(tmp_path):
     repo = repo_demo(tmp_path)
@@ -153,6 +167,7 @@ def entorno(tmp_path):
         render=fake_render, telemetria=False, run_distribution=fake_distribucion,
         resolve_run_dir=lambda plane, run_id: run_dirs / plane / run_id,
         dest_root=tmp_path / "runs", cierre_timeout_s=2.0, espera_fin_s=5.0,
+        primer_cuadro=_cuadro_llega, espera_motor_s=2.0,
     )
     return SimpleNamespace(dm=dm, app=app, media=media, control=control, broker=broker,
                            renders=renders, sesiones=sesiones, dist_rutas=dist_rutas,
@@ -800,6 +815,237 @@ async def test_detener_la_vista_sin_motor_o_sin_preview_no_revienta(entorno):
         raise RuntimeError("sin motor")
     entorno.media.preview_stop = cae
     await entorno.dm.detener_vista()
+
+
+# --- «Ver la cámara» a prueba de fricción (✎ 2026-11-07, jornada de la Victus) -----------------
+
+
+class _MotorVista:
+    """El canal de preview del motor con su estado real: un solo slot, quién lo tiene, y el 409
+    «Slot de actividad ocupado por preview (…)» si se pide otra vista con una abierta."""
+
+    def __init__(self, entorno, *, colgada: str | None = None) -> None:
+        self.arranques: list[dict] = []
+        self.paradas = 0
+        self.activa: str | None = colgada
+        self._n = 0
+        entorno.media.preview_start = self.preview_start
+        entorno.media.preview_stop = self.preview_stop
+        entorno.media.preview_status = self.preview_status
+
+    async def preview_start(self, body):
+        if self.activa is not None:
+            raise PreviewConflict({"detail": f"Slot de actividad ocupado por preview ({self.activa})",
+                                   "reason": "preview_active"})
+        self._n += 1
+        self.activa = f"pv{self._n}"
+        self.arranques.append(body)
+        return {"preview_id": self.activa}
+
+    async def preview_stop(self):
+        self.paradas += 1
+        self.activa = None
+
+    async def preview_status(self):
+        if self.activa:
+            return {"status": "streaming", "preview_id": self.activa, "mode": "raw", "error": None}
+        return {"status": "idle", "preview_id": None, "mode": None, "error": None}
+
+
+def _compose(entorno, motor: _MotorVista | None = None) -> list[int]:
+    """Despliegue en compose: la consola puede reiniciar el motor (y el reinicio mata la vista)."""
+    reinicios: list[int] = []
+
+    class FakeTarget:
+        active = "mp-gdino-tiny-560"
+
+        async def restart_active(self):
+            reinicios.append(1)
+            if motor is not None:
+                motor.activa = None
+            return {"target": "mp-gdino-tiny-560", "model_ref": MODELO_OK["ref"]}
+
+    entorno.app.state.target_manager = FakeTarget()
+    return reinicios
+
+
+async def test_vista_de_la_misma_camara_se_reusa_sin_reabrir_la_oak_d(entorno):
+    """La pantalla se recargó (o se cerró la pestaña) con la vista abierta: tocar «Ver la cámara»
+    otra vez no reabre la OAK-D ni choca con el slot."""
+    _presets(entorno)
+    motor = _MotorVista(entorno)
+    await entorno.dm.iniciar_vista("oak_d_lab")
+    await entorno.dm.iniciar_vista("oak_d_lab")
+    assert len(motor.arranques) == 1 and motor.paradas == 0
+
+
+async def test_vista_colgada_en_el_motor_se_corta_y_se_abre_la_pedida(entorno):
+    """El «Slot de actividad ocupado por preview (pv_…)» del 11-07: una vista que quedó abierta
+    desde otra pantalla ya no bloquea."""
+    _presets(entorno)
+    motor = _MotorVista(entorno, colgada="pv_2b8f8dfb")
+    r = await entorno.dm.iniciar_vista("oak_d_lab")
+    assert r["id"] == "oak_d_lab"
+    assert motor.paradas >= 1 and len(motor.arranques) == 1 and motor.activa == "pv1"
+
+
+async def test_vista_abierta_pero_muda_no_se_reusa(entorno):
+    _presets(entorno)
+    motor = _MotorVista(entorno)
+    await entorno.dm.iniciar_vista("rtsp_dvr_1")
+    esperas: list[float] = []
+
+    async def muda_la_primera_vez(timeout):
+        esperas.append(timeout)
+        if len(esperas) == 1:
+            raise _SinCuadro("sin cuadros")
+    entorno.dm._primer_cuadro = muda_la_primera_vez
+    await entorno.dm.iniciar_vista("rtsp_dvr_1")
+    assert esperas[0] == VISTA_REUSO_S and len(motor.arranques) == 2
+
+
+async def test_vista_espera_el_reinicio_del_motor_en_vez_de_fallar(entorno):
+    """Recién cortada la vista de la OAK-D la consola reinicia el motor (~30 s): «Ver la cámara»
+    en esa ventana espera, no responde «no hay un motor de detección activo»."""
+    _presets(entorno)
+    motor = _MotorVista(entorno)
+    entorno.dm._motor = {"estado": "reiniciando", "desde": None, "runs": None}
+
+    async def termina():
+        await asyncio.sleep(0.05)
+        entorno.dm._motor = {"estado": "fresco", "desde": "x", "runs": set()}
+    tarea = asyncio.create_task(termina())
+    await entorno.dm.iniciar_vista("oak_d_lab")
+    await tarea
+    assert len(motor.arranques) == 1
+
+
+async def test_vista_oak_d_sin_cuadro_reinicia_el_motor_y_reintenta(entorno):
+    _presets(entorno)
+    motor = _MotorVista(entorno)
+    reinicios = _compose(entorno, motor)
+    esperas: list[float] = []
+
+    async def falla_la_primera(timeout):
+        esperas.append(timeout)
+        if len(esperas) == 1:
+            raise _SinCuadro("Couldn't read data from stream: 'rgb' (X_LINK_ERROR)")
+    entorno.dm._primer_cuadro = falla_la_primera
+    r = await entorno.dm.iniciar_vista("oak_d_lab")
+    assert r["id"] == "oak_d_lab"
+    assert reinicios == [1] and len(motor.arranques) == 2 and motor.activa == "pv2"
+    assert esperas[0] == VISTA_CUADRO_OAKD_S
+    assert entorno.dm.estado()["motor"]["estado"] == "usado"  # F-101.5: igual que antes
+
+
+async def test_vista_oak_d_con_el_motor_usado_lo_reinicia_antes_de_abrir(entorno):
+    _presets(entorno)
+    motor = _MotorVista(entorno)
+    reinicios = _compose(entorno, motor)
+    await entorno.dm.reiniciar_motor()
+    reinicios.clear()
+    entorno.media.runs_en_disco.add("run_de_otro")  # corrió algo en esta vida del motor
+    await entorno.dm.iniciar_vista("oak_d_lab")
+    assert reinicios == [1] and len(motor.arranques) == 1
+
+
+async def test_vista_rtsp_sin_cuadros_no_reinicia_el_motor_y_explica(entorno):
+    _presets(entorno)
+    motor = _MotorVista(entorno)
+    reinicios = _compose(entorno, motor)
+
+    async def nunca(timeout):
+        raise _SinCuadro("no llegó ningún cuadro en 15 s")
+    entorno.dm._primer_cuadro = nunca
+    with pytest.raises(VistaFallida) as exc:
+        await entorno.dm.iniciar_vista("rtsp_dvr_1")
+    assert reinicios == [] and motor.activa is None  # no quedó la cámara tomada
+    assert "no entrega cuadros" in str(exc.value) and CLAVE_DVR not in str(exc.value)
+
+
+async def test_vista_oak_d_que_no_vuelve_explica_que_hacer_y_no_deja_nada_colgado(entorno):
+    _presets(entorno)
+    motor = _MotorVista(entorno)
+
+    async def nunca(timeout):
+        raise _SinCuadro("OAK-D: no se pudo conectar tras 12 intentos: 169.254.31.137")
+    entorno.dm._primer_cuadro = nunca
+    with pytest.raises(VistaFallida) as exc:
+        await entorno.dm.iniciar_vista("oak_d_lab")
+    assert len(motor.arranques) == 2 and motor.activa is None
+    assert "12 intentos" in str(exc.value) and "inyector 1–2 min" in str(exc.value)
+
+
+async def test_vista_no_pisa_una_corrida_del_motor(entorno):
+    _presets(entorno)
+    motor = _MotorVista(entorno)
+    reinicios = _compose(entorno, motor)
+
+    async def con_corrida(body):
+        raise PreviewConflict({"detail": "Slot de actividad ocupado por run (run_x)",
+                               "reason": "run_active", "active_run_id": "run_x"})
+    entorno.media.preview_start = con_corrida
+    with pytest.raises(VistaFallida, match="run_x"):
+        await entorno.dm.iniciar_vista("rtsp_dvr_1")
+    assert reinicios == [] and motor.paradas == 0
+
+
+async def test_toma_con_la_vista_de_la_oak_d_abierta_espera_un_motor_nuevo(entorno):
+    """Compose: con la vista de la OAK-D abierta el chequeo previo queda en rojo (la toma la abriría
+    por segunda vez, F-101.5); si nadie la mira se corta sola, el motor se reinicia y vuelve el verde
+    (lo único que `rodaje.ps1` espera)."""
+    _presets(entorno)
+    motor = _MotorVista(entorno)
+    reinicios = _compose(entorno, motor)
+    await entorno.dm.reiniciar_motor()
+    reinicios.clear()
+    await entorno.dm.iniciar_vista("oak_d_lab")
+
+    async def item_motor():
+        pf = await entorno.dm.preflight()
+        return next(i for i in pf["items"] if i["id"] == "motor")
+    abierta = await item_motor()
+    assert abierta["estado"] == "error" and "vista de la OAK-D está abierta" in abierta["detalle"]
+    assert motor.activa == "pv1" and reinicios == []  # la mira alguien: no se toca
+
+    entorno.dm._vista_abierta_en -= 60  # pestaña cerrada hace un minuto
+    assert (await item_motor())["estado"] == "error"  # se cortó sola y el motor se está reiniciando
+    assert motor.activa is None
+    await _esperar(lambda: reinicios == [1] and entorno.dm._motor["estado"] == "fresco")
+    assert (await item_motor())["estado"] == "ok"
+
+
+async def test_primer_cuadro_por_el_websocket_del_motor(entorno):
+    """La espera del primer cuadro contra un WebSocket de verdad, con los tres finales posibles."""
+    import websockets
+
+    modo = {"v": "cuadro"}
+
+    async def motor(ws):
+        if modo["v"] == "cuadro":
+            await ws.send(b"\x00\x00\x00\x02{}\xff\xd8")
+            await asyncio.sleep(1)
+        elif modo["v"] == "error":
+            await ws.send(json.dumps({"type": "state", "status": "error", "error": "X_LINK_ERROR"}))
+        else:
+            await ws.close(code=4404)  # la vista ya no está: la causa la tiene el estado
+
+    async def estado_con_error():
+        return {"status": "error", "preview_id": None, "error": "Cannot find any device"}
+    entorno.media.preview_status = estado_con_error
+    dm = entorno.dm
+    async with websockets.serve(motor, "127.0.0.1", 0) as servidor:
+        puerto = servidor.sockets[0].getsockname()[1]
+        entorno.app.state.http = httpx.AsyncClient(base_url=f"http://127.0.0.1:{puerto}")
+        await dm._primer_cuadro_ws(2.0)
+        modo["v"] = "error"
+        with pytest.raises(_SinCuadro, match="X_LINK_ERROR"):
+            await dm._primer_cuadro_ws(2.0)
+        modo["v"] = "cerrada"
+        with pytest.raises(_SinCuadro, match="Cannot find any device"):
+            await dm._primer_cuadro_ws(2.0)
+    with pytest.raises(ServiceUnavailable):  # sin motor del otro lado
+        await dm._primer_cuadro_ws(2.0)
 
 
 async def test_camaras_traen_su_estado_y_la_oak_d_lo_toma_de_la_ultima_comprobacion(entorno):

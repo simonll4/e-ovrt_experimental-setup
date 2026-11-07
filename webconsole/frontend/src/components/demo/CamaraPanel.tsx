@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import {
@@ -22,6 +22,9 @@ const ESTADO_LISTA: Record<DemoCamara['estado'], { texto: string; tono: 'ok' | '
   problema: { texto: 'Con problemas', tono: 'warn' },
   sin_comprobar: { texto: 'Sin comprobar', tono: 'neutral' },
 }
+
+/** Sin cuadros nuevos durante este lapso, la vista se da por caída y se ofrece reabrirla. */
+const VISTA_MUDA_MS = 10_000
 
 function mensajeDe(error: unknown): string {
   if (error instanceof ApiError) {
@@ -58,6 +61,16 @@ export default function CamaraPanel({ camaras, cargando, error, elegida, onElegi
   const [errorVista, setErrorVista] = useState<string | null>(null)
   const [aviso, setAviso] = useState<string | null>(null)
   const live = usePreviewStream(vista)
+  // La vista dejó de mandar cuadros (la cámara se colgó o se cortó el enlace): cada cuadro nuevo
+  // trae otro `frameUrl`, así que 10 s sin cambio es una vista muda.
+  const [muda, setMuda] = useState(false)
+  useEffect(() => {
+    setMuda(false)
+    if (!vista || !live.frameUrl) return undefined
+    const t = setTimeout(() => setMuda(true), VISTA_MUDA_MS)
+    return () => clearTimeout(t)
+  }, [vista, live.frameUrl])
+  const caida = vista && (live.finalState?.status === 'error' || muda)
 
   const lista = camaras ?? []
   const actual = lista.find((c) => c.id === elegida) ?? null
@@ -113,7 +126,18 @@ export default function CamaraPanel({ camaras, cargando, error, elegida, onElegi
       }
       return
     }
+    await abrirVista()
+  }
+
+  /** Abre la vista. El servidor responde recién con el primer cuadro, y se encarga solo de lo que
+   *  antes había que hacer a mano: esperar un reinicio del motor, cortar una vista colgada,
+   *  reiniciar el motor si la OAK-D no entrega y reintentar. Puede tardar hasta ~2 min. */
+  const abrirVista = async () => {
     if (!elegida) return
+    setErrorVista(null)
+    setAviso(null)
+    // Cerrar el visor fuerza un WebSocket nuevo al reabrir (el de la vista caída ya no sirve).
+    onVista(false)
     setConectandoVista(true)
     try {
       await iniciarVistaDemo(elegida)
@@ -222,11 +246,29 @@ export default function CamaraPanel({ camaras, cargando, error, elegida, onElegi
             </div>
           )}
 
+          {conectandoVista && (
+            <p className="eo-demo-camara-nota" role="status">
+              Abriendo la cámara. Si el motor se está reiniciando, tenía otra vista colgada o la cámara
+              se está reiniciando, la consola lo resuelve sola: puede tardar hasta ~2 min. No hace falta
+              tocar nada.
+            </p>
+          )}
           {errorVista && <p className="eo-demo-aviso" role="alert">No se pudo ver la cámara: {errorVista}</p>}
           {vista && (
             <div className="eo-demo-camara-vista">
-              {live.finalState?.status === 'error' && (
-                <p className="eo-demo-aviso" role="alert">{live.finalState.error}</p>
+              {caida && (
+                <div className="eo-demo-aviso" role="alert">
+                  <p>
+                    La cámara dejó de mandar cuadros
+                    {live.finalState?.error ? `: ${live.finalState.error}` : ''}.
+                  </p>
+                  <p>
+                    Tocá «Volver a abrir»: la consola libera el motor y la reabre sola. Si tampoco vuelve, la
+                    OAK-D puede estar colgada aunque conteste el ping: desenchufá la alimentación del inyector
+                    1–2 min y volvé a abrir.
+                  </p>
+                  <Button onClick={() => void abrirVista()} disabled={conectandoVista}>Volver a abrir</Button>
+                </div>
               )}
               <LiveViewer
                 frameUrl={live.frameUrl} header={live.header} connected={live.connected} fps={live.fps} mode="raw"

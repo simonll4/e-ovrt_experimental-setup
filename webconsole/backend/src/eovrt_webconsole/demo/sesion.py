@@ -50,6 +50,7 @@ from eovrt_webconsole.experiment.runner import (
     _default_resolve_run_dir,
 )
 from eovrt_webconsole.orchestrator import PROJECT_NAME
+from eovrt_webconsole.run_backend import PreviewConflict, ServiceUnavailable
 
 logger = logging.getLogger(__name__)
 
@@ -104,6 +105,29 @@ class DemoNoLista(Exception):
 
 class DemoSinSesion(Exception):
     """No hay una sesión que finalizar."""
+
+
+class VistaFallida(Exception):
+    """La cámara no se vio ni después de liberar el motor y reintentar. El mensaje trae la causa
+    y qué hacer: es lo que lee el operador."""
+
+
+class _SinCuadro(Exception):
+    """La vista arrancó en el motor pero no llegó ningún cuadro (la fuente falló o no entrega)."""
+
+
+# Vista previa a prueba de fricción (✎ 2026-11-07): «Ver la cámara» no puede fallar por el estado
+# del motor. Topes de espera: el primer cuadro, un reinicio del motor en curso, y el chequeo rápido
+# de una vista que ya estaba abierta. La OAK-D tarda ~10 s en conectar, pero después de CUALQUIER
+# cierre (vista, toma, prueba) se reinicia durante ~20-30 s (bitácora de la Victus del 11-07 §4.2):
+# la fuente reintenta sola (12 × 4 s, los defaults de oak_d) y el tope tiene que cubrir esa ventana.
+VISTA_CUADRO_OAKD_S = 75.0
+VISTA_CUADRO_RTSP_S = 15.0
+VISTA_REUSO_S = 4.0
+VISTA_ESPERA_MOTOR_S = 120.0
+# Una vista que nadie mira (pestaña cerrada o recargada) se corta sola pasado este lapso, para que
+# no bloquee las tomas: ver `_vista_huerfana` y el chequeo previo.
+VISTA_HUERFANA_S = 15.0
 
 
 class SesionDesconocida(KeyError):
@@ -197,10 +221,21 @@ class DemoManager:
         dest_root: Path | None = None,
         ejecutar: demo_camara.Ejecutor = demo_camara.ejecutar_subproceso,
         conectar: demo_camara.Conectar = asyncio.open_connection,
+        primer_cuadro: Callable[[float], Any] | None = None,
+        espera_motor_s: float = VISTA_ESPERA_MOTOR_S,
     ) -> None:
         self._app = app
         self._ejecutar = ejecutar
         self._conectar = conectar
+        # Espera el primer cuadro de la vista previa (por el mismo WebSocket que mira la pantalla).
+        # Inyectable: en los tests no hay motor detrás.
+        self._primer_cuadro = primer_cuadro or self._primer_cuadro_ws
+        self._espera_motor_s = espera_motor_s
+        self._vista_lock = asyncio.Lock()
+        # La vista que abrió esta consola: {"camara": id, "preview_id": ...}. Permite reusarla cuando
+        # la pantalla se recargó o se cerró la pestaña con la vista abierta, sin reabrir la OAK-D.
+        self._vista: dict[str, Any] | None = None
+        self._vista_abierta_en = 0.0  # monotónico: una vista recién abierta no es huérfana
         # Última comprobación COMPLETA de cada cámara: (resultado, reloj). Alimenta el estado a la vista.
         self._comprobaciones: dict[str, tuple[dict, float]] = {}
         settings = app.state.settings
@@ -337,6 +372,12 @@ class DemoManager:
         return {"estado": "fresco", "instancia": resultado.get("target")}
 
     def reiniciar_motor_en_segundo_plano(self) -> None:
+        if self._motor.get("estado") == "reiniciando":
+            return  # ya hay uno en curso (p. ej. el corte de la vista lo pidió y la pantalla también)
+        if getattr(self._app.state, "target_manager", None) is not None:
+            # Visible ya, no recién cuando arranque la tarea: un chequeo previo inmediato lo ve.
+            self._motor = {"estado": "reiniciando", "desde": None, "runs": None}
+
         async def _correr() -> None:
             try:
                 await self.reiniciar_motor()
@@ -436,27 +477,238 @@ class DemoManager:
         (la OAK-D a 960×540 y 5 fps de la plantilla: ver el encuadre real, y no 1080p a 30 que
         satura la red de WSL). Las credenciales de un RTSP se arman acá, en el servidor: a la
         pantalla solo llega el id. El stream de cuadros sigue siendo `/api/preview/stream`.
+
+        A prueba de fricción (✎ 2026-11-07): abrir la cámara no falla por el estado del motor.
+        1. Si el motor se está reiniciando (p. ej. recién cortada la vista de la OAK-D), espera.
+        2. Si esta misma cámara ya se está viendo (la pantalla se recargó, o se cerró la pestaña con
+           la vista abierta), la reusa: no reabre la OAK-D.
+        3. Si quedó otra vista colgada en el motor, la corta. En compose, si además es la OAK-D y el
+           motor ya la abrió o corrió algo en esta vida (F-101.5), o si el motor no responde, lo
+           reinicia antes de abrir.
+        4. Abre y espera el PRIMER CUADRO, no solo el 201: la fuente se abre en el motor en segundo
+           plano y puede fallar después. Si falla, corta, reinicia el motor (compose) y reintenta.
+        Solo si eso también falla responde el error, con la causa y qué hacer, sin dejar nada colgado.
         """
         preset = demo_camara.cargar(self._settings.cameras_dir, camara_id)
         if self._ocupada():
             raise DemoOcupada("hay una sesión o un experimento en curso: no se previsualiza ahora")
         configs = demo_config.resolver_configs(self._repo_root, "oakd", self._despliegue(), None, preset)
         ingest = configs["media"]["ingest"]
-        await self._app.state.backend.preview_start(
-            {"mode": "raw", "ingest": {"plugin": ingest["plugin"], "config": ingest.get("config") or {}}})
+        cuerpo = {"mode": "raw", "ingest": {"plugin": ingest["plugin"], "config": ingest.get("config") or {}}}
+        oakd = preset["plugin"] == "oak_d"
+        espera_cuadro = VISTA_CUADRO_OAKD_S if oakd else VISTA_CUADRO_RTSP_S
+        compose = getattr(self._app.state, "target_manager", None) is not None
+        async with self._vista_lock:  # dos clics seguidos no abren dos veces
+            await self._esperar_reinicio()
+            if await self._vista_reusable(preset["id"]):
+                logger.info("demo: vista previa de %s reusada", preset["id"])
+                self._vista_abierta_en = time.monotonic()
+                return demo_camara.resumen(preset)
+            reiniciado = False
+            previa = await self._estado_preview()
+            colgada = previa is not None and previa.get("status") == "streaming"
+            if compose and (previa is None or (oakd and (colgada or await self._oakd_ya_abierta()))):
+                await self._reiniciar_para_vista()
+                reiniciado = True
+            elif colgada:
+                await self._liberar_vista()
+            causa: Exception | None = None
+            for intento in (1, 2):
+                try:
+                    await self._abrir_vista(preset, cuerpo, espera_cuadro)
+                    return demo_camara.resumen(preset)
+                except PreviewConflict as exc:
+                    if exc.body.get("reason") == "run_active":
+                        # Una corrida del motor no se pisa: ni se corta ni se reinicia.
+                        raise VistaFallida(
+                            f"hay una corrida activa en el motor ({exc.body.get('active_run_id')}): "
+                            "esperá a que termine o detenela en Corridas") from exc
+                    causa = exc
+                except (ServiceUnavailable, _SinCuadro) as exc:
+                    causa = exc
+                logger.warning("demo: la vista previa de %s falló (intento %d): %s",
+                               preset["id"], intento, causa)
+                await self._cortar_preview()  # nunca queda una vista colgada con la cámara tomada
+                if intento == 2 or (isinstance(causa, _SinCuadro) and (not oakd or reiniciado)):
+                    # Un RTSP que no entrega no se arregla reiniciando el motor; una OAK-D que no
+                    # entrega con el motor recién reiniciado, tampoco (y ya tuvo su ventana de 75 s).
+                    break
+                if compose and not reiniciado:
+                    await self._reiniciar_para_vista()
+                    reiniciado = True
+                elif isinstance(causa, ServiceUnavailable):
+                    await self._esperar_motor_listo()
+                else:
+                    await self._liberar_vista()
+            raise VistaFallida(self._mensaje_vista(preset, causa, compose))
+
+    async def _abrir_vista(self, preset: dict, cuerpo: dict, espera_cuadro: float) -> None:
+        respuesta = await self._app.state.backend.preview_start(cuerpo)
+        self._vista = {"camara": preset["id"], "preview_id": (respuesta or {}).get("preview_id")}
         if preset["plugin"] == "oak_d":
             # La OAK-D abierta en el proceso del motor cuenta como un uso (F-101.5: la segunda
             # apertura en la misma vida del proceso puede tirarlo al cerrar): el motor queda sin
-            # «fresco» y el chequeo previo pide reiniciarlo antes de la sesión.
-            self._motor = {**self._motor, "estado": "usado"}
-        return demo_camara.resumen(preset)
+            # «fresco» y el chequeo previo pide reiniciarlo antes de la sesión. `vista_oakd` lo
+            # recuerda hasta el próximo reinicio (que arma `_motor` de cero).
+            self._motor = {**self._motor, "estado": "usado", "vista_oakd": True}
+        await self._primer_cuadro(espera_cuadro)
+        self._vista_abierta_en = time.monotonic()
+
+    async def _oakd_ya_abierta(self) -> bool:
+        """¿El motor ya abrió la OAK-D o corrió algo en esta vida? (F-101.5). La marca de la vista
+        se mira directo: `estado_motor()` solo cuenta corridas, y una vista no es una corrida."""
+        if self._motor.get("estado") == "usado":
+            return True
+        return (await self.estado_motor())["estado"] == "usado"
+
+    async def _estado_preview(self) -> dict | None:
+        """El estado de la vista en el motor; None si el motor no responde."""
+        try:
+            return await self._app.state.backend.preview_status()
+        except Exception:  # noqa: BLE001 - motor caído, reiniciándose o sin target
+            return None
+
+    async def _vista_reusable(self, camara_id: str) -> bool:
+        """¿La vista abierta en el motor es la de esta cámara, abierta por esta consola, y entrega?"""
+        vista = self._vista
+        if not vista or vista.get("camara") != camara_id:
+            return False
+        previa = await self._estado_preview()
+        if (not previa or previa.get("status") != "streaming"
+                or previa.get("preview_id") != vista.get("preview_id")):
+            return False
+        try:
+            await self._primer_cuadro(VISTA_REUSO_S)
+        except Exception:  # noqa: BLE001 - abierta pero sin cuadros: no sirve, se reabre
+            return False
+        return True
+
+    async def _esperar_reinicio(self) -> None:
+        """Si esta consola está reiniciando el motor, espera a que termine (no falla por eso)."""
+        limite = time.monotonic() + self._espera_motor_s
+        while self._motor.get("estado") == "reiniciando":
+            if time.monotonic() > limite:
+                raise VistaFallida(
+                    f"el motor sigue reiniciándose después de {self._espera_motor_s:.0f} s: "
+                    "mirá su estado en Plataforma")
+            await asyncio.sleep(self._poll_s)
+
+    async def _esperar_motor_listo(self) -> None:
+        """Sin poder reiniciarlo (nativo): espera a que el motor vuelva a contestar."""
+        limite = time.monotonic() + self._espera_motor_s
+        while time.monotonic() < limite:
+            if await self._estado_preview() is not None:
+                return
+            await asyncio.sleep(self._poll_s)
+
+    async def _reiniciar_para_vista(self) -> None:
+        """Deja el motor limpio para abrir la cámara (compose): corta lo que hubiera y lo reinicia."""
+        await self._cortar_preview()
+        try:
+            await self.reiniciar_motor()
+        except Exception as exc:
+            raise VistaFallida(
+                f"no se pudo reiniciar el motor para abrir la cámara: {exc}. "
+                "Revisá en Plataforma que haya un motor activo") from exc
+
+    async def _primer_cuadro_ws(self, timeout: float) -> None:
+        """Espera el primer cuadro por `/api/preview/stream` del motor activo (el mismo WebSocket
+        que después mira la pantalla; el motor admite varios a la vez). Levanta `_SinCuadro` con la
+        causa que da el motor (p. ej. el error de depthai) o `ServiceUnavailable` si no hay motor."""
+        import websockets  # import tardío: el resto del BFF no lo necesita acá
+
+        from eovrt_webconsole.routers.preview import _preview_ws_url
+        from eovrt_webconsole.routers.stream import servicio_activo
+
+        url = _preview_ws_url(servicio_activo(self._app))
+        try:
+            async with asyncio.timeout(timeout):
+                async with websockets.connect(url, max_size=None) as ws:
+                    async for mensaje in ws:
+                        if isinstance(mensaje, bytes):
+                            return
+                        dato = json.loads(mensaje)
+                        if dato.get("type") == "state":
+                            raise _SinCuadro(dato.get("error")
+                                             or f"la vista terminó sin cuadros ({dato.get('status')})")
+        except TimeoutError as exc:
+            raise _SinCuadro(f"no llegó ningún cuadro en {timeout:.0f} s") from exc
+        except websockets.exceptions.ConnectionClosed:
+            pass  # se cerró sin cuadro: la causa la tiene el estado del motor
+        except OSError as exc:
+            raise ServiceUnavailable(f"el motor no responde: {exc}") from exc
+        previa = await self._estado_preview()
+        raise _SinCuadro((previa or {}).get("error") or "la vista se cerró sin entregar cuadros")
+
+    @staticmethod
+    def _mensaje_vista(preset: dict, causa: Exception | None, compose: bool) -> str:
+        detalle = str(causa) if causa is not None else "sin causa informada"
+        if isinstance(causa, ServiceUnavailable):
+            pasos = ("El motor de detección no responde: revisá en Plataforma que haya uno activo."
+                     if compose else "El media-plane no responde: levantalo y volvé a intentar.")
+        elif preset["plugin"] == "oak_d":
+            # F-101.6: la cámara colgada sigue contestando el ping; 10 s sin corriente no siempre
+            # alcanza (bitácora de la Victus del 11-07 §4.5).
+            pasos = ("La OAK-D no entrega cuadros: puede estar colgada aunque conteste el ping. "
+                     "Desenchufá la alimentación del inyector 1–2 min (10 s no siempre alcanza), "
+                     "esperá ~1 min y volvé a tocar «Ver la cámara». Si sigue, revisá el cable y el "
+                     "conector de la cámara.")
+            if not compose:
+                pasos += " Si tampoco, reiniciá el media-plane."
+        else:
+            pasos = ("La cámara no entrega cuadros: revisá que esté prendida y en el cable (su estado "
+                     "está en la lista) y volvé a intentar.")
+        return f"{detalle}. {pasos}"
 
     async def detener_vista(self) -> None:
+        """Cortar la vista (el botón, salir de /demo, cambiar de cámara, una vista huérfana). Si la
+        vista abrió la OAK-D, en compose el motor se reinicia solo en segundo plano (F-101.5): la
+        próxima toma la abre en un proceso nuevo, sin depender de quién cortó ni de cómo."""
+        await self._cortar_preview()
+        if (self._motor.get("vista_oakd") and not self._ocupada()
+                and getattr(self._app.state, "target_manager", None) is not None):
+            self.reiniciar_motor_en_segundo_plano()
+
+    async def _cortar_preview(self) -> None:
+        """Corta la vista en el motor, sin más (los flujos internos deciden si reinician)."""
+        self._vista = None
         backend = self._app.state.backend
         try:
             await backend.preview_stop()
         except Exception:  # parar es best-effort: sin preview o sin motor, no hay nada que cortar
             logger.info("demo: no había vista previa que detener", exc_info=True)
+
+    def _vista_huerfana(self) -> bool:
+        """¿La vista abierta no la mira nadie desde hace VISTA_HUERFANA_S (pestaña cerrada o
+        recargada)? Los visores se cuentan en el proxy `/api/preview/stream`. Mientras se está
+        abriendo una vista, nunca."""
+        if self._vista_lock.locked():
+            return False
+        espectadores = getattr(self._app.state, "preview_espectadores", None) or {}
+        if espectadores.get("n", 0) > 0:
+            return False
+        desde = max(float(espectadores.get("desde", 0.0)), self._vista_abierta_en)
+        return time.monotonic() - desde >= VISTA_HUERFANA_S
+
+    async def _vista_oakd_abierta(self, compose: bool) -> bool:
+        """Para el chequeo previo, en compose: ¿sigue abierta (y mirada) la vista que abrió la OAK-D?
+        Si nadie la mira, se corta sola (y eso reinicia el motor). Si ya no está y el motor no se
+        reinició (la vista se cayó, o se cortó por otro camino), se lo reinicia acá. Así una toma
+        nunca abre la OAK-D en un motor que ya la abrió, y `rodaje.ps1` solo espera el verde."""
+        if (not compose or not self._motor.get("vista_oakd") or self._ocupada()
+                or self._motor.get("estado") == "reiniciando"):
+            return False
+        previa = await self._estado_preview()
+        if previa is None:
+            return False  # el motor no contesta: lo dice el resto del chequeo
+        if previa.get("status") == "streaming":
+            if not self._vista_huerfana():
+                return True
+            logger.info("demo: la vista de la OAK-D no la mira nadie: se corta sola")
+            await self.detener_vista()
+            return False
+        self.reiniciar_motor_en_segundo_plano()
+        return False
 
     async def _liberar_vista(self) -> None:
         """Antes de lanzar la corrida: el preview y la corrida se excluyen (y la OAK-D admite una
@@ -464,7 +716,7 @@ class DemoManager:
         backend = self._app.state.backend
         if not hasattr(backend, "preview_stop"):
             return
-        await self.detener_vista()
+        await self._cortar_preview()
         for _ in range(25):
             try:
                 if (await backend.preview_status()).get("status") != "streaming":
@@ -540,9 +792,15 @@ class DemoManager:
         else:
             item("deteccion", "detección", "ok", f"{ref_esperada} listo")
 
-        motor = await self.estado_motor()
         compose = getattr(app.state, "target_manager", None) is not None
-        if motor["estado"] == "fresco":
+        vista_oakd_abierta = await self._vista_oakd_abierta(compose)
+        motor = await self.estado_motor()
+        if vista_oakd_abierta:
+            item("motor", "motor fresco", "error",
+                 "la vista de la OAK-D está abierta: la toma la abriría por segunda vez en esta vida "
+                 "del motor (F-101.5)",
+                 "«Cortar la vista» en /demo: el motor se reinicia solo (~30 s)")
+        elif motor["estado"] == "fresco":
             item("motor", "motor fresco", "ok", "reiniciado por la consola y sin corridas desde entonces")
         elif motor["estado"] == "reiniciando":
             item("motor", "motor fresco", "error", "reiniciando el motor…", "esperar ~30 s")

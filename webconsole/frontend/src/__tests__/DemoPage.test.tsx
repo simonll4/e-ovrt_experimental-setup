@@ -428,6 +428,39 @@ describe('/demo — la cámara de la demo', () => {
     expect(await screen.findByText(/No se pudo ver la cámara: hay una sesión o un experimento en curso/)).toBeTruthy()
   })
 
+  it('si la vista se cae, lo dice con la causa y «Volver a abrir» la reabre', async () => {
+    const sockets: Array<{ onmessage: ((ev: { data: unknown }) => void) | null }> = []
+    class WebSocketQueSeCae extends WebSocketInerte {
+      constructor() {
+        super()
+        sockets.push(this as never)
+      }
+    }
+    vi.stubGlobal('WebSocket', WebSocketQueSeCae)
+    instalar(() => IDLE)
+    globales = true
+    rutas['POST /api/demo/camaras/oak_d_lab/vista'] = () => json(CAMARAS[0], 201)
+    rutas['DELETE /api/demo/vista'] = () => new Response(null, { status: 204 })  // al salir de la pantalla
+    montar('/demo')
+    await grupo()
+    fireEvent.click(screen.getByRole('button', { name: 'Ver la cámara' }))
+    await screen.findByRole('button', { name: 'Cortar la vista' })
+    await waitFor(() => expect(sockets.length).toBeGreaterThan(0))
+    act(() => {
+      sockets[sockets.length - 1].onmessage?.({
+        data: JSON.stringify({ type: 'state', status: 'error', error: "Couldn't read data from stream: 'rgb' (X_LINK_ERROR)" }),
+      })
+    })
+    expect(await screen.findByText(/dejó de mandar cuadros: .*X_LINK_ERROR/)).toBeTruthy()
+    expect(screen.getByText(/desenchufá la alimentación del inyector/)).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: 'Volver a abrir' }))
+    await waitFor(() => expect(
+      peticiones.filter((p) => p.path === '/api/demo/camaras/oak_d_lab/vista' && p.method === 'POST'),
+    ).toHaveLength(2))
+    expect(await screen.findByRole('button', { name: 'Cortar la vista' })).toBeTruthy()
+    await waitFor(() => expect(screen.queryByText(/dejó de mandar cuadros/)).toBeNull())
+  })
+
   it('durante la corrida no hay panel de cámara y avisa que solo viaja el estado', async () => {
     instalar(() => EN_VIVO)
     globales = true
