@@ -8,6 +8,9 @@
     "distribution_run_id": "dist_20261101T203535Z_1906b3"
   },
   "marcas": true,
+  "remera": null,
+  "calibracion": null,
+  "encuadre": "sin_calibrar",
   "alertas": [
     {
       "condicion": "CR-01",
@@ -78,5 +81,23 @@
       "CR-01 confirmó a 6.3 s de la acción"
     ],
     "cr02_en_vivo": false
+  },
+  "sujeto": {
+    "por_condicion": {
+      "CR-01": {
+        "esperado": "alerta",
+        "alertas": 1,
+        "sujetos": 1,
+        "ok": true
+      },
+      "CR-02": {
+        "esperado": "alerta",
+        "alertas": 0,
+        "sujetos": 0,
+        "ok": false
+      }
+    },
+    "como_se_esperaba": false,
+    "sujetos_con_alerta": 1
   }
 }

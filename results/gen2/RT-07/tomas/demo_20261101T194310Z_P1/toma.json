@@ -8,6 +8,9 @@
     "distribution_run_id": "dist_20261101T194310Z_9705fa"
   },
   "marcas": true,
+  "remera": null,
+  "calibracion": null,
+  "encuadre": "sin_calibrar",
   "alertas": [
     {
       "condicion": "CR-01",
@@ -71,5 +74,23 @@
     "hueco_mediana_ms": 204.6552734375,
     "contaminada": false,
     "reloj_pared_menos_monotonico_ms": 1793558800660.77
+  },
+  "sujeto": {
+    "por_condicion": {
+      "CR-01": {
+        "esperado": "alerta",
+        "alertas": 1,
+        "sujetos": 1,
+        "ok": true
+      },
+      "CR-02": {
+        "esperado": "sin_alerta",
+        "alertas": 0,
+        "sujetos": 0,
+        "ok": true
+      }
+    },
+    "como_se_esperaba": true,
+    "sujetos_con_alerta": 1
   }
 }

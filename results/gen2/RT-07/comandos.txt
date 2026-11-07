@@ -8,3 +8,15 @@
 [2026-11-01T21:18:23+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/RT-07/gen2_rt04_sujeto_demo_20261101T203219Z_DEMO/manifest.yaml
 [2026-11-01T21:18:23+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/RT-07/gen2_rt04_sujeto_demo_20261101T203535Z_DEMO/manifest.yaml
 [2026-11-01T21:18:24+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/RT-07/gen2_rt04_sujeto_demo_20261101T203803Z_DEMO/manifest.yaml
+[2026-11-07T05:09:26+00:00] descartar demo_20261101T200354Z_P6 (equipo E-OVRT-VDP): lanzamiento frenado por el equipo con la sesion ya abierta; sin guion ni marcas.json (16 min en vivo)
+[2026-11-07T05:09:30+00:00] python -m tools.evidencia correr RT-07
+[2026-11-07T05:09:31+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/RT-07/gen2_rt04_sujeto_demo_20261101T194310Z_P1/manifest.yaml
+[2026-11-07T05:09:35+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/RT-07/gen2_rt04_sujeto_demo_20261101T194602Z_P1/manifest.yaml
+[2026-11-07T05:09:38+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/RT-07/gen2_rt04_sujeto_demo_20261101T194950Z_P2/manifest.yaml
+[2026-11-07T05:09:41+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/RT-07/gen2_rt04_sujeto_demo_20261101T195513Z_P2/manifest.yaml
+[2026-11-07T05:09:44+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/RT-07/gen2_rt04_sujeto_demo_20261101T195749Z_P2/manifest.yaml
+[2026-11-07T05:09:47+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/RT-07/gen2_rt04_sujeto_demo_20261101T202547Z_P6/manifest.yaml
+[2026-11-07T05:09:51+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/RT-07/gen2_rt04_sujeto_demo_20261101T203219Z_DEMO/manifest.yaml
+[2026-11-07T05:09:54+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/RT-07/gen2_rt04_sujeto_demo_20261101T203535Z_DEMO/manifest.yaml
+[2026-11-07T05:09:57+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/RT-07/gen2_rt04_sujeto_demo_20261101T203803Z_DEMO/manifest.yaml
+[2026-11-07T05:10:38+00:00] veredicto confirmado: otra_combinacion (equipo E-OVRT-VDP): Chaleco amarillo sin bandas, OAK-D, 9 tomas: puesto se reconoce (P1 2/2 sin CR-02 en falso); al sacarlo CR-02 no alerto en 0/7 por el vest falso sobre la remera negra (F-RT1, 99-100 % de los cuadros); CR-01 como el guion en 9/9. Sin par en julio (doc 140)

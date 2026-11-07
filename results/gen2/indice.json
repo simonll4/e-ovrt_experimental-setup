@@ -1,6 +1,6 @@
 {
   "schema": "indice.gen2.v1",
-  "generado": "2026-11-01T21:18:28+00:00",
+  "generado": "2026-11-07T05:10:40+00:00",
   "pruebas": [
     {
       "id": "GT-01",
@@ -3351,11 +3351,11 @@
       "fase": "F7",
       "familia": "vivo",
       "registro": "activa",
-      "estado": "completo",
+      "estado": "parcial",
       "corridas_ok": 3,
       "corridas": 3,
       "veredicto": "otra_combinacion",
-      "confirmado": false,
+      "confirmado": true,
       "titulo": "Latencia en vivo con la OAK-D y personas en escena",
       "informe": [
         "Tabla 54",
@@ -3397,7 +3397,7 @@
           "gen1": null
         }
       ],
-      "generado": "2026-11-01T19:37:27+00:00"
+      "generado": "2026-11-07T05:10:25+00:00"
     },
     {
       "id": "RT-04",
@@ -3481,7 +3481,7 @@
       "corridas_ok": 9,
       "corridas": 9,
       "veredicto": "otra_combinacion",
-      "confirmado": false,
+      "confirmado": true,
       "titulo": "Obra simulada en vivo con otro chaleco: amarillo y sin bandas reflectantes",
       "informe": [
         "Tabla 54",
@@ -3502,9 +3502,16 @@
           "gen1": null
         },
         {
+          "clave": "tomas_encuadre",
+          "nombre": "Tomas por encuadre (calibrado / aceptado sin pasar / sin calibrar)",
+          "valor": "0 / 0 / 9",
+          "unidad": null,
+          "gen1": null
+        },
+        {
           "clave": "tomas_sujeto_como_se_esperaba",
           "nombre": "Las mismas tomas releídas por sujeto",
-          "valor": "0/9",
+          "valor": "2/9",
           "unidad": null,
           "gen1": null
         },
@@ -3558,7 +3565,7 @@
           "gen1": null
         }
       ],
-      "generado": "2026-11-01T21:18:24+00:00"
+      "generado": "2026-11-07T05:10:00+00:00"
     },
     {
       "id": "RT-08",
@@ -3569,7 +3576,7 @@
       "corridas_ok": 6,
       "corridas": 6,
       "veredicto": "otra_combinacion",
-      "confirmado": false,
+      "confirmado": true,
       "titulo": "El chaleco amarillo sin bandas reflectantes, con la cámara IP (RTSP)",
       "informe": [
         "Tabla 54",
@@ -3590,9 +3597,16 @@
           "gen1": null
         },
         {
+          "clave": "tomas_encuadre_secundario",
+          "nombre": "Tomas por encuadre (calibrado / aceptado sin pasar / sin calibrar) — stream secundario",
+          "valor": "0 / 0 / 4",
+          "unidad": null,
+          "gen1": null
+        },
+        {
           "clave": "tomas_sujeto_como_se_esperaba_secundario",
           "nombre": "Las mismas tomas releídas por sujeto — stream secundario",
-          "valor": "0/4",
+          "valor": "2/4",
           "unidad": null,
           "gen1": null
         },
@@ -3646,9 +3660,16 @@
           "gen1": null
         },
         {
+          "clave": "tomas_encuadre_principal",
+          "nombre": "Tomas por encuadre (calibrado / aceptado sin pasar / sin calibrar) — stream principal",
+          "valor": "0 / 0 / 2",
+          "unidad": null,
+          "gen1": null
+        },
+        {
           "clave": "tomas_sujeto_como_se_esperaba_principal",
           "nombre": "Las mismas tomas releídas por sujeto — stream principal",
-          "valor": "0/2",
+          "valor": "1/2",
           "unidad": null,
           "gen1": null
         },
@@ -3695,7 +3716,32 @@
           "gen1": null
         }
       ],
-      "generado": "2026-11-01T21:18:27+00:00"
+      "generado": "2026-11-07T05:10:22+00:00"
+    },
+    {
+      "id": "RT-09",
+      "fase": "F7",
+      "familia": "rodaje",
+      "registro": "activa",
+      "estado": "sin_correr",
+      "corridas_ok": 0,
+      "corridas": 0,
+      "veredicto": null,
+      "confirmado": false,
+      "titulo": "La prenda bajo el chaleco, en vivo (F-RT1): remera, frase y encuadre",
+      "informe": [
+        "Tabla 54",
+        "§17.5.5",
+        "§17.5.7"
+      ],
+      "pregunta": "Con la OAK-D en la configuración de la demo, calibrada alta y mirando hacia abajo, una persona y los chalecos de julio: ¿con qué remera, al sacarse el chaleco, el campeón deja de ver un `vest` en el torso de forma continua y CR-02 alerta como el guion (P2)? ¿Y alcanza con cambiar la frase del chaleco a «reflective vest» (el mismo modelo, las mismas reglas) para que alerte aun con la remera negra, sin que el chaleco puesto dispare CR-02 (P1)?\n",
+      "gen1": {
+        "result_id": "F-RT1 en el rodaje del 2026-07-25 (docs 70 y 71), en la primera jornada de F7 (doc 140) y los pilotos del doc 142",
+        "doc": "operacion/142",
+        "relacion": "otra_combinacion"
+      },
+      "resumen": [],
+      "generado": null
     }
   ]
 }

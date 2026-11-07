@@ -10,17 +10,16 @@
       "media_run_id": "run_20261101_194310_dbe_grounding_dino_893d06",
       "distribution_run_id": "dist_20261101T194310Z_9705fa",
       "sujeto": {
-        "estado": "fallo",
-        "experiment_id": "exp_20261101T211822Z_gen2_rt04_sujeto_demo_20261101T194310Z_P1",
-        "control_run_id": null,
-        "segundos": 0.0,
+        "estado": "ok",
+        "experiment_id": "exp_20261107T050931Z_gen2_rt04_sujeto_demo_20261101T194310Z_P1",
+        "control_run_id": "gen2_rt04_sujeto_demo_20261101T194310Z_P1_20261107T050931Z_c81356",
+        "segundos": 3.0,
         "sha256": {
           "control_config": "667551b6e240558ca7762405b09d3dd8709f38f3aeb92273a13b047ddc8597a4",
           "patrones": "0b88e5cd159ba49676f7723fe34d48c81f1b9a6b2ecb9c973e076570d164a391"
-        },
-        "error": "control=None"
+        }
       },
-      "importada": "2026-11-01T21:18:22+00:00"
+      "importada": "2026-11-07T05:09:34+00:00"
     },
     "demo_20261101T194602Z_P1": {
       "estado": "ok",
@@ -30,17 +29,16 @@
       "media_run_id": "run_20261101_194602_dbe_grounding_dino_26f79a",
       "distribution_run_id": "dist_20261101T194602Z_c72455",
       "sujeto": {
-        "estado": "fallo",
-        "experiment_id": "exp_20261101T211823Z_gen2_rt04_sujeto_demo_20261101T194602Z_P1",
-        "control_run_id": null,
-        "segundos": 0.0,
+        "estado": "ok",
+        "experiment_id": "exp_20261107T050934Z_gen2_rt04_sujeto_demo_20261101T194602Z_P1",
+        "control_run_id": "gen2_rt04_sujeto_demo_20261101T194602Z_P1_20261107T050935Z_1a455d",
+        "segundos": 3.0,
         "sha256": {
           "control_config": "17f2c7c8a9e77cbd216584850f92d959c5c805f1efafc0e0c398f3dfbc5bc181",
           "patrones": "0b88e5cd159ba49676f7723fe34d48c81f1b9a6b2ecb9c973e076570d164a391"
-        },
-        "error": "control=None"
+        }
       },
-      "importada": "2026-11-01T21:18:23+00:00"
+      "importada": "2026-11-07T05:09:38+00:00"
     },
     "demo_20261101T194950Z_P2": {
       "estado": "ok",
@@ -50,17 +48,16 @@
       "media_run_id": "run_20261101_194950_dbe_grounding_dino_3ffd1b",
       "distribution_run_id": "dist_20261101T194950Z_3a7848",
       "sujeto": {
-        "estado": "fallo",
-        "experiment_id": "exp_20261101T211823Z_gen2_rt04_sujeto_demo_20261101T194950Z_P2",
-        "control_run_id": null,
-        "segundos": 0.0,
+        "estado": "ok",
+        "experiment_id": "exp_20261107T050938Z_gen2_rt04_sujeto_demo_20261101T194950Z_P2",
+        "control_run_id": "gen2_rt04_sujeto_demo_20261101T194950Z_P2_20261107T050938Z_c20c47",
+        "segundos": 3.0,
         "sha256": {
           "control_config": "7bda8df61e4e930288ecd394883fbe76085a09aa5b80219381e7d776272307ca",
           "patrones": "0b88e5cd159ba49676f7723fe34d48c81f1b9a6b2ecb9c973e076570d164a391"
-        },
-        "error": "control=None"
+        }
       },
-      "importada": "2026-11-01T21:18:23+00:00"
+      "importada": "2026-11-07T05:09:41+00:00"
     },
     "demo_20261101T195513Z_P2": {
       "estado": "ok",
@@ -70,17 +67,16 @@
       "media_run_id": "run_20261101_195514_dbe_grounding_dino_fc9b8b",
       "distribution_run_id": "dist_20261101T195514Z_0d216e",
       "sujeto": {
-        "estado": "fallo",
-        "experiment_id": "exp_20261101T211823Z_gen2_rt04_sujeto_demo_20261101T195513Z_P2",
-        "control_run_id": null,
-        "segundos": 0.0,
+        "estado": "ok",
+        "experiment_id": "exp_20261107T050941Z_gen2_rt04_sujeto_demo_20261101T195513Z_P2",
+        "control_run_id": "gen2_rt04_sujeto_demo_20261101T195513Z_P2_20261107T050941Z_c9838a",
+        "segundos": 3.0,
         "sha256": {
           "control_config": "3f9853c061edaf8e9e43236e5f3441be05671b83431dae10f65f19f780eb3fe5",
           "patrones": "0b88e5cd159ba49676f7723fe34d48c81f1b9a6b2ecb9c973e076570d164a391"
-        },
-        "error": "control=None"
+        }
       },
-      "importada": "2026-11-01T21:18:23+00:00"
+      "importada": "2026-11-07T05:09:44+00:00"
     },
     "demo_20261101T195749Z_P2": {
       "estado": "ok",
@@ -90,17 +86,16 @@
       "media_run_id": "run_20261101_195749_dbe_grounding_dino_55b180",
       "distribution_run_id": "dist_20261101T195749Z_9f9eb2",
       "sujeto": {
-        "estado": "fallo",
-        "experiment_id": "exp_20261101T211823Z_gen2_rt04_sujeto_demo_20261101T195749Z_P2",
-        "control_run_id": null,
-        "segundos": 0.0,
+        "estado": "ok",
+        "experiment_id": "exp_20261107T050944Z_gen2_rt04_sujeto_demo_20261101T195749Z_P2",
+        "control_run_id": "gen2_rt04_sujeto_demo_20261101T195749Z_P2_20261107T050944Z_779850",
+        "segundos": 3.0,
         "sha256": {
           "control_config": "7d6766c15decc21685166447815e7e3ef19f35916798f64cfc4c98e1410da964",
           "patrones": "0b88e5cd159ba49676f7723fe34d48c81f1b9a6b2ecb9c973e076570d164a391"
-        },
-        "error": "control=None"
+        }
       },
-      "importada": "2026-11-01T21:18:23+00:00"
+      "importada": "2026-11-07T05:09:47+00:00"
     },
     "demo_20261101T202547Z_P6": {
       "estado": "ok",
@@ -110,17 +105,16 @@
       "media_run_id": "run_20261101_202548_dbe_grounding_dino_7023a8",
       "distribution_run_id": "dist_20261101T202548Z_7596d0",
       "sujeto": {
-        "estado": "fallo",
-        "experiment_id": "exp_20261101T211823Z_gen2_rt04_sujeto_demo_20261101T202547Z_P6",
-        "control_run_id": null,
-        "segundos": 0.0,
+        "estado": "ok",
+        "experiment_id": "exp_20261107T050947Z_gen2_rt04_sujeto_demo_20261101T202547Z_P6",
+        "control_run_id": "gen2_rt04_sujeto_demo_20261101T202547Z_P6_20261107T050947Z_406bd8",
+        "segundos": 3.0,
         "sha256": {
           "control_config": "7e8f658bb1bd7e1fbe6eeeec541807ba5833b987367cc6defa9fb194f590a813",
           "patrones": "0b88e5cd159ba49676f7723fe34d48c81f1b9a6b2ecb9c973e076570d164a391"
-        },
-        "error": "control=None"
+        }
       },
-      "importada": "2026-11-01T21:18:23+00:00"
+      "importada": "2026-11-07T05:09:50+00:00"
     },
     "demo_20261101T203219Z_DEMO": {
       "estado": "ok",
@@ -130,17 +124,16 @@
       "media_run_id": "run_20261101_203219_dbe_grounding_dino_4917f5",
       "distribution_run_id": "dist_20261101T203219Z_834818",
       "sujeto": {
-        "estado": "fallo",
-        "experiment_id": "exp_20261101T211823Z_gen2_rt04_sujeto_demo_20261101T203219Z_DEMO",
-        "control_run_id": null,
-        "segundos": 0.0,
+        "estado": "ok",
+        "experiment_id": "exp_20261107T050951Z_gen2_rt04_sujeto_demo_20261101T203219Z_DEMO",
+        "control_run_id": "gen2_rt04_sujeto_demo_20261101T203219Z_DEMO_20261107T050951Z_0b5794",
+        "segundos": 3.0,
         "sha256": {
           "control_config": "ca948f562e1cdf35b8db5a5f00263577431e352308059c2511d6f02c3ef3f481",
           "patrones": "0b88e5cd159ba49676f7723fe34d48c81f1b9a6b2ecb9c973e076570d164a391"
-        },
-        "error": "control=None"
+        }
       },
-      "importada": "2026-11-01T21:18:23+00:00"
+      "importada": "2026-11-07T05:09:54+00:00"
     },
     "demo_20261101T203535Z_DEMO": {
       "estado": "ok",
@@ -150,17 +143,16 @@
       "media_run_id": "run_20261101_203535_dbe_grounding_dino_610c60",
       "distribution_run_id": "dist_20261101T203535Z_1906b3",
       "sujeto": {
-        "estado": "fallo",
-        "experiment_id": "exp_20261101T211823Z_gen2_rt04_sujeto_demo_20261101T203535Z_DEMO",
-        "control_run_id": null,
-        "segundos": 0.0,
+        "estado": "ok",
+        "experiment_id": "exp_20261107T050954Z_gen2_rt04_sujeto_demo_20261101T203535Z_DEMO",
+        "control_run_id": "gen2_rt04_sujeto_demo_20261101T203535Z_DEMO_20261107T050954Z_ab4001",
+        "segundos": 3.0,
         "sha256": {
           "control_config": "3822d69ba4e3814cbb015b8bdbd8936fce05b06af50df915d04d76822afb2234",
           "patrones": "0b88e5cd159ba49676f7723fe34d48c81f1b9a6b2ecb9c973e076570d164a391"
-        },
-        "error": "control=None"
+        }
       },
-      "importada": "2026-11-01T21:18:23+00:00"
+      "importada": "2026-11-07T05:09:57+00:00"
     },
     "demo_20261101T203803Z_DEMO": {
       "estado": "ok",
@@ -170,17 +162,16 @@
       "media_run_id": "run_20261101_203804_dbe_grounding_dino_a55f75",
       "distribution_run_id": "dist_20261101T203804Z_063fa1",
       "sujeto": {
-        "estado": "fallo",
-        "experiment_id": "exp_20261101T211824Z_gen2_rt04_sujeto_demo_20261101T203803Z_DEMO",
-        "control_run_id": null,
-        "segundos": 0.0,
+        "estado": "ok",
+        "experiment_id": "exp_20261107T050957Z_gen2_rt04_sujeto_demo_20261101T203803Z_DEMO",
+        "control_run_id": "gen2_rt04_sujeto_demo_20261101T203803Z_DEMO_20261107T050957Z_f1a945",
+        "segundos": 3.0,
         "sha256": {
           "control_config": "33f852bb25c0db79b68c82257b0313da0e6a3ed75f138bffb71ac3252b078c80",
           "patrones": "0b88e5cd159ba49676f7723fe34d48c81f1b9a6b2ecb9c973e076570d164a391"
-        },
-        "error": "control=None"
+        }
       },
-      "importada": "2026-11-01T21:18:24+00:00"
+      "importada": "2026-11-07T05:10:00+00:00"
     }
   }
 }

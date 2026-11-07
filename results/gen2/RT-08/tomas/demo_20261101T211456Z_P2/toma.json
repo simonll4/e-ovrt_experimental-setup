@@ -8,6 +8,9 @@
     "distribution_run_id": "dist_20261101T211456Z_24a772"
   },
   "marcas": true,
+  "remera": null,
+  "calibracion": null,
+  "encuadre": "sin_calibrar",
   "alertas": [],
   "por_condicion": {
     "CR-01": {
@@ -47,6 +50,24 @@
     "hueco_mediana_ms": 155.2607421875,
     "contaminada": false,
     "reloj_pared_menos_monotonico_ms": 1793558800387.7786
+  },
+  "sujeto": {
+    "por_condicion": {
+      "CR-01": {
+        "esperado": "sin_alerta",
+        "alertas": 0,
+        "sujetos": 0,
+        "ok": true
+      },
+      "CR-02": {
+        "esperado": "alerta",
+        "alertas": 0,
+        "sujetos": 0,
+        "ok": false
+      }
+    },
+    "como_se_esperaba": false,
+    "sujetos_con_alerta": 0
   },
   "stream": "principal"
 }

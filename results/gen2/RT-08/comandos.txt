@@ -5,3 +5,11 @@
 [2026-11-01T21:18:27+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/RT-08/gen2_rt04_sujeto_demo_20261101T211110Z_P2/manifest.yaml
 [2026-11-01T21:18:27+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/RT-08/gen2_rt04_sujeto_demo_20261101T211315Z_P1/manifest.yaml
 [2026-11-01T21:18:27+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/RT-08/gen2_rt04_sujeto_demo_20261101T211456Z_P2/manifest.yaml
+[2026-11-07T05:10:03+00:00] python -m tools.evidencia correr RT-08
+[2026-11-07T05:10:03+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/RT-08/gen2_rt04_sujeto_demo_20261101T210406Z_P1/manifest.yaml
+[2026-11-07T05:10:06+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/RT-08/gen2_rt04_sujeto_demo_20261101T210608Z_P2/manifest.yaml
+[2026-11-07T05:10:09+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/RT-08/gen2_rt04_sujeto_demo_20261101T210851Z_P1/manifest.yaml
+[2026-11-07T05:10:12+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/RT-08/gen2_rt04_sujeto_demo_20261101T211110Z_P2/manifest.yaml
+[2026-11-07T05:10:16+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/RT-08/gen2_rt04_sujeto_demo_20261101T211315Z_P1/manifest.yaml
+[2026-11-07T05:10:19+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/RT-08/gen2_rt04_sujeto_demo_20261101T211456Z_P2/manifest.yaml
+[2026-11-07T05:10:40+00:00] veredicto confirmado: otra_combinacion (equipo E-OVRT-VDP): El mismo chaleco con la camara IP en los dos streams, 6 tomas: P1 3/3 como el guion, P2 0/3 por F-RT1 (vest falso 76-95 %, mas debil que con la OAK-D); CR-01 como el guion en 6/6; principal a 6,3-6,7 fps. Sin par en julio (doc 140)

@@ -4250,5 +4250,43 @@
         "sha256_despues": "c6add333e8a459df71163357cec80888f1387c8edbe1be36a4b0392500a401b8"
       }
     ]
+  },
+  {
+    "fecha": "2026-11-07T05:10:53+00:00",
+    "marca": "$EOVRT_WORKSPACE",
+    "de": "el workspace de la máquina que corrió las pruebas (ruta con el usuario de Windows; no se publica)",
+    "nota": "Las huellas sha256.*_config de corridas.json son de la configuración tal como se envió, con la ruta original; la de cada copia de logs/ejemplo/ antes de limpiar es sha256_antes.",
+    "archivos": [
+      {
+        "ruta": "RT-03/entorno.json",
+        "reemplazos": 66,
+        "sha256_antes": "864832e10b2d1d5f10a545ee973db4b69819762952240262bf621eb0f86734d7",
+        "sha256_despues": "9959ec6a108652f4dcab2ecc51b650dde937f35dd1dd6b88ced0e1cfa63fbf80"
+      },
+      {
+        "ruta": "RT-07/comandos.txt",
+        "reemplazos": 9,
+        "sha256_antes": "870bd53ecde60594aee8367704f2e990d97aa4c0b024b52775a3c4876ec6b464",
+        "sha256_despues": "5ddfd00da17c8ad6b648b787d0a6ce68e7effaad129946d628b0f442e57a5e96"
+      },
+      {
+        "ruta": "RT-07/entorno.json",
+        "reemplazos": 66,
+        "sha256_antes": "f2c3bf78add46b72dc3c878aef12bfa0f92a82eeaf35947ea57d22bf4feb0997",
+        "sha256_despues": "35276a63d7cea0d3551d79bf74d1fa054c7ea513fab3549a306f2b1f139b0e1a"
+      },
+      {
+        "ruta": "RT-08/comandos.txt",
+        "reemplazos": 6,
+        "sha256_antes": "d1230b65105e3709f483ca2a8624542b56cacf976e028f4dd2945124994829f8",
+        "sha256_despues": "86c837adb15803165cb6e55cf72059f8bd537bec43b6bf989197db783b37599c"
+      },
+      {
+        "ruta": "RT-08/entorno.json",
+        "reemplazos": 66,
+        "sha256_antes": "8549c570e10275502c15d67f9456e85100f6588ca0fb927f8193c8f3b993f856",
+        "sha256_despues": "24fedb187c6a62e2e6ceba447291256392223fbbb116354c449b25aee041d4e4"
+      }
+    ]
   }
 ]

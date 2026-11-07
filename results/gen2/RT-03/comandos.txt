@@ -7,3 +7,5 @@
 [2026-11-01T19:35:52+00:00] python -m tools.evidencia vivo RT-03 --toma lat_960_c --config 960x540@5
 [2026-11-01T19:35:52+00:00] docker compose restart mp-gdino-tiny-560
 [2026-11-01T19:36:09+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/RT-03/gen2_rt03_lat_960_c/manifest.yaml
+[2026-11-07T05:10:25+00:00] python -m tools.evidencia correr RT-03 --reagregar
+[2026-11-07T05:10:36+00:00] veredicto confirmado (prueba parcial): otra_combinacion (equipo E-OVRT-VDP): Configuracion de despliegue (960x540@5) con personas, 3 tomas validas: G2A p95 426,5 ms (237/542/201 por toma), vidrio a resultado p95 495 ms, 3,94 fps. 1080p@30 se retira sin correr: en la Victus la red de WSL limita la OAK-D a ~200 Mbit/s y mediria la red, no el sistema (doc 133 s3.5); la comparacion con el informe es otra combinacion de todos modos (doc 134 s13.17, doc 140)

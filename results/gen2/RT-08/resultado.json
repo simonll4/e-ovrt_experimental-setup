@@ -6,7 +6,7 @@
     "Tabla 54",
     "§17.5.5"
   ],
-  "generado": "2026-11-01T21:18:27+00:00",
+  "generado": "2026-11-07T05:10:22+00:00",
   "familia": "rodaje",
   "estado": "completo",
   "metricas": {
@@ -17,18 +17,22 @@
         "ruta": "/Streaming/Channels/2",
         "tomas": 4,
         "tomas_como_se_esperaba": 2,
-        "tomas_sujeto_como_se_esperaba": 0,
+        "tomas_sujeto_releidas": 4,
+        "tomas_sujeto_como_se_esperaba": 2,
+        "relecturas_fallidas": [],
         "alertas_antes_de_la_accion": 0,
         "por_escena": {
           "P1": {
             "tomas": 2,
             "como_se_esperaba": 2,
-            "sujeto_como_se_esperaba": 0,
+            "sujeto_releidas": 2,
+            "sujeto_como_se_esperaba": 2,
             "alertas_antes_de_la_accion": 0
           },
           "P2": {
             "tomas": 2,
             "como_se_esperaba": 0,
+            "sujeto_releidas": 2,
             "sujeto_como_se_esperaba": 0,
             "alertas_antes_de_la_accion": 0
           }
@@ -64,6 +68,11 @@
           "mejor_racha": 0,
           "cr02_en_vivo": 0
         },
+        "encuadre": {
+          "ok": 0,
+          "no_ok": 0,
+          "sin_calibrar": 4
+        },
         "faltan_tomas": {
           "P1": 0,
           "P2": 0
@@ -73,18 +82,22 @@
         "ruta": "/Streaming/Channels/1",
         "tomas": 2,
         "tomas_como_se_esperaba": 1,
-        "tomas_sujeto_como_se_esperaba": 0,
+        "tomas_sujeto_releidas": 2,
+        "tomas_sujeto_como_se_esperaba": 1,
+        "relecturas_fallidas": [],
         "alertas_antes_de_la_accion": 0,
         "por_escena": {
           "P1": {
             "tomas": 1,
             "como_se_esperaba": 1,
-            "sujeto_como_se_esperaba": 0,
+            "sujeto_releidas": 1,
+            "sujeto_como_se_esperaba": 1,
             "alertas_antes_de_la_accion": 0
           },
           "P2": {
             "tomas": 1,
             "como_se_esperaba": 0,
+            "sujeto_releidas": 1,
             "sujeto_como_se_esperaba": 0,
             "alertas_antes_de_la_accion": 0
           }
@@ -120,6 +133,11 @@
           "mejor_racha": 0,
           "cr02_en_vivo": 0
         },
+        "encuadre": {
+          "ok": 0,
+          "no_ok": 0,
+          "sin_calibrar": 2
+        },
         "faltan_tomas": {
           "P1": 0,
           "P2": 0
@@ -127,7 +145,8 @@
       }
     },
     "no_evaluables": [],
-    "fuente": "rtsp"
+    "fuente": "rtsp",
+    "relecturas_fallidas": []
   },
   "resumen": [
     {
@@ -138,9 +157,16 @@
       "gen1": null
     },
     {
+      "clave": "tomas_encuadre_secundario",
+      "nombre": "Tomas por encuadre (calibrado / aceptado sin pasar / sin calibrar) — stream secundario",
+      "valor": "0 / 0 / 4",
+      "unidad": null,
+      "gen1": null
+    },
+    {
       "clave": "tomas_sujeto_como_se_esperaba_secundario",
       "nombre": "Las mismas tomas releídas por sujeto — stream secundario",
-      "valor": "0/4",
+      "valor": "2/4",
       "unidad": null,
       "gen1": null
     },
@@ -194,9 +220,16 @@
       "gen1": null
     },
     {
+      "clave": "tomas_encuadre_principal",
+      "nombre": "Tomas por encuadre (calibrado / aceptado sin pasar / sin calibrar) — stream principal",
+      "valor": "0 / 0 / 2",
+      "unidad": null,
+      "gen1": null
+    },
+    {
       "clave": "tomas_sujeto_como_se_esperaba_principal",
       "nombre": "Las mismas tomas releídas por sujeto — stream principal",
-      "valor": "0/2",
+      "valor": "1/2",
       "unidad": null,
       "gen1": null
     },
@@ -248,6 +281,11 @@
     "motivo": "En julio la cámara IP solo grabó (9 tomas a 15 fps, bitrate bajo) y nunca corrió en vivo por la plataforma; además, los chalecos eran reflectantes. No hay una cifra de julio con la que comparar 1:1.\n",
     "referencia": "operacion/71",
     "diferencias": {},
-    "confirmado": null
+    "confirmado": {
+      "valor": "otra_combinacion",
+      "motivo": "El mismo chaleco con la camara IP en los dos streams, 6 tomas: P1 3/3 como el guion, P2 0/3 por F-RT1 (vest falso 76-95 %, mas debil que con la OAK-D); CR-01 como el guion en 6/6; principal a 6,3-6,7 fps. Sin par en julio (doc 140)",
+      "quien": "equipo E-OVRT-VDP",
+      "fecha": "2026-11-07T05:10:40+00:00"
+    }
   }
 }
