@@ -1,0 +1,104 @@
+{
+  "escena": "DEMO",
+  "session_id": "demo_20261107T181732Z_DEMO_exp",
+  "experiment_id": "exp_20261107T181732Z_demo_defensa",
+  "ids": {
+    "control_run_id": "control_demo_defensa_20261107T181732Z_d727f9",
+    "media_run_id": "run_20261107_181732_dbe_grounding_dino_0c1672",
+    "distribution_run_id": "dist_20261107T181732Z_2d5eeb"
+  },
+  "marcas": true,
+  "remera": "blanca lisa",
+  "calibracion": {
+    "session_id": "demo_20261107T151131Z_CAL",
+    "ok": true,
+    "aceptada": false,
+    "fecha": "2026-11-07T15:27:59+00:00",
+    "altura_m": 2.1
+  },
+  "encuadre": "ok",
+  "alertas": [
+    {
+      "condicion": "CR-01",
+      "alert_id": "ce8ca6c5-c5c9-5503-afd7-8e19b46792db",
+      "subject_key": "CR-01:169.254.31.137",
+      "captura_primera_evidencia_ms": 1794075489224.7974,
+      "captura_confirmacion_ms": 1794075493233.7104,
+      "confirmada_ms": 1794075493379.4487,
+      "broker_ms": 1794075493394.315,
+      "confirmacion_a_broker_ms": 14.9,
+      "primera_evidencia_a_confirmacion_ms": 4154.7,
+      "accion": "sacar_casco",
+      "accion_a_confirmacion_ms": 5942.9,
+      "accion_a_primera_evidencia_ms": 1788.3,
+      "accion_a_broker_ms": 5957.8,
+      "resuelta": true,
+      "accion_fin_a_resolucion_ms": 3425.6
+    },
+    {
+      "condicion": "CR-02",
+      "alert_id": "438b1f11-02aa-5b96-99bf-8d0b5ab13c16",
+      "subject_key": "CR-02:169.254.31.137",
+      "captura_primera_evidencia_ms": 1794075508814.6494,
+      "captura_confirmacion_ms": 1794075515855.8823,
+      "confirmada_ms": 1794075516013.7969,
+      "broker_ms": 1794075516016.246,
+      "confirmacion_a_broker_ms": 2.4,
+      "primera_evidencia_a_confirmacion_ms": 7199.1,
+      "accion": "sacar_chaleco",
+      "accion_a_confirmacion_ms": 8570.3,
+      "accion_a_primera_evidencia_ms": 1371.1,
+      "accion_a_broker_ms": 8572.7,
+      "resuelta": true,
+      "accion_fin_a_resolucion_ms": 4596.9
+    }
+  ],
+  "por_condicion": {
+    "CR-01": {
+      "esperado": "alerta",
+      "alertas": 1,
+      "ok": true
+    },
+    "CR-02": {
+      "esperado": "alerta",
+      "alertas": 1,
+      "ok": true
+    }
+  },
+  "como_se_esperaba": true,
+  "alertas_antes_de_la_accion": 0,
+  "bus_dropped_events": 0,
+  "resultado_listo_s": 10.6,
+  "latencia": {
+    "unidades": 275,
+    "descartadas": 0,
+    "fps_efectivos": 3.33,
+    "inferencia_p50_ms": 174.46,
+    "inferencia_p95_ms": 222.47,
+    "g2a": {
+      "n": 275,
+      "p50": 179.702,
+      "p95": 256.797,
+      "max": 508.81
+    },
+    "captura_a_host": {
+      "n": 275,
+      "p50": 70.19,
+      "p95": 93.42,
+      "max": 107.58
+    },
+    "vidrio_a_resultado": {
+      "n": 275,
+      "p50": 250.788,
+      "p95": 330.379,
+      "max": 583.57
+    },
+    "hueco_max_ms": 236.987060546875,
+    "hueco_mediana_ms": 196.5889892578125,
+    "contaminada": false,
+    "reloj_pared_menos_monotonico_ms": 1794048576410.3313
+  },
+  "motor": "mp-gdino-base-560",
+  "camara": "960x540@5",
+  "modelo": "grounding-dino/gdino-base-560"
+}

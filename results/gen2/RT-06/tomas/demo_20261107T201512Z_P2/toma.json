@@ -1,0 +1,96 @@
+{
+  "escena": "P2",
+  "session_id": "demo_20261107T201512Z_P2",
+  "experiment_id": "exp_20261107T201512Z_demo_defensa",
+  "ids": {
+    "control_run_id": "control_demo_defensa_20261107T201513Z_c20f1d",
+    "media_run_id": "run_20261107_201513_dbe_grounding_dino_859169",
+    "distribution_run_id": "dist_20261107T201513Z_7060df"
+  },
+  "marcas": true,
+  "remera": "blanca lisa",
+  "calibracion": {
+    "session_id": "demo_20261107T200312Z_CAL",
+    "ok": true,
+    "aceptada": false,
+    "fecha": "2026-11-07T20:04:00+00:00",
+    "altura_m": 1.9
+  },
+  "encuadre": "ok",
+  "alertas": [
+    {
+      "condicion": "CR-02",
+      "alert_id": "cddb06da-d40b-5259-9fe3-c97bdbf5cd18",
+      "subject_key": "CR-02:1",
+      "captura_primera_evidencia_ms": 1794082532012.231,
+      "captura_confirmacion_ms": 1794082540129.5112,
+      "confirmada_ms": 1794082540399.7854,
+      "broker_ms": 1794082540405.177,
+      "confirmacion_a_broker_ms": 5.4,
+      "primera_evidencia_a_confirmacion_ms": 8387.6,
+      "accion": "sacar_chaleco",
+      "accion_a_confirmacion_ms": 17212.9,
+      "accion_a_primera_evidencia_ms": 8825.3,
+      "accion_a_broker_ms": 17218.3,
+      "resuelta": false
+    }
+  ],
+  "por_condicion": {
+    "CR-01": {
+      "esperado": "sin_alerta",
+      "alertas": 0,
+      "ok": true
+    },
+    "CR-02": {
+      "esperado": "alerta",
+      "alertas": 1,
+      "ok": true
+    }
+  },
+  "como_se_esperaba": true,
+  "alertas_antes_de_la_accion": 0,
+  "bus_dropped_events": 0,
+  "resultado_listo_s": 8.9,
+  "latencia": {
+    "unidades": 253,
+    "descartadas": 332,
+    "fps_efectivos": 6.19,
+    "inferencia_p50_ms": 145.98,
+    "inferencia_p95_ms": 192.87,
+    "g2a": {
+      "n": 253,
+      "p50": 247.201,
+      "p95": 326.015,
+      "max": 482.513
+    },
+    "captura_a_host": {
+      "n": 0
+    },
+    "vidrio_a_resultado": {
+      "n": 0
+    },
+    "hueco_max_ms": 294.98193359375,
+    "hueco_mediana_ms": 150.5379638671875,
+    "contaminada": false,
+    "reloj_pared_menos_monotonico_ms": 1794048576115.7239
+  },
+  "sujeto": {
+    "por_condicion": {
+      "CR-01": {
+        "esperado": "sin_alerta",
+        "alertas": 0,
+        "sujetos": 0,
+        "ok": true
+      },
+      "CR-02": {
+        "esperado": "alerta",
+        "alertas": 1,
+        "sujetos": 1,
+        "ok": true
+      }
+    },
+    "como_se_esperaba": true,
+    "sujetos_con_alerta": 1
+  },
+  "stream": "principal"
+}

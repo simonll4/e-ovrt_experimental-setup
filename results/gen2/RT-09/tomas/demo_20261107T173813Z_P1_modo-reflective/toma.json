@@ -1,0 +1,103 @@
+{
+  "escena": "P1",
+  "session_id": "demo_20261107T173813Z_P1_modo-reflective",
+  "experiment_id": "exp_20261107T173813Z_demo_defensa",
+  "ids": {
+    "control_run_id": "control_demo_defensa_20261107T173814Z_0c306e",
+    "media_run_id": "run_20261107_173814_dbe_grounding_dino_d00cf1",
+    "distribution_run_id": "dist_20261107T173814Z_96dd0d"
+  },
+  "marcas": true,
+  "remera": "blanca lisa",
+  "calibracion": {
+    "session_id": "demo_20261107T151131Z_CAL",
+    "ok": true,
+    "aceptada": false,
+    "fecha": "2026-11-07T15:27:59+00:00",
+    "altura_m": 2.1
+  },
+  "encuadre": "ok",
+  "alertas": [
+    {
+      "condicion": "CR-01",
+      "alert_id": "9b9a4f57-efae-5272-a355-24aaecb11deb",
+      "subject_key": "CR-01:169.254.31.137",
+      "captura_primera_evidencia_ms": 1794073130896.3604,
+      "captura_confirmacion_ms": 1794073134916.6174,
+      "confirmada_ms": 1794073135075.7834,
+      "broker_ms": 1794073135091.034,
+      "confirmacion_a_broker_ms": 15.3,
+      "primera_evidencia_a_confirmacion_ms": 4179.4,
+      "accion": "sacar_casco",
+      "accion_a_confirmacion_ms": 6041.1,
+      "accion_a_primera_evidencia_ms": 1861.7,
+      "accion_a_broker_ms": 6056.4,
+      "resuelta": true,
+      "accion_fin_a_resolucion_ms": 3670.6
+    }
+  ],
+  "por_condicion": {
+    "CR-01": {
+      "esperado": "alerta",
+      "alertas": 1,
+      "ok": true
+    },
+    "CR-02": {
+      "esperado": "sin_alerta",
+      "alertas": 0,
+      "ok": true
+    }
+  },
+  "como_se_esperaba": true,
+  "alertas_antes_de_la_accion": 0,
+  "bus_dropped_events": 0,
+  "resultado_listo_s": 7.6,
+  "latencia": {
+    "unidades": 151,
+    "descartadas": 0,
+    "fps_efectivos": 2.57,
+    "inferencia_p50_ms": 148.86,
+    "inferencia_p95_ms": 199.84,
+    "g2a": {
+      "n": 151,
+      "p50": 152.171,
+      "p95": 210.277,
+      "max": 476.109
+    },
+    "captura_a_host": {
+      "n": 151,
+      "p50": 67.31,
+      "p95": 86.98,
+      "max": 97.11
+    },
+    "vidrio_a_resultado": {
+      "n": 151,
+      "p50": 216.679,
+      "p95": 287.01,
+      "max": 539.719
+    },
+    "hueco_max_ms": 236.29833984375,
+    "hueco_mediana_ms": 196.2120361328125,
+    "contaminada": false,
+    "reloj_pared_menos_monotonico_ms": 1794048576503.7983
+  },
+  "modo": "reflective",
+  "motor": "mp-gdino-tiny-560",
+  "modelo": null,
+  "ventana_vest": {
+    "desde": "entrar",
+    "margen_s": 3,
+    "hasta": null,
+    "vest": "presente",
+    "desde_ms": 1794073127045.634,
+    "hasta_ms": null
+  },
+  "vest": {
+    "cuadros_con_persona": 121,
+    "cuadros_con_vest": 121,
+    "fraccion_con_vest": 1.0,
+    "racha_max_con_vest_s": 23.99,
+    "racha_max_sin_vest_s": 0.0,
+    "confianza_vest_p50": 0.868
+  }
+}

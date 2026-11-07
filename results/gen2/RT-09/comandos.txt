@@ -1,0 +1,6 @@
+[2026-11-07T15:42:57+00:00] descartar demo_20261107T153550Z_P2 (equipo E-OVRT-VDP): Causa fisica: una persona quedo en el borde izquierdo del cuadro antes del primer aviso y CR-01 alerto por esa caja sin casco visible (0 a 5 s). Se conserva como ejemplo de falla de CR-01 con una persona parcialmente en cuadro. La reemplaza demo_20261107T153958Z_P2.
+[2026-11-07T15:50:38+00:00] python -m tools.evidencia correr RT-09
+[2026-11-07T17:39:33+00:00] python -m tools.evidencia correr RT-09
+[2026-11-07T19:28:32+00:00] python -m tools.evidencia correr RT-09
+[2026-11-07T19:42:22+00:00] python -m tools.evidencia correr RT-09
+[2026-11-07T21:20:08+00:00] veredicto confirmado (prueba parcial): otra_combinacion (equipo E-OVRT-VDP): Falta la celda «reflective · negra» (0 de 2 tomas). El equipo la cortó porque con la remera negra el chaleco falso ya estaba establecido en todos los modos medidos, y «reflective vest» lo empeoró sobre la blanca. Remera propuesta: blanca lisa. Una prueba posterior, con cuadros crudos de la cámara IP, mostró que el chaleco falso sobre la blanca depende también de la persona, la ropa y la pose.

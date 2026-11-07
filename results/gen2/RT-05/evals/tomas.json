@@ -1,0 +1,1911 @@
+[
+  {
+    "escena": "DEMO",
+    "session_id": "demo_20261107T180157Z_DEMO_exp",
+    "experiment_id": "exp_20261107T180157Z_demo_defensa",
+    "ids": {
+      "control_run_id": "control_demo_defensa_20261107T180157Z_c5e909",
+      "media_run_id": "run_20261107_180157_dbe_grounding_dino_3a6a08",
+      "distribution_run_id": "dist_20261107T180157Z_f26bbc"
+    },
+    "marcas": true,
+    "remera": "blanca lisa",
+    "calibracion": {
+      "session_id": "demo_20261107T151131Z_CAL",
+      "ok": true,
+      "aceptada": false,
+      "fecha": "2026-11-07T15:27:59+00:00",
+      "altura_m": 2.1
+    },
+    "encuadre": "ok",
+    "alertas": [
+      {
+        "condicion": "CR-01",
+        "alert_id": "7b71ed83-36cf-5d0e-8767-388cf887fd28",
+        "subject_key": "CR-01:169.254.31.137",
+        "captura_primera_evidencia_ms": 1794074541079.9731,
+        "captura_confirmacion_ms": 1794074545281.3948,
+        "confirmada_ms": 1794074545449.8188,
+        "broker_ms": 1794074545464.677,
+        "confirmacion_a_broker_ms": 14.9,
+        "primera_evidencia_a_confirmacion_ms": 4369.8,
+        "accion": "sacar_casco",
+        "accion_a_confirmacion_ms": 6590.5,
+        "accion_a_primera_evidencia_ms": 2220.6,
+        "accion_a_broker_ms": 6605.3,
+        "resuelta": true,
+        "accion_fin_a_resolucion_ms": 3831.5
+      }
+    ],
+    "por_condicion": {
+      "CR-01": {
+        "esperado": "alerta",
+        "alertas": 1,
+        "ok": true
+      },
+      "CR-02": {
+        "esperado": "alerta",
+        "alertas": 0,
+        "ok": false
+      }
+    },
+    "como_se_esperaba": false,
+    "alertas_antes_de_la_accion": 0,
+    "bus_dropped_events": 0,
+    "resultado_listo_s": 11.0,
+    "latencia": {
+      "unidades": 275,
+      "descartadas": 0,
+      "fps_efectivos": 3.96,
+      "inferencia_p50_ms": 146.92,
+      "inferencia_p95_ms": 202.14,
+      "g2a": {
+        "n": 275,
+        "p50": 148.074,
+        "p95": 205.758,
+        "max": 394.899
+      },
+      "captura_a_host": {
+        "n": 275,
+        "p50": 65.46,
+        "p95": 89.42,
+        "max": 98.05
+      },
+      "vidrio_a_resultado": {
+        "n": 275,
+        "p50": 214.15,
+        "p95": 274.56,
+        "max": 462.059
+      },
+      "hueco_max_ms": 235.96044921875,
+      "hueco_mediana_ms": 197.864990234375,
+      "contaminada": false,
+      "reloj_pared_menos_monotonico_ms": 1794048576448.2566
+    },
+    "motor": "mp-gdino-tiny-560",
+    "camara": "960x540@5",
+    "modelo": "grounding-dino/gdino-tiny-560"
+  },
+  {
+    "escena": "DEMO",
+    "session_id": "demo_20261107T180355Z_DEMO_exp",
+    "experiment_id": "exp_20261107T180355Z_demo_defensa",
+    "ids": {
+      "control_run_id": "control_demo_defensa_20261107T180355Z_e8f18b",
+      "media_run_id": "run_20261107_180355_dbe_grounding_dino_d22fa9",
+      "distribution_run_id": "dist_20261107T180355Z_4ade68"
+    },
+    "marcas": true,
+    "remera": "blanca lisa",
+    "calibracion": {
+      "session_id": "demo_20261107T151131Z_CAL",
+      "ok": true,
+      "aceptada": false,
+      "fecha": "2026-11-07T15:27:59+00:00",
+      "altura_m": 2.1
+    },
+    "encuadre": "ok",
+    "alertas": [
+      {
+        "condicion": "CR-01",
+        "alert_id": "0de4df3f-1b07-5c8b-b8c5-6bedbbf339ab",
+        "subject_key": "CR-01:169.254.31.137",
+        "captura_primera_evidencia_ms": 1794074671576.8123,
+        "captura_confirmacion_ms": 1794074675578.7458,
+        "confirmada_ms": 1794074675749.4927,
+        "broker_ms": 1794074675764.26,
+        "confirmacion_a_broker_ms": 14.8,
+        "primera_evidencia_a_confirmacion_ms": 4172.7,
+        "accion": "sacar_casco",
+        "accion_a_confirmacion_ms": 5609.7,
+        "accion_a_primera_evidencia_ms": 1437.0,
+        "accion_a_broker_ms": 5624.4,
+        "resuelta": true,
+        "accion_fin_a_resolucion_ms": 3216.0
+      },
+      {
+        "condicion": "CR-02",
+        "alert_id": "0a1c74b8-3a3c-548e-ac2f-d34e22b26f2d",
+        "subject_key": "CR-02:169.254.31.137",
+        "captura_primera_evidencia_ms": 1794074702359.4512,
+        "captura_confirmacion_ms": 1794074709761.4873,
+        "confirmada_ms": 1794074709955.8118,
+        "broker_ms": 1794074709957.835,
+        "confirmacion_a_broker_ms": 2.0,
+        "primera_evidencia_a_confirmacion_ms": 7596.4,
+        "accion": "sacar_chaleco",
+        "accion_a_confirmacion_ms": 19823.0,
+        "accion_a_primera_evidencia_ms": 12226.6,
+        "accion_a_broker_ms": 19825.0,
+        "resuelta": true,
+        "accion_fin_a_resolucion_ms": 5023.3
+      }
+    ],
+    "por_condicion": {
+      "CR-01": {
+        "esperado": "alerta",
+        "alertas": 1,
+        "ok": true
+      },
+      "CR-02": {
+        "esperado": "alerta",
+        "alertas": 1,
+        "ok": true
+      }
+    },
+    "como_se_esperaba": true,
+    "alertas_antes_de_la_accion": 0,
+    "bus_dropped_events": 0,
+    "resultado_listo_s": 10.9,
+    "latencia": {
+      "unidades": 275,
+      "descartadas": 0,
+      "fps_efectivos": 3.32,
+      "inferencia_p50_ms": 145.1,
+      "inferencia_p95_ms": 196.97,
+      "g2a": {
+        "n": 275,
+        "p50": 145.431,
+        "p95": 201.086,
+        "max": 456.518
+      },
+      "captura_a_host": {
+        "n": 275,
+        "p50": 63.2,
+        "p95": 85.12,
+        "max": 101.61
+      },
+      "vidrio_a_resultado": {
+        "n": 275,
+        "p50": 209.095,
+        "p95": 271.986,
+        "max": 514.698
+      },
+      "hueco_max_ms": 236.292236328125,
+      "hueco_mediana_ms": 197.0032958984375,
+      "contaminada": false,
+      "reloj_pared_menos_monotonico_ms": 1794048576442.227
+    },
+    "motor": "mp-gdino-tiny-560",
+    "camara": "960x540@5",
+    "modelo": "grounding-dino/gdino-tiny-560"
+  },
+  {
+    "escena": "DEMO",
+    "session_id": "demo_20261107T180608Z_DEMO_exp",
+    "experiment_id": "exp_20261107T180608Z_demo_defensa",
+    "ids": {
+      "control_run_id": "control_demo_defensa_20261107T180608Z_9282c1",
+      "media_run_id": "run_20261107_180608_dbe_grounding_dino_9363e6",
+      "distribution_run_id": "dist_20261107T180608Z_7e81f4"
+    },
+    "marcas": true,
+    "remera": "blanca lisa",
+    "calibracion": {
+      "session_id": "demo_20261107T151131Z_CAL",
+      "ok": true,
+      "aceptada": false,
+      "fecha": "2026-11-07T15:27:59+00:00",
+      "altura_m": 2.1
+    },
+    "encuadre": "ok",
+    "alertas": [
+      {
+        "condicion": "CR-01",
+        "alert_id": "a199b56e-bce2-58d5-a5e6-856c139c056d",
+        "subject_key": "CR-01:169.254.31.137",
+        "captura_primera_evidencia_ms": 1794074805276.2065,
+        "captura_confirmacion_ms": 1794074809459.7065,
+        "confirmada_ms": 1794074809604.9153,
+        "broker_ms": 1794074809619.112,
+        "confirmacion_a_broker_ms": 14.2,
+        "primera_evidencia_a_confirmacion_ms": 4328.7,
+        "accion": "sacar_casco",
+        "accion_a_confirmacion_ms": 6207.5,
+        "accion_a_primera_evidencia_ms": 1878.8,
+        "accion_a_broker_ms": 6221.7,
+        "resuelta": true,
+        "accion_fin_a_resolucion_ms": 2880.8
+      }
+    ],
+    "por_condicion": {
+      "CR-01": {
+        "esperado": "alerta",
+        "alertas": 1,
+        "ok": true
+      },
+      "CR-02": {
+        "esperado": "alerta",
+        "alertas": 0,
+        "ok": false
+      }
+    },
+    "como_se_esperaba": false,
+    "alertas_antes_de_la_accion": 0,
+    "bus_dropped_events": 0,
+    "resultado_listo_s": 10.5,
+    "latencia": {
+      "unidades": 277,
+      "descartadas": 0,
+      "fps_efectivos": 3.35,
+      "inferencia_p50_ms": 148.61,
+      "inferencia_p95_ms": 199.64,
+      "g2a": {
+        "n": 277,
+        "p50": 148.642,
+        "p95": 202.985,
+        "max": 487.018
+      },
+      "captura_a_host": {
+        "n": 277,
+        "p50": 63.06,
+        "p95": 86.02,
+        "max": 101.08
+      },
+      "vidrio_a_resultado": {
+        "n": 277,
+        "p50": 211.818,
+        "p95": 277.119,
+        "max": 555.028
+      },
+      "hueco_max_ms": 245.981201171875,
+      "hueco_mediana_ms": 196.296630859375,
+      "contaminada": false,
+      "reloj_pared_menos_monotonico_ms": 1794048576437.7424
+    },
+    "motor": "mp-gdino-tiny-560",
+    "camara": "960x540@5",
+    "modelo": "grounding-dino/gdino-tiny-560"
+  },
+  {
+    "escena": "DEMO",
+    "session_id": "demo_20261107T180809Z_DEMO_exp",
+    "experiment_id": "exp_20261107T180809Z_demo_defensa",
+    "ids": {
+      "control_run_id": "control_demo_defensa_20261107T180809Z_1dfd2c",
+      "media_run_id": "run_20261107_180809_dbe_grounding_dino_2b52b2",
+      "distribution_run_id": "dist_20261107T180809Z_786906"
+    },
+    "marcas": true,
+    "remera": "blanca lisa",
+    "calibracion": {
+      "session_id": "demo_20261107T151131Z_CAL",
+      "ok": true,
+      "aceptada": false,
+      "fecha": "2026-11-07T15:27:59+00:00",
+      "altura_m": 2.1
+    },
+    "encuadre": "ok",
+    "alertas": [
+      {
+        "condicion": "CR-01",
+        "alert_id": "d1f9f1c6-52c9-5902-9bae-d8fbc8d5b4bf",
+        "subject_key": "CR-01:169.254.31.137",
+        "captura_primera_evidencia_ms": 1794074923727.157,
+        "captura_confirmacion_ms": 1794074927739.9856,
+        "confirmada_ms": 1794074928039.9424,
+        "broker_ms": 1794074928055.441,
+        "confirmacion_a_broker_ms": 15.5,
+        "primera_evidencia_a_confirmacion_ms": 4312.8,
+        "accion": "sacar_casco",
+        "accion_a_confirmacion_ms": 5924.2,
+        "accion_a_primera_evidencia_ms": 1611.5,
+        "accion_a_broker_ms": 5939.7,
+        "resuelta": true,
+        "accion_fin_a_resolucion_ms": 3423.5
+      }
+    ],
+    "por_condicion": {
+      "CR-01": {
+        "esperado": "alerta",
+        "alertas": 1,
+        "ok": true
+      },
+      "CR-02": {
+        "esperado": "alerta",
+        "alertas": 0,
+        "ok": false
+      }
+    },
+    "como_se_esperaba": false,
+    "alertas_antes_de_la_accion": 0,
+    "bus_dropped_events": 0,
+    "resultado_listo_s": 13.8,
+    "latencia": {
+      "unidades": 312,
+      "descartadas": 511,
+      "fps_efectivos": 3.77,
+      "inferencia_p50_ms": 173.14,
+      "inferencia_p95_ms": 219.14,
+      "g2a": {
+        "n": 312,
+        "p50": 279.582,
+        "p95": 335.086,
+        "max": 508.426
+      },
+      "captura_a_host": {
+        "n": 312,
+        "p50": 69.81,
+        "p95": 91.86,
+        "max": 157.95
+      },
+      "vidrio_a_resultado": {
+        "n": 312,
+        "p50": 349.313,
+        "p95": 403.291,
+        "max": 614.606
+      },
+      "hueco_max_ms": 442.7451171875,
+      "hueco_mediana_ms": 188.620361328125,
+      "contaminada": false,
+      "reloj_pared_menos_monotonico_ms": 1794048576432.8367
+    },
+    "motor": "mp-gdino-tiny-560",
+    "camara": "960x540@15",
+    "modelo": "grounding-dino/gdino-tiny-560"
+  },
+  {
+    "escena": "DEMO",
+    "session_id": "demo_20261107T181047Z_DEMO_exp",
+    "experiment_id": "exp_20261107T181047Z_demo_defensa",
+    "ids": {
+      "control_run_id": "control_demo_defensa_20261107T181047Z_b37803",
+      "media_run_id": "run_20261107_181047_dbe_grounding_dino_1fd6d2",
+      "distribution_run_id": "dist_20261107T181047Z_5d6e0b"
+    },
+    "marcas": true,
+    "remera": "blanca lisa",
+    "calibracion": {
+      "session_id": "demo_20261107T151131Z_CAL",
+      "ok": true,
+      "aceptada": false,
+      "fecha": "2026-11-07T15:27:59+00:00",
+      "altura_m": 2.1
+    },
+    "encuadre": "ok",
+    "alertas": [
+      {
+        "condicion": "CR-01",
+        "alert_id": "69d93b99-708b-57bb-99ae-8e810909d0f7",
+        "subject_key": "CR-01:169.254.31.137",
+        "captura_primera_evidencia_ms": 1794075081415.1855,
+        "captura_confirmacion_ms": 1794075085600.5122,
+        "confirmada_ms": 1794075085868.89,
+        "broker_ms": 1794075085882.889,
+        "confirmacion_a_broker_ms": 14.0,
+        "primera_evidencia_a_confirmacion_ms": 4453.7,
+        "accion": "sacar_casco",
+        "accion_a_confirmacion_ms": 5950.0,
+        "accion_a_primera_evidencia_ms": 1496.3,
+        "accion_a_broker_ms": 5964.0,
+        "resuelta": true,
+        "accion_fin_a_resolucion_ms": 3718.8
+      }
+    ],
+    "por_condicion": {
+      "CR-01": {
+        "esperado": "alerta",
+        "alertas": 1,
+        "ok": true
+      },
+      "CR-02": {
+        "esperado": "alerta",
+        "alertas": 0,
+        "ok": false
+      }
+    },
+    "como_se_esperaba": false,
+    "alertas_antes_de_la_accion": 0,
+    "bus_dropped_events": 0,
+    "resultado_listo_s": 14.0,
+    "latencia": {
+      "unidades": 318,
+      "descartadas": 474,
+      "fps_efectivos": 3.85,
+      "inferencia_p50_ms": 171.54,
+      "inferencia_p95_ms": 221.05,
+      "g2a": {
+        "n": 318,
+        "p50": 274.185,
+        "p95": 363.553,
+        "max": 421.822
+      },
+      "captura_a_host": {
+        "n": 318,
+        "p50": 77.81,
+        "p95": 108.23,
+        "max": 174.7
+      },
+      "vidrio_a_resultado": {
+        "n": 318,
+        "p50": 357.998,
+        "p95": 434.392,
+        "max": 498.832
+      },
+      "hueco_max_ms": 352.93603515625,
+      "hueco_mediana_ms": 180.145751953125,
+      "contaminada": false,
+      "reloj_pared_menos_monotonico_ms": 1794048576422.8506
+    },
+    "motor": "mp-gdino-tiny-560",
+    "camara": "960x540@15",
+    "modelo": "grounding-dino/gdino-tiny-560"
+  },
+  {
+    "escena": "DEMO",
+    "session_id": "demo_20261107T181250Z_DEMO_exp",
+    "experiment_id": "exp_20261107T181250Z_demo_defensa",
+    "ids": {
+      "control_run_id": "control_demo_defensa_20261107T181250Z_673ce0",
+      "media_run_id": "run_20261107_181250_dbe_grounding_dino_c41828",
+      "distribution_run_id": "dist_20261107T181250Z_f6727f"
+    },
+    "marcas": true,
+    "remera": "blanca lisa",
+    "calibracion": {
+      "session_id": "demo_20261107T151131Z_CAL",
+      "ok": true,
+      "aceptada": false,
+      "fecha": "2026-11-07T15:27:59+00:00",
+      "altura_m": 2.1
+    },
+    "encuadre": "ok",
+    "alertas": [
+      {
+        "condicion": "CR-01",
+        "alert_id": "475d2c2c-3a66-523d-8ffa-159e15ccd8e0",
+        "subject_key": "CR-01:169.254.31.137",
+        "captura_primera_evidencia_ms": 1794075204553.348,
+        "captura_confirmacion_ms": 1794075208619.8801,
+        "confirmada_ms": 1794075208927.414,
+        "broker_ms": 1794075208943.937,
+        "confirmacion_a_broker_ms": 16.5,
+        "primera_evidencia_a_confirmacion_ms": 4374.1,
+        "accion": "sacar_casco",
+        "accion_a_confirmacion_ms": 6327.7,
+        "accion_a_primera_evidencia_ms": 1953.6,
+        "accion_a_broker_ms": 6344.2,
+        "resuelta": true,
+        "accion_fin_a_resolucion_ms": 3601.7
+      },
+      {
+        "condicion": "CR-02",
+        "alert_id": "23d0ea72-a9e8-5277-bcd2-37e8ccca2d39",
+        "subject_key": "CR-02:169.254.31.137",
+        "captura_primera_evidencia_ms": 1794075224769.9927,
+        "captura_confirmacion_ms": 1794075232339.047,
+        "confirmada_ms": 1794075232638.225,
+        "broker_ms": 1794075232639.47,
+        "confirmacion_a_broker_ms": 1.2,
+        "primera_evidencia_a_confirmacion_ms": 7868.2,
+        "accion": "sacar_chaleco",
+        "accion_a_confirmacion_ms": 10026.5,
+        "accion_a_primera_evidencia_ms": 2158.3,
+        "accion_a_broker_ms": 10027.7,
+        "resuelta": true,
+        "accion_fin_a_resolucion_ms": 2675.0
+      }
+    ],
+    "por_condicion": {
+      "CR-01": {
+        "esperado": "alerta",
+        "alertas": 1,
+        "ok": true
+      },
+      "CR-02": {
+        "esperado": "alerta",
+        "alertas": 1,
+        "ok": true
+      }
+    },
+    "como_se_esperaba": true,
+    "alertas_antes_de_la_accion": 0,
+    "bus_dropped_events": 0,
+    "resultado_listo_s": 14.2,
+    "latencia": {
+      "unidades": 315,
+      "descartadas": 508,
+      "fps_efectivos": 3.82,
+      "inferencia_p50_ms": 171.63,
+      "inferencia_p95_ms": 217.4,
+      "g2a": {
+        "n": 315,
+        "p50": 272.052,
+        "p95": 343.948,
+        "max": 476.964
+      },
+      "captura_a_host": {
+        "n": 315,
+        "p50": 74.4,
+        "p95": 96.31,
+        "max": 155.64
+      },
+      "vidrio_a_resultado": {
+        "n": 315,
+        "p50": 348.95,
+        "p95": 410.035,
+        "max": 544.344
+      },
+      "hueco_max_ms": 296.901611328125,
+      "hueco_mediana_ms": 181.1536865234375,
+      "contaminada": false,
+      "reloj_pared_menos_monotonico_ms": 1794048576422.5405
+    },
+    "motor": "mp-gdino-tiny-560",
+    "camara": "960x540@15",
+    "modelo": "grounding-dino/gdino-tiny-560"
+  },
+  {
+    "escena": "DEMO",
+    "session_id": "demo_20261107T181526Z_DEMO_exp",
+    "experiment_id": "exp_20261107T181526Z_demo_defensa",
+    "ids": {
+      "control_run_id": "control_demo_defensa_20261107T181527Z_c178e5",
+      "media_run_id": "run_20261107_181527_dbe_grounding_dino_33152b",
+      "distribution_run_id": "dist_20261107T181527Z_c4b2c4"
+    },
+    "marcas": true,
+    "remera": "blanca lisa",
+    "calibracion": {
+      "session_id": "demo_20261107T151131Z_CAL",
+      "ok": true,
+      "aceptada": false,
+      "fecha": "2026-11-07T15:27:59+00:00",
+      "altura_m": 2.1
+    },
+    "encuadre": "ok",
+    "alertas": [
+      {
+        "condicion": "CR-01",
+        "alert_id": "213b4cf1-9d71-539c-99e2-41bfaec569f9",
+        "subject_key": "CR-01:169.254.31.137",
+        "captura_primera_evidencia_ms": 1794075363391.7175,
+        "captura_confirmacion_ms": 1794075367407.5273,
+        "confirmada_ms": 1794075367561.7625,
+        "broker_ms": 1794075367576.507,
+        "confirmacion_a_broker_ms": 14.7,
+        "primera_evidencia_a_confirmacion_ms": 4170.0,
+        "accion": "sacar_casco",
+        "accion_a_confirmacion_ms": 5924.5,
+        "accion_a_primera_evidencia_ms": 1754.5,
+        "accion_a_broker_ms": 5939.2,
+        "resuelta": true,
+        "accion_fin_a_resolucion_ms": 3541.7
+      },
+      {
+        "condicion": "CR-02",
+        "alert_id": "7a948958-aac3-5968-8776-972326dd0b12",
+        "subject_key": "CR-02:169.254.31.137",
+        "captura_primera_evidencia_ms": 1794075383371.4102,
+        "captura_confirmacion_ms": 1794075390395.5435,
+        "confirmada_ms": 1794075390622.8032,
+        "broker_ms": 1794075390624.203,
+        "confirmacion_a_broker_ms": 1.4,
+        "primera_evidencia_a_confirmacion_ms": 7251.4,
+        "accion": "sacar_chaleco",
+        "accion_a_confirmacion_ms": 8986.5,
+        "accion_a_primera_evidencia_ms": 1735.2,
+        "accion_a_broker_ms": 8987.9,
+        "resuelta": true,
+        "accion_fin_a_resolucion_ms": 6133.0
+      }
+    ],
+    "por_condicion": {
+      "CR-01": {
+        "esperado": "alerta",
+        "alertas": 1,
+        "ok": true
+      },
+      "CR-02": {
+        "esperado": "alerta",
+        "alertas": 1,
+        "ok": true
+      }
+    },
+    "como_se_esperaba": true,
+    "alertas_antes_de_la_accion": 0,
+    "bus_dropped_events": 0,
+    "resultado_listo_s": 11.0,
+    "latencia": {
+      "unidades": 276,
+      "descartadas": 0,
+      "fps_efectivos": 3.34,
+      "inferencia_p50_ms": 169.6,
+      "inferencia_p95_ms": 225.56,
+      "g2a": {
+        "n": 276,
+        "p50": 176.176,
+        "p95": 245.722,
+        "max": 369.995
+      },
+      "captura_a_host": {
+        "n": 276,
+        "p50": 70.02,
+        "p95": 92.6,
+        "max": 106.4
+      },
+      "vidrio_a_resultado": {
+        "n": 276,
+        "p50": 248.922,
+        "p95": 318.153,
+        "max": 453.925
+      },
+      "hueco_max_ms": 237.89306640625,
+      "hueco_mediana_ms": 204.783203125,
+      "contaminada": false,
+      "reloj_pared_menos_monotonico_ms": 1794048576415.374
+    },
+    "motor": "mp-gdino-base-560",
+    "camara": "960x540@5",
+    "modelo": "grounding-dino/gdino-base-560"
+  },
+  {
+    "escena": "DEMO",
+    "session_id": "demo_20261107T181732Z_DEMO_exp",
+    "experiment_id": "exp_20261107T181732Z_demo_defensa",
+    "ids": {
+      "control_run_id": "control_demo_defensa_20261107T181732Z_d727f9",
+      "media_run_id": "run_20261107_181732_dbe_grounding_dino_0c1672",
+      "distribution_run_id": "dist_20261107T181732Z_2d5eeb"
+    },
+    "marcas": true,
+    "remera": "blanca lisa",
+    "calibracion": {
+      "session_id": "demo_20261107T151131Z_CAL",
+      "ok": true,
+      "aceptada": false,
+      "fecha": "2026-11-07T15:27:59+00:00",
+      "altura_m": 2.1
+    },
+    "encuadre": "ok",
+    "alertas": [
+      {
+        "condicion": "CR-01",
+        "alert_id": "ce8ca6c5-c5c9-5503-afd7-8e19b46792db",
+        "subject_key": "CR-01:169.254.31.137",
+        "captura_primera_evidencia_ms": 1794075489224.7974,
+        "captura_confirmacion_ms": 1794075493233.7104,
+        "confirmada_ms": 1794075493379.4487,
+        "broker_ms": 1794075493394.315,
+        "confirmacion_a_broker_ms": 14.9,
+        "primera_evidencia_a_confirmacion_ms": 4154.7,
+        "accion": "sacar_casco",
+        "accion_a_confirmacion_ms": 5942.9,
+        "accion_a_primera_evidencia_ms": 1788.3,
+        "accion_a_broker_ms": 5957.8,
+        "resuelta": true,
+        "accion_fin_a_resolucion_ms": 3425.6
+      },
+      {
+        "condicion": "CR-02",
+        "alert_id": "438b1f11-02aa-5b96-99bf-8d0b5ab13c16",
+        "subject_key": "CR-02:169.254.31.137",
+        "captura_primera_evidencia_ms": 1794075508814.6494,
+        "captura_confirmacion_ms": 1794075515855.8823,
+        "confirmada_ms": 1794075516013.7969,
+        "broker_ms": 1794075516016.246,
+        "confirmacion_a_broker_ms": 2.4,
+        "primera_evidencia_a_confirmacion_ms": 7199.1,
+        "accion": "sacar_chaleco",
+        "accion_a_confirmacion_ms": 8570.3,
+        "accion_a_primera_evidencia_ms": 1371.1,
+        "accion_a_broker_ms": 8572.7,
+        "resuelta": true,
+        "accion_fin_a_resolucion_ms": 4596.9
+      }
+    ],
+    "por_condicion": {
+      "CR-01": {
+        "esperado": "alerta",
+        "alertas": 1,
+        "ok": true
+      },
+      "CR-02": {
+        "esperado": "alerta",
+        "alertas": 1,
+        "ok": true
+      }
+    },
+    "como_se_esperaba": true,
+    "alertas_antes_de_la_accion": 0,
+    "bus_dropped_events": 0,
+    "resultado_listo_s": 10.6,
+    "latencia": {
+      "unidades": 275,
+      "descartadas": 0,
+      "fps_efectivos": 3.33,
+      "inferencia_p50_ms": 174.46,
+      "inferencia_p95_ms": 222.47,
+      "g2a": {
+        "n": 275,
+        "p50": 179.702,
+        "p95": 256.797,
+        "max": 508.81
+      },
+      "captura_a_host": {
+        "n": 275,
+        "p50": 70.19,
+        "p95": 93.42,
+        "max": 107.58
+      },
+      "vidrio_a_resultado": {
+        "n": 275,
+        "p50": 250.788,
+        "p95": 330.379,
+        "max": 583.57
+      },
+      "hueco_max_ms": 236.987060546875,
+      "hueco_mediana_ms": 196.5889892578125,
+      "contaminada": false,
+      "reloj_pared_menos_monotonico_ms": 1794048576410.3313
+    },
+    "motor": "mp-gdino-base-560",
+    "camara": "960x540@5",
+    "modelo": "grounding-dino/gdino-base-560"
+  },
+  {
+    "escena": "DEMO",
+    "session_id": "demo_20261107T182446Z_DEMO_exp",
+    "experiment_id": "exp_20261107T182446Z_demo_defensa",
+    "ids": {
+      "control_run_id": "control_demo_defensa_20261107T182446Z_e5047a",
+      "media_run_id": "run_20261107_182446_dbe_grounding_dino_ef96fe",
+      "distribution_run_id": "dist_20261107T182446Z_82994a"
+    },
+    "marcas": true,
+    "remera": "blanca lisa",
+    "calibracion": {
+      "session_id": "demo_20261107T151131Z_CAL",
+      "ok": true,
+      "aceptada": false,
+      "fecha": "2026-11-07T15:27:59+00:00",
+      "altura_m": 2.1
+    },
+    "encuadre": "ok",
+    "alertas": [
+      {
+        "condicion": "CR-01",
+        "alert_id": "f95870e2-0fad-5f09-ab14-2c0009dcec8f",
+        "subject_key": "CR-01:169.254.31.137",
+        "captura_primera_evidencia_ms": 1794075922468.4585,
+        "captura_confirmacion_ms": 1794075926683.7632,
+        "confirmada_ms": 1794075926825.987,
+        "broker_ms": 1794075926839.994,
+        "confirmacion_a_broker_ms": 14.0,
+        "primera_evidencia_a_confirmacion_ms": 4357.5,
+        "accion": "sacar_casco",
+        "accion_a_confirmacion_ms": 5869.2,
+        "accion_a_primera_evidencia_ms": 1511.6,
+        "accion_a_broker_ms": 5883.2,
+        "resuelta": true,
+        "accion_fin_a_resolucion_ms": 3308.6
+      },
+      {
+        "condicion": "CR-02",
+        "alert_id": "f3fced7b-cb8c-5fac-8fb9-4ea44ae119d7",
+        "subject_key": "CR-02:169.254.31.137",
+        "captura_primera_evidencia_ms": 1794075942858.2107,
+        "captura_confirmacion_ms": 1794075949877.418,
+        "confirmada_ms": 1794075950043.3083,
+        "broker_ms": 1794075950045.147,
+        "confirmacion_a_broker_ms": 1.8,
+        "primera_evidencia_a_confirmacion_ms": 7185.1,
+        "accion": "sacar_chaleco",
+        "accion_a_confirmacion_ms": 9091.5,
+        "accion_a_primera_evidencia_ms": 1906.4,
+        "accion_a_broker_ms": 9093.3,
+        "resuelta": true,
+        "accion_fin_a_resolucion_ms": 5717.0
+      }
+    ],
+    "por_condicion": {
+      "CR-01": {
+        "esperado": "alerta",
+        "alertas": 1,
+        "ok": true
+      },
+      "CR-02": {
+        "esperado": "alerta",
+        "alertas": 1,
+        "ok": true
+      }
+    },
+    "como_se_esperaba": true,
+    "alertas_antes_de_la_accion": 0,
+    "bus_dropped_events": 0,
+    "resultado_listo_s": 11.2,
+    "latencia": {
+      "unidades": 275,
+      "descartadas": 0,
+      "fps_efectivos": 3.33,
+      "inferencia_p50_ms": 172.44,
+      "inferencia_p95_ms": 221.59,
+      "g2a": {
+        "n": 275,
+        "p50": 176.886,
+        "p95": 247.078,
+        "max": 328.938
+      },
+      "captura_a_host": {
+        "n": 275,
+        "p50": 66.57,
+        "p95": 89.28,
+        "max": 98.36
+      },
+      "vidrio_a_resultado": {
+        "n": 275,
+        "p50": 244.745,
+        "p95": 322.658,
+        "max": 381.608
+      },
+      "hueco_max_ms": 245.827392578125,
+      "hueco_mediana_ms": 196.4849853515625,
+      "contaminada": false,
+      "reloj_pared_menos_monotonico_ms": 1794048576392.7969
+    },
+    "motor": "mp-gdino-base-560",
+    "camara": "960x540@5",
+    "modelo": "grounding-dino/gdino-base-560"
+  },
+  {
+    "escena": "DEMO",
+    "session_id": "demo_20261107T182644Z_DEMO_exp",
+    "experiment_id": "exp_20261107T182644Z_demo_defensa",
+    "ids": {
+      "control_run_id": "control_demo_defensa_20261107T182644Z_9bb8c5",
+      "media_run_id": "run_20261107_182644_dbe_grounding_dino_047d68",
+      "distribution_run_id": "dist_20261107T182644Z_271d07"
+    },
+    "marcas": true,
+    "remera": "blanca lisa",
+    "calibracion": {
+      "session_id": "demo_20261107T151131Z_CAL",
+      "ok": true,
+      "aceptada": false,
+      "fecha": "2026-11-07T15:27:59+00:00",
+      "altura_m": 2.1
+    },
+    "encuadre": "ok",
+    "alertas": [
+      {
+        "condicion": "CR-01",
+        "alert_id": "94db02f8-152f-5f0b-8096-2600d098cc9d",
+        "subject_key": "CR-01:169.254.31.137",
+        "captura_primera_evidencia_ms": 1794076038301.1887,
+        "captura_confirmacion_ms": 1794076042481.4763,
+        "confirmada_ms": 1794076042829.5903,
+        "broker_ms": 1794076042845.719,
+        "confirmacion_a_broker_ms": 16.1,
+        "primera_evidencia_a_confirmacion_ms": 4528.4,
+        "accion": "sacar_casco",
+        "accion_a_confirmacion_ms": 6197.4,
+        "accion_a_primera_evidencia_ms": 1669.0,
+        "accion_a_broker_ms": 6213.5,
+        "resuelta": true,
+        "accion_fin_a_resolucion_ms": 2884.8
+      },
+      {
+        "condicion": "CR-02",
+        "alert_id": "a6c1ba3a-56b5-572f-8cf0-155d6ffb58dd",
+        "subject_key": "CR-02:169.254.31.137",
+        "captura_primera_evidencia_ms": 1794076058951.8335,
+        "captura_confirmacion_ms": 1794076065995.974,
+        "confirmada_ms": 1794076066272.1965,
+        "broker_ms": 1794076066273.721,
+        "confirmacion_a_broker_ms": 1.5,
+        "primera_evidencia_a_confirmacion_ms": 7320.4,
+        "accion": "sacar_chaleco",
+        "accion_a_confirmacion_ms": 9639.0,
+        "accion_a_primera_evidencia_ms": 2318.6,
+        "accion_a_broker_ms": 9640.5,
+        "resuelta": true,
+        "accion_fin_a_resolucion_ms": 5652.3
+      }
+    ],
+    "por_condicion": {
+      "CR-01": {
+        "esperado": "alerta",
+        "alertas": 1,
+        "ok": true
+      },
+      "CR-02": {
+        "esperado": "alerta",
+        "alertas": 1,
+        "ok": true
+      }
+    },
+    "como_se_esperaba": true,
+    "alertas_antes_de_la_accion": 0,
+    "bus_dropped_events": 0,
+    "resultado_listo_s": 13.1,
+    "latencia": {
+      "unidades": 273,
+      "descartadas": 545,
+      "fps_efectivos": 3.3,
+      "inferencia_p50_ms": 198.37,
+      "inferencia_p95_ms": 247.27,
+      "g2a": {
+        "n": 273,
+        "p50": 299.638,
+        "p95": 360.45,
+        "max": 495.622
+      },
+      "captura_a_host": {
+        "n": 273,
+        "p50": 74.42,
+        "p95": 100.66,
+        "max": 162.35
+      },
+      "vidrio_a_resultado": {
+        "n": 273,
+        "p50": 376.612,
+        "p95": 448.021,
+        "max": 551.542
+      },
+      "hueco_max_ms": 397.7783203125,
+      "hueco_mediana_ms": 200.87646484375,
+      "contaminada": false,
+      "reloj_pared_menos_monotonico_ms": 1794048576387.0447
+    },
+    "motor": "mp-gdino-base-560",
+    "camara": "960x540@15",
+    "modelo": "grounding-dino/gdino-base-560"
+  },
+  {
+    "escena": "DEMO",
+    "session_id": "demo_20261107T183422Z_DEMO_exp",
+    "experiment_id": "exp_20261107T183422Z_demo_defensa",
+    "ids": {
+      "control_run_id": "control_demo_defensa_20261107T183423Z_32ee7e",
+      "media_run_id": "run_20261107_183423_dbe_yoloe_f6adf4",
+      "distribution_run_id": "dist_20261107T183423Z_c30778"
+    },
+    "marcas": true,
+    "remera": "blanca lisa",
+    "calibracion": {
+      "session_id": "demo_20261107T151131Z_CAL",
+      "ok": true,
+      "aceptada": false,
+      "fecha": "2026-11-07T15:27:59+00:00",
+      "altura_m": 2.1
+    },
+    "encuadre": "ok",
+    "alertas": [
+      {
+        "condicion": "CR-01",
+        "alert_id": "6ff01eaf-65b9-5851-a7f8-66ccb6357e79",
+        "subject_key": "CR-01:169.254.31.137",
+        "captura_primera_evidencia_ms": 1794076502651.922,
+        "captura_confirmacion_ms": 1794076506662.6028,
+        "confirmada_ms": 1794076506727.7793,
+        "broker_ms": 1794076506741.389,
+        "confirmacion_a_broker_ms": 13.6,
+        "primera_evidencia_a_confirmacion_ms": 4075.9,
+        "accion": "sacar_casco",
+        "accion_a_confirmacion_ms": 5586.8,
+        "accion_a_primera_evidencia_ms": 1511.0,
+        "accion_a_broker_ms": 5600.5,
+        "resuelta": true,
+        "accion_fin_a_resolucion_ms": 3917.1
+      },
+      {
+        "condicion": "CR-02",
+        "alert_id": "aecf8df3-2aa5-5b51-8a67-dc7744ff2770",
+        "subject_key": "CR-02:169.254.31.137",
+        "captura_primera_evidencia_ms": 1794076522447.9612,
+        "captura_confirmacion_ms": 1794076529683.2825,
+        "confirmada_ms": 1794076529759.0488,
+        "broker_ms": 1794076529760.434,
+        "confirmacion_a_broker_ms": 1.4,
+        "primera_evidencia_a_confirmacion_ms": 7311.1,
+        "accion": "sacar_chaleco",
+        "accion_a_confirmacion_ms": 8605.1,
+        "accion_a_primera_evidencia_ms": 1294.0,
+        "accion_a_broker_ms": 8606.5,
+        "resuelta": false
+      }
+    ],
+    "por_condicion": {
+      "CR-01": {
+        "esperado": "alerta",
+        "alertas": 1,
+        "ok": true
+      },
+      "CR-02": {
+        "esperado": "alerta",
+        "alertas": 1,
+        "ok": true
+      }
+    },
+    "como_se_esperaba": true,
+    "alertas_antes_de_la_accion": 0,
+    "bus_dropped_events": 0,
+    "resultado_listo_s": 11.9,
+    "latencia": {
+      "unidades": 274,
+      "descartadas": 0,
+      "fps_efectivos": 3.17,
+      "inferencia_p50_ms": 68.87,
+      "inferencia_p95_ms": 73.54,
+      "g2a": {
+        "n": 274,
+        "p50": 67.749,
+        "p95": 72.504,
+        "max": 87.077
+      },
+      "captura_a_host": {
+        "n": 274,
+        "p50": 62.9,
+        "p95": 80.67,
+        "max": 92.44
+      },
+      "vidrio_a_resultado": {
+        "n": 274,
+        "p50": 130.881,
+        "p95": 150.712,
+        "max": 160.561
+      },
+      "hueco_max_ms": 238.10107421875,
+      "hueco_mediana_ms": 196.57666015625,
+      "contaminada": false,
+      "reloj_pared_menos_monotonico_ms": 1794048576369.0615
+    },
+    "motor": "mp-yoloe-26s",
+    "camara": "960x540@5",
+    "modelo": "yoloe/yoloe-26s"
+  },
+  {
+    "escena": "DEMO",
+    "session_id": "demo_20261107T183627Z_DEMO_exp",
+    "experiment_id": "exp_20261107T183627Z_demo_defensa",
+    "ids": {
+      "control_run_id": "control_demo_defensa_20261107T183627Z_c455ad",
+      "media_run_id": "run_20261107_183627_dbe_yoloe_99b80c",
+      "distribution_run_id": "dist_20261107T183627Z_9556f6"
+    },
+    "marcas": true,
+    "remera": "blanca lisa",
+    "calibracion": {
+      "session_id": "demo_20261107T151131Z_CAL",
+      "ok": true,
+      "aceptada": false,
+      "fecha": "2026-11-07T15:27:59+00:00",
+      "altura_m": 2.1
+    },
+    "encuadre": "ok",
+    "alertas": [
+      {
+        "condicion": "CR-01",
+        "alert_id": "40d98681-eb21-528d-b96b-5e317ef0bddc",
+        "subject_key": "CR-01:169.254.31.137",
+        "captura_primera_evidencia_ms": 1794076627591.0474,
+        "captura_confirmacion_ms": 1794076631596.1213,
+        "confirmada_ms": 1794076631660.8364,
+        "broker_ms": 1794076631675.234,
+        "confirmacion_a_broker_ms": 14.4,
+        "primera_evidencia_a_confirmacion_ms": 4069.8,
+        "accion": "sacar_casco",
+        "accion_a_confirmacion_ms": 5516.9,
+        "accion_a_primera_evidencia_ms": 1447.1,
+        "accion_a_broker_ms": 5531.3,
+        "resuelta": true,
+        "accion_fin_a_resolucion_ms": 4436.7
+      },
+      {
+        "condicion": "CR-02",
+        "alert_id": "2c1d0c71-b0c0-5254-b1c7-c50b5660b676",
+        "subject_key": "CR-02:169.254.31.137",
+        "captura_primera_evidencia_ms": 1794076648424.817,
+        "captura_confirmacion_ms": 1794076655599.8892,
+        "confirmada_ms": 1794076655666.55,
+        "broker_ms": 1794076655668.055,
+        "confirmacion_a_broker_ms": 1.5,
+        "primera_evidencia_a_confirmacion_ms": 7241.7,
+        "accion": "sacar_chaleco",
+        "accion_a_confirmacion_ms": 9517.6,
+        "accion_a_primera_evidencia_ms": 2275.9,
+        "accion_a_broker_ms": 9519.1,
+        "resuelta": false
+      }
+    ],
+    "por_condicion": {
+      "CR-01": {
+        "esperado": "alerta",
+        "alertas": 1,
+        "ok": true
+      },
+      "CR-02": {
+        "esperado": "alerta",
+        "alertas": 1,
+        "ok": true
+      }
+    },
+    "como_se_esperaba": true,
+    "alertas_antes_de_la_accion": 0,
+    "bus_dropped_events": 0,
+    "resultado_listo_s": 10.9,
+    "latencia": {
+      "unidades": 273,
+      "descartadas": 0,
+      "fps_efectivos": 3.14,
+      "inferencia_p50_ms": 66.64,
+      "inferencia_p95_ms": 72.33,
+      "g2a": {
+        "n": 273,
+        "p50": 66.732,
+        "p95": 71.539,
+        "max": 80.399
+      },
+      "captura_a_host": {
+        "n": 273,
+        "p50": 60.46,
+        "p95": 77.37,
+        "max": 90.72
+      },
+      "vidrio_a_resultado": {
+        "n": 273,
+        "p50": 127.74,
+        "p95": 146.016,
+        "max": 157.023
+      },
+      "hueco_max_ms": 235.68603515625,
+      "hueco_mediana_ms": 196.2060546875,
+      "contaminada": false,
+      "reloj_pared_menos_monotonico_ms": 1794048576364.2546
+    },
+    "motor": "mp-yoloe-26s",
+    "camara": "960x540@5",
+    "modelo": "yoloe/yoloe-26s"
+  },
+  {
+    "escena": "DEMO",
+    "session_id": "demo_20261107T183825Z_DEMO_exp",
+    "experiment_id": "exp_20261107T183825Z_demo_defensa",
+    "ids": {
+      "control_run_id": "control_demo_defensa_20261107T183826Z_305373",
+      "media_run_id": "run_20261107_183826_dbe_yoloe_1cd7fe",
+      "distribution_run_id": "dist_20261107T183826Z_b18c22"
+    },
+    "marcas": true,
+    "remera": "blanca lisa",
+    "calibracion": {
+      "session_id": "demo_20261107T151131Z_CAL",
+      "ok": true,
+      "aceptada": false,
+      "fecha": "2026-11-07T15:27:59+00:00",
+      "altura_m": 2.1
+    },
+    "encuadre": "ok",
+    "alertas": [
+      {
+        "condicion": "CR-01",
+        "alert_id": "c85738ed-da77-55bf-ace1-a1e1f8fe15dc",
+        "subject_key": "CR-01:169.254.31.137",
+        "captura_primera_evidencia_ms": 1794076745778.954,
+        "captura_confirmacion_ms": 1794076749789.3337,
+        "confirmada_ms": 1794076749861.9873,
+        "broker_ms": 1794076749874.498,
+        "confirmacion_a_broker_ms": 12.5,
+        "primera_evidencia_a_confirmacion_ms": 4083.0,
+        "accion": "sacar_casco",
+        "accion_a_confirmacion_ms": 5684.0,
+        "accion_a_primera_evidencia_ms": 1600.9,
+        "accion_a_broker_ms": 5696.5,
+        "resuelta": true,
+        "accion_fin_a_resolucion_ms": 3999.6
+      },
+      {
+        "condicion": "CR-02",
+        "alert_id": "1f3b09ba-08b8-5581-819b-3047cb0e3d4f",
+        "subject_key": "CR-02:169.254.31.137",
+        "captura_primera_evidencia_ms": 1794076765586.8171,
+        "captura_confirmacion_ms": 1794076772589.2214,
+        "confirmada_ms": 1794076772661.7097,
+        "broker_ms": 1794076772662.751,
+        "confirmacion_a_broker_ms": 1.0,
+        "primera_evidencia_a_confirmacion_ms": 7074.9,
+        "accion": "sacar_chaleco",
+        "accion_a_confirmacion_ms": 8495.7,
+        "accion_a_primera_evidencia_ms": 1420.8,
+        "accion_a_broker_ms": 8496.7,
+        "resuelta": false
+      }
+    ],
+    "por_condicion": {
+      "CR-01": {
+        "esperado": "alerta",
+        "alertas": 1,
+        "ok": true
+      },
+      "CR-02": {
+        "esperado": "alerta",
+        "alertas": 1,
+        "ok": true
+      }
+    },
+    "como_se_esperaba": true,
+    "alertas_antes_de_la_accion": 0,
+    "bus_dropped_events": 0,
+    "resultado_listo_s": 10.8,
+    "latencia": {
+      "unidades": 273,
+      "descartadas": 0,
+      "fps_efectivos": 3.16,
+      "inferencia_p50_ms": 67.52,
+      "inferencia_p95_ms": 73.45,
+      "g2a": {
+        "n": 273,
+        "p50": 67.388,
+        "p95": 72.854,
+        "max": 83.406
+      },
+      "captura_a_host": {
+        "n": 273,
+        "p50": 61.38,
+        "p95": 81.72,
+        "max": 94.48
+      },
+      "vidrio_a_resultado": {
+        "n": 273,
+        "p50": 129.39,
+        "p95": 149.18,
+        "max": 162.627
+      },
+      "hueco_max_ms": 239.466064453125,
+      "hueco_mediana_ms": 196.1158447265625,
+      "contaminada": false,
+      "reloj_pared_menos_monotonico_ms": 1794048576359.5327
+    },
+    "motor": "mp-yoloe-26s",
+    "camara": "960x540@5",
+    "modelo": "yoloe/yoloe-26s"
+  },
+  {
+    "escena": "DEMO",
+    "session_id": "demo_20261107T184026Z_DEMO_exp",
+    "experiment_id": "exp_20261107T184026Z_demo_defensa",
+    "ids": {
+      "control_run_id": "control_demo_defensa_20261107T184026Z_e2312d",
+      "media_run_id": "run_20261107_184026_dbe_yoloe_fae395",
+      "distribution_run_id": "dist_20261107T184026Z_c4175a"
+    },
+    "marcas": true,
+    "remera": "blanca lisa",
+    "calibracion": {
+      "session_id": "demo_20261107T151131Z_CAL",
+      "ok": true,
+      "aceptada": false,
+      "fecha": "2026-11-07T15:27:59+00:00",
+      "altura_m": 2.1
+    },
+    "encuadre": "ok",
+    "alertas": [
+      {
+        "condicion": "CR-01",
+        "alert_id": "d5e9a8b0-f767-5376-955c-db4ade8abfc8",
+        "subject_key": "CR-01:169.254.31.137",
+        "captura_primera_evidencia_ms": 1794076863630.2283,
+        "captura_confirmacion_ms": 1794076867712.4185,
+        "confirmada_ms": 1794076867749.1514,
+        "broker_ms": 1794076867764.118,
+        "confirmacion_a_broker_ms": 15.0,
+        "primera_evidencia_a_confirmacion_ms": 4118.9,
+        "accion": "sacar_casco",
+        "accion_a_confirmacion_ms": 5585.1,
+        "accion_a_primera_evidencia_ms": 1466.2,
+        "accion_a_broker_ms": 5600.1,
+        "resuelta": true,
+        "accion_fin_a_resolucion_ms": 3423.0
+      },
+      {
+        "condicion": "CR-02",
+        "alert_id": "add3c1cf-240f-59c2-b94f-34a54251e737",
+        "subject_key": "CR-02:169.254.31.137",
+        "captura_primera_evidencia_ms": 1794076883559.5217,
+        "captura_confirmacion_ms": 1794076890633.8472,
+        "confirmada_ms": 1794076890668.105,
+        "broker_ms": 1794076890669.619,
+        "confirmacion_a_broker_ms": 1.5,
+        "primera_evidencia_a_confirmacion_ms": 7108.6,
+        "accion": "sacar_chaleco",
+        "accion_a_confirmacion_ms": 8499.1,
+        "accion_a_primera_evidencia_ms": 1390.5,
+        "accion_a_broker_ms": 8500.6,
+        "resuelta": false
+      }
+    ],
+    "por_condicion": {
+      "CR-01": {
+        "esperado": "alerta",
+        "alertas": 1,
+        "ok": true
+      },
+      "CR-02": {
+        "esperado": "alerta",
+        "alertas": 1,
+        "ok": true
+      }
+    },
+    "como_se_esperaba": true,
+    "alertas_antes_de_la_accion": 0,
+    "bus_dropped_events": 0,
+    "resultado_listo_s": 25.9,
+    "latencia": {
+      "unidades": 818,
+      "descartadas": 0,
+      "fps_efectivos": 9.44,
+      "inferencia_p50_ms": 35.83,
+      "inferencia_p95_ms": 53.76,
+      "g2a": {
+        "n": 818,
+        "p50": 35.349,
+        "p95": 53.355,
+        "max": 75.473
+      },
+      "captura_a_host": {
+        "n": 818,
+        "p50": 61.81,
+        "p95": 81.7,
+        "max": 171.7
+      },
+      "vidrio_a_resultado": {
+        "n": 818,
+        "p50": 100.712,
+        "p95": 126.08,
+        "max": 212.552
+      },
+      "hueco_max_ms": 154.35400390625,
+      "hueco_mediana_ms": 63.3798828125,
+      "contaminada": false,
+      "reloj_pared_menos_monotonico_ms": 1794048576354.1606
+    },
+    "motor": "mp-yoloe-26s",
+    "camara": "960x540@15",
+    "modelo": "yoloe/yoloe-26s"
+  },
+  {
+    "escena": "DEMO",
+    "session_id": "demo_20261107T184244Z_DEMO_exp",
+    "experiment_id": "exp_20261107T184244Z_demo_defensa",
+    "ids": {
+      "control_run_id": "control_demo_defensa_20261107T184244Z_d1b7a6",
+      "media_run_id": "run_20261107_184244_dbe_yoloe_92bc91",
+      "distribution_run_id": "dist_20261107T184244Z_0b243e"
+    },
+    "marcas": true,
+    "remera": "blanca lisa",
+    "calibracion": {
+      "session_id": "demo_20261107T151131Z_CAL",
+      "ok": true,
+      "aceptada": false,
+      "fecha": "2026-11-07T15:27:59+00:00",
+      "altura_m": 2.1
+    },
+    "encuadre": "ok",
+    "alertas": [
+      {
+        "condicion": "CR-01",
+        "alert_id": "066dd2a3-4cc2-54d6-b5f1-3a025fca8f0e",
+        "subject_key": "CR-01:169.254.31.137",
+        "captura_primera_evidencia_ms": 1794077002148.069,
+        "captura_confirmacion_ms": 1794077006215.7402,
+        "confirmada_ms": 1794077006250.5315,
+        "broker_ms": 1794077006265.978,
+        "confirmacion_a_broker_ms": 15.4,
+        "primera_evidencia_a_confirmacion_ms": 4102.5,
+        "accion": "sacar_casco",
+        "accion_a_confirmacion_ms": 5879.5,
+        "accion_a_primera_evidencia_ms": 1777.0,
+        "accion_a_broker_ms": 5894.9,
+        "resuelta": true,
+        "accion_fin_a_resolucion_ms": 3836.6
+      },
+      {
+        "condicion": "CR-02",
+        "alert_id": "b8fe494a-10c6-56f4-9e2c-e5aff62673e6",
+        "subject_key": "CR-02:169.254.31.137",
+        "captura_primera_evidencia_ms": 1794077021804.086,
+        "captura_confirmacion_ms": 1794077028873.107,
+        "confirmada_ms": 1794077028906.8533,
+        "broker_ms": 1794077028907.864,
+        "confirmacion_a_broker_ms": 1.0,
+        "primera_evidencia_a_confirmacion_ms": 7102.8,
+        "accion": "sacar_chaleco",
+        "accion_a_confirmacion_ms": 8528.8,
+        "accion_a_primera_evidencia_ms": 1426.1,
+        "accion_a_broker_ms": 8529.8,
+        "resuelta": false
+      }
+    ],
+    "por_condicion": {
+      "CR-01": {
+        "esperado": "alerta",
+        "alertas": 1,
+        "ok": true
+      },
+      "CR-02": {
+        "esperado": "alerta",
+        "alertas": 1,
+        "ok": true
+      }
+    },
+    "como_se_esperaba": true,
+    "alertas_antes_de_la_accion": 0,
+    "bus_dropped_events": 0,
+    "resultado_listo_s": 26.6,
+    "latencia": {
+      "unidades": 822,
+      "descartadas": 0,
+      "fps_efectivos": 9.46,
+      "inferencia_p50_ms": 34.48,
+      "inferencia_p95_ms": 52.73,
+      "g2a": {
+        "n": 822,
+        "p50": 33.916,
+        "p95": 52.336,
+        "max": 86.445
+      },
+      "captura_a_host": {
+        "n": 822,
+        "p50": 61.89,
+        "p95": 77.68,
+        "max": 101.54
+      },
+      "vidrio_a_resultado": {
+        "n": 822,
+        "p50": 98.872,
+        "p95": 123.046,
+        "max": 155.929
+      },
+      "hueco_max_ms": 104.089599609375,
+      "hueco_mediana_ms": 63.3330078125,
+      "contaminada": false,
+      "reloj_pared_menos_monotonico_ms": 1794048576348.9468
+    },
+    "motor": "mp-yoloe-26s",
+    "camara": "960x540@15",
+    "modelo": "yoloe/yoloe-26s"
+  },
+  {
+    "escena": "DEMO",
+    "session_id": "demo_20261107T184458Z_DEMO_exp",
+    "experiment_id": "exp_20261107T184458Z_demo_defensa",
+    "ids": {
+      "control_run_id": "control_demo_defensa_20261107T184459Z_bb0c11",
+      "media_run_id": "run_20261107_184459_dbe_yoloe_2dcc35",
+      "distribution_run_id": "dist_20261107T184459Z_f738c4"
+    },
+    "marcas": true,
+    "remera": "blanca lisa",
+    "calibracion": {
+      "session_id": "demo_20261107T151131Z_CAL",
+      "ok": true,
+      "aceptada": false,
+      "fecha": "2026-11-07T15:27:59+00:00",
+      "altura_m": 2.1
+    },
+    "encuadre": "ok",
+    "alertas": [
+      {
+        "condicion": "CR-01",
+        "alert_id": "7e5184c2-1fb4-5c22-9349-90d9ff50d199",
+        "subject_key": "CR-01:169.254.31.137",
+        "captura_primera_evidencia_ms": 1794077136176.3496,
+        "captura_confirmacion_ms": 1794077140181.0544,
+        "confirmada_ms": 1794077140221.111,
+        "broker_ms": 1794077140235.13,
+        "confirmacion_a_broker_ms": 14.0,
+        "primera_evidencia_a_confirmacion_ms": 4044.8,
+        "accion": "sacar_casco",
+        "accion_a_confirmacion_ms": 5700.7,
+        "accion_a_primera_evidencia_ms": 1655.9,
+        "accion_a_broker_ms": 5714.7,
+        "resuelta": true,
+        "accion_fin_a_resolucion_ms": 4641.5
+      },
+      {
+        "condicion": "CR-02",
+        "alert_id": "1bf28302-9960-5f16-8b83-a730a012d946",
+        "subject_key": "CR-02:169.254.31.137",
+        "captura_primera_evidencia_ms": 1794077156312.867,
+        "captura_confirmacion_ms": 1794077163361.4412,
+        "confirmada_ms": 1794077163396.29,
+        "broker_ms": 1794077163397.297,
+        "confirmacion_a_broker_ms": 1.0,
+        "primera_evidencia_a_confirmacion_ms": 7083.4,
+        "accion": "sacar_chaleco",
+        "accion_a_confirmacion_ms": 8886.9,
+        "accion_a_primera_evidencia_ms": 1803.4,
+        "accion_a_broker_ms": 8887.9,
+        "resuelta": false
+      }
+    ],
+    "por_condicion": {
+      "CR-01": {
+        "esperado": "alerta",
+        "alertas": 1,
+        "ok": true
+      },
+      "CR-02": {
+        "esperado": "alerta",
+        "alertas": 1,
+        "ok": true
+      }
+    },
+    "como_se_esperaba": true,
+    "alertas_antes_de_la_accion": 0,
+    "bus_dropped_events": 0,
+    "resultado_listo_s": 26.3,
+    "latencia": {
+      "unidades": 819,
+      "descartadas": 0,
+      "fps_efectivos": 9.48,
+      "inferencia_p50_ms": 36.02,
+      "inferencia_p95_ms": 56.13,
+      "g2a": {
+        "n": 819,
+        "p50": 34.739,
+        "p95": 54.156,
+        "max": 72.113
+      },
+      "captura_a_host": {
+        "n": 819,
+        "p50": 60.98,
+        "p95": 78.52,
+        "max": 101.55
+      },
+      "vidrio_a_resultado": {
+        "n": 819,
+        "p50": 98.429,
+        "p95": 123.196,
+        "max": 147.263
+      },
+      "hueco_max_ms": 103.9736328125,
+      "hueco_mediana_ms": 63.382080078125,
+      "contaminada": false,
+      "reloj_pared_menos_monotonico_ms": 1794048576342.7715
+    },
+    "motor": "mp-yoloe-26s",
+    "camara": "960x540@15",
+    "modelo": "yoloe/yoloe-26s"
+  },
+  {
+    "escena": "DEMO",
+    "session_id": "demo_20261107T184958Z_DEMO_exp",
+    "experiment_id": "exp_20261107T184958Z_demo_defensa",
+    "ids": {
+      "control_run_id": "control_demo_defensa_20261107T184958Z_fa5fa5",
+      "media_run_id": "run_20261107_184958_dbe_yoloe_12e469",
+      "distribution_run_id": "dist_20261107T184958Z_3037d4"
+    },
+    "marcas": true,
+    "remera": "blanca lisa",
+    "calibracion": {
+      "session_id": "demo_20261107T151131Z_CAL",
+      "ok": true,
+      "aceptada": false,
+      "fecha": "2026-11-07T15:27:59+00:00",
+      "altura_m": 2.1
+    },
+    "encuadre": "ok",
+    "alertas": [
+      {
+        "condicion": "CR-01",
+        "alert_id": "a905bebd-6ed2-504a-a358-e868bbbca947",
+        "subject_key": "CR-01:169.254.31.137",
+        "captura_primera_evidencia_ms": 1794077439418.6106,
+        "captura_confirmacion_ms": 1794077443434.9417,
+        "confirmada_ms": 1794077443526.501,
+        "broker_ms": 1794077443540.28,
+        "confirmacion_a_broker_ms": 13.8,
+        "primera_evidencia_a_confirmacion_ms": 4107.9,
+        "accion": "sacar_casco",
+        "accion_a_confirmacion_ms": 5852.9,
+        "accion_a_primera_evidencia_ms": 1745.0,
+        "accion_a_broker_ms": 5866.7,
+        "resuelta": true,
+        "accion_fin_a_resolucion_ms": 4354.8
+      },
+      {
+        "condicion": "CR-02",
+        "alert_id": "c6041651-42c7-599c-8801-8548b18a4f3d",
+        "subject_key": "CR-02:169.254.31.137",
+        "captura_primera_evidencia_ms": 1794077459228.289,
+        "captura_confirmacion_ms": 1794077466418.1924,
+        "confirmada_ms": 1794077466484.3389,
+        "broker_ms": 1794077466485.386,
+        "confirmacion_a_broker_ms": 1.0,
+        "primera_evidencia_a_confirmacion_ms": 7256.0,
+        "accion": "sacar_chaleco",
+        "accion_a_confirmacion_ms": 8811.7,
+        "accion_a_primera_evidencia_ms": 1555.7,
+        "accion_a_broker_ms": 8812.8,
+        "resuelta": false
+      }
+    ],
+    "por_condicion": {
+      "CR-01": {
+        "esperado": "alerta",
+        "alertas": 1,
+        "ok": true
+      },
+      "CR-02": {
+        "esperado": "alerta",
+        "alertas": 1,
+        "ok": true
+      }
+    },
+    "como_se_esperaba": true,
+    "alertas_antes_de_la_accion": 0,
+    "bus_dropped_events": 0,
+    "resultado_listo_s": 11.0,
+    "latencia": {
+      "unidades": 275,
+      "descartadas": 0,
+      "fps_efectivos": 3.16,
+      "inferencia_p50_ms": 70.64,
+      "inferencia_p95_ms": 103.43,
+      "g2a": {
+        "n": 275,
+        "p50": 70.58,
+        "p95": 103.016,
+        "max": 283.642
+      },
+      "captura_a_host": {
+        "n": 275,
+        "p50": 61.32,
+        "p95": 75.25,
+        "max": 85.57
+      },
+      "vidrio_a_resultado": {
+        "n": 275,
+        "p50": 131.235,
+        "p95": 166.497,
+        "max": 340.132
+      },
+      "hueco_max_ms": 226.322998046875,
+      "hueco_mediana_ms": 196.95947265625,
+      "contaminada": false,
+      "reloj_pared_menos_monotonico_ms": 1794048576330.326
+    },
+    "motor": "mp-yoloe-26x",
+    "camara": "960x540@5",
+    "modelo": "yoloe/yoloe-26x"
+  },
+  {
+    "escena": "DEMO",
+    "session_id": "demo_20261107T185235Z_DEMO_exp",
+    "experiment_id": "exp_20261107T185235Z_demo_defensa",
+    "ids": {
+      "control_run_id": "control_demo_defensa_20261107T185235Z_8fc7fc",
+      "media_run_id": "run_20261107_185235_dbe_yoloe_b50c94",
+      "distribution_run_id": "dist_20261107T185235Z_d6b16f"
+    },
+    "marcas": true,
+    "remera": "blanca lisa",
+    "calibracion": {
+      "session_id": "demo_20261107T151131Z_CAL",
+      "ok": true,
+      "aceptada": false,
+      "fecha": "2026-11-07T15:27:59+00:00",
+      "altura_m": 2.1
+    },
+    "encuadre": "ok",
+    "alertas": [
+      {
+        "condicion": "CR-02",
+        "alert_id": "80116621-b998-5f15-a512-24217867902e",
+        "subject_key": "CR-02:169.254.31.137",
+        "captura_primera_evidencia_ms": 1794077589749.4146,
+        "captura_confirmacion_ms": 1794077596806.9617,
+        "confirmada_ms": 1794077596844.0754,
+        "broker_ms": 1794077596858.67,
+        "confirmacion_a_broker_ms": 14.6,
+        "primera_evidencia_a_confirmacion_ms": 7094.7,
+        "antes_de_la_accion": true,
+        "resuelta": true
+      },
+      {
+        "condicion": "CR-01",
+        "alert_id": "39c20d78-3971-50c1-aa96-ef3e452a7fda",
+        "subject_key": "CR-01:169.254.31.137",
+        "captura_primera_evidencia_ms": 1794077593883.854,
+        "captura_confirmacion_ms": 1794077597894.441,
+        "confirmada_ms": 1794077597947.7231,
+        "broker_ms": 1794077597948.798,
+        "confirmacion_a_broker_ms": 1.1,
+        "primera_evidencia_a_confirmacion_ms": 4063.9,
+        "accion": "sacar_casco",
+        "accion_a_confirmacion_ms": 5486.4,
+        "accion_a_primera_evidencia_ms": 1422.6,
+        "accion_a_broker_ms": 5487.5,
+        "resuelta": true,
+        "accion_fin_a_resolucion_ms": 3570.2
+      },
+      {
+        "condicion": "CR-02",
+        "alert_id": "c205fa64-8c47-58ac-b195-c57d187d970a",
+        "subject_key": "CR-02:169.254.31.137",
+        "captura_primera_evidencia_ms": 1794077614752.1445,
+        "captura_confirmacion_ms": 1794077621814.498,
+        "confirmada_ms": null,
+        "broker_ms": null,
+        "accion": "sacar_chaleco",
+        "accion_a_primera_evidencia_ms": 2299.8,
+        "resuelta": false
+      }
+    ],
+    "por_condicion": {
+      "CR-01": {
+        "esperado": "alerta",
+        "alertas": 1,
+        "ok": true
+      },
+      "CR-02": {
+        "esperado": "alerta",
+        "alertas": 2,
+        "ok": true
+      }
+    },
+    "como_se_esperaba": true,
+    "alertas_antes_de_la_accion": 1,
+    "bus_dropped_events": 0,
+    "resultado_listo_s": 26.2,
+    "latencia": {
+      "unidades": 824,
+      "descartadas": 1,
+      "fps_efectivos": 9.46,
+      "inferencia_p50_ms": 44.05,
+      "inferencia_p95_ms": 65.48,
+      "g2a": {
+        "n": 824,
+        "p50": 44.268,
+        "p95": 72.543,
+        "max": 268.12
+      },
+      "captura_a_host": {
+        "n": 824,
+        "p50": 63.42,
+        "p95": 81.24,
+        "max": 116.73
+      },
+      "vidrio_a_resultado": {
+        "n": 824,
+        "p50": 109.185,
+        "p95": 146.679,
+        "max": 325.11
+      },
+      "hueco_max_ms": 193.02783203125,
+      "hueco_mediana_ms": 63.328125,
+      "contaminada": false,
+      "reloj_pared_menos_monotonico_ms": 1794048576323.625
+    },
+    "motor": "mp-yoloe-26x",
+    "camara": "960x540@15",
+    "modelo": "yoloe/yoloe-26x"
+  },
+  {
+    "escena": "DEMO",
+    "session_id": "demo_20261107T185525Z_DEMO_exp",
+    "experiment_id": "exp_20261107T185525Z_demo_defensa",
+    "ids": {
+      "control_run_id": "control_demo_defensa_20261107T185525Z_1eb2b7",
+      "media_run_id": "run_20261107_185525_dbe_yoloe_2b1102",
+      "distribution_run_id": "dist_20261107T185525Z_4b34b6"
+    },
+    "marcas": true,
+    "remera": "blanca lisa",
+    "calibracion": {
+      "session_id": "demo_20261107T151131Z_CAL",
+      "ok": true,
+      "aceptada": false,
+      "fecha": "2026-11-07T15:27:59+00:00",
+      "altura_m": 2.1
+    },
+    "encuadre": "ok",
+    "alertas": [
+      {
+        "condicion": "CR-01",
+        "alert_id": "5b467bc6-9a2f-5a84-8a36-a41cb76cb3c5",
+        "subject_key": "CR-01:169.254.31.137",
+        "captura_primera_evidencia_ms": 1794077764097.3257,
+        "captura_confirmacion_ms": 1794077768159.7341,
+        "confirmada_ms": 1794077768197.762,
+        "broker_ms": 1794077768212.341,
+        "confirmacion_a_broker_ms": 14.6,
+        "primera_evidencia_a_confirmacion_ms": 4100.4,
+        "accion": "sacar_casco",
+        "accion_a_confirmacion_ms": 6180.2,
+        "accion_a_primera_evidencia_ms": 2079.7,
+        "accion_a_broker_ms": 6194.7,
+        "resuelta": true,
+        "accion_fin_a_resolucion_ms": 3495.4
+      },
+      {
+        "condicion": "CR-02",
+        "alert_id": "2ec7c6dd-f3ac-52d6-ab54-3d4698e64039",
+        "subject_key": "CR-02:169.254.31.137",
+        "captura_primera_evidencia_ms": 1794077783568.6704,
+        "captura_confirmacion_ms": 1794077790569.6143,
+        "confirmada_ms": 1794077790606.3286,
+        "broker_ms": 1794077790608.164,
+        "confirmacion_a_broker_ms": 1.8,
+        "primera_evidencia_a_confirmacion_ms": 7037.7,
+        "accion": "sacar_chaleco",
+        "accion_a_confirmacion_ms": 8579.7,
+        "accion_a_primera_evidencia_ms": 1542.1,
+        "accion_a_broker_ms": 8581.6,
+        "resuelta": true,
+        "accion_fin_a_resolucion_ms": 7884.3
+      }
+    ],
+    "por_condicion": {
+      "CR-01": {
+        "esperado": "alerta",
+        "alertas": 1,
+        "ok": true
+      },
+      "CR-02": {
+        "esperado": "alerta",
+        "alertas": 1,
+        "ok": true
+      }
+    },
+    "como_se_esperaba": true,
+    "alertas_antes_de_la_accion": 0,
+    "bus_dropped_events": 0,
+    "resultado_listo_s": 25.7,
+    "latencia": {
+      "unidades": 822,
+      "descartadas": 3,
+      "fps_efectivos": 9.5,
+      "inferencia_p50_ms": 41.09,
+      "inferencia_p95_ms": 65.4,
+      "g2a": {
+        "n": 822,
+        "p50": 40.989,
+        "p95": 67.143,
+        "max": 287.357
+      },
+      "captura_a_host": {
+        "n": 822,
+        "p50": 61.59,
+        "p95": 80.07,
+        "max": 159.55
+      },
+      "vidrio_a_resultado": {
+        "n": 822,
+        "p50": 103.742,
+        "p95": 136.738,
+        "max": 390.487
+      },
+      "hueco_max_ms": 216.572265625,
+      "hueco_mediana_ms": 63.37890625,
+      "contaminada": false,
+      "reloj_pared_menos_monotonico_ms": 1794048576315.7302
+    },
+    "motor": "mp-yoloe-26x",
+    "camara": "960x540@15",
+    "modelo": "yoloe/yoloe-26x"
+  }
+]

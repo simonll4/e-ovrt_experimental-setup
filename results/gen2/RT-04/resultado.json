@@ -1,0 +1,362 @@
+{
+  "schema": "resultado.gen2.v1",
+  "id": "RT-04",
+  "titulo": "Obra simulada en vivo: el rodaje repetido en la plataforma en contenedores",
+  "informe": [
+    "Tabla 54",
+    "§17.5.5"
+  ],
+  "generado": "2026-11-07T19:42:15+00:00",
+  "familia": "rodaje",
+  "estado": "completo",
+  "metricas": {
+    "tomas": 23,
+    "tomas_como_se_esperaba": 16,
+    "tomas_sujeto_releidas": 23,
+    "tomas_sujeto_como_se_esperaba": 16,
+    "relecturas_fallidas": [],
+    "alertas_antes_de_la_accion": 0,
+    "por_escena": {
+      "P1": {
+        "tomas": 3,
+        "como_se_esperaba": 2,
+        "sujeto_releidas": 3,
+        "sujeto_como_se_esperaba": 2,
+        "alertas_antes_de_la_accion": 0
+      },
+      "P5": {
+        "tomas": 1,
+        "como_se_esperaba": 1,
+        "sujeto_releidas": 1,
+        "sujeto_como_se_esperaba": 1,
+        "alertas_antes_de_la_accion": 0
+      },
+      "P7a": {
+        "tomas": 1,
+        "como_se_esperaba": 1,
+        "sujeto_releidas": 1,
+        "sujeto_como_se_esperaba": 1,
+        "alertas_antes_de_la_accion": 0
+      },
+      "P7b": {
+        "tomas": 1,
+        "como_se_esperaba": 1,
+        "sujeto_releidas": 1,
+        "sujeto_como_se_esperaba": 1,
+        "alertas_antes_de_la_accion": 0
+      },
+      "P7c": {
+        "tomas": 1,
+        "como_se_esperaba": 1,
+        "sujeto_releidas": 1,
+        "sujeto_como_se_esperaba": 1,
+        "alertas_antes_de_la_accion": 0
+      },
+      "P3": {
+        "tomas": 2,
+        "como_se_esperaba": 2,
+        "sujeto_releidas": 2,
+        "sujeto_como_se_esperaba": 2,
+        "alertas_antes_de_la_accion": 0
+      },
+      "P4": {
+        "tomas": 1,
+        "como_se_esperaba": 1,
+        "sujeto_releidas": 1,
+        "sujeto_como_se_esperaba": 1,
+        "alertas_antes_de_la_accion": 0
+      },
+      "P8": {
+        "tomas": 1,
+        "como_se_esperaba": 1,
+        "sujeto_releidas": 1,
+        "sujeto_como_se_esperaba": 1,
+        "alertas_antes_de_la_accion": 0
+      },
+      "P2": {
+        "tomas": 3,
+        "como_se_esperaba": 2,
+        "sujeto_releidas": 3,
+        "sujeto_como_se_esperaba": 2,
+        "alertas_antes_de_la_accion": 0
+      },
+      "P6": {
+        "tomas": 1,
+        "como_se_esperaba": 0,
+        "sujeto_releidas": 1,
+        "sujeto_como_se_esperaba": 0,
+        "alertas_antes_de_la_accion": 0
+      },
+      "P1c": {
+        "tomas": 1,
+        "como_se_esperaba": 1,
+        "sujeto_releidas": 1,
+        "sujeto_como_se_esperaba": 1,
+        "alertas_antes_de_la_accion": 0
+      },
+      "P1b": {
+        "tomas": 2,
+        "como_se_esperaba": 2,
+        "sujeto_releidas": 2,
+        "sujeto_como_se_esperaba": 2,
+        "alertas_antes_de_la_accion": 0
+      },
+      "P9a": {
+        "tomas": 2,
+        "como_se_esperaba": 0,
+        "sujeto_releidas": 2,
+        "sujeto_como_se_esperaba": 0,
+        "alertas_antes_de_la_accion": 0
+      },
+      "P9b": {
+        "tomas": 1,
+        "como_se_esperaba": 1,
+        "sujeto_releidas": 1,
+        "sujeto_como_se_esperaba": 1,
+        "alertas_antes_de_la_accion": 0
+      },
+      "DEMO": {
+        "tomas": 2,
+        "como_se_esperaba": 0,
+        "sujeto_releidas": 2,
+        "sujeto_como_se_esperaba": 0,
+        "alertas_antes_de_la_accion": 0
+      }
+    },
+    "accion_a_confirmacion_mediana_ms": {
+      "CR-01": 6204.1,
+      "CR-02": 13156.7
+    },
+    "confirmacion_a_broker": {
+      "n": 16,
+      "p50": 14.0,
+      "p95": 15.9,
+      "max": 15.9
+    },
+    "latencia_por_cuadro": {
+      "g2a": {
+        "n": 3717,
+        "p50": 147.986,
+        "p95": 217.279,
+        "max": 528.849
+      },
+      "captura_a_host": {
+        "n": 3717,
+        "p50": 64.7,
+        "p95": 87.02,
+        "max": 108.55
+      },
+      "vidrio_a_resultado": {
+        "n": 3717,
+        "p50": 214.195,
+        "p95": 288.266,
+        "max": 594.049
+      }
+    },
+    "fps_efectivos_media": 2.59,
+    "ensayos_demo": {
+      "total": 2,
+      "aprobados": 1,
+      "mejor_racha": 1,
+      "cr02_en_vivo": 0
+    },
+    "encuadre": {
+      "ok": 23,
+      "no_ok": 0,
+      "sin_calibrar": 0
+    },
+    "escenas_sin_tomas": [],
+    "no_evaluables": [
+      {
+        "session_id": "demo_20261101T194310Z_P1",
+        "escena": "P1",
+        "motivo": "otro chaleco: 'amarillo' (el pre-registro fija 'julio')"
+      },
+      {
+        "session_id": "demo_20261101T194602Z_P1",
+        "escena": "P1",
+        "motivo": "otro chaleco: 'amarillo' (el pre-registro fija 'julio')"
+      },
+      {
+        "session_id": "demo_20261101T194950Z_P2",
+        "escena": "P2",
+        "motivo": "otro chaleco: 'amarillo' (el pre-registro fija 'julio')"
+      },
+      {
+        "session_id": "demo_20261101T195513Z_P2",
+        "escena": "P2",
+        "motivo": "otro chaleco: 'amarillo' (el pre-registro fija 'julio')"
+      },
+      {
+        "session_id": "demo_20261101T195749Z_P2",
+        "escena": "P2",
+        "motivo": "otro chaleco: 'amarillo' (el pre-registro fija 'julio')"
+      },
+      {
+        "session_id": "demo_20261101T200354Z_P6",
+        "escena": "P6",
+        "motivo": "chaleco sin declarar (el pre-registro fija 'julio'; rodaje.ps1 -Chaleco)"
+      },
+      {
+        "session_id": "demo_20261101T202547Z_P6",
+        "escena": "P6",
+        "motivo": "otro chaleco: 'amarillo' (el pre-registro fija 'julio')"
+      },
+      {
+        "session_id": "demo_20261101T203219Z_DEMO",
+        "escena": "DEMO",
+        "motivo": "otro chaleco: 'amarillo' (el pre-registro fija 'julio')"
+      },
+      {
+        "session_id": "demo_20261101T203535Z_DEMO",
+        "escena": "DEMO",
+        "motivo": "otro chaleco: 'amarillo' (el pre-registro fija 'julio')"
+      },
+      {
+        "session_id": "demo_20261101T203803Z_DEMO",
+        "escena": "DEMO",
+        "motivo": "otro chaleco: 'amarillo' (el pre-registro fija 'julio')"
+      },
+      {
+        "session_id": "demo_20261107T153316Z_P2",
+        "escena": "P2",
+        "motivo": "toma de la prueba de prendas y de la distractora (RT-09) (rodaje.ps1 -Proposito prendas)"
+      },
+      {
+        "session_id": "demo_20261107T153550Z_P2",
+        "escena": "P2",
+        "motivo": "toma de la prueba de prendas y de la distractora (RT-09) (rodaje.ps1 -Proposito prendas)"
+      },
+      {
+        "session_id": "demo_20261107T153958Z_P2",
+        "escena": "P2",
+        "motivo": "toma de la prueba de prendas y de la distractora (RT-09) (rodaje.ps1 -Proposito prendas)"
+      },
+      {
+        "session_id": "demo_20261107T154526Z_P2",
+        "escena": "P2",
+        "motivo": "toma de la prueba de prendas y de la distractora (RT-09) (rodaje.ps1 -Proposito prendas)"
+      },
+      {
+        "session_id": "demo_20261107T154901Z_P2",
+        "escena": "P2",
+        "motivo": "toma de la prueba de prendas y de la distractora (RT-09) (rodaje.ps1 -Proposito prendas)"
+      },
+      {
+        "session_id": "demo_20261107T160004Z_P1",
+        "escena": "P1",
+        "motivo": "descartada: Causa fisica: el actor espero en el borde izquierdo del cuadro (CR-01 confirmo antes de la accion por una persona cortada en el borde) y entro ~6 s tarde, asi que las marcas no coinciden con lo que hizo. Se conserva como ejemplo de falla: persona en el borde y casco sostenido en la mano dentro de la caja de la persona (CR-01 no confirmo en ~10 s)."
+      },
+      {
+        "session_id": "demo_20261107T161403Z_P1",
+        "escena": "P1",
+        "motivo": "chaleco sin declarar (el pre-registro fija 'julio'; rodaje.ps1 -Chaleco)"
+      },
+      {
+        "session_id": "demo_20261107T164522Z_P2",
+        "escena": "P2",
+        "motivo": "descartada: Causa fisica: una persona asomo en la esquina inferior derecha del cuadro desde el inicio, sin casco ni chaleco visibles; CR-01 y CR-02 confirmaron por esa caja antes de cualquier accion del actor. Se conserva como ejemplo de falla (persona parcialmente en cuadro) y se repite."
+      },
+      {
+        "session_id": "demo_20261107T173319Z_P2_modo-reflective",
+        "escena": "P2",
+        "motivo": "toma de la prueba de prendas y de la distractora (RT-09) (rodaje.ps1 -Proposito prendas)"
+      },
+      {
+        "session_id": "demo_20261107T173604Z_P2_modo-reflective",
+        "escena": "P2",
+        "motivo": "toma de la prueba de prendas y de la distractora (RT-09) (rodaje.ps1 -Proposito prendas)"
+      },
+      {
+        "session_id": "demo_20261107T173813Z_P1_modo-reflective",
+        "escena": "P1",
+        "motivo": "toma de la prueba de prendas y de la distractora (RT-09) (rodaje.ps1 -Proposito prendas)"
+      }
+    ],
+    "fuente": "oak_d"
+  },
+  "resumen": [
+    {
+      "clave": "tomas_como_se_esperaba",
+      "nombre": "Tomas que se comportaron como su guion (escena)",
+      "valor": "16/23",
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "tomas_encuadre",
+      "nombre": "Tomas por encuadre (calibrado / aceptado sin pasar / sin calibrar)",
+      "valor": "23 / 0 / 0",
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "tomas_sujeto_como_se_esperaba",
+      "nombre": "Las mismas tomas releídas por sujeto",
+      "valor": "16/23",
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "alertas_antes_de_la_accion",
+      "nombre": "Alertas antes de la acción (el guion no había abierto la infracción)",
+      "valor": 0,
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "cr01_accion_a_alerta_s",
+      "nombre": "CR-01: de la acción a la alerta confirmada (mediana)",
+      "valor": 6.2,
+      "unidad": "s",
+      "gen1": null
+    },
+    {
+      "clave": "cr02_accion_a_alerta_s",
+      "nombre": "CR-02: de la acción a la alerta confirmada (mediana)",
+      "valor": 13.16,
+      "unidad": "s",
+      "gen1": null
+    },
+    {
+      "clave": "confirmacion_a_broker_p95_ms",
+      "nombre": "De la confirmación al broker MQTT, p95",
+      "valor": 15.9,
+      "unidad": "ms",
+      "gen1": null
+    },
+    {
+      "clave": "vidrio_a_resultado_p95_ms",
+      "nombre": "Vidrio → resultado por cuadro, p95 (960×540 a 5 fps)",
+      "valor": 288.266,
+      "unidad": "ms",
+      "gen1": null
+    },
+    {
+      "clave": "fps_efectivos",
+      "nombre": "Cuadros por segundo procesados",
+      "valor": 2.59,
+      "unidad": "fps",
+      "gen1": null
+    },
+    {
+      "clave": "ensayos_demo_aprobados",
+      "nombre": "Ensayos de la demo aprobados (mejor racha)",
+      "valor": "1/2 (1)",
+      "unidad": null,
+      "gen1": null
+    }
+  ],
+  "veredicto": {
+    "propuesto": "otra_combinacion",
+    "motivo": "Otra máquina, otra resolución de cámara (960×540 a 5 fps contra 1080p a 30) y todas las escenas, no solo P1–P3. En julio: P1 confirmó CR-01 4 de 4 veces (4,1–4,3 s desde la primera evidencia), P2 no confirmó CR-02 (chaleco falso sobre la remera, F-RT1) y P3 quedó en silencio 2 de 2.\n",
+    "referencia": "operacion/71",
+    "diferencias": {},
+    "confirmado": {
+      "valor": "otra_combinacion",
+      "motivo": "Otra máquina y otra cámara que en julio (OAK-D a 960×540 a 5 fps contra 1080p a 30), todas las escenas, los chalecos de julio y dos personas. 23 tomas válidas, 16 como el guion (lo mismo por sujeto), 0 alertas antes de la acción. De la acción a la confirmación (mediana): CR-01 6,2 s, CR-02 13,2 s. Las 7 que no siguieron el guion son confusables del detector documentados toma por toma: el chaleco falso sobre la remera, el casco en la mano o en el torso y la gorra tomada por casco. Los descartes van con su motivo en descartes.json.",
+      "quien": "equipo E-OVRT-VDP",
+      "fecha": "2026-11-07T21:19:53+00:00"
+    }
+  }
+}

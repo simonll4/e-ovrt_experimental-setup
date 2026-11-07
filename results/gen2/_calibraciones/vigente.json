@@ -1,0 +1,38 @@
+{
+  "schema": "calibraciones.vigentes.v1",
+  "por_camara": {
+    "oak_d": {
+      "session_id": "demo_20261107T151131Z_CAL",
+      "fecha": "2026-11-07T15:27:59+00:00",
+      "ok": true,
+      "aceptada": false,
+      "motivo": null,
+      "altura_m": 2.1,
+      "distancia_cerca_m": null,
+      "distancia_lejos_m": null,
+      "fallan": [],
+      "observaciones": [
+        "pies_visibles",
+        "desnivel_cabeza"
+      ],
+      "archivo": "demo_20261107T151131Z_CAL.json"
+    },
+    "rtsp": {
+      "session_id": "demo_20261107T200312Z_CAL",
+      "fecha": "2026-11-07T20:04:00+00:00",
+      "ok": true,
+      "aceptada": false,
+      "motivo": null,
+      "altura_m": 1.9,
+      "distancia_cerca_m": null,
+      "distancia_lejos_m": null,
+      "fallan": [],
+      "observaciones": [
+        "pies_visibles",
+        "desnivel_cabeza"
+      ],
+      "archivo": "demo_20261107T200312Z_CAL.json"
+    }
+  },
+  "actualizado": "2026-11-07T20:04:00+00:00"
+}

@@ -1,0 +1,88 @@
+schema: prueba.gen2.v1
+id: RT-06
+titulo: "Obra simulada en vivo con la cámara IP (RTSP): el subset de comparación del guion"
+informe: ["Tabla 54", "§17.5.5", "§17.3.10"]
+fase: F7
+familia: rodaje
+# Enmienda del 2026-11-01 (doc 134 §13.13), escrita y commiteada ANTES de correr: el guion de julio
+# (doc 69 §6) usó la cámara IP como segunda fuente en un subset de escenas, y la generación 2 solo
+# tenía la OAK-D.
+pregunta: >
+  Con la cámara IP por RTSP —la segunda fuente del guion— en lugar de la OAK-D, y el resto de la
+  configuración de la demo igual, ¿las escenas del subset de comparación del guion (P1 sin casco, P2 sin
+  chaleco, P5 dos personas en regla) se comportan en vivo como su guion espera, cuánto tarda de la
+  acción a la alerta confirmada y al broker, y cuál es la latencia por cuadro (G2A)? En las dos
+  configuraciones de la cámara: el stream secundario (768×432 a 10 fps, el más cercano a lo medido con
+  la OAK-D) y el principal (1920×1080 a 15 fps).
+gen1:
+  result_id: rodaje del 2026-07-25, subset de la cámara IP (doc 69 §6; doc 71)
+  doc: operacion/71
+  relacion: otra_combinacion
+  motivo: >
+    En julio la cámara IP solo GRABÓ: 9 tomas (P1-a, P1-b, P1-c ×2, P2-a, P4-a, P5-a, P7-b, P9-a) a 15 fps
+    y con bitrate bajo (caveat del doc 71). No corrió en vivo por la plataforma, así que no hay una cifra
+    de julio con la que comparar 1:1. Acá corre en vivo, en la plataforma en contenedores, en otra máquina
+    y con los dos streams de la cámara (el secundario, 768×432 a 10 fps, y el principal, 1920×1080 a 15).
+esperado: >
+  Lo mismo que RT-04 para esas escenas: P1 alerta CR-01, P2 alerta CR-02 y P5 no alerta. La espera entre
+  la primera evidencia y la confirmación es la ventana de persistencia (≈ 4 s CR-01, ≈ 7 s CR-02): NO es
+  latencia. Qué NO se puede medir con esta fuente: el stream RTSP no trae la hora de captura del
+  dispositivo, así que «captura → host» y «vidrio → resultado» no existen; el número de latencia es G2A
+  (desde que el cuadro sale de la cola), que no se compara 1:1 con el de la OAK-D (otra resolución, otra
+  cadencia y otro códec). Con el principal se espera que el motor descarte la mayoría de los cuadros (en
+  la PC de desarrollo: 36 de 150 procesados, ~2,6 fps efectivos, G2A p95 ~500 ms; con el secundario ~6 fps
+  y p95 ~370 ms) y que las alertas igual confirmen: la ventana de persistencia se cuenta en tiempo, no en
+  cuadros. Cada stream se agrega por separado. Las tomas no cuentan como ensayos de la demo (la demo es
+  con la OAK-D).
+veredictos_posibles: [otra_combinacion]
+config:
+  modelo: grounding-dino/gdino-tiny-560
+  prompt_set: cr01_cr02_v2_short
+  pattern_set: cr01_cr02_v2 (escena, la de la demo) y, sobre las mismas detecciones, cr01_cr02_v2_subject
+  camara: >
+    cámara IP RTSP (la DVR del guion, 169.254.31.140:554), conectada SOLA y directo a la Ethernet de la
+    PC de la demo (la OAK-D desconectada: una cámara a la vez), en sus dos streams: secundario
+    /Streaming/Channels/2 (768×432, H.264, 10 fps; preset sugerido rtsp_dvr_sub) y principal
+    /Streaming/Channels/1 (1920×1080, H.264, 15 fps; preset sugerido rtsp_dvr_1).
+  distribucion: MQTT QoS 1, enfriamiento 30 s
+como_se_corre: >
+  Igual que RT-04: cada toma es una sesión de la demo (/demo) etiquetada con su escena, lanzada y guiada
+  por voz con infra/platform/rodaje.ps1, pero eligiendo la cámara IP y su stream por el preset:
+  `rodaje.ps1 -Escena P1 -Chaleco julio -Fuente rtsp_dvr_sub` (secundario) o `-Fuente rtsp_dvr_1` (principal); el script
+  comprueba que la cámara entregue video antes de lanzar. Conviene agrupar por stream. En la pantalla /demo,
+  la tarjeta Cámara permite comprobarla y ver el encuadre antes (la misma cinta en el piso que con la
+  OAK-D). Después, `evidencia correr RT-06` importa SOLO las sesiones con cámara RTSP y con uno de esos
+  dos streams (las demás quedan como no evaluables, con el motivo), las agrega por stream, las compara con
+  su guion y relee cada toma por sujeto. RT-04 no cuenta estas sesiones.
+receta:
+  escenas: ../RT-04/escenas.json       # el mismo guion que RT-04
+  escenas_incluidas: [P1, P2, P5]      # el subset de comparación del guion (doc 69 §6)
+  fuente: rtsp
+  # Enmienda del 2026-11-01 (doc 134 §13.14), antes de correr: CR-02 depende del chaleco. Solo cuentan las
+  # tomas con los chalecos reflectantes del rodaje de julio (rodaje.ps1 -Chaleco julio); el amarillo no
+  # reflectivo es RT-07.
+  chaleco: julio
+  # Enmienda del 2026-11-04 (doc 134 §13.18), antes de correr: la preparación «remera lisa y oscura»
+  # de escenas.json quedó refutada (F-RT1, doc 140). La remera la propone RT-09 con su regla escrita y la
+  # firma el equipo en la bitácora antes de la primera toma; cada toma la declara (rodaje.ps1 -Remera) y
+  # queda en su toma.json. escenas.json NO se toca: su huella la registran RT-07 y RT-08. Las tomas con
+  # -Proposito prendas (RT-09) o ensayo (G3, después del informe) no cuentan acá.
+  # Enmienda del 2026-11-05 (doc 134 §13.19), antes de correr: el encuadre es una variable medida. La cámara IP
+  # también se calibra antes de su primera toma (rodaje.ps1 -Calibrar -Fuente rtsp_dvr_sub + evidencia
+  # calibrar; una calibración por cámara física, vale para los dos streams); cada toma lleva la vigente y el
+  # driver cuenta las tomas por encuadre, sin excluir ninguna.
+  # Enmienda del 2026-11-05 (doc 134 §13.20), antes de correr: 7 tomas mínimas en lugar de 13. La OAK-D es la cámara
+  # principal y RT-04 cubre con ella las 15 escenas; la cámara IP tiene que mostrar que el sistema no depende del
+  # sensor: P1 y P2 en los dos streams (2 en el secundario, 1 en el principal) y P5 solo en el secundario. Con 3 tomas
+  # por celda o menos ninguna cifra se vuelve una tasa (3 de 3 solo acota la tasa por encima del 37 % con 95 % de
+  # confianza), y RT-08 ya llevó la cadena completa por los dos streams (con el chaleco amarillo). Antes: secundario
+  # P1 3, P2 3, P5 2; principal P1 2, P2 2, P5 1. Hacer más tomas no rompe nada: son mínimos.
+  streams:                             # cada uno se agrega por separado
+    secundario: {ruta: /Streaming/Channels/2, etiqueta: "cámara IP, 768×432 a 10 fps",
+                 tomas_minimas: {P1: 2, P2: 2, P5: 1}}
+    principal:  {ruta: /Streaming/Channels/1, etiqueta: "cámara IP, 1920×1080 a 15 fps",
+                 tomas_minimas: {P1: 1, P2: 1}}
+  sesiones: defensa/sesiones
+  sujeto: {patrones: cr01_cr02_v2_subject, activos: [CR-01, CR-02], track_persons: true}
+  timeout_s: 900
+salida: e-ovrt_experimental-setup/results/gen2/RT-06/

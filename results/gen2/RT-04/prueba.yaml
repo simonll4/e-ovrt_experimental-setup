@@ -1,0 +1,64 @@
+schema: prueba.gen2.v1
+id: RT-04
+titulo: "Obra simulada en vivo: el rodaje repetido en la plataforma en contenedores"
+informe: ["Tabla 54", "§17.5.5"]
+fase: F7
+familia: rodaje
+pregunta: >
+  Con el equipo en la obra simulada, la OAK-D y la configuración de la demo, ¿cada escena del
+  rodaje se comporta en vivo como su guion espera (alerta o silencio, de qué condición), cuánto
+  tarda de la acción a la alerta confirmada y al broker, y cuál es la latencia por cuadro?
+gen1:
+  result_id: rodaje del 2026-07-25 (tomas B en vivo de P1, P2 y P3; doc 71)
+  doc: operacion/71
+  relacion: otra_combinacion
+  motivo: >
+    Otra máquina, otra resolución de cámara (960×540 a 5 fps contra 1080p a 30) y todas las escenas,
+    no solo P1–P3. En julio: P1 confirmó CR-01 4 de 4 veces (4,1–4,3 s desde la primera evidencia),
+    P2 no confirmó CR-02 (chaleco falso sobre la remera, F-RT1) y P3 quedó en silencio 2 de 2.
+esperado: >
+  Las escenas con infracción sostenida alertan su condición y las de control (P3, P5) no
+  alertan. La espera entre la primera evidencia y la confirmación es la ventana de persistencia
+  del patrón (≈ 4 s CR-01, ≈ 7 s CR-02): NO es latencia. P8 mide qué hace el motor cuando el
+  sujeto sale de cuadro con la infracción abierta (F-101.9). Las tomas DEMO cuentan como ensayos
+  de la demo (G3 de la spec). P1b (enmienda del 2026-11-01, doc 134 §13.14) es P1 lejos de la cámara:
+  mira si el casco puesto deja de verse y CR-01 alerta antes de la acción, la causa principal de las
+  falsas alarmas en obra real (ERR-01); las alertas antes de la acción se cuentan aparte.
+veredictos_posibles: [otra_combinacion]
+config:
+  modelo: grounding-dino/gdino-tiny-560
+  prompt_set: cr01_cr02_v2_short
+  pattern_set: cr01_cr02_v2 (escena, la de la demo) y, sobre las mismas detecciones, cr01_cr02_v2_subject
+  camara: OAK-D a 960×540 y 5 fps (experiments/demo_defensa)
+  distribucion: MQTT QoS 1, enfriamiento 30 s
+como_se_corre: >
+  Sin grabar ni anotar: cada toma es una sesión de la demo (/demo) etiquetada con su escena. La
+  lanza y la guía por voz infra/platform/rodaje.ps1 -Escena <id> -Chaleco julio (anota la hora real de cada
+  indicación en marcas.json); la pantalla /demo muestra el estado en vivo y deja el Resultado.
+  Después, `evidencia correr RT-04` importa las sesiones etiquetadas, las compara con su guion y
+  relee cada toma por sujeto con el runner de la consola.
+receta:
+  escenas: escenas.json
+  # Enmienda del 2026-11-01 (doc 134 §13.14), antes de correr: CR-02 depende del chaleco. Solo cuentan las
+  # tomas con los chalecos reflectantes del rodaje de julio (rodaje.ps1 -Chaleco julio); el amarillo no
+  # reflectivo es RT-07.
+  chaleco: julio
+  # Enmienda del 2026-11-04 (doc 134 §13.18), antes de correr: la preparación «remera lisa y oscura»
+  # de escenas.json quedó refutada (F-RT1, doc 140). La remera la propone RT-09 con su regla escrita y la
+  # firma el equipo en la bitácora antes de la primera toma; cada toma la declara (rodaje.ps1 -Remera) y
+  # queda en su toma.json. escenas.json NO se toca: su huella la registran RT-07 y RT-08. Las tomas con
+  # -Proposito prendas (RT-09) o ensayo (G3, después del informe) no cuentan acá.
+  # Enmienda del 2026-11-05 (doc 134 §13.19), antes de correr: el encuadre es una variable medida. Antes de
+  # la primera toma se calibra la cámara ya ubicada (rodaje.ps1 -Calibrar + evidencia calibrar, criterios en
+  # experiments/demo_defensa/calibracion.json: alta, mirando hacia abajo, persona no cortada en la cadera) y
+  # cada toma lleva la calibración vigente en marcas.json; el driver la copia a toma.json y cuenta las tomas
+  # por encuadre (pasó / aceptado sin pasar / sin calibrar). No excluye ninguna.
+  sesiones: defensa/sesiones
+  sujeto: {patrones: cr01_cr02_v2_subject, activos: [CR-01, CR-02], track_persons: true}
+  # Ensayo aprobado de la demo (spec 2026-10-23 §9), para las tomas DEMO.
+  ensayo_demo:
+    escena: DEMO
+    cr01_max_s_desde_la_accion: 6.0
+    resultado_max_s: 60.0
+  timeout_s: 900
+salida: e-ovrt_experimental-setup/results/gen2/RT-04/

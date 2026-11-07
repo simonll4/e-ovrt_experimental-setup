@@ -1,0 +1,112 @@
+{
+  "escena": "DEMO",
+  "session_id": "demo_20261107T185235Z_DEMO_exp",
+  "experiment_id": "exp_20261107T185235Z_demo_defensa",
+  "ids": {
+    "control_run_id": "control_demo_defensa_20261107T185235Z_8fc7fc",
+    "media_run_id": "run_20261107_185235_dbe_yoloe_b50c94",
+    "distribution_run_id": "dist_20261107T185235Z_d6b16f"
+  },
+  "marcas": true,
+  "remera": "blanca lisa",
+  "calibracion": {
+    "session_id": "demo_20261107T151131Z_CAL",
+    "ok": true,
+    "aceptada": false,
+    "fecha": "2026-11-07T15:27:59+00:00",
+    "altura_m": 2.1
+  },
+  "encuadre": "ok",
+  "alertas": [
+    {
+      "condicion": "CR-02",
+      "alert_id": "80116621-b998-5f15-a512-24217867902e",
+      "subject_key": "CR-02:169.254.31.137",
+      "captura_primera_evidencia_ms": 1794077589749.4146,
+      "captura_confirmacion_ms": 1794077596806.9617,
+      "confirmada_ms": 1794077596844.0754,
+      "broker_ms": 1794077596858.67,
+      "confirmacion_a_broker_ms": 14.6,
+      "primera_evidencia_a_confirmacion_ms": 7094.7,
+      "antes_de_la_accion": true,
+      "resuelta": true
+    },
+    {
+      "condicion": "CR-01",
+      "alert_id": "39c20d78-3971-50c1-aa96-ef3e452a7fda",
+      "subject_key": "CR-01:169.254.31.137",
+      "captura_primera_evidencia_ms": 1794077593883.854,
+      "captura_confirmacion_ms": 1794077597894.441,
+      "confirmada_ms": 1794077597947.7231,
+      "broker_ms": 1794077597948.798,
+      "confirmacion_a_broker_ms": 1.1,
+      "primera_evidencia_a_confirmacion_ms": 4063.9,
+      "accion": "sacar_casco",
+      "accion_a_confirmacion_ms": 5486.4,
+      "accion_a_primera_evidencia_ms": 1422.6,
+      "accion_a_broker_ms": 5487.5,
+      "resuelta": true,
+      "accion_fin_a_resolucion_ms": 3570.2
+    },
+    {
+      "condicion": "CR-02",
+      "alert_id": "c205fa64-8c47-58ac-b195-c57d187d970a",
+      "subject_key": "CR-02:169.254.31.137",
+      "captura_primera_evidencia_ms": 1794077614752.1445,
+      "captura_confirmacion_ms": 1794077621814.498,
+      "confirmada_ms": null,
+      "broker_ms": null,
+      "accion": "sacar_chaleco",
+      "accion_a_primera_evidencia_ms": 2299.8,
+      "resuelta": false
+    }
+  ],
+  "por_condicion": {
+    "CR-01": {
+      "esperado": "alerta",
+      "alertas": 1,
+      "ok": true
+    },
+    "CR-02": {
+      "esperado": "alerta",
+      "alertas": 2,
+      "ok": true
+    }
+  },
+  "como_se_esperaba": true,
+  "alertas_antes_de_la_accion": 1,
+  "bus_dropped_events": 0,
+  "resultado_listo_s": 26.2,
+  "latencia": {
+    "unidades": 824,
+    "descartadas": 1,
+    "fps_efectivos": 9.46,
+    "inferencia_p50_ms": 44.05,
+    "inferencia_p95_ms": 65.48,
+    "g2a": {
+      "n": 824,
+      "p50": 44.268,
+      "p95": 72.543,
+      "max": 268.12
+    },
+    "captura_a_host": {
+      "n": 824,
+      "p50": 63.42,
+      "p95": 81.24,
+      "max": 116.73
+    },
+    "vidrio_a_resultado": {
+      "n": 824,
+      "p50": 109.185,
+      "p95": 146.679,
+      "max": 325.11
+    },
+    "hueco_max_ms": 193.02783203125,
+    "hueco_mediana_ms": 63.328125,
+    "contaminada": false,
+    "reloj_pared_menos_monotonico_ms": 1794048576323.625
+  },
+  "motor": "mp-yoloe-26x",
+  "camara": "960x540@15",
+  "modelo": "yoloe/yoloe-26x"
+}

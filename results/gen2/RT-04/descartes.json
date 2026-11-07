@@ -1,0 +1,17 @@
+{
+  "demo_20261107T160004Z_P1": {
+    "motivo": "Causa fisica: el actor espero en el borde izquierdo del cuadro (CR-01 confirmo antes de la accion por una persona cortada en el borde) y entro ~6 s tarde, asi que las marcas no coinciden con lo que hizo. Se conserva como ejemplo de falla: persona en el borde y casco sostenido en la mano dentro de la caja de la persona (CR-01 no confirmo en ~10 s).",
+    "quien": "equipo E-OVRT-VDP",
+    "fecha": "2026-11-07T16:02:42+00:00"
+  },
+  "demo_20261107T161403Z_P1": {
+    "motivo": "Causa fisica: el equipo no estaba listo (actor distraido); la toma se freno a pedido del operador y se repite.",
+    "quien": "equipo E-OVRT-VDP",
+    "fecha": "2026-11-07T16:15:18+00:00"
+  },
+  "demo_20261107T164522Z_P2": {
+    "motivo": "Causa fisica: una persona asomo en la esquina inferior derecha del cuadro desde el inicio, sin casco ni chaleco visibles; CR-01 y CR-02 confirmaron por esa caja antes de cualquier accion del actor. Se conserva como ejemplo de falla (persona parcialmente en cuadro) y se repite.",
+    "quien": "equipo E-OVRT-VDP",
+    "fecha": "2026-11-07T16:47:07+00:00"
+  }
+}

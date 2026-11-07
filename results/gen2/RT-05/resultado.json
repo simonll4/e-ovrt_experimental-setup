@@ -1,0 +1,407 @@
+{
+  "schema": "resultado.gen2.v1",
+  "id": "RT-05",
+  "titulo": "Compromiso en vivo entre familias de modelo y cadencias de cámara",
+  "informe": [
+    "Tabla 54",
+    "§17.5.5"
+  ],
+  "generado": "2026-11-07T19:42:20+00:00",
+  "familia": "rodaje",
+  "estado": "parcial",
+  "metricas": {
+    "tomas": 19,
+    "celdas": {
+      "mp-gdino-tiny-560 @ 960x540@5": {
+        "motor": "mp-gdino-tiny-560",
+        "camara": "960x540@5",
+        "modelo": "grounding-dino/gdino-tiny-560",
+        "tomas": 3,
+        "faltan": 0,
+        "como_se_esperaba": 1,
+        "cr01_confirmo": 3,
+        "cr02_confirmo": 1,
+        "alertas_antes_de_la_accion": 0,
+        "accion_a_confirmacion_mediana_ms": {
+          "CR-01": 6207.5,
+          "CR-02": 19823.0
+        },
+        "latencia_por_cuadro": {
+          "g2a": {
+            "n": 827,
+            "p50": 146.678,
+            "p95": 202.42,
+            "max": 487.018
+          },
+          "captura_a_host": {
+            "n": 827,
+            "p50": 63.65,
+            "p95": 87.11,
+            "max": 101.61
+          },
+          "vidrio_a_resultado": {
+            "n": 827,
+            "p50": 212.115,
+            "p95": 273.575,
+            "max": 555.028
+          }
+        },
+        "fps_efectivos_media": 3.54,
+        "cuadros_descartados": 0,
+        "bus_dropped_events": 0
+      },
+      "mp-gdino-tiny-560 @ 960x540@15": {
+        "motor": "mp-gdino-tiny-560",
+        "camara": "960x540@15",
+        "modelo": "grounding-dino/gdino-tiny-560",
+        "tomas": 3,
+        "faltan": 0,
+        "como_se_esperaba": 1,
+        "cr01_confirmo": 3,
+        "cr02_confirmo": 1,
+        "alertas_antes_de_la_accion": 0,
+        "accion_a_confirmacion_mediana_ms": {
+          "CR-01": 5950.0,
+          "CR-02": 10026.5
+        },
+        "latencia_por_cuadro": {
+          "g2a": {
+            "n": 945,
+            "p50": 275.697,
+            "p95": 344.986,
+            "max": 508.426
+          },
+          "captura_a_host": {
+            "n": 945,
+            "p50": 73.78,
+            "p95": 99.7,
+            "max": 174.7
+          },
+          "vidrio_a_resultado": {
+            "n": 945,
+            "p50": 351.009,
+            "p95": 415.505,
+            "max": 614.606
+          }
+        },
+        "fps_efectivos_media": 3.81,
+        "cuadros_descartados": 1493,
+        "bus_dropped_events": 0
+      },
+      "mp-gdino-base-560 @ 960x540@5": {
+        "motor": "mp-gdino-base-560",
+        "camara": "960x540@5",
+        "modelo": "grounding-dino/gdino-base-560",
+        "tomas": 3,
+        "faltan": 0,
+        "como_se_esperaba": 3,
+        "cr01_confirmo": 3,
+        "cr02_confirmo": 3,
+        "alertas_antes_de_la_accion": 0,
+        "accion_a_confirmacion_mediana_ms": {
+          "CR-01": 5924.5,
+          "CR-02": 8986.5
+        },
+        "latencia_por_cuadro": {
+          "g2a": {
+            "n": 826,
+            "p50": 176.963,
+            "p95": 248.213,
+            "max": 508.81
+          },
+          "captura_a_host": {
+            "n": 826,
+            "p50": 68.99,
+            "p95": 91.98,
+            "max": 107.58
+          },
+          "vidrio_a_resultado": {
+            "n": 826,
+            "p50": 248.77,
+            "p95": 321.5,
+            "max": 583.57
+          }
+        },
+        "fps_efectivos_media": 3.33,
+        "cuadros_descartados": 0,
+        "bus_dropped_events": 0
+      },
+      "mp-gdino-base-560 @ 960x540@15": {
+        "motor": "mp-gdino-base-560",
+        "camara": "960x540@15",
+        "modelo": "grounding-dino/gdino-base-560",
+        "tomas": 1,
+        "faltan": 2,
+        "como_se_esperaba": 1,
+        "cr01_confirmo": 1,
+        "cr02_confirmo": 1,
+        "alertas_antes_de_la_accion": 0,
+        "accion_a_confirmacion_mediana_ms": {
+          "CR-01": 6197.4,
+          "CR-02": 9639.0
+        },
+        "latencia_por_cuadro": {
+          "g2a": {
+            "n": 273,
+            "p50": 299.638,
+            "p95": 360.45,
+            "max": 495.622
+          },
+          "captura_a_host": {
+            "n": 273,
+            "p50": 74.42,
+            "p95": 100.66,
+            "max": 162.35
+          },
+          "vidrio_a_resultado": {
+            "n": 273,
+            "p50": 376.612,
+            "p95": 448.021,
+            "max": 551.542
+          }
+        },
+        "fps_efectivos_media": 3.3,
+        "cuadros_descartados": 545,
+        "bus_dropped_events": 0
+      },
+      "mp-yoloe-26s @ 960x540@5": {
+        "motor": "mp-yoloe-26s",
+        "camara": "960x540@5",
+        "modelo": "yoloe/yoloe-26s",
+        "tomas": 3,
+        "faltan": 0,
+        "como_se_esperaba": 3,
+        "cr01_confirmo": 3,
+        "cr02_confirmo": 3,
+        "alertas_antes_de_la_accion": 0,
+        "accion_a_confirmacion_mediana_ms": {
+          "CR-01": 5586.8,
+          "CR-02": 8605.1
+        },
+        "latencia_por_cuadro": {
+          "g2a": {
+            "n": 820,
+            "p50": 67.191,
+            "p95": 72.504,
+            "max": 87.077
+          },
+          "captura_a_host": {
+            "n": 820,
+            "p50": 61.87,
+            "p95": 80.36,
+            "max": 94.48
+          },
+          "vidrio_a_resultado": {
+            "n": 820,
+            "p50": 129.412,
+            "p95": 147.968,
+            "max": 162.627
+          }
+        },
+        "fps_efectivos_media": 3.16,
+        "cuadros_descartados": 0,
+        "bus_dropped_events": 0
+      },
+      "mp-yoloe-26s @ 960x540@15": {
+        "motor": "mp-yoloe-26s",
+        "camara": "960x540@15",
+        "modelo": "yoloe/yoloe-26s",
+        "tomas": 3,
+        "faltan": 0,
+        "como_se_esperaba": 3,
+        "cr01_confirmo": 3,
+        "cr02_confirmo": 3,
+        "alertas_antes_de_la_accion": 0,
+        "accion_a_confirmacion_mediana_ms": {
+          "CR-01": 5700.7,
+          "CR-02": 8528.8
+        },
+        "latencia_por_cuadro": {
+          "g2a": {
+            "n": 2459,
+            "p50": 34.743,
+            "p95": 53.597,
+            "max": 86.445
+          },
+          "captura_a_host": {
+            "n": 2459,
+            "p50": 61.58,
+            "p95": 79.68,
+            "max": 171.7
+          },
+          "vidrio_a_resultado": {
+            "n": 2459,
+            "p50": 99.222,
+            "p95": 124.002,
+            "max": 212.552
+          }
+        },
+        "fps_efectivos_media": 9.46,
+        "cuadros_descartados": 0,
+        "bus_dropped_events": 0
+      },
+      "mp-yoloe-26x @ 960x540@5": {
+        "motor": "mp-yoloe-26x",
+        "camara": "960x540@5",
+        "modelo": "yoloe/yoloe-26x",
+        "tomas": 1,
+        "faltan": 2,
+        "como_se_esperaba": 1,
+        "cr01_confirmo": 1,
+        "cr02_confirmo": 1,
+        "alertas_antes_de_la_accion": 0,
+        "accion_a_confirmacion_mediana_ms": {
+          "CR-01": 5852.9,
+          "CR-02": 8811.7
+        },
+        "latencia_por_cuadro": {
+          "g2a": {
+            "n": 275,
+            "p50": 70.58,
+            "p95": 103.016,
+            "max": 283.642
+          },
+          "captura_a_host": {
+            "n": 275,
+            "p50": 61.32,
+            "p95": 75.25,
+            "max": 85.57
+          },
+          "vidrio_a_resultado": {
+            "n": 275,
+            "p50": 131.235,
+            "p95": 166.497,
+            "max": 340.132
+          }
+        },
+        "fps_efectivos_media": 3.16,
+        "cuadros_descartados": 0,
+        "bus_dropped_events": 0
+      },
+      "mp-yoloe-26x @ 960x540@15": {
+        "motor": "mp-yoloe-26x",
+        "camara": "960x540@15",
+        "modelo": "yoloe/yoloe-26x",
+        "tomas": 2,
+        "faltan": 1,
+        "como_se_esperaba": 2,
+        "cr01_confirmo": 2,
+        "cr02_confirmo": 2,
+        "alertas_antes_de_la_accion": 1,
+        "accion_a_confirmacion_mediana_ms": {
+          "CR-01": 5833.3,
+          "CR-02": 8579.7
+        },
+        "latencia_por_cuadro": {
+          "g2a": {
+            "n": 1646,
+            "p50": 42.169,
+            "p95": 69.143,
+            "max": 287.357
+          },
+          "captura_a_host": {
+            "n": 1646,
+            "p50": 62.48,
+            "p95": 80.68,
+            "max": 159.55
+          },
+          "vidrio_a_resultado": {
+            "n": 1646,
+            "p50": 106.748,
+            "p95": 140.607,
+            "max": 390.487
+          }
+        },
+        "fps_efectivos_media": 9.48,
+        "cuadros_descartados": 4,
+        "bus_dropped_events": 0
+      }
+    },
+    "celdas_completas": 5,
+    "celdas_totales": 8,
+    "no_evaluables": [
+      {
+        "session_id": "demo_20261107T182149Z_DEMO_exp",
+        "celda": "mp-gdino-base-560 @ 960x540@5",
+        "motivo": "descartada: Causa fisica: una persona asomo en la esquina inferior derecha del cuadro (person 0,38 sin casco ni chaleco visibles) desde el inicio; CR-01 confirmo a los 4,2 s, antes de la accion. Se repite."
+      }
+    ],
+    "encuadre": {
+      "ok": 19,
+      "no_ok": 0,
+      "sin_calibrar": 0
+    }
+  },
+  "resumen": [
+    {
+      "clave": "mp-gdino-tiny-560 @ 960x540@5",
+      "nombre": "mp-gdino-tiny-560 @ 960x540@5",
+      "valor": "CR-01 3/3 (6.2 s) · CR-02 1/3 (19.8 s) · 3.54 fps · vidrio → resultado p95 273.575 ms",
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "mp-gdino-tiny-560 @ 960x540@15",
+      "nombre": "mp-gdino-tiny-560 @ 960x540@15",
+      "valor": "CR-01 3/3 (6.0 s) · CR-02 1/3 (10.0 s) · 3.81 fps · vidrio → resultado p95 415.505 ms",
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "mp-gdino-base-560 @ 960x540@5",
+      "nombre": "mp-gdino-base-560 @ 960x540@5",
+      "valor": "CR-01 3/3 (5.9 s) · CR-02 3/3 (9.0 s) · 3.33 fps · vidrio → resultado p95 321.5 ms",
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "mp-gdino-base-560 @ 960x540@15",
+      "nombre": "mp-gdino-base-560 @ 960x540@15",
+      "valor": "CR-01 1/1 (6.2 s) · CR-02 1/1 (9.6 s) · 3.3 fps · vidrio → resultado p95 448.021 ms",
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "mp-yoloe-26s @ 960x540@5",
+      "nombre": "mp-yoloe-26s @ 960x540@5",
+      "valor": "CR-01 3/3 (5.6 s) · CR-02 3/3 (8.6 s) · 3.16 fps · vidrio → resultado p95 147.968 ms",
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "mp-yoloe-26s @ 960x540@15",
+      "nombre": "mp-yoloe-26s @ 960x540@15",
+      "valor": "CR-01 3/3 (5.7 s) · CR-02 3/3 (8.5 s) · 9.46 fps · vidrio → resultado p95 124.002 ms",
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "mp-yoloe-26x @ 960x540@5",
+      "nombre": "mp-yoloe-26x @ 960x540@5",
+      "valor": "CR-01 1/1 (5.9 s) · CR-02 1/1 (8.8 s) · 3.16 fps · vidrio → resultado p95 166.497 ms",
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "mp-yoloe-26x @ 960x540@15",
+      "nombre": "mp-yoloe-26x @ 960x540@15",
+      "valor": "CR-01 2/2 (5.8 s) · CR-02 2/2 (8.6 s) · 9.48 fps · vidrio → resultado p95 140.607 ms",
+      "unidad": null,
+      "gen1": null
+    }
+  ],
+  "veredicto": {
+    "propuesto": "otra_combinacion",
+    "motivo": "En julio, misma escena y misma cámara (1080p a 30 fps, en la PC de desarrollo), con el modelo como única variable: Grounding DINO tiny procesó 1,16–1,76 cuadros por segundo con G2A p95 de 630–890 ms y CR-01 confiable; YOLOE-26s, 5,1–6,0 cuadros por segundo con G2A p95 de 225–249 ms (el único dentro del presupuesto) y 0 de 3 alertas confiables (una falsa y dos confirmadas antes de cumplirse la ventana, F-RT2). Acá cambian la máquina y la resolución (960×540), se suman dos motores y una segunda cadencia, y la acción la marca el director por voz.\n",
+    "referencia": "operacion/71",
+    "diferencias": {},
+    "confirmado": {
+      "valor": "otra_combinacion",
+      "motivo": "Plan recortado por el equipo. Son 19 tomas en 8 celdas (4 motores × 2 cadencias), y 5 de las 8 tienen las 3 tomas pre-registradas. A base a 15 fps y a YOLOE-26x se les hicieron 1–2 tomas, porque su resultado ya estaba decidido. Otra cámara y otra resolución que en julio (OAK-D a 960×540 contra 1080p a 30). Grounding DINO no sostiene 15 fps en vivo. YOLOE-26s sí, y salió como el guion en 6 de 6 tomas.",
+      "quien": "equipo E-OVRT-VDP",
+      "fecha": "2026-11-07T21:20:04+00:00",
+      "parcial": true,
+      "faltante": {}
+    }
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "escenas": "524db6125a7fa5ebbec0479d3d70bb6751a783a0d336c4e69d175eb61d9d8d3d",
+  "chaleco": "julio",
+  "regla_cr02": {
+    "region": {
+      "type": "torso",
+      "y_min_ratio": 0.25,
+      "y_max_ratio": 0.85,
+      "x_margin_ratio": 0.08
+    },
+    "clase": "vest",
+    "persona": 0.35,
+    "evidencia": 0.25,
+    "area": 400.0,
+    "confirma_ms": 7000.0,
+    "resuelve_ms": 3000.0
+  },
+  "ventanas": {
+    "P2": {
+      "desde": "sacar_chaleco",
+      "margen_s": 5,
+      "hasta": "poner_chaleco",
+      "vest": "ausente"
+    },
+    "P1": {
+      "desde": "entrar",
+      "margen_s": 3,
+      "hasta": null,
+      "vest": "presente"
+    }
+  },
+  "remera_referencia": "negra lisa",
+  "modos": [
+    "campeon",
+    "reflective"
+  ],
+  "motores": [
+    "mp-gdino-tiny-560",
+    "mp-gdino-base-560"
+  ],
+  "camara_exploracion": "960x540@5",
+  "sesiones_encontradas": [
+    "demo_20261107T153316Z_P2",
+    "demo_20261107T153550Z_P2",
+    "demo_20261107T153958Z_P2",
+    "demo_20261107T154526Z_P2",
+    "demo_20261107T154901Z_P2",
+    "demo_20261107T173319Z_P2_modo-reflective",
+    "demo_20261107T173604Z_P2_modo-reflective",
+    "demo_20261107T173813Z_P1_modo-reflective",
+    "demo_20261107T192443Z_P2_exp",
+    "demo_20261107T192629Z_P2_exp"
+  ]
+}

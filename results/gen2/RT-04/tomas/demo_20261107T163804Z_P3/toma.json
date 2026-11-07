@@ -1,0 +1,84 @@
+{
+  "escena": "P3",
+  "session_id": "demo_20261107T163804Z_P3",
+  "experiment_id": "exp_20261107T163804Z_demo_defensa",
+  "ids": {
+    "control_run_id": "control_demo_defensa_20261107T163804Z_30108e",
+    "media_run_id": "run_20261107_163804_dbe_grounding_dino_c0bcac",
+    "distribution_run_id": "dist_20261107T163804Z_729b98"
+  },
+  "marcas": true,
+  "remera": "blanca lisa",
+  "calibracion": {
+    "session_id": "demo_20261107T151131Z_CAL",
+    "ok": true,
+    "aceptada": false,
+    "fecha": "2026-11-07T15:27:59+00:00",
+    "altura_m": 2.1
+  },
+  "encuadre": "ok",
+  "alertas": [],
+  "por_condicion": {
+    "CR-01": {
+      "esperado": "sin_alerta",
+      "alertas": 0,
+      "ok": true
+    },
+    "CR-02": {
+      "esperado": "sin_alerta",
+      "alertas": 0,
+      "ok": true
+    }
+  },
+  "como_se_esperaba": true,
+  "alertas_antes_de_la_accion": 0,
+  "bus_dropped_events": 0,
+  "resultado_listo_s": 7.6,
+  "latencia": {
+    "unidades": 106,
+    "descartadas": 0,
+    "fps_efectivos": 2.09,
+    "inferencia_p50_ms": 149.2,
+    "inferencia_p95_ms": 215.56,
+    "g2a": {
+      "n": 106,
+      "p50": 151.47,
+      "p95": 266.23,
+      "max": 469.704
+    },
+    "captura_a_host": {
+      "n": 106,
+      "p50": 65.26,
+      "p95": 88.65,
+      "max": 100.05
+    },
+    "vidrio_a_resultado": {
+      "n": 106,
+      "p50": 217.167,
+      "p95": 349.69,
+      "max": 535.304
+    },
+    "hueco_max_ms": 235.71337890625,
+    "hueco_mediana_ms": 196.189697265625,
+    "contaminada": false,
+    "reloj_pared_menos_monotonico_ms": 1794048576653.561
+  },
+  "sujeto": {
+    "por_condicion": {
+      "CR-01": {
+        "esperado": "sin_alerta",
+        "alertas": 0,
+        "sujetos": 0,
+        "ok": true
+      },
+      "CR-02": {
+        "esperado": "sin_alerta",
+        "alertas": 0,
+        "sujetos": 0,
+        "ok": true
+      }
+    },
+    "como_se_esperaba": true,
+    "sujetos_con_alerta": 0
+  }
+}

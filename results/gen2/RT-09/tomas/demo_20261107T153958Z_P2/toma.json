@@ -1,0 +1,103 @@
+{
+  "escena": "P2",
+  "session_id": "demo_20261107T153958Z_P2",
+  "experiment_id": "exp_20261107T153958Z_demo_defensa",
+  "ids": {
+    "control_run_id": "control_demo_defensa_20261107T153958Z_08ef6e",
+    "media_run_id": "run_20261107_153958_dbe_grounding_dino_110f79",
+    "distribution_run_id": "dist_20261107T153958Z_4b66d8"
+  },
+  "marcas": true,
+  "remera": "blanca lisa",
+  "calibracion": {
+    "session_id": "demo_20261107T151131Z_CAL",
+    "ok": true,
+    "aceptada": false,
+    "fecha": "2026-11-07T15:27:59+00:00",
+    "altura_m": 2.1
+  },
+  "encuadre": "ok",
+  "alertas": [
+    {
+      "condicion": "CR-02",
+      "alert_id": "17689e52-4c30-5ca7-8b8d-cd4316a054a8",
+      "subject_key": "CR-02:169.254.31.137",
+      "captura_primera_evidencia_ms": 1794066050472.8828,
+      "captura_confirmacion_ms": 1794066058064.7249,
+      "confirmada_ms": 1794066058276.1868,
+      "broker_ms": 1794066058289.764,
+      "confirmacion_a_broker_ms": 13.6,
+      "primera_evidencia_a_confirmacion_ms": 7803.3,
+      "accion": "sacar_chaleco",
+      "accion_a_confirmacion_ms": 25130.9,
+      "accion_a_primera_evidencia_ms": 17327.6,
+      "accion_a_broker_ms": 25144.5,
+      "resuelta": true,
+      "accion_fin_a_resolucion_ms": 6346.1
+    }
+  ],
+  "por_condicion": {
+    "CR-01": {
+      "esperado": "sin_alerta",
+      "alertas": 0,
+      "ok": true
+    },
+    "CR-02": {
+      "esperado": "alerta",
+      "alertas": 1,
+      "ok": true
+    }
+  },
+  "como_se_esperaba": true,
+  "alertas_antes_de_la_accion": 0,
+  "bus_dropped_events": 0,
+  "resultado_listo_s": 9.2,
+  "latencia": {
+    "unidades": 190,
+    "descartadas": 0,
+    "fps_efectivos": 2.85,
+    "inferencia_p50_ms": 146.84,
+    "inferencia_p95_ms": 195.06,
+    "g2a": {
+      "n": 190,
+      "p50": 146.733,
+      "p95": 195.644,
+      "max": 301.284
+    },
+    "captura_a_host": {
+      "n": 190,
+      "p50": 66.1,
+      "p95": 87.88,
+      "max": 102.91
+    },
+    "vidrio_a_resultado": {
+      "n": 190,
+      "p50": 214.218,
+      "p95": 266.595,
+      "max": 387.434
+    },
+    "hueco_max_ms": 236.762939453125,
+    "hueco_mediana_ms": 197.2119140625,
+    "contaminada": false,
+    "reloj_pared_menos_monotonico_ms": 1794048576814.8022
+  },
+  "modo": "campeon",
+  "motor": "mp-gdino-tiny-560",
+  "modelo": null,
+  "ventana_vest": {
+    "desde": "sacar_chaleco",
+    "margen_s": 5,
+    "hasta": "poner_chaleco",
+    "vest": "ausente",
+    "desde_ms": 1794066038145.26,
+    "hasta_ms": 1794066055152.26
+  },
+  "vest": {
+    "cuadros_con_persona": 85,
+    "cuadros_con_vest": 76,
+    "fraccion_con_vest": 0.894,
+    "racha_max_con_vest_s": 7.4,
+    "racha_max_sin_vest_s": 0.19,
+    "confianza_vest_p50": 0.368
+  }
+}

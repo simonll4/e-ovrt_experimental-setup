@@ -1,0 +1,101 @@
+{
+  "escena": "P9b",
+  "session_id": "demo_20261107T172154Z_P9b",
+  "experiment_id": "exp_20261107T172154Z_demo_defensa",
+  "ids": {
+    "control_run_id": "control_demo_defensa_20261107T172154Z_7bbe11",
+    "media_run_id": "run_20261107_172154_dbe_grounding_dino_15e624",
+    "distribution_run_id": "dist_20261107T172154Z_484208"
+  },
+  "marcas": true,
+  "remera": "blanca lisa",
+  "calibracion": {
+    "session_id": "demo_20261107T151131Z_CAL",
+    "ok": true,
+    "aceptada": false,
+    "fecha": "2026-11-07T15:27:59+00:00",
+    "altura_m": 2.1
+  },
+  "encuadre": "ok",
+  "alertas": [
+    {
+      "condicion": "CR-01",
+      "alert_id": "42e326fb-abb2-580b-a1ea-4b26106491bb",
+      "subject_key": "CR-01:169.254.31.137",
+      "captura_primera_evidencia_ms": 1794072147872.0137,
+      "captura_confirmacion_ms": 1794072151875.4268,
+      "confirmada_ms": 1794072152026.0647,
+      "broker_ms": 1794072152040.125,
+      "confirmacion_a_broker_ms": 14.1,
+      "primera_evidencia_a_confirmacion_ms": 4154.1,
+      "accion": "entrar_casco_en_mano",
+      "accion_a_confirmacion_ms": 6515.3,
+      "accion_a_primera_evidencia_ms": 2361.2,
+      "accion_a_broker_ms": 6529.3,
+      "resuelta": false
+    }
+  ],
+  "por_condicion": {
+    "CR-01": {
+      "esperado": "alerta",
+      "alertas": 1,
+      "ok": true
+    },
+    "CR-02": {
+      "esperado": "sin_alerta",
+      "alertas": 0,
+      "ok": true
+    }
+  },
+  "como_se_esperaba": true,
+  "alertas_antes_de_la_accion": 0,
+  "bus_dropped_events": 0,
+  "resultado_listo_s": 7.7,
+  "latencia": {
+    "unidades": 107,
+    "descartadas": 0,
+    "fps_efectivos": 2.05,
+    "inferencia_p50_ms": 151.03,
+    "inferencia_p95_ms": 209.66,
+    "g2a": {
+      "n": 107,
+      "p50": 150.918,
+      "p95": 217.882,
+      "max": 384.377
+    },
+    "captura_a_host": {
+      "n": 107,
+      "p50": 63.75,
+      "p95": 84.24,
+      "max": 93.81
+    },
+    "vidrio_a_resultado": {
+      "n": 107,
+      "p50": 217.198,
+      "p95": 285.04,
+      "max": 435.797
+    },
+    "hueco_max_ms": 235.6923828125,
+    "hueco_mediana_ms": 195.8819580078125,
+    "contaminada": false,
+    "reloj_pared_menos_monotonico_ms": 1794048576541.742
+  },
+  "sujeto": {
+    "por_condicion": {
+      "CR-01": {
+        "esperado": "alerta",
+        "alertas": 1,
+        "sujetos": 1,
+        "ok": true
+      },
+      "CR-02": {
+        "esperado": "sin_alerta",
+        "alertas": 0,
+        "sujetos": 0,
+        "ok": true
+      }
+    },
+    "como_se_esperaba": true,
+    "sujetos_con_alerta": 1
+  }
+}

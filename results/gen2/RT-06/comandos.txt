@@ -1,0 +1,14 @@
+[2026-11-07T20:05:42+00:00] python -m tools.evidencia correr RT-06
+[2026-11-07T20:05:42+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/RT-06/gen2_rt04_sujeto_demo_20261107T200449Z_P1/manifest.yaml
+[2026-11-07T20:16:08+00:00] python -m tools.evidencia correr RT-06
+[2026-11-07T20:16:08+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/RT-06/gen2_rt04_sujeto_demo_20261107T200627Z_P1/manifest.yaml
+[2026-11-07T20:16:12+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/RT-06/gen2_rt04_sujeto_demo_20261107T200801Z_P5/manifest.yaml
+[2026-11-07T20:16:15+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/RT-06/gen2_rt04_sujeto_demo_20261107T201014Z_P5/manifest.yaml
+[2026-11-07T20:16:18+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/RT-06/gen2_rt04_sujeto_demo_20261107T201125Z_P2/manifest.yaml
+[2026-11-07T20:16:21+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/RT-06/gen2_rt04_sujeto_demo_20261107T201249Z_P2/manifest.yaml
+[2026-11-07T20:16:24+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/RT-06/gen2_rt04_sujeto_demo_20261107T201405Z_P1/manifest.yaml
+[2026-11-07T20:16:27+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/RT-06/gen2_rt04_sujeto_demo_20261107T201512Z_P2/manifest.yaml
+[2026-11-07T20:16:40+00:00] descartar demo_20261107T201512Z_P2 (equipo E-OVRT-VDP): Causa fisica: el equipo indico que la toma salio mal (el actor no hizo la escena como el guion); se repite.
+[2026-11-07T20:17:50+00:00] python -m tools.evidencia correr RT-06
+[2026-11-07T20:17:52+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/RT-06/gen2_rt04_sujeto_demo_20261107T201649Z_P2/manifest.yaml
+[2026-11-07T21:20:06+00:00] veredicto confirmado: otra_combinacion (equipo E-OVRT-VDP): En julio la cámara IP solo grabó; ahora corrió en vivo por la plataforma. Fueron 8 tomas (stream secundario 6, principal 2), 7 como el guion, lo mismo por sujeto. La que no siguió el guion es P5 con las dos personas muy juntas: la caja de una se agranda y su casco cae fuera de la región de la cabeza, una falla del sistema documentada. Una toma descartada por causa física.

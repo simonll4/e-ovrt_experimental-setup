@@ -1,0 +1,215 @@
+{
+  "schema": "calibracion.gen2.v1",
+  "session_id": "demo_20261107T125606Z_CAL",
+  "fecha": "2026-11-07T12:57:22+00:00",
+  "terminada_en": "2026-11-07T12:57:15.541538+00:00",
+  "fase": "done",
+  "escena": "CAL",
+  "camara": {
+    "plugin": "oak_d",
+    "id": null,
+    "nombre": null,
+    "resolucion": [
+      960,
+      540
+    ]
+  },
+  "fisica": {
+    "altura_m": 1.8,
+    "distancia_cerca_m": null,
+    "distancia_lejos_m": null
+  },
+  "spec": {
+    "version": "2026-11-05",
+    "sha256": "92d7a7c49e654b18f7b11bdd847fc170ae99572102728f9f82ab8a51e5378715"
+  },
+  "ids": {
+    "control_run_id": "control_demo_defensa_20261107T125606Z_3219ca",
+    "media_run_id": "run_20261107_125606_dbe_grounding_dino_10758d",
+    "distribution_run_id": "dist_20261107T125606Z_b22855"
+  },
+  "cuadros": 167,
+  "segmentos": {
+    "cerca": {
+      "desde_ms": 1794056199870.905,
+      "hasta_ms": 1794056206851.905,
+      "cuadros": 35,
+      "con_persona": 35,
+      "persona_detectada": 1.0,
+      "dos_personas": 0.0,
+      "alto_p50": 0.865,
+      "ancho_alto_p50": 0.494,
+      "cabeza_top_p50": 0.139,
+      "pies_bot_p50": 1.003,
+      "cabeza_visible": 1.0,
+      "pies_visibles": 0.0,
+      "chaleco_puesto_visto": 1.0
+    },
+    "lejos": {
+      "desde_ms": 1794056210851.905,
+      "hasta_ms": 1794056216849.905,
+      "cuadros": 30,
+      "con_persona": 30,
+      "persona_detectada": 1.0,
+      "dos_personas": 0.0,
+      "alto_p50": 0.674,
+      "ancho_alto_p50": 0.373,
+      "cabeza_top_p50": 0.058,
+      "pies_bot_p50": 0.732,
+      "cabeza_visible": 1.0,
+      "pies_visibles": 1.0,
+      "chaleco_puesto_visto": 1.0
+    },
+    "cerca_2": {
+      "desde_ms": 1794056220849.905,
+      "hasta_ms": null,
+      "cuadros": 31,
+      "con_persona": 31,
+      "persona_detectada": 1.0,
+      "dos_personas": 0.0,
+      "alto_p50": 0.88,
+      "ancho_alto_p50": 0.421,
+      "cabeza_top_p50": 0.125,
+      "pies_bot_p50": 1.005,
+      "cabeza_visible": 1.0,
+      "pies_visibles": 0.0,
+      "chaleco_puesto_visto": 1.0
+    }
+  },
+  "criterios": [
+    {
+      "id": "una_persona",
+      "tipo": "bloqueante",
+      "ok": true,
+      "valor": {
+        "cerca": {
+          "persona_detectada": 1.0,
+          "dos_personas": 0.0
+        },
+        "lejos": {
+          "persona_detectada": 1.0,
+          "dos_personas": 0.0
+        }
+      },
+      "que": "en «cerca» y «lejos», hay una persona en ≥ persona_detectada_min de los cuadros (lejos: ≥ lejos_persona_detectada_min) y dos o más en ≤ dos_personas_max",
+      "sugerencia": null
+    },
+    {
+      "id": "altura_declarada",
+      "tipo": "bloqueante",
+      "ok": true,
+      "valor": {
+        "altura_m": 1.8
+      },
+      "que": "la altura de la lente declarada (-Altura) es ≥ altura_camara_min_m",
+      "sugerencia": null
+    },
+    {
+      "id": "cabeza_visible",
+      "tipo": "bloqueante",
+      "ok": true,
+      "valor": {
+        "cerca": 1.0,
+        "lejos": 1.0
+      },
+      "que": "en «cerca» y «lejos», el borde superior de la caja está por debajo del borde del cuadro (> borde) en ≥ cabeza_visible_min de los cuadros",
+      "sugerencia": null
+    },
+    {
+      "id": "cerca_no_cortada",
+      "tipo": "bloqueante",
+      "ok": true,
+      "valor": {
+        "ancho_alto_p50": 0.494
+      },
+      "que": "en «cerca», ancho/alto de la caja (mediana) ≤ cerca_ancho_alto_max: la persona no está cortada en la cadera (el 11-01 dio 0,52–0,86; el rodaje, 0,35–0,46)",
+      "sugerencia": null
+    },
+    {
+      "id": "cerca_tamano",
+      "tipo": "bloqueante",
+      "ok": true,
+      "valor": {
+        "alto_p50": 0.865
+      },
+      "que": "en «cerca», alto de la caja / alto del cuadro (mediana) entre cerca_alto_min y cerca_alto_max",
+      "sugerencia": null
+    },
+    {
+      "id": "camara_alta",
+      "tipo": "bloqueante",
+      "ok": true,
+      "valor": {
+        "cabeza_top_p50_cerca": 0.139,
+        "cabeza_top_p50_lejos": 0.058,
+        "desnivel": -0.081
+      },
+      "que": "la cámara está por encima de la cabeza y mira hacia abajo: en «cerca» el borde superior de la caja (mediana) está en el quinto superior del cuadro (≤ cerca_cabeza_top_max; el 11-01 dio 0,29–0,31, el rodaje 0,01–0,15) y en «lejos» la cabeza no baja respecto de «cerca» (top_lejos − top_cerca ≤ desnivel_cabeza_max; con la cámara a la altura del pecho la cabeza lejana baja hacia el centro)",
+      "sugerencia": null
+    },
+    {
+      "id": "lejos_tamano",
+      "tipo": "bloqueante",
+      "ok": true,
+      "valor": {
+        "alto_p50": 0.674
+      },
+      "que": "en «lejos», alto de la caja / alto del cuadro (mediana) ≥ lejos_alto_min (una persona más chica no se detecta de forma estable: ERR-01)",
+      "sugerencia": null
+    },
+    {
+      "id": "pies_visibles",
+      "tipo": "recomendado",
+      "ok": false,
+      "valor": {
+        "cerca": 0.0,
+        "lejos": 1.0
+      },
+      "que": "en «cerca» y «lejos», el borde inferior de la caja está por encima del borde del cuadro en ≥ pies_visibles_min de los cuadros (cuerpo entero; el rodaje lo cumplía solo en parte y la cámara IP del 11-01 no: no bloquea)",
+      "sugerencia": "para el cuerpo entero: alejar la marca o inclinar un poco más la cámara (no bloquea)"
+    },
+    {
+      "id": "altura_recomendada",
+      "tipo": "recomendado",
+      "ok": true,
+      "valor": {
+        "altura_m": 1.8
+      },
+      "que": "altura de la lente ≥ altura_camara_recomendada_m",
+      "sugerencia": null
+    },
+    {
+      "id": "chaleco_puesto_visto",
+      "tipo": "recomendado",
+      "ok": true,
+      "valor": {
+        "cerca": 1.0,
+        "lejos": 1.0
+      },
+      "que": "en «cerca» y «lejos», con el chaleco puesto el detector lo ve en el torso en ≥ chaleco_puesto_visto_min de los cuadros (informativo: si no lo ve lejos, P1b y la demo lo van a sufrir)",
+      "sugerencia": null
+    },
+    {
+      "id": "repetible",
+      "tipo": "recomendado",
+      "ok": true,
+      "valor": {
+        "cerca_2": {
+          "ancho_alto_p50": 0.421,
+          "cabeza_top_p50": 0.125
+        }
+      },
+      "que": "«cerca_2» da el mismo veredicto geométrico que «cerca» (ancho/alto y cabeza)",
+      "sugerencia": null
+    }
+  ],
+  "ok": true,
+  "fallan": [],
+  "observaciones": [
+    "pies_visibles"
+  ],
+  "sugerencias": [
+    "para el cuerpo entero: alejar la marca o inclinar un poco más la cámara (no bloquea)"
+  ],
+  "aceptada": null
+}

@@ -1,0 +1,79 @@
+{
+  "escena": "P5",
+  "session_id": "demo_20261107T201014Z_P5",
+  "experiment_id": "exp_20261107T201014Z_demo_defensa",
+  "ids": {
+    "control_run_id": "control_demo_defensa_20261107T201014Z_464885",
+    "media_run_id": "run_20261107_201014_dbe_grounding_dino_66f29d",
+    "distribution_run_id": "dist_20261107T201014Z_f4f79d"
+  },
+  "marcas": true,
+  "remera": "A blanca lisa / B blanca lisa",
+  "calibracion": {
+    "session_id": "demo_20261107T200312Z_CAL",
+    "ok": true,
+    "aceptada": false,
+    "fecha": "2026-11-07T20:04:00+00:00",
+    "altura_m": 1.9
+  },
+  "encuadre": "ok",
+  "alertas": [],
+  "por_condicion": {
+    "CR-01": {
+      "esperado": "sin_alerta",
+      "alertas": 0,
+      "ok": true
+    },
+    "CR-02": {
+      "esperado": "sin_alerta",
+      "alertas": 0,
+      "ok": true
+    }
+  },
+  "como_se_esperaba": true,
+  "alertas_antes_de_la_accion": 0,
+  "bus_dropped_events": 0,
+  "resultado_listo_s": 6.6,
+  "latencia": {
+    "unidades": 199,
+    "descartadas": 91,
+    "fps_efectivos": 6.4,
+    "inferencia_p50_ms": 130.44,
+    "inferencia_p95_ms": 180.92,
+    "g2a": {
+      "n": 199,
+      "p50": 275.183,
+      "p95": 352.974,
+      "max": 416.749
+    },
+    "captura_a_host": {
+      "n": 0
+    },
+    "vidrio_a_resultado": {
+      "n": 0
+    },
+    "hueco_max_ms": 249.634033203125,
+    "hueco_mediana_ms": 150.0413818359375,
+    "contaminada": false,
+    "reloj_pared_menos_monotonico_ms": 1794048576128.5344
+  },
+  "sujeto": {
+    "por_condicion": {
+      "CR-01": {
+        "esperado": "sin_alerta",
+        "alertas": 0,
+        "sujetos": 0,
+        "ok": true
+      },
+      "CR-02": {
+        "esperado": "sin_alerta",
+        "alertas": 0,
+        "sujetos": 0,
+        "ok": true
+      }
+    },
+    "como_se_esperaba": true,
+    "sujetos_con_alerta": 0
+  },
+  "stream": "secundario"
+}

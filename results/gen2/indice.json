@@ -1,6 +1,6 @@
 {
   "schema": "indice.gen2.v1",
-  "generado": "2026-11-07T05:10:40+00:00",
+  "generado": "2026-11-07T21:20:09+00:00",
   "pruebas": [
     {
       "id": "GT-01",
@@ -296,7 +296,7 @@
           "gen1": null
         }
       ],
-      "generado": "2026-11-01T19:13:35+00:00"
+      "generado": "2026-11-07T14:59:32+00:00"
     },
     {
       "id": "ALR-01",
@@ -3404,11 +3404,11 @@
       "fase": "F7",
       "familia": "rodaje",
       "registro": "activa",
-      "estado": "sin_correr",
-      "corridas_ok": 0,
-      "corridas": 0,
-      "veredicto": null,
-      "confirmado": false,
+      "estado": "completo",
+      "corridas_ok": 23,
+      "corridas": 23,
+      "veredicto": "otra_combinacion",
+      "confirmado": true,
       "titulo": "Obra simulada en vivo: el rodaje repetido en la plataforma en contenedores",
       "informe": [
         "Tabla 54",
@@ -3420,19 +3420,90 @@
         "doc": "operacion/71",
         "relacion": "otra_combinacion"
       },
-      "resumen": [],
-      "generado": null
+      "resumen": [
+        {
+          "clave": "tomas_como_se_esperaba",
+          "nombre": "Tomas que se comportaron como su guion (escena)",
+          "valor": "16/23",
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "tomas_encuadre",
+          "nombre": "Tomas por encuadre (calibrado / aceptado sin pasar / sin calibrar)",
+          "valor": "23 / 0 / 0",
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "tomas_sujeto_como_se_esperaba",
+          "nombre": "Las mismas tomas releídas por sujeto",
+          "valor": "16/23",
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "alertas_antes_de_la_accion",
+          "nombre": "Alertas antes de la acción (el guion no había abierto la infracción)",
+          "valor": 0,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "cr01_accion_a_alerta_s",
+          "nombre": "CR-01: de la acción a la alerta confirmada (mediana)",
+          "valor": 6.2,
+          "unidad": "s",
+          "gen1": null
+        },
+        {
+          "clave": "cr02_accion_a_alerta_s",
+          "nombre": "CR-02: de la acción a la alerta confirmada (mediana)",
+          "valor": 13.16,
+          "unidad": "s",
+          "gen1": null
+        },
+        {
+          "clave": "confirmacion_a_broker_p95_ms",
+          "nombre": "De la confirmación al broker MQTT, p95",
+          "valor": 15.9,
+          "unidad": "ms",
+          "gen1": null
+        },
+        {
+          "clave": "vidrio_a_resultado_p95_ms",
+          "nombre": "Vidrio → resultado por cuadro, p95 (960×540 a 5 fps)",
+          "valor": 288.266,
+          "unidad": "ms",
+          "gen1": null
+        },
+        {
+          "clave": "fps_efectivos",
+          "nombre": "Cuadros por segundo procesados",
+          "valor": 2.59,
+          "unidad": "fps",
+          "gen1": null
+        },
+        {
+          "clave": "ensayos_demo_aprobados",
+          "nombre": "Ensayos de la demo aprobados (mejor racha)",
+          "valor": "1/2 (1)",
+          "unidad": null,
+          "gen1": null
+        }
+      ],
+      "generado": "2026-11-07T19:42:15+00:00"
     },
     {
       "id": "RT-05",
       "fase": "F7",
       "familia": "rodaje",
       "registro": "activa",
-      "estado": "sin_correr",
-      "corridas_ok": 0,
-      "corridas": 0,
-      "veredicto": null,
-      "confirmado": false,
+      "estado": "parcial",
+      "corridas_ok": 19,
+      "corridas": 19,
+      "veredicto": "otra_combinacion",
+      "confirmado": true,
       "titulo": "Compromiso en vivo entre familias de modelo y cadencias de cámara",
       "informe": [
         "Tabla 54",
@@ -3444,19 +3515,76 @@
         "doc": "operacion/71",
         "relacion": "otra_combinacion"
       },
-      "resumen": [],
-      "generado": null
+      "resumen": [
+        {
+          "clave": "mp-gdino-tiny-560 @ 960x540@5",
+          "nombre": "mp-gdino-tiny-560 @ 960x540@5",
+          "valor": "CR-01 3/3 (6.2 s) · CR-02 1/3 (19.8 s) · 3.54 fps · vidrio → resultado p95 273.575 ms",
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "mp-gdino-tiny-560 @ 960x540@15",
+          "nombre": "mp-gdino-tiny-560 @ 960x540@15",
+          "valor": "CR-01 3/3 (6.0 s) · CR-02 1/3 (10.0 s) · 3.81 fps · vidrio → resultado p95 415.505 ms",
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "mp-gdino-base-560 @ 960x540@5",
+          "nombre": "mp-gdino-base-560 @ 960x540@5",
+          "valor": "CR-01 3/3 (5.9 s) · CR-02 3/3 (9.0 s) · 3.33 fps · vidrio → resultado p95 321.5 ms",
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "mp-gdino-base-560 @ 960x540@15",
+          "nombre": "mp-gdino-base-560 @ 960x540@15",
+          "valor": "CR-01 1/1 (6.2 s) · CR-02 1/1 (9.6 s) · 3.3 fps · vidrio → resultado p95 448.021 ms",
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "mp-yoloe-26s @ 960x540@5",
+          "nombre": "mp-yoloe-26s @ 960x540@5",
+          "valor": "CR-01 3/3 (5.6 s) · CR-02 3/3 (8.6 s) · 3.16 fps · vidrio → resultado p95 147.968 ms",
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "mp-yoloe-26s @ 960x540@15",
+          "nombre": "mp-yoloe-26s @ 960x540@15",
+          "valor": "CR-01 3/3 (5.7 s) · CR-02 3/3 (8.5 s) · 9.46 fps · vidrio → resultado p95 124.002 ms",
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "mp-yoloe-26x @ 960x540@5",
+          "nombre": "mp-yoloe-26x @ 960x540@5",
+          "valor": "CR-01 1/1 (5.9 s) · CR-02 1/1 (8.8 s) · 3.16 fps · vidrio → resultado p95 166.497 ms",
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "mp-yoloe-26x @ 960x540@15",
+          "nombre": "mp-yoloe-26x @ 960x540@15",
+          "valor": "CR-01 2/2 (5.8 s) · CR-02 2/2 (8.6 s) · 9.48 fps · vidrio → resultado p95 140.607 ms",
+          "unidad": null,
+          "gen1": null
+        }
+      ],
+      "generado": "2026-11-07T19:42:20+00:00"
     },
     {
       "id": "RT-06",
       "fase": "F7",
       "familia": "rodaje",
       "registro": "activa",
-      "estado": "sin_correr",
-      "corridas_ok": 0,
-      "corridas": 0,
-      "veredicto": null,
-      "confirmado": false,
+      "estado": "completo",
+      "corridas_ok": 9,
+      "corridas": 9,
+      "veredicto": "otra_combinacion",
+      "confirmado": true,
       "titulo": "Obra simulada en vivo con la cámara IP (RTSP): el subset de comparación del guion",
       "informe": [
         "Tabla 54",
@@ -3469,8 +3597,135 @@
         "doc": "operacion/71",
         "relacion": "otra_combinacion"
       },
-      "resumen": [],
-      "generado": null
+      "resumen": [
+        {
+          "clave": "tomas_como_se_esperaba_secundario",
+          "nombre": "Tomas que se comportaron como su guion (escena) — stream secundario",
+          "valor": "5/6",
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "tomas_encuadre_secundario",
+          "nombre": "Tomas por encuadre (calibrado / aceptado sin pasar / sin calibrar) — stream secundario",
+          "valor": "6 / 0 / 0",
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "tomas_sujeto_como_se_esperaba_secundario",
+          "nombre": "Las mismas tomas releídas por sujeto — stream secundario",
+          "valor": "5/6",
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "alertas_antes_de_la_accion_secundario",
+          "nombre": "Alertas antes de la acción (el guion no había abierto la infracción) — stream secundario",
+          "valor": 2,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "cr01_accion_a_alerta_s_secundario",
+          "nombre": "CR-01: de la acción a la alerta confirmada (mediana) — stream secundario",
+          "valor": 7.57,
+          "unidad": "s",
+          "gen1": null
+        },
+        {
+          "clave": "cr02_accion_a_alerta_s_secundario",
+          "nombre": "CR-02: de la acción a la alerta confirmada (mediana) — stream secundario",
+          "valor": 10.76,
+          "unidad": "s",
+          "gen1": null
+        },
+        {
+          "clave": "confirmacion_a_broker_p95_ms_secundario",
+          "nombre": "De la confirmación al broker MQTT, p95 — stream secundario",
+          "valor": 15.5,
+          "unidad": "ms",
+          "gen1": null
+        },
+        {
+          "clave": "fps_efectivos_secundario",
+          "nombre": "Cuadros por segundo procesados — stream secundario",
+          "valor": 6.19,
+          "unidad": "fps",
+          "gen1": null
+        },
+        {
+          "clave": "g2a_p95_ms_secundario",
+          "nombre": "G2A por cuadro, p95 (cámara IP, 768×432 a 10 fps) — stream secundario",
+          "valor": 361.098,
+          "unidad": "ms",
+          "gen1": null
+        },
+        {
+          "clave": "tomas_como_se_esperaba_principal",
+          "nombre": "Tomas que se comportaron como su guion (escena) — stream principal",
+          "valor": "2/2",
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "tomas_encuadre_principal",
+          "nombre": "Tomas por encuadre (calibrado / aceptado sin pasar / sin calibrar) — stream principal",
+          "valor": "2 / 0 / 0",
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "tomas_sujeto_como_se_esperaba_principal",
+          "nombre": "Las mismas tomas releídas por sujeto — stream principal",
+          "valor": "2/2",
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "alertas_antes_de_la_accion_principal",
+          "nombre": "Alertas antes de la acción (el guion no había abierto la infracción) — stream principal",
+          "valor": 0,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "cr01_accion_a_alerta_s_principal",
+          "nombre": "CR-01: de la acción a la alerta confirmada (mediana) — stream principal",
+          "valor": 6.87,
+          "unidad": "s",
+          "gen1": null
+        },
+        {
+          "clave": "cr02_accion_a_alerta_s_principal",
+          "nombre": "CR-02: de la acción a la alerta confirmada (mediana) — stream principal",
+          "valor": 10.44,
+          "unidad": "s",
+          "gen1": null
+        },
+        {
+          "clave": "confirmacion_a_broker_p95_ms_principal",
+          "nombre": "De la confirmación al broker MQTT, p95 — stream principal",
+          "valor": 14.9,
+          "unidad": "ms",
+          "gen1": null
+        },
+        {
+          "clave": "fps_efectivos_principal",
+          "nombre": "Cuadros por segundo procesados — stream principal",
+          "valor": 6.0,
+          "unidad": "fps",
+          "gen1": null
+        },
+        {
+          "clave": "g2a_p95_ms_principal",
+          "nombre": "G2A por cuadro, p95 (cámara IP, 1920×1080 a 15 fps) — stream principal",
+          "valor": 328.544,
+          "unidad": "ms",
+          "gen1": null
+        }
+      ],
+      "generado": "2026-11-07T20:17:55+00:00"
     },
     {
       "id": "RT-07",
@@ -3723,11 +3978,11 @@
       "fase": "F7",
       "familia": "rodaje",
       "registro": "activa",
-      "estado": "sin_correr",
-      "corridas_ok": 0,
-      "corridas": 0,
-      "veredicto": null,
-      "confirmado": false,
+      "estado": "parcial",
+      "corridas_ok": 9,
+      "corridas": 9,
+      "veredicto": "otra_combinacion",
+      "confirmado": true,
       "titulo": "La prenda bajo el chaleco, en vivo (F-RT1): remera, frase y encuadre",
       "informe": [
         "Tabla 54",
@@ -3740,8 +3995,114 @@
         "doc": "operacion/142",
         "relacion": "otra_combinacion"
       },
-      "resumen": [],
-      "generado": null
+      "resumen": [
+        {
+          "clave": "P2/campeon/gdino-base-560/negra lisa/cr02",
+          "nombre": "CR-02 como el guion (alerta) — P2 · campeon · gdino-base-560 · remera «negra lisa»",
+          "valor": "2/2",
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "P2/campeon/gdino-base-560/negra lisa/fraccion_vest",
+          "nombre": "Cuadros con `vest` en el torso (mediana) — P2 · campeon · gdino-base-560 · remera «negra lisa»",
+          "valor": 0.0,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "P2/campeon/gdino-base-560/negra lisa/racha_vest_s",
+          "nombre": "Racha continua más larga con `vest` — P2 · campeon · gdino-base-560 · remera «negra lisa»",
+          "valor": 0.19,
+          "unidad": "s",
+          "gen1": null
+        },
+        {
+          "clave": "P2/campeon/blanca lisa/cr02",
+          "nombre": "CR-02 como el guion (alerta) — P2 · campeon · remera «blanca lisa»",
+          "valor": "2/2",
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "P2/campeon/blanca lisa/fraccion_vest",
+          "nombre": "Cuadros con `vest` en el torso (mediana) — P2 · campeon · remera «blanca lisa»",
+          "valor": 0.5,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "P2/campeon/blanca lisa/racha_vest_s",
+          "nombre": "Racha continua más larga con `vest` — P2 · campeon · remera «blanca lisa»",
+          "valor": 7.4,
+          "unidad": "s",
+          "gen1": null
+        },
+        {
+          "clave": "P2/campeon/negra lisa/cr02",
+          "nombre": "CR-02 como el guion (alerta) — P2 · campeon · remera «negra lisa»",
+          "valor": "0/2",
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "P2/campeon/negra lisa/fraccion_vest",
+          "nombre": "Cuadros con `vest` en el torso (mediana) — P2 · campeon · remera «negra lisa»",
+          "valor": 1.0,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "P2/campeon/negra lisa/racha_vest_s",
+          "nombre": "Racha continua más larga con `vest` — P2 · campeon · remera «negra lisa»",
+          "valor": 15.62,
+          "unidad": "s",
+          "gen1": null
+        },
+        {
+          "clave": "P1/reflective/blanca lisa/cr02",
+          "nombre": "CR-02 como el guion (sin_alerta) — P1 · reflective · remera «blanca lisa»",
+          "valor": "1/1",
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "P1/reflective/blanca lisa/fraccion_vest",
+          "nombre": "Cuadros con `vest` en el torso (mediana) — P1 · reflective · remera «blanca lisa»",
+          "valor": 1.0,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "P1/reflective/blanca lisa/racha_vest_s",
+          "nombre": "Racha continua más larga con `vest` — P1 · reflective · remera «blanca lisa»",
+          "valor": 23.99,
+          "unidad": "s",
+          "gen1": null
+        },
+        {
+          "clave": "P2/reflective/blanca lisa/cr02",
+          "nombre": "CR-02 como el guion (alerta) — P2 · reflective · remera «blanca lisa»",
+          "valor": "0/2",
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "P2/reflective/blanca lisa/fraccion_vest",
+          "nombre": "Cuadros con `vest` en el torso (mediana) — P2 · reflective · remera «blanca lisa»",
+          "valor": 1.0,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "P2/reflective/blanca lisa/racha_vest_s",
+          "nombre": "Racha continua más larga con `vest` — P2 · reflective · remera «blanca lisa»",
+          "valor": 16.79,
+          "unidad": "s",
+          "gen1": null
+        }
+      ],
+      "generado": "2026-11-07T19:42:24+00:00"
     }
   ]
 }

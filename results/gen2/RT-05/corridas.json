@@ -1,0 +1,215 @@
+{
+  "schema": "corridas.gen2.v1",
+  "prueba": "RT-05",
+  "corridas": {
+    "demo_20261107T180157Z_DEMO_exp": {
+      "estado": "ok",
+      "escena": "DEMO",
+      "motor": "mp-gdino-tiny-560",
+      "camara": "960x540@5",
+      "experiment_id": "exp_20261107T180157Z_demo_defensa",
+      "control_run_id": "control_demo_defensa_20261107T180157Z_c5e909",
+      "media_run_id": "run_20261107_180157_dbe_grounding_dino_3a6a08",
+      "distribution_run_id": "dist_20261107T180157Z_f26bbc",
+      "importada": "2026-11-07T19:42:18+00:00"
+    },
+    "demo_20261107T180355Z_DEMO_exp": {
+      "estado": "ok",
+      "escena": "DEMO",
+      "motor": "mp-gdino-tiny-560",
+      "camara": "960x540@5",
+      "experiment_id": "exp_20261107T180355Z_demo_defensa",
+      "control_run_id": "control_demo_defensa_20261107T180355Z_e8f18b",
+      "media_run_id": "run_20261107_180355_dbe_grounding_dino_d22fa9",
+      "distribution_run_id": "dist_20261107T180355Z_4ade68",
+      "importada": "2026-11-07T19:42:18+00:00"
+    },
+    "demo_20261107T180608Z_DEMO_exp": {
+      "estado": "ok",
+      "escena": "DEMO",
+      "motor": "mp-gdino-tiny-560",
+      "camara": "960x540@5",
+      "experiment_id": "exp_20261107T180608Z_demo_defensa",
+      "control_run_id": "control_demo_defensa_20261107T180608Z_9282c1",
+      "media_run_id": "run_20261107_180608_dbe_grounding_dino_9363e6",
+      "distribution_run_id": "dist_20261107T180608Z_7e81f4",
+      "importada": "2026-11-07T19:42:18+00:00"
+    },
+    "demo_20261107T180809Z_DEMO_exp": {
+      "estado": "ok",
+      "escena": "DEMO",
+      "motor": "mp-gdino-tiny-560",
+      "camara": "960x540@15",
+      "experiment_id": "exp_20261107T180809Z_demo_defensa",
+      "control_run_id": "control_demo_defensa_20261107T180809Z_1dfd2c",
+      "media_run_id": "run_20261107_180809_dbe_grounding_dino_2b52b2",
+      "distribution_run_id": "dist_20261107T180809Z_786906",
+      "importada": "2026-11-07T19:42:19+00:00"
+    },
+    "demo_20261107T181047Z_DEMO_exp": {
+      "estado": "ok",
+      "escena": "DEMO",
+      "motor": "mp-gdino-tiny-560",
+      "camara": "960x540@15",
+      "experiment_id": "exp_20261107T181047Z_demo_defensa",
+      "control_run_id": "control_demo_defensa_20261107T181047Z_b37803",
+      "media_run_id": "run_20261107_181047_dbe_grounding_dino_1fd6d2",
+      "distribution_run_id": "dist_20261107T181047Z_5d6e0b",
+      "importada": "2026-11-07T19:42:19+00:00"
+    },
+    "demo_20261107T181250Z_DEMO_exp": {
+      "estado": "ok",
+      "escena": "DEMO",
+      "motor": "mp-gdino-tiny-560",
+      "camara": "960x540@15",
+      "experiment_id": "exp_20261107T181250Z_demo_defensa",
+      "control_run_id": "control_demo_defensa_20261107T181250Z_673ce0",
+      "media_run_id": "run_20261107_181250_dbe_grounding_dino_c41828",
+      "distribution_run_id": "dist_20261107T181250Z_f6727f",
+      "importada": "2026-11-07T19:42:19+00:00"
+    },
+    "demo_20261107T181526Z_DEMO_exp": {
+      "estado": "ok",
+      "escena": "DEMO",
+      "motor": "mp-gdino-base-560",
+      "camara": "960x540@5",
+      "experiment_id": "exp_20261107T181526Z_demo_defensa",
+      "control_run_id": "control_demo_defensa_20261107T181527Z_c178e5",
+      "media_run_id": "run_20261107_181527_dbe_grounding_dino_33152b",
+      "distribution_run_id": "dist_20261107T181527Z_c4b2c4",
+      "importada": "2026-11-07T19:42:19+00:00"
+    },
+    "demo_20261107T181732Z_DEMO_exp": {
+      "estado": "ok",
+      "escena": "DEMO",
+      "motor": "mp-gdino-base-560",
+      "camara": "960x540@5",
+      "experiment_id": "exp_20261107T181732Z_demo_defensa",
+      "control_run_id": "control_demo_defensa_20261107T181732Z_d727f9",
+      "media_run_id": "run_20261107_181732_dbe_grounding_dino_0c1672",
+      "distribution_run_id": "dist_20261107T181732Z_2d5eeb",
+      "importada": "2026-11-07T19:42:19+00:00"
+    },
+    "demo_20261107T182446Z_DEMO_exp": {
+      "estado": "ok",
+      "escena": "DEMO",
+      "motor": "mp-gdino-base-560",
+      "camara": "960x540@5",
+      "experiment_id": "exp_20261107T182446Z_demo_defensa",
+      "control_run_id": "control_demo_defensa_20261107T182446Z_e5047a",
+      "media_run_id": "run_20261107_182446_dbe_grounding_dino_ef96fe",
+      "distribution_run_id": "dist_20261107T182446Z_82994a",
+      "importada": "2026-11-07T19:42:19+00:00"
+    },
+    "demo_20261107T182644Z_DEMO_exp": {
+      "estado": "ok",
+      "escena": "DEMO",
+      "motor": "mp-gdino-base-560",
+      "camara": "960x540@15",
+      "experiment_id": "exp_20261107T182644Z_demo_defensa",
+      "control_run_id": "control_demo_defensa_20261107T182644Z_9bb8c5",
+      "media_run_id": "run_20261107_182644_dbe_grounding_dino_047d68",
+      "distribution_run_id": "dist_20261107T182644Z_271d07",
+      "importada": "2026-11-07T19:42:19+00:00"
+    },
+    "demo_20261107T183422Z_DEMO_exp": {
+      "estado": "ok",
+      "escena": "DEMO",
+      "motor": "mp-yoloe-26s",
+      "camara": "960x540@5",
+      "experiment_id": "exp_20261107T183422Z_demo_defensa",
+      "control_run_id": "control_demo_defensa_20261107T183423Z_32ee7e",
+      "media_run_id": "run_20261107_183423_dbe_yoloe_f6adf4",
+      "distribution_run_id": "dist_20261107T183423Z_c30778",
+      "importada": "2026-11-07T19:42:19+00:00"
+    },
+    "demo_20261107T183627Z_DEMO_exp": {
+      "estado": "ok",
+      "escena": "DEMO",
+      "motor": "mp-yoloe-26s",
+      "camara": "960x540@5",
+      "experiment_id": "exp_20261107T183627Z_demo_defensa",
+      "control_run_id": "control_demo_defensa_20261107T183627Z_c455ad",
+      "media_run_id": "run_20261107_183627_dbe_yoloe_99b80c",
+      "distribution_run_id": "dist_20261107T183627Z_9556f6",
+      "importada": "2026-11-07T19:42:19+00:00"
+    },
+    "demo_20261107T183825Z_DEMO_exp": {
+      "estado": "ok",
+      "escena": "DEMO",
+      "motor": "mp-yoloe-26s",
+      "camara": "960x540@5",
+      "experiment_id": "exp_20261107T183825Z_demo_defensa",
+      "control_run_id": "control_demo_defensa_20261107T183826Z_305373",
+      "media_run_id": "run_20261107_183826_dbe_yoloe_1cd7fe",
+      "distribution_run_id": "dist_20261107T183826Z_b18c22",
+      "importada": "2026-11-07T19:42:19+00:00"
+    },
+    "demo_20261107T184026Z_DEMO_exp": {
+      "estado": "ok",
+      "escena": "DEMO",
+      "motor": "mp-yoloe-26s",
+      "camara": "960x540@15",
+      "experiment_id": "exp_20261107T184026Z_demo_defensa",
+      "control_run_id": "control_demo_defensa_20261107T184026Z_e2312d",
+      "media_run_id": "run_20261107_184026_dbe_yoloe_fae395",
+      "distribution_run_id": "dist_20261107T184026Z_c4175a",
+      "importada": "2026-11-07T19:42:19+00:00"
+    },
+    "demo_20261107T184244Z_DEMO_exp": {
+      "estado": "ok",
+      "escena": "DEMO",
+      "motor": "mp-yoloe-26s",
+      "camara": "960x540@15",
+      "experiment_id": "exp_20261107T184244Z_demo_defensa",
+      "control_run_id": "control_demo_defensa_20261107T184244Z_d1b7a6",
+      "media_run_id": "run_20261107_184244_dbe_yoloe_92bc91",
+      "distribution_run_id": "dist_20261107T184244Z_0b243e",
+      "importada": "2026-11-07T19:42:20+00:00"
+    },
+    "demo_20261107T184458Z_DEMO_exp": {
+      "estado": "ok",
+      "escena": "DEMO",
+      "motor": "mp-yoloe-26s",
+      "camara": "960x540@15",
+      "experiment_id": "exp_20261107T184458Z_demo_defensa",
+      "control_run_id": "control_demo_defensa_20261107T184459Z_bb0c11",
+      "media_run_id": "run_20261107_184459_dbe_yoloe_2dcc35",
+      "distribution_run_id": "dist_20261107T184459Z_f738c4",
+      "importada": "2026-11-07T19:42:20+00:00"
+    },
+    "demo_20261107T184958Z_DEMO_exp": {
+      "estado": "ok",
+      "escena": "DEMO",
+      "motor": "mp-yoloe-26x",
+      "camara": "960x540@5",
+      "experiment_id": "exp_20261107T184958Z_demo_defensa",
+      "control_run_id": "control_demo_defensa_20261107T184958Z_fa5fa5",
+      "media_run_id": "run_20261107_184958_dbe_yoloe_12e469",
+      "distribution_run_id": "dist_20261107T184958Z_3037d4",
+      "importada": "2026-11-07T19:42:20+00:00"
+    },
+    "demo_20261107T185235Z_DEMO_exp": {
+      "estado": "ok",
+      "escena": "DEMO",
+      "motor": "mp-yoloe-26x",
+      "camara": "960x540@15",
+      "experiment_id": "exp_20261107T185235Z_demo_defensa",
+      "control_run_id": "control_demo_defensa_20261107T185235Z_8fc7fc",
+      "media_run_id": "run_20261107_185235_dbe_yoloe_b50c94",
+      "distribution_run_id": "dist_20261107T185235Z_d6b16f",
+      "importada": "2026-11-07T19:42:20+00:00"
+    },
+    "demo_20261107T185525Z_DEMO_exp": {
+      "estado": "ok",
+      "escena": "DEMO",
+      "motor": "mp-yoloe-26x",
+      "camara": "960x540@15",
+      "experiment_id": "exp_20261107T185525Z_demo_defensa",
+      "control_run_id": "control_demo_defensa_20261107T185525Z_1eb2b7",
+      "media_run_id": "run_20261107_185525_dbe_yoloe_2b1102",
+      "distribution_run_id": "dist_20261107T185525Z_4b34b6",
+      "importada": "2026-11-07T19:42:20+00:00"
+    }
+  }
+}

@@ -1,0 +1,102 @@
+{
+  "escena": "P7a",
+  "session_id": "demo_20261107T162408Z_P7a",
+  "experiment_id": "exp_20261107T162408Z_demo_defensa",
+  "ids": {
+    "control_run_id": "control_demo_defensa_20261107T162408Z_651c49",
+    "media_run_id": "run_20261107_162408_dbe_grounding_dino_45d061",
+    "distribution_run_id": "dist_20261107T162408Z_caaf12"
+  },
+  "marcas": true,
+  "remera": "A blanca lisa / B blanca lisa",
+  "calibracion": {
+    "session_id": "demo_20261107T151131Z_CAL",
+    "ok": true,
+    "aceptada": false,
+    "fecha": "2026-11-07T15:27:59+00:00",
+    "altura_m": 2.1
+  },
+  "encuadre": "ok",
+  "alertas": [
+    {
+      "condicion": "CR-01",
+      "alert_id": "c10b1186-2eab-5621-a6bf-f590d44ac7c6",
+      "subject_key": "CR-01:169.254.31.137",
+      "captura_primera_evidencia_ms": 1794068686055.6606,
+      "captura_confirmacion_ms": 1794068690246.9495,
+      "confirmada_ms": 1794068690367.125,
+      "broker_ms": 1794068690380.939,
+      "confirmacion_a_broker_ms": 13.8,
+      "primera_evidencia_a_confirmacion_ms": 4311.5,
+      "accion": "sacar_casco",
+      "accion_a_confirmacion_ms": 6845.5,
+      "accion_a_primera_evidencia_ms": 2534.0,
+      "accion_a_broker_ms": 6859.3,
+      "resuelta": true,
+      "accion_fin_a_resolucion_ms": 3507.6
+    }
+  ],
+  "por_condicion": {
+    "CR-01": {
+      "esperado": "alerta",
+      "alertas": 1,
+      "ok": true
+    },
+    "CR-02": {
+      "esperado": "sin_alerta",
+      "alertas": 0,
+      "ok": true
+    }
+  },
+  "como_se_esperaba": true,
+  "alertas_antes_de_la_accion": 0,
+  "bus_dropped_events": 0,
+  "resultado_listo_s": 9.1,
+  "latencia": {
+    "unidades": 149,
+    "descartadas": 0,
+    "fps_efectivos": 2.54,
+    "inferencia_p50_ms": 142.09,
+    "inferencia_p95_ms": 199.64,
+    "g2a": {
+      "n": 149,
+      "p50": 142.458,
+      "p95": 236.605,
+      "max": 472.056
+    },
+    "captura_a_host": {
+      "n": 149,
+      "p50": 67.27,
+      "p95": 88.07,
+      "max": 99.15
+    },
+    "vidrio_a_resultado": {
+      "n": 149,
+      "p50": 213.578,
+      "p95": 322.127,
+      "max": 539.326
+    },
+    "hueco_max_ms": 235.951171875,
+    "hueco_mediana_ms": 204.901611328125,
+    "contaminada": false,
+    "reloj_pared_menos_monotonico_ms": 1794048576688.2666
+  },
+  "sujeto": {
+    "por_condicion": {
+      "CR-01": {
+        "esperado": "alerta",
+        "alertas": 1,
+        "sujetos": 1,
+        "ok": true
+      },
+      "CR-02": {
+        "esperado": "sin_alerta",
+        "alertas": 0,
+        "sujetos": 0,
+        "ok": true
+      }
+    },
+    "como_se_esperaba": true,
+    "sujetos_con_alerta": 1
+  }
+}

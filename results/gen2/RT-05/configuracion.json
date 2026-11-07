@@ -1,0 +1,39 @@
+{
+  "escenas": "524db6125a7fa5ebbec0479d3d70bb6751a783a0d336c4e69d175eb61d9d8d3d",
+  "matriz": {
+    "motores": [
+      "mp-gdino-tiny-560",
+      "mp-gdino-base-560",
+      "mp-yoloe-26s",
+      "mp-yoloe-26x"
+    ],
+    "camaras": [
+      "960x540@5",
+      "960x540@15"
+    ],
+    "tomas_por_celda": 3
+  },
+  "chaleco": "julio",
+  "sesiones_encontradas": [
+    "demo_20261107T180157Z_DEMO_exp",
+    "demo_20261107T180355Z_DEMO_exp",
+    "demo_20261107T180608Z_DEMO_exp",
+    "demo_20261107T180809Z_DEMO_exp",
+    "demo_20261107T181047Z_DEMO_exp",
+    "demo_20261107T181250Z_DEMO_exp",
+    "demo_20261107T181526Z_DEMO_exp",
+    "demo_20261107T181732Z_DEMO_exp",
+    "demo_20261107T182149Z_DEMO_exp",
+    "demo_20261107T182446Z_DEMO_exp",
+    "demo_20261107T182644Z_DEMO_exp",
+    "demo_20261107T183422Z_DEMO_exp",
+    "demo_20261107T183627Z_DEMO_exp",
+    "demo_20261107T183825Z_DEMO_exp",
+    "demo_20261107T184026Z_DEMO_exp",
+    "demo_20261107T184244Z_DEMO_exp",
+    "demo_20261107T184458Z_DEMO_exp",
+    "demo_20261107T184958Z_DEMO_exp",
+    "demo_20261107T185235Z_DEMO_exp",
+    "demo_20261107T185525Z_DEMO_exp"
+  ]
+}

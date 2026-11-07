@@ -4,3 +4,5 @@
 [2026-10-31T03:24:47+00:00] veredicto confirmado: identico (equipo E-OVRT-VDP): Todas las huellas coinciden; compose con el remount de defensa/figuras para VIS-01 (doc 134 13.12); la version de F3-F6 queda en PLAT-01.hasta-F6
 [2026-11-01T19:13:34+00:00] python -m tools.evidencia correr PLAT-01
 [2026-11-01T19:13:53+00:00] veredicto confirmado: identico (equipo E-OVRT-VDP): Consola reconstruida para F7 (884ed36); infraestructura declarada sin cambios; la version del cierre de F6 queda en PLAT-01.cierre-F6
+[2026-11-07T14:59:31+00:00] python -m tools.evidencia correr PLAT-01
+[2026-11-07T15:00:23+00:00] veredicto confirmado: identico (equipo E-OVRT-VDP): Consola reconstruida para la segunda jornada de F7 (encuadre calibrado en el chequeo previo, doc 134 s13.19; apertura de la OAK-D sin friccion, 638a2ef); infraestructura declarada sin cambios; la version de la jornada 1 queda en PLAT-01.F7-jornada-1

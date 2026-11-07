@@ -1,0 +1,123 @@
+{
+  "schema": "corridas.gen2.v1",
+  "prueba": "RT-09",
+  "corridas": {
+    "demo_20261107T153316Z_P2": {
+      "estado": "ok",
+      "escena": "P2",
+      "modo": "campeon",
+      "motor": "mp-gdino-tiny-560",
+      "encuadre": "ok",
+      "remera": "blanca lisa",
+      "experiment_id": "exp_20261107T153316Z_demo_defensa",
+      "control_run_id": "control_demo_defensa_20261107T153316Z_efb38f",
+      "media_run_id": "run_20261107_153316_dbe_grounding_dino_0a5e3d",
+      "distribution_run_id": "dist_20261107T153316Z_a9164a",
+      "importada": "2026-11-07T19:42:23+00:00"
+    },
+    "demo_20261107T153958Z_P2": {
+      "estado": "ok",
+      "escena": "P2",
+      "modo": "campeon",
+      "motor": "mp-gdino-tiny-560",
+      "encuadre": "ok",
+      "remera": "blanca lisa",
+      "experiment_id": "exp_20261107T153958Z_demo_defensa",
+      "control_run_id": "control_demo_defensa_20261107T153958Z_08ef6e",
+      "media_run_id": "run_20261107_153958_dbe_grounding_dino_110f79",
+      "distribution_run_id": "dist_20261107T153958Z_4b66d8",
+      "importada": "2026-11-07T19:42:23+00:00"
+    },
+    "demo_20261107T154526Z_P2": {
+      "estado": "ok",
+      "escena": "P2",
+      "modo": "campeon",
+      "motor": "mp-gdino-tiny-560",
+      "encuadre": "ok",
+      "remera": "negra lisa",
+      "experiment_id": "exp_20261107T154526Z_demo_defensa",
+      "control_run_id": "control_demo_defensa_20261107T154527Z_86cd70",
+      "media_run_id": "run_20261107_154527_dbe_grounding_dino_085ab5",
+      "distribution_run_id": "dist_20261107T154527Z_9c8a0e",
+      "importada": "2026-11-07T19:42:23+00:00"
+    },
+    "demo_20261107T154901Z_P2": {
+      "estado": "ok",
+      "escena": "P2",
+      "modo": "campeon",
+      "motor": "mp-gdino-tiny-560",
+      "encuadre": "ok",
+      "remera": "negra lisa",
+      "experiment_id": "exp_20261107T154901Z_demo_defensa",
+      "control_run_id": "control_demo_defensa_20261107T154901Z_e2a668",
+      "media_run_id": "run_20261107_154901_dbe_grounding_dino_12ffae",
+      "distribution_run_id": "dist_20261107T154901Z_7a9f2d",
+      "importada": "2026-11-07T19:42:24+00:00"
+    },
+    "demo_20261107T173319Z_P2_modo-reflective": {
+      "estado": "ok",
+      "escena": "P2",
+      "modo": "reflective",
+      "motor": "mp-gdino-tiny-560",
+      "encuadre": "ok",
+      "remera": "blanca lisa",
+      "experiment_id": "exp_20261107T173319Z_demo_defensa",
+      "control_run_id": "control_demo_defensa_20261107T173319Z_ed673e",
+      "media_run_id": "run_20261107_173319_dbe_grounding_dino_5276ab",
+      "distribution_run_id": "dist_20261107T173319Z_65569c",
+      "importada": "2026-11-07T19:42:24+00:00"
+    },
+    "demo_20261107T173604Z_P2_modo-reflective": {
+      "estado": "ok",
+      "escena": "P2",
+      "modo": "reflective",
+      "motor": "mp-gdino-tiny-560",
+      "encuadre": "ok",
+      "remera": "blanca lisa",
+      "experiment_id": "exp_20261107T173604Z_demo_defensa",
+      "control_run_id": "control_demo_defensa_20261107T173604Z_5d2997",
+      "media_run_id": "run_20261107_173604_dbe_grounding_dino_e2de10",
+      "distribution_run_id": "dist_20261107T173604Z_119c5c",
+      "importada": "2026-11-07T19:42:24+00:00"
+    },
+    "demo_20261107T173813Z_P1_modo-reflective": {
+      "estado": "ok",
+      "escena": "P1",
+      "modo": "reflective",
+      "motor": "mp-gdino-tiny-560",
+      "encuadre": "ok",
+      "remera": "blanca lisa",
+      "experiment_id": "exp_20261107T173813Z_demo_defensa",
+      "control_run_id": "control_demo_defensa_20261107T173814Z_0c306e",
+      "media_run_id": "run_20261107_173814_dbe_grounding_dino_d00cf1",
+      "distribution_run_id": "dist_20261107T173814Z_96dd0d",
+      "importada": "2026-11-07T19:42:24+00:00"
+    },
+    "demo_20261107T192443Z_P2_exp": {
+      "estado": "ok",
+      "escena": "P2",
+      "modo": "campeon",
+      "motor": "mp-gdino-base-560",
+      "encuadre": "ok",
+      "remera": "negra lisa",
+      "experiment_id": "exp_20261107T192443Z_demo_defensa",
+      "control_run_id": "control_demo_defensa_20261107T192443Z_cc9269",
+      "media_run_id": "run_20261107_192443_dbe_grounding_dino_8e708f",
+      "distribution_run_id": "dist_20261107T192443Z_36d870",
+      "importada": "2026-11-07T19:42:24+00:00"
+    },
+    "demo_20261107T192629Z_P2_exp": {
+      "estado": "ok",
+      "escena": "P2",
+      "modo": "campeon",
+      "motor": "mp-gdino-base-560",
+      "encuadre": "ok",
+      "remera": "negra lisa",
+      "experiment_id": "exp_20261107T192629Z_demo_defensa",
+      "control_run_id": "control_demo_defensa_20261107T192629Z_bb9758",
+      "media_run_id": "run_20261107_192629_dbe_grounding_dino_54e594",
+      "distribution_run_id": "dist_20261107T192629Z_355386",
+      "importada": "2026-11-07T19:42:24+00:00"
+    }
+  }
+}

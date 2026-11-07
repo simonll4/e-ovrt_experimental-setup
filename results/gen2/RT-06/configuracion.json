@@ -1,0 +1,28 @@
+{
+  "escenas": "524db6125a7fa5ebbec0479d3d70bb6751a783a0d336c4e69d175eb61d9d8d3d",
+  "fuente": "rtsp",
+  "escenas_incluidas": [
+    "P1",
+    "P2",
+    "P5"
+  ],
+  "chaleco": "julio",
+  "stream": null,
+  "sesiones_encontradas": [
+    "demo_20261101T210406Z_P1",
+    "demo_20261101T210608Z_P2",
+    "demo_20261101T210851Z_P1",
+    "demo_20261101T211110Z_P2",
+    "demo_20261101T211315Z_P1",
+    "demo_20261101T211456Z_P2",
+    "demo_20261107T200449Z_P1",
+    "demo_20261107T200627Z_P1",
+    "demo_20261107T200801Z_P5",
+    "demo_20261107T201014Z_P5",
+    "demo_20261107T201125Z_P2",
+    "demo_20261107T201249Z_P2",
+    "demo_20261107T201405Z_P1",
+    "demo_20261107T201512Z_P2",
+    "demo_20261107T201649Z_P2"
+  ]
+}

@@ -1,0 +1,87 @@
+{
+  "escena": "DEMO",
+  "session_id": "demo_20261107T180608Z_DEMO_exp",
+  "experiment_id": "exp_20261107T180608Z_demo_defensa",
+  "ids": {
+    "control_run_id": "control_demo_defensa_20261107T180608Z_9282c1",
+    "media_run_id": "run_20261107_180608_dbe_grounding_dino_9363e6",
+    "distribution_run_id": "dist_20261107T180608Z_7e81f4"
+  },
+  "marcas": true,
+  "remera": "blanca lisa",
+  "calibracion": {
+    "session_id": "demo_20261107T151131Z_CAL",
+    "ok": true,
+    "aceptada": false,
+    "fecha": "2026-11-07T15:27:59+00:00",
+    "altura_m": 2.1
+  },
+  "encuadre": "ok",
+  "alertas": [
+    {
+      "condicion": "CR-01",
+      "alert_id": "a199b56e-bce2-58d5-a5e6-856c139c056d",
+      "subject_key": "CR-01:169.254.31.137",
+      "captura_primera_evidencia_ms": 1794074805276.2065,
+      "captura_confirmacion_ms": 1794074809459.7065,
+      "confirmada_ms": 1794074809604.9153,
+      "broker_ms": 1794074809619.112,
+      "confirmacion_a_broker_ms": 14.2,
+      "primera_evidencia_a_confirmacion_ms": 4328.7,
+      "accion": "sacar_casco",
+      "accion_a_confirmacion_ms": 6207.5,
+      "accion_a_primera_evidencia_ms": 1878.8,
+      "accion_a_broker_ms": 6221.7,
+      "resuelta": true,
+      "accion_fin_a_resolucion_ms": 2880.8
+    }
+  ],
+  "por_condicion": {
+    "CR-01": {
+      "esperado": "alerta",
+      "alertas": 1,
+      "ok": true
+    },
+    "CR-02": {
+      "esperado": "alerta",
+      "alertas": 0,
+      "ok": false
+    }
+  },
+  "como_se_esperaba": false,
+  "alertas_antes_de_la_accion": 0,
+  "bus_dropped_events": 0,
+  "resultado_listo_s": 10.5,
+  "latencia": {
+    "unidades": 277,
+    "descartadas": 0,
+    "fps_efectivos": 3.35,
+    "inferencia_p50_ms": 148.61,
+    "inferencia_p95_ms": 199.64,
+    "g2a": {
+      "n": 277,
+      "p50": 148.642,
+      "p95": 202.985,
+      "max": 487.018
+    },
+    "captura_a_host": {
+      "n": 277,
+      "p50": 63.06,
+      "p95": 86.02,
+      "max": 101.08
+    },
+    "vidrio_a_resultado": {
+      "n": 277,
+      "p50": 211.818,
+      "p95": 277.119,
+      "max": 555.028
+    },
+    "hueco_max_ms": 245.981201171875,
+    "hueco_mediana_ms": 196.296630859375,
+    "contaminada": false,
+    "reloj_pared_menos_monotonico_ms": 1794048576437.7424
+  },
+  "motor": "mp-gdino-tiny-560",
+  "camara": "960x540@5",
+  "modelo": "grounding-dino/gdino-tiny-560"
+}

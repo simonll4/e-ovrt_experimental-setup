@@ -1,0 +1,102 @@
+{
+  "escena": "P6",
+  "session_id": "demo_20261107T170251Z_P6",
+  "experiment_id": "exp_20261107T170251Z_demo_defensa",
+  "ids": {
+    "control_run_id": "control_demo_defensa_20261107T170251Z_42486a",
+    "media_run_id": "run_20261107_170251_dbe_grounding_dino_5dcb2c",
+    "distribution_run_id": "dist_20261107T170251Z_c1d8d4"
+  },
+  "marcas": true,
+  "remera": "blanca lisa",
+  "calibracion": {
+    "session_id": "demo_20261107T151131Z_CAL",
+    "ok": true,
+    "aceptada": false,
+    "fecha": "2026-11-07T15:27:59+00:00",
+    "altura_m": 2.1
+  },
+  "encuadre": "ok",
+  "alertas": [
+    {
+      "condicion": "CR-01",
+      "alert_id": "593d1ba0-4123-5060-8d99-27efc1236fad",
+      "subject_key": "CR-01:169.254.31.137",
+      "captura_primera_evidencia_ms": 1794071008788.2021,
+      "captura_confirmacion_ms": 1794071012790.349,
+      "confirmada_ms": 1794071012937.999,
+      "broker_ms": 1794071012952.824,
+      "confirmacion_a_broker_ms": 14.8,
+      "primera_evidencia_a_confirmacion_ms": 4149.8,
+      "accion": "sacar_casco",
+      "accion_a_confirmacion_ms": 6156.5,
+      "accion_a_primera_evidencia_ms": 2006.7,
+      "accion_a_broker_ms": 6171.3,
+      "resuelta": true,
+      "accion_fin_a_resolucion_ms": 4227.3
+    }
+  ],
+  "por_condicion": {
+    "CR-01": {
+      "esperado": "alerta",
+      "alertas": 1,
+      "ok": true
+    },
+    "CR-02": {
+      "esperado": "alerta",
+      "alertas": 0,
+      "ok": false
+    }
+  },
+  "como_se_esperaba": false,
+  "alertas_antes_de_la_accion": 0,
+  "bus_dropped_events": 0,
+  "resultado_listo_s": 8.5,
+  "latencia": {
+    "unidades": 196,
+    "descartadas": 0,
+    "fps_efectivos": 2.94,
+    "inferencia_p50_ms": 141.02,
+    "inferencia_p95_ms": 199.69,
+    "g2a": {
+      "n": 196,
+      "p50": 141.349,
+      "p95": 208.988,
+      "max": 486.305
+    },
+    "captura_a_host": {
+      "n": 196,
+      "p50": 64.95,
+      "p95": 88.27,
+      "max": 96.26
+    },
+    "vidrio_a_resultado": {
+      "n": 196,
+      "p50": 208.333,
+      "p95": 279.751,
+      "max": 565.295
+    },
+    "hueco_max_ms": 235.5732421875,
+    "hueco_mediana_ms": 204.505615234375,
+    "contaminada": false,
+    "reloj_pared_menos_monotonico_ms": 1794048576590.783
+  },
+  "sujeto": {
+    "por_condicion": {
+      "CR-01": {
+        "esperado": "alerta",
+        "alertas": 1,
+        "sujetos": 1,
+        "ok": true
+      },
+      "CR-02": {
+        "esperado": "alerta",
+        "alertas": 0,
+        "sujetos": 0,
+        "ok": false
+      }
+    },
+    "como_se_esperaba": false,
+    "sujetos_con_alerta": 1
+  }
+}

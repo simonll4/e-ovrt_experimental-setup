@@ -1,0 +1,12 @@
+{
+  "demo_20261107T182149Z_DEMO_exp": {
+    "motivo": "Causa fisica: una persona asomo en la esquina inferior derecha del cuadro (person 0,38 sin casco ni chaleco visibles) desde el inicio; CR-01 confirmo a los 4,2 s, antes de la accion. Se repite.",
+    "quien": "equipo E-OVRT-VDP",
+    "fecha": "2026-11-07T18:24:15+00:00"
+  },
+  "demo_20261107T193249Z_P9a_exp": {
+    "motivo": "Causa fisica: una persona asomo en la esquina inferior derecha desde el inicio; CR-01 (4,0 s) y CR-02 (7,2 s) confirmaron por esa caja. Toma de exploracion (gorra con tiny); se repite.",
+    "quien": "equipo E-OVRT-VDP",
+    "fecha": "2026-11-07T19:34:06+00:00"
+  }
+}

@@ -4288,5 +4288,91 @@
         "sha256_despues": "24fedb187c6a62e2e6ceba447291256392223fbbb116354c449b25aee041d4e4"
       }
     ]
+  },
+  {
+    "fecha": "2026-11-07T21:21:17+00:00",
+    "marca": "$EOVRT_WORKSPACE",
+    "de": "el workspace de la máquina que corrió las pruebas (ruta con el usuario de Windows; no se publica)",
+    "nota": "Las huellas sha256.*_config de corridas.json son de la configuración tal como se envió, con la ruta original; la de cada copia de logs/ejemplo/ antes de limpiar es sha256_antes.",
+    "archivos": [
+      {
+        "ruta": "PLAT-01/entorno.json",
+        "reemplazos": 66,
+        "sha256_antes": "2db0ab5a05b7a2f23a2cd68fc05b4eae83e17ee2bd0ec42239033d2516d1f244",
+        "sha256_despues": "d28625f1e54de2ea8c571fc50f7c061997e05e10bc06a7c8880ff0a226a3000d"
+      },
+      {
+        "ruta": "PLAT-01/plataforma.json",
+        "reemplazos": 66,
+        "sha256_antes": "af49a21ce8e04e82ab61862d425cdccd90c8d5adbb06d90dfcf13b1928f41e2a",
+        "sha256_despues": "0bdb6ec1405ce5f4839555bb4e858923113f58a49a47a72176db0ab93c295f60"
+      },
+      {
+        "ruta": "PLAT-01/resultado.json",
+        "reemplazos": 65,
+        "sha256_antes": "9f091f11ec8ce690a72f8db3b2ae9452cb3b0c93bd3ac9598efd48339815417d",
+        "sha256_despues": "0901b558b9e666a8c83e068e3ac465910f3e2a0a9adf018c02615ae8da233e9c"
+      },
+      {
+        "ruta": "RT-04/comandos.txt",
+        "reemplazos": 23,
+        "sha256_antes": "5c1dc93f29755dd11370e3d48adf504df9337889db758255d36e9464a9bf976f",
+        "sha256_despues": "a5296952f3d15539b8632c94cf58fb7beaa742985775d70f1d030dc05b3fed35"
+      },
+      {
+        "ruta": "RT-04/entorno.json",
+        "reemplazos": 66,
+        "sha256_antes": "926a88f625af8d253f7946f4e8da6b7eb750a54177a01993cecf2c2effb24336",
+        "sha256_despues": "622c6afbd0a20f2f58066435d25db598d542e19ef333d6a09d36e18249bf8c60"
+      },
+      {
+        "ruta": "RT-04/logs/ejemplo/control.yaml",
+        "reemplazos": 2,
+        "sha256_antes": "227055c23d815d8c71d38de36ef42e3350f5ea99d5744e882e716c8207e81d5d",
+        "sha256_despues": "f39590f2538da4820cc9dddd69180522fe8fd9f8ef8e7f1faf989073483a21d8"
+      },
+      {
+        "ruta": "RT-04/logs/ejemplo/manifest.yaml",
+        "reemplazos": 2,
+        "sha256_antes": "776067f96cc12e3161293b6bdaea3f43ebc8167f4d6b72ea82f88ea7bfcdd712",
+        "sha256_despues": "096cb613aae4da3718b4b2791af64bdb2cef34e427a61eabd351c9388e881964"
+      },
+      {
+        "ruta": "RT-05/entorno.json",
+        "reemplazos": 66,
+        "sha256_antes": "bf6f2541b9f838a7c6c47f03c0a018d6139dbea35d443166d7c76fe38a868648",
+        "sha256_despues": "9c94318a678e27df3343019dcc85f2dd48addfcb8e8db78df81298bf5c81b109"
+      },
+      {
+        "ruta": "RT-06/comandos.txt",
+        "reemplazos": 9,
+        "sha256_antes": "72e1ead7e6ea4d8a38e04361d408a3cb4e3c3f614434823e9e73cd24953da521",
+        "sha256_despues": "06fad2b72de02f6ac70c78def7a5f312b3337c5b73cebea4a0674e30ac4d43d4"
+      },
+      {
+        "ruta": "RT-06/entorno.json",
+        "reemplazos": 66,
+        "sha256_antes": "26b5d8ef98cfeec09afa55c3f452a8658849e8c70da6b84caf1af7288e51e24b",
+        "sha256_despues": "89cb1122e1c888a20bc7ea484e387c10af15cb9969b9ff491d44e888c48c9a84"
+      },
+      {
+        "ruta": "RT-06/logs/ejemplo/control.yaml",
+        "reemplazos": 2,
+        "sha256_antes": "de0183970ded6f48130ac1468daf45c41785f7365d3f372df99832097edf5659",
+        "sha256_despues": "017e78bbfd127f67a6e13b4bfb7b5909c353e1bbb97e14782f063966961db9f2"
+      },
+      {
+        "ruta": "RT-06/logs/ejemplo/manifest.yaml",
+        "reemplazos": 2,
+        "sha256_antes": "1970060d7e8904f9b7f47510cc8b1fe8b00817302f28343353c1bd1b30133109",
+        "sha256_despues": "06753d076484c50a466ff51f8bab68db4060f5f57b956c31d52bfc5d7499268a"
+      },
+      {
+        "ruta": "RT-09/entorno.json",
+        "reemplazos": 66,
+        "sha256_antes": "99e131f6f3e14840d9fb974076bce2391fce98823f02fe8470a11ecd08e7c458",
+        "sha256_despues": "de24e329ca7632e55432cfd007fc9a1827ddde9ecdcf79817a770f19b321ed75"
+      }
+    ]
   }
 ]

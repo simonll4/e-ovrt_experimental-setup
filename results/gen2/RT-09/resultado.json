@@ -1,0 +1,258 @@
+{
+  "schema": "resultado.gen2.v1",
+  "id": "RT-09",
+  "titulo": "La prenda bajo el chaleco, en vivo (F-RT1): remera, frase y encuadre",
+  "informe": [
+    "Tabla 54",
+    "§17.5.5",
+    "§17.5.7"
+  ],
+  "generado": "2026-11-07T19:42:24+00:00",
+  "familia": "rodaje",
+  "estado": "parcial",
+  "metricas": {
+    "tomas": 9,
+    "grupos": [
+      {
+        "modo": "campeon",
+        "motor": "mp-gdino-base-560",
+        "encuadre": "ok",
+        "escena": "P2",
+        "remera": "negra lisa",
+        "tomas": 2,
+        "esperado_cr02": "alerta",
+        "cr02_como_el_guion": 2,
+        "cr01_como_el_guion": 2,
+        "fraccion_con_vest_p50": 0.0,
+        "racha_max_con_vest_s": 0.19,
+        "racha_max_sin_vest_s": 16.78,
+        "session_ids": [
+          "demo_20261107T192443Z_P2_exp",
+          "demo_20261107T192629Z_P2_exp"
+        ]
+      },
+      {
+        "modo": "campeon",
+        "motor": "mp-gdino-tiny-560",
+        "encuadre": "ok",
+        "escena": "P2",
+        "remera": "blanca lisa",
+        "tomas": 2,
+        "esperado_cr02": "alerta",
+        "cr02_como_el_guion": 2,
+        "cr01_como_el_guion": 2,
+        "fraccion_con_vest_p50": 0.5,
+        "racha_max_con_vest_s": 7.4,
+        "racha_max_sin_vest_s": 6.61,
+        "session_ids": [
+          "demo_20261107T153316Z_P2",
+          "demo_20261107T153958Z_P2"
+        ]
+      },
+      {
+        "modo": "campeon",
+        "motor": "mp-gdino-tiny-560",
+        "encuadre": "ok",
+        "escena": "P2",
+        "remera": "negra lisa",
+        "tomas": 2,
+        "esperado_cr02": "alerta",
+        "cr02_como_el_guion": 0,
+        "cr01_como_el_guion": 2,
+        "fraccion_con_vest_p50": 1.0,
+        "racha_max_con_vest_s": 15.62,
+        "racha_max_sin_vest_s": 0,
+        "session_ids": [
+          "demo_20261107T154526Z_P2",
+          "demo_20261107T154901Z_P2"
+        ]
+      },
+      {
+        "modo": "reflective",
+        "motor": "mp-gdino-tiny-560",
+        "encuadre": "ok",
+        "escena": "P1",
+        "remera": "blanca lisa",
+        "tomas": 1,
+        "esperado_cr02": "sin_alerta",
+        "cr02_como_el_guion": 1,
+        "cr01_como_el_guion": 1,
+        "fraccion_con_vest_p50": 1.0,
+        "racha_max_con_vest_s": 23.99,
+        "racha_max_sin_vest_s": 0,
+        "session_ids": [
+          "demo_20261107T173813Z_P1_modo-reflective"
+        ]
+      },
+      {
+        "modo": "reflective",
+        "motor": "mp-gdino-tiny-560",
+        "encuadre": "ok",
+        "escena": "P2",
+        "remera": "blanca lisa",
+        "tomas": 2,
+        "esperado_cr02": "alerta",
+        "cr02_como_el_guion": 0,
+        "cr01_como_el_guion": 2,
+        "fraccion_con_vest_p50": 1.0,
+        "racha_max_con_vest_s": 16.79,
+        "racha_max_sin_vest_s": 0.22,
+        "session_ids": [
+          "demo_20261107T173319Z_P2_modo-reflective",
+          "demo_20261107T173604Z_P2_modo-reflective"
+        ]
+      }
+    ],
+    "remera_propuesta": {
+      "remera": "blanca lisa",
+      "cr02_alerto": true,
+      "fraccion_con_vest_p50": 0.5,
+      "racha_max_con_vest_s": 7.4
+    },
+    "faltan": [
+      "P2 · reflective · negra lisa: 0 de 2 tomas"
+    ],
+    "no_evaluables": [
+      {
+        "session_id": "demo_20261107T153550Z_P2",
+        "escena": "P2",
+        "motivo": "descartada: Causa fisica: una persona quedo en el borde izquierdo del cuadro antes del primer aviso y CR-01 alerto por esa caja sin casco visible (0 a 5 s). Se conserva como ejemplo de falla de CR-01 con una persona parcialmente en cuadro. La reemplaza demo_20261107T153958Z_P2."
+      }
+    ],
+    "encuadre": {
+      "ok": 9,
+      "no_ok": 0,
+      "sin_calibrar": 0
+    },
+    "calibraciones": {
+      "demo_20261107T151131Z_CAL": {
+        "session_id": "demo_20261107T151131Z_CAL",
+        "ok": true,
+        "aceptada": false,
+        "fecha": "2026-11-07T15:27:59+00:00",
+        "altura_m": 2.1
+      }
+    }
+  },
+  "resumen": [
+    {
+      "clave": "P2/campeon/gdino-base-560/negra lisa/cr02",
+      "nombre": "CR-02 como el guion (alerta) — P2 · campeon · gdino-base-560 · remera «negra lisa»",
+      "valor": "2/2",
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "P2/campeon/gdino-base-560/negra lisa/fraccion_vest",
+      "nombre": "Cuadros con `vest` en el torso (mediana) — P2 · campeon · gdino-base-560 · remera «negra lisa»",
+      "valor": 0.0,
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "P2/campeon/gdino-base-560/negra lisa/racha_vest_s",
+      "nombre": "Racha continua más larga con `vest` — P2 · campeon · gdino-base-560 · remera «negra lisa»",
+      "valor": 0.19,
+      "unidad": "s",
+      "gen1": null
+    },
+    {
+      "clave": "P2/campeon/blanca lisa/cr02",
+      "nombre": "CR-02 como el guion (alerta) — P2 · campeon · remera «blanca lisa»",
+      "valor": "2/2",
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "P2/campeon/blanca lisa/fraccion_vest",
+      "nombre": "Cuadros con `vest` en el torso (mediana) — P2 · campeon · remera «blanca lisa»",
+      "valor": 0.5,
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "P2/campeon/blanca lisa/racha_vest_s",
+      "nombre": "Racha continua más larga con `vest` — P2 · campeon · remera «blanca lisa»",
+      "valor": 7.4,
+      "unidad": "s",
+      "gen1": null
+    },
+    {
+      "clave": "P2/campeon/negra lisa/cr02",
+      "nombre": "CR-02 como el guion (alerta) — P2 · campeon · remera «negra lisa»",
+      "valor": "0/2",
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "P2/campeon/negra lisa/fraccion_vest",
+      "nombre": "Cuadros con `vest` en el torso (mediana) — P2 · campeon · remera «negra lisa»",
+      "valor": 1.0,
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "P2/campeon/negra lisa/racha_vest_s",
+      "nombre": "Racha continua más larga con `vest` — P2 · campeon · remera «negra lisa»",
+      "valor": 15.62,
+      "unidad": "s",
+      "gen1": null
+    },
+    {
+      "clave": "P1/reflective/blanca lisa/cr02",
+      "nombre": "CR-02 como el guion (sin_alerta) — P1 · reflective · remera «blanca lisa»",
+      "valor": "1/1",
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "P1/reflective/blanca lisa/fraccion_vest",
+      "nombre": "Cuadros con `vest` en el torso (mediana) — P1 · reflective · remera «blanca lisa»",
+      "valor": 1.0,
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "P1/reflective/blanca lisa/racha_vest_s",
+      "nombre": "Racha continua más larga con `vest` — P1 · reflective · remera «blanca lisa»",
+      "valor": 23.99,
+      "unidad": "s",
+      "gen1": null
+    },
+    {
+      "clave": "P2/reflective/blanca lisa/cr02",
+      "nombre": "CR-02 como el guion (alerta) — P2 · reflective · remera «blanca lisa»",
+      "valor": "0/2",
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "P2/reflective/blanca lisa/fraccion_vest",
+      "nombre": "Cuadros con `vest` en el torso (mediana) — P2 · reflective · remera «blanca lisa»",
+      "valor": 1.0,
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "P2/reflective/blanca lisa/racha_vest_s",
+      "nombre": "Racha continua más larga con `vest` — P2 · reflective · remera «blanca lisa»",
+      "valor": 16.79,
+      "unidad": "s",
+      "gen1": null
+    }
+  ],
+  "veredicto": {
+    "confirmado": {
+      "valor": "otra_combinacion",
+      "motivo": "Falta la celda «reflective · negra» (0 de 2 tomas). El equipo la cortó porque con la remera negra el chaleco falso ya estaba establecido en todos los modos medidos, y «reflective vest» lo empeoró sobre la blanca. Remera propuesta: blanca lisa. Una prueba posterior, con cuadros crudos de la cámara IP, mostró que el chaleco falso sobre la blanca depende también de la persona, la ropa y la pose.",
+      "quien": "equipo E-OVRT-VDP",
+      "fecha": "2026-11-07T21:20:08+00:00",
+      "parcial": true,
+      "faltante": {}
+    },
+    "referencia": null,
+    "propuesto": "otra_combinacion",
+    "motivo": "No hay una medición previa de la prenda, la frase ni el encuadre como variables en vivo. En julio, con remera negra y la cámara alta, el falso llegó a 0,73 y las P2 en vivo dieron 0 alertas a 1,2–1,8 cuadros/s (doc 71 §2.2); `safety vest` no lo evitó (doc 70); el 2026-11-01, de frente y de cerca, dio 99–100 % (doc 140). Los pilotos de «reflective vest» son de la PC de desarrollo (doc 142 §4.2) y no son evidencia. Se muestra al lado, nunca en reemplazo.\n",
+    "diferencias": {}
+  }
+}
