@@ -249,6 +249,19 @@ def _reiniciar_instancia(ctx: Contexto, r: dict, carpeta: Carpeta) -> None:
     raise RuntimeError(f"{r['instancia']} no quedó listo 300 s después de reiniciarlo")
 
 
+def fps_entre_cuadros(capturas_ms: list[float]) -> float | None:
+    """Cuadros procesados por segundo entre el primer y el último cuadro, con las marcas de captura.
+
+    Corrección del 2026-11-12 (doc 134 §13.22). Hasta entonces «Cuadros por segundo procesados» era el
+    `fps_effective` del media-plane: los cuadros divididos por la duración ENTERA de la corrida, que en vivo
+    incluye abrir y cerrar la cámara. Subestimaba la cadencia: RT-04 daba 2,59 con la OAK-D entregando y el
+    sistema procesando 5 cuadros por segundo. Esa cifra sigue al lado, como `fps_sobre_duracion`.
+    """
+    if len(capturas_ms) < 2 or capturas_ms[-1] <= capturas_ms[0]:
+        return None
+    return round((len(capturas_ms) - 1) / ((capturas_ms[-1] - capturas_ms[0]) / 1000.0), 2)
+
+
 def _metricas_toma(ctx: Contexto, media_run_id: str) -> dict:
     filas = _leer_jsonl(ctx.ent.media_runs / media_run_id / "metrics.jsonl")
     g2a = [f["g2a_ms"] for f in filas if f.get("g2a_ms") is not None]
@@ -270,7 +283,8 @@ def _metricas_toma(ctx: Contexto, media_run_id: str) -> dict:
     return {
         "unidades": resumen_m.get("units_processed"),
         "descartadas": resumen_m.get("units_dropped"),
-        "fps_efectivos": resumen_m.get("fps_effective"),
+        "fps_efectivos": fps_entre_cuadros(capturas),
+        "fps_sobre_duracion": resumen_m.get("fps_effective"),
         "inferencia_p50_ms": resumen_m.get("p50_latency_ms"),
         "inferencia_p95_ms": resumen_m.get("p95_latency_ms"),
         "g2a": _stats(g2a),
@@ -282,6 +296,25 @@ def _metricas_toma(ctx: Contexto, media_run_id: str) -> dict:
         "reloj_pared_menos_monotonico_ms": statistics.median(desfase) if desfase else None,
         "_series": {"g2a": g2a, "captura_a_host": c2h, "vidrio_a_resultado": vidrio},
     }
+
+
+def _volver_a_medir_fps(ctx: Contexto, carpeta: Carpeta, clave: str, reg: dict) -> dict:
+    """Al re-agregar, mide otra vez la cadencia de una toma ya registrada, desde su corrida y sin repetirla.
+
+    Las tomas guardan sus métricas al correr; las de antes del 2026-11-12 traen como «fps_efectivos» el
+    `fps_effective` del media-plane (doc 134 §13.22). Si la corrida no está en disco, queda lo registrado.
+    """
+    run_id = reg.get("media_run_id")
+    if not run_id or not (ctx.ent.media_runs / run_id / "metrics.jsonl").is_file():
+        return reg
+    nuevas = _metricas_toma(ctx, run_id)
+    metricas = {**(reg.get("metricas") or {}), "fps_efectivos": nuevas["fps_efectivos"],
+                "fps_sobre_duracion": nuevas["fps_sobre_duracion"]}
+    if metricas == reg.get("metricas"):
+        return reg
+    reg = {**reg, "metricas": metricas}
+    carpeta.guardar_corrida(clave, reg)
+    return reg
 
 
 def _toma(ctx: Contexto, prueba: Prueba, carpeta: Carpeta) -> dict:
@@ -297,18 +330,23 @@ def _toma(ctx: Contexto, prueba: Prueba, carpeta: Carpeta) -> dict:
     for clave, reg in carpeta.corridas().items():
         if reg.get("estado") != "ok" or reg.get("metricas", {}).get("contaminada"):
             continue
+        if ctx.reagregar:
+            reg = _volver_a_medir_fps(ctx, carpeta, clave, reg)
         series = json.loads((carpeta.dir / "tomas" / clave / "series.json").read_text())
         agg = por_config.setdefault(reg["config"], {"tomas": [], "g2a": [], "captura_a_host": [],
-                                                    "vidrio_a_resultado": [], "fps": []})
+                                                    "vidrio_a_resultado": [], "fps": [], "fps_duracion": []})
         agg["tomas"].append(clave)
         for k in ("g2a", "captura_a_host", "vidrio_a_resultado"):
             agg[k].extend(series[k])
         if reg["metricas"].get("fps_efectivos") is not None:
             agg["fps"].append(reg["metricas"]["fps_efectivos"])
+        if reg["metricas"].get("fps_sobre_duracion") is not None:
+            agg["fps_duracion"].append(reg["metricas"]["fps_sobre_duracion"])
     metricas, resumen = {}, []
     for cfg, agg in sorted(por_config.items()):
         datos = {k: _stats(agg[k]) for k in ("g2a", "captura_a_host", "vidrio_a_resultado")}
         datos["fps_efectivos"] = round(statistics.mean(agg["fps"]), 2) if agg["fps"] else None
+        datos["fps_sobre_duracion"] = round(statistics.mean(agg["fps_duracion"]), 2) if agg["fps_duracion"] else None
         datos["tomas"] = agg["tomas"]
         metricas[cfg] = datos
     # Una configuración pre-registrada sin ninguna toma válida se nombra, como una escena sin
@@ -319,7 +357,7 @@ def _toma(ctx: Contexto, prueba: Prueba, carpeta: Carpeta) -> dict:
     if demo in metricas:
         d = metricas[demo]
         resumen = [
-            {"clave": "fps_efectivos", "nombre": f"Cuadros por segundo procesados ({demo})", "valor": d["fps_efectivos"], "unidad": "fps", "gen1": None},
+            {"clave": "fps_efectivos", "nombre": f"Cuadros por segundo procesados ({demo}), entre el primer y el último cuadro", "valor": d["fps_efectivos"], "unidad": "fps", "gen1": None},
             {"clave": "g2a_p95_ms", "nombre": f"G2A p95 ({demo})", "valor": d["g2a"].get("p95"), "unidad": "ms", "gen1": None},
             {"clave": "capture_to_host_p50_ms", "nombre": f"Captura → host p50 ({demo})", "valor": d["captura_a_host"].get("p50"), "unidad": "ms", "gen1": None},
             {"clave": "vidrio_a_resultado_p95_ms", "nombre": f"Vidrio → resultado p95 ({demo})", "valor": d["vidrio_a_resultado"].get("p95"), "unidad": "ms", "gen1": None},

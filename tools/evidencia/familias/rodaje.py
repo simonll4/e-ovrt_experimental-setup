@@ -462,6 +462,8 @@ def _exploracion(ctx: Contexto, prueba: Prueba, carpeta: Carpeta, escenas: dict[
             pool = {k: [v for t in de_celda for v in t["_series"].get(k, [])]
                     for k in ("g2a", "captura_a_host", "vidrio_a_resultado")}
             fps = [t["latencia"].get("fps_efectivos") for t in de_celda if t["latencia"].get("fps_efectivos") is not None]
+            fps_duracion = [t["latencia"].get("fps_sobre_duracion") for t in de_celda
+                            if t["latencia"].get("fps_sobre_duracion") is not None]
             celdas[f"{motor} @ {camara}"] = {
                 "motor": motor, "camara": camara,
                 "modelo": next((t["modelo"] for t in de_celda if t.get("modelo")), None),
@@ -475,7 +477,9 @@ def _exploracion(ctx: Contexto, prueba: Prueba, carpeta: Carpeta, escenas: dict[
                     cond: _mediana([a.get("accion_a_confirmacion_ms") for a in alertas if a["condicion"] == cond])
                     for cond in ("CR-01", "CR-02")},
                 "latencia_por_cuadro": {k: _stats(v) for k, v in pool.items()},
+                # Entre el primer y el último cuadro; la cifra anterior, sobre la corrida entera (doc 134 §13.22).
                 "fps_efectivos_media": round(statistics.mean(fps), 2) if fps else None,
+                "fps_sobre_duracion_media": round(statistics.mean(fps_duracion), 2) if fps_duracion else None,
                 "cuadros_descartados": sum(t["latencia"].get("descartadas") or 0 for t in de_celda),
                 "bus_dropped_events": sum(t.get("bus_dropped_events") or 0 for t in de_celda),
             }
@@ -541,6 +545,8 @@ def _agregar(tomas: list[dict], *, fuente: str, etiqueta: str, minimas: dict | N
         mejor = max(mejor, racha)
     broker = [a.get("confirmacion_a_broker_ms") for a in alertas if a.get("confirmacion_a_broker_ms") is not None]
     fps = [t["latencia"].get("fps_efectivos") for t in tomas if t["latencia"].get("fps_efectivos") is not None]
+    fps_duracion = [t["latencia"].get("fps_sobre_duracion") for t in tomas
+                    if t["latencia"].get("fps_sobre_duracion") is not None]
     metricas = {
         "tomas": len(tomas),
         "tomas_como_se_esperaba": sum(1 for t in tomas if t["como_se_esperaba"]),
@@ -553,7 +559,10 @@ def _agregar(tomas: list[dict], *, fuente: str, etiqueta: str, minimas: dict | N
         "accion_a_confirmacion_mediana_ms": tramo,
         "confirmacion_a_broker": _stats(broker),
         "latencia_por_cuadro": {k: _stats(v) for k, v in pool.items()},
+        # Entre el primer y el último cuadro; la cifra anterior, sobre la corrida entera (doc 134 §13.22).
         "fps_efectivos_media": round(statistics.mean(fps), 2) if fps else None,
+        "fps_sobre_duracion_media": round(statistics.mean(fps_duracion), 2) if fps_duracion else None,
+        "cuadros_descartados": sum(t["latencia"].get("descartadas") or 0 for t in tomas),
         "ensayos_demo": {"total": len(ensayos), "aprobados": sum(1 for e in ensayos if e["aprobado"]),
                          "mejor_racha": mejor, "cr02_en_vivo": sum(1 for e in ensayos if e["cr02_en_vivo"])},
         # Bajo qué encuadre corrió cada toma (doc 134 §13.19): se cuenta, no se excluye.
@@ -582,8 +591,10 @@ def _agregar(tomas: list[dict], *, fuente: str, etiqueta: str, minimas: dict | N
          "valor": metricas["confirmacion_a_broker"].get("p95"), "unidad": "ms", "gen1": None},
         {"clave": "vidrio_a_resultado_p95_ms", "nombre": f"Vidrio → resultado por cuadro, p95 ({etiqueta})",
          "valor": metricas["latencia_por_cuadro"]["vidrio_a_resultado"].get("p95"), "unidad": "ms", "gen1": None},
-        {"clave": "fps_efectivos", "nombre": "Cuadros por segundo procesados", "valor": metricas["fps_efectivos_media"],
-         "unidad": "fps", "gen1": None},
+        {"clave": "fps_efectivos", "nombre": "Cuadros por segundo procesados, entre el primer y el último cuadro",
+         "valor": metricas["fps_efectivos_media"], "unidad": "fps", "gen1": None},
+        {"clave": "cuadros_descartados", "nombre": "Cuadros descartados (la cámara entregó más de los que se procesaron)",
+         "valor": metricas["cuadros_descartados"], "unidad": None, "gen1": None},
         {"clave": "ensayos_demo_aprobados", "nombre": "Ensayos de la demo aprobados (mejor racha)",
          "valor": f"{metricas['ensayos_demo']['aprobados']}/{len(ensayos)} ({mejor})", "unidad": None, "gen1": None},
     ]
