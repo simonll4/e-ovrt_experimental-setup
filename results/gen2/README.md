@@ -24,8 +24,25 @@ y cada prueba de acá se compara contra ella.
 
 `indice.json` resume todas las pruebas (lo lee la consola).
 
-Las 41 pruebas del catálogo tienen carpeta acá. Desde la enmienda del 2026-10-30 (doc 134 §13.10), las siete de
-contraste (`ALR-03…06`, `IMG-02`, `IMG-03`, `PER-02`) también se regeneran.
+Las 45 pruebas que corrieron hasta las jornadas en vivo tienen carpeta acá, todas con su veredicto confirmado. Desde
+la enmienda del 2026-10-30 (doc 134 §13.10), las siete de contraste (`ALR-03…06`, `IMG-02`, `IMG-03`, `PER-02`)
+también se regeneran. Las pruebas en vivo (`RT-03…RT-09`) corrieron en dos jornadas, el 2026-11-01 y el 2026-11-07.
+Tres quedaron parciales, firmadas con el motivo de lo que falta (`RT-03`, `RT-05` y `RT-09`; ver
+`veredicto.confirmado.faltante` en su `resultado.json`).
+
+El catálogo tiene 49: `ALR-11…ALR-14` se pre-registraron el 2026-11-12, después de las jornadas (YOLOE-26s en los
+bancos de clips y la sensibilidad de la regla a sus umbrales), y tienen carpeta cuando corren. Ese mismo día se corrigió
+la cifra de cuadros por segundo de las pruebas en vivo: ahora se mide entre el primer y el último cuadro, y la anterior
+(sobre la duración entera de la corrida, que incluye abrir y cerrar la cámara) queda al lado como `fps_sobre_duracion`.
+
+## Carpetas que no son una prueba
+
+| Carpeta | Qué es |
+|---|---|
+| `PLAT-01.hasta-F6`, `PLAT-01.cierre-F6`, `PLAT-01.F7-jornada-1` | versiones anteriores de `PLAT-01`, guardadas antes de volver a correrla (la consola se reconstruyó entre fases). La vigente es `PLAT-01/` |
+| `INT-03.descartada-<fecha>` | la carpeta que el driver archiva cuando una prueba se vuelve a correr con `--forzar` porque su pre-registro cambió (acá, la huella de GDINO base pasó a la de la fuente). Queda como constancia y no cuenta en el índice |
+| `_calibraciones/` | las calibraciones de encuadre de las pruebas en vivo, una por sesión de calibración |
+| `_registro/` | los logs de las campañas y la constancia de `limpiar-rutas` |
 
 ## Tres veredictos posibles
 
