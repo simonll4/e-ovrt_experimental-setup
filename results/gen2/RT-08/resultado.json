@@ -6,7 +6,7 @@
     "Tabla 54",
     "§17.5.5"
   ],
-  "generado": "2026-11-07T05:10:22+00:00",
+  "generado": "2026-11-12T22:35:38+00:00",
   "familia": "rodaje",
   "estado": "completo",
   "metricas": {
@@ -61,7 +61,9 @@
             "n": 0
           }
         },
-        "fps_efectivos_media": 6.3,
+        "fps_efectivos_media": 7.03,
+        "fps_sobre_duracion_media": 6.3,
+        "cuadros_descartados": 466,
         "ensayos_demo": {
           "total": 0,
           "aprobados": 0,
@@ -126,7 +128,9 @@
             "n": 0
           }
         },
-        "fps_efectivos_media": 5.99,
+        "fps_efectivos_media": 6.5,
+        "fps_sobre_duracion_media": 5.99,
+        "cuadros_descartados": 615,
         "ensayos_demo": {
           "total": 0,
           "aprobados": 0,
@@ -144,7 +148,53 @@
         }
       }
     },
-    "no_evaluables": [],
+    "no_evaluables": [
+      {
+        "session_id": "demo_20261107T200449Z_P1",
+        "escena": "P1",
+        "motivo": "otro chaleco: 'julio' (el pre-registro fija 'amarillo')"
+      },
+      {
+        "session_id": "demo_20261107T200627Z_P1",
+        "escena": "P1",
+        "motivo": "otro chaleco: 'julio' (el pre-registro fija 'amarillo')"
+      },
+      {
+        "session_id": "demo_20261107T201125Z_P2",
+        "escena": "P2",
+        "motivo": "otro chaleco: 'julio' (el pre-registro fija 'amarillo')"
+      },
+      {
+        "session_id": "demo_20261107T201249Z_P2",
+        "escena": "P2",
+        "motivo": "otro chaleco: 'julio' (el pre-registro fija 'amarillo')"
+      },
+      {
+        "session_id": "demo_20261107T201405Z_P1",
+        "escena": "P1",
+        "motivo": "otro chaleco: 'julio' (el pre-registro fija 'amarillo')"
+      },
+      {
+        "session_id": "demo_20261107T201512Z_P2",
+        "escena": "P2",
+        "motivo": "otro chaleco: 'julio' (el pre-registro fija 'amarillo')"
+      },
+      {
+        "session_id": "demo_20261107T201649Z_P2",
+        "escena": "P2",
+        "motivo": "otro chaleco: 'julio' (el pre-registro fija 'amarillo')"
+      },
+      {
+        "session_id": "demo_20261107T202126Z_P2",
+        "escena": "P2",
+        "motivo": "toma de la prueba de prendas y de la distractora (RT-09) (rodaje.ps1 -Proposito prendas)"
+      },
+      {
+        "session_id": "demo_20261107T202250Z_P2",
+        "escena": "P2",
+        "motivo": "toma de la prueba de prendas y de la distractora (RT-09) (rodaje.ps1 -Proposito prendas)"
+      }
+    ],
     "fuente": "rtsp",
     "relecturas_fallidas": []
   },
@@ -200,9 +250,16 @@
     },
     {
       "clave": "fps_efectivos_secundario",
-      "nombre": "Cuadros por segundo procesados — stream secundario",
-      "valor": 6.3,
+      "nombre": "Cuadros por segundo procesados, entre el primer y el último cuadro — stream secundario",
+      "valor": 7.03,
       "unidad": "fps",
+      "gen1": null
+    },
+    {
+      "clave": "cuadros_descartados_secundario",
+      "nombre": "Cuadros descartados (la cámara entregó más de los que se procesaron) — stream secundario",
+      "valor": 466,
+      "unidad": null,
       "gen1": null
     },
     {
@@ -263,9 +320,16 @@
     },
     {
       "clave": "fps_efectivos_principal",
-      "nombre": "Cuadros por segundo procesados — stream principal",
-      "valor": 5.99,
+      "nombre": "Cuadros por segundo procesados, entre el primer y el último cuadro — stream principal",
+      "valor": 6.5,
       "unidad": "fps",
+      "gen1": null
+    },
+    {
+      "clave": "cuadros_descartados_principal",
+      "nombre": "Cuadros descartados (la cámara entregó más de los que se procesaron) — stream principal",
+      "valor": 615,
+      "unidad": null,
       "gen1": null
     },
     {

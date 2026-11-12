@@ -1,0 +1,83 @@
+{
+  "tipo": "reuso",
+  "clips": [
+    "v01_c01",
+    "v01_c02",
+    "v02_c01",
+    "v03_c01",
+    "v03_c02",
+    "v04_c01",
+    "v04_c02",
+    "v04_c03",
+    "v05_c01",
+    "v06_c01",
+    "v07_c01",
+    "v09_c01",
+    "v10_c01"
+  ],
+  "prompts": null,
+  "modelo_cargado": null,
+  "control": {
+    "patrones": "cr01_cr02_v2_sens_c",
+    "activos": [
+      "CR-01",
+      "CR-02"
+    ]
+  },
+  "variantes": [
+    {
+      "nombre": "combinada_sujeto",
+      "control": {
+        "patrones": "cr01_cr02_v2_sens_c_subject",
+        "activos": [
+          "CR-01",
+          "CR-02"
+        ],
+        "track_persons": true
+      }
+    },
+    {
+      "nombre": "casco",
+      "control": {
+        "patrones": "cr01_cr02_v2_sens_casco",
+        "activos": [
+          "CR-01",
+          "CR-02"
+        ]
+      }
+    },
+    {
+      "nombre": "casco_sujeto",
+      "control": {
+        "patrones": "cr01_cr02_v2_sens_casco_subject",
+        "activos": [
+          "CR-01",
+          "CR-02"
+        ],
+        "track_persons": true
+      }
+    },
+    {
+      "nombre": "chaleco",
+      "control": {
+        "patrones": "cr01_cr02_v2_sens_chaleco",
+        "activos": [
+          "CR-01",
+          "CR-02"
+        ]
+      }
+    },
+    {
+      "nombre": "chaleco_sujeto",
+      "control": {
+        "patrones": "cr01_cr02_v2_sens_chaleco_subject",
+        "activos": [
+          "CR-01",
+          "CR-02"
+        ],
+        "track_persons": true
+      }
+    }
+  ],
+  "stride": 1
+}

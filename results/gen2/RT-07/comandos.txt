@@ -20,3 +20,4 @@
 [2026-11-07T05:09:54+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/RT-07/gen2_rt04_sujeto_demo_20261101T203535Z_DEMO/manifest.yaml
 [2026-11-07T05:09:57+00:00] POST /api/experiments/run  manifiesto=$EOVRT_WORKSPACE/e-ovrt_experimental-setup/runs/evidencia/_generados/RT-07/gen2_rt04_sujeto_demo_20261101T203803Z_DEMO/manifest.yaml
 [2026-11-07T05:10:38+00:00] veredicto confirmado: otra_combinacion (equipo E-OVRT-VDP): Chaleco amarillo sin bandas, OAK-D, 9 tomas: puesto se reconoce (P1 2/2 sin CR-02 en falso); al sacarlo CR-02 no alerto en 0/7 por el vest falso sobre la remera negra (F-RT1, 99-100 % de los cuadros); CR-01 como el guion en 9/9. Sin par en julio (doc 140)
+[2026-11-12T22:35:33+00:00] python -m tools.evidencia correr RT-03 RT-04 RT-05 RT-06 RT-07 RT-08 RT-09 --reagregar

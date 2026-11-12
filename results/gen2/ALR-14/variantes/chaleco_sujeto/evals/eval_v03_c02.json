@@ -1,0 +1,181 @@
+{
+  "schema_version": "control.eval.temporal.v1",
+  "scenario_id": "v03_c02",
+  "alerts_path": "$EOVRT_WORKSPACE/e-ovrt_control-plane/runs/gen2_alr14_chaleco_sujeto_v03_c02_20261112T225850Z_172b5a/alerts.jsonl",
+  "ground_truth_path": "$EOVRT_WORKSPACE/e-ovrt_datasets/datasets/processed/clip_bench/gt/v03_c02.json",
+  "expected_alerts_count": 0,
+  "observed_alerts_count": 20,
+  "matched_alerts_count": 0,
+  "missed_alerts_count": 0,
+  "unexpected_alerts_count": 20,
+  "duplicate_alerts_count": 0,
+  "precision": 0.0,
+  "recall": 0.0,
+  "f1": 0.0,
+  "avg_latency_frames_from_first_evidence": null,
+  "avg_latency_ms_from_first_evidence": null,
+  "re_alerts_count": 0,
+  "sub_threshold_count": 0,
+  "censored_episodes_count": 0,
+  "observed_duration_ms": 104900.0,
+  "far_per_hour": 686.367969,
+  "applicability_state": "not_applicable",
+  "applicability_cause": "negative_clip_no_episodes",
+  "avg_latency_ms_from_episode_start": null,
+  "effective_matching_windows": {},
+  "warnings": [
+    "clip negativo (0 episodios en el GT): precision/recall/F1 no son evaluables (denominador 0) y NO deben promediarse. Lo que si es dato real: 20 falso(s) positivo(s) y far_per_hour — este clip es control de falsos positivos, no de recall."
+  ],
+  "matches": [],
+  "missed_alerts": [],
+  "unexpected_alerts": [
+    {
+      "alert_id": "05381b2e-f104-53af-ba69-a6aebc3ec4bf",
+      "condition_id": "CR-01",
+      "subject_key": "CR-01:v03_c02:subject_003",
+      "frame_index": 120,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "102cc050-6ec9-5e9b-aa70-cd0123c040b4",
+      "condition_id": "CR-01",
+      "subject_key": "CR-01:v03_c02:subject_002",
+      "frame_index": 120,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "4771ff4c-5c06-5b3e-87f4-89a3260fab82",
+      "condition_id": "CR-01",
+      "subject_key": "CR-01:v03_c02:subject_004",
+      "frame_index": 120,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "e32c08d7-159c-510c-86f7-57751e16d725",
+      "condition_id": "CR-02",
+      "subject_key": "CR-02:v03_c02:subject_003",
+      "frame_index": 210,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "ce2d7926-de9b-5eb2-8477-0d5eb223865a",
+      "condition_id": "CR-02",
+      "subject_key": "CR-02:v03_c02:subject_002",
+      "frame_index": 210,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "a948be9e-4e58-554e-9866-6f14a33aaae2",
+      "condition_id": "CR-02",
+      "subject_key": "CR-02:v03_c02:subject_004",
+      "frame_index": 211,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "04d7fafa-96ab-5869-a23d-0b5993474b75",
+      "condition_id": "CR-01",
+      "subject_key": "CR-01:v03_c02:subject_016",
+      "frame_index": 615,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "1aa9eb89-4d5d-5120-a7ee-cbfa332e6469",
+      "condition_id": "CR-01",
+      "subject_key": "CR-01:v03_c02:subject_046",
+      "frame_index": 1024,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "0bc13f07-14a8-5aca-bb81-e451ee4ebaf1",
+      "condition_id": "CR-01",
+      "subject_key": "CR-01:v03_c02:subject_047",
+      "frame_index": 1031,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "450fe0d4-9edb-531e-a261-71e9c0eb3b0c",
+      "condition_id": "CR-02",
+      "subject_key": "CR-02:v03_c02:subject_047",
+      "frame_index": 1121,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "ffa939b6-5e67-5b93-a91a-0c47fe058502",
+      "condition_id": "CR-02",
+      "subject_key": "CR-02:v03_c02:subject_009",
+      "frame_index": 1488,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "31c0bd5e-0c0d-5127-af71-05cf770490d1",
+      "condition_id": "CR-01",
+      "subject_key": "CR-01:v03_c02:subject_058",
+      "frame_index": 1791,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "1af082a9-fe39-5d27-a2a5-7501942098f4",
+      "condition_id": "CR-02",
+      "subject_key": "CR-02:v03_c02:subject_058",
+      "frame_index": 1901,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "c3a299ce-8dd9-5c25-90fe-79f88349516b",
+      "condition_id": "CR-01",
+      "subject_key": "CR-01:v03_c02:subject_065",
+      "frame_index": 2071,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "4c485e9d-c9af-5072-a532-c8417f1d7687",
+      "condition_id": "CR-02",
+      "subject_key": "CR-02:v03_c02:subject_065",
+      "frame_index": 2157,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "694c85b4-ea38-5c44-a0eb-9980bed25484",
+      "condition_id": "CR-02",
+      "subject_key": "CR-02:v03_c02:subject_081",
+      "frame_index": 2502,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "b586bef6-cf2b-5dfb-af8d-a91074c0ce98",
+      "condition_id": "CR-01",
+      "subject_key": "CR-01:v03_c02:subject_087",
+      "frame_index": 2530,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "ab7af3de-1ed3-5e5c-8c80-586b14a10754",
+      "condition_id": "CR-02",
+      "subject_key": "CR-02:v03_c02:subject_087",
+      "frame_index": 2620,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "f48a5588-f06c-53a7-b59a-0ff655d5ad97",
+      "condition_id": "CR-01",
+      "subject_key": "CR-01:v03_c02:subject_096",
+      "frame_index": 3025,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "50abf51a-16a5-5f6c-9b4d-96d30c4a72e5",
+      "condition_id": "CR-01",
+      "subject_key": "CR-01:v03_c02:subject_109",
+      "frame_index": 3072,
+      "reason": "outside_all_episode_windows"
+    }
+  ],
+  "censored_episodes": [],
+  "avg_ttfd_ms": null,
+  "avg_sdr": null,
+  "ttfd_by_episode": [],
+  "sdr_by_episode": [],
+  "ttfd_sdr_applicability": "computed",
+  "positive_criterion": "spatial_absence(cr01_cr02_v2_sens_chaleco_subject) >=1 evidencia",
+  "detections_path": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_081545_dbe_grounding_dino_c3e883/detections.jsonl"
+}

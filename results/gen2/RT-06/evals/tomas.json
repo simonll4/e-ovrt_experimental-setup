@@ -56,7 +56,8 @@
     "latencia": {
       "unidades": 192,
       "descartadas": 123,
-      "fps_efectivos": 5.72,
+      "fps_efectivos": 6.41,
+      "fps_sobre_duracion": 5.72,
       "inferencia_p50_ms": 151.89,
       "inferencia_p95_ms": 203.64,
       "g2a": {
@@ -153,7 +154,8 @@
     "latencia": {
       "unidades": 224,
       "descartadas": 91,
-      "fps_efectivos": 6.66,
+      "fps_efectivos": 7.48,
+      "fps_sobre_duracion": 6.66,
       "inferencia_p50_ms": 128.5,
       "inferencia_p95_ms": 169.09,
       "g2a": {
@@ -259,7 +261,8 @@
     "latencia": {
       "unidades": 190,
       "descartadas": 100,
-      "fps_efectivos": 6.11,
+      "fps_efectivos": 6.91,
+      "fps_sobre_duracion": 6.11,
       "inferencia_p50_ms": 140.56,
       "inferencia_p95_ms": 195.14,
       "g2a": {
@@ -338,7 +341,8 @@
     "latencia": {
       "unidades": 199,
       "descartadas": 91,
-      "fps_efectivos": 6.4,
+      "fps_efectivos": 7.28,
+      "fps_sobre_duracion": 6.4,
       "inferencia_p50_ms": 130.44,
       "inferencia_p95_ms": 180.92,
       "g2a": {
@@ -435,7 +439,8 @@
     "latencia": {
       "unidades": 262,
       "descartadas": 135,
-      "fps_efectivos": 6.27,
+      "fps_efectivos": 6.87,
+      "fps_sobre_duracion": 6.27,
       "inferencia_p50_ms": 139.32,
       "inferencia_p95_ms": 190.66,
       "g2a": {
@@ -532,7 +537,8 @@
     "latencia": {
       "unidades": 250,
       "descartadas": 144,
-      "fps_efectivos": 5.99,
+      "fps_efectivos": 6.62,
+      "fps_sobre_duracion": 5.99,
       "inferencia_p50_ms": 148.72,
       "inferencia_p95_ms": 199.75,
       "g2a": {
@@ -629,7 +635,8 @@
     "latencia": {
       "unidades": 199,
       "descartadas": 269,
-      "fps_efectivos": 5.99,
+      "fps_efectivos": 6.6,
+      "fps_sobre_duracion": 5.99,
       "inferencia_p50_ms": 147.39,
       "inferencia_p95_ms": 197.37,
       "g2a": {
@@ -726,7 +733,8 @@
     "latencia": {
       "unidades": 247,
       "descartadas": 344,
-      "fps_efectivos": 6.0,
+      "fps_efectivos": 6.44,
+      "fps_sobre_duracion": 6.0,
       "inferencia_p50_ms": 154.29,
       "inferencia_p95_ms": 196.84,
       "g2a": {

@@ -1,0 +1,99 @@
+{
+  "schema_version": "control.eval.temporal.v1",
+  "scenario_id": "v01_c02",
+  "alerts_path": "$EOVRT_WORKSPACE/e-ovrt_control-plane/runs/gen2_alr12_sujeto_v01_c02_20261112T232602Z_3e1b10/alerts.jsonl",
+  "ground_truth_path": "$EOVRT_WORKSPACE/e-ovrt_datasets/datasets/processed/clip_bench/gt/v01_c02.json",
+  "expected_alerts_count": 1,
+  "observed_alerts_count": 10,
+  "matched_alerts_count": 1,
+  "missed_alerts_count": 0,
+  "unexpected_alerts_count": 6,
+  "duplicate_alerts_count": 0,
+  "precision": 0.142857,
+  "recall": 1.0,
+  "f1": 0.25,
+  "avg_latency_frames_from_first_evidence": null,
+  "avg_latency_ms_from_first_evidence": null,
+  "re_alerts_count": 3,
+  "sub_threshold_count": 0,
+  "censored_episodes_count": 0,
+  "observed_duration_ms": 32767.0,
+  "far_per_hour": 659.199805,
+  "applicability_state": "computed",
+  "applicability_cause": null,
+  "avg_latency_ms_from_episode_start": 4433.33,
+  "effective_matching_windows": {
+    "CR-01": {
+      "persistencia_min_ms": 4000.0,
+      "t_alert_max_ms": 10000.0,
+      "origin": "gt_provenance"
+    }
+  },
+  "warnings": [],
+  "matches": [],
+  "missed_alerts": [],
+  "unexpected_alerts": [
+    {
+      "alert_id": "d32aa7c0-40fa-5c83-977e-ac38921f13c9",
+      "condition_id": "CR-02",
+      "subject_key": "CR-02:v01_c02:subject_001",
+      "frame_index": 210,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "f6588131-78c4-5b09-9297-ab7d79f032f5",
+      "condition_id": "CR-02",
+      "subject_key": "CR-02:v01_c02:subject_012",
+      "frame_index": 488,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "21019088-3a9e-5a1b-936c-c49771ab0d90",
+      "condition_id": "CR-01",
+      "subject_key": "CR-01:v01_c02:subject_022",
+      "frame_index": 680,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "e64194ff-9d45-5a6e-a580-64cd312a166f",
+      "condition_id": "CR-01",
+      "subject_key": "CR-01:v01_c02:subject_023",
+      "frame_index": 736,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "40802cda-3a9d-57ec-8591-2c6d04e28749",
+      "condition_id": "CR-02",
+      "subject_key": "CR-02:v01_c02:subject_023",
+      "frame_index": 826,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "85b4397a-4170-50b7-991a-a3afda438112",
+      "condition_id": "CR-01",
+      "subject_key": "CR-01:v01_c02:subject_024",
+      "frame_index": 841,
+      "reason": "outside_all_episode_windows"
+    }
+  ],
+  "censored_episodes": [],
+  "avg_ttfd_ms": 0.0,
+  "avg_sdr": 0.786776,
+  "ttfd_by_episode": [
+    {
+      "episode_id": "ep1",
+      "ttfd_ms": 0.0,
+      "cause": null
+    }
+  ],
+  "sdr_by_episode": [
+    {
+      "episode_id": "ep1",
+      "sdr": 0.786776050662061,
+      "cause": null
+    }
+  ],
+  "ttfd_sdr_applicability": "computed",
+  "positive_criterion": "spatial_absence(cr01_cr02_v2_subject) >=1 evidencia",
+  "detections_path": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261112_232531_dbe_yoloe_688c74/detections.jsonl"
+}

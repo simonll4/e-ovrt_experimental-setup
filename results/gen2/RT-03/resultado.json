@@ -6,7 +6,7 @@
     "Tabla 54",
     "§17.5.5"
   ],
-  "generado": "2026-11-07T05:10:25+00:00",
+  "generado": "2026-11-12T22:35:18+00:00",
   "familia": "vivo",
   "estado": "parcial",
   "metricas": {
@@ -29,7 +29,8 @@
         "p95": 495.256,
         "max": 727.764
       },
-      "fps_efectivos": 3.94,
+      "fps_efectivos": 4.97,
+      "fps_sobre_duracion": 3.94,
       "tomas": [
         "lat_960_a",
         "lat_960_b",
@@ -40,8 +41,8 @@
   "resumen": [
     {
       "clave": "fps_efectivos",
-      "nombre": "Cuadros por segundo procesados (960x540@5)",
-      "valor": 3.94,
+      "nombre": "Cuadros por segundo procesados (960x540@5), entre el primer y el último cuadro",
+      "valor": 4.97,
       "unidad": "fps",
       "gen1": null
     },
@@ -74,9 +75,9 @@
   "veredicto": {
     "confirmado": {
       "valor": "otra_combinacion",
-      "motivo": "Configuracion de despliegue (960x540@5) con personas, 3 tomas validas: G2A p95 426,5 ms (237/542/201 por toma), vidrio a resultado p95 495 ms, 3,94 fps. 1080p@30 se retira sin correr: en la Victus la red de WSL limita la OAK-D a ~200 Mbit/s y mediria la red, no el sistema (doc 133 s3.5); la comparacion con el informe es otra combinacion de todos modos (doc 134 s13.17, doc 140)",
+      "motivo": "Configuracion de despliegue (960x540@5) con personas, 3 tomas validas: G2A p95 426,5 ms (237/542/201 por toma), vidrio a resultado p95 495 ms, 4,97 cuadros por segundo procesados entre el primer y el ultimo cuadro (la cifra firmada antes, 3,94, dividia por la duracion entera de la corrida: doc 134 s13.22). 1080p@30 se retira sin correr: en la Victus la red de WSL limita la OAK-D a ~200 Mbit/s y mediria la red, no el sistema (doc 133 s3.5); la comparacion con el informe es otra combinacion de todos modos (doc 134 s13.17, doc 140)",
       "quien": "equipo E-OVRT-VDP",
-      "fecha": "2026-11-07T05:10:36+00:00",
+      "fecha": "2026-11-12T22:45:10+00:00",
       "parcial": true,
       "faltante": {
         "configs_sin_tomas": [

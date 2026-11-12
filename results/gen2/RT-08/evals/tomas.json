@@ -50,7 +50,8 @@
     "latencia": {
       "unidades": 209,
       "descartadas": 111,
-      "fps_efectivos": 6.09,
+      "fps_efectivos": 6.88,
+      "fps_sobre_duracion": 6.09,
       "inferencia_p50_ms": 140.76,
       "inferencia_p95_ms": 196.43,
       "g2a": {
@@ -123,7 +124,8 @@
     "latencia": {
       "unidades": 273,
       "descartadas": 126,
-      "fps_efectivos": 6.47,
+      "fps_efectivos": 7.13,
+      "fps_sobre_duracion": 6.47,
       "inferencia_p50_ms": 132.52,
       "inferencia_p95_ms": 192.29,
       "g2a": {
@@ -214,7 +216,8 @@
     "latencia": {
       "unidades": 204,
       "descartadas": 110,
-      "fps_efectivos": 6.06,
+      "fps_efectivos": 6.84,
+      "fps_sobre_duracion": 6.06,
       "inferencia_p50_ms": 142.22,
       "inferencia_p95_ms": 194.68,
       "g2a": {
@@ -287,7 +290,8 @@
     "latencia": {
       "unidades": 273,
       "descartadas": 119,
-      "fps_efectivos": 6.6,
+      "fps_efectivos": 7.27,
+      "fps_sobre_duracion": 6.6,
       "inferencia_p50_ms": 130.71,
       "inferencia_p95_ms": 184.19,
       "g2a": {
@@ -378,7 +382,8 @@
     "latencia": {
       "unidades": 205,
       "descartadas": 270,
-      "fps_efectivos": 6.08,
+      "fps_efectivos": 6.68,
+      "fps_sobre_duracion": 6.08,
       "inferencia_p50_ms": 147.31,
       "inferencia_p95_ms": 197.55,
       "g2a": {
@@ -451,7 +456,8 @@
     "latencia": {
       "unidades": 241,
       "descartadas": 345,
-      "fps_efectivos": 5.9,
+      "fps_efectivos": 6.32,
+      "fps_sobre_duracion": 5.9,
       "inferencia_p50_ms": 155.67,
       "inferencia_p95_ms": 204.66,
       "g2a": {

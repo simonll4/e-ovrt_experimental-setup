@@ -50,7 +50,8 @@
     "latencia": {
       "unidades": 150,
       "descartadas": 0,
-      "fps_efectivos": 3.43,
+      "fps_efectivos": 5.0,
+      "fps_sobre_duracion": 3.43,
       "inferencia_p50_ms": 152.59,
       "inferencia_p95_ms": 201.9,
       "g2a": {
@@ -146,7 +147,8 @@
     "latencia": {
       "unidades": 151,
       "descartadas": 0,
-      "fps_efectivos": 3.45,
+      "fps_efectivos": 5.0,
+      "fps_sobre_duracion": 3.45,
       "inferencia_p50_ms": 145.11,
       "inferencia_p95_ms": 207.76,
       "g2a": {
@@ -224,7 +226,8 @@
     "latencia": {
       "unidades": 191,
       "descartadas": 0,
-      "fps_efectivos": 3.68,
+      "fps_efectivos": 5.0,
+      "fps_sobre_duracion": 3.68,
       "inferencia_p50_ms": 143.31,
       "inferencia_p95_ms": 205.23,
       "g2a": {
@@ -302,7 +305,8 @@
     "latencia": {
       "unidades": 189,
       "descartadas": 0,
-      "fps_efectivos": 3.66,
+      "fps_efectivos": 5.0,
+      "fps_sobre_duracion": 3.66,
       "inferencia_p50_ms": 165.28,
       "inferencia_p95_ms": 218.04,
       "g2a": {
@@ -380,7 +384,8 @@
     "latencia": {
       "unidades": 189,
       "descartadas": 0,
-      "fps_efectivos": 3.65,
+      "fps_efectivos": 5.0,
+      "fps_sobre_duracion": 3.65,
       "inferencia_p50_ms": 142.31,
       "inferencia_p95_ms": 190.23,
       "g2a": {
@@ -476,7 +481,8 @@
     "latencia": {
       "unidades": 195,
       "descartadas": 0,
-      "fps_efectivos": 3.76,
+      "fps_efectivos": 5.0,
+      "fps_sobre_duracion": 3.76,
       "inferencia_p50_ms": 149.37,
       "inferencia_p95_ms": 206.63,
       "g2a": {
@@ -572,7 +578,8 @@
     "latencia": {
       "unidades": 277,
       "descartadas": 0,
-      "fps_efectivos": 4.07,
+      "fps_efectivos": 5.0,
+      "fps_sobre_duracion": 4.07,
       "inferencia_p50_ms": 147.17,
       "inferencia_p95_ms": 200.86,
       "g2a": {
@@ -673,7 +680,8 @@
     "latencia": {
       "unidades": 275,
       "descartadas": 0,
-      "fps_efectivos": 4.06,
+      "fps_efectivos": 5.0,
+      "fps_sobre_duracion": 4.06,
       "inferencia_p50_ms": 144.28,
       "inferencia_p95_ms": 194.28,
       "g2a": {
@@ -775,7 +783,8 @@
     "latencia": {
       "unidades": 272,
       "descartadas": 4,
-      "fps_efectivos": 4.01,
+      "fps_efectivos": 4.93,
+      "fps_sobre_duracion": 4.01,
       "inferencia_p50_ms": 143.82,
       "inferencia_p95_ms": 214.13,
       "g2a": {

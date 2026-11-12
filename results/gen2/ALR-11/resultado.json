@@ -1,0 +1,231 @@
+{
+  "schema": "resultado.gen2.v1",
+  "id": "ALR-11",
+  "titulo": "Alerta por episodio con YOLOE-26s (rodaje), escena y sujeto",
+  "informe": [
+    "Tabla 53",
+    "§17.5.4",
+    "§17.5.5"
+  ],
+  "generado": "2026-11-12T23:24:50+00:00",
+  "familia": "clips",
+  "corridas": {
+    "total": 34,
+    "ok": 34
+  },
+  "pendientes": [],
+  "estado": "completo",
+  "metricas": {
+    "episodes_total": 33,
+    "episodes_censored": 0,
+    "episodes_evaluable": 33,
+    "matched": 17,
+    "missed": 16,
+    "false_positives": 41,
+    "re_alerts": 0,
+    "sub_threshold": 1,
+    "recall_micro": 0.515152,
+    "precision_micro": 0.293103,
+    "f1_micro": 0.373626,
+    "neg_false_positives": 7
+  },
+  "resumen": [
+    {
+      "clave": "f1",
+      "nombre": "F1 por episodio (micro)",
+      "valor": 0.373626,
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "precision",
+      "nombre": "Precisión",
+      "valor": 0.293103,
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "recall",
+      "nombre": "Recall",
+      "valor": 0.515152,
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "episodios_evaluables",
+      "nombre": "Episodios evaluables",
+      "valor": 33,
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "aciertos",
+      "nombre": "Alertas que acertaron un episodio",
+      "valor": 17,
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "perdidos",
+      "nombre": "Episodios sin alerta",
+      "valor": 16,
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "falsas_alarmas_en_positivos",
+      "nombre": "Falsas alarmas en clips con episodios",
+      "valor": 41,
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "falsas_alarmas",
+      "nombre": "Falsas alarmas en clips sin infracción",
+      "valor": 7,
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "re_alertas",
+      "nombre": "Re-alertas (no son falsas alarmas)",
+      "valor": 0,
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "t_alert_s",
+      "nombre": "Tiempo hasta la alerta desde el inicio del episodio",
+      "valor": 4.431,
+      "unidad": "s",
+      "gen1": null
+    },
+    {
+      "clave": "ttfd_ms",
+      "nombre": "Tiempo hasta la primera detección",
+      "valor": 39.549,
+      "unidad": "ms",
+      "gen1": null
+    },
+    {
+      "clave": "sdr",
+      "nombre": "Proporción de detección sostenida (SDR)",
+      "valor": 0.963391,
+      "unidad": null,
+      "gen1": null
+    }
+  ],
+  "veredicto": {
+    "confirmado": null,
+    "referencia": null,
+    "propuesto": "otra_combinacion",
+    "motivo": "Combinación nueva (doc 145 §5, A4): YOLOE nunca corrió sobre el banco de clips. Se compara con ALR-01 (el campeón: F1 0,841 por escena) y ALR-03 (GDINO base: 0,676), y por sujeto con ALR-02 (0,899).\n",
+    "diferencias": {}
+  },
+  "por_clip_vs_gen1_publicada": null,
+  "variantes": {
+    "sujeto": {
+      "metricas": {
+        "episodes_total": 33,
+        "episodes_censored": 0,
+        "episodes_evaluable": 33,
+        "matched": 26,
+        "missed": 7,
+        "false_positives": 40,
+        "re_alerts": 24,
+        "sub_threshold": 0,
+        "recall_micro": 0.787879,
+        "precision_micro": 0.393939,
+        "f1_micro": 0.525252,
+        "neg_false_positives": 8
+      },
+      "resumen": [
+        {
+          "clave": "f1",
+          "nombre": "F1 por episodio (micro)",
+          "valor": 0.525252,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "precision",
+          "nombre": "Precisión",
+          "valor": 0.393939,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "recall",
+          "nombre": "Recall",
+          "valor": 0.787879,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "episodios_evaluables",
+          "nombre": "Episodios evaluables",
+          "valor": 33,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "aciertos",
+          "nombre": "Alertas que acertaron un episodio",
+          "valor": 26,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "perdidos",
+          "nombre": "Episodios sin alerta",
+          "valor": 7,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "falsas_alarmas_en_positivos",
+          "nombre": "Falsas alarmas en clips con episodios",
+          "valor": 40,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "falsas_alarmas",
+          "nombre": "Falsas alarmas en clips sin infracción",
+          "valor": 8,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "re_alertas",
+          "nombre": "Re-alertas (no son falsas alarmas)",
+          "valor": 24,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "t_alert_s",
+          "nombre": "Tiempo hasta la alerta desde el inicio del episodio",
+          "valor": 5.272,
+          "unidad": "s",
+          "gen1": null
+        },
+        {
+          "clave": "ttfd_ms",
+          "nombre": "Tiempo hasta la primera detección",
+          "valor": 39.549,
+          "unidad": "ms",
+          "gen1": null
+        },
+        {
+          "clave": "sdr",
+          "nombre": "Proporción de detección sostenida (SDR)",
+          "valor": 0.963391,
+          "unidad": null,
+          "gen1": null
+        }
+      ],
+      "gen1": null
+    }
+  }
+}

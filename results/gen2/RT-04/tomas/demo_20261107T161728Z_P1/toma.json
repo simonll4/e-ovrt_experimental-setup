@@ -55,7 +55,8 @@
   "latencia": {
     "unidades": 151,
     "descartadas": 0,
-    "fps_efectivos": 2.56,
+    "fps_efectivos": 5.0,
+    "fps_sobre_duracion": 2.56,
     "inferencia_p50_ms": 147.57,
     "inferencia_p95_ms": 201.17,
     "g2a": {

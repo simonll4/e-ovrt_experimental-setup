@@ -6,7 +6,7 @@
     "Tabla 54",
     "§17.5.5"
   ],
-  "generado": "2026-11-07T19:42:15+00:00",
+  "generado": "2026-11-12T22:35:25+00:00",
   "familia": "rodaje",
   "estado": "completo",
   "metricas": {
@@ -153,7 +153,9 @@
         "max": 594.049
       }
     },
-    "fps_efectivos_media": 2.59,
+    "fps_efectivos_media": 5.0,
+    "fps_sobre_duracion_media": 2.59,
+    "cuadros_descartados": 0,
     "ensayos_demo": {
       "total": 2,
       "aprobados": 1,
@@ -334,9 +336,16 @@
     },
     {
       "clave": "fps_efectivos",
-      "nombre": "Cuadros por segundo procesados",
-      "valor": 2.59,
+      "nombre": "Cuadros por segundo procesados, entre el primer y el último cuadro",
+      "valor": 5.0,
       "unidad": "fps",
+      "gen1": null
+    },
+    {
+      "clave": "cuadros_descartados",
+      "nombre": "Cuadros descartados (la cámara entregó más de los que se procesaron)",
+      "valor": 0,
+      "unidad": null,
       "gen1": null
     },
     {

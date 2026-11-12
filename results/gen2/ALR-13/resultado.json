@@ -1,0 +1,642 @@
+{
+  "schema": "resultado.gen2.v1",
+  "id": "ALR-13",
+  "titulo": "Sensibilidad de la regla a sus umbrales de EPP: rodaje, escena y sujeto",
+  "informe": [
+    "§17.5.4",
+    "§17.5.7"
+  ],
+  "generado": "2026-11-12T22:57:07+00:00",
+  "familia": "clips",
+  "corridas": {
+    "total": 34,
+    "ok": 34
+  },
+  "pendientes": [],
+  "estado": "completo",
+  "metricas": {
+    "episodes_total": 33,
+    "episodes_censored": 0,
+    "episodes_evaluable": 33,
+    "matched": 27,
+    "missed": 6,
+    "false_positives": 14,
+    "re_alerts": 2,
+    "sub_threshold": 0,
+    "recall_micro": 0.818182,
+    "precision_micro": 0.658537,
+    "f1_micro": 0.72973,
+    "neg_false_positives": 2
+  },
+  "resumen": [
+    {
+      "clave": "f1",
+      "nombre": "F1 por episodio (micro)",
+      "valor": 0.72973,
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "precision",
+      "nombre": "Precisión",
+      "valor": 0.658537,
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "recall",
+      "nombre": "Recall",
+      "valor": 0.818182,
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "episodios_evaluables",
+      "nombre": "Episodios evaluables",
+      "valor": 33,
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "aciertos",
+      "nombre": "Alertas que acertaron un episodio",
+      "valor": 27,
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "perdidos",
+      "nombre": "Episodios sin alerta",
+      "valor": 6,
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "falsas_alarmas_en_positivos",
+      "nombre": "Falsas alarmas en clips con episodios",
+      "valor": 14,
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "falsas_alarmas",
+      "nombre": "Falsas alarmas en clips sin infracción",
+      "valor": 2,
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "re_alertas",
+      "nombre": "Re-alertas (no son falsas alarmas)",
+      "valor": 2,
+      "unidad": null,
+      "gen1": null
+    },
+    {
+      "clave": "t_alert_s",
+      "nombre": "Tiempo hasta la alerta desde el inicio del episodio",
+      "valor": 4.782,
+      "unidad": "s",
+      "gen1": null
+    },
+    {
+      "clave": "ttfd_ms",
+      "nombre": "Tiempo hasta la primera detección",
+      "valor": 153.9935,
+      "unidad": "ms",
+      "gen1": null
+    },
+    {
+      "clave": "sdr",
+      "nombre": "Proporción de detección sostenida (SDR)",
+      "valor": 0.84361,
+      "unidad": null,
+      "gen1": null
+    }
+  ],
+  "veredicto": {
+    "confirmado": null,
+    "referencia": null,
+    "propuesto": "otra_combinacion",
+    "motivo": "Análisis de sensibilidad nuevo (doc 145 §5, A5). No re-infiere: relee las detecciones de ALR-01 con otras reglas (receta `reuso`, como ALR-02). Se compara con ALR-01 (escena, F1 0,841) y ALR-02 (sujeto, F1 0,899), que usan la regla oficial `cr01_cr02_v2`.\n",
+    "diferencias": {}
+  },
+  "por_clip_vs_gen1_publicada": null,
+  "variantes": {
+    "combinada_sujeto": {
+      "metricas": {
+        "episodes_total": 33,
+        "episodes_censored": 0,
+        "episodes_evaluable": 33,
+        "matched": 29,
+        "missed": 4,
+        "false_positives": 14,
+        "re_alerts": 5,
+        "sub_threshold": 0,
+        "recall_micro": 0.878788,
+        "precision_micro": 0.674419,
+        "f1_micro": 0.763158,
+        "neg_false_positives": 2
+      },
+      "resumen": [
+        {
+          "clave": "f1",
+          "nombre": "F1 por episodio (micro)",
+          "valor": 0.763158,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "precision",
+          "nombre": "Precisión",
+          "valor": 0.674419,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "recall",
+          "nombre": "Recall",
+          "valor": 0.878788,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "episodios_evaluables",
+          "nombre": "Episodios evaluables",
+          "valor": 33,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "aciertos",
+          "nombre": "Alertas que acertaron un episodio",
+          "valor": 29,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "perdidos",
+          "nombre": "Episodios sin alerta",
+          "valor": 4,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "falsas_alarmas_en_positivos",
+          "nombre": "Falsas alarmas en clips con episodios",
+          "valor": 14,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "falsas_alarmas",
+          "nombre": "Falsas alarmas en clips sin infracción",
+          "valor": 2,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "re_alertas",
+          "nombre": "Re-alertas (no son falsas alarmas)",
+          "valor": 5,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "t_alert_s",
+          "nombre": "Tiempo hasta la alerta desde el inicio del episodio",
+          "valor": 4.744,
+          "unidad": "s",
+          "gen1": null
+        },
+        {
+          "clave": "ttfd_ms",
+          "nombre": "Tiempo hasta la primera detección",
+          "valor": 153.9935,
+          "unidad": "ms",
+          "gen1": null
+        },
+        {
+          "clave": "sdr",
+          "nombre": "Proporción de detección sostenida (SDR)",
+          "valor": 0.84361,
+          "unidad": null,
+          "gen1": null
+        }
+      ],
+      "gen1": null
+    },
+    "casco": {
+      "metricas": {
+        "episodes_total": 33,
+        "episodes_censored": 0,
+        "episodes_evaluable": 33,
+        "matched": 27,
+        "missed": 6,
+        "false_positives": 10,
+        "re_alerts": 6,
+        "sub_threshold": 0,
+        "recall_micro": 0.818182,
+        "precision_micro": 0.72973,
+        "f1_micro": 0.771429,
+        "neg_false_positives": 0
+      },
+      "resumen": [
+        {
+          "clave": "f1",
+          "nombre": "F1 por episodio (micro)",
+          "valor": 0.771429,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "precision",
+          "nombre": "Precisión",
+          "valor": 0.72973,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "recall",
+          "nombre": "Recall",
+          "valor": 0.818182,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "episodios_evaluables",
+          "nombre": "Episodios evaluables",
+          "valor": 33,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "aciertos",
+          "nombre": "Alertas que acertaron un episodio",
+          "valor": 27,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "perdidos",
+          "nombre": "Episodios sin alerta",
+          "valor": 6,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "falsas_alarmas_en_positivos",
+          "nombre": "Falsas alarmas en clips con episodios",
+          "valor": 10,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "falsas_alarmas",
+          "nombre": "Falsas alarmas en clips sin infracción",
+          "valor": 0,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "re_alertas",
+          "nombre": "Re-alertas (no son falsas alarmas)",
+          "valor": 6,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "t_alert_s",
+          "nombre": "Tiempo hasta la alerta desde el inicio del episodio",
+          "valor": 5.363,
+          "unidad": "s",
+          "gen1": null
+        },
+        {
+          "clave": "ttfd_ms",
+          "nombre": "Tiempo hasta la primera detección",
+          "valor": 191.771667,
+          "unidad": "ms",
+          "gen1": null
+        },
+        {
+          "clave": "sdr",
+          "nombre": "Proporción de detección sostenida (SDR)",
+          "valor": 0.764792,
+          "unidad": null,
+          "gen1": null
+        }
+      ],
+      "gen1": null
+    },
+    "casco_sujeto": {
+      "metricas": {
+        "episodes_total": 33,
+        "episodes_censored": 0,
+        "episodes_evaluable": 33,
+        "matched": 29,
+        "missed": 4,
+        "false_positives": 9,
+        "re_alerts": 9,
+        "sub_threshold": 0,
+        "recall_micro": 0.878788,
+        "precision_micro": 0.763158,
+        "f1_micro": 0.816902,
+        "neg_false_positives": 0
+      },
+      "resumen": [
+        {
+          "clave": "f1",
+          "nombre": "F1 por episodio (micro)",
+          "valor": 0.816902,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "precision",
+          "nombre": "Precisión",
+          "valor": 0.763158,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "recall",
+          "nombre": "Recall",
+          "valor": 0.878788,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "episodios_evaluables",
+          "nombre": "Episodios evaluables",
+          "valor": 33,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "aciertos",
+          "nombre": "Alertas que acertaron un episodio",
+          "valor": 29,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "perdidos",
+          "nombre": "Episodios sin alerta",
+          "valor": 4,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "falsas_alarmas_en_positivos",
+          "nombre": "Falsas alarmas en clips con episodios",
+          "valor": 9,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "falsas_alarmas",
+          "nombre": "Falsas alarmas en clips sin infracción",
+          "valor": 0,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "re_alertas",
+          "nombre": "Re-alertas (no son falsas alarmas)",
+          "valor": 9,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "t_alert_s",
+          "nombre": "Tiempo hasta la alerta desde el inicio del episodio",
+          "valor": 5.303,
+          "unidad": "s",
+          "gen1": null
+        },
+        {
+          "clave": "ttfd_ms",
+          "nombre": "Tiempo hasta la primera detección",
+          "valor": 191.771667,
+          "unidad": "ms",
+          "gen1": null
+        },
+        {
+          "clave": "sdr",
+          "nombre": "Proporción de detección sostenida (SDR)",
+          "valor": 0.764792,
+          "unidad": null,
+          "gen1": null
+        }
+      ],
+      "gen1": null
+    },
+    "chaleco": {
+      "metricas": {
+        "episodes_total": 33,
+        "episodes_censored": 0,
+        "episodes_evaluable": 33,
+        "matched": 29,
+        "missed": 4,
+        "false_positives": 11,
+        "re_alerts": 4,
+        "sub_threshold": 0,
+        "recall_micro": 0.878788,
+        "precision_micro": 0.725,
+        "f1_micro": 0.794521,
+        "neg_false_positives": 2
+      },
+      "resumen": [
+        {
+          "clave": "f1",
+          "nombre": "F1 por episodio (micro)",
+          "valor": 0.794521,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "precision",
+          "nombre": "Precisión",
+          "valor": 0.725,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "recall",
+          "nombre": "Recall",
+          "valor": 0.878788,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "episodios_evaluables",
+          "nombre": "Episodios evaluables",
+          "valor": 33,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "aciertos",
+          "nombre": "Alertas que acertaron un episodio",
+          "valor": 29,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "perdidos",
+          "nombre": "Episodios sin alerta",
+          "valor": 4,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "falsas_alarmas_en_positivos",
+          "nombre": "Falsas alarmas en clips con episodios",
+          "valor": 11,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "falsas_alarmas",
+          "nombre": "Falsas alarmas en clips sin infracción",
+          "valor": 2,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "re_alertas",
+          "nombre": "Re-alertas (no son falsas alarmas)",
+          "valor": 4,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "t_alert_s",
+          "nombre": "Tiempo hasta la alerta desde el inicio del episodio",
+          "valor": 4.853,
+          "unidad": "s",
+          "gen1": null
+        },
+        {
+          "clave": "ttfd_ms",
+          "nombre": "Tiempo hasta la primera detección",
+          "valor": 206.2155,
+          "unidad": "ms",
+          "gen1": null
+        },
+        {
+          "clave": "sdr",
+          "nombre": "Proporción de detección sostenida (SDR)",
+          "valor": 0.768889,
+          "unidad": null,
+          "gen1": null
+        }
+      ],
+      "gen1": null
+    },
+    "chaleco_sujeto": {
+      "metricas": {
+        "episodes_total": 33,
+        "episodes_censored": 0,
+        "episodes_evaluable": 33,
+        "matched": 31,
+        "missed": 2,
+        "false_positives": 10,
+        "re_alerts": 7,
+        "sub_threshold": 0,
+        "recall_micro": 0.939394,
+        "precision_micro": 0.756098,
+        "f1_micro": 0.837838,
+        "neg_false_positives": 2
+      },
+      "resumen": [
+        {
+          "clave": "f1",
+          "nombre": "F1 por episodio (micro)",
+          "valor": 0.837838,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "precision",
+          "nombre": "Precisión",
+          "valor": 0.756098,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "recall",
+          "nombre": "Recall",
+          "valor": 0.939394,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "episodios_evaluables",
+          "nombre": "Episodios evaluables",
+          "valor": 33,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "aciertos",
+          "nombre": "Alertas que acertaron un episodio",
+          "valor": 31,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "perdidos",
+          "nombre": "Episodios sin alerta",
+          "valor": 2,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "falsas_alarmas_en_positivos",
+          "nombre": "Falsas alarmas en clips con episodios",
+          "valor": 10,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "falsas_alarmas",
+          "nombre": "Falsas alarmas en clips sin infracción",
+          "valor": 2,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "re_alertas",
+          "nombre": "Re-alertas (no son falsas alarmas)",
+          "valor": 7,
+          "unidad": null,
+          "gen1": null
+        },
+        {
+          "clave": "t_alert_s",
+          "nombre": "Tiempo hasta la alerta desde el inicio del episodio",
+          "valor": 4.857,
+          "unidad": "s",
+          "gen1": null
+        },
+        {
+          "clave": "ttfd_ms",
+          "nombre": "Tiempo hasta la primera detección",
+          "valor": 206.2155,
+          "unidad": "ms",
+          "gen1": null
+        },
+        {
+          "clave": "sdr",
+          "nombre": "Proporción de detección sostenida (SDR)",
+          "valor": 0.768889,
+          "unidad": null,
+          "gen1": null
+        }
+      ],
+      "gen1": null
+    }
+  }
+}

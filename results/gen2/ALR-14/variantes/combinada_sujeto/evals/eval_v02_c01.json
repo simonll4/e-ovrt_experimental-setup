@@ -1,0 +1,118 @@
+{
+  "schema_version": "control.eval.temporal.v1",
+  "scenario_id": "v02_c01",
+  "alerts_path": "$EOVRT_WORKSPACE/e-ovrt_control-plane/runs/gen2_alr14_combinada_sujeto_v02_c01_20261112T225753Z_9da8e6/alerts.jsonl",
+  "ground_truth_path": "$EOVRT_WORKSPACE/e-ovrt_datasets/datasets/processed/clip_bench/gt/v02_c01.json",
+  "expected_alerts_count": 0,
+  "observed_alerts_count": 11,
+  "matched_alerts_count": 0,
+  "missed_alerts_count": 0,
+  "unexpected_alerts_count": 11,
+  "duplicate_alerts_count": 0,
+  "precision": 0.0,
+  "recall": 0.0,
+  "f1": 0.0,
+  "avg_latency_frames_from_first_evidence": null,
+  "avg_latency_ms_from_first_evidence": null,
+  "re_alerts_count": 0,
+  "sub_threshold_count": 0,
+  "censored_episodes_count": 0,
+  "observed_duration_ms": 48900.0,
+  "far_per_hour": 809.815951,
+  "applicability_state": "not_applicable",
+  "applicability_cause": "negative_clip_no_episodes",
+  "avg_latency_ms_from_episode_start": null,
+  "effective_matching_windows": {},
+  "warnings": [
+    "clip negativo (0 episodios en el GT): precision/recall/F1 no son evaluables (denominador 0) y NO deben promediarse. Lo que si es dato real: 11 falso(s) positivo(s) y far_per_hour — este clip es control de falsos positivos, no de recall."
+  ],
+  "matches": [],
+  "missed_alerts": [],
+  "unexpected_alerts": [
+    {
+      "alert_id": "99b3c600-ae0b-5692-9f79-710dcf61828d",
+      "condition_id": "CR-01",
+      "subject_key": "CR-01:v02_c01:subject_002",
+      "frame_index": 210,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "5ca5c748-e02f-5143-9b9b-1195f8bb469c",
+      "condition_id": "CR-02",
+      "subject_key": "CR-02:v02_c01:subject_002",
+      "frame_index": 210,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "9afb4b79-ecb6-5c00-89dc-b0d6f4aff467",
+      "condition_id": "CR-02",
+      "subject_key": "CR-02:v02_c01:subject_003",
+      "frame_index": 213,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "17de8551-f5f5-5935-9993-319618d80407",
+      "condition_id": "CR-01",
+      "subject_key": "CR-01:v02_c01:subject_012",
+      "frame_index": 263,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "8dbb3ea5-e3e6-5b2f-b4fa-4f67bfb05dd0",
+      "condition_id": "CR-01",
+      "subject_key": "CR-01:v02_c01:subject_015",
+      "frame_index": 341,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "4ef31c2b-a8ec-5a80-a8a3-c6912cdb3a0d",
+      "condition_id": "CR-02",
+      "subject_key": "CR-02:v02_c01:subject_009",
+      "frame_index": 360,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "0d17b5f2-dfe5-50b6-af07-7c20d24f76b8",
+      "condition_id": "CR-01",
+      "subject_key": "CR-01:v02_c01:subject_030",
+      "frame_index": 466,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "0d145b0a-ce89-509d-8105-735c5dd24ac4",
+      "condition_id": "CR-02",
+      "subject_key": "CR-02:v02_c01:subject_019",
+      "frame_index": 473,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "a44d1e08-d99e-5cf3-b8a9-0218a8f3854a",
+      "condition_id": "CR-02",
+      "subject_key": "CR-02:v02_c01:subject_063",
+      "frame_index": 846,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "19fad6d3-a814-5645-b3d0-6c2821721e3e",
+      "condition_id": "CR-02",
+      "subject_key": "CR-02:v02_c01:subject_071",
+      "frame_index": 929,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "d2d760eb-7525-5d07-a1d3-fcc0d830c2f1",
+      "condition_id": "CR-02",
+      "subject_key": "CR-02:v02_c01:subject_077",
+      "frame_index": 1069,
+      "reason": "outside_all_episode_windows"
+    }
+  ],
+  "censored_episodes": [],
+  "avg_ttfd_ms": null,
+  "avg_sdr": null,
+  "ttfd_by_episode": [],
+  "sdr_by_episode": [],
+  "ttfd_sdr_applicability": "computed",
+  "positive_criterion": "spatial_absence(cr01_cr02_v2_sens_c_subject) >=1 evidencia",
+  "detections_path": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_081059_dbe_grounding_dino_449847/detections.jsonl"
+}

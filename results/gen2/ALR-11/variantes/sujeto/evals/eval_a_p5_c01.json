@@ -1,0 +1,55 @@
+{
+  "schema_version": "control.eval.temporal.v1",
+  "scenario_id": "a_p5_c01",
+  "alerts_path": "$EOVRT_WORKSPACE/e-ovrt_control-plane/runs/gen2_alr11_sujeto_a_p5_c01_20261112T231625Z_e1492a/alerts.jsonl",
+  "ground_truth_path": "$EOVRT_WORKSPACE/e-ovrt_datasets/datasets/processed/clip_bench/gt/a_p5_c01.json",
+  "expected_alerts_count": 0,
+  "observed_alerts_count": 2,
+  "matched_alerts_count": 0,
+  "missed_alerts_count": 0,
+  "unexpected_alerts_count": 2,
+  "duplicate_alerts_count": 0,
+  "precision": 0.0,
+  "recall": 0.0,
+  "f1": 0.0,
+  "avg_latency_frames_from_first_evidence": null,
+  "avg_latency_ms_from_first_evidence": null,
+  "re_alerts_count": 0,
+  "sub_threshold_count": 0,
+  "censored_episodes_count": 0,
+  "observed_duration_ms": 39167.0,
+  "far_per_hour": 183.828223,
+  "applicability_state": "not_applicable",
+  "applicability_cause": "negative_clip_no_episodes",
+  "avg_latency_ms_from_episode_start": null,
+  "effective_matching_windows": {},
+  "warnings": [
+    "clip negativo (0 episodios en el GT): precision/recall/F1 no son evaluables (denominador 0) y NO deben promediarse. Lo que si es dato real: 2 falso(s) positivo(s) y far_per_hour — este clip es control de falsos positivos, no de recall."
+  ],
+  "matches": [],
+  "missed_alerts": [],
+  "unexpected_alerts": [
+    {
+      "alert_id": "aa263e6f-8c4a-55b6-ab17-97ff2000796e",
+      "condition_id": "CR-02",
+      "subject_key": "CR-02:a_p5_c01:subject_005",
+      "frame_index": 424,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "f13276ef-3b5e-5f3c-9a83-d963c430c7d0",
+      "condition_id": "CR-02",
+      "subject_key": "CR-02:a_p5_c01:subject_003",
+      "frame_index": 568,
+      "reason": "outside_all_episode_windows"
+    }
+  ],
+  "censored_episodes": [],
+  "avg_ttfd_ms": null,
+  "avg_sdr": null,
+  "ttfd_by_episode": [],
+  "sdr_by_episode": [],
+  "ttfd_sdr_applicability": "computed",
+  "positive_criterion": "spatial_absence(cr01_cr02_v2_subject) >=1 evidencia",
+  "detections_path": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261112_231549_dbe_yoloe_4d2a6d/detections.jsonl"
+}

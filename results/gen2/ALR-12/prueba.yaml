@@ -1,0 +1,50 @@
+schema: prueba.gen2.v1
+id: ALR-12
+titulo: "Obra real con YOLOE-26s (13 clips de internet), escena y sujeto"
+informe: ["§17.5.4", "§18.3"]
+fase: F3
+familia: clips
+# Enmienda del 2026-11-12 (doc 134 §13.23), escrita y commiteada ANTES de correr: después de F7.
+# Corregido el mismo día, también antes de correr nada: dos datos del texto estaban mal (YOLOE no usa un umbral
+# de caja aparte; YOLOE-26s sí tiene una medición en el banco de imágenes, la línea de base del ajuste fino). La
+# pregunta, la receta y el sentido del pronóstico no cambian.
+pregunta: >
+  ¿Cuántas falsas alarmas produce YOLOE-26s sobre los 13 clips de obra real, por escena y por sujeto? El
+  campeón da 26 por escena (ALR-07) y 323 por sujeto (ALR-08), y la causa más frecuente es el EPP que el
+  detector no ve en personas chicas (ERR-01). Mismo material, mismo prompt set y misma regla: cambia solo
+  el detector. Junto con ALR-11 responde si el mejor motor en vivo (RT-05) sirve en obra.
+gen1:
+  result_id: (no corrió)
+  doc: operacion/145
+  relacion: otra_combinacion
+  motivo: >
+    Combinación nueva (doc 145 §5, A4): YOLOE nunca corrió sobre obra real. Se compara con ALR-07/ALR-08
+    (el campeón) y con ALR-09/ALR-10 (resolución y umbral de caja).
+esperado: >
+  Pronóstico escrito antes de correr (no es evidencia): más falsas alarmas que el campeón, porque YOLOE ve
+  peor el chaleco en el banco de imágenes (AP 0,26 con YOLOE-26s, la línea de base del ajuste fino, de la
+  generación 1, y 0,24 con YOLOE-26x, IMG-03, contra 0,55 del campeón) y en obra real las personas entran
+  chicas al modelo. Con n = 2 episodios ningún F1 ordena nada (F-111.1): lo que se compara son las falsas
+  alarmas en los 11 negativos, por escena y por sujeto.
+veredictos_posibles: [otra_combinacion]
+config:
+  modelo: yoloe/yoloe-26s (640 px, confianza 0,25, IoU 0,50; la misma instancia de RT-05)
+  prompt_set: cr01_cr02_v2_short
+  pattern_set: cr01_cr02_v2 (escena) y cr01_cr02_v2_subject (variante sujeto, identidad de la plataforma)
+receta:
+  tipo: inferencia
+  clips: internet
+  instancia: mp-yoloe-26s
+  modelo: yoloe/yoloe-26s
+  medios:
+    prompts:
+      set_id: cr01_cr02_v2_short
+      fuente: prompts/cr01_cr02_v2_short.yaml
+      clases: [person, helmet, vest]
+      frozen: {prompts/cr01_cr02_v2_short.yaml: df81fd48b6daf8924b5fb66aa1ce4acc0c880ac6ed8cd1245c6aca1babdb309a}
+  control: {patrones: cr01_cr02_v2, activos: [CR-01, CR-02]}
+  variantes:
+    - nombre: sujeto
+      control: {patrones: cr01_cr02_v2_subject, activos: [CR-01, CR-02], track_persons: true}
+  timeout_s: 7200  # v06_c01 dura 6 min a 30 fps
+salida: e-ovrt_experimental-setup/results/gen2/ALR-12/

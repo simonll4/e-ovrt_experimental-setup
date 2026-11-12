@@ -6,7 +6,7 @@
     "Tabla 54",
     "§17.5.5"
   ],
-  "generado": "2026-11-07T05:10:00+00:00",
+  "generado": "2026-11-12T22:35:35+00:00",
   "familia": "rodaje",
   "estado": "completo",
   "metricas": {
@@ -76,7 +76,9 @@
         "max": 774.178
       }
     },
-    "fps_efectivos_media": 3.75,
+    "fps_efectivos_media": 4.99,
+    "fps_sobre_duracion_media": 3.75,
+    "cuadros_descartados": 4,
     "ensayos_demo": {
       "total": 3,
       "aprobados": 1,
@@ -100,6 +102,106 @@
         "session_id": "demo_20261101T200354Z_P6",
         "escena": "P6",
         "motivo": "chaleco sin declarar (el pre-registro fija 'amarillo'; rodaje.ps1 -Chaleco)"
+      },
+      {
+        "session_id": "demo_20261107T153316Z_P2",
+        "escena": "P2",
+        "motivo": "toma de la prueba de prendas y de la distractora (RT-09) (rodaje.ps1 -Proposito prendas)"
+      },
+      {
+        "session_id": "demo_20261107T153550Z_P2",
+        "escena": "P2",
+        "motivo": "toma de la prueba de prendas y de la distractora (RT-09) (rodaje.ps1 -Proposito prendas)"
+      },
+      {
+        "session_id": "demo_20261107T153958Z_P2",
+        "escena": "P2",
+        "motivo": "toma de la prueba de prendas y de la distractora (RT-09) (rodaje.ps1 -Proposito prendas)"
+      },
+      {
+        "session_id": "demo_20261107T154526Z_P2",
+        "escena": "P2",
+        "motivo": "toma de la prueba de prendas y de la distractora (RT-09) (rodaje.ps1 -Proposito prendas)"
+      },
+      {
+        "session_id": "demo_20261107T154901Z_P2",
+        "escena": "P2",
+        "motivo": "toma de la prueba de prendas y de la distractora (RT-09) (rodaje.ps1 -Proposito prendas)"
+      },
+      {
+        "session_id": "demo_20261107T160004Z_P1",
+        "escena": "P1",
+        "motivo": "otro chaleco: 'julio' (el pre-registro fija 'amarillo')"
+      },
+      {
+        "session_id": "demo_20261107T160250Z_P1",
+        "escena": "P1",
+        "motivo": "otro chaleco: 'julio' (el pre-registro fija 'amarillo')"
+      },
+      {
+        "session_id": "demo_20261107T161403Z_P1",
+        "escena": "P1",
+        "motivo": "chaleco sin declarar (el pre-registro fija 'amarillo'; rodaje.ps1 -Chaleco)"
+      },
+      {
+        "session_id": "demo_20261107T161545Z_P1",
+        "escena": "P1",
+        "motivo": "otro chaleco: 'julio' (el pre-registro fija 'amarillo')"
+      },
+      {
+        "session_id": "demo_20261107T161728Z_P1",
+        "escena": "P1",
+        "motivo": "otro chaleco: 'julio' (el pre-registro fija 'amarillo')"
+      },
+      {
+        "session_id": "demo_20261107T164522Z_P2",
+        "escena": "P2",
+        "motivo": "otro chaleco: 'julio' (el pre-registro fija 'amarillo')"
+      },
+      {
+        "session_id": "demo_20261107T164747Z_P2",
+        "escena": "P2",
+        "motivo": "otro chaleco: 'julio' (el pre-registro fija 'amarillo')"
+      },
+      {
+        "session_id": "demo_20261107T165033Z_P2",
+        "escena": "P2",
+        "motivo": "otro chaleco: 'julio' (el pre-registro fija 'amarillo')"
+      },
+      {
+        "session_id": "demo_20261107T165353Z_P2",
+        "escena": "P2",
+        "motivo": "otro chaleco: 'julio' (el pre-registro fija 'amarillo')"
+      },
+      {
+        "session_id": "demo_20261107T170251Z_P6",
+        "escena": "P6",
+        "motivo": "otro chaleco: 'julio' (el pre-registro fija 'amarillo')"
+      },
+      {
+        "session_id": "demo_20261107T172603Z_DEMO",
+        "escena": "DEMO",
+        "motivo": "otro chaleco: 'julio' (el pre-registro fija 'amarillo')"
+      },
+      {
+        "session_id": "demo_20261107T172849Z_DEMO",
+        "escena": "DEMO",
+        "motivo": "otro chaleco: 'julio' (el pre-registro fija 'amarillo')"
+      },
+      {
+        "session_id": "demo_20261107T173319Z_P2_modo-reflective",
+        "escena": "P2",
+        "motivo": "toma de la prueba de prendas y de la distractora (RT-09) (rodaje.ps1 -Proposito prendas)"
+      },
+      {
+        "session_id": "demo_20261107T173604Z_P2_modo-reflective",
+        "escena": "P2",
+        "motivo": "toma de la prueba de prendas y de la distractora (RT-09) (rodaje.ps1 -Proposito prendas)"
+      },
+      {
+        "session_id": "demo_20261107T173813Z_P1_modo-reflective",
+        "escena": "P1",
+        "motivo": "toma de la prueba de prendas y de la distractora (RT-09) (rodaje.ps1 -Proposito prendas)"
       }
     ],
     "fuente": "oak_d"
@@ -163,9 +265,16 @@
     },
     {
       "clave": "fps_efectivos",
-      "nombre": "Cuadros por segundo procesados",
-      "valor": 3.75,
+      "nombre": "Cuadros por segundo procesados, entre el primer y el último cuadro",
+      "valor": 4.99,
       "unidad": "fps",
+      "gen1": null
+    },
+    {
+      "clave": "cuadros_descartados",
+      "nombre": "Cuadros descartados (la cámara entregó más de los que se procesaron)",
+      "valor": 4,
+      "unidad": null,
       "gen1": null
     },
     {

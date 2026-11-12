@@ -1,0 +1,71 @@
+{
+  "schema_version": "control.eval.temporal.v1",
+  "scenario_id": "a_p7_c03",
+  "alerts_path": "$EOVRT_WORKSPACE/e-ovrt_control-plane/runs/gen2_alr11_sujeto_a_p7_c03_20261112T232058Z_385aab/alerts.jsonl",
+  "ground_truth_path": "$EOVRT_WORKSPACE/e-ovrt_datasets/datasets/processed/clip_bench/gt/a_p7_c03.json",
+  "expected_alerts_count": 1,
+  "observed_alerts_count": 6,
+  "matched_alerts_count": 1,
+  "missed_alerts_count": 0,
+  "unexpected_alerts_count": 2,
+  "duplicate_alerts_count": 0,
+  "precision": 0.333333,
+  "recall": 1.0,
+  "f1": 0.5,
+  "avg_latency_frames_from_first_evidence": null,
+  "avg_latency_ms_from_first_evidence": null,
+  "re_alerts_count": 3,
+  "sub_threshold_count": 0,
+  "censored_episodes_count": 0,
+  "observed_duration_ms": 32533.0,
+  "far_per_hour": 221.313743,
+  "applicability_state": "computed",
+  "applicability_cause": null,
+  "avg_latency_ms_from_episode_start": 4366.67,
+  "effective_matching_windows": {
+    "CR-01": {
+      "persistencia_min_ms": 4000.0,
+      "t_alert_max_ms": 10000.0,
+      "origin": "gt_provenance"
+    }
+  },
+  "warnings": [],
+  "matches": [],
+  "missed_alerts": [],
+  "unexpected_alerts": [
+    {
+      "alert_id": "a178995b-2605-5fa4-bddc-dc9935b335e2",
+      "condition_id": "CR-02",
+      "subject_key": "CR-02:a_p7_c03:subject_002",
+      "frame_index": 226,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "d31b2277-9689-5c74-9ecb-55ffc9cf879e",
+      "condition_id": "CR-02",
+      "subject_key": "CR-02:a_p7_c03:subject_016",
+      "frame_index": 904,
+      "reason": "outside_all_episode_windows"
+    }
+  ],
+  "censored_episodes": [],
+  "avg_ttfd_ms": 233.33,
+  "avg_sdr": 0.748052,
+  "ttfd_by_episode": [
+    {
+      "episode_id": "ep1",
+      "ttfd_ms": 233.32999999999993,
+      "cause": null
+    }
+  ],
+  "sdr_by_episode": [
+    {
+      "episode_id": "ep1",
+      "sdr": 0.7480519327928561,
+      "cause": null
+    }
+  ],
+  "ttfd_sdr_applicability": "computed",
+  "positive_criterion": "spatial_absence(cr01_cr02_v2_subject) >=1 evidencia",
+  "detections_path": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261112_232025_dbe_yoloe_fb3913/detections.jsonl"
+}

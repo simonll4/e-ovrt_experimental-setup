@@ -25,7 +25,7 @@
       "metricas": {
         "unidades": 300,
         "descartadas": 0,
-        "fps_efectivos": 3.96,
+        "fps_efectivos": 5.0,
         "inferencia_p50_ms": 150.3,
         "inferencia_p95_ms": 216.41,
         "g2a": {
@@ -49,7 +49,8 @@
         "hueco_max_ms": 242.2578125,
         "hueco_mediana_ms": 196.636474609375,
         "contaminada": false,
-        "reloj_pared_menos_monotonico_ms": 1793558800724.8052
+        "reloj_pared_menos_monotonico_ms": 1793558800724.8052,
+        "fps_sobre_duracion": 3.96
       }
     },
     "lat_960_b": {
@@ -75,7 +76,7 @@
       "metricas": {
         "unidades": 294,
         "descartadas": 6,
-        "fps_efectivos": 3.89,
+        "fps_efectivos": 4.9,
         "inferencia_p50_ms": 159.91,
         "inferencia_p95_ms": 237.97,
         "g2a": {
@@ -99,7 +100,8 @@
         "hueco_max_ms": 432.117919921875,
         "hueco_mediana_ms": 198.287353515625,
         "contaminada": false,
-        "reloj_pared_menos_monotonico_ms": 1793558800708.6553
+        "reloj_pared_menos_monotonico_ms": 1793558800708.6553,
+        "fps_sobre_duracion": 3.89
       }
     },
     "lat_960_c": {
@@ -125,7 +127,7 @@
       "metricas": {
         "unidades": 300,
         "descartadas": 0,
-        "fps_efectivos": 3.96,
+        "fps_efectivos": 5.0,
         "inferencia_p50_ms": 149.16,
         "inferencia_p95_ms": 199.92,
         "g2a": {
@@ -149,7 +151,8 @@
         "hueco_max_ms": 235.914794921875,
         "hueco_mediana_ms": 196.4716796875,
         "contaminada": false,
-        "reloj_pared_menos_monotonico_ms": 1793558800685.7366
+        "reloj_pared_menos_monotonico_ms": 1793558800685.7366,
+        "fps_sobre_duracion": 3.96
       }
     }
   }

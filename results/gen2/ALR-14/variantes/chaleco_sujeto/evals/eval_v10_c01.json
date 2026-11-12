@@ -1,0 +1,195 @@
+{
+  "schema_version": "control.eval.temporal.v1",
+  "scenario_id": "v10_c01",
+  "alerts_path": "$EOVRT_WORKSPACE/e-ovrt_control-plane/runs/gen2_alr14_chaleco_sujeto_v10_c01_20261112T230349Z_0457b1/alerts.jsonl",
+  "ground_truth_path": "$EOVRT_WORKSPACE/e-ovrt_datasets/datasets/processed/clip_bench/gt/v10_c01.json",
+  "expected_alerts_count": 0,
+  "observed_alerts_count": 22,
+  "matched_alerts_count": 0,
+  "missed_alerts_count": 0,
+  "unexpected_alerts_count": 22,
+  "duplicate_alerts_count": 0,
+  "precision": 0.0,
+  "recall": 0.0,
+  "f1": 0.0,
+  "avg_latency_frames_from_first_evidence": null,
+  "avg_latency_ms_from_first_evidence": null,
+  "re_alerts_count": 0,
+  "sub_threshold_count": 0,
+  "censored_episodes_count": 0,
+  "observed_duration_ms": 59033.0,
+  "far_per_hour": 1341.622482,
+  "applicability_state": "not_applicable",
+  "applicability_cause": "negative_clip_no_episodes",
+  "avg_latency_ms_from_episode_start": null,
+  "effective_matching_windows": {},
+  "warnings": [
+    "clip negativo (0 episodios en el GT): precision/recall/F1 no son evaluables (denominador 0) y NO deben promediarse. Lo que si es dato real: 22 falso(s) positivo(s) y far_per_hour — este clip es control de falsos positivos, no de recall."
+  ],
+  "matches": [],
+  "missed_alerts": [],
+  "unexpected_alerts": [
+    {
+      "alert_id": "a41a59b9-3a82-55a5-86ae-c5aa88b69900",
+      "condition_id": "CR-01",
+      "subject_key": "CR-01:v10_c01:subject_008",
+      "frame_index": 180,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "6836453c-1b86-54f6-bcff-f07abd6a9a68",
+      "condition_id": "CR-02",
+      "subject_key": "CR-02:v10_c01:subject_003",
+      "frame_index": 210,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "405f6200-dc61-5a09-92ed-1840a831a503",
+      "condition_id": "CR-02",
+      "subject_key": "CR-02:v10_c01:subject_004",
+      "frame_index": 210,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "d8abbd8d-eca6-5057-b400-d5cd74d4c0ab",
+      "condition_id": "CR-01",
+      "subject_key": "CR-01:v10_c01:subject_013",
+      "frame_index": 218,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "54854ece-ad80-54be-9a5e-b1d15fb81d17",
+      "condition_id": "CR-02",
+      "subject_key": "CR-02:v10_c01:subject_002",
+      "frame_index": 229,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "5d346317-495a-55b2-ab13-de6f41b3d5be",
+      "condition_id": "CR-02",
+      "subject_key": "CR-02:v10_c01:subject_005",
+      "frame_index": 238,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "9afe2404-3a4c-5b63-81ca-b879aa5ce698",
+      "condition_id": "CR-02",
+      "subject_key": "CR-02:v10_c01:subject_008",
+      "frame_index": 296,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "a06e6517-9fb9-52a6-abb2-e62fc54b1693",
+      "condition_id": "CR-02",
+      "subject_key": "CR-02:v10_c01:subject_016",
+      "frame_index": 305,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "0c384fe6-6dc5-5bcb-bf45-3c1e35c1f841",
+      "condition_id": "CR-01",
+      "subject_key": "CR-01:v10_c01:subject_019",
+      "frame_index": 463,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "da250ef9-3296-549f-9675-cc341601a9f1",
+      "condition_id": "CR-01",
+      "subject_key": "CR-01:v10_c01:subject_023",
+      "frame_index": 483,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "c3eecd02-ad66-5704-8c4f-342945d1ee5f",
+      "condition_id": "CR-02",
+      "subject_key": "CR-02:v10_c01:subject_019",
+      "frame_index": 508,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "85615e3c-c9ee-558d-9582-b3b59d7af37c",
+      "condition_id": "CR-01",
+      "subject_key": "CR-01:v10_c01:subject_045",
+      "frame_index": 823,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "d17fef55-26a8-5122-883a-f8f6befd0ca1",
+      "condition_id": "CR-02",
+      "subject_key": "CR-02:v10_c01:subject_045",
+      "frame_index": 916,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "eb716115-bda1-528c-adcf-9c81106359c3",
+      "condition_id": "CR-02",
+      "subject_key": "CR-02:v10_c01:subject_053",
+      "frame_index": 1040,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "10be6a4d-f809-5c31-8453-a1460ab6fddb",
+      "condition_id": "CR-02",
+      "subject_key": "CR-02:v10_c01:subject_063",
+      "frame_index": 1245,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "0eb847d1-d5d1-52d9-8afc-ac81b72f5a25",
+      "condition_id": "CR-01",
+      "subject_key": "CR-01:v10_c01:subject_053",
+      "frame_index": 1268,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "c50ac69a-652f-56ad-a5fe-c93151eca83f",
+      "condition_id": "CR-01",
+      "subject_key": "CR-01:v10_c01:subject_068",
+      "frame_index": 1289,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "bedadf24-15b3-5dfb-9626-510bc0255a12",
+      "condition_id": "CR-02",
+      "subject_key": "CR-02:v10_c01:subject_056",
+      "frame_index": 1294,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "1297d6c4-b4a9-517a-b4fa-788de056537f",
+      "condition_id": "CR-02",
+      "subject_key": "CR-02:v10_c01:subject_068",
+      "frame_index": 1358,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "019cec6c-2da2-5a74-84d4-8630013f2972",
+      "condition_id": "CR-01",
+      "subject_key": "CR-01:v10_c01:subject_063",
+      "frame_index": 1521,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "12941827-e280-555c-9565-effe139aea49",
+      "condition_id": "CR-02",
+      "subject_key": "CR-02:v10_c01:subject_016",
+      "frame_index": 1620,
+      "reason": "outside_all_episode_windows"
+    },
+    {
+      "alert_id": "161a5bfe-72fb-5232-8f2e-50ea8565e244",
+      "condition_id": "CR-01",
+      "subject_key": "CR-01:v10_c01:subject_076",
+      "frame_index": 1694,
+      "reason": "outside_all_episode_windows"
+    }
+  ],
+  "censored_episodes": [],
+  "avg_ttfd_ms": null,
+  "avg_sdr": null,
+  "ttfd_by_episode": [],
+  "sdr_by_episode": [],
+  "ttfd_sdr_applicability": "computed",
+  "positive_criterion": "spatial_absence(cr01_cr02_v2_sens_chaleco_subject) >=1 evidencia",
+  "detections_path": "$EOVRT_WORKSPACE/e-ovrt_media-plane/runs/run_20261030_090348_dbe_grounding_dino_4e105f/detections.jsonl"
+}

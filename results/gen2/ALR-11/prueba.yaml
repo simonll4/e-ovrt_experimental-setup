@@ -1,0 +1,54 @@
+schema: prueba.gen2.v1
+id: ALR-11
+titulo: "Alerta por episodio con YOLOE-26s (rodaje), escena y sujeto"
+informe: ["Tabla 53", "§17.5.4", "§17.5.5"]
+fase: F3
+familia: clips
+# Enmienda del 2026-11-12 (doc 134 §13.23), escrita y commiteada ANTES de correr: después de F7.
+# Corregido el mismo día, también antes de correr nada: tres datos del texto estaban mal (YOLOE no usa un umbral
+# de caja aparte; YOLOE-26s sí tiene una medición en el banco de imágenes, la línea de base del ajuste fino; GDINO
+# a 15 fps procesó 4,9–5,7, no «entre 5 y 6»). La pregunta, la receta y el sentido del pronóstico no cambian.
+pregunta: >
+  En vivo, de cerca y con una persona (RT-05), YOLOE-26s fue el único motor que procesó los 15 cuadros
+  por segundo de la cámara, y salió como el guion en 6 de 6 tomas. ¿Se sostiene sobre los 34 clips del
+  rodaje, con personas más lejos y varias a la vez? Mismo banco, misma referencia corregida, mismo prompt
+  set y misma regla que ALR-01 (el campeón) y ALR-03 (GDINO base): cambia solo el detector.
+gen1:
+  result_id: (no corrió)
+  doc: operacion/145
+  relacion: otra_combinacion
+  motivo: >
+    Combinación nueva (doc 145 §5, A4): YOLOE nunca corrió sobre el banco de clips. Se compara con ALR-01
+    (el campeón: F1 0,841 por escena) y ALR-03 (GDINO base: 0,676), y por sujeto con ALR-02 (0,899).
+esperado: >
+  Pronóstico escrito antes de correr (no es evidencia): F1 por escena por debajo del campeón. En el banco
+  de imágenes YOLOE detecta chalecos con AP 0,26 (YOLOE-26s, la línea de base del ajuste fino, de la
+  generación 1) y 0,24 (YOLOE-26x, IMG-03), contra 0,55 del campeón (IMG-01), y en el rodaje en vivo de
+  julio YOLOE-26s dio 0 de 3 alertas confiables (F-RT2: el EPP puesto aparece y desaparece). GDINO base
+  también anduvo mejor en vivo y en este banco dio 0,676. Si YOLOE-26s queda cerca del campeón, es un
+  candidato real para el vivo: con la cámara a 15 cuadros por segundo procesó los 15, donde GDINO procesó
+  entre 4,9 y 5,7 (RT-05). No re-elige el modelo ni cambia la demo.
+veredictos_posibles: [otra_combinacion]
+config:
+  modelo: yoloe/yoloe-26s (640 px, confianza 0,25, IoU 0,50; la misma instancia de RT-05)
+  prompt_set: cr01_cr02_v2_short
+  pattern_set: cr01_cr02_v2 (escena) y cr01_cr02_v2_subject (variante sujeto, identidad de la plataforma)
+  stride: 1
+receta:
+  tipo: inferencia
+  clips: rodaje
+  instancia: mp-yoloe-26s
+  modelo: yoloe/yoloe-26s
+  medios:
+    stride: 1
+    prompts:
+      set_id: cr01_cr02_v2_short
+      fuente: prompts/cr01_cr02_v2_short.yaml
+      clases: [person, helmet, vest]
+      frozen: {prompts/cr01_cr02_v2_short.yaml: df81fd48b6daf8924b5fb66aa1ce4acc0c880ac6ed8cd1245c6aca1babdb309a}
+  control: {patrones: cr01_cr02_v2, activos: [CR-01, CR-02]}
+  variantes:
+    - nombre: sujeto
+      control: {patrones: cr01_cr02_v2_subject, activos: [CR-01, CR-02], track_persons: true}
+  timeout_s: 3600
+salida: e-ovrt_experimental-setup/results/gen2/ALR-11/

@@ -3,3 +3,4 @@
 [2026-11-07T19:34:06+00:00] descartar demo_20261107T193249Z_P9a_exp (equipo E-OVRT-VDP): Causa fisica: una persona asomo en la esquina inferior derecha desde el inicio; CR-01 (4,0 s) y CR-02 (7,2 s) confirmaron por esa caja. Toma de exploracion (gorra con tiny); se repite.
 [2026-11-07T19:42:18+00:00] python -m tools.evidencia correr RT-05
 [2026-11-07T21:20:04+00:00] veredicto confirmado (prueba parcial): otra_combinacion (equipo E-OVRT-VDP): Plan recortado por el equipo. Son 19 tomas en 8 celdas (4 motores × 2 cadencias), y 5 de las 8 tienen las 3 tomas pre-registradas. A base a 15 fps y a YOLOE-26x se les hicieron 1–2 tomas, porque su resultado ya estaba decidido. Otra cámara y otra resolución que en julio (OAK-D a 960×540 contra 1080p a 30). Grounding DINO no sostiene 15 fps en vivo. YOLOE-26s sí, y salió como el guion en 6 de 6 tomas.
+[2026-11-12T22:35:26+00:00] python -m tools.evidencia correr RT-03 RT-04 RT-05 RT-06 RT-07 RT-08 RT-09 --reagregar
