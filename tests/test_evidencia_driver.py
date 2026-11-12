@@ -40,9 +40,17 @@ V2_SHORT = {
 # --- catálogo ------------------------------------------------------------------------
 
 
-def test_el_catalogo_real_carga_y_tiene_las_45_pruebas():
+def test_el_catalogo_real_carga_y_tiene_las_49_pruebas():
     catalogo = cat.cargar_catalogo(CATALOGO)
-    assert len(catalogo) == 45  # ✎ 2026-11-04: RT-09 (doc 134 §13.18)
+    assert len(catalogo) == 49  # ✎ 2026-11-04: RT-09 (doc 134 §13.18); ✎ 2026-11-12: ALR-11…14 (§13.23)
+    # la enmienda del §13.23 (2026-11-12, después de F7): YOLOE-26s en los bancos de clips y la sensibilidad
+    # de la regla a sus umbrales de EPP, sobre las mismas detecciones del campeón (sin re-inferir)
+    assert {catalogo[i].receta["instancia"] for i in ("ALR-11", "ALR-12")} == {"mp-yoloe-26s"}
+    assert (catalogo["ALR-13"].receta["reusa"], catalogo["ALR-14"].receta["reusa"]) == ("ALR-01", "ALR-07")
+    for pid in ("ALR-13", "ALR-14"):
+        patrones = [catalogo[pid].receta["control"]["patrones"],
+                    *(v["control"]["patrones"] for v in catalogo[pid].receta["variantes"])]
+        assert all(p.startswith("cr01_cr02_v2_sens_") for p in patrones) and len(set(patrones)) == 6
     assert {"ALR-01", "ALR-02", "IMG-01", "PER-03", "RT-04", "RT-05", "DIST-01", "GT-02"} <= set(catalogo)
     # la enmienda del doc 137 (2026-10-29)
     assert {"ALR-09", "ALR-10", "IMG-04", "ERR-01", "ERR-02", "SEG-01", "VIS-01"} <= set(catalogo)

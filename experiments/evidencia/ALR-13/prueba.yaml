@@ -1,0 +1,55 @@
+schema: prueba.gen2.v1
+id: ALR-13
+titulo: "Sensibilidad de la regla a sus umbrales de EPP: rodaje, escena y sujeto"
+informe: ["§17.5.4", "§17.5.7"]
+fase: F5
+familia: clips
+depende_de: [ALR-01]
+# Enmienda del 2026-11-12 (doc 134 §13.23), escrita y commiteada ANTES de correr: después de F7.
+pregunta: >
+  En las tomas en vivo del 2026-11-07, exigir más confianza para dar por presente el EPP (casco 0,50 y la
+  región de la cabeza al 35 % de la persona en CR-01; chaleco 0,40 en CR-02) llevó de 18 de 27 tomas como
+  el guion con la regla oficial a 25 de 27 por sujeto, sin falsas. Esa variante se ajustó sobre esas mismas
+  tomas. Con las MISMAS detecciones de ALR-01 (los 34 clips del rodaje), ¿qué gana y qué cuesta, combinada
+  y por partes, por escena y por sujeto?
+gen1:
+  result_id: (no corrió)
+  doc: operacion/145
+  relacion: otra_combinacion
+  motivo: >
+    Análisis de sensibilidad nuevo (doc 145 §5, A5). No re-infiere: relee las detecciones de ALR-01 con otras
+    reglas (receta `reuso`, como ALR-02). Se compara con ALR-01 (escena, F1 0,841) y ALR-02 (sujeto, F1
+    0,899), que usan la regla oficial `cr01_cr02_v2`.
+esperado: >
+  Pronóstico escrito antes de correr (sale de la matriz de la jornada, sobre la misma muestra: no es
+  evidencia). La parte del casco recupera episodios de CR-01 que apagaban la gorra, el pelo o el casco en la
+  mano; la del chaleco recupera CR-02 sobre remeras claras. El costo esperado es que el EPP real de personas
+  lejanas, que el detector ve con 0,25–0,45 de confianza, deje de contar como presente y aparezcan falsas
+  alarmas. En el rodaje se espera un F1 igual o mejor; el costo se mide en obra real (ALR-14). Es un análisis
+  de sensibilidad: no cambia la regla oficial ni la demo, y adoptar cualquiera de estas variantes exigiría
+  su propia enmienda.
+veredictos_posibles: [otra_combinacion]
+config:
+  modelo: grounding-dino/gdino-tiny-560 (detecciones de ALR-01)
+  pattern_set: >
+    cr01_cr02_v2_sens_c (la combinada) y sus dos partes, cr01_cr02_v2_sens_casco y cr01_cr02_v2_sens_chaleco,
+    por escena y por sujeto (las `_subject`, con la identidad de la plataforma). Cada una cambia solo los
+    valores que nombra su descripción respecto de cr01_cr02_v2 / cr01_cr02_v2_subject.
+receta:
+  tipo: reuso
+  reusa: ALR-01
+  clips: rodaje
+  control: {patrones: cr01_cr02_v2_sens_c, activos: [CR-01, CR-02]}
+  variantes:
+    - nombre: combinada_sujeto
+      control: {patrones: cr01_cr02_v2_sens_c_subject, activos: [CR-01, CR-02], track_persons: true}
+    - nombre: casco
+      control: {patrones: cr01_cr02_v2_sens_casco, activos: [CR-01, CR-02]}
+    - nombre: casco_sujeto
+      control: {patrones: cr01_cr02_v2_sens_casco_subject, activos: [CR-01, CR-02], track_persons: true}
+    - nombre: chaleco
+      control: {patrones: cr01_cr02_v2_sens_chaleco, activos: [CR-01, CR-02]}
+    - nombre: chaleco_sujeto
+      control: {patrones: cr01_cr02_v2_sens_chaleco_subject, activos: [CR-01, CR-02], track_persons: true}
+  timeout_s: 900
+salida: e-ovrt_experimental-setup/results/gen2/ALR-13/

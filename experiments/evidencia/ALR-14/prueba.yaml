@@ -1,0 +1,51 @@
+schema: prueba.gen2.v1
+id: ALR-14
+titulo: "Sensibilidad de la regla a sus umbrales de EPP: obra real, escena y sujeto"
+informe: ["§17.5.4", "§18.3"]
+fase: F5
+familia: clips
+depende_de: [ALR-07]
+# Enmienda del 2026-11-12 (doc 134 §13.23), escrita y commiteada ANTES de correr: después de F7.
+pregunta: >
+  Con las MISMAS detecciones de ALR-07 (los 13 clips de obra real) y las mismas variantes de la regla que
+  ALR-13 (casco 0,50 y cabeza al 35 % en CR-01; chaleco 0,40 en CR-02; combinadas y por partes), ¿cuántas
+  falsas alarmas quedan por escena y por sujeto? Es donde se paga el costo: con la regla oficial, el campeón
+  da 26 por escena (ALR-07) y 323 por sujeto (ALR-08).
+gen1:
+  result_id: (no corrió)
+  doc: operacion/145
+  relacion: otra_combinacion
+  motivo: >
+    Análisis de sensibilidad nuevo (doc 145 §5, A5). No re-infiere: relee las detecciones de ALR-07 con otras
+    reglas (receta `reuso`, como ALR-08). Se compara con ALR-07 y ALR-08, que usan la regla oficial.
+esperado: >
+  Pronóstico escrito antes de correr (no es evidencia): más falsas alarmas que con la regla oficial, sobre
+  todo por la parte del casco. En obra real la causa más frecuente ya es el EPP que el detector no ve en
+  personas chicas (ERR-01), y subir el umbral convierte en ausencia el EPP que hoy se ve con poca
+  confianza. Si alguna parte no sube las falsas alarmas, es una mejora identificada para proponer, no una
+  enmienda de esta campaña. Con n = 2 episodios ningún F1 ordena nada (F-111.1): se comparan las falsas
+  alarmas en los 11 negativos.
+veredictos_posibles: [otra_combinacion]
+config:
+  modelo: grounding-dino/gdino-tiny-560 (detecciones de ALR-07)
+  pattern_set: >
+    cr01_cr02_v2_sens_c (la combinada) y sus dos partes, cr01_cr02_v2_sens_casco y cr01_cr02_v2_sens_chaleco,
+    por escena y por sujeto (las `_subject`, con la identidad de la plataforma)
+receta:
+  tipo: reuso
+  reusa: ALR-07
+  clips: internet
+  control: {patrones: cr01_cr02_v2_sens_c, activos: [CR-01, CR-02]}
+  variantes:
+    - nombre: combinada_sujeto
+      control: {patrones: cr01_cr02_v2_sens_c_subject, activos: [CR-01, CR-02], track_persons: true}
+    - nombre: casco
+      control: {patrones: cr01_cr02_v2_sens_casco, activos: [CR-01, CR-02]}
+    - nombre: casco_sujeto
+      control: {patrones: cr01_cr02_v2_sens_casco_subject, activos: [CR-01, CR-02], track_persons: true}
+    - nombre: chaleco
+      control: {patrones: cr01_cr02_v2_sens_chaleco, activos: [CR-01, CR-02]}
+    - nombre: chaleco_sujeto
+      control: {patrones: cr01_cr02_v2_sens_chaleco_subject, activos: [CR-01, CR-02], track_persons: true}
+  timeout_s: 1800
+salida: e-ovrt_experimental-setup/results/gen2/ALR-14/
