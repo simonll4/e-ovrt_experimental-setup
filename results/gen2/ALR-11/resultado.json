@@ -116,7 +116,12 @@
     }
   ],
   "veredicto": {
-    "confirmado": null,
+    "confirmado": {
+      "valor": "otra_combinacion",
+      "motivo": "Combinacion nueva: YOLOE-26s sobre los 34 clips del rodaje, con la misma referencia, el mismo prompt set y la misma regla que ALR-01. Por escena F1 0,374: acierta 17 de 33 episodios, con 41 falsas alarmas en clips con episodios y 7 en los 4 clips sin infraccion (el campeon, ALR-01: 0,841, 29 de 33, 7 y 0; GDINO base, ALR-03: 0,676). Por sujeto F1 0,525: 26 de 33, con 40 y 8 (el campeon, ALR-02: 0,899, 31 de 33, 5 y 0). El pronostico (por debajo del campeon) se cumple. Por escena hay al menos una falsa alarma en 32 de los 34 clips (el campeon: 7) y 30 de las 48 son de CR-02. Lo que dio en vivo de cerca y con una persona (RT-05, 6 de 6 tomas como el guion) no se sostiene en este banco.",
+      "quien": "equipo E-OVRT-VDP",
+      "fecha": "2026-11-13T02:16:36+00:00"
+    },
     "referencia": null,
     "propuesto": "otra_combinacion",
     "motivo": "Combinación nueva (doc 145 §5, A4): YOLOE nunca corrió sobre el banco de clips. Se compara con ALR-01 (el campeón: F1 0,841 por escena) y ALR-03 (GDINO base: 0,676), y por sujeto con ALR-02 (0,899).\n",

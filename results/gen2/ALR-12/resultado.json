@@ -115,7 +115,12 @@
     }
   ],
   "veredicto": {
-    "confirmado": null,
+    "confirmado": {
+      "valor": "otra_combinacion",
+      "motivo": "Combinacion nueva: YOLOE-26s sobre los 13 clips de obra real, con el mismo prompt set y la misma regla que ALR-07 y ALR-08. Falsas alarmas en los 11 clips sin infraccion: 23 por escena (el campeon: 26) y 375 por sujeto (el campeon: 323). El pronostico (mas falsas alarmas que el campeon) se cumple por sujeto y FALLA por escena. Por escena la cifra no ordena: en todas las lecturas de obra real (ALR-07, 09, 10, 12 y 14) los 11 clips disparan CR-01 y CR-02 al menos una vez (piso de 22), y lo que varia de 23 a 27 son alertas repetidas en uno a tres clips. Por sujeto lo que sube es CR-01 (207 contra 152); CR-02 queda igual (168 contra 171), y el pronostico daba como causa el chaleco.",
+      "quien": "equipo E-OVRT-VDP",
+      "fecha": "2026-11-13T02:16:36+00:00"
+    },
     "referencia": null,
     "propuesto": "otra_combinacion",
     "motivo": "Combinación nueva (doc 145 §5, A4): YOLOE nunca corrió sobre obra real. Se compara con ALR-07/ALR-08 (el campeón) y con ALR-09/ALR-10 (resolución y umbral de caja).\n",

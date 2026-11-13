@@ -30,10 +30,11 @@ también se regeneran. Las pruebas en vivo (`RT-03…RT-09`) corrieron en dos jo
 Tres quedaron parciales, firmadas con el motivo de lo que falta (`RT-03`, `RT-05` y `RT-09`; ver
 `veredicto.confirmado.faltante` en su `resultado.json`).
 
-El catálogo tiene 49: `ALR-11…ALR-14` se pre-registraron el 2026-11-12, después de las jornadas (YOLOE-26s en los
-bancos de clips y la sensibilidad de la regla a sus umbrales), y tienen carpeta cuando corren. Ese mismo día se corrigió
-la cifra de cuadros por segundo de las pruebas en vivo: ahora se mide entre el primer y el último cuadro, y la anterior
-(sobre la duración entera de la corrida, que incluye abrir y cerrar la cámara) queda al lado como `fps_sobre_duracion`.
+El catálogo tiene 49, y las 49 tienen carpeta acá con su veredicto confirmado. `ALR-11…ALR-14` se pre-registraron el
+2026-11-12, después de las jornadas (YOLOE-26s en los bancos de clips y la sensibilidad de la regla a sus umbrales),
+corrieron ese mismo día y se firmaron el 2026-11-13. El 2026-11-12 también se corrigió la cifra de cuadros por segundo
+de las pruebas en vivo: ahora se mide entre el primer y el último cuadro, y la anterior (sobre la duración entera de la
+corrida, que incluye abrir y cerrar la cámara) queda al lado como `fps_sobre_duracion`.
 
 ## Carpetas que no son una prueba
 

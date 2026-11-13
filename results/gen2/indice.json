@@ -1,6 +1,6 @@
 {
   "schema": "indice.gen2.v1",
-  "generado": "2026-11-12T23:40:08+00:00",
+  "generado": "2026-11-13T02:16:36+00:00",
   "pruebas": [
     {
       "id": "GT-01",
@@ -956,7 +956,7 @@
       "corridas_ok": 34,
       "corridas": 34,
       "veredicto": "otra_combinacion",
-      "confirmado": false,
+      "confirmado": true,
       "titulo": "Alerta por episodio con YOLOE-26s (rodaje), escena y sujeto",
       "informe": [
         "Tabla 53",
@@ -1066,7 +1066,7 @@
       "corridas_ok": 13,
       "corridas": 13,
       "veredicto": "otra_combinacion",
-      "confirmado": false,
+      "confirmado": true,
       "titulo": "Obra real con YOLOE-26s (13 clips de internet), escena y sujeto",
       "informe": [
         "§17.5.4",
@@ -2382,7 +2382,7 @@
       "corridas_ok": 34,
       "corridas": 34,
       "veredicto": "otra_combinacion",
-      "confirmado": false,
+      "confirmado": true,
       "titulo": "Sensibilidad de la regla a sus umbrales de EPP: rodaje, escena y sujeto",
       "informe": [
         "§17.5.4",
@@ -2491,7 +2491,7 @@
       "corridas_ok": 13,
       "corridas": 13,
       "veredicto": "otra_combinacion",
-      "confirmado": false,
+      "confirmado": true,
       "titulo": "Sensibilidad de la regla a sus umbrales de EPP: obra real, escena y sujeto",
       "informe": [
         "§17.5.4",

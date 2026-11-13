@@ -115,7 +115,12 @@
     }
   ],
   "veredicto": {
-    "confirmado": null,
+    "confirmado": {
+      "valor": "otra_combinacion",
+      "motivo": "Analisis de sensibilidad: relee las detecciones de ALR-07 (13 clips de obra real) con las mismas variantes. Falsas alarmas en los 11 clips sin infraccion, por sujeto: combinada 509, solo casco 465, solo chaleco 367 (regla oficial, ALR-08: 323). El pronostico (mas falsas alarmas, sobre todo por la parte del casco) se cumple por sujeto: CR-01 pasa de 152 a 294 y CR-02 de 171 a 215. Por escena da 23, 23 y 26 contra 26, y no es una mejora: los 11 clips disparan las dos condiciones con cualquiera de las reglas (piso de 22), y lo que baja con la parte del casco son alertas repetidas de CR-01 en tres clips. Ninguna parte deja de subir las falsas alarmas por sujeto, y en el rodaje (ALR-13) las dos empeoran: no queda una mejora para proponer.",
+      "quien": "equipo E-OVRT-VDP",
+      "fecha": "2026-11-13T02:16:36+00:00"
+    },
     "referencia": null,
     "propuesto": "otra_combinacion",
     "motivo": "Análisis de sensibilidad nuevo (doc 145 §5, A5). No re-infiere: relee las detecciones de ALR-07 con otras reglas (receta `reuso`, como ALR-08). Se compara con ALR-07 y ALR-08, que usan la regla oficial.\n",

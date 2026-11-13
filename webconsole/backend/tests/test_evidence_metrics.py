@@ -10,13 +10,15 @@ REPO = Path(__file__).resolve().parents[3]
 CAMPANAS = sorted(p.parent for p in (REPO / 'results').glob('*/*/metrics.json'))
 
 
-def test_hay_33_campanas_con_artefacto():
+def test_hay_37_campanas_con_artefacto():
     """Si aparece una campaña nueva, este test lo dice antes que la pantalla.
 
     ✎ 2026-11-12: decía 17 y ya había 33 versionadas (estaba en rojo en `main`); las 33 despachan a un
     adaptador (`test_toda_campana_despacha_a_un_adaptador`), así que la pantalla las muestra.
+    ✎ 2026-11-13: 37. Las cuatro nuevas son ALR-11…ALR-14 de `results/gen2/`, corridas el 2026-11-12; también
+    despachan a un adaptador.
     """
-    assert len(CAMPANAS) == 33
+    assert len(CAMPANAS) == 37
 
 
 @pytest.mark.parametrize('directorio', CAMPANAS, ids=lambda p: p.name)

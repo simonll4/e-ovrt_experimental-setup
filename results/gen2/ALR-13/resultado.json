@@ -115,7 +115,12 @@
     }
   ],
   "veredicto": {
-    "confirmado": null,
+    "confirmado": {
+      "valor": "otra_combinacion",
+      "motivo": "Analisis de sensibilidad: relee las detecciones de ALR-01 (34 clips del rodaje) con las variantes de la regla. F1 por escena: combinada 0,730, solo casco 0,771, solo chaleco 0,795 (regla oficial, ALR-01: 0,841). Por sujeto: 0,763, 0,817 y 0,838 (regla oficial, ALR-02: 0,899). El pronostico (F1 igual o mejor en el rodaje) FALLA en las seis lecturas. Ninguna variante acierta un episodio que la regla oficial perdia. La parte del casco pierde 2 por escena y 2 por sujeto (27 y 29 de 33, contra 29 y 31): en esos clips CR-01 sale entre 0,6 y 3,0 s antes de la ventana y cuenta como falsa. La parte del chaleco acierta los mismos y suma falsas de CR-02, 2 de ellas en clips sin infraccion, donde la regla oficial da 0. Falsas alarmas por escena: de 7 a 10 (casco), 13 (chaleco) y 16 (combinada). Cada parte cambia solo su condicion. El ajuste hecho sobre las 27 tomas del 11-07 no se traslada a este banco.",
+      "quien": "equipo E-OVRT-VDP",
+      "fecha": "2026-11-13T02:16:36+00:00"
+    },
     "referencia": null,
     "propuesto": "otra_combinacion",
     "motivo": "Análisis de sensibilidad nuevo (doc 145 §5, A5). No re-infiere: relee las detecciones de ALR-01 con otras reglas (receta `reuso`, como ALR-02). Se compara con ALR-01 (escena, F1 0,841) y ALR-02 (sujeto, F1 0,899), que usan la regla oficial `cr01_cr02_v2`.\n",
