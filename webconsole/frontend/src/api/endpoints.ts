@@ -7,7 +7,7 @@ import type {
   RecordingStatus, RunDetail, RunGroup, RunRow, StartRecordingBody, TargetStatus, TracePage,
   ArtifactEntry, ConditionInfo, RunComparison, TraceIndex, EvidenceListingMeta, EvidenceView,
   EvidenceRecorrido, EvidenceStepPage, EvidenceResultPage, ArchivedRunDetail, PlatformTestSlug,
-  Documentacion, DemoCamara, DemoCamaraChequeo, DemoPreflight, DemoState, DemoSessionDetail, DemoCifra, DemoStack, DemoModos,
+  Documentacion, DemoCamara, DemoCamaraChequeo, DemoPreflight, DemoState, DemoSessionDetail, DemoSesionFila, DemoCifra, DemoStack, DemoModos,
   Gen2Detalle, Gen2Observaciones, Gen2Prueba,
 } from '../types'
 
@@ -461,6 +461,7 @@ export const detenerVistaDemo = () => request<undefined>('/api/demo/vista', { me
 export const reiniciarMotorDemo = () => request<{ motor: string }>('/api/demo/motor/reiniciar', { method: 'POST' })
 export const finishDemo = () =>
   request<{ session_id: string; fase: string }>('/api/demo/finish', { method: 'POST' })
+export const getDemoSesiones = () => request<DemoSesionFila[]>('/api/demo/sessions')
 export const getDemoSession = (id: string) =>
   request<DemoSessionDetail>(`/api/demo/sessions/${encodeURIComponent(id)}`)
 export const getDemoRespaldo = () => request<{ session_id: string }>('/api/demo/respaldo')

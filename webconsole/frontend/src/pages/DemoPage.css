@@ -253,3 +253,10 @@
   .eo-demo { padding: 16px 16px 72px; font-size: 18px; }
   .eo-demo-cards, .eo-demo-capa__grilla { grid-template-columns: 1fr; }
 }
+
+/* El filtro de la lista de sesiones guardadas, dentro de una tarjeta sin relleno. */
+.eo-demo-sesiones__filtro { padding: 10px 14px; max-width: 420px; }
+
+/* Los ids largos de corrida no se salen de su tarjeta. */
+.eo-demo-capa__lista code { overflow-wrap: anywhere; }
+.eo-demo-capa h4 { margin: 14px 0 6px; font-size: 15px; }

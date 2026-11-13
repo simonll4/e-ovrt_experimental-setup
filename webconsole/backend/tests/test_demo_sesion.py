@@ -425,6 +425,84 @@ async def test_respaldo_y_archivos_con_guarda_de_ruta(entorno):
         dm.sesion("../otra")
 
 
+def _sesion_en_disco(raiz: Path, sid: str, *, escena: str, con_resultado: bool = True) -> Path:
+    carpeta = raiz / sid
+    carpeta.mkdir(parents=True)
+    (carpeta / "session.json").write_text(json.dumps(
+        {"session_id": sid, "variante": "oakd", "fase": "done", "escena": escena}))
+    if con_resultado:
+        (carpeta / "resultado").mkdir()
+        (carpeta / "resultado" / "resumen.json").write_text("{}")
+    return carpeta
+
+
+def test_las_sesiones_de_otras_jornadas_se_listan_y_se_abren_sin_copiarlas(entorno, tmp_path):
+    """Los paquetes de las jornadas en vivo no viven en el repo (tienen video con personas):
+    la consola los lee desde carpetas adicionales, de solo lectura."""
+    dm = entorno.dm
+    jornada = tmp_path / "paquete-jornada" / "sesiones"
+    _sesion_en_disco(dm.sesiones_dir, "demo_20261101T100000Z_P1", escena="P1", con_resultado=False)
+    _sesion_en_disco(jornada, "demo_20261107T160250Z_P2", escena="P2")
+    # La misma sesión en las dos carpetas: gana la de esta consola y aparece una sola vez.
+    _sesion_en_disco(dm.sesiones_dir, "demo_20261107T120000Z_P5", escena="P5")
+    _sesion_en_disco(jornada, "demo_20261107T120000Z_P5", escena="otra copia")
+    assert [f["session_id"] for f in dm.sesiones()] == ["demo_20261107T120000Z_P5", "demo_20261101T100000Z_P1"]
+
+    dm.sesiones_extra = (jornada, tmp_path / "no-existe")
+    filas = {f["session_id"]: f for f in dm.sesiones()}
+    assert list(filas) == ["demo_20261107T160250Z_P2", "demo_20261107T120000Z_P5", "demo_20261101T100000Z_P1"]
+    assert filas["demo_20261107T160250Z_P2"]["archivada"] is True
+    assert filas["demo_20261107T160250Z_P2"]["tiene_resultado"] is True
+    assert filas["demo_20261107T120000Z_P5"]["archivada"] is False and filas["demo_20261107T120000Z_P5"]["escena"] == "P5"
+    assert filas["demo_20261101T100000Z_P1"]["tiene_resultado"] is False
+    # Se abre y sirve sus archivos igual que una propia, con la misma guarda de ruta.
+    assert dm.sesion("demo_20261107T160250Z_P2")["session"]["escena"] == "P2"
+    assert dm.archivo("demo_20261107T160250Z_P2", "resultado/resumen.json").is_file()
+    from eovrt_webconsole.demo.sesion import SesionDesconocida
+
+    with pytest.raises(SesionDesconocida):
+        dm.archivo("demo_20261107T160250Z_P2", "../demo_20261107T120000Z_P5/session.json")
+    # Marcar como respaldo una sesión archivada escribe la marca en la carpeta de esta consola.
+    dm.marcar_respaldo("demo_20261107T160250Z_P2")
+    assert (dm.sesiones_dir / "RESPALDO").is_file() and not (jornada / "RESPALDO").exists()
+
+
+def test_una_sesion_guardada_trae_el_equipo_donde_corrio_y_su_log(entorno):
+    """La capa de evidencia de una sesión guardada muestra lo que registró la sesión, no el
+    equipo ni el estado de quien la abre después."""
+    dm = entorno.dm
+    carpeta = _sesion_en_disco(dm.sesiones_dir, "demo_20261107T160250Z_P1", escena="P1")
+    (carpeta / "preflight.json").write_text(json.dumps(
+        {"consola": {"stack": "compose"}, "host": {"presente": True, "datos": {"equipo": "HP Victus", "ram_gb": 31.3}}}))
+    log = carpeta / "resultado" / "log"
+    (log / "experimento").mkdir(parents=True)
+    (log / "control").mkdir()
+    (log / "experimento" / "report.md").write_text("# Informe del experimento\n")
+    (log / "control" / "alerts.jsonl").write_text('{"condition_id": "CR-01"}\n')
+    d = dm.sesion("demo_20261107T160250Z_P1")
+    assert d["equipo"] == {"equipo": "HP Victus", "ram_gb": 31.3}
+    assert d["log"]["archivos"] == ["resultado/log/control/alerts.jsonl", "resultado/log/experimento/report.md"]
+    assert d["log"]["informe"] == "# Informe del experimento\n"
+    assert d["log"]["alertas"] == '{"condition_id": "CR-01"}\n'
+    assert d["log"]["distribucion"] is None  # el archivo no está: se dice, no se inventa
+    # Una sesión sin chequeo ni log se abre igual.
+    _sesion_en_disco(dm.sesiones_dir, "demo_20261101T100000Z_P2", escena="P2", con_resultado=False)
+    d = dm.sesion("demo_20261101T100000Z_P2")
+    assert d["equipo"] is None and d["log"] == {"archivos": [], "informe": None, "alertas": None, "distribucion": None}
+
+
+def test_las_carpetas_adicionales_de_sesiones_salen_del_entorno():
+    import os
+
+    from eovrt_webconsole.settings import ConsoleSettings
+
+    repo = str(Path(__file__).resolve().parents[3])
+    env = {"EOVRT_CONSOLE_REPO_ROOT": repo,
+           "EOVRT_CONSOLE_DEMO_SESSIONS_EXTRA": os.pathsep.join(["/a/sesiones", "", "/b/sesiones"])}
+    assert ConsoleSettings.from_env(env).demo_sessions_extra == (Path("/a/sesiones"), Path("/b/sesiones"))
+    assert ConsoleSettings.from_env({"EOVRT_CONSOLE_REPO_ROOT": repo}).demo_sessions_extra == ()
+
+
 async def test_cifras_pendientes_sin_generacion_2(entorno):
     cifras = entorno.dm.cifras()
     assert cifras and all(c["pendiente"] for c in cifras)

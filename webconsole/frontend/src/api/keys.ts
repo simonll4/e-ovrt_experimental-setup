@@ -105,6 +105,7 @@ export const qk = {
     preflight: (modo?: string | null) => ['demo', 'preflight', modo ?? null] as const,
     state: ['demo', 'state'] as const,
     session: (id: string) => ['demo', 'session', id] as const,
+    sesiones: ['demo', 'sesiones'] as const,
     cifras: ['demo', 'cifras'] as const,
     stack: ['demo', 'stack'] as const,
     camaras: ['demo', 'camaras'] as const,

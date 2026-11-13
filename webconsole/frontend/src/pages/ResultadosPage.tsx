@@ -71,7 +71,7 @@ export default function ResultadosPage() {
       <p className="eo-note">
         Cada prueba se registró por escrito antes de correr (qué mide, con qué insumo y configuración, qué
         se esperaba) y se comparó con la generación 1. El veredicto lo propone el programa que corre las
-        pruebas y lo confirma una persona: <i>idéntico</i>, <i>equivalente con la diferencia declarada</i>
+        pruebas y lo confirma una persona: <i>idéntico</i>, <i>equivalente con la diferencia declarada</i>{' '}
         u <i>otra combinación</i>, que se muestra al lado y nunca en reemplazo.
       </p>
       {contrastes > 0 && (

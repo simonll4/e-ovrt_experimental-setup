@@ -18,6 +18,7 @@ import EvidencePage from './pages/EvidencePage'
 import DocumentacionPage from './pages/DocumentacionPage'
 import DemoPage from './pages/DemoPage'
 import DemoResultPage from './pages/DemoResultPage'
+import DemoSesionesPage from './pages/DemoSesionesPage'
 import TribunalPage from './pages/TribunalPage'
 import ResultadosPage from './pages/ResultadosPage'
 import PruebaPage from './pages/PruebaPage'
@@ -75,6 +76,7 @@ export default function App() {
         {/* Demo en vivo de la defensa: pantalla completa, sin armazón (Shell la
             reconoce por el pathname) y fuera de la navegación. */}
         <Route path="/demo" element={<DemoPage />} />
+        <Route path="/demo/sesiones" element={<DemoSesionesPage />} />
         <Route path="/demo/resultado/:sessionId" element={<DemoResultPage />} />
         {/* Última: cualquier ruta que no matcheó antes. Sin esto, una URL vieja
             dejaba el armazón dibujado y el contenido en blanco. */}

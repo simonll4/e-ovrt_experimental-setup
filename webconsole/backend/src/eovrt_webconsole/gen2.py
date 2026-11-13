@@ -42,6 +42,13 @@ EXTENSIONES = {
 CARPETAS = ("logs", "evals", "capturas")
 MAX_LISTADO = 500
 MAX_COMANDOS = 200_000  # bytes de comandos.txt que se devuelven (el final, que es lo último)
+# Lo que se muestra de cada toma de una prueba en vivo (`evals/tomas.json`), tal cual está escrito.
+CAMPOS_TOMA = ("escena", "session_id", "remera", "stream", "motor", "camara", "modelo", "encuadre",
+               "por_condicion", "como_se_esperaba", "alertas_antes_de_la_accion", "ensayo_demo")
+CAMPOS_ALERTA = ("condicion", "accion", "primera_evidencia_a_confirmacion_ms", "accion_a_confirmacion_ms",
+                 "confirmacion_a_broker_ms")
+# La prueba que registra el equipo y el despliegue; de ahí sale la GPU cuando una prueba no la registró.
+PRUEBA_PLATAFORMA = "PLAT-01"
 
 
 class PruebaInexistente(KeyError):
@@ -188,6 +195,46 @@ class Gen2:
             listado[nombre] = archivos[:MAX_LISTADO]
         return listado
 
+    @staticmethod
+    def _lecturas(resultado: Any) -> list[dict]:
+        """Las otras lecturas de la prueba (`variantes` del resultado: por sujeto, otra regla…),
+        cada una con su resumen tal cual. La lectura principal es el `resumen` de la prueba."""
+        variantes = resultado.get("variantes") if isinstance(resultado, dict) else None
+        if not isinstance(variantes, dict):
+            return []
+        return [{"nombre": nombre, "resumen": v.get("resumen") or []}
+                for nombre, v in variantes.items() if isinstance(v, dict)]
+
+    @staticmethod
+    def _tomas(base: Path) -> list[dict]:
+        """Las tomas de una prueba en vivo (`evals/tomas.json`): qué se esperaba de cada una, qué
+        pasó y cuánto tardó cada alerta. Solo selecciona campos; no calcula."""
+        crudo = _leer_json(base / "evals" / "tomas.json")
+        if not isinstance(crudo, list):
+            return []
+        tomas = []
+        for toma in crudo[:MAX_LISTADO]:
+            if not isinstance(toma, dict):
+                continue
+            fila = {k: toma[k] for k in CAMPOS_TOMA if k in toma}
+            sujeto = toma.get("sujeto")
+            latencia = toma.get("latencia")
+            fila["sujeto_como_se_esperaba"] = sujeto.get("como_se_esperaba") if isinstance(sujeto, dict) else None
+            fila["fps_efectivos"] = latencia.get("fps_efectivos") if isinstance(latencia, dict) else None
+            fila["alertas"] = [{k: a.get(k) for k in CAMPOS_ALERTA}
+                               for a in toma.get("alertas") or [] if isinstance(a, dict)]
+            tomas.append(fila)
+        return tomas
+
+    def _gpu_de_la_plataforma(self, entorno: Any) -> str | None:
+        """La GPU que registró PLAT-01, para la prueba cuyo `entorno.json` no la trae (la foto
+        del entorno solo la ve cuando hay una instancia de detección levantada)."""
+        if not isinstance(entorno, dict) or entorno.get("gpu"):
+            return None
+        plataforma = _leer_json(self._dir(PRUEBA_PLATAFORMA) / "entorno.json")
+        gpu = plataforma.get("gpu") if isinstance(plataforma, dict) else None
+        return gpu if isinstance(gpu, str) and gpu else None
+
     def prueba(self, pid: str) -> dict:
         if not ID_PRUEBA.match(pid):
             raise PruebaInexistente(pid)
@@ -206,6 +253,8 @@ class Gen2:
             crudo = comandos.read_bytes()
             texto_comandos = crudo[-MAX_COMANDOS:].decode("utf-8", errors="replace")
         corridas = _leer_json(base / "corridas.json")
+        resultado = _leer_json(base / "resultado.json")
+        entorno = _leer_json(base / "entorno.json")
         return {
             **self._fila(pid, datos),
             "pre_registro": {
@@ -214,9 +263,12 @@ class Gen2:
                 "origen": "copia_al_correr" if texto_copia else "catalogo",
                 "coincide_con_catalogo": (texto_copia == texto_catalogo) if texto_copia and texto_catalogo else None,
             },
-            "resultado": _leer_json(base / "resultado.json"),
+            "resultado": resultado,
+            "lecturas": self._lecturas(resultado),
+            "tomas": self._tomas(base),
             "corridas": (corridas or {}).get("corridas") if isinstance(corridas, dict) else None,
-            "entorno": _leer_json(base / "entorno.json"),
+            "entorno": entorno,
+            "gpu_de_la_plataforma": self._gpu_de_la_plataforma(entorno),
             "plataforma": _leer_json(base / "plataforma.json"),
             "comandos": texto_comandos,
             "archivos": self._listar(base) if base.is_dir() else {n: [] for n in CARPETAS},

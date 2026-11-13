@@ -181,6 +181,80 @@ describe('Detalle de una prueba (/resultados/:id)', () => {
     expect(screen.getByRole('img', { name: 'Captura consola.png' })).toBeTruthy()
   })
 
+  const completa = (over: Partial<Gen2Detalle>): Gen2Detalle => ({
+    ...fila({ estado: 'completo', resumen: [{ clave: 'f1', nombre: 'F1 por episodio', valor: 0.72973, unidad: null, gen1: null }] }),
+    pre_registro: { texto: 'id: X\n', origen: 'copia_al_correr', coincide_con_catalogo: true },
+    resultado: {}, comandos: null, corridas: null, entorno: null, plataforma: null,
+    archivos: { logs: [], evals: [], capturas: [] }, ...over,
+  })
+
+  it('muestra todas las lecturas de la prueba, una columna por lectura', async () => {
+    const detalle = completa({
+      id: 'ALR-13', titulo: 'Sensibilidad de la regla',
+      lecturas: [
+        { nombre: 'combinada_sujeto', resumen: [{ clave: 'f1', nombre: 'F1 por episodio', valor: 0.763158, unidad: null, gen1: null }] },
+        { nombre: 'casco', resumen: [
+          { clave: 'f1', nombre: 'F1 por episodio', valor: 0.771429, unidad: null, gen1: null },
+          { clave: 'falsas', nombre: 'Falsas alarmas', valor: 10, unidad: null, gen1: null }] },
+      ],
+    })
+    http((u) => (u.pathname === '/api/gen2/pruebas/ALR-13' ? json(detalle) : undefined))
+    montarPrueba('ALR-13')
+    const tabla = await screen.findByRole('table', { name: 'Lecturas de la prueba' })
+    const cabeceras = within(tabla).getAllByRole('columnheader').map((th) => th.textContent)
+    expect(cabeceras).toEqual(['Qué se mide', 'Lectura principal', 'combinada sujeto', 'casco'])
+    const f1 = within(tabla).getByRole('row', { name: /F1 por episodio/ })
+    expect(within(f1).getAllByRole('cell').map((td) => td.textContent)).toEqual(['F1 por episodio', '0,7297', '0,7632', '0,7714'])
+    // Una cifra que solo tiene una lectura aparece igual, con «—» en las que no la traen.
+    const falsas = within(tabla).getByRole('row', { name: /Falsas alarmas/ })
+    expect(within(falsas).getAllByRole('cell').map((td) => td.textContent)).toEqual(['Falsas alarmas', '—', '—', '10'])
+  })
+
+  it('una prueba sin otras lecturas no muestra esa tabla', async () => {
+    http((u) => (u.pathname === '/api/gen2/pruebas/ALR-01' ? json(completa({ lecturas: [] })) : undefined))
+    montarPrueba('ALR-01')
+    await screen.findByRole('table', { name: 'Cifras de la prueba' })
+    expect(screen.queryByRole('table', { name: 'Lecturas de la prueba' })).toBeNull()
+    expect(screen.queryByRole('table', { name: 'Tomas de la prueba' })).toBeNull()
+  })
+
+  it('una prueba en vivo muestra sus tomas: qué se esperaba, qué pasó y cuánto tardó la alerta', async () => {
+    const detalle = completa({
+      id: 'RT-06', titulo: 'Obra simulada con la cámara IP', familia: 'rodaje',
+      tomas: [
+        { escena: 'P1', session_id: 'demo_20261107T200449Z_P1', stream: 'secundario', remera: 'blanca lisa',
+          por_condicion: { 'CR-01': { esperado: 'alerta', alertas: 1, ok: true }, 'CR-02': { esperado: 'sin_alerta', alertas: 0, ok: true } },
+          como_se_esperaba: true, sujeto_como_se_esperaba: true, alertas_antes_de_la_accion: 0,
+          alertas: [{ condicion: 'CR-01', accion: 'sacar_casco', accion_a_confirmacion_ms: 7319.2, confirmacion_a_broker_ms: 15.5 }] },
+        { escena: 'P5', session_id: 'demo_20261107T200801Z_P5', stream: 'secundario', remera: 'blanca lisa',
+          por_condicion: { 'CR-01': { esperado: 'sin_alerta', alertas: 1, ok: false }, 'CR-02': { esperado: 'sin_alerta', alertas: 1, ok: false } },
+          como_se_esperaba: false, sujeto_como_se_esperaba: false, alertas_antes_de_la_accion: 2, alertas: [] },
+      ],
+    })
+    http((u) => (u.pathname === '/api/gen2/pruebas/RT-06' ? json(detalle) : undefined))
+    montarPrueba('RT-06')
+    const tabla = await screen.findByRole('table', { name: 'Tomas de la prueba' })
+    expect(screen.getByText('1 de 2 como el guion')).toBeTruthy()
+    const cabeceras = within(tabla).getAllByRole('columnheader').map((th) => th.textContent)
+    expect(cabeceras).toEqual(['Escena', 'Stream', 'Remera', 'CR-01', 'CR-02', 'Como el guion', 'De la acción a la alerta', 'Sesión'])
+    const [, p1, p5] = within(tabla).getAllByRole('row')
+    expect(within(p1).getByText('1 alerta')).toBeTruthy()
+    expect(within(p1).getByText('CR-01 7,3 s')).toBeTruthy()
+    expect(within(p1).getByRole('link', { name: 'demo_20261107T200449Z_P1' }).getAttribute('href'))
+      .toBe('/demo/resultado/demo_20261107T200449Z_P1')
+    expect(within(p5).getByText('no')).toBeTruthy()
+    expect(within(p5).getByText(/2 antes de la acción/)).toBeTruthy()
+  })
+
+  it('si la prueba no registró la GPU, muestra la de la prueba de plataforma y dice de dónde sale', async () => {
+    const detalle = completa({ id: 'RT-04', entorno: { modo: 'docker', gpu: null, host: { nombre: 'x' } },
+                               gpu_de_la_plataforma: 'NVIDIA GeForce RTX 4060 Laptop GPU' })
+    http((u) => (u.pathname === '/api/gen2/pruebas/RT-04' ? json(detalle) : undefined))
+    montarPrueba('RT-04')
+    expect(await screen.findByText('NVIDIA GeForce RTX 4060 Laptop GPU')).toBeTruthy()
+    expect(screen.getByRole('link', { name: 'PLAT-01' }).getAttribute('href')).toBe('/resultados/PLAT-01')
+  })
+
   it('un contraste muestra por qué no se regenera y su cifra de la generación 1, sin veredicto', async () => {
     const detalle: Gen2Detalle = {
       ...CONTRASTE,

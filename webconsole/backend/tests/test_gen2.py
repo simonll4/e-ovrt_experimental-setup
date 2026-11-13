@@ -102,6 +102,70 @@ def test_detalle_trae_preregistro_corridas_entorno_y_archivos(client, repo):
     assert d["archivos"]["capturas"] == []
 
 
+def test_detalle_trae_las_otras_lecturas_de_la_prueba_con_su_resumen(client, repo):
+    """Una prueba con `variantes` (por sujeto, otra regla) las muestra: sin esto, su cifra
+    quedaba solo dentro del texto del veredicto."""
+    _prueba(repo, "ALR-13")
+    sujeto = [{"clave": "f1", "nombre": "F1", "valor": 0.763, "unidad": None, "gen1": None}]
+    _resultado(repo, "ALR-13", variantes={"combinada_sujeto": {"metricas": {"f1_micro": 0.763}, "resumen": sujeto},
+                                          "rota": "no es un objeto"})
+    d = client.get("/api/gen2/pruebas/ALR-13").json()
+    assert d["lecturas"] == [{"nombre": "combinada_sujeto", "resumen": sujeto}]
+    # Sin variantes, la lista viene vacía (y no falta la clave).
+    _prueba(repo, "ALR-01")
+    _resultado(repo, "ALR-01")
+    assert client.get("/api/gen2/pruebas/ALR-01").json()["lecturas"] == []
+
+
+def test_detalle_trae_las_tomas_de_una_prueba_en_vivo(client, repo):
+    _prueba(repo, "RT-04", familia="rodaje")
+    carpeta = _resultado(repo, "RT-04")
+    (carpeta / "evals").mkdir()
+    (carpeta / "evals" / "tomas.json").write_text(json.dumps([{
+        "escena": "P1", "session_id": "demo_20261107T160250Z_P1", "remera": "blanca lisa", "encuadre": "ok",
+        "ids": {"media_run_id": "run_x"}, "marcas": True,
+        "por_condicion": {"CR-01": {"esperado": "alerta", "alertas": 1, "ok": True}},
+        "como_se_esperaba": True, "alertas_antes_de_la_accion": 0,
+        "sujeto": {"como_se_esperaba": True, "sujetos_con_alerta": 1},
+        "latencia": {"fps_efectivos": 5.01, "g2a": {"p95": 230.6}},
+        "alertas": [{"condicion": "CR-01", "alert_id": "a1", "accion": "sacar_casco",
+                     "primera_evidencia_a_confirmacion_ms": 4280.9, "accion_a_confirmacion_ms": 6070.0,
+                     "confirmacion_a_broker_ms": 13.5}],
+    }, "no es una toma"]))
+    d = client.get("/api/gen2/pruebas/RT-04").json()
+    assert len(d["tomas"]) == 1
+    toma = d["tomas"][0]
+    assert toma["escena"] == "P1" and toma["remera"] == "blanca lisa" and toma["como_se_esperaba"] is True
+    assert toma["por_condicion"]["CR-01"] == {"esperado": "alerta", "alertas": 1, "ok": True}
+    assert toma["sujeto_como_se_esperaba"] is True and toma["fps_efectivos"] == 5.01
+    assert toma["alertas"] == [{"condicion": "CR-01", "accion": "sacar_casco",
+                                "primera_evidencia_a_confirmacion_ms": 4280.9,
+                                "accion_a_confirmacion_ms": 6070.0, "confirmacion_a_broker_ms": 13.5}]
+    # Lo que no se muestra no viaja: ids internos, marcas, la latencia entera.
+    assert "ids" not in toma and "marcas" not in toma and "latencia" not in toma
+    # Una prueba de banco no tiene tomas.
+    _prueba(repo, "ALR-01")
+    _resultado(repo, "ALR-01")
+    assert client.get("/api/gen2/pruebas/ALR-01").json()["tomas"] == []
+
+
+def test_la_gpu_que_falta_en_una_prueba_sale_de_la_prueba_de_plataforma(client, repo):
+    """La foto del entorno solo ve la GPU con una instancia de detección levantada; cuando una
+    prueba no la registró, el detalle ofrece la de PLAT-01 y dice de dónde sale."""
+    _prueba(repo, "PLAT-01")
+    (_resultado(repo, "PLAT-01") / "entorno.json").write_text(json.dumps({"gpu": "RTX 4060 Laptop GPU"}))
+    _prueba(repo, "RT-04")
+    (_resultado(repo, "RT-04") / "entorno.json").write_text(json.dumps({"host": {"nombre": "x"}, "gpu": None}))
+    d = client.get("/api/gen2/pruebas/RT-04").json()
+    assert d["entorno"]["gpu"] is None  # el archivo no se toca
+    assert d["gpu_de_la_plataforma"] == "RTX 4060 Laptop GPU"
+    # La que sí la registró no necesita el respaldo, y sin entorno no se inventa nada.
+    assert client.get("/api/gen2/pruebas/PLAT-01").json()["gpu_de_la_plataforma"] is None
+    _prueba(repo, "ALR-01")
+    _resultado(repo, "ALR-01")
+    assert client.get("/api/gen2/pruebas/ALR-01").json()["gpu_de_la_plataforma"] is None
+
+
 def test_detalle_de_una_prueba_sin_correr_muestra_el_catalogo(client, repo):
     _prueba(repo, "RT-03", familia="vivo")
     d = client.get("/api/gen2/pruebas/RT-03").json()

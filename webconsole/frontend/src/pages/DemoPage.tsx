@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import { ApiError, detenerVistaDemo, finishDemo, getDemoRespaldo, qk, startDemo } from '../api'
 import { useDemoCamaras, useDemoModos, useDemoPreflight, useDemoState } from '../api/queries/demo'
@@ -313,6 +313,9 @@ export default function DemoPage() {
             )}
             <Button aria-pressed={capa} onClick={() => setCapa((c) => !c)}>Evidencia <kbd>E</kbd></Button>
             <Button onClick={alternar}>Proyectar <kbd>P</kbd></Button>
+            {!corriendo && !cerrando && (
+              <Link className="eo-btn eo-btn--ghost" to="/demo/sesiones">Sesiones guardadas</Link>
+            )}
           </div>
         )}
       />

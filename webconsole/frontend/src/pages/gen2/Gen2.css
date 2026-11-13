@@ -39,3 +39,6 @@
 
 /* Encabezado fijo de la validación inicial (generación 1). */
 .eo-gen1-aviso { margin-bottom: 12px; }
+
+/* La nota al pie de una tabla que ocupa todo el ancho de la tarjeta. */
+.eo-gen2__nota-tabla { margin: 0; padding: 10px 14px 12px; }

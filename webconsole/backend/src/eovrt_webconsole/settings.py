@@ -67,6 +67,10 @@ class ConsoleSettings:
     # preann y los .clip.yaml). None = repo hermano. La generación de clips
     # (spec 2026-07-21) resuelve todo contra esta ruta.
     datasets_videos_dir: Path | None = None
+    # Carpetas adicionales de sesiones de la demo, de solo lectura: los paquetes de las jornadas
+    # en vivo, que tienen video con personas y no viven en el repo. La consola las lista y las
+    # abre, pero las sesiones nuevas siempre se escriben en `defensa/sesiones`.
+    demo_sessions_extra: tuple[Path, ...] = ()
 
     @property
     def prompts_dir(self) -> Path:
@@ -169,5 +173,8 @@ class ConsoleSettings:
                 Path(env["EOVRT_CONSOLE_DATASETS_VIDEOS_DIR"])
                 if env.get("EOVRT_CONSOLE_DATASETS_VIDEOS_DIR")
                 else None
+            ),
+            demo_sessions_extra=tuple(
+                Path(p) for p in env.get("EOVRT_CONSOLE_DEMO_SESSIONS_EXTRA", "").split(os.pathsep) if p.strip()
             ),
         )

@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import {
-  getDemoCifras, getDemoModos, getDemoPreflight, getDemoSession, getDemoStack, getDemoState, listDemoCamaras,
+  getDemoCifras, getDemoModos, getDemoPreflight, getDemoSesiones, getDemoSession, getDemoStack, getDemoState, listDemoCamaras,
 } from '..'
 import { POLL } from '../queryClient'
 import { qk } from '../keys'
@@ -45,6 +45,11 @@ export function useDemoSession(id: string | undefined) {
     enabled: Boolean(id),
     retry: false,
   })
+}
+
+/** Las sesiones guardadas: las de esta consola y las de las carpetas de solo lectura. */
+export function useDemoSesiones() {
+  return useQuery({ queryKey: qk.demo.sesiones, queryFn: getDemoSesiones, retry: false })
 }
 
 export function useDemoCifras() {

@@ -3,7 +3,7 @@ import { gen2ArchivoUrl } from '../api'
 import { useGen2Prueba } from '../api/queries/gen2'
 import { Banner, Card, Disclosure, MonoCell, PageHeader, Table, TableScroll, Tag } from '../components/ui'
 import { GEN1 } from '../nav'
-import type { Gen2Corrida, Gen2Detalle, Gen2Entorno } from '../types'
+import type { Gen2Cifra, Gen2Corrida, Gen2Detalle, Gen2Entorno } from '../types'
 import { EstadoDeLectura } from './evidencia/comun'
 import { CifraFila, EstadoPrueba, VEREDICTO_LABEL, Veredicto, noSeRegenera, valorTexto } from './gen2/comun'
 import './gen2/Gen2.css'
@@ -19,9 +19,133 @@ function filasCorridas(corridas: Record<string, Gen2Corrida>) {
   return filas
 }
 
+const nombreLectura = (nombre: string) => nombre.replace(/_/g, ' ')
+
+/** Todas las lecturas de la prueba, una columna por lectura: la principal (el
+ *  `resumen`) y las demás (por sujeto, otra regla…). Sin esto, la cifra de una
+ *  lectura secundaria solo aparecía dentro del texto del veredicto. */
+function Lecturas({ d }: { d: Gen2Detalle }) {
+  const lecturas = d.lecturas ?? []
+  if (lecturas.length === 0) return null
+  const valor = (resumen: Gen2Cifra[], clave: string) => {
+    const c = resumen.find((x) => x.clave === clave)
+    return c ? valorTexto(c.valor, c.unidad) : '—'
+  }
+  // Las filas son las cifras de la lectura principal, más las que solo tenga alguna otra.
+  const filas = [...d.resumen]
+  for (const l of lecturas) for (const c of l.resumen) if (!filas.some((f) => f.clave === c.clave)) filas.push(c)
+  return (
+    <Card title="Las lecturas de la prueba" meta={`${lecturas.length + 1} lecturas`} flush>
+      <TableScroll label="Lecturas de la prueba">
+        <Table aria-label="Lecturas de la prueba">
+          <thead>
+            <tr>
+              <th>Qué se mide</th>
+              <th>Lectura principal</th>
+              {lecturas.map((l) => <th key={l.nombre}>{nombreLectura(l.nombre)}</th>)}
+            </tr>
+          </thead>
+          <tbody>
+            {filas.map((f) => (
+              <tr key={f.clave}>
+                <td>{f.nombre}</td>
+                <td className="eo-num">{valor(d.resumen, f.clave)}</td>
+                {lecturas.map((l) => <td key={l.nombre} className="eo-num">{valor(l.resumen, f.clave)}</td>)}
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      </TableScroll>
+    </Card>
+  )
+}
+
+const segundos = (ms: number | null | undefined) =>
+  ms == null ? null : `${(ms / 1000).toLocaleString('es-AR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} s`
+
+function CondicionDeToma({ c }: { c?: { esperado?: string; alertas?: number; ok?: boolean } }) {
+  if (!c) return <>—</>
+  const espera = c.esperado === 'alerta' ? 'alerta' : 'silencio'
+  const paso = (c.alertas ?? 0) > 0 ? `${c.alertas} ${c.alertas === 1 ? 'alerta' : 'alertas'}` : 'silencio'
+  return (
+    <>
+      <span className={c.ok ? undefined : 'eo-note--error'}>{paso}</span>
+      <span className="eo-note--meta"> · se esperaba {espera}</span>
+    </>
+  )
+}
+
+/** Las tomas de una prueba en vivo, una por fila: qué se esperaba, qué pasó y
+ *  cuánto tardó cada alerta desde la acción del actor. */
+function Tomas({ d }: { d: Gen2Detalle }) {
+  const tomas = d.tomas ?? []
+  if (tomas.length === 0) return null
+  const condiciones = Array.from(new Set(tomas.flatMap((t) => Object.keys(t.por_condicion ?? {})))).sort()
+  const con = (campo: 'stream' | 'motor' | 'camara' | 'remera') => tomas.some((t) => t[campo])
+  const comoElGuion = tomas.filter((t) => t.como_se_esperaba).length
+  return (
+    <Card title="Las tomas" meta={`${comoElGuion} de ${tomas.length} como el guion`} flush>
+      <TableScroll label="Tomas de la prueba">
+        <Table aria-label="Tomas de la prueba">
+          <thead>
+            <tr>
+              <th>Escena</th>
+              {con('stream') && <th>Stream</th>}
+              {con('motor') && <th>Motor</th>}
+              {con('camara') && <th>Cámara</th>}
+              {con('remera') && <th>Remera</th>}
+              {condiciones.map((c) => <th key={c}>{c}</th>)}
+              <th>Como el guion</th>
+              <th>De la acción a la alerta</th>
+              <th>Sesión</th>
+            </tr>
+          </thead>
+          <tbody>
+            {tomas.map((t, i) => (
+              <tr key={t.session_id ?? i}>
+                <td>{t.escena ?? '—'}</td>
+                {con('stream') && <td>{t.stream ?? '—'}</td>}
+                {con('motor') && <MonoCell>{t.motor ?? '—'}</MonoCell>}
+                {con('camara') && <MonoCell>{t.camara ?? '—'}</MonoCell>}
+                {con('remera') && <td>{t.remera ?? '—'}</td>}
+                {condiciones.map((c) => <td key={c}><CondicionDeToma c={t.por_condicion?.[c]} /></td>)}
+                <td>
+                  {t.como_se_esperaba ? 'sí' : <span className="eo-note--error">no</span>}
+                  {t.sujeto_como_se_esperaba != null && t.sujeto_como_se_esperaba !== t.como_se_esperaba && (
+                    <span className="eo-note--meta"> · por sujeto: {t.sujeto_como_se_esperaba ? 'sí' : 'no'}</span>
+                  )}
+                  {(t.alertas_antes_de_la_accion ?? 0) > 0 && (
+                    <span className="eo-note--meta"> · {t.alertas_antes_de_la_accion} antes de la acción</span>
+                  )}
+                </td>
+                <td>
+                  {t.alertas.filter((a) => a.accion_a_confirmacion_ms != null).map((a) => `${a.condicion} ${segundos(a.accion_a_confirmacion_ms)}`).join(' · ') || '—'}
+                </td>
+                <td>
+                  {t.session_id
+                    ? <Link className="eo-mono" to={`/demo/resultado/${encodeURIComponent(t.session_id)}`}>{t.session_id}</Link>
+                    : '—'}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      </TableScroll>
+      <p className="eo-note--meta eo-gen2__nota-tabla">
+        La sesión se abre si su carpeta está en este equipo: tiene video con personas y no se publica.
+      </p>
+    </Card>
+  )
+}
+
 /** Cómo corrió: el equipo, las imágenes y los commits, tal como los registró la
- *  prueba (`entorno.json`). */
-export function ComoCorrio({ entorno, titulo = 'Cómo corrió' }: { entorno: Gen2Entorno; titulo?: string }) {
+ *  prueba (`entorno.json`). Si la prueba no registró la GPU, se muestra la de la
+ *  prueba de plataforma y se dice de dónde sale. */
+export function ComoCorrio({ entorno, titulo = 'Cómo corrió', gpuDeLaPlataforma }: {
+  entorno: Gen2Entorno
+  titulo?: string
+  gpuDeLaPlataforma?: string | null
+}) {
   const imagenes = Object.entries(entorno.docker?.imagenes ?? {})
   const repos = Object.entries(entorno.repos ?? {})
   return (
@@ -30,7 +154,15 @@ export function ComoCorrio({ entorno, titulo = 'Cómo corrió' }: { entorno: Gen
         <div><dt>Equipo</dt><dd>{entorno.host?.nombre ?? '—'}</dd></div>
         <div><dt>Procesador</dt><dd>{entorno.host?.cpu ?? '—'}{entorno.host?.nucleos ? ` (${entorno.host.nucleos} núcleos)` : ''}</dd></div>
         <div><dt>Memoria</dt><dd>{entorno.host?.memoria_gb != null ? `${valorTexto(entorno.host.memoria_gb)} GB` : '—'}</dd></div>
-        <div><dt>GPU</dt><dd>{entorno.gpu ?? '—'}</dd></div>
+        <div>
+          <dt>GPU</dt>
+          <dd>
+            {entorno.gpu ?? gpuDeLaPlataforma ?? '—'}
+            {!entorno.gpu && gpuDeLaPlataforma && (
+              <span className="eo-note--meta"> · la registró <Link to="/resultados/PLAT-01">PLAT-01</Link></span>
+            )}
+          </dd>
+        </div>
         <div><dt>Despliegue</dt><dd>{entorno.modo === 'docker' ? 'Contenedores (Docker)' : entorno.modo === 'nativo' ? 'Servicios nativos' : '—'}</dd></div>
         <div><dt>Modelo cargado</dt><dd className="eo-mono">{entorno.modelo_cargado?.model?.ref ?? '—'}</dd></div>
         <div><dt>Sistema</dt><dd>{entorno.host?.plataforma ?? '—'}</dd></div>
@@ -183,6 +315,8 @@ export default function PruebaPage() {
           </TableScroll>
         </Card>
       )}
+      <Lecturas d={d} />
+      <Tomas d={d} />
       <Card title="Contra la generación 1">
         {v ? (
           <>
@@ -225,7 +359,7 @@ export default function PruebaPage() {
           Las cifras de la generación 1 están en la <Link to={GEN1.to}>validación inicial</Link>.
         </p>
       </Card>
-      {d.entorno && <ComoCorrio entorno={d.entorno} />}
+      {d.entorno && <ComoCorrio entorno={d.entorno} gpuDeLaPlataforma={d.gpu_de_la_plataforma} />}
       {corridas.length > 0 && (
         <Card title="Las corridas" meta={`${corridas.length} registradas`} flush>
           <TableScroll label="Corridas de la prueba">

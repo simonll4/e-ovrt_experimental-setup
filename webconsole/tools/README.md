@@ -26,3 +26,19 @@ Códigos de salida: `0` ok, `2` argumentos inválidos, `3` SDK ausente, `4` fall
 del dispositivo. En stdout emite una línea JSON por evento (`{"event":
 "started"}`, `{"event": "finished", "bytes_written": N}` o `{"event": "error",
 "reason": "..."}`); corta limpio con SIGTERM/SIGINT.
+
+## `mirar_pantallas.mjs`
+
+Captura pantallas contra una consola que ya está corriendo y dice, para cada una, qué encabezados mostró y qué
+errores dejó en el navegador. Es para mirar un cambio con datos reales antes de darlo por bueno; no inventa datos
+ni intercepta nada (para eso está `capture_console.mjs`).
+
+```bash
+node webconsole/tools/mirar_pantallas.mjs --out /tmp/mirar /resultados /resultados/ALR-13
+node webconsole/tools/mirar_pantallas.mjs --out /tmp/mirar --tarjeta "Las tomas" /resultados/RT-06
+node webconsole/tools/mirar_pantallas.mjs --out /tmp/mirar --tecla e --dialogo /demo/resultado/<sesión>
+```
+
+Necesita Playwright, que no es dependencia del proyecto: se instala en `webconsole/tools/.capture-runtime`
+(ignorada por git) o se indica con `--playwright-module`. El navegador, con `--chromium <ruta>` si no hay uno
+instalado por Playwright. Las opciones están en el encabezado del archivo.

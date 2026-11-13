@@ -65,6 +65,13 @@ SIN_SENAL_S = 5.0
 BROKER_ESPERA_S = 5.0
 HOST_PREFLIGHT_MAX_S = 15 * 60
 RESPALDO = "RESPALDO"
+# Del log de una sesión guardada, lo que la capa de evidencia muestra de corrido.
+LOG_VISIBLE = (
+    ("informe", "resultado/log/experimento/report.md"),
+    ("alertas", "resultado/log/control/alerts.jsonl"),
+    ("distribucion", "resultado/log/distribucion/distribution_summary.json"),
+)
+MAX_LOG_VISIBLE = 40_000  # caracteres por archivo
 # Etiqueta opcional de la toma: la escena del rodaje en vivo de la generación 2 (P1…P9,
 # P7c, DEMO; RT-04 del doc 134). No cambia nada de lo que corre: solo nombra la sesión
 # para que el driver de evidencia la encuentre y la compare con su guion.
@@ -241,6 +248,8 @@ class DemoManager:
         settings = app.state.settings
         self._repo_root = Path(settings.repo_root)
         self.sesiones_dir = sesiones_dir or (self._repo_root / "defensa" / "sesiones")
+        # Carpetas de solo lectura con sesiones de otras jornadas (EOVRT_CONSOLE_DEMO_SESSIONS_EXTRA).
+        self.sesiones_extra: tuple[Path, ...] = tuple(getattr(settings, "demo_sessions_extra", ()) or ())
         self._poll_s = poll_s
         self._testigo_factory = testigo_factory or (lambda host, port: TestigoMqtt(host, port))
         self._ping = ping or ping_broker
@@ -1369,13 +1378,18 @@ class DemoManager:
 
     # --- sesiones guardadas ---------------------------------------------------------
 
+    def _raices_sesiones(self) -> list[Path]:
+        """Dónde hay sesiones: la carpeta de esta consola primero, después las de solo lectura."""
+        return [self.sesiones_dir, *self.sesiones_extra]
+
     def _dir_sesion(self, session_id: str) -> Path:
         if not _ID_RE.match(session_id):
             raise SesionDesconocida(session_id)
-        carpeta = self.sesiones_dir / session_id
-        if not (carpeta / "session.json").is_file():
-            raise SesionDesconocida(session_id)
-        return carpeta
+        for raiz in self._raices_sesiones():
+            carpeta = raiz / session_id
+            if (carpeta / "session.json").is_file():
+                return carpeta
+        raise SesionDesconocida(session_id)
 
     def respaldo(self) -> str | None:
         try:
@@ -1390,26 +1404,32 @@ class DemoManager:
         (self.sesiones_dir / RESPALDO).write_text(session_id + "\n", encoding="utf-8")
 
     def sesiones(self) -> list[dict[str, Any]]:
-        if not self.sesiones_dir.is_dir():
-            return []
+        """Las sesiones guardadas, la más nueva primero. Una sesión que está en dos carpetas
+        aparece una vez: gana la de esta consola."""
         respaldo = self.respaldo()
-        filas = []
-        for carpeta in sorted(self.sesiones_dir.iterdir(), reverse=True):
-            path = carpeta / "session.json"
-            if not path.is_file():
+        filas: dict[str, dict[str, Any]] = {}
+        for raiz in self._raices_sesiones():
+            if not raiz.is_dir():
                 continue
-            try:
-                data = json.loads(path.read_text(encoding="utf-8"))
-            except (OSError, json.JSONDecodeError):
-                continue
-            filas.append({
-                "session_id": data.get("session_id"), "variante": data.get("variante"),
-                "fase": data.get("fase"), "iniciada_en": data.get("iniciada_en"),
-                "ended_by": data.get("ended_by"), "respaldo": data.get("session_id") == respaldo,
-                "escena": data.get("escena"), "exploracion": data.get("exploracion"),
-                "modo_prompts": data.get("modo_prompts"),
-            })
-        return filas
+            for carpeta in raiz.iterdir():
+                path = carpeta / "session.json"
+                if carpeta.name in filas or not path.is_file():
+                    continue
+                try:
+                    data = json.loads(path.read_text(encoding="utf-8"))
+                except (OSError, json.JSONDecodeError):
+                    continue
+                filas[carpeta.name] = {
+                    "session_id": data.get("session_id"), "variante": data.get("variante"),
+                    "fase": data.get("fase"), "iniciada_en": data.get("iniciada_en"),
+                    "ended_by": data.get("ended_by"), "respaldo": data.get("session_id") == respaldo,
+                    "escena": data.get("escena"), "exploracion": data.get("exploracion"),
+                    "modo_prompts": data.get("modo_prompts"),
+                    # Lo que la lista necesita para decir qué se puede ver de cada una.
+                    "tiene_resultado": (carpeta / "resultado" / "resumen.json").is_file(),
+                    "archivada": raiz != self.sesiones_dir,
+                }
+        return [filas[k] for k in sorted(filas, reverse=True)]
 
     def sesion(self, session_id: str) -> dict[str, Any]:
         carpeta = self._dir_sesion(session_id)
@@ -1433,6 +1453,8 @@ class DemoManager:
             eventos = [json.loads(x) for x in lineas[-200:] if x.strip()]
         except (OSError, json.JSONDecodeError):
             pass
+        chequeo = leer("preflight.json")
+        equipo = ((chequeo or {}).get("host") or {}).get("datos") if isinstance(chequeo, dict) else None
         return {
             "session": leer("session.json"),
             "resumen": leer("resultado/resumen.json"),
@@ -1440,7 +1462,27 @@ class DemoManager:
             "testigo": testigo,
             "state_log": eventos,
             "respaldo": self.respaldo() == session_id,
+            # Lo que la sesión registró de sí misma: el equipo donde corrió (su chequeo previo) y
+            # su log. La capa de evidencia de una sesión guardada muestra esto, no el equipo ni
+            # el estado de quien la abre.
+            "equipo": equipo if isinstance(equipo, dict) else None,
+            "log": self._log_de_sesion(carpeta),
         }
+
+    @staticmethod
+    def _log_de_sesion(carpeta: Path) -> dict[str, Any]:
+        """El log que quedó de la corrida: la lista de archivos y el texto de los tres que se leen
+        de corrido (el informe del experimento, las alertas y el resumen de la distribución)."""
+        base = carpeta / "resultado" / "log"
+        archivos = sorted(p.relative_to(carpeta).as_posix() for p in base.rglob("*") if p.is_file()) \
+            if base.is_dir() else []
+        log: dict[str, Any] = {"archivos": archivos}
+        for clave, rel in LOG_VISIBLE:
+            try:
+                log[clave] = (carpeta / rel).read_text(encoding="utf-8", errors="replace")[:MAX_LOG_VISIBLE]
+            except OSError:
+                log[clave] = None
+        return log
 
     def archivo(self, session_id: str, rel: str) -> Path:
         carpeta = self._dir_sesion(session_id).resolve()

@@ -126,6 +126,62 @@ describe('/demo/resultado/:id', () => {
   })
 })
 
+describe('/demo/resultado/:id — la capa de evidencia de una sesión guardada', () => {
+  /** Quien abre la sesión está en otro equipo, días después: servicios nativos y otro commit. */
+  const stackDeQuienAbre = () => json({
+    modo: 'nativo', servicios: { media: 'http://localhost:8080' }, contenedores: null, error: null,
+    host: { presente: true, datos: { equipo: 'PC de quien abre' } },
+    repos: [{ repo: 'e-ovrt_media-plane', tag_evaluado: 'informe-2026', url_tag: 'https://example.invalid/tag', commit: 'abcdef1234567890' }],
+  })
+  const GUARDADA: DemoSessionDetail = {
+    ...DETALLE,
+    testigo: [
+      { recibido_en: '2026-10-26T15:01:00+00:00', topic: 'eovrt/alerts/high', crudo: '{"n": 1}', payload: {} },
+      { recibido_en: '2026-10-26T15:02:00+00:00', topic: 'eovrt/alerts/medium', crudo: '{"n": 2, "pattern_id": "CR-02"}', payload: {} },
+    ],
+    resumen: { ...DETALLE.resumen!, cuadros_procesados: 150, fps_efectivos: 5.01 },
+    equipo: { equipo: 'HP Victus', ram_gb: 31.3 },
+    log: {
+      archivos: ['resultado/log/control/alerts.jsonl', 'resultado/log/experimento/report.md'],
+      informe: '# Informe del experimento exp_x', alertas: '{"condition_id": "CR-01"}\n', distribucion: null,
+    },
+  }
+
+  it('muestra el equipo, el stack, los mensajes y el log que registró la sesión, no los de quien la abre', async () => {
+    instalar({ estado: 'fresco' }, CIFRAS_PENDIENTES, GUARDADA)
+    rutas['/api/demo/stack'] = stackDeQuienAbre
+    montar()
+    await screen.findByRole('heading', { name: 'Resultado de la demo' })
+    await tecla('e')
+    const capa = await screen.findByRole('dialog', { name: 'Capa de evidencia' })
+    expect(within(capa).getByText('Esta sesión corrió con la plataforma en contenedores (Docker Compose).')).toBeTruthy()
+    expect(within(capa).getByText('HP Victus')).toBeTruthy()
+    expect(within(capa).queryByText('PC de quien abre')).toBeNull()
+    expect(within(capa).queryByText(/Servicios nativos en el host/)).toBeNull()
+    expect(within(capa).getByText('Llegaron 2 mensajes; este es el último.')).toBeTruthy()
+    expect(within(capa).getByText('{"n": 2, "pattern_id": "CR-02"}')).toBeTruthy()
+    expect(within(capa).getByText(/150 cuadros procesados/)).toBeTruthy()
+    expect(within(capa).getByText('# Informe del experimento exp_x')).toBeTruthy()
+    expect(within(capa).getByText('{"condition_id": "CR-01"}')).toBeTruthy()
+    expect(within(capa).getByRole('link', { name: 'experimento/report.md' }).getAttribute('href'))
+      .toBe(`/api/demo/sessions/${SID}/archivo/resultado/log/experimento/report.md`)
+    // El commit de quien abre no dice nada de la sesión: no se muestra.
+    expect(within(capa).queryByText(/en esta máquina/)).toBeNull()
+  })
+
+  it('una sesión que cerró sin alertas lo dice, sin «todavía»', async () => {
+    instalar({ estado: 'fresco' }, CIFRAS_PENDIENTES, { ...GUARDADA, testigo: [], log: { archivos: [], informe: null, alertas: '', distribucion: null } })
+    rutas['/api/demo/stack'] = stackDeQuienAbre
+    montar()
+    await screen.findByRole('heading', { name: 'Resultado de la demo' })
+    await tecla('e')
+    const capa = await screen.findByRole('dialog', { name: 'Capa de evidencia' })
+    expect(within(capa).getByText('La sesión cerró sin mensajes en el broker: no se confirmó ninguna alerta.')).toBeTruthy()
+    expect(within(capa).getByText('Ninguna en esta sesión.')).toBeTruthy()
+    expect(within(capa).queryByText(/Todavía no llegó/)).toBeNull()
+  })
+})
+
 describe('/demo/resultado/:id — moverse y modos', () => {
   it('L conserva la variante de ensayo y la proyección al volver a Listo', async () => {
     instalar({ estado: 'fresco' })

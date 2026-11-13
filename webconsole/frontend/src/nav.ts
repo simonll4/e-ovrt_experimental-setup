@@ -117,10 +117,17 @@ export function crumbsFor(pathname: string, search = ''): NavItem[] {
     return crumbs
   }
   if (STANDALONE[pathname]) return [{ to: pathname, label: STANDALONE[pathname] }]
+  if (pathname === '/demo/sesiones') {
+    return [
+      { to: '/demo', label: STANDALONE['/demo'] },
+      { to: pathname, label: 'Sesiones guardadas' },
+    ]
+  }
   const demoMatch = pathname.match(/^\/demo\/resultado\/(.+)$/)
   if (demoMatch) {
     return [
       { to: '/demo', label: STANDALONE['/demo'] },
+      { to: '/demo/sesiones', label: 'Sesiones guardadas' },
       { to: pathname, label: demoMatch[1] },
     ]
   }

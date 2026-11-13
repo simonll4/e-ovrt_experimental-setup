@@ -990,6 +990,10 @@ export interface DemoSessionDetail {
   testigo: Array<{ recibido_en: string; topic: string; crudo: string; payload: unknown }>
   state_log: unknown[]
   respaldo: boolean
+  /** El equipo donde corrió la sesión, según su propio chequeo previo. */
+  equipo?: Record<string, unknown> | null
+  /** El log de la sesión: sus archivos y el texto de los que se leen de corrido. */
+  log?: { archivos: string[]; informe: string | null; alertas: string | null; distribucion: string | null }
 }
 /** Una fila de `GET /api/demo/sessions`. */
 export interface DemoSesionFila {
@@ -1003,6 +1007,10 @@ export interface DemoSesionFila {
   exploracion: DemoExploracion | null
   /** null = el campeón. */
   modo_prompts: DemoModoSesion | null
+  /** Tiene el resultado armado (video, cuadros, línea de tiempo): se puede abrir. */
+  tiene_resultado?: boolean
+  /** Viene de una carpeta de solo lectura (el paquete de una jornada), no de esta consola. */
+  archivada?: boolean
 }
 export interface DemoCifra {
   prueba: string
@@ -1084,11 +1092,40 @@ export interface Gen2Corrida {
 export interface Gen2Detalle extends Gen2Prueba {
   pre_registro: { texto: string | null; origen: 'copia_al_correr' | 'catalogo'; coincide_con_catalogo: boolean | null }
   resultado: Record<string, unknown> | null
+  /** Las otras lecturas de la prueba (por sujeto, otra regla…), cada una con su resumen. */
+  lecturas?: Array<{ nombre: string; resumen: Gen2Cifra[] }>
+  /** Las tomas de una prueba en vivo: qué se esperaba de cada una y qué pasó. */
+  tomas?: Gen2Toma[]
   corridas: Record<string, Gen2Corrida> | null
   entorno: Gen2Entorno | null
+  /** La GPU que registró la prueba de plataforma, cuando esta prueba no la registró. */
+  gpu_de_la_plataforma?: string | null
   plataforma: (Gen2Entorno & { instancias?: Array<Record<string, unknown>> | null }) | null
   comandos: string | null
   archivos: { logs: string[]; evals: string[]; capturas: string[] }
+}
+export interface Gen2Toma {
+  escena?: string | null
+  session_id?: string | null
+  remera?: string | null
+  stream?: string | null
+  motor?: string | null
+  camara?: string | null
+  modelo?: string | null
+  encuadre?: string | null
+  por_condicion?: Record<string, { esperado?: string; alertas?: number; ok?: boolean }>
+  como_se_esperaba?: boolean | null
+  sujeto_como_se_esperaba?: boolean | null
+  alertas_antes_de_la_accion?: number | null
+  ensayo_demo?: unknown
+  fps_efectivos?: number | null
+  alertas: Array<{
+    condicion?: string | null
+    accion?: string | null
+    primera_evidencia_a_confirmacion_ms?: number | null
+    accion_a_confirmacion_ms?: number | null
+    confirmacion_a_broker_ms?: number | null
+  }>
 }
 export interface Gen2Entorno {
   fecha_utc?: string
