@@ -1,0 +1,53 @@
+# Las filas de las Tablas 51 a 54 del informe, para comprobar que cada una está en alguna de las
+# siete preguntas de la consola (preguntas.yaml; plan de la consola de evidencia, §9).
+#
+# Solo los nombres de las filas, sin cifras: las cifras se resuelven desde results/gen2. Son las
+# filas de la v0.2 del informe (2026-10-01) más las que el mapa del informe suma al lado
+# (docs: operacion/datos/146-cierre-plataforma-informe/mapa-informe.md). Cuando el informe cambie
+# una tabla, se cambia esta lista y el test dice qué pregunta tiene que mostrar la fila nueva.
+
+schema: consola.informe-tablas.v1
+
+tablas:
+  Tabla 51:
+    - gdino-tiny-560
+    - gdino-base-560
+    - yoloe-26x
+    - tiny a 800 px con caja 0,35
+  Tabla 52:
+    - Imágenes, CR-01
+    - Núcleo curado, CR-01
+    - Imágenes, CR-02
+    - Video de obra real - CR-01
+    - Video de obra real - CR-02
+  Tabla 53:
+    - Núcleo E-IND, escena
+    - Contraste base-560
+    - E-DIR de extremo a extremo
+    - E-HYB por disyunción
+    - Núcleo E-IND, sujeto
+    - Vocabulario nativo bare_head
+    - YOLOE-26s, escena
+    - YOLOE-26s, sujeto
+    - "Regla con umbrales de EPP más exigentes: combinada, escena"
+    - "Regla con umbrales de EPP más exigentes: combinada, sujeto"
+    - "Regla con umbrales de EPP más exigentes: solo casco, escena"
+    - "Regla con umbrales de EPP más exigentes: solo casco, sujeto"
+    - "Regla con umbrales de EPP más exigentes: solo chaleco, escena"
+    - "Regla con umbrales de EPP más exigentes: solo chaleco, sujeto"
+  Tabla 54:
+    - "Densidad: Referencia del banco, 30 fps"
+    - "Densidad: Techo en vivo, aproximadamente 4,29 fps"
+    - "Densidad: Intermedia, aproximadamente 2,00 fps"
+    - "Densidad: Peor caso, aproximadamente 1,15 fps"
+    - "Identidad: cuatro densidades"
+    - "Integridad: relectura frente a transmisión"
+    - "Latencia: sobrecarga con detector simulado"
+    - "Latencia: detector open-vocabulary en vivo"
+    - "Captura: antes del retiro de la unidad"
+    - De punta a punta por cuadro (vidrio → resultado)
+    - Cadencia procesada, OAK-D a 5 fps
+    - Cadencia procesada, cámara IP
+    - "Alerta: CR-01 en vivo"
+    - "Alerta: CR-02 en vivo"
+    - "Canal: bus de alertas a confirmación del canal"

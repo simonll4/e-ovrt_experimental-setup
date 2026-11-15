@@ -35,7 +35,9 @@ describe('App', () => {
 
   it('/experiments/new monta ExperimentsPage, NO ExperimentDetailPage buscando un experimento "new" (trampa de orden de rutas)', async () => {
     render(<MemoryRouter initialEntries={['/experiments/new']}><App /></MemoryRouter>)
-    await waitFor(() => expect(screen.getByText('Experimentos')).toBeTruthy())
+    // Las pantallas de laboratorio salieron de la barra (plan de la consola, §3): la página se
+    // reconoce por su propio título, no por un destino encendido en la navegación.
+    expect(await screen.findByRole('heading', { level: 1, name: 'Nuevo experimento' })).toBeTruthy()
     expect(vi.mocked(api.getExperiment)).not.toHaveBeenCalled()
   })
 })

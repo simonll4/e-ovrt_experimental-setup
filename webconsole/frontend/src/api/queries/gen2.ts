@@ -1,11 +1,11 @@
 import { useQuery } from '@tanstack/react-query'
-import { getGen2Observaciones, getGen2Prueba, getGen2Pruebas } from '..'
+import { getGen2Prueba, getGen2Pruebas, getPreguntas } from '..'
 import { qk } from '../keys'
 
 /** Archivos versionados que solo cambian cuando el driver corre: sin sondeo.
  *  Un 404 de una prueba es una respuesta, no un fallo transitorio: sin reintento. */
-export function useGen2Observaciones() {
-  return useQuery({ queryKey: qk.gen2.observaciones, queryFn: getGen2Observaciones, retry: false })
+export function usePreguntas(enabled = true) {
+  return useQuery({ queryKey: qk.preguntas, queryFn: getPreguntas, retry: false, enabled })
 }
 
 export function useGen2Pruebas() {

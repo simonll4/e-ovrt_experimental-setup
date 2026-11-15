@@ -1,0 +1,63 @@
+/* La portada y las páginas de las siete preguntas (plan de la consola de evidencia, §2). Solo tokens:
+   se ven igual de bien en los dos temas. */
+
+.eo-inicio { display: flex; flex-direction: column; gap: 24px; max-width: 1180px; }
+
+.eo-inicio__cab { display: flex; flex-direction: column; gap: 8px; padding-bottom: 20px; border-bottom: 1px solid var(--bd); }
+.eo-inicio__cab h1 { display: flex; flex-direction: column; gap: 6px; }
+.eo-inicio__cab h1:focus { outline: none; }
+.eo-inicio__nombre { font-size: 30px; font-weight: 650; letter-spacing: -0.015em; }
+.eo-inicio__titulo { font-size: var(--fz-h2); font-weight: 500; color: var(--tx2); max-width: 70ch; }
+.eo-inicio__que { margin: 0; font-size: 16px; color: var(--tx); max-width: 75ch; }
+.eo-inicio__autoria { margin: 0; font-size: var(--fz-meta); color: var(--tx3); }
+
+.eo-inicio__preguntas {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 12px;
+  counter-reset: pregunta;
+}
+.eo-inicio__preguntas > li { counter-increment: pregunta; display: flex; }
+.eo-inicio__pregunta {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px 18px;
+  background: var(--s1);
+  border: 1px solid var(--bd);
+  border-radius: var(--rc);
+  color: var(--tx);
+}
+.eo-inicio__pregunta:hover { text-decoration: none; color: var(--tx); border-color: var(--ac-bd); background: var(--s2); }
+.eo-inicio__q { font-size: var(--fz-panel); font-weight: 600; }
+.eo-inicio__q::before { content: counter(pregunta) ". "; color: var(--tx3); font-weight: 500; }
+.eo-inicio__titular { font-size: 17px; line-height: 1.4; color: var(--tx2); margin-top: auto; }
+.eo-inicio__titular .eo-cifra-resuelta { color: var(--tx); }
+
+.eo-inicio__pie { display: flex; flex-direction: column; gap: 6px; padding-top: 16px; border-top: 1px solid var(--bd); font-size: var(--fz-meta); color: var(--tx3); }
+.eo-inicio__pie p { margin: 0; }
+.eo-inicio__enlaces { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: var(--fz-body); }
+
+.eo-cifra-resuelta { font-weight: 650; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+.eo-pregunta { display: flex; flex-direction: column; gap: 16px; }
+.eo-pregunta__respuesta { margin: 0; font-size: 17px; line-height: 1.55; max-width: 80ch; }
+.eo-pregunta__fila { text-align: left; font-weight: 500; color: var(--tx); min-width: 18ch; }
+.eo-pregunta__respaldo { white-space: nowrap; font-family: var(--fm); font-size: var(--fz-meta); }
+.eo-pregunta__nota { margin: 0; padding: 10px 16px 14px; }
+.eo-pregunta__limites { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 4px; }
+.eo-pregunta__pasos { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding-top: 8px; border-top: 1px solid var(--bd); }
+
+.eo-celda__etiqueta { color: var(--tx3); font-size: var(--fz-meta); }
+.eo-celda__sep { color: var(--tx4); }
+.eo-celda__valor { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.eo-celda__valor--falla { color: var(--er); }
+
+@media (max-width: 767px) {
+  .eo-inicio__nombre { font-size: 24px; }
+  .eo-inicio__titulo { font-size: var(--fz-panel); }
+}

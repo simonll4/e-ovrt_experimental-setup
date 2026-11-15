@@ -294,9 +294,9 @@ export default function DemoPage() {
 
   // Dentro de la consola: una pantalla más, con su cabecera, su aviso y sus tarjetas.
   return (
-    <div className="eo-demo-consola" aria-label="Demo en vivo">
+    <div className="eo-demo-consola" aria-label="Demo con cámara">
       <PageHeader
-        title="Demo en vivo"
+        title="Demo con cámara"
         meta={corriendo ? 'En vivo' : cerrando ? 'Cerrando' : fase === 'done' || fase === 'failed' ? 'Última corrida cerrada' : 'Lista para iniciar'}
         bajada="La cadena completa —cámara, detección, reglas temporales, distribución y broker— corriendo en vivo con la configuración congelada del informe. Proyectar la deja a pantalla completa."
         actions={(
@@ -314,7 +314,7 @@ export default function DemoPage() {
             <Button aria-pressed={capa} onClick={() => setCapa((c) => !c)}>Evidencia <kbd>E</kbd></Button>
             <Button onClick={alternar}>Proyectar <kbd>P</kbd></Button>
             {!corriendo && !cerrando && (
-              <Link className="eo-btn eo-btn--ghost" to="/demo/sesiones">Sesiones guardadas</Link>
+              <Link className="eo-btn eo-btn--ghost" to="/demo/sesiones">Tomas en vivo</Link>
             )}
           </div>
         )}

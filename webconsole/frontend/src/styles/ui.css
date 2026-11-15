@@ -1800,6 +1800,8 @@ th.eo-th--numeric .eo-th__btn { flex-direction: row-reverse; }
   border-top: 1px solid var(--bd);
 }
 .eo-sidebar--collapsed .eo-sidebar__group:first-of-type { border-top: none; padding-top: 0; }
+/* El Archivo va al pie de la navegación (plan de la consola, §3 y §5), separado de lo vigente. */
+.eo-sidebar__group--pie { padding-top: 10px; border-top: 1px solid var(--bd); }
 
 .eo-sidebar__link {
   display: flex;

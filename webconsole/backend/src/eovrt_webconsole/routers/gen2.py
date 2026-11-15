@@ -7,11 +7,6 @@ from eovrt_webconsole.gen2 import ArchivoNoServible, PruebaInexistente
 router = APIRouter(prefix="/api/gen2")
 
 
-@router.get("/observaciones")
-def observaciones(request: Request) -> dict:
-    return request.app.state.gen2.observaciones()
-
-
 @router.get("/pruebas")
 def pruebas(request: Request) -> list[dict]:
     return request.app.state.gen2.pruebas()

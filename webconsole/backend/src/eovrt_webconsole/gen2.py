@@ -85,13 +85,6 @@ class Gen2:
     def __init__(self, repo_root: Path) -> None:
         self.catalogo_dir = Path(repo_root) / "experiments" / "evidencia"
         self.resultados_dir = Path(repo_root) / "results" / "gen2"
-        # Las observaciones del tribunal no viven en este repo (es público): la copia
-        # canónica está en el repo privado `docs`, hermano en el workspace. Una copia
-        # local en results/gen2/ (gitignorada) tiene prioridad.
-        self.observaciones_rutas = (
-            self.resultados_dir / "observaciones.yaml",
-            Path(repo_root).parent / "docs" / "observaciones-tribunal" / "observaciones.yaml",
-        )
 
     # --- catálogo y resultados --------------------------------------------------------
 
@@ -156,28 +149,6 @@ class Gen2:
 
     def pruebas(self) -> list[dict]:
         return [self._fila(pid, datos) for pid, datos in sorted(self._catalogo().items())]
-
-    def observaciones(self) -> dict:
-        ruta = next((r for r in self.observaciones_rutas if r.is_file()), None)
-        datos = _leer_yaml(ruta) if ruta else None
-        if not isinstance(datos, dict):
-            return {"available": False, "observaciones": [],
-                    "message": "No está el archivo de observaciones (docs/observaciones-tribunal/observaciones.yaml)."}
-        filas = {f["id"]: f for f in self.pruebas()}
-        observaciones = []
-        for obs in datos.get("observaciones") or []:
-            referidas = []
-            for pid in obs.get("pruebas") or []:
-                fila = filas.get(pid)
-                referidas.append({
-                    "id": pid,
-                    "titulo": fila["titulo"] if fila else None,
-                    "estado": fila["estado"] if fila else "desconocida",
-                    "registro": fila["registro"] if fila else None,
-                    "veredicto": fila["veredicto"] if fila else None,
-                })
-            observaciones.append({**obs, "pruebas": referidas})
-        return {"available": True, "observaciones": observaciones}
 
     # --- detalle de una prueba --------------------------------------------------------
 

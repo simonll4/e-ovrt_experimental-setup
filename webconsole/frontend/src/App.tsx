@@ -19,20 +19,21 @@ import DocumentacionPage from './pages/DocumentacionPage'
 import DemoPage from './pages/DemoPage'
 import DemoResultPage from './pages/DemoResultPage'
 import DemoSesionesPage from './pages/DemoSesionesPage'
-import TribunalPage from './pages/TribunalPage'
+import InicioPage from './pages/InicioPage'
+import PreguntaPage from './pages/PreguntaPage'
 import ResultadosPage from './pages/ResultadosPage'
 import PruebaPage from './pages/PruebaPage'
-import { RUNS_PATH } from './nav'
+import { PREGUNTA_PATH, RUNS_PATH } from './nav'
 
-/** La validación inicial (generación 1): el recorrido de evidencia de siempre,
- *  con un encabezado fijo que dice qué es (doc 135 §3.6). */
+/** El Archivo (plan de la consola, §5): el recorrido de evidencia de la etapa de desarrollo, de
+ *  solo lectura, con un encabezado fijo que dice qué es y que sus cifras no son las del informe. */
 function ValidacionInicial({ children }: { children: ReactNode }) {
   return (
     <>
       <div className="eo-gen1-aviso">
         <Banner tone="warn">
           Estas cifras son de la etapa de desarrollo, en otra máquina y con la referencia anterior a la
-          revisión dirigida: no son las del informe. Los resultados están en <Link to="/resultados">Resultados</Link>.
+          revisión dirigida: no son las del informe. Los resultados están en <Link to="/resultados">Pruebas</Link>.
         </Banner>
       </div>
       {children}
@@ -46,9 +47,10 @@ export default function App() {
   return (
     <Shell>
       <Routes>
-        {/* La entrada es «Para el tribunal» (doc 135); la lista de corridas se
-            mudó a /corridas. Ninguna ruta anterior se borró. */}
-        <Route path="/" element={<TribunalPage />} />
+        {/* La entrada es la portada con las siete preguntas (plan de la consola, §2.1).
+            Las pantallas de laboratorio salen de la barra pero siguen respondiendo. */}
+        <Route path="/" element={<InicioPage />} />
+        <Route path={`${PREGUNTA_PATH}/:id`} element={<PreguntaPage />} />
         <Route path={RUNS_PATH} element={<RunsPage />} />
         <Route path="/resultados" element={<ResultadosPage />} />
         <Route path="/resultados/:id" element={<PruebaPage />} />

@@ -1,0 +1,421 @@
+# Las siete preguntas de la consola de evidencia (plan de la consola, §2 y §9).
+#
+# Este archivo declara la portada y las siete páginas: el título de cada pregunta, la respuesta
+# en una oración, la cifra titular, las tablas del informe que la respaldan y lo que la cifra no
+# dice. Lo escribe una persona y se edita sin tocar código.
+#
+# Reglas que los tests hacen cumplir (webconsole/backend/tests/test_preguntas.py):
+#   1. Ninguna cifra se escribe a mano. Cada número es una referencia a una prueba de
+#      results/gen2 y a una clave de su resultado; la consola la resuelve al mostrarla. En los
+#      textos (que_es, respuesta, titular, limites, nota) no puede aparecer un número suelto:
+#      solo `{id}` de una cifra declarada.
+#   2. Una referencia que no resuelve rompe un test.
+#   3. Toda fila de las Tablas 51 a 54 del informe (informe-tablas.yaml) está en alguna pregunta.
+#
+# Una referencia es una de estas formas:
+#   {prueba: ALR-01, clave: f1}                       el `resumen` (o `metricas`) del resultado
+#   {prueba: ALR-13, variante: casco_sujeto, clave: f1}   la misma lectura de una variante
+#   {prueba: PLAT-01, archivo: entorno, clave: gpu}   un campo de entorno.json o plataforma.json
+#   {calculo: pruebas}                                cuántas pruebas tiene el catálogo
+#   {calculo: veredicto, valor: identico}             cuántas tienen ese veredicto confirmado
+#   {calculo: contar, de: [ref, ...]}                 cuántas referencias son verdaderas, «k de n»
+# Y cómo se muestra: `decimales` (fijos), `formato` (numero, signo, porcentaje, verificado) y
+# `unidad` (si no, la del resumen). En una tabla, una celda escrita como texto es una `clave` de la
+# prueba de la fila.
+
+schema: consola.preguntas.v1
+
+proyecto:
+  nombre: E-OVRT-VDP
+  # El título completo, de un solo lugar. Es el de la carátula de la v0.2 del informe; cambia si
+  # cambia la decisión pendiente sobre «tiempo real» (D4).
+  titulo: Plataforma experimental de detección open-vocabulary en video en tiempo real para monitoreo asistivo de riesgos en construcción
+  # De la respuesta a la hipótesis (informe §18.1).
+  que_es: >-
+    Integra detección open-vocabulary, video, estabilización temporal y distribución de alertas en
+    una plataforma experimental trazable, sin entrenar el detector.
+  # Como en la carátula del informe.
+  institucion: Centro Regional Universitario Córdoba IUA · Facultad de Ingeniería
+  carrera: Ingeniería en Informática · Proyecto Integrador
+  autores:
+    - Carrizo, Matías Lautaro
+    - Guillaumet, Gabriel Agustín
+    - Llamosas, Simon
+  enlaces:
+    informe: https://github.com/simonll4/e-ovrt-vdp/tree/main/informe
+    repositorios:
+      - {nombre: e-ovrt-vdp, url: "https://github.com/simonll4/e-ovrt-vdp"}
+      - {nombre: e-ovrt_media-plane, url: "https://github.com/simonll4/e-ovrt_media-plane"}
+      - {nombre: e-ovrt_control-plane, url: "https://github.com/Pandulc/e-ovrt_control-plane"}
+      - {nombre: e-ovrt_alert-distribution, url: "https://github.com/simonll4/e-ovrt_alert-distribution"}
+      - {nombre: e-ovrt_datasets, url: "https://github.com/Pandulc/e-ovrt_datasets"}
+      - {nombre: e-ovrt_experimental-setup, url: "https://github.com/simonll4/e-ovrt_experimental-setup"}
+
+preguntas:
+
+  # ---------------------------------------------------------------------------------------------
+  - id: que-se-construyo
+    titulo: ¿Qué se construyó?
+    informe: ["§17.3", "§17.6", "Anexo B"]
+    titular: "La cadena completa; {perdidos} eventos perdidos"
+    respuesta: >-
+      Una cadena que va de la cámara a la detección, a las reglas temporales y a la distribución de
+      alertas, en contenedores y trazable de punta a punta: entre la transmisión en vivo y su
+      relectura se perdieron {perdidos} eventos.
+    cifras:
+      perdidos: {prueba: RT-02, clave: bus_dropped_events, decimales: 0}
+    tablas:
+      - titulo: La plataforma que corrió la campaña
+        informe: Anexo B
+        columnas: [Resultado]
+        filas:
+          - nombre: Despliegue en contenedores verificado
+            prueba: PLAT-01
+            celdas:
+              - - {etiqueta: configuración válida, clave: compose_config_valido, formato: verificado}
+                - {etiqueta: servicios arriba, clave: compose_ps, formato: verificado}
+                - {etiqueta: detección lista, clave: media_plane_listo, formato: verificado}
+          - nombre: Procesador
+            prueba: PLAT-01
+            celdas: [{archivo: entorno, clave: host.cpu}]
+          - nombre: GPU
+            prueba: PLAT-01
+            celdas: [{archivo: entorno, clave: gpu}]
+          - nombre: Relectura frente a transmisión
+            prueba: RT-02
+            celdas:
+              - - {etiqueta: eventos perdidos, clave: bus_dropped_events, decimales: 0}
+                - {etiqueta: misma salida, clave: paridad, formato: verificado}
+          - nombre: Del bus de alertas a la confirmación del canal
+            prueba: DIST-01
+            celdas: [{etiqueta: p95, clave: p95_ms, decimales: 1}]
+    limites:
+      - Es un prototipo experimental; no se demostró una solución general de seguridad en obra.
+      - Cada tramo se mide con su propio reloj, así que sus tiempos no se suman en una latencia de punta a punta.
+
+  # ---------------------------------------------------------------------------------------------
+  - id: que-detecta
+    titulo: ¿Qué detecta un modelo sin entrenar?
+    informe: ["§17.5.2", "Tabla 51", "Tabla 55"]
+    titular: "mAP50 {map50}; una clase nueva, AP50 {clase_nueva}"
+    respuesta: >-
+      Sin entrenar, el perfil operativo detecta personas, cascos, chalecos y cabezas descubiertas
+      con mAP50 {map50} sobre el banco de imágenes, y una clase nueva, agregada por configuración,
+      llega a AP50 {clase_nueva}.
+    cifras:
+      map50: {prueba: IMG-01, clave: map50, decimales: 3}
+      clase_nueva: {prueba: EXT-01, clave: ap50_machinery_obra, decimales: 3}
+    tablas:
+      - titulo: Percepción por combinación en el banco de imágenes
+        informe: Tabla 51
+        columnas: [mAP50 agregado, Recall de CR-01 por evidencia directa]
+        filas:
+          - {nombre: gdino-tiny-560, prueba: IMG-01, celdas: [{clave: map50, decimales: 3}, {clave: recall_cr01, decimales: 3}]}
+          - {nombre: gdino-base-560, prueba: IMG-02, celdas: [{clave: map50, decimales: 3}, {clave: recall_cr01, decimales: 3}]}
+          - {nombre: yoloe-26x, prueba: IMG-03, celdas: [{clave: map50, decimales: 3}, {clave: recall_cr01, decimales: 3}]}
+          - {nombre: "tiny a 800 px con caja 0,35", prueba: IMG-04, celdas: [{clave: map50, decimales: 3}, {clave: recall_cr01, decimales: 3}]}
+      - titulo: Por clase, con el perfil operativo
+        informe: "§17.5.2"
+        columnas: [AP50]
+        filas:
+          - {nombre: Persona, prueba: IMG-01, celdas: [{clave: ap50_person, decimales: 3}]}
+          - {nombre: Casco, prueba: IMG-01, celdas: [{clave: ap50_helmet, decimales: 3}]}
+          - {nombre: Chaleco, prueba: IMG-01, celdas: [{clave: ap50_vest, decimales: 3}]}
+          - {nombre: Cabeza descubierta, prueba: IMG-01, celdas: [{clave: ap50_bare_head, decimales: 3}]}
+      - titulo: Una clase nueva sin entrenar
+        informe: "§17.5.2"
+        columnas: [AP50]
+        filas:
+          - {nombre: Maquinaria en obra, prueba: EXT-01, celdas: [{clave: ap50_machinery_obra, decimales: 3}]}
+          - {nombre: "Vehículo, junto con maquinaria", prueba: EXT-01, celdas: [{clave: ap50_vehicle_obra, decimales: 3}]}
+          - {nombre: "Vehículo, solo", prueba: EXT-01, celdas: [{clave: ap50_vehicle_sin_machinery, decimales: 3}]}
+        nota: >-
+          El ajuste fino se probó como camino aparte y no se adoptó: ningún tramo entrenado cumplió a
+          la vez la ganancia y la retención exigidas. Sus cifras están en el Archivo.
+    limites:
+      - El perfil se eligió para estas combinaciones y estos materiales; no es una clasificación general de las familias de modelos.
+      - Una clase nueva se agrega sin entrenar, pero no sin validar; la cabeza descubierta es la clase más floja del perfil.
+
+  # ---------------------------------------------------------------------------------------------
+  - id: como-expresar
+    titulo: ¿Cómo conviene expresar la infracción?
+    informe: ["§17.5.3", "Tabla 52"]
+    titular: "F1 {eind} contra {edir}"
+    respuesta: >-
+      Conviene buscar a la persona y al EPP por separado y deducir la ausencia, en lugar de describir
+      la infracción entera: en imágenes, sin casco, F1 {eind} contra {edir}.
+    cifras:
+      eind: {prueba: PER-01, clave: shel5k/CR-01/f1_eind, decimales: 3}
+      edir: {prueba: PER-01, clave: shel5k/CR-01/f1_edir, decimales: 3}
+    tablas:
+      - titulo: Estado por persona
+        informe: Tabla 52
+        columnas: [Por ausencia del EPP (E-IND), Por detección directa (E-DIR)]
+        filas:
+          - {nombre: "Imágenes, CR-01", prueba: PER-01, celdas: [{clave: shel5k/CR-01/f1_eind, etiqueta: F1, decimales: 3}, {clave: shel5k/CR-01/f1_edir, etiqueta: F1, decimales: 3}]}
+          - {nombre: "Núcleo curado, CR-01", prueba: PER-01, celdas: [{clave: bench_obra/CR-01/f1_eind, etiqueta: F1, decimales: 3}, {clave: bench_obra/CR-01/f1_edir, etiqueta: F1, decimales: 3}]}
+          - {nombre: "Imágenes, CR-02", prueba: PER-01, celdas: [{clave: bench_obra/CR-02/f1_eind, etiqueta: F1, decimales: 3}, {clave: bench_obra/CR-02/f1_edir, etiqueta: F1, decimales: 3}]}
+          - nombre: Video de obra real - CR-01
+            prueba: PER-03
+            celdas:
+              - - {etiqueta: P, clave: CR-01/precision, decimales: 3}
+                - {etiqueta: R, clave: CR-01/recall, decimales: 3}
+                - {etiqueta: F1, clave: CR-01/f1, decimales: 3}
+              - null
+          - nombre: Video de obra real - CR-02
+            prueba: PER-03
+            celdas:
+              - - {etiqueta: P, clave: CR-02/precision, decimales: 3}
+                - {etiqueta: R, clave: CR-02/recall, decimales: 3}
+                - {etiqueta: F1, clave: CR-02/f1, decimales: 3}
+              - null
+    limites:
+      - Sin chaleco, la comparación quedó abierta; hay un solo estrato y los intervalos se solapan.
+      - En video de obra real cae la precisión, porque el sistema marca a personas cuyo estado no se puede ver.
+      - La detección directa se descartó por un umbral de precisión fijado antes de medir.
+
+  # ---------------------------------------------------------------------------------------------
+  - id: que-agrega
+    titulo: ¿Qué agrega la plataforma sobre la detección?
+    informe: ["§17.5.4", "Tabla 53"]
+    titular: "F1 {escena} por escena y {sujeto} por sujeto"
+    respuesta: >-
+      Con las mismas detecciones, las reglas temporales convierten la evidencia de cada cuadro en
+      alertas por episodio, con F1 {escena} por escena y {sujeto} siguiendo a cada persona, y
+      {negativos} falsas alarmas en los clips del rodaje sin infracción.
+    cifras:
+      escena: {prueba: ALR-01, clave: f1, decimales: 3}
+      sujeto: {prueba: ALR-02, clave: f1, decimales: 3}
+      negativos: {prueba: ALR-01, clave: falsas_alarmas, decimales: 0}
+    tablas:
+      - titulo: Alerta por episodio en el rodaje guionado
+        informe: Tabla 53
+        columnas: [Recall, Precisión, F1, Tiempo hasta la alerta, SDR, Falsas alarmas en los clips sin infracción]
+        filas:
+          - {nombre: "Núcleo E-IND, escena", prueba: ALR-01, celdas: &alerta [{clave: recall, decimales: 3}, {clave: precision, decimales: 3}, {clave: f1, decimales: 3}, {clave: t_alert_s, decimales: 2}, {clave: sdr, decimales: 3}, {clave: falsas_alarmas, decimales: 0}]}
+          - {nombre: Contraste base-560, prueba: ALR-03, celdas: *alerta}
+          - {nombre: E-DIR de extremo a extremo, prueba: ALR-04, celdas: *alerta}
+          - {nombre: E-HYB por disyunción, prueba: ALR-05, celdas: *alerta}
+          - {nombre: "Núcleo E-IND, sujeto", prueba: ALR-02, celdas: *alerta}
+          - {nombre: Vocabulario nativo bare_head, prueba: ALR-06, celdas: *alerta}
+          - {nombre: "YOLOE-26s, escena", prueba: ALR-11, celdas: *alerta}
+          - {nombre: "YOLOE-26s, sujeto", prueba: ALR-11, variante: sujeto, celdas: *alerta}
+          - {nombre: "Regla con umbrales de EPP más exigentes: combinada, escena", prueba: ALR-13, celdas: *alerta}
+          - {nombre: "Regla con umbrales de EPP más exigentes: combinada, sujeto", prueba: ALR-13, variante: combinada_sujeto, celdas: *alerta}
+          - {nombre: "Regla con umbrales de EPP más exigentes: solo casco, escena", prueba: ALR-13, variante: casco, celdas: *alerta}
+          - {nombre: "Regla con umbrales de EPP más exigentes: solo casco, sujeto", prueba: ALR-13, variante: casco_sujeto, celdas: *alerta}
+          - {nombre: "Regla con umbrales de EPP más exigentes: solo chaleco, escena", prueba: ALR-13, variante: chaleco, celdas: *alerta}
+          - {nombre: "Regla con umbrales de EPP más exigentes: solo chaleco, sujeto", prueba: ALR-13, variante: chaleco_sujeto, celdas: *alerta}
+        nota: >-
+          El F1 no cuenta las falsas alarmas de los clips sin infracción: van en la última columna.
+    limites:
+      - Seguir a cada persona sigue sumando, pero en el banco del rodaje el intervalo de esa ganancia incluye el cero; no es un efecto robusto.
+      - Se mide contra una referencia temporal anotada por una sola persona.
+      - El rodaje es una obra simulada y con guion; en obra real el resultado cambia.
+
+  # ---------------------------------------------------------------------------------------------
+  - id: en-vivo
+    titulo: ¿Funciona en vivo?
+    informe: ["§17.5.5", "Tabla 54"]
+    titular: "{fps} cuadros por segundo; alerta en {cr01}"
+    respuesta: >-
+      Sí: con la cámara de la demo, la cadena procesa {fps} cuadros por segundo con {descartados}
+      descartados, y desde que la persona se saca el casco la alerta llega en {cr01} (mediana).
+    cifras:
+      fps: {prueba: RT-04, clave: fps_efectivos, decimales: 2, unidad: ""}
+      descartados: {prueba: RT-04, clave: cuadros_descartados, decimales: 0}
+      cr01: {prueba: RT-04, clave: cr01_accion_a_alerta_s, decimales: 1}
+    tablas:
+      - titulo: El camino en vivo por densidad, integridad y tramo temporal
+        informe: Tabla 54
+        columnas: [Resultado]
+        filas:
+          - nombre: "Densidad: Referencia del banco, 30 fps"
+            prueba: ALR-01
+            celdas:
+              - - {etiqueta: escena, prueba: ALR-01, clave: f1, decimales: 3}
+                - {etiqueta: sujeto, prueba: ALR-02, clave: f1, decimales: 3}
+          - nombre: "Densidad: Techo en vivo, aproximadamente 4,29 fps"
+            prueba: DEN-01
+            celdas:
+              - - {etiqueta: escena, prueba: DEN-01, clave: f1, decimales: 3}
+                - {etiqueta: sujeto, prueba: DEN-02, clave: f1, decimales: 3}
+          - nombre: "Densidad: Intermedia, aproximadamente 2,00 fps"
+            prueba: DEN-03
+            celdas:
+              - - {etiqueta: escena, prueba: DEN-03, clave: f1, decimales: 3}
+                - {etiqueta: sujeto, prueba: DEN-04, clave: f1, decimales: 3}
+          - nombre: "Densidad: Peor caso, aproximadamente 1,15 fps"
+            prueba: DEN-05
+            celdas:
+              - - {etiqueta: escena, prueba: DEN-05, clave: f1, decimales: 3}
+                - {etiqueta: sujeto, prueba: DEN-06, clave: f1, decimales: 3}
+          - nombre: "Identidad: cuatro densidades"
+            prueba: DEN-07
+            celdas:
+              - - {etiqueta: banco, clave: G1−T1, decimales: 3, formato: signo}
+                - {etiqueta: techo en vivo, clave: R2−R1, decimales: 3, formato: signo}
+                - {etiqueta: intermedia, clave: R4−R3, decimales: 3, formato: signo}
+                - {etiqueta: peor caso, clave: R6−R5, decimales: 3, formato: signo}
+                - etiqueta: el intervalo excluye el cero en
+                  calculo: contar
+                  de:
+                    - {prueba: DEN-07, clave: G1−T1.excluye_0}
+                    - {prueba: DEN-07, clave: R2−R1.excluye_0}
+                    - {prueba: DEN-07, clave: R4−R3.excluye_0}
+                    - {prueba: DEN-07, clave: R6−R5.excluye_0}
+          - nombre: "Integridad: relectura frente a transmisión"
+            prueba: RT-02
+            celdas:
+              - - {etiqueta: eventos perdidos, clave: bus_dropped_events, decimales: 0}
+                - {etiqueta: paridad, clave: paridad, formato: verificado}
+          - nombre: "Latencia: sobrecarga con detector simulado"
+            prueba: RT-01
+            celdas:
+              - - {etiqueta: p50, clave: g2a_p50_ms, decimales: 1}
+                - {etiqueta: p95, clave: g2a_p95_ms, decimales: 1}
+          - nombre: "Latencia: detector open-vocabulary en vivo"
+            prueba: RT-03
+            celdas: [{etiqueta: Latencia por cuadro G2A p95, clave: g2a_p95_ms, decimales: 1}]
+          - nombre: "Captura: antes del retiro de la unidad"
+            prueba: RT-03
+            celdas: [{etiqueta: captura → host p50, clave: capture_to_host_p50_ms, decimales: 0}]
+          - nombre: De punta a punta por cuadro (vidrio → resultado)
+            prueba: RT-03
+            celdas:
+              - - {etiqueta: p95 con la OAK-D, prueba: RT-03, clave: vidrio_a_resultado_p95_ms, decimales: 0}
+                - {etiqueta: p95 en la obra simulada, prueba: RT-04, clave: vidrio_a_resultado_p95_ms, decimales: 0}
+          - nombre: Cadencia procesada, OAK-D a 5 fps
+            prueba: RT-04
+            celdas:
+              - - {etiqueta: cuadros por segundo, clave: fps_efectivos, decimales: 2, unidad: ""}
+                - {etiqueta: descartados, clave: cuadros_descartados, decimales: 0}
+          - nombre: Cadencia procesada, cámara IP
+            prueba: RT-06
+            celdas:
+              - - {etiqueta: secundario, clave: fps_efectivos_secundario, decimales: 2, unidad: ""}
+                - {etiqueta: descartados, clave: cuadros_descartados_secundario, decimales: 0}
+                - {etiqueta: principal, clave: fps_efectivos_principal, decimales: 2, unidad: ""}
+                - {etiqueta: descartados, clave: cuadros_descartados_principal, decimales: 0}
+          - nombre: "Alerta: CR-01 en vivo"
+            prueba: RT-04
+            celdas:
+              - - {etiqueta: de la acción a la alerta con la OAK-D, prueba: RT-04, clave: cr01_accion_a_alerta_s, decimales: 1}
+                - {etiqueta: cámara IP secundario, prueba: RT-06, clave: cr01_accion_a_alerta_s_secundario, decimales: 1}
+                - {etiqueta: principal, prueba: RT-06, clave: cr01_accion_a_alerta_s_principal, decimales: 1}
+          - nombre: "Alerta: CR-02 en vivo"
+            prueba: RT-04
+            celdas:
+              - - {etiqueta: de la acción a la alerta con la OAK-D, prueba: RT-04, clave: cr02_accion_a_alerta_s, decimales: 1}
+                - {etiqueta: cámara IP secundario, prueba: RT-06, clave: cr02_accion_a_alerta_s_secundario, decimales: 1}
+                - {etiqueta: principal, prueba: RT-06, clave: cr02_accion_a_alerta_s_principal, decimales: 1}
+          - nombre: "Canal: bus de alertas a confirmación del canal"
+            prueba: DIST-01
+            celdas:
+              - - {etiqueta: p95, prueba: DIST-01, clave: p95_ms, decimales: 1}
+                - {etiqueta: en vivo, de la confirmación al broker p95, prueba: RT-04, clave: confirmacion_a_broker_p95_ms, decimales: 1}
+        nota: >-
+          Los tramos tienen relojes distintos y sus percentiles no se suman. Las alertas en vivo se
+          miden desde la acción de la persona, no desde la primera evidencia.
+    limites:
+      - Con pocas tomas por condición, los conteos en vivo son casos, no tasas.
+      - El mejor motor en vivo no es el mejor en el banco; la ventaja en vivo es de cerca y no se traslada.
+      - La alerta por falta de chaleco depende de la prenda que la persona lleva debajo.
+
+  # ---------------------------------------------------------------------------------------------
+  - id: obra-real
+    titulo: ¿Qué pasa en obra real?
+    informe: ["§17.5.4", "§18.3"]
+    titular: "{sujeto} falsas alarmas por sujeto, y por qué"
+    respuesta: >-
+      El resultado del rodaje no se generaliza: en los clips de obra real sin infracción hubo
+      {escena} falsas alarmas por escena y {sujeto} siguiendo a cada persona, sobre todo por EPP que
+      el detector no ve ({no_detectado}) o ve de a ratos ({intermitente}).
+    cifras:
+      escena: {prueba: ALR-07, clave: falsas_alarmas, decimales: 0}
+      sujeto: {prueba: ALR-08, clave: falsas_alarmas, decimales: 0}
+      no_detectado: {prueba: ERR-01, clave: principal.P-no-detectado, decimales: 0}
+      intermitente: {prueba: ERR-01, clave: principal.P-intermitente, decimales: 0}
+    tablas:
+      - titulo: Falsas alarmas en los clips de obra real sin infracción
+        informe: "§17.5.4"
+        columnas: [Por escena, Por sujeto]
+        filas:
+          - nombre: Perfil operativo, regla oficial
+            prueba: ALR-07
+            celdas: [{prueba: ALR-07, clave: falsas_alarmas, decimales: 0}, {prueba: ALR-08, clave: falsas_alarmas, decimales: 0}]
+          - {nombre: "Perfil operativo a 800 px, caja 0,35", prueba: ALR-09, celdas: [{clave: falsas_alarmas, decimales: 0}, {variante: sujeto, clave: falsas_alarmas, decimales: 0}]}
+          - {nombre: "Perfil operativo a 560 px, caja 0,35", prueba: ALR-10, celdas: [{clave: falsas_alarmas, decimales: 0}, {variante: sujeto, clave: falsas_alarmas, decimales: 0}]}
+          - {nombre: YOLOE-26s, prueba: ALR-12, celdas: [{clave: falsas_alarmas, decimales: 0}, {variante: sujeto, clave: falsas_alarmas, decimales: 0}]}
+          - {nombre: "Regla más exigente, combinada", prueba: ALR-14, celdas: [{clave: falsas_alarmas, decimales: 0}, {variante: combinada_sujeto, clave: falsas_alarmas, decimales: 0}]}
+          - {nombre: "Regla más exigente, solo casco", prueba: ALR-14, celdas: [{variante: casco, clave: falsas_alarmas, decimales: 0}, {variante: casco_sujeto, clave: falsas_alarmas, decimales: 0}]}
+          - {nombre: "Regla más exigente, solo chaleco", prueba: ALR-14, celdas: [{variante: chaleco, clave: falsas_alarmas, decimales: 0}, {variante: chaleco_sujeto, clave: falsas_alarmas, decimales: 0}]}
+      - titulo: Por qué, causa por causa
+        informe: "§17.5.4"
+        columnas: [Falsas alarmas por sujeto]
+        filas:
+          - {nombre: EPP no detectado, prueba: ERR-01, celdas: [{clave: principal.P-no-detectado, decimales: 0}]}
+          - {nombre: EPP visto de a ratos, prueba: ERR-01, celdas: [{clave: principal.P-intermitente, decimales: 0}]}
+          - {nombre: Sin persona en la referencia, prueba: ERR-01, celdas: [{clave: principal.F-sin-persona, decimales: 0}]}
+          - {nombre: Atributo que no se puede ver, prueba: ERR-01, celdas: [{clave: principal.U, decimales: 0}]}
+          - {nombre: Persona parcial, prueba: ERR-01, celdas: [{clave: principal.F-parcial, decimales: 0}]}
+          - {nombre: EPP disputado entre personas, prueba: ERR-01, celdas: [{clave: principal.P-disputado, decimales: 0}]}
+          - {nombre: EPP fuera de la región evaluada, prueba: ERR-01, celdas: [{clave: principal.P-fuera-region, decimales: 0}]}
+          - {nombre: Error de la referencia, prueba: ERR-01, celdas: [{clave: principal.V, decimales: 0}]}
+          - {nombre: De más por fragmentación de identidad, prueba: ERR-01, celdas: [{clave: principal.alertas_extra_por_fragmentacion, decimales: 0}]}
+      - titulo: La identidad de una misma persona
+        informe: "§18.3"
+        columnas: [Identidades por persona, Cambios por persona y minuto]
+        filas:
+          - {nombre: Rodaje, prueba: SEG-01, celdas: [{clave: rodaje.tracks_por_persona_media, decimales: 2}, {clave: rodaje.cambios_por_persona_minuto, decimales: 2}]}
+          - {nombre: Obra real, prueba: SEG-01, celdas: [{clave: obra_real.tracks_por_persona_media, decimales: 2}, {clave: obra_real.cambios_por_persona_minuto, decimales: 2}]}
+    limites:
+      - Por escena la cifra está en su piso, porque todos los clips sin infracción disparan las dos condiciones; la que ordena las combinaciones es la de por sujeto.
+      - Quedan tan pocos episodios evaluables en obra real que el F1 no ordena las combinaciones.
+      - Las tasas por hora salen de un solo tramo continuo; no son una cota de falsas alarmas.
+
+  # ---------------------------------------------------------------------------------------------
+  - id: confianza
+    titulo: ¿Cuánto se puede confiar en estas cifras?
+    informe: ["§17.5.7", "Anexo B", "Anexo E"]
+    titular: "{pruebas} pruebas escritas antes de correr; {identicas} idénticas"
+    respuesta: >-
+      Las {pruebas} pruebas se escribieron antes de correr y {identicas} reprodujeron exactamente las
+      cifras de la etapa de desarrollo; todas se miden contra una referencia anotada por una sola
+      persona.
+    cifras:
+      pruebas: {calculo: pruebas}
+      identicas: {calculo: veredicto, valor: identico}
+    tablas:
+      - titulo: Si se reproduce
+        informe: Anexo E
+        columnas: [Resultado]
+        filas:
+          - {nombre: Pruebas escritas antes de correr, celdas: [{calculo: pruebas}]}
+          - {nombre: Idénticas a la etapa de desarrollo, celdas: [{calculo: veredicto, valor: identico}]}
+          - {nombre: "Equivalentes, con la diferencia declarada", celdas: [{calculo: veredicto, valor: equivalente_con_diferencia}]}
+          - {nombre: "Otra combinación, al lado y nunca en reemplazo", celdas: [{calculo: veredicto, valor: otra_combinacion}]}
+          - {nombre: Huellas del banco de imágenes, prueba: INT-01, celdas: [{clave: imagenes_bench_v3, formato: verificado}]}
+          - {nombre: Huellas del banco temporal, prueba: INT-02, celdas: [{clave: clips_mp4_contra_manifiesto, formato: verificado}]}
+          - {nombre: Pesos de los modelos y configuración congelada, prueba: INT-03, celdas: [{clave: pesos_de_los_modelos, formato: verificado}]}
+      - titulo: Contra qué se midió
+        informe: "§17.5.7"
+        columnas: [Resultado]
+        filas:
+          - {nombre: "Marcas del operador cerca del inicio de cada episodio (medio segundo)", prueba: GT-01, celdas: [{clave: dentro_de_0.5s}]}
+          - {nombre: "Marcas del operador cerca del inicio de cada episodio (un segundo)", prueba: GT-01, celdas: [{clave: dentro_de_1.0s}]}
+          - {nombre: "Seguir a cada persona supera a la escena, con bordes movidos", prueba: GT-02, celdas: [{clave: C1_G1>T1, formato: porcentaje, decimales: 0}]}
+          - {nombre: "El perfil operativo no queda por debajo del contraste base-560", prueba: GT-02, celdas: [{clave: C2_T1>=T2, formato: porcentaje, decimales: 0}]}
+          - {nombre: "La detección directa queda debajo de la precisión exigida", prueba: GT-02, celdas: [{clave: C3_D1_prec<0.5, formato: porcentaje, decimales: 0}]}
+          - {nombre: "El núcleo supera a la disyunción", prueba: GT-02, celdas: [{clave: C4_T1>H1, formato: porcentaje, decimales: 0}]}
+          - {nombre: "El núcleo supera al vocabulario nativo de cabeza descubierta", prueba: GT-02, celdas: [{clave: C5_T1>B1, formato: porcentaje, decimales: 0}]}
+          - {nombre: "El banco no queda por debajo del techo en vivo", prueba: GT-02, celdas: [{clave: C7_T1>=R1, formato: porcentaje, decimales: 0}]}
+          - {nombre: "El techo en vivo supera a la densidad intermedia", prueba: GT-02, celdas: [{clave: C7_R1>R3, formato: porcentaje, decimales: 0}]}
+          - {nombre: "La densidad intermedia supera al peor caso", prueba: GT-02, celdas: [{clave: C7_R3>R5, formato: porcentaje, decimales: 0}]}
+        nota: >-
+          Cada porcentaje es la fracción de referencias simuladas, con los bordes de los episodios
+          movidos al azar, en que la conclusión se sostiene.
+    limites:
+      - La referencia temporal la anotó una sola persona, así que no hay una medida de acuerdo entre anotadores.
+      - Las cifras absolutas dependen de esa referencia; las comparaciones sobre la misma referencia son menos sensibles.
+      - Las conclusiones sobre la cadencia son las más sensibles a los bordes de los episodios.

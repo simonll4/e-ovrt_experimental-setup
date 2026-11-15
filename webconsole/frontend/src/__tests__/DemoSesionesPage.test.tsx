@@ -34,11 +34,11 @@ const SESIONES: DemoSesionFila[] = [
 
 const montar = () => render(<MemoryRouter><DemoSesionesPage /></MemoryRouter>)
 
-describe('Sesiones guardadas (/demo/sesiones)', () => {
+describe('Tomas en vivo (/demo/sesiones)', () => {
   it('lista las sesiones con su escena, su configuración y de dónde vienen, y abre el resultado', async () => {
     http((u) => (u.pathname === '/api/demo/sessions' ? json(SESIONES) : undefined))
     montar()
-    const tabla = await screen.findByRole('table', { name: 'Sesiones guardadas' })
+    const tabla = await screen.findByRole('table', { name: 'Tomas en vivo' })
     expect(screen.getByText('3 sesiones · 2 de las jornadas en vivo')).toBeTruthy()
     const [, p1, exp, propia] = within(tabla).getAllByRole('row')
     expect(within(p1).getByText('Configuración del informe')).toBeTruthy()
@@ -55,7 +55,7 @@ describe('Sesiones guardadas (/demo/sesiones)', () => {
   it('filtra por escena, fecha o motor', async () => {
     http((u) => (u.pathname === '/api/demo/sessions' ? json(SESIONES) : undefined))
     montar()
-    const tabla = await screen.findByRole('table', { name: 'Sesiones guardadas' })
+    const tabla = await screen.findByRole('table', { name: 'Tomas en vivo' })
     fireEvent.change(screen.getByRole('searchbox', { name: 'Filtrar sesiones' }), { target: { value: 'yoloe' } })
     expect(within(tabla).getAllByRole('row')).toHaveLength(2)
     expect(screen.getByText('1 de 3')).toBeTruthy()
@@ -68,9 +68,9 @@ describe('Sesiones guardadas (/demo/sesiones)', () => {
     expect(screen.queryByRole('table')).toBeNull()
   })
 
-  it('las migas llevan de un resultado a la lista y a la demo', () => {
-    expect(crumbsFor('/demo/sesiones').map((c) => c.to)).toEqual(['/demo', '/demo/sesiones'])
+  it('las migas llevan de un resultado a «Tomas en vivo» (plan §3)', () => {
+    expect(crumbsFor('/demo/sesiones')).toEqual([{ to: '/demo/sesiones', label: 'Tomas en vivo' }])
     expect(crumbsFor('/demo/resultado/demo_x').map((c) => c.to))
-      .toEqual(['/demo', '/demo/sesiones', '/demo/resultado/demo_x'])
+      .toEqual(['/demo/sesiones', '/demo/resultado/demo_x'])
   })
 })

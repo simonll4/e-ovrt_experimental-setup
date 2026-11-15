@@ -4,7 +4,6 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import pytest
 import yaml
 
 from eovrt_webconsole.gen2 import Gen2
@@ -202,53 +201,17 @@ def test_archivo_no_sale_de_la_carpeta_de_la_prueba(client, repo):
         assert client.get("/api/gen2/pruebas/ALR-01/archivo", params={"ruta": ruta}).status_code == 404, ruta
 
 
-def test_observaciones_vinculan_las_pruebas_con_su_estado(client, repo):
-    _prueba(repo, "ALR-01")
-    _resultado(repo, "ALR-01")
-    (repo / "results" / "gen2" / "observaciones.yaml").write_text(yaml.safe_dump({
-        "schema": "observaciones.gen2.v1",
-        "observaciones": [{"numero": 8, "titulo": "Observación de ejemplo", "pedido": "p", "respuesta": "r",
-                           "pruebas": ["ALR-01", "ALR-07"], "secciones": ["resumen"]}],
-    }, allow_unicode=True), encoding="utf-8")
-    d = client.get("/api/gen2/observaciones").json()
-    assert d["available"] is True
-    obs = d["observaciones"][0]
-    assert obs["pruebas"][0] == {"id": "ALR-01", "titulo": "Prueba ALR-01", "estado": "completo",
-                                 "registro": "activa",
-                                 "veredicto": {"propuesto": "identico", "confirmado": None}}
-    assert obs["pruebas"][1]["estado"] == "desconocida"
-
-
-def test_sin_observaciones_lo_dice_y_no_falla(client):
-    d = client.get("/api/gen2/observaciones").json()
-    assert d["available"] is False and d["observaciones"] == []
-
-
-def test_las_observaciones_se_leen_del_repo_privado_docs_hermano(tmp_path):
-    # El repo de la consola es público: las observaciones viven en `docs` (privado).
-    repo = tmp_path / "ws" / "e-ovrt_experimental-setup"
-    _prueba(repo, "ALR-01")
-    privado = tmp_path / "ws" / "docs" / "observaciones-tribunal"
-    privado.mkdir(parents=True)
-    (privado / "observaciones.yaml").write_text(yaml.safe_dump({
-        "schema": "observaciones.gen2.v1",
-        "observaciones": [{"numero": 9, "titulo": "t", "pedido": "p", "respuesta": "r",
-                           "pruebas": ["ALR-01"], "secciones": []}],
-    }), encoding="utf-8")
-    obs = Gen2(repo).observaciones()
-    assert obs["available"] is True and obs["observaciones"][0]["pruebas"][0]["id"] == "ALR-01"
-    # Una copia local (gitignorada) tiene prioridad.
-    local = repo / "results" / "gen2"
-    local.mkdir(parents=True)
-    (local / "observaciones.yaml").write_text(yaml.safe_dump({"observaciones": []}), encoding="utf-8")
-    assert Gen2(repo).observaciones() == {"available": True, "observaciones": []}
+def test_las_observaciones_ya_no_se_sirven(client):
+    # El plan de la consola de evidencia (§3) saca «Para el tribunal»: la pantalla, su entrada y el
+    # endpoint. El archivo de observaciones queda solo en `docs`, como lista de control interna.
+    assert client.get("/api/gen2/observaciones").status_code == 404
 
 
 def test_el_repo_publico_no_trae_las_observaciones():
     assert not (REPO / "results" / "gen2" / "observaciones.yaml").exists()
 
 
-def test_el_catalogo_y_las_observaciones_del_workspace_se_leen_completos():
+def test_el_catalogo_del_workspace_se_lee_completo():
     g = Gen2(REPO)
     pruebas = g.pruebas()
     # El catálogo puede crecer: se fija el piso y las pruebas que la consola nombra.
@@ -259,13 +222,3 @@ def test_el_catalogo_y_las_observaciones_del_workspace_se_leen_completos():
     # cubre el test con catálogo sintético de arriba.
     for p in (p for p in pruebas if p["registro"] == "no_se_regenera"):
         assert p["no_se_regenera"] and p["gen1"]["cifras"], p["id"]
-    obs = g.observaciones()
-    if not obs["available"]:
-        pytest.skip("sin el repo privado docs al lado: las observaciones no se pueden cotejar")
-    # Pueden sumarse observaciones: se exige numeración corrida desde 1 y el piso de las primeras diez.
-    numeros = [o["numero"] for o in obs["observaciones"]]
-    assert len(numeros) >= 10 and numeros == list(range(1, len(numeros) + 1))
-    ids = {p["id"] for p in pruebas}
-    for o in obs["observaciones"]:
-        for p in o["pruebas"]:
-            assert p["id"] in ids, f"la observación {o['numero']} cita {p['id']}, que no está en el catálogo"

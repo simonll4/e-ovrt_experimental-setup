@@ -1140,23 +1140,62 @@ export interface Gen2Entorno {
     imagenes?: Record<string, { id?: string; creada?: string; digests?: string[] } | null>
   }
 }
-export interface Gen2ObservacionPrueba {
-  id: string
-  titulo: string | null
-  estado: Gen2Estado
-  registro?: string | null
-  veredicto: Gen2Veredicto | null
+/** Una cifra de la portada o de una pregunta, resuelta por el backend desde results/gen2
+ *  (`results/evidence-vista/preguntas.yaml`). La consola solo la formatea. */
+export interface CifraPregunta {
+  ok: boolean
+  valor: number | string | boolean | null
+  /** En un conteo («k de n»), el n. */
+  total?: number
+  unidad?: string | null
+  decimales?: number
+  formato?: 'numero' | 'signo' | 'porcentaje' | 'verificado'
+  etiqueta?: string
+  prueba: string | null
+  error?: string
 }
-export interface Gen2Observacion {
-  numero: number
+export interface FilaPregunta {
+  nombre: string
+  pruebas: string[]
+  /** Una celda vacía es `null`; si no, una o varias cifras. */
+  celdas: Array<CifraPregunta[] | null>
+}
+export interface TablaPregunta {
   titulo: string
-  pedido: string
-  respuesta: string
-  pruebas: Gen2ObservacionPrueba[]
-  secciones: string[]
+  informe: string | null
+  columnas: string[]
+  nota: string | null
+  filas: FilaPregunta[]
 }
-export interface Gen2Observaciones {
+export interface Pregunta {
+  id: string
+  titulo: string
+  informe: string[]
+  titular: string
+  respuesta: string
+  cifras: Record<string, CifraPregunta>
+  tablas: TablaPregunta[]
+  limites: string[]
+}
+export interface Proyecto {
+  nombre?: string
+  titulo?: string
+  que_es?: string
+  institucion?: string
+  carrera?: string
+  autores?: string[]
+  enlaces?: { informe?: string | null; repositorios?: Array<{ nombre: string; url: string }> }
+}
+export interface VistaPreguntas {
   available: boolean
   message?: string
-  observaciones: Gen2Observacion[]
+  proyecto?: Proyecto
+  preguntas?: Pregunta[]
+  pie?: {
+    pruebas: number
+    desde: string | null
+    hasta: string | null
+    version: { commit: string; fecha: string | null; de: 'resultados' | 'repositorio' } | null
+  }
+  errores?: string[]
 }

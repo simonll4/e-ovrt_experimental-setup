@@ -40,9 +40,9 @@ export default function DemoSesionesPage() {
   const total = q.data?.length ?? 0
   const archivadas = (q.data ?? []).filter((s) => s.archivada).length
   return (
-    <div className="eo-demo-consola" aria-label="Sesiones guardadas">
+    <div className="eo-demo-consola" aria-label="Tomas en vivo">
       <PageHeader
-        title="Sesiones guardadas"
+        title="Tomas en vivo"
         meta={q.data ? `${total} ${total === 1 ? 'sesión' : 'sesiones'}${archivadas ? ` · ${archivadas} de las jornadas en vivo` : ''}` : undefined}
         bajada="Cada toma de la demo queda guardada con su video, sus alertas, el mensaje que recibió el broker y el log completo. Se abren sin cámara y con los servicios apagados."
       />
@@ -65,8 +65,8 @@ export default function DemoSesionesPage() {
           <div className="eo-demo-sesiones__filtro">
             <SearchInput value={filtro} onChange={setFiltro} placeholder="Escena, fecha (20261107) o motor" ariaLabel="Filtrar sesiones" />
           </div>
-          <TableScroll label="Sesiones guardadas">
-            <Table aria-label="Sesiones guardadas">
+          <TableScroll label="Tomas en vivo">
+            <Table aria-label="Tomas en vivo">
               <thead>
                 <tr><th>Inicio</th><th>Escena</th><th>Cámara</th><th>Configuración</th><th>Estado</th><th>Origen</th><th>Sesión</th></tr>
               </thead>

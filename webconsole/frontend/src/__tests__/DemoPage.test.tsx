@@ -235,7 +235,7 @@ describe('/demo — dentro de la consola (por defecto)', () => {
     instalar(() => IDLE)
     globales = true
     montar('/demo')
-    expect(await screen.findByRole('heading', { name: /Demo en vivo/ })).toBeTruthy()
+    expect(await screen.findByRole('heading', { name: /Demo con cámara/ })).toBeTruthy()
     expect(screen.getByRole('complementary', { name: 'Navegación principal' })).toBeTruthy()
     const acciones = screen.getByRole('toolbar', { name: 'Acciones de la demo' })
     expect(within(acciones).getByRole('button', { name: /Iniciar/ })).toBeTruthy()
@@ -257,7 +257,7 @@ describe('/demo — dentro de la consola (por defecto)', () => {
     instalar(() => IDLE)
     globales = true
     montar('/demo')
-    await screen.findByRole('heading', { name: /Demo en vivo/ })
+    await screen.findByRole('heading', { name: /Demo con cámara/ })
     fireEvent.click(screen.getByRole('button', { name: /Proyectar/ }))
     await waitFor(() => expect(screen.queryByRole('complementary', { name: 'Navegación principal' })).toBeNull())
     expect(screen.queryByRole('toolbar', { name: 'Acciones de la demo' })).toBeNull()

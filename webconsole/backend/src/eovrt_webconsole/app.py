@@ -20,6 +20,7 @@ from eovrt_webconsole.evidence_archive import EvidenceArchive
 from eovrt_webconsole.experiment.control_backend import ControlPlaneBackend
 from eovrt_webconsole.experiment.run_manager import ExperimentRunManager
 from eovrt_webconsole.gen2 import Gen2
+from eovrt_webconsole.preguntas import Preguntas
 from eovrt_webconsole.http_reintento import ReintentoKeepAlive
 from eovrt_webconsole.orchestrator import ComposeOrchestrator, RunCmd, TargetManager
 from eovrt_webconsole.recording.manager import RecordingManager
@@ -37,6 +38,7 @@ from eovrt_webconsole.routers import (
     experiments,
     gen2,
     manifests,
+    preguntas,
     meta,
     platform,
     preview,
@@ -153,9 +155,12 @@ def create_app(
     app.state.documentacion = Documentacion(settings.repo_root, app.state.evidence_archive)
     # La evidencia de la generación 2 (doc 135): pre-registros + results/gen2, del disco.
     app.state.gen2 = Gen2(settings.repo_root)
+    # La portada y las siete preguntas (plan de la consola de evidencia, §2 y §9).
+    app.state.preguntas = Preguntas(settings.repo_root, app.state.gen2)
     app.include_router(documentacion.router)
     app.include_router(evidencia.router)
     app.include_router(gen2.router)
+    app.include_router(preguntas.router)
     app.include_router(meta.router)
     app.include_router(catalog.router)
     app.include_router(compare.router)

@@ -27,73 +27,39 @@ const renderShell = (path = '/') =>
     </MemoryRouter>,
   )
 
-afterEach(() => localStorage.removeItem('eovrt-nav-grupos-abiertos'))
-
+const DESTINOS = ['Inicio', 'Pruebas', 'Tomas en vivo', 'Cómo leer', 'Plataforma', 'Demo con cámara', 'Archivo']
 const LABORATORIO = ['Corridas', 'Experimentos', 'Comparar', 'Conjuntos de prompts', 'Catálogos', 'Cámaras', 'Clips']
 
 describe('Shell', () => {
-  it('renderiza los dos títulos de grupo (doc 135): Evidencia y Laboratorio', () => {
+  it('dos zonas en orden, Evidencia y Demostrar, y el Archivo al pie (plan de la consola, §3)', () => {
     renderShell()
-    expect(screen.getByText('Evidencia')).toBeTruthy()
-    expect(screen.getByRole('button', { name: 'Laboratorio' })).toBeTruthy()
-  })
-
-  it('el grupo Evidencia está siempre a la vista, con la entrada «Para el tribunal»', () => {
-    renderShell()
-    for (const label of ['Para el tribunal', 'Resultados', 'Demo en vivo', 'Documentación', 'Plataforma']) {
-      expect(screen.getByRole('link', { name: label })).toBeTruthy()
-    }
-    expect(screen.getByRole('link', { name: 'Para el tribunal' }).className).toContain('eo-sidebar__link--active')
-  })
-
-  it('el Laboratorio está plegado por defecto y se abre con su botón, que recuerda la preferencia', () => {
-    renderShell()
-    const toggle = screen.getByRole('button', { name: 'Laboratorio' })
-    expect(toggle.getAttribute('aria-expanded')).toBe('false')
-    expect(screen.queryByRole('link', { name: 'Corridas' })).toBeNull()
-    fireEvent.click(toggle)
-    expect(toggle.getAttribute('aria-expanded')).toBe('true')
-    for (const label of LABORATORIO) expect(screen.getByRole('link', { name: label })).toBeTruthy()
-    expect(JSON.parse(localStorage.getItem('eovrt-nav-grupos-abiertos') ?? '[]')).toEqual(['Laboratorio'])
-    cleanup()
-    renderShell()
-    expect(screen.getByRole('button', { name: 'Laboratorio' }).getAttribute('aria-expanded')).toBe('true')
-  })
-
-  it('una pantalla del Laboratorio lo abre sola: el destino activo nunca queda escondido', () => {
-    renderShell('/runs/r_1')
     const lateral = within(screen.getByRole('complementary', { name: 'Navegación principal' }))
-    expect(lateral.getByRole('button', { name: 'Laboratorio' }).getAttribute('aria-expanded')).toBe('true')
-    expect(lateral.getByRole('link', { name: 'Corridas' })).toBeTruthy()
+    expect(lateral.getByRole('group', { name: 'Evidencia' })).toBeTruthy()
+    expect(lateral.getByRole('group', { name: 'Demostrar' })).toBeTruthy()
+    const nav = lateral.getByRole('navigation', { name: 'Secciones' })
+    expect(within(nav).getAllByRole('link').map((a) => a.getAttribute('aria-label'))).toEqual(DESTINOS)
+    expect(within(nav).getByRole('link', { name: 'Archivo' }).getAttribute('href')).toBe('/evidencia/generacion-1')
   })
 
-  // "Conjuntos de prompts" no entra en los 214 px de la barra y se cortaba con
-  // puntos suspensivos. Se muestra corto, pero el nombre completo sigue siendo el
-  // nombre accesible: quien navega con lector de pantalla no pierde información.
-  it('acorta la etiqueta que no entra, sin perder el nombre completo', () => {
-    renderShell('/prompts')
-    expect(screen.getAllByText('Conjuntos').length).toBeGreaterThan(0)
-    expect(screen.getByRole('link', { name: 'Conjuntos de prompts' })).toBeTruthy()
-  })
-
-  it('"Nueva corrida" es acción primaria y apunta a /compose', () => {
+  it('sin «Para el tribunal», sin el laboratorio y sin los botones de nueva corrida y nuevo experimento', () => {
     renderShell()
-    const link = screen.getByRole('link', { name: /nueva corrida/i })
-    expect(link.getAttribute('href')).toContain('/compose')
-    expect(link.className).toContain('eo-sidebar__action')
+    expect(screen.queryByText(/tribunal/i)).toBeNull()
+    for (const label of LABORATORIO) expect(screen.queryByRole('link', { name: label })).toBeNull()
+    expect(screen.queryByRole('link', { name: /nueva corrida/i })).toBeNull()
+    expect(screen.queryByRole('link', { name: /nuevo experimento/i })).toBeNull()
   })
 
-  it('"Nuevo experimento" es acción primaria y apunta a /experiments/new', () => {
-    renderShell()
-    const link = screen.getByRole('link', { name: /nuevo experimento/i })
-    expect(link.getAttribute('href')).toContain('/experiments/new')
-    expect(link.className).toContain('eo-sidebar__action')
-  })
-
-  it('marca el destino activo', () => {
-    renderShell('/prompts')
-    const active = screen.getByRole('link', { name: 'Conjuntos de prompts' })
-    expect(active.className).toContain('eo-sidebar__link--active')
+  it('marca el destino activo, también en sus hojas', () => {
+    // La miga también enlaza «Pruebas»: se mira la barra lateral.
+    const barra = () => within(screen.getByRole('navigation', { name: 'Secciones' }))
+    renderShell('/resultados/ALR-01')
+    const activo = barra().getByRole('link', { name: 'Pruebas' })
+    expect(activo.className).toContain('eo-sidebar__link--active')
+    expect(activo.getAttribute('aria-current')).toBe('page')
+    cleanup()
+    renderShell('/demo/resultado/demo_x')
+    expect(barra().getByRole('link', { name: 'Tomas en vivo' }).getAttribute('aria-current')).toBe('page')
+    expect(barra().getByRole('link', { name: 'Demo con cámara' }).getAttribute('aria-current')).toBeNull()
   })
 
   it('renderiza el contenido hijo', () => {
@@ -111,7 +77,7 @@ describe('Shell', () => {
     it('empieza cerrado y sin destinos en el orden de foco', () => {
       renderShell()
       expect(cajon()?.hasAttribute('open') ?? false).toBe(false)
-      expect(screen.queryByRole('link', { name: 'Resultados' })).toBeNull()
+      expect(screen.queryByRole('link', { name: 'Pruebas' })).toBeNull()
     })
 
     it('el botón de menú abre el cajón, lleva el foco adentro y anuncia el estado', () => {
@@ -134,7 +100,7 @@ describe('Shell', () => {
         </MemoryRouter>,
       )
       fireEvent.click(screen.getByRole('button', { name: 'Abrir navegación' }))
-      fireEvent.click(within(cajon()!).getByRole('link', { name: 'Resultados' }))
+      fireEvent.click(within(cajon()!).getByRole('link', { name: 'Pruebas' }))
       expect(cajon()).toBeNull() // cerrado, el diálogo no está en el árbol accesible
       await waitFor(() => expect(document.activeElement?.textContent).toBe('Destino'))
     })
@@ -167,18 +133,11 @@ describe('Shell', () => {
       expect(document.activeElement).toBe(menu)
     })
 
-    it('mantiene los mismos destinos, conteos y acciones que la barra persistente', () => {
+    it('mantiene los mismos destinos que la barra persistente, en el mismo orden', () => {
       renderShell()
       fireEvent.click(screen.getByRole('button', { name: 'Abrir navegación' }))
-      const dialogo = within(cajon()!)
-      for (const label of ['Para el tribunal', 'Resultados', 'Demo en vivo', 'Documentación', 'Plataforma']) {
-        expect(dialogo.getByRole('link', { name: label })).toBeTruthy()
-      }
-      // El Laboratorio se pliega y despliega igual que en la barra persistente.
-      fireEvent.click(dialogo.getByRole('button', { name: 'Laboratorio' }))
-      for (const label of LABORATORIO) expect(dialogo.getByRole('link', { name: label })).toBeTruthy()
-      expect(dialogo.getByRole('link', { name: /nueva corrida/i })).toBeTruthy()
-      expect(dialogo.getByRole('link', { name: /nuevo experimento/i })).toBeTruthy()
+      const nav = within(cajon()!).getByRole('navigation', { name: 'Secciones' })
+      expect(within(nav).getAllByRole('link').map((a) => a.getAttribute('aria-label'))).toEqual(DESTINOS)
     })
   })
 
@@ -186,22 +145,6 @@ describe('Shell', () => {
     renderShell()
     expect(screen.queryByRole('button', { name: /navegación/i })).toBeNull()
     expect(screen.getByRole('complementary', { name: 'Navegación principal' }).className).toContain('eo-sidebar')
-  })
-
-  it('no muestra un contador cuando el conteo es 0 o todavia no cargo', () => {
-    renderShell('/corridas')
-    const runsLink = screen.getByRole('link', { name: 'Corridas' })
-    expect(runsLink.querySelector('.eo-sidebar__count')).toBeNull()
-  })
-
-  it('muestra el contador de corridas en curso cuando es mayor a 0', async () => {
-    vi.mocked(api.listRunsPaged).mockResolvedValue({
-      items: [{ run_id: 'r1', status: 'running' }],
-      total: 1,
-    } as never)
-    renderShell('/corridas')
-    const runsLink = screen.getByRole('link', { name: 'Corridas' })
-    await waitFor(() => expect(runsLink.querySelector('.eo-sidebar__count')?.textContent).toBe('1'))
   })
 
   it('muestra el estado de los motores segun la salud reportada', async () => {

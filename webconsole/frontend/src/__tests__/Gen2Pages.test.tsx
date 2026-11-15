@@ -2,10 +2,9 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { cleanup, render, screen, within } from '../test-utils'
 import App from '../App'
-import TribunalPage from '../pages/TribunalPage'
 import ResultadosPage from '../pages/ResultadosPage'
 import PruebaPage from '../pages/PruebaPage'
-import type { Gen2Detalle, Gen2Observaciones, Gen2Prueba } from '../types'
+import type { Gen2Detalle, Gen2Prueba } from '../types'
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } })
@@ -24,21 +23,6 @@ function http(responder: (url: URL) => Response | undefined) {
 
 afterEach(() => { cleanup(); vi.unstubAllGlobals() })
 
-const OBS: Gen2Observaciones = {
-  available: true,
-  observaciones: [
-    // Contenido sintético: el archivo real de observaciones no vive en este repo.
-    { numero: 1, titulo: 'Observación de ejemplo A', pedido: 'Pedido de ejemplo A.',
-      respuesta: 'Respuesta de ejemplo A.', secciones: ['§17.5'],
-      pruebas: [{ id: 'RT-04', titulo: 'Alertas en vivo', estado: 'sin_correr', veredicto: null }] },
-    { numero: 8, titulo: 'Observación de ejemplo B', pedido: 'Pedido de ejemplo B.',
-      respuesta: 'Respuesta de ejemplo B.', secciones: ['resumen'],
-      pruebas: [{ id: 'ALR-01', titulo: 'Alerta por episodio, escena', estado: 'completo',
-                  veredicto: { propuesto: 'identico', confirmado: { valor: 'identico', quien: 'Nombre' } } }] },
-    { numero: 3, titulo: 'Observación de ejemplo C', pedido: 'Pedido de ejemplo C.', respuesta: 'Respuesta de ejemplo C.', secciones: [], pruebas: [] },
-  ],
-}
-
 const fila = (over: Partial<Gen2Prueba>): Gen2Prueba => ({
   id: 'ALR-01', titulo: 'Alerta por episodio, escena', fase: 'F3', familia: 'clips', informe: ['Tabla 53'],
   pregunta: '¿Qué F1 logra?', esperado: 'Igual a la gen 1.', registro: 'activa', depende_de: [],
@@ -52,34 +36,6 @@ const PRUEBAS: Gen2Prueba[] = [
   fila({ id: 'IMG-01', titulo: 'Percepción: campeón', familia: 'imagenes', informe: ['Tabla 51'] }),
   fila({ id: 'RT-03', titulo: 'Latencia en vivo', familia: 'vivo', estado: 'parcial' }),
 ]
-
-describe('Para el tribunal (/)', () => {
-  it('lista las observaciones con qué pidió, qué hicimos y dónde verlo, sin consultar servicios', async () => {
-    const urls = http((u) => (u.pathname === '/api/gen2/observaciones' ? json(OBS) : undefined))
-    render(<MemoryRouter><TribunalPage /></MemoryRouter>)
-    const obs8 = await screen.findByRole('heading', { name: '8. Observación de ejemplo B' })
-    const tarjeta = within(obs8.closest('section, .eo-card') as HTMLElement)
-    expect(tarjeta.getByText('Pedido de ejemplo B.')).toBeTruthy()
-    expect(tarjeta.getByRole('link', { name: 'ALR-01 — Alerta por episodio, escena' }).getAttribute('href'))
-      .toBe('/resultados/ALR-01')
-    expect(tarjeta.getByText(/confirmado por Nombre/)).toBeTruthy()
-    // La primera tiene destinos extra (la demo en vivo) además de sus pruebas.
-    const obs1 = within(screen.getByRole('heading', { name: '1. Observación de ejemplo A' }).closest('.eo-card') as HTMLElement)
-    expect(obs1.getByRole('link', { name: 'La demo en vivo' }).getAttribute('href')).toBe('/demo')
-    expect(obs1.getByText('Todavía no se corrió')).toBeTruthy()
-    // Sin pruebas ni destinos: se dice que la respuesta está en el texto.
-    expect(screen.getByText('Se responde en el texto del informe.')).toBeTruthy()
-    expect(urls.map((u) => u.pathname)).toEqual(['/api/gen2/observaciones'])
-  })
-
-  it('sin el archivo de observaciones lo dice, sin romper', async () => {
-    http((u) => (u.pathname === '/api/gen2/observaciones'
-      ? json({ available: false, observaciones: [], message: 'No está el archivo de observaciones (docs/observaciones-tribunal/observaciones.yaml).' })
-      : undefined))
-    render(<MemoryRouter><TribunalPage /></MemoryRouter>)
-    expect(await screen.findByText('Todavía no hay observaciones registradas')).toBeTruthy()
-  })
-})
 
 describe('Resultados (/resultados)', () => {
   it('agrupa las pruebas como el informe y distingue propuesto de confirmado', async () => {
@@ -282,20 +238,14 @@ describe('Detalle de una prueba (/resultados/:id)', () => {
   })
 })
 
-describe('Rutas (doc 135 §3.1)', () => {
-  it('la entrada es «Para el tribunal»', async () => {
-    http((u) => (u.pathname === '/api/gen2/observaciones' ? json(OBS) : undefined))
-    render(<MemoryRouter initialEntries={['/']}><App /></MemoryRouter>)
-    expect(await screen.findByRole('heading', { level: 1, name: 'Para el tribunal' })).toBeTruthy()
-  })
-
-  it('la etapa de desarrollo sigue en /evidencia y en /evidencia/generacion-1, con su aviso fijo', async () => {
+describe('Rutas (plan de la consola, §5)', () => {
+  it('el Archivo sigue en /evidencia y en /evidencia/generacion-1, con su aviso fijo', async () => {
     http(() => undefined)
     for (const ruta of ['/evidencia', '/evidencia/generacion-1']) {
       render(<MemoryRouter initialEntries={[ruta]}><App /></MemoryRouter>)
       const aviso = screen.getByText(/Estas cifras son de la etapa de desarrollo/).closest('.eo-banner') as HTMLElement
       expect(aviso.textContent).toMatch(/no son las del informe/)
-      expect(within(aviso).getByRole('link', { name: 'Resultados' }).getAttribute('href')).toBe('/resultados')
+      expect(within(aviso).getByRole('link', { name: 'Pruebas' }).getAttribute('href')).toBe('/resultados')
       cleanup()
     }
   })

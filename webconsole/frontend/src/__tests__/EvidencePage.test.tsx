@@ -174,15 +174,15 @@ it('usa el título del usuario cuando está, en vez de la etiqueta derivada', as
   expect(screen.queryByRole('link', { name: 'g1 gdinotiny560 v2short subject' })).toBeNull()
 })
 
-// Desde la generación 2 (doc 135) este recorrido es la «Validación inicial».
+// Este recorrido es el Archivo: la etapa de desarrollo (plan de la consola, §5).
 const V = GEN1.label
 
-it('las migas conservan id con barra en query; la raíz es «Para el tribunal» y Corridas vive aparte', () => {
+it('las migas conservan id con barra en query; la raíz es «Inicio» y Corridas vive aparte', () => {
   const search = `?${new URLSearchParams({ id: rid, plane: 'media-plane', run_id: 'm1' })}`
   const crumbs = crumbsFor('/evidencia/run', search)
   expect(crumbs.map(crumb => crumb.label)).toEqual([V, rid, 'm1'])
   expect(new URL(crumbs[1].to, 'http://localhost').searchParams.get('id')).toBe(rid)
-  expect(crumbsFor('/')).toEqual([{ to: '/', label: 'Para el tribunal' }])
+  expect(crumbsFor('/')).toEqual([{ to: '/', label: 'Inicio' }])
   expect(crumbsFor('/corridas')).toEqual([{ to: '/corridas', label: 'Corridas' }])
 })
 

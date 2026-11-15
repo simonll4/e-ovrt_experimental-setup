@@ -1,9 +1,9 @@
 import type { ComponentType } from 'react'
 import {
-  IconNavRuns, IconNavExperiments, IconNavCompare, IconNavPrompts,
-  IconNavCatalog, IconNavEvidence, IconNavPlatform, IconNavCameras, IconNavClips,
-  IconNavDocs, IconNavTribunal, IconNavDemo,
+  IconNavArchivo, IconNavCameras, IconNavDemo, IconNavDocs, IconNavEvidence, IconNavInicio,
+  IconNavPlatform,
 } from './components/ui/icons'
+import { nombreLlano } from './vocabulario'
 
 export type NavItem = {
   to: string
@@ -13,94 +13,95 @@ export type NavItem = {
    *  siendo `label`: va en el `title`, en el tooltip de colapsado y en las migas. */
   short?: string
   icon?: ComponentType
-  countKey?: 'runs' | 'experiments' | 'promptSets'
+  /** Pantallas que no son su dirección pero cuentan como estar en el destino (la página de una
+   *  pregunta está «en» Inicio; el resultado de una toma, «en» Tomas en vivo). */
+  tambien?: (pathname: string) => boolean
+  /** Solo la dirección exacta: «Demo con cámara» no se enciende en las tomas guardadas. */
+  exacta?: boolean
 }
 export type NavGroup = {
   title: string
   items: NavItem[]
-  /** Plegable y plegado por defecto (se recuerda por navegador). Se abre solo
-   *  cuando la pantalla actual es uno de sus destinos. */
-  colapsable?: boolean
 }
 
-/** La lista de corridas: hasta la generación 2 era la entrada (`/`); ahora la
- *  entrada es «Para el tribunal» y la lista vive acá (doc 135 §3.1). */
+/** La lista de corridas. Sale de la navegación (plan de la consola, §3) pero sigue respondiendo. */
 export const RUNS_PATH = '/corridas'
 
+/** La página de una pregunta: `/preguntas/<id>`. Las siete no se listan en la barra (§3). */
+export const PREGUNTA_PATH = '/preguntas'
+
+/** La navegación del plan de la consola de evidencia (§3): Evidencia, Demostrar y, al pie, Archivo.
+ *  «Correr un clip» entra con su pantalla, en la etapa 5. */
 export const NAV_GROUPS: NavGroup[] = [
   {
-    // Lo que ve primero quien abre la consola —el tribunal incluido—: la
-    // evidencia final y la respuesta a cada observación (doc 135).
     title: 'Evidencia',
     items: [
-      { to: '/', label: 'Para el tribunal', icon: IconNavTribunal },
-      { to: '/resultados', label: 'Resultados', icon: IconNavEvidence },
-      { to: '/demo', label: 'Demo en vivo', icon: IconNavDemo },
-      { to: '/documentacion', label: 'Documentación', icon: IconNavDocs },
-      { to: '/platform', label: 'Plataforma', icon: IconNavPlatform },
+      { to: '/', label: 'Inicio', icon: IconNavInicio, tambien: (p) => p.startsWith(`${PREGUNTA_PATH}/`) },
+      { to: '/resultados', label: 'Pruebas', icon: IconNavEvidence },
+      { to: '/demo/sesiones', label: 'Tomas en vivo', icon: IconNavDemo, tambien: (p) => p.startsWith('/demo/resultado/') },
+      { to: '/documentacion', label: 'Cómo leer', icon: IconNavDocs },
     ],
   },
   {
-    // Lo operativo sigue existiendo, pero fuera del camino del jurado.
-    title: 'Laboratorio',
-    colapsable: true,
+    title: 'Demostrar',
     items: [
-      { to: RUNS_PATH, label: 'Corridas', icon: IconNavRuns, countKey: 'runs' },
-      { to: '/experiments', label: 'Experimentos', icon: IconNavExperiments, countKey: 'experiments' },
-      { to: '/compare', label: 'Comparar', icon: IconNavCompare },
-      { to: '/prompts', label: 'Conjuntos de prompts', short: 'Conjuntos', icon: IconNavPrompts, countKey: 'promptSets' },
-      { to: '/catalog', label: 'Catálogos', icon: IconNavCatalog },
-      { to: '/cameras', label: 'Cámaras', icon: IconNavCameras },
-      { to: '/clips', label: 'Clips', icon: IconNavClips },
+      { to: '/platform', label: 'Plataforma', icon: IconNavPlatform },
+      { to: '/demo', label: 'Demo con cámara', icon: IconNavCameras, exacta: true },
     ],
   },
 ]
 
-/** ¿La pantalla actual es uno de los destinos del grupo (o una de sus hojas)? */
-export function grupoContiene(group: NavGroup, pathname: string): boolean {
-  if (pathname.startsWith('/runs/') || pathname === '/compose') {
-    return group.items.some((i) => i.to === RUNS_PATH)
-  }
-  return group.items.some((i) => i.to !== '/' && (pathname === i.to || pathname.startsWith(`${i.to}/`)))
+/** La etapa de desarrollo: el recorrido de evidencia de antes, de solo lectura. Va al pie (§5). */
+export const GEN1 = { to: '/evidencia/generacion-1', label: 'Archivo' }
+export const NAV_ARCHIVO: NavItem = {
+  to: GEN1.to, label: GEN1.label, icon: IconNavArchivo, tambien: (p) => p === '/evidencia' || p.startsWith('/evidencia/'),
 }
 
-/** La validación inicial: el recorrido de evidencia de la generación 1. */
-export const GEN1 = { to: '/evidencia/generacion-1', label: 'Etapa de desarrollo' }
+/** ¿La pantalla actual es este destino? */
+export function destinoActivo(item: NavItem, pathname: string): boolean {
+  if (item.tambien?.(pathname)) return true
+  if (item.to === '/' || item.exacta) return pathname === item.to
+  return pathname === item.to || pathname.startsWith(`${item.to}/`)
+}
+
+/** Las pantallas de laboratorio: fuera de la navegación (§3), con su miga, hasta limpiarlas después
+ *  de la defensa. */
+const LABORATORIO: Record<string, string> = {
+  [RUNS_PATH]: 'Corridas',
+  '/experiments': 'Experimentos',
+  '/compare': 'Comparar',
+  '/prompts': 'Conjuntos de prompts',
+  '/catalog': 'Catálogos',
+  '/cameras': 'Cámaras',
+  '/clips': 'Clips',
+}
 
 // Rutas que no viven en la nav pero necesitan crumb propio.
 const STANDALONE: Record<string, string> = {
+  ...LABORATORIO,
   '/compose': 'Nueva corrida',
   '/experiments/new': 'Nuevo experimento',
-  // La demo en vivo vive en la consola (con migas); en modo proyección va sin
-  // armazón (components/demo/proyeccion.ts). El crumb se declara acá igual.
-  '/demo': 'Demo en vivo',
 }
 
 export function crumbsFor(pathname: string, search = ''): NavItem[] {
   // Declarada, no resuelta por el barrido de `NAV_GROUPS` del final: a
   // `/documentacion` se llega desde CUALQUIER pantalla —cada término marcado
-  // enlaza a su entrada— así que su miga no puede depender de que el ítem siga
-  // estando en la barra lateral. Es el único destino con esa propiedad.
+  // enlaza a su entrada—, así que su miga no puede depender de la barra lateral.
   if (pathname === '/documentacion') {
-    return [{ to: '/documentacion', label: 'Documentación' }]
+    return [{ to: '/documentacion', label: 'Cómo leer' }]
   }
-  // El nivel intermedio del recorrido: sin esto, `crumbsFor` caía al `[]` del
-  // final y las migas quedaban vacías justo en el paso del argumento, que es
-  // el corazón de la pantalla de evidencia.
-  // La validación inicial (generación 1) vive en dos URLs: la histórica y la nueva.
+  if (pathname.startsWith(`${PREGUNTA_PATH}/`)) {
+    // El título de la pregunta lo pone Breadcrumbs cuando la vista ya cargó; acá queda su id.
+    return [{ to: '/', label: 'Inicio' }, { to: pathname, label: pathname.slice(PREGUNTA_PATH.length + 1) }]
+  }
+  // El Archivo vive en dos URLs: la histórica y la nueva.
   if (pathname === '/evidencia' || pathname === GEN1.to) return [GEN1]
   if (pathname === '/evidencia/paso') {
     const n = new URLSearchParams(search).get('n')
-    return [
-      GEN1,
-      { to: pathname + search, label: n ? `Paso ${n}` : 'Paso' },
-    ]
+    return [GEN1, { to: pathname + search, label: n ? `Paso ${n}` : 'Paso' }]
   }
   if (pathname === '/evidencia/respaldo') {
-    return [
-      GEN1,
-      { to: pathname, label: 'Respaldo instrumental' },
-    ]
+    return [GEN1, { to: pathname, label: 'Respaldo instrumental' }]
   }
   if (pathname === '/evidencia/resultado' || pathname === '/evidencia/run') {
     const params = new URLSearchParams(search)
@@ -111,23 +112,16 @@ export function crumbsFor(pathname: string, search = ''): NavItem[] {
     // inventa el paso de origen cuando la navegación no lo trajo.
     if (pasoN) crumbs.push({ to: `/evidencia/paso?n=${pasoN}`, label: `Paso ${pasoN}` })
     // El resultado conserva el paso de origen: volver a él desde la corrida no
-    // pierde la cadena Evidencia > Paso N > resultado.
+    // pierde la cadena Archivo > Paso N > resultado.
     if (id) crumbs.push({ to: `/evidencia/resultado?${new URLSearchParams(pasoN ? { id, paso: pasoN } : { id })}`, label: id })
     if (pathname === '/evidencia/run') crumbs.push({ to: pathname + search, label: params.get('run_id') ?? 'Corrida' })
     return crumbs
   }
   if (STANDALONE[pathname]) return [{ to: pathname, label: STANDALONE[pathname] }]
-  if (pathname === '/demo/sesiones') {
-    return [
-      { to: '/demo', label: STANDALONE['/demo'] },
-      { to: pathname, label: 'Sesiones guardadas' },
-    ]
-  }
   const demoMatch = pathname.match(/^\/demo\/resultado\/(.+)$/)
   if (demoMatch) {
     return [
-      { to: '/demo', label: STANDALONE['/demo'] },
-      { to: '/demo/sesiones', label: 'Sesiones guardadas' },
+      { to: '/demo/sesiones', label: 'Tomas en vivo' },
       { to: pathname, label: demoMatch[1] },
     ]
   }
@@ -141,8 +135,8 @@ export function crumbsFor(pathname: string, search = ''): NavItem[] {
   const resultadoMatch = pathname.match(/^\/resultados\/(.+)$/)
   if (resultadoMatch) {
     return [
-      { to: '/resultados', label: 'Resultados' },
-      { to: pathname, label: resultadoMatch[1] },
+      { to: '/resultados', label: 'Pruebas' },
+      { to: pathname, label: nombreLlano(resultadoMatch[1]) ?? resultadoMatch[1] },
     ]
   }
   const expMatch = pathname.match(/^\/experiments\/(.+)$/)

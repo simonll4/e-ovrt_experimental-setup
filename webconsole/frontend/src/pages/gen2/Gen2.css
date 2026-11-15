@@ -1,15 +1,7 @@
-/* Generación 2 (doc 135): «Para el tribunal», «Resultados» y el detalle de prueba.
+/* Las pruebas (doc 135): el catálogo y el detalle de prueba.
    Solo composición: colores, tipografía y espaciados salen de los tokens. */
 .eo-gen2 { min-width: 0; overflow-wrap: break-word; }
 .eo-gen2 .eo-card { margin-bottom: 16px; min-width: 0; }
-
-.eo-gen2__obs { list-style: none; margin: 16px 0 0; padding: 0; }
-.eo-gen2__qa { display: grid; gap: 10px; margin: 0; }
-.eo-gen2__qa dt { font-size: var(--fz-meta); color: var(--tx3); }
-.eo-gen2__qa dd { margin: 2px 0 0; font-size: var(--fz-body); line-height: 1.5; }
-.eo-gen2__links { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
-.eo-gen2__links li { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
-.eo-gen2__secciones { margin: 8px 0 0; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: var(--fz-meta); color: var(--tx3); }
 
 .eo-gen2__grid {
   display: grid;

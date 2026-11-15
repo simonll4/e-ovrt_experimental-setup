@@ -212,12 +212,22 @@ export function IconNavEvidence() {
   )
 }
 
-/** «Para el tribunal»: una balanza (las observaciones y su respuesta). */
-export function IconNavTribunal() {
+/** «Inicio»: una casa (la portada con las siete preguntas). */
+export function IconNavInicio() {
   return (
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden="true">
-      <path d="M8 2.4v11.2M4.6 13.6h6.8M3 4.6h10" />
-      <path d="M3 4.6L1.4 8.6a1.9 1.9 0 0 0 3.2 0zM13 4.6l-1.6 4a1.9 1.9 0 0 0 3.2 0z" />
+      <path d="M2.2 7.4L8 2.6l5.8 4.8" />
+      <path d="M3.8 6.2v7.2h3.1V9.8h2.2v3.6h3.1V6.2" />
+    </svg>
+  )
+}
+
+/** «Archivo»: una caja (la etapa de desarrollo, guardada y de solo lectura). */
+export function IconNavArchivo() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden="true">
+      <rect x="1.8" y="2.6" width="12.4" height="3.4" rx="0.8" />
+      <path d="M2.8 6v6.6a1 1 0 0 0 1 1h8.4a1 1 0 0 0 1-1V6M6.4 8.6h3.2" />
     </svg>
   )
 }

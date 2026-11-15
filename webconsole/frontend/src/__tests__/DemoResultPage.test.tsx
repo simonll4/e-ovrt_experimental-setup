@@ -207,7 +207,7 @@ describe('/demo/resultado/:id — moverse y modos', () => {
     const volver = () => screen.getByRole('button', { name: /Volver a Listo/ }) as HTMLButtonElement
     await waitFor(() => expect(volver().disabled).toBe(false))
     fireEvent.click(volver())
-    expect(await screen.findByRole('heading', { name: /Demo en vivo/ })).toBeTruthy()
+    expect(await screen.findByRole('heading', { name: /Demo con cámara/ })).toBeTruthy()
     expect(screen.getByRole('complementary', { name: 'Navegación principal' })).toBeTruthy()
   })
 })

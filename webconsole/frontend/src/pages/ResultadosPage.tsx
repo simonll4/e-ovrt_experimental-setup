@@ -61,7 +61,7 @@ function TarjetaPrueba({ p }: { p: Gen2Prueba }) {
  *  informe, no como el archivo. Lee del disco; no consulta servicios ni calcula. */
 export default function ResultadosPage() {
   const q = useGen2Pruebas()
-  if (q.isPending || q.error) return <EstadoDeLectura titulo="Resultados" q={q} />
+  if (q.isPending || q.error) return <EstadoDeLectura titulo="Pruebas" q={q} />
   const pruebas = q.data
   const contrastes = pruebas.filter((p) => p.registro === 'no_se_regenera').length
   const aRegenerar = pruebas.length - contrastes
@@ -69,7 +69,7 @@ export default function ResultadosPage() {
   return (
     <div className="eo-gen2">
       <PageHeader
-        title="Resultados"
+        title="Pruebas"
         meta={`Los resultados finales del informe · ${completas} de ${aRegenerar} pruebas completas`}
       />
       <p className="eo-note">
