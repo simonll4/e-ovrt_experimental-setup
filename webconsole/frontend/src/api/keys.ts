@@ -103,6 +103,8 @@ export const qk = {
   tomas: ['tomas'] as const,
   /** Las diez figuras del informe. */
   figuras: ['figuras'] as const,
+  /** La plataforma: estado de los servicios y registro de acciones. */
+  plataforma: ['plataforma'] as const,
 
   /** La demo en vivo de la defensa (`/demo`). */
   demo: {

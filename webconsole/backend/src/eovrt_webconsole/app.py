@@ -21,6 +21,7 @@ from eovrt_webconsole.experiment.control_backend import ControlPlaneBackend
 from eovrt_webconsole.experiment.run_manager import ExperimentRunManager
 from eovrt_webconsole.gen2 import Gen2
 from eovrt_webconsole.figuras import Figuras
+from eovrt_webconsole.plataforma import Plataforma
 from eovrt_webconsole.preguntas import Preguntas
 from eovrt_webconsole.http_reintento import ReintentoKeepAlive
 from eovrt_webconsole.orchestrator import ComposeOrchestrator, RunCmd, TargetManager
@@ -40,15 +41,16 @@ from eovrt_webconsole.routers import (
     figuras,
     gen2,
     manifests,
-    preguntas,
-    tomas,
     meta,
+    plataforma,
     platform,
+    preguntas,
     preview,
     prompts,
     recordings,
     runs,
     stream,
+    tomas,
 )
 from eovrt_webconsole.run_backend import RunBackend
 from eovrt_webconsole.settings import ConsoleSettings
@@ -105,6 +107,13 @@ def create_app(
         # Demo en vivo de la defensa (spec 2026-10-23): una sesión a la vez, encima
         # del mismo ejecutor de experimentos. Solo observación.
         app.state.demo_manager = DemoManager(app)
+        # La plataforma (plan de la consola, §7.1): estado de los trece servicios y orquestación del
+        # núcleo, al lado del orquestador sin tocarlo. El registro de acciones va con las sesiones de la
+        # demo: es la carpeta escribible también en el contenedor.
+        app.state.plataforma = Plataforma(
+            app, settings.compose_dir, app.state.demo_manager.sesiones_dir / "acciones-plataforma.jsonl",
+            run_cmd=compose_runner,
+        )
         # Grabación de rodaje: vive en la consola, no depende del media-plane
         # (spec 2026-07-21). El chequeo del intérprete se hace acá y no al
         # apretar grabar: el fallo se descubre ahora, no en medio del rodaje.
@@ -167,6 +176,7 @@ def create_app(
     app.include_router(gen2.router)
     app.include_router(preguntas.router)
     app.include_router(figuras.router)
+    app.include_router(plataforma.router)
     app.include_router(tomas.router)
     app.include_router(meta.router)
     app.include_router(catalog.router)

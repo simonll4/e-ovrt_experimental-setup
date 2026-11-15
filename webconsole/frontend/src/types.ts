@@ -1221,6 +1221,53 @@ export interface TomaEnVivo {
   /** Si la carpeta de la sesión está en este equipo: sin ella, el video no se publica. */
   disponible: boolean
 }
+/** Un servicio de la plataforma (plan de la consola, §7.1). */
+export interface ServicioPlataforma {
+  servicio: string
+  /** El nombre llano, en los del núcleo. */
+  nombre: string | null
+  grupo: 'nucleo' | 'deteccion'
+  modelo: string | null
+  /** `running`, `exited`, `created`… o `ausente` si nunca se creó. */
+  estado: string
+  salud: string | null
+  imagen: string | null
+  /** La imagen se reconstruyó después de levantar el contenedor: corre la versión anterior. */
+  imagen_anterior?: boolean
+  /** Desde cuándo corre (ISO), si corre. */
+  desde: string | null
+  puerto: string | null
+  activa: boolean
+  orquestable: boolean
+}
+export interface GpuPlataforma {
+  disponible: boolean
+  instancia?: string
+  nombre?: string
+  usada_mb?: number
+  total_mb?: number
+  motivo?: string
+}
+export interface AccionPlataforma {
+  t: string
+  accion: string
+  servicio: string | null
+  resultado: 'ok' | 'error'
+  detalle: string | null
+  duracion_s: number
+}
+export interface EstadoPlataforma {
+  orquestada: boolean
+  nucleo: ServicioPlataforma[]
+  deteccion: ServicioPlataforma[]
+  activa?: string | null
+  perfil_operativo?: string
+  gpu: GpuPlataforma | null
+  /** Qué se cortaría al detener algo (una corrida o una demo), o null. */
+  en_curso: string | null
+  acciones: AccionPlataforma[]
+}
+
 /** Una de las diez figuras del informe (plan de la consola, §8). */
 export interface FiguraInforme {
   id: string

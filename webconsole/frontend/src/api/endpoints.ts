@@ -9,6 +9,7 @@ import type {
   EvidenceRecorrido, EvidenceStepPage, EvidenceResultPage, ArchivedRunDetail, PlatformTestSlug,
   Documentacion, DemoCamara, DemoCamaraChequeo, DemoPreflight, DemoState, DemoSessionDetail, DemoSesionFila, DemoCifra, DemoStack, DemoModos,
   Gen2Detalle, Gen2Prueba, VistaFiguras, VistaPreguntas, VistaTomas,
+  AccionPlataforma, EstadoPlataforma,
 } from '../types'
 
 export class ApiError extends Error {
@@ -145,6 +146,15 @@ export const activateInstance = (name: string) =>
   )
 export const stopPlatform = () =>
   request<{ target: null }>('/api/platform/stop', { method: 'POST' })
+
+/** La plataforma (plan de la consola, §7.1): estado, orquestación y registro de acciones. */
+export const getPlataforma = () => request<EstadoPlataforma>('/api/plataforma')
+export const accionPlataforma = (servicio: string, verbo: string, confirmar = false) =>
+  request<AccionPlataforma>(
+    `/api/plataforma/servicios/${encodeURIComponent(servicio)}/${encodeURIComponent(verbo)}`,
+    { method: 'POST', body: JSON.stringify({ confirmar }) },
+  )
+export const dejarPlataformaLista = () => request<AccionPlataforma>('/api/plataforma/lista', { method: 'POST' })
 
 export const getExperimentManifests = (
   vista?: EvidenceView, onMetadata?: (meta: EvidenceListingMeta) => void,

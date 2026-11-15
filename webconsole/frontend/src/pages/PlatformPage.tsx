@@ -2,257 +2,296 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ApiError } from '../api'
 import { useGen2Prueba } from '../api/queries/gen2'
-import {
-  useActivateInstance, useInstances, usePreflight, useStopPlatform,
-} from '../api/queries/platform'
+import { usePreflight } from '../api/queries/platform'
+import { useAccionPlataforma, useDejarLista, usePlataforma } from '../api/queries/plataforma'
 import { ComoCorrio } from './PruebaPage'
-import type { PlaneStatus } from '../types'
+import type { AccionPlataforma, BadgeTone, GpuPlataforma, PlaneStatus, ServicioPlataforma } from '../types'
 import {
-  Badge,
-  Button,
-  Card,
-  EmptyState,
-  ErrorBanner,
-  IconStop,
-  LoadingState,
-  MonoCell,
-  PageHeader,
-  StaleNotice,
-  Table,
-  TableScroll,
+  Badge, Banner, Button, Card, ErrorBanner, LoadingState, MonoCell, PageHeader, StaleNotice, Table, TableScroll, Tag,
 } from '../components/ui'
+import './PlatformPage.css'
 
-/** Un motor con su estado y su puerto. Repite lo que dice el pie de la barra
- *  lateral, a propósito: acá es donde se viene a mirar el estado del sistema. */
-function Plano({ nombre, estado }: { nombre: string; estado: PlaneStatus | null }) {
-  return (
-    <section className="eo-plane">
-      {!estado ? (
-        <Badge tone="neutral">verificando…</Badge>
-      ) : !estado.healthy ? (
-        <Badge tone="error">Sin respuesta</Badge>
-      ) : estado.ready ? (
-        <Badge tone="ok">Operativo</Badge>
-      ) : (
-        <Badge tone="warn">No listo</Badge>
-      )}
-      <span className="eo-plane__text">
-        <b>{nombre}</b>
-        <span>{estado ? hostDe(estado.service_url) : '—'}</span>
-      </span>
-    </section>
-  )
+const VERBO: Record<string, string> = { levantar: 'Levantar', detener: 'Detener', reiniciar: 'Reiniciar', activar: 'Activar' }
+const HECHO: Record<string, string> = {
+  levantar: 'levantó', detener: 'detuvo', reiniciar: 'reinició', activar: 'activó', 'dejar lista': 'dejó lista la plataforma',
 }
 
-/** `http://127.0.0.1:8080` → `127.0.0.1:8080`. El esquema es ruido acá. */
-function hostDe(url: string): string {
-  try {
-    return new URL(url).host
-  } catch {
-    return url
+/** El estado de un contenedor en llano, con su salud cuando la tiene. */
+export function estadoServicio(s: Pick<ServicioPlataforma, 'estado' | 'salud'>): { tono: BadgeTone; texto: string } {
+  if (s.estado === 'running') {
+    if (s.salud === 'unhealthy') return { tono: 'error', texto: 'Corre con problemas' }
+    if (s.salud === 'starting') return { tono: 'warn', texto: 'Arrancando' }
+    return { tono: 'ok', texto: 'Corriendo' }
   }
+  if (s.estado === 'restarting') return { tono: 'warn', texto: 'Reiniciando' }
+  if (s.estado === 'ausente') return { tono: 'neutral', texto: 'Sin crear' }
+  if (s.estado === 'created') return { tono: 'neutral', texto: 'Creado' }
+  return { tono: 'neutral', texto: 'Detenido' }
 }
 
-function errorMessage(e: unknown): string {
+/** «desde las 14:05 · hace 2 h 10 min». */
+export function desdeCuando(iso: string | null, ahora = Date.now()): string {
+  if (!iso) return '—'
+  const t = Date.parse(iso)
+  if (!Number.isFinite(t)) return '—'
+  const min = Math.max(0, Math.round((ahora - t) / 60_000))
+  const hace = min < 1 ? 'recién' : min < 60 ? `hace ${min} min`
+    : min < 24 * 60 ? `hace ${Math.floor(min / 60)} h${min % 60 ? ` ${min % 60} min` : ''}`
+      : `hace ${Math.floor(min / (24 * 60))} d`
+  const hora = new Date(t).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })
+  return `${hora} · ${hace}`
+}
+
+function textoGpu(g: GpuPlataforma | null): string | null {
+  if (!g) return null
+  if (!g.disponible || g.usada_mb == null || g.total_mb == null) return g.motivo ? `GPU: ${g.motivo}` : null
+  const gb = (mb: number) => (mb / 1024).toLocaleString('es-AR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })
+  return `GPU: ${gb(g.usada_mb)} de ${gb(g.total_mb)} GB en uso${g.nombre ? ` (${g.nombre})` : ''}`
+}
+
+function motivo(e: unknown): string {
   if (e instanceof ApiError) {
-    const payload = (e.payload ?? {}) as { detail?: string; step?: string; run_id?: string }
-    if (e.status === 409) return `Hay un run activo (${payload.run_id ?? '?'}): esperá a que termine o detenelo.`
-    if (e.status === 504) return `La instancia no llegó a ready: ${payload.detail ?? 'timeout'}`
-    if (e.status === 502) return `Docker falló${payload.step ? ` (${payload.step})` : ''}: ${payload.detail ?? ''}`
+    const p = (e.payload ?? {}) as { detail?: string }
+    return p.detail ?? `${e.status}`
   }
   return String(e)
 }
 
+/** Lo que se le pidió y quedó esperando: la confirmación, si algo en curso se cortaría. */
+interface Pedido { servicio: string; verbo: string; detalle?: string }
+
+function Acciones({ s, ocupado, pedir }: { s: ServicioPlataforma; ocupado: boolean; pedir: (p: Pedido) => void }) {
+  const corre = s.estado === 'running'
+  const verbos = s.grupo === 'deteccion'
+    ? (s.activa ? ['detener'] : ['activar'])
+    : s.servicio === 'console' ? ['reiniciar'] : corre ? ['reiniciar', 'detener'] : ['levantar']
+  return (
+    <span className="eo-inline">
+      {verbos.map((v) => (
+        <Button key={v} variant={v === 'detener' ? 'danger' : 'secondary'} disabled={ocupado}
+          onClick={() => pedir({ servicio: s.servicio, verbo: v })}
+          aria-label={`${VERBO[v]} ${s.nombre ?? s.servicio}`}>
+          {VERBO[v]}
+        </Button>
+      ))}
+    </span>
+  )
+}
+
+function TablaServicios({ titulo, filas, meta, ocupado, enCurso, pedir }: {
+  titulo: string
+  filas: ServicioPlataforma[]
+  meta?: string | null
+  ocupado: string | null
+  enCurso: boolean
+  pedir: (p: Pedido) => void
+}) {
+  return (
+    <Card title={titulo} meta={meta ?? undefined} flush>
+      <TableScroll label={titulo}>
+        <Table aria-label={titulo}>
+          <thead>
+            <tr><th>Servicio</th><th>Estado</th><th>Imagen</th><th>Desde</th><th>Puerto</th><th aria-label="Acciones" /></tr>
+          </thead>
+          <tbody>
+            {filas.map((s) => {
+              const e = estadoServicio(s)
+              return (
+                <tr key={s.servicio} className={s.activa ? 'eo-plataforma__activa' : undefined}>
+                  <th scope="row" className="eo-plataforma__servicio">
+                    <span>{s.nombre ?? s.servicio}</span>
+                    {s.activa && <Tag>activa</Tag>}
+                    <span className="eo-mono eo-note--meta">{s.nombre ? s.servicio : s.modelo}</span>
+                  </th>
+                  <td>{ocupado === s.servicio ? <Badge tone="warn" pulse>Trabajando…</Badge> : <Badge tone={e.tono}>{e.texto}</Badge>}</td>
+                  <td className="eo-mono">
+                    {s.imagen ?? '—'}
+                    {s.imagen_anterior && (
+                      <span className="eo-note--meta eo-plataforma__anterior" title="La imagen se reconstruyó después de levantarlo: reiniciarlo toma la nueva">
+                        {' '}· versión anterior
+                      </span>
+                    )}
+                  </td>
+                  <td className="eo-plataforma__desde">{desdeCuando(s.desde)}</td>
+                  <MonoCell>{s.puerto ?? '—'}</MonoCell>
+                  <td className="eo-cell--actions">
+                    {s.orquestable || s.servicio === 'console'
+                      ? <Acciones s={s} ocupado={ocupado !== null} pedir={pedir} />
+                      : null}
+                  </td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </Table>
+      </TableScroll>
+      {enCurso && <p className="eo-note eo-plataforma__nota">Detener algo ahora corta lo que está en curso: se pide confirmación.</p>}
+    </Card>
+  )
+}
+
+function Registro({ acciones }: { acciones: AccionPlataforma[] }) {
+  return (
+    <Card title="Registro de acciones" meta={acciones.length ? undefined : 'Todavía no se pidió nada desde esta consola'}>
+      {acciones.length > 0 && (
+        <ol className="eo-plataforma__registro">
+          {acciones.map((a) => (
+            <li key={`${a.t}-${a.accion}-${a.servicio}`}>
+              <span className="eo-mono eo-note--meta">{new Date(a.t).toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'medium' })}</span>
+              <span>
+                {a.resultado === 'ok' ? <Badge tone="ok">listo</Badge> : <Badge tone="error">falló</Badge>}{' '}
+                {a.servicio ? <>{VERBO[a.accion] ?? a.accion} <code className="eo-mono">{a.servicio}</code></> : HECHO[a.accion] ?? a.accion}
+                <span className="eo-note--meta"> · {a.duracion_s.toLocaleString('es-AR')} s</span>
+              </span>
+              {a.detalle && <span className="eo-note--meta">{a.detalle}</span>}
+            </li>
+          ))}
+        </ol>
+      )}
+    </Card>
+  )
+}
+
+/** Un motor con su estado y su puerto, para la consola nativa: sin contenedores no hay más que esto. */
+function Plano({ nombre, estado }: { nombre: string; estado: PlaneStatus | null }) {
+  return (
+    <section className="eo-plane">
+      {!estado ? <Badge tone="neutral">verificando…</Badge>
+        : !estado.healthy ? <Badge tone="error">Sin respuesta</Badge>
+          : estado.ready ? <Badge tone="ok">Operativo</Badge> : <Badge tone="warn">No listo</Badge>}
+      <span className="eo-plane__text"><b>{nombre}</b><span>{estado?.service_url ?? '—'}</span></span>
+    </section>
+  )
+}
+
+/** La plataforma (plan de la consola, §7.1): los trece servicios en dos grupos, con su orquestación, la
+ *  memoria de GPU de la instancia activa y el registro de lo que se pidió. En nativo, el estado de los motores
+ *  y el aviso de que la orquestación necesita los contenedores. */
 export default function PlatformPage() {
-  const [error, setError] = useState<string | null>(null)
-  const [busy, setBusy] = useState<string | null>(null) // instancia activándose/deteniéndose
-
-  const instancias = useInstances()
-  const { data: rows, error: loadError } = instancias
+  const q = usePlataforma()
   const preflight = usePreflight()
-  const activateMutation = useActivateInstance()
-  const stopMutation = useStopPlatform()
+  const accion = useAccionPlataforma()
+  const lista = useDejarLista()
+  const [ocupado, setOcupado] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const [comando, setComando] = useState<string | null>(null)
+  const [aConfirmar, setAConfirmar] = useState<Pedido | null>(null)
 
-  // El 501 no es un fallo: es "esta consola apunta a una instancia fija y la
-  // orquestación no está habilitada". Se distingue del resto para poder mostrar
-  // un estado de interfaz en vez de un error.
-  const notEnabled = loadError instanceof ApiError && loadError.status === 501
-
-  const activate = async (name: string) => {
-    setBusy(name)
+  const pedir = async (p: Pedido, confirmar = false) => {
+    setOcupado(p.servicio)
     setError(null)
+    setComando(null)
+    setAConfirmar(null)
     try {
-      await activateMutation.mutateAsync(name)
+      await accion.mutateAsync({ servicio: p.servicio, verbo: p.verbo, confirmar })
     } catch (e) {
-      setError(errorMessage(e))
+      const cuerpo = (e instanceof ApiError ? e.payload : null) as { detail?: string; confirmar?: boolean; comando?: string } | null
+      if (cuerpo?.comando) setComando(cuerpo.comando)
+      else if (cuerpo?.confirmar) setAConfirmar({ ...p, detalle: cuerpo.detail })
+      else setError(motivo(e))
     } finally {
-      setBusy(null)
+      setOcupado(null)
     }
   }
 
-  const stop = async () => {
-    setBusy('__stop__')
+  const dejarLista = async () => {
+    setOcupado('__lista__')
     setError(null)
     try {
-      await stopMutation.mutateAsync()
+      await lista.mutateAsync()
     } catch (e) {
-      setError(errorMessage(e))
+      setError(motivo(e))
     } finally {
-      setBusy(null)
+      setOcupado(null)
     }
   }
 
-  if (notEnabled)
+  if (q.isPending) {
     return (
       <>
         <PageHeader title="Plataforma" />
-        <EmptyState
-          hint={
-            <>
-              Desplegá la plataforma con <span className="eo-mono">infra/platform/</span> y
-              definí <span className="eo-mono">EOVRT_CONSOLE_COMPOSE_DIR</span>.
-            </>
-          }
-        >
-          La orquestación no está habilitada: la consola apunta a una instancia fija
-        </EmptyState>
+        <LoadingState lines={4}>Leyendo el estado de los servicios…</LoadingState>
       </>
     )
-  // `error` es de las acciones (activar/apagar); `loadError` es del listado. Si
-  // el listado nunca cargó no hay tabla que mostrar, así que ese gana — con la
-  // cabecera en su lugar y reintento.
-  if (loadError && !rows) {
+  }
+  if (q.error && !q.data) {
     return (
       <>
-        <PageHeader title="Plataforma" meta="No se pudo leer el estado de las instancias" />
-        <ErrorBanner
-          detail={String(loadError)}
-          onRetry={() => void instancias.refetch()}
-          retrying={instancias.isFetching}
-        >
-          Error: {errorMessage(loadError)}
+        <PageHeader title="Plataforma" />
+        <ErrorBanner onRetry={() => void q.refetch()} retrying={q.isFetching}>
+          No se pudo leer el estado de los servicios: {motivo(q.error)}
         </ErrorBanner>
       </>
     )
   }
-  if (!rows) {
-    return (
-      <>
-        <PageHeader title="Plataforma" meta="Consultando las instancias del servicio…" />
-        <LoadingState lines={4}>Cargando las instancias del servicio…</LoadingState>
-      </>
-    )
-  }
-
-  const activa = rows.find((r) => r.is_target) ?? null
-
+  const d = q.data!
+  const total = d.nucleo.length + d.deteccion.length
+  const corriendo = [...d.nucleo, ...d.deteccion].filter((s) => s.estado === 'running').length
   return (
-    <>
-      <PageHeader title="Plataforma" meta={`${rows.length} instancias del servicio`} />
+    <div className="eo-plataforma">
+      <PageHeader
+        title="Plataforma"
+        meta={d.orquestada ? `${corriendo} de ${total} servicios corriendo` : undefined}
+        actions={d.orquestada ? (
+          <Button variant="primary" onClick={() => void dejarLista()} disabled={ocupado !== null}
+            aria-busy={ocupado === '__lista__' || undefined}>
+            {ocupado === '__lista__' ? 'Dejándola lista…' : 'Dejar la plataforma lista'}
+          </Button>
+        ) : undefined}
+      />
+      {q.error && <StaleNotice what="el estado de los servicios" onRetry={() => void q.refetch()} retrying={q.isFetching} />}
       {error && <ErrorBanner>{error}</ErrorBanner>}
-      {loadError && (
-        <StaleNotice what="el estado de las instancias" onRetry={() => void instancias.refetch()} retrying={instancias.isFetching} />
+      {comando && (
+        <Banner tone="warn" onClose={() => setComando(null)}>
+          La consola no se detiene a sí misma. Desde una terminal, en <code className="eo-mono">infra/platform</code>:{' '}
+          <code className="eo-mono">{comando}</code>
+        </Banner>
+      )}
+      {aConfirmar && (
+        <Banner tone="warn" onClose={() => setAConfirmar(null)} action={(
+          <span className="eo-inline">
+            <Button variant="danger" onClick={() => void pedir(aConfirmar, true)}>{VERBO[aConfirmar.verbo]} igual</Button>
+            <Button onClick={() => setAConfirmar(null)}>Cancelar</Button>
+          </span>
+        )}>
+          {aConfirmar.detalle ?? 'Hay algo en curso.'}
+        </Banner>
       )}
 
-      <div className="eo-hero">
-        {activa ? (
-          <section className="eo-target">
-            <div className="eo-target__label">Instancia activa</div>
-            <div className="eo-target__name">{activa.name}</div>
-            <div className="eo-target__chips">
-              {activa.ready ? (
-                <Badge tone="ok">Operativa</Badge>
-              ) : (
-                <Badge tone="warn">Cargando el modelo</Badge>
-              )}
-              <span className="eo-mono eo-note">{activa.model_ref}</span>
-            </div>
-            {/* El prototipo muestra acá encendida-hace, memoria de GPU y
-                corridas-hoy. El backend no expone ninguno de los tres, y tres
-                casilleros en «sin dato» ocupan lugar sin informar: se muestra el
-                pie solo con la acción hasta que existan. */}
-            <div className="eo-target__foot">
-              <Button variant="danger" onClick={stop} disabled={busy !== null} aria-busy={busy === '__stop__' || undefined}>
-                <IconStop />
-                {busy === '__stop__' ? 'Apagando…' : 'Apagar'}
-              </Button>
-            </div>
-          </section>
-        ) : (
-          <section className="eo-target">
-            <div className="eo-target__label">Instancia activa</div>
-            <div className="eo-target__name">—</div>
-            <p className="eo-note">
-              Ninguna instancia está activa. Activá una desde la tabla para poder lanzar corridas.
-            </p>
-          </section>
-        )}
-
-        <div className="eo-planes">
-          <Plano nombre="Motor de detección" estado={preflight?.media ?? null} />
-          <Plano nombre="Motor de reglas" estado={preflight?.control ?? null} />
+      {!d.orquestada ? (
+        <>
+          <Banner tone="live">
+            Esta consola corre fuera de los contenedores: muestra el estado de los motores, pero levantar, detener o
+            cambiar de modelo necesita la consola en contenedor (<code className="eo-mono">infra/platform</code>).
+          </Banner>
+          <div className="eo-planes">
+            <Plano nombre="Motor de detección" estado={preflight?.media ?? null} />
+            <Plano nombre="Motor de reglas" estado={preflight?.control ?? null} />
+          </div>
+        </>
+      ) : (
+        <div className="eo-plataforma__servicios" data-figura="plataforma-servicios">
+          <TablaServicios titulo="Núcleo" filas={d.nucleo} ocupado={ocupado} enCurso={Boolean(d.en_curso)} pedir={(p) => void pedir(p)} />
+          <TablaServicios titulo="Detección" filas={d.deteccion} meta={textoGpu(d.gpu)} ocupado={ocupado}
+            enCurso={Boolean(d.en_curso)} pedir={(p) => void pedir(p)} />
         </div>
-      </div>
-
-      <Card title="Instancias del servicio" meta="Solo una puede estar activa" flush>
-        <TableScroll label="Instancias del servicio">
-        <Table aria-label="Instancias del servicio">
-          <thead>
-            <tr>
-              <th>Instancia</th>
-              <th>Modelo</th>
-              <th>Estado</th>
-              <th aria-label="Acciones" />
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((r) => (
-              <tr key={r.name}>
-                <MonoCell>{r.name}</MonoCell>
-                <MonoCell>{r.model_ref}</MonoCell>
-                <td>
-                  <span className="eo-inline">
-                    {busy === r.name ? (
-                      <Badge tone="warn" pulse>Activando…</Badge>
-                    ) : r.is_target && r.ready ? (
-                      <Badge tone="ok">Operativa</Badge>
-                    ) : r.is_target ? (
-                      <Badge tone="warn">Cargando el modelo</Badge>
-                    ) : (
-                      <Badge tone="neutral">Detenida</Badge>
-                    )}
-                  </span>
-                </td>
-                <td className="eo-cell--actions">
-                  {r.is_target ? (
-                    <Button onClick={stop} disabled={busy !== null}>
-                      Apagar
-                    </Button>
-                  ) : (
-                    <Button onClick={() => activate(r.name)} disabled={busy !== null}>
-                      Activar
-                    </Button>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
-        </TableScroll>
-      </Card>
-      <p className="eo-cap">
-        Activar otra instancia apaga la actual y espera a que el modelo cargue, lo que puede
-        tardar varios minutos. No se puede cambiar de instancia mientras haya una corrida en
-        curso.
-      </p>
+      )}
+      {d.orquestada && (
+        <p className="eo-cap">
+          Una sola instancia de detección está activa a la vez: activar otra detiene la actual y espera a que cargue
+          el modelo, que puede tardar unos minutos. «Dejar la plataforma lista» levanta lo que falte del núcleo y
+          activa {d.perfil_operativo ? <code className="eo-mono">{d.perfil_operativo}</code> : 'el perfil operativo'},
+          sin recrear lo que ya corre.
+        </p>
+      )}
+      {d.orquestada && <Registro acciones={d.acciones} />}
       <ComoSeDesplego />
-    </>
+    </div>
   )
 }
 
-/** «Cómo se desplegó» (doc 135 §3.5): la foto que registró la prueba de plataforma
- *  de la generación 2 —equipo, imágenes, servicios arriba—. Sale del disco; si la
- *  prueba todavía no corrió, no se muestra nada. */
+/** Cómo se desplegó en la campaña: la foto que registró la prueba de plataforma —equipo, imágenes, servicios
+ *  arriba—. Sale del disco; si la prueba todavía no corrió, no se muestra nada. */
 function ComoSeDesplego() {
   const q = useGen2Prueba('PLAT-01')
   const foto = q.data?.plataforma ?? q.data?.entorno
@@ -261,12 +300,13 @@ function ComoSeDesplego() {
     ? (foto.docker.compose_ps as Array<Record<string, unknown>>)
     : []
   return (
-    <>
-      <ComoCorrio entorno={foto} titulo="Cómo se desplegó (prueba PLAT-01)" />
+    <section className="eo-plataforma__campana" aria-label="Cómo se desplegó en la campaña">
+      <h2>Cómo se desplegó en la campaña</h2>
+      <ComoCorrio entorno={foto} titulo="El equipo y las imágenes" />
       {servicios.length > 0 && (
-        <Card title="Servicios del compose" meta="docker compose ps, al registrar la prueba" flush>
-          <TableScroll label="Servicios del compose">
-            <Table aria-label="Servicios del compose">
+        <Card title="Los servicios, al registrar la prueba" flush>
+          <TableScroll label="Los servicios, al registrar la prueba">
+            <Table aria-label="Los servicios, al registrar la prueba">
               <thead><tr><th>Servicio</th><th>Estado</th><th>Imagen</th></tr></thead>
               <tbody>
                 {servicios.map((s, i) => (
@@ -282,9 +322,8 @@ function ComoSeDesplego() {
         </Card>
       )}
       <p className="eo-cap">
-        La prueba completa, con sus comandos y su pre-registro, está en{' '}
-        <Link to="/resultados/PLAT-01">Resultados</Link>.
+        La prueba completa, con sus comandos, está en <Link to="/resultados/PLAT-01">su detalle</Link>.
       </p>
-    </>
+    </section>
   )
 }

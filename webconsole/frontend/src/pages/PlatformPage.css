@@ -1,0 +1,17 @@
+/* La plataforma (plan de la consola de evidencia, §7.1). Solo tokens: se ve igual de bien en los dos temas. */
+
+.eo-plataforma { display: flex; flex-direction: column; gap: 16px; }
+/* Lo que se captura como figura 1: los dos grupos, con su propio fondo. */
+.eo-plataforma__servicios { display: flex; flex-direction: column; gap: 16px; background: var(--bg); }
+.eo-plataforma__servicio { text-align: left; font-weight: 500; }
+.eo-plataforma__servicio > span:first-child { display: inline-block; margin-right: 6px; color: var(--tx); }
+.eo-plataforma__servicio .eo-mono { display: block; margin-top: 2px; font-weight: 400; }
+.eo-plataforma__activa > * { background: var(--ac-bg); }
+.eo-plataforma__desde { white-space: nowrap; font-variant-numeric: tabular-nums; color: var(--tx2); }
+.eo-plataforma__nota { margin: 0; padding: 10px 16px 14px; }
+.eo-plataforma .eo-cell--actions .eo-inline { flex-wrap: nowrap; white-space: nowrap; }
+.eo-plataforma__registro { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.eo-plataforma__registro li { display: flex; flex-direction: column; gap: 2px; padding-bottom: 8px; border-bottom: 1px solid var(--bd); }
+.eo-plataforma__registro li:last-child { border-bottom: none; padding-bottom: 0; }
+.eo-plataforma__campana { display: flex; flex-direction: column; gap: 12px; margin-top: 8px; padding-top: 16px; border-top: 1px solid var(--bd); }
+.eo-plataforma__campana h2 { margin: 0; font-size: var(--fz-h2); }
