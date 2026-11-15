@@ -33,7 +33,7 @@ export const noSeRegenera = (p: { registro?: string | null; estado: Gen2Estado }
 
 export function EstadoPrueba({ estado, registro }: { estado: Gen2Estado; registro?: string | null }) {
   if (noSeRegenera({ estado, registro })) {
-    return <Badge tone="neutral" title="no_se_regenera">No se regenera: vale la etapa de desarrollo</Badge>
+    return <Badge tone="neutral" title="Contraste: su cifra vigente está en «Cómo se validó»">No se regenera</Badge>
   }
   const e = ESTADO[estado] ?? ESTADO.desconocida
   return <Badge tone={e.tono}>{e.texto}</Badge>

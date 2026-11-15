@@ -49,6 +49,8 @@ CAMPOS_ALERTA = ("condicion", "accion", "primera_evidencia_a_confirmacion_ms", "
                  "confirmacion_a_broker_ms")
 # La prueba que registra el equipo y el despliegue; de ahí sale la GPU cuando una prueba no la registró.
 PRUEBA_PLATAFORMA = "PLAT-01"
+# El vocabulario de cada prueba en la consola: su pregunta, qué midió y los nombres llanos de sus cifras.
+VISTA_PRUEBAS = Path("results") / "evidence-vista" / "pruebas.yaml"
 
 
 class PruebaInexistente(KeyError):
@@ -85,6 +87,7 @@ class Gen2:
     def __init__(self, repo_root: Path) -> None:
         self.catalogo_dir = Path(repo_root) / "experiments" / "evidencia"
         self.resultados_dir = Path(repo_root) / "results" / "gen2"
+        self.vista_pruebas = Path(repo_root) / VISTA_PRUEBAS
 
     # --- catálogo y resultados --------------------------------------------------------
 
@@ -106,6 +109,20 @@ class Gen2:
     def _dir(self, pid: str) -> Path:
         return self.resultados_dir / pid
 
+    def _vocabulario(self) -> dict[str, dict]:
+        """{id: {pregunta, que_midio, cifras}} de `results/evidence-vista/pruebas.yaml`, o vacío."""
+        datos = _leer_yaml(self.vista_pruebas)
+        pruebas = datos.get("pruebas") if isinstance(datos, dict) else None
+        return {k: v for k, v in pruebas.items() if isinstance(v, dict)} if isinstance(pruebas, dict) else {}
+
+    @staticmethod
+    def _con_nombres(resumen: Any, nombres: dict) -> list[dict]:
+        """El resumen tal cual, con el nombre que muestra la consola al lado del que puso el programa."""
+        if not isinstance(resumen, list):
+            return []
+        return [{**c, "nombre_consola": nombres.get(c.get("clave")) or c.get("nombre")}
+                for c in resumen if isinstance(c, dict)]
+
     @staticmethod
     def _gen1(datos: dict) -> dict:
         gen1 = datos.get("gen1") or {}
@@ -121,12 +138,15 @@ class Gen2:
             "cifras": [c for c in gen1.get("cifras") or [] if isinstance(c, dict)],
         }
 
-    def _fila(self, pid: str, datos: dict) -> dict:
+    def _fila(self, pid: str, datos: dict, vocabulario: dict[str, dict] | None = None) -> dict:
         resultado = _leer_json(self._dir(pid) / "resultado.json")
         resultado = resultado if isinstance(resultado, dict) else {}
+        propio = (vocabulario if vocabulario is not None else self._vocabulario()).get(pid) or {}
         return {
             "id": pid,
             "titulo": datos.get("titulo"),
+            "pregunta_consola": propio.get("pregunta"),
+            "que_midio": propio.get("que_midio"),
             "fase": datos.get("fase"),
             "familia": datos.get("familia"),
             "informe": datos.get("informe") or [],
@@ -138,7 +158,7 @@ class Gen2:
             "gen1": self._gen1(datos),
             "estado": resultado.get("estado", "sin_correr"),
             "generado": resultado.get("generado"),
-            "resumen": resultado.get("resumen") or [],
+            "resumen": self._con_nombres(resultado.get("resumen"), propio.get("cifras") or {}),
             "veredicto": resultado.get("veredicto"),
         }
 
@@ -148,7 +168,8 @@ class Gen2:
                 if isinstance(datos.get("titulo"), str)}
 
     def pruebas(self) -> list[dict]:
-        return [self._fila(pid, datos) for pid, datos in sorted(self._catalogo().items())]
+        vocabulario = self._vocabulario()
+        return [self._fila(pid, datos, vocabulario) for pid, datos in sorted(self._catalogo().items())]
 
     # --- detalle de una prueba --------------------------------------------------------
 
@@ -166,15 +187,52 @@ class Gen2:
             listado[nombre] = archivos[:MAX_LISTADO]
         return listado
 
-    @staticmethod
-    def _lecturas(resultado: Any) -> list[dict]:
+    @classmethod
+    def _lecturas(cls, resultado: Any, nombres: dict | None = None) -> list[dict]:
         """Las otras lecturas de la prueba (`variantes` del resultado: por sujeto, otra regla…),
         cada una con su resumen tal cual. La lectura principal es el `resumen` de la prueba."""
         variantes = resultado.get("variantes") if isinstance(resultado, dict) else None
         if not isinstance(variantes, dict):
             return []
-        return [{"nombre": nombre, "resumen": v.get("resumen") or []}
+        return [{"nombre": nombre, "resumen": cls._con_nombres(v.get("resumen"), nombres or {})}
                 for nombre, v in variantes.items() if isinstance(v, dict)]
+
+    @staticmethod
+    def _desglose(base: Path) -> dict | None:
+        """El desglose de la prueba, tal como lo dejaron sus evaluaciones (`evals/eval_*.json`): sobre un
+        banco de clips, una fila por clip; sobre imágenes, una por fuente con sus clases. No calcula."""
+        evals = base / "evals"
+        if not evals.is_dir():
+            return None
+        clips, fuentes = [], []
+        for ruta in sorted(evals.glob("eval_*.json"))[:MAX_LISTADO]:
+            datos = _leer_json(ruta)
+            if not isinstance(datos, dict):
+                continue
+            if str(datos.get("schema_version", "")).startswith("control.eval.temporal"):
+                clips.append({
+                    "clip": datos.get("scenario_id") or ruta.stem[len("eval_"):],
+                    "episodios": datos.get("expected_alerts_count"),
+                    "aciertos": datos.get("matched_alerts_count"),
+                    "perdidos": datos.get("missed_alerts_count"),
+                    "falsas_alarmas": datos.get("unexpected_alerts_count"),
+                    "re_alertas": datos.get("re_alerts_count"),
+                    "t_alert_ms": datos.get("avg_latency_ms_from_episode_start"),
+                    "sdr": datos.get("avg_sdr"),
+                })
+            elif datos.get("type") == "perception":
+                fuentes.append({
+                    "fuente": ruta.stem[len("eval_"):],
+                    "map50": datos.get("mAP50"),
+                    "recall_cr01": datos.get("cr01_detection_recall"),
+                    "clases": [{"clase": c.get("class_name"), "ap50": c.get("AP50"), "n_gt": c.get("n_gt")}
+                               for c in datos.get("per_class") or [] if isinstance(c, dict)],
+                })
+        if clips:
+            return {"tipo": "clips", "clips": clips}
+        if fuentes:
+            return {"tipo": "imagenes", "fuentes": fuentes}
+        return None
 
     @staticmethod
     def _tomas(base: Path) -> list[dict]:
@@ -226,6 +284,7 @@ class Gen2:
         corridas = _leer_json(base / "corridas.json")
         resultado = _leer_json(base / "resultado.json")
         entorno = _leer_json(base / "entorno.json")
+        nombres = (self._vocabulario().get(pid) or {}).get("cifras") or {}
         return {
             **self._fila(pid, datos),
             "pre_registro": {
@@ -235,7 +294,8 @@ class Gen2:
                 "coincide_con_catalogo": (texto_copia == texto_catalogo) if texto_copia and texto_catalogo else None,
             },
             "resultado": resultado,
-            "lecturas": self._lecturas(resultado),
+            "lecturas": self._lecturas(resultado, nombres),
+            "desglose": self._desglose(base),
             "tomas": self._tomas(base),
             "corridas": (corridas or {}).get("corridas") if isinstance(corridas, dict) else None,
             "entorno": entorno,

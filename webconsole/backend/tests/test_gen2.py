@@ -109,7 +109,8 @@ def test_detalle_trae_las_otras_lecturas_de_la_prueba_con_su_resumen(client, rep
     _resultado(repo, "ALR-13", variantes={"combinada_sujeto": {"metricas": {"f1_micro": 0.763}, "resumen": sujeto},
                                           "rota": "no es un objeto"})
     d = client.get("/api/gen2/pruebas/ALR-13").json()
-    assert d["lecturas"] == [{"nombre": "combinada_sujeto", "resumen": sujeto}]
+    # Cada cifra lleva al lado el nombre que muestra la consola (sin vocabulario, el del programa).
+    assert d["lecturas"] == [{"nombre": "combinada_sujeto", "resumen": [{**sujeto[0], "nombre_consola": "F1"}]}]
     # Sin variantes, la lista viene vacía (y no falta la clave).
     _prueba(repo, "ALR-01")
     _resultado(repo, "ALR-01")

@@ -139,6 +139,20 @@ describe('Documentación', () => {
     expect(within(campana as HTMLElement).queryByText(/hoy$/)).toBeNull()
   })
 
+  it('la tabla de equivalencias: término, código y cómo aparece en la implementación (plan §4.4)', async () => {
+    cuerpo = { ...doc, equivalencias: [
+      { termino: 'Perfil operativo', codigo: null, implementacion: 'el modelo gdino-tiny-560' },
+      { termino: 'Sin casco', codigo: 'CR-01', implementacion: 'el patrón PR-01' },
+    ] }
+    abrir()
+    const tabla = await screen.findByRole('table', { name: 'Equivalencias' })
+    expect(within(tabla).getAllByRole('columnheader').map((th) => th.textContent))
+      .toEqual(['En el informe y la consola', 'Código', 'En la implementación'])
+    const fila = within(tabla).getByRole('row', { name: /Sin casco/ })
+    expect(within(fila).getAllByRole('cell').map((c) => c.textContent)).toEqual(['Sin casco', 'CR-01', 'el patrón PR-01'])
+    expect(screen.getByRole('link', { name: 'Equivalencias' })).toBeTruthy()
+  })
+
   it('muestra las colisiones de símbolo con sus tres sentidos y qué significa acá', async () => {
     abrir()
     await screen.findByText('Los redlines del informe.')

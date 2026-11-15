@@ -97,7 +97,7 @@ class Documentacion:
         if not estado["available"]:
             return {**estado, "titulo": None, "bajada": None,
                     "metodo": [], "aportes": [], "vocabulario": [],
-                    "colisiones": [], "terminos": {}}
+                    "colisiones": [], "equivalencias": [], "terminos": {}}
         metodo = [{
             **_campos(paso, ("titulo", "hizo", "porque", "quedo")),
             "n": paso.get("n"),
@@ -130,10 +130,13 @@ class Documentacion:
             "en_la_consola": _limpiar(fila.get("en_la_consola")),
             "sentidos": [_campos(s, ("de", "es")) for s in (fila.get("sentidos") or [])],
         } for fila in self.cfg.get("colisiones", []) or []]
+        # Cada término del informe con su código y cómo aparece en la implementación (plan §4.4).
+        equivalencias = [_campos(fila, ("termino", "codigo", "implementacion"))
+                         for fila in self.cfg.get("equivalencias", []) or [] if isinstance(fila, dict)]
         return {
             **estado,
             "titulo": _limpiar(self.cfg.get("titulo")),
             "bajada": _limpiar(self.cfg.get("bajada")),
             "metodo": metodo, "aportes": aportes, "vocabulario": vocabulario,
-            "colisiones": colisiones, "terminos": self.terminos,
+            "colisiones": colisiones, "equivalencias": equivalencias, "terminos": self.terminos,
         }

@@ -104,7 +104,7 @@ export function EstadoDeLectura({
 export function ArchivoAusente({ message }: { message?: string | null }) {
   return (
     <Evidencia>
-      <PageHeader title="Evidencia" meta="Lectura del archivo curado" />
+      <PageHeader title="Archivo" meta="La etapa de desarrollo, de solo lectura" />
       <EmptyState hint={message ?? undefined}>Archivo de evidencia no disponible</EmptyState>
     </Evidencia>
   )

@@ -25,7 +25,7 @@ export default function Entrada() {
     : `${enRecorrido + enRespaldo} resultados reportados — ${enRecorrido} en el recorrido `
       + `y ${enRespaldo} de respaldo instrumental · lectura del archivo curado`
   return <Evidencia>
-    <PageHeader title="Evidencia" meta={meta} />
+    <PageHeader title="Archivo" meta={meta} />
     <p className="eo-note">El recorrido del argumento del informe. Cada número abre los
       resultados que lo sostienen; cada resultado, su desglose y las corridas que lo respaldan.</p>
     <div className="eo-evsteps">

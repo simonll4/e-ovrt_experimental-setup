@@ -248,10 +248,11 @@ def _valores_de_metrics_json() -> set[float]:
     return valores
 
 
-def test_hay_al_menos_una_medicion_en_prosa_para_verificar():
-    assert _mediciones_en_prosa(), (
-        'no se encontró ninguna medición en la prosa de documentacion.yaml: '
-        'revisar el regex o el contenido')
+def test_la_prosa_no_trae_mediciones_escritas_a_mano():
+    """Plan de la consola de evidencia, §1.4: ninguna cifra a mano. Una medición escrita acá envejece en
+    silencio cuando se vuelve a correr la campaña (pasó con «0,789 a 0,930»): las cifras se leen de los
+    resultados, en las siete preguntas y en el detalle de cada prueba."""
+    assert _mediciones_en_prosa() == []
 
 
 def test_toda_medicion_en_prosa_tiene_respaldo_en_algun_metrics_json():
@@ -274,6 +275,17 @@ def test_toda_medicion_en_prosa_tiene_respaldo_en_algun_metrics_json():
 # --------------------------------------------------------------------------
 # El módulo: estados de disponibilidad y conteos.
 # --------------------------------------------------------------------------
+
+def test_las_equivalencias_dicen_termino_e_implementacion():
+    # Plan §4.4: la tabla de tres columnas de «Cómo leer». El código es opcional; los otros dos no.
+    filas = _doc().get('equivalencias') or []
+    assert len(filas) >= 10
+    for fila in filas:
+        assert set(fila) <= {'termino', 'codigo', 'implementacion'}, fila
+        assert fila.get('termino') and fila.get('implementacion'), fila
+    terminos = {f['termino'] for f in filas}
+    assert {'Perfil operativo', 'Sin casco', 'Sin chaleco', 'Los resultados'} <= terminos
+
 
 def test_el_archivo_real_carga_y_declara_disponible():
     doc = Documentacion(REPO)

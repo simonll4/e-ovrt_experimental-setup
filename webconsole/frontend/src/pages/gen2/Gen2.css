@@ -34,3 +34,11 @@
 
 /* La nota al pie de una tabla que ocupa todo el ancho de la tarjeta. */
 .eo-gen2__nota-tabla { margin: 0; padding: 10px 14px 12px; }
+
+/* El detalle de una prueba (plan de la consola, §2.4): qué midió, a la vista; lo escrito antes de correr,
+   como cita dentro de «Cómo se validó»; los plegados con su título del tamaño de una tarjeta. */
+.eo-gen2__que { margin: 0 0 16px; font-size: 16px; line-height: 1.55; max-width: 80ch; }
+.eo-gen2__plegado { display: inline; font-size: var(--fz-panel); font-weight: 600; }
+.eo-gen2__cita { margin: 0 0 12px; padding: 8px 14px; border-left: 3px solid var(--bds); background: var(--s2); border-radius: 0 var(--r) var(--r) 0; }
+.eo-gen2__cita p { margin: 0 0 6px; }
+.eo-gen2__cita p:last-child { margin-bottom: 0; }

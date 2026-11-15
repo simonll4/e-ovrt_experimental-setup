@@ -2,10 +2,10 @@ import { Link, useParams } from 'react-router-dom'
 import { gen2ArchivoUrl } from '../api'
 import { useGen2Prueba } from '../api/queries/gen2'
 import { Banner, Card, Disclosure, MonoCell, PageHeader, Table, TableScroll, Tag } from '../components/ui'
+import NombreCodigo, { ConCodigos } from '../components/ui/NombreCodigo'
 import { GEN1 } from '../nav'
-import NombreCodigo from '../components/ui/NombreCodigo'
 import { NOMBRE_DE_PRUEBA, nombreConCodigo } from '../vocabulario'
-import type { Gen2Cifra, Gen2Corrida, Gen2Detalle, Gen2Entorno } from '../types'
+import type { Gen2Cifra, Gen2Corrida, Gen2Desglose, Gen2Detalle, Gen2Entorno } from '../types'
 import { EstadoDeLectura } from './evidencia/comun'
 import { CifraFila, EstadoPrueba, VEREDICTO_LABEL, Veredicto, noSeRegenera, valorTexto } from './gen2/comun'
 import './gen2/Gen2.css'
@@ -21,38 +21,129 @@ function filasCorridas(corridas: Record<string, Gen2Corrida>) {
   return filas
 }
 
-const nombreLectura = (nombre: string) => nombre.replace(/_/g, ' ')
+/** El nombre de una lectura secundaria (`variantes` del resultado), dicho en llano. */
+const LECTURA: Record<string, string> = { sujeto: 'por sujeto', casco: 'solo casco', chaleco: 'solo chaleco', combinada: 'combinada' }
+const nombreLectura = (nombre: string) => nombre.split('_').map((t) => LECTURA[t] ?? t).join(', ')
 
-/** Todas las lecturas de la prueba, una columna por lectura: la principal (el
- *  `resumen`) y las demás (por sujeto, otra regla…). Sin esto, la cifra de una
- *  lectura secundaria solo aparecía dentro del texto del veredicto. */
-function Lecturas({ d }: { d: Gen2Detalle }) {
+const nombreCifra = (c: Gen2Cifra) => <ConCodigos texto={c.nombre_consola ?? c.nombre} />
+
+function valorConIntervalo(c: Gen2Cifra | undefined) {
+  if (!c) return '—'
+  return (
+    <>
+      {valorTexto(c.valor, c.unidad)}
+      {c.ic95 && <span className="eo-note--meta"> (IC 95 %: {valorTexto(c.ic95[0])} a {valorTexto(c.ic95[1])})</span>}
+      {c.n != null && <span className="eo-note--meta"> · n = {valorTexto(c.n)}</span>}
+    </>
+  )
+}
+
+/** El resultado (plan de la consola, §2.4): todas las lecturas de la prueba lado a lado —la principal
+ *  y las demás (por sujeto, otra regla…)—, con los nombres de la consola. Solo cifras finales. */
+function ElResultado({ d }: { d: Gen2Detalle }) {
   const lecturas = d.lecturas ?? []
-  if (lecturas.length === 0) return null
-  const valor = (resumen: Gen2Cifra[], clave: string) => {
-    const c = resumen.find((x) => x.clave === clave)
-    return c ? valorTexto(c.valor, c.unidad) : '—'
-  }
+  if (d.resumen.length === 0 && lecturas.length === 0) return null
   // Las filas son las cifras de la lectura principal, más las que solo tenga alguna otra.
   const filas = [...d.resumen]
   for (const l of lecturas) for (const c of l.resumen) if (!filas.some((f) => f.clave === c.clave)) filas.push(c)
+  const de = (resumen: Gen2Cifra[], clave: string) => resumen.find((x) => x.clave === clave)
   return (
-    <Card title="Las lecturas de la prueba" meta={`${lecturas.length + 1} lecturas`} flush>
-      <TableScroll label="Lecturas de la prueba">
-        <Table aria-label="Lecturas de la prueba">
+    <Card title="El resultado" meta={lecturas.length > 0 ? `${lecturas.length + 1} lecturas` : undefined} flush>
+      <TableScroll label="El resultado">
+        <Table aria-label="El resultado">
           <thead>
             <tr>
               <th>Qué se mide</th>
-              <th>Lectura principal</th>
-              {lecturas.map((l) => <th key={l.nombre}>{nombreLectura(l.nombre)}</th>)}
+              <th className="eo-num">{lecturas.length > 0 ? 'Lectura principal' : 'Resultado'}</th>
+              {lecturas.map((l) => <th key={l.nombre} className="eo-num">{nombreLectura(l.nombre)}</th>)}
             </tr>
           </thead>
           <tbody>
             {filas.map((f) => (
               <tr key={f.clave}>
-                <td>{f.nombre}</td>
-                <td className="eo-num">{valor(d.resumen, f.clave)}</td>
-                {lecturas.map((l) => <td key={l.nombre} className="eo-num">{valor(l.resumen, f.clave)}</td>)}
+                <td>{nombreCifra(f)}</td>
+                <td className="eo-num">{valorConIntervalo(de(d.resumen, f.clave))}</td>
+                {lecturas.map((l) => <td key={l.nombre} className="eo-num">{valorConIntervalo(de(l.resumen, f.clave))}</td>)}
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      </TableScroll>
+    </Card>
+  )
+}
+
+const FUENTE: Record<string, string> = {
+  chv: 'CHV', shel5k: 'SHEL5K', obra_test: 'Obra curada, prueba', obra_val: 'Obra curada, validación',
+}
+const CLASE: Record<string, string> = {
+  person: 'Persona', helmet: 'Casco', vest: 'Chaleco', bare_head: 'Cabeza descubierta', machinery: 'Maquinaria',
+}
+const numero = (v: number | null | undefined, decimales: number) =>
+  v == null ? '—' : v.toLocaleString('es-AR', { minimumFractionDigits: decimales, maximumFractionDigits: decimales })
+
+/** El desglose (§2.4): sobre un banco de clips, una fila por clip; sobre imágenes, por fuente y por
+ *  clase. Sale de las evaluaciones de la prueba (`evals/`), sin calcular nada. */
+function Desglose({ desglose }: { desglose: Gen2Desglose }) {
+  if (desglose.tipo === 'clips') {
+    return (
+      <Card title="Clip por clip" meta={`${desglose.clips.length} clips`} flush>
+        <TableScroll label="Clip por clip">
+          <Table aria-label="Clip por clip">
+            <thead>
+              <tr>
+                <th>Clip</th><th className="eo-num">Episodios</th><th className="eo-num">Aciertos</th>
+                <th className="eo-num">Perdidos</th><th className="eo-num">Falsas alarmas</th>
+                <th className="eo-num">Re-alertas</th><th className="eo-num">Tiempo hasta la alerta</th>
+                <th className="eo-num">SDR</th>
+              </tr>
+            </thead>
+            <tbody>
+              {desglose.clips.map((c) => (
+                <tr key={c.clip}>
+                  <MonoCell>{c.clip}</MonoCell>
+                  <td className="eo-num">{numero(c.episodios, 0)}</td>
+                  <td className="eo-num">{numero(c.aciertos, 0)}</td>
+                  <td className="eo-num">{numero(c.perdidos, 0)}</td>
+                  <td className="eo-num">{numero(c.falsas_alarmas, 0)}</td>
+                  <td className="eo-num">{numero(c.re_alertas, 0)}</td>
+                  <td className="eo-num">{c.t_alert_ms == null ? '—' : `${numero(c.t_alert_ms / 1000, 2)} s`}</td>
+                  <td className="eo-num">{numero(c.sdr, 3)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        </TableScroll>
+      </Card>
+    )
+  }
+  const clases = Array.from(new Set(desglose.fuentes.flatMap((f) => f.clases.map((c) => c.clase))))
+  return (
+    <Card title="Por fuente y por clase" meta={`${desglose.fuentes.length} fuentes`} flush>
+      <TableScroll label="Por fuente y por clase">
+        <Table aria-label="Por fuente y por clase">
+          <thead>
+            <tr>
+              <th>Fuente</th><th className="eo-num">mAP50</th>
+              {clases.map((c) => <th key={c} className="eo-num">AP50 {CLASE[c]?.toLowerCase() ?? c}</th>)}
+              <th className="eo-num"><ConCodigos texto="Recall de CR-01 por evidencia directa" /></th>
+            </tr>
+          </thead>
+          <tbody>
+            {desglose.fuentes.map((f) => (
+              <tr key={f.fuente}>
+                <td>{FUENTE[f.fuente] ?? f.fuente}</td>
+                <td className="eo-num">{numero(f.map50, 3)}</td>
+                {clases.map((c) => {
+                  const x = f.clases.find((y) => y.clase === c)
+                  return (
+                    <td key={c} className="eo-num">
+                      {x ? numero(x.ap50, 3) : '—'}
+                      {x?.n_gt != null && <span className="eo-note--meta"> · n = {x.n_gt}</span>}
+                    </td>
+                  )
+                })}
+                <td className="eo-num">{numero(f.recall_cr01, 3)}</td>
               </tr>
             ))}
           </tbody>
@@ -238,88 +329,25 @@ function Archivos({ d }: { d: Gen2Detalle }) {
   )
 }
 
-/** El detalle de una prueba (doc 135 §3.3): la pregunta, la cifra contra la
- *  generación 1, el veredicto, cómo corrió, el pre-registro y las corridas que la
- *  produjeron. Se ve bien también antes de correr: muestra el pre-registro. */
-export default function PruebaPage() {
-  const { id = '' } = useParams()
-  const q = useGen2Prueba(id)
-  if (q.isPending || q.error) {
-    return <EstadoDeLectura titulo={nombreConCodigo(id)} q={q} noExiste="Esa prueba no está en el catálogo." />
-  }
-  const d = q.data
+/** Cómo se validó (plegado; plan de la consola, §2.4 y ajuste del 2026-11-15): lo que se escribió antes de
+ *  correr, tal cual; el veredicto con su motivo; y la comparación con la etapa de desarrollo. Es el único
+ *  lugar del detalle donde aparecen esos textos y esa jerga. */
+function ComoSeValido({ d }: { d: Gen2Detalle }) {
   const v = d.veredicto
   const difs = Object.entries(v?.diferencias ?? {})
-  const corridas = d.corridas ? filasCorridas(d.corridas) : []
   const contraste = noSeRegenera(d)
   const sinCorrer = d.estado === 'sin_correr' && !contraste
   const cifrasGen1 = contraste ? (d.gen1.cifras ?? []) : []
   return (
-    <div className="eo-gen2">
-      <PageHeader
-        title={<NombreCodigo codigo={d.id} nombre={NOMBRE_DE_PRUEBA[d.id] ?? d.titulo ?? undefined} />}
-        meta={<>
-          <EstadoPrueba estado={d.estado} registro={d.registro} />
-          {d.informe.map((s) => <Tag key={s}>{s}</Tag>)}
-          {d.generado && <span>Generado {d.generado}</span>}
-        </>}
-      />
-      {contraste && (
-        <Card title="Por qué no se regenera">
-          <p>{d.no_se_regenera ?? 'Prueba de contraste: su cifra vigente es la de la etapa de desarrollo.'}</p>
-        </Card>
-      )}
-      {sinCorrer && (
-        <Banner tone="warn">
-          Todavía no se corrió. Abajo está su pre-registro: lo que va a medir y lo que se esperaba,
-          escrito antes de correr.
-        </Banner>
-      )}
-      {d.estado === 'parcial' && (
-        <Banner tone="warn">
-          Quedó a mitad de camino: algunas corridas faltan o fallaron (ver «Las corridas»). La cifra final
-          aparece cuando la prueba se completa.
-        </Banner>
-      )}
-      <Card title="La pregunta">
-        <p>{d.pregunta ?? '—'}</p>
-        {d.esperado && (
-          <>
-            <h3 className="eo-editor__section">Qué se esperaba (escrito antes de correr)</h3>
-            <p className="eo-note">{d.esperado}</p>
-          </>
-        )}
-      </Card>
-      {cifrasGen1.length > 0 && (
-        <Card title="Las cifras" meta="De la etapa de desarrollo: la cifra vigente" flush>
-          <TableScroll label="Cifras de la etapa de desarrollo">
-            <Table aria-label="Cifras de la etapa de desarrollo">
-              <thead><tr><th>Qué se mide</th><th>Etapa de desarrollo</th></tr></thead>
-              <tbody>
-                {cifrasGen1.map((c) => (
-                  <tr key={c.clave}>
-                    <td>{c.nombre}</td>
-                    <td className="eo-num">{valorTexto(c.valor, c.unidad)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
-          </TableScroll>
-        </Card>
-      )}
-      {d.resumen.length > 0 && (
-        <Card title="Las cifras" flush>
-          <TableScroll label="Cifras de la prueba">
-            <Table aria-label="Cifras de la prueba">
-              <thead><tr><th>Qué se mide</th><th>Resultado</th><th>Etapa de desarrollo</th></tr></thead>
-              <tbody>{d.resumen.map((c) => <CifraFila key={c.clave} c={c} />)}</tbody>
-            </Table>
-          </TableScroll>
-        </Card>
-      )}
-      <Lecturas d={d} />
-      <Tomas d={d} />
-      <Card title="Contra la etapa de desarrollo">
+    <Card>
+      <Disclosure summary={<h2 className="eo-gen2__plegado">Cómo se validó</h2>} open={sinCorrer}>
+        <h3 className="eo-editor__section">Lo que se escribió antes de correr (pre-registro, tal cual)</h3>
+        <blockquote className="eo-gen2__cita">
+          <p>{d.pregunta ?? '—'}</p>
+          {d.esperado && <p><b>Qué se esperaba:</b> {d.esperado}</p>}
+        </blockquote>
+
+        <h3 className="eo-editor__section">El veredicto</h3>
         {v ? (
           <>
             <p><Veredicto v={v} /></p>
@@ -330,9 +358,32 @@ export default function PruebaPage() {
         ) : (
           <p className="eo-note">
             {contraste
-              ? 'No se regenera, así que no tiene veredicto: la cifra de arriba es la de la etapa de desarrollo.'
+              ? 'No se regenera, así que no tiene veredicto: su cifra vigente es la de la etapa de desarrollo.'
               : sinCorrer ? 'El veredicto aparece cuando la prueba corre.' : 'Esta prueba no registró veredicto.'}
           </p>
+        )}
+
+        <h3 className="eo-editor__section">Contra la etapa de desarrollo</h3>
+        {contraste && <p>{d.no_se_regenera ?? 'Prueba de contraste: su cifra vigente es la de la etapa de desarrollo.'}</p>}
+        {cifrasGen1.length > 0 && (
+          <TableScroll label="Cifras de la etapa de desarrollo">
+            <Table aria-label="Cifras de la etapa de desarrollo">
+              <thead><tr><th>Qué se mide</th><th>Etapa de desarrollo</th></tr></thead>
+              <tbody>
+                {cifrasGen1.map((c) => (
+                  <tr key={c.clave}><td>{c.nombre}</td><td className="eo-num">{valorTexto(c.valor, c.unidad)}</td></tr>
+                ))}
+              </tbody>
+            </Table>
+          </TableScroll>
+        )}
+        {d.resumen.length > 0 && (
+          <TableScroll label="Cifras de la prueba">
+            <Table aria-label="Cifras de la prueba">
+              <thead><tr><th>Qué se mide</th><th>Resultado</th><th>Etapa de desarrollo</th></tr></thead>
+              <tbody>{d.resumen.map((c) => <CifraFila key={c.clave} c={c} />)}</tbody>
+            </Table>
+          </TableScroll>
         )}
         {difs.length > 0 && (
           <TableScroll label="Diferencias con la etapa de desarrollo">
@@ -358,38 +409,10 @@ export default function PruebaPage() {
           {d.gen1.nota && <div><dt>Nota</dt><dd>{d.gen1.nota}</dd></div>}
         </dl>
         <p className="eo-note--meta">
-          Las cifras de la etapa de desarrollo están en su <Link to={GEN1.to}>recorrido</Link>.
+          Las cifras de la etapa de desarrollo están en el <Link to={GEN1.to}>Archivo</Link>.
         </p>
-      </Card>
-      {d.entorno && <ComoCorrio entorno={d.entorno} gpuDeLaPlataforma={d.gpu_de_la_plataforma} />}
-      {corridas.length > 0 && (
-        <Card title="Las corridas" meta={`${corridas.length} registradas`} flush>
-          <TableScroll label="Corridas de la prueba">
-            <Table aria-label="Corridas de la prueba">
-              <thead>
-                <tr><th>Clave</th><th>Estado</th><th>Experimento</th><th>Corrida de detección</th><th>Corrida de reglas</th><th>Segundos</th></tr>
-              </thead>
-              <tbody>
-                {corridas.map(([clave, c]) => (
-                  <tr key={clave}>
-                    <MonoCell>{clave}</MonoCell>
-                    <td>{c.estado === 'ok' ? 'ok' : <span className="eo-note--error" title={c.error}>{c.estado}{c.error ? `: ${c.error}` : ''}</span>}</td>
-                    <td>
-                      {c.experiment_id
-                        ? <Link className="eo-mono" to={`/experiments/${encodeURIComponent(c.experiment_id)}`}>{c.experiment_id}</Link>
-                        : '—'}
-                    </td>
-                    <MonoCell>{c.media_run_id ?? '—'}</MonoCell>
-                    <MonoCell>{c.control_run_id ?? '—'}</MonoCell>
-                    <td className="eo-num">{c.segundos != null ? valorTexto(c.segundos) : '—'}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
-          </TableScroll>
-        </Card>
-      )}
-      <Card title="El pre-registro">
+
+        <h3 className="eo-editor__section">El pre-registro completo</h3>
         <p className="eo-note">
           {d.pre_registro.origen === 'copia_al_correr'
             ? 'Tal como estaba escrito cuando la prueba corrió.'
@@ -398,20 +421,101 @@ export default function PruebaPage() {
             <b> El catálogo actual difiere de esta copia: se cambió después de correr.</b>
           )}
         </p>
-        {d.pre_registro.texto && (
-          <Disclosure summary="Ver el pre-registro completo (prueba.yaml)" open={sinCorrer}>
-            <pre className="eo-pre">{d.pre_registro.texto}</pre>
-          </Disclosure>
+        {d.pre_registro.texto && <pre className="eo-pre">{d.pre_registro.texto}</pre>}
+      </Disclosure>
+    </Card>
+  )
+}
+
+/** Archivos y comandos (plegado, §2.4): las corridas con sus identificadores, lo que se ejecutó y los
+ *  archivos que dejó la prueba. */
+function ArchivosYComandos({ d }: { d: Gen2Detalle }) {
+  const corridas = d.corridas ? filasCorridas(d.corridas) : []
+  if (corridas.length === 0 && !d.comandos && d.archivos.logs.length + d.archivos.evals.length + d.archivos.capturas.length === 0) {
+    return null
+  }
+  return (
+    <Card>
+      <Disclosure summary={<h2 className="eo-gen2__plegado">Archivos y comandos</h2>}>
+        {corridas.length > 0 && (
+          <>
+            <h3 className="eo-editor__section">Las corridas <span className="eo-note--meta">· {corridas.length} registradas</span></h3>
+            <TableScroll label="Corridas de la prueba">
+              <Table aria-label="Corridas de la prueba">
+                <thead>
+                  <tr><th>Clave</th><th>Estado</th><th>Experimento</th><th>Corrida de detección</th><th>Corrida de reglas</th><th>Segundos</th></tr>
+                </thead>
+                <tbody>
+                  {corridas.map(([clave, c]) => (
+                    <tr key={clave}>
+                      <MonoCell>{clave}</MonoCell>
+                      <td>{c.estado === 'ok' ? 'ok' : <span className="eo-note--error" title={c.error}>{c.estado}{c.error ? `: ${c.error}` : ''}</span>}</td>
+                      <td>
+                        {c.experiment_id
+                          ? <Link className="eo-mono" to={`/experiments/${encodeURIComponent(c.experiment_id)}`}>{c.experiment_id}</Link>
+                          : '—'}
+                      </td>
+                      <MonoCell>{c.media_run_id ?? '—'}</MonoCell>
+                      <MonoCell>{c.control_run_id ?? '—'}</MonoCell>
+                      <td className="eo-num">{c.segundos != null ? valorTexto(c.segundos) : '—'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            </TableScroll>
+          </>
         )}
-      </Card>
-      {d.comandos && (
-        <Card title="Lo que se ejecutó">
-          <Disclosure summary="Ver los comandos, en orden y con su hora (comandos.txt)">
+        {d.comandos && (
+          <>
+            <h3 className="eo-editor__section">Lo que se ejecutó, en orden y con su hora</h3>
             <pre className="eo-pre">{d.comandos}</pre>
-          </Disclosure>
-        </Card>
+          </>
+        )}
+        <Archivos d={d} />
+      </Disclosure>
+    </Card>
+  )
+}
+
+/** El detalle de una prueba (plan de la consola, §2.4). A la vista: qué midió, el resultado con todas sus
+ *  lecturas, el desglose y cómo corrió. Plegado: cómo se validó y los archivos. */
+export default function PruebaPage() {
+  const { id = '' } = useParams()
+  const q = useGen2Prueba(id)
+  if (q.isPending || q.error) {
+    return <EstadoDeLectura titulo={nombreConCodigo(id)} q={q} noExiste="Esa prueba no está en el catálogo." />
+  }
+  const d = q.data
+  const contraste = noSeRegenera(d)
+  const sinCorrer = d.estado === 'sin_correr' && !contraste
+  return (
+    <div className="eo-gen2">
+      <PageHeader
+        title={<NombreCodigo codigo={d.id} nombre={NOMBRE_DE_PRUEBA[d.id] ?? d.titulo ?? undefined} />}
+        meta={<>
+          {d.estado !== 'completo' && <EstadoPrueba estado={d.estado} registro={d.registro} />}
+          {d.informe.map((s) => <Tag key={s}>{s}</Tag>)}
+          {d.generado && <span>Corrió el {d.generado.slice(0, 10)}</span>}
+        </>}
+      />
+      {d.que_midio && <p className="eo-gen2__que">{d.que_midio}</p>}
+      {sinCorrer && (
+        <Banner tone="warn">
+          Todavía no se corrió. En «Cómo se validó» está lo que se escribió antes de correr.
+        </Banner>
       )}
-      <Archivos d={d} />
+      {d.estado === 'parcial' && (
+        <Banner tone="warn">
+          Quedó a mitad de camino: algunas corridas faltan o fallaron (ver «Archivos y comandos»). Lo que falta y
+          por qué está en «Cómo se validó».
+        </Banner>
+      )}
+      <ElResultado d={d} />
+      {d.desglose && <Desglose desglose={d.desglose} />}
+      <Tomas d={d} />
+      {d.entorno && <ComoCorrio entorno={d.entorno} gpuDeLaPlataforma={d.gpu_de_la_plataforma} />}
+      <ComoSeValido d={d} />
+      <ArchivosYComandos d={d} />
     </div>
   )
 }

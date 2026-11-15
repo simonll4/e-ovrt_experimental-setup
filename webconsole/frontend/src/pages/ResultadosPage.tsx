@@ -1,12 +1,12 @@
 import { Link } from 'react-router-dom'
-import { useGen2Pruebas } from '../api/queries/gen2'
+import { useGen2Pruebas, usePreguntas } from '../api/queries/gen2'
 import { Card, PageHeader } from '../components/ui'
-import { GEN1 } from '../nav'
-import { NOMBRE_DE_PRUEBA } from '../vocabulario'
-import NombreCodigo from '../components/ui/NombreCodigo'
+import NombreCodigo, { ConCodigos } from '../components/ui/NombreCodigo'
+import { PREGUNTA_PATH } from '../nav'
 import type { Gen2Prueba } from '../types'
+import { NOMBRE_DE_PRUEBA } from '../vocabulario'
 import { EstadoDeLectura } from './evidencia/comun'
-import { EstadoPrueba, GRUPOS, REGISTRO_LABEL, Veredicto, noSeRegenera, prefijoDe, valorTexto } from './gen2/comun'
+import { EstadoPrueba, noSeRegenera, valorTexto } from './gen2/comun'
 import './gen2/Gen2.css'
 
 /** Cuántas cifras del resumen se muestran en la tarjeta; el resto, en el detalle. */
@@ -14,7 +14,6 @@ const CIFRAS_EN_TARJETA = 3
 
 function TarjetaPrueba({ p }: { p: Gen2Prueba }) {
   const cifras = p.resumen.slice(0, CIFRAS_EN_TARJETA)
-  const deGen1 = noSeRegenera(p) ? (p.gen1.cifras ?? []).slice(0, CIFRAS_EN_TARJETA) : []
   return (
     <article className="eo-gen2__prueba" aria-labelledby={`prueba-${p.id}`}>
       <h3 id={`prueba-${p.id}`}>
@@ -22,33 +21,16 @@ function TarjetaPrueba({ p }: { p: Gen2Prueba }) {
           <NombreCodigo codigo={p.id} nombre={NOMBRE_DE_PRUEBA[p.id] ?? p.titulo ?? undefined} />
         </Link>
       </h3>
-      {p.pregunta && <p className="eo-note">{p.pregunta}</p>}
-      <div className="eo-gen2__estado">
-        <EstadoPrueba estado={p.estado} registro={p.registro} />
-        <Veredicto v={p.veredicto} />
-        {p.registro !== 'activa' && !noSeRegenera(p) && (
-          <span className="eo-note--meta">({REGISTRO_LABEL[p.registro] ?? p.registro})</span>
-        )}
-      </div>
-      {deGen1.length > 0 && (
-        <dl className="eo-gen2__cifras">
-          {deGen1.map((c) => (
-            <div key={c.clave}>
-              <dt>{c.nombre}</dt>
-              <dd><b>{valorTexto(c.valor, c.unidad)}</b><span className="eo-note--meta"> · etapa de desarrollo</span></dd>
-            </div>
-          ))}
-        </dl>
+      {p.que_midio && <p className="eo-note">{p.que_midio}</p>}
+      {p.estado !== 'completo' && (
+        <div className="eo-gen2__estado"><EstadoPrueba estado={p.estado} registro={p.registro} /></div>
       )}
-      {cifras.length > 0 && (
+      {cifras.length > 0 && !noSeRegenera(p) && (
         <dl className="eo-gen2__cifras">
           {cifras.map((c) => (
             <div key={c.clave}>
-              <dt>{c.nombre}</dt>
-              <dd>
-                <b>{valorTexto(c.valor, c.unidad)}</b>
-                {c.gen1 != null && <span className="eo-note--meta"> · etapa de desarrollo: {valorTexto(c.gen1, c.unidad)}</span>}
-              </dd>
+              <dt><ConCodigos texto={c.nombre_consola ?? c.nombre} /></dt>
+              <dd><b>{valorTexto(c.valor, c.unidad)}</b></dd>
             </div>
           ))}
         </dl>
@@ -57,53 +39,42 @@ function TarjetaPrueba({ p }: { p: Gen2Prueba }) {
   )
 }
 
-/** «Resultados» (doc 135 §3.3): las pruebas de la generación 2 organizadas como el
- *  informe, no como el archivo. Lee del disco; no consulta servicios ni calcula. */
+/** «Pruebas» (plan de la consola, §3): el catálogo de la campaña agrupado por las siete preguntas, en
+ *  su orden. Solo cifras finales: lo escrito antes de correr, los veredictos y la comparación con la
+ *  etapa anterior están en el detalle de cada prueba, en «Cómo se validó». */
 export default function ResultadosPage() {
   const q = useGen2Pruebas()
+  const qp = usePreguntas()
   if (q.isPending || q.error) return <EstadoDeLectura titulo="Pruebas" q={q} />
   const pruebas = q.data
-  const contrastes = pruebas.filter((p) => p.registro === 'no_se_regenera').length
-  const aRegenerar = pruebas.length - contrastes
+  const preguntas = qp.data?.preguntas ?? []
   const completas = pruebas.filter((p) => p.estado === 'completo').length
+  const sinPregunta = pruebas.filter((p) => !preguntas.some((pr) => pr.id === p.pregunta_consola))
   return (
     <div className="eo-gen2">
-      <PageHeader
-        title="Pruebas"
-        meta={`Los resultados finales del informe · ${completas} de ${aRegenerar} pruebas completas`}
-      />
-      <p className="eo-note">
-        Cada prueba se registró por escrito antes de correr (qué mide, con qué insumo y configuración, qué
-        se esperaba) y se comparó con la etapa de desarrollo. El veredicto lo propone el programa que corre las
-        pruebas y lo confirma una persona: <i>idéntico</i>, <i>equivalente con la diferencia declarada</i>{' '}
-        u <i>otra combinación</i>, que se muestra al lado y nunca en reemplazo.
-      </p>
-      {contrastes > 0 && (
-        <p className="eo-note">
-          {contrastes === 1 ? 'Una prueba de contraste no se regenera' : `${contrastes} pruebas de contraste no se regeneran`}:
-          comparan otra configuración contra el perfil operativo, y el mismo camino lo recorre la prueba del
-          perfil operativo en esta PC. Su cifra vigente es la de la etapa de desarrollo y se muestra marcada así.
-        </p>
-      )}
-      {GRUPOS.map((g) => {
-        const delGrupo = pruebas.filter((p) => g.prefijos.includes(prefijoDe(p.id)))
+      <PageHeader title="Pruebas" meta={`${completas} de ${pruebas.length} pruebas completas`} />
+      {preguntas.map((pr, i) => {
+        const delGrupo = pruebas.filter((p) => p.pregunta_consola === pr.id)
         if (delGrupo.length === 0) return null
         return (
-          <Card key={g.titulo} title={g.titulo} meta={g.informe}>
-            <p className="eo-note">{g.explica}</p>
+          <Card
+            key={pr.id}
+            title={`${i + 1}. ${pr.titulo}`}
+            meta={<Link to={`${PREGUNTA_PATH}/${encodeURIComponent(pr.id)}`}>Ver la pregunta</Link>}
+          >
             <div className="eo-gen2__grid">
               {delGrupo.map((p) => <TarjetaPrueba key={p.id} p={p} />)}
             </div>
           </Card>
         )
       })}
-      <Card title="Ajuste fino" meta="Tabla 55">
-        <p className="eo-note">
-          El ajuste fino corrió en el clúster Mendieta durante la etapa de desarrollo y no se regenera: el
-          proyecto no entrena en una PC local. Sus checkpoints y evaluaciones están en la
-          {' '}<Link to={GEN1.to}>etapa de desarrollo</Link>.
-        </p>
-      </Card>
+      {sinPregunta.length > 0 && (
+        <Card title={qp.isPending ? 'Las pruebas' : 'Sin pregunta asignada'}>
+          <div className="eo-gen2__grid">
+            {sinPregunta.map((p) => <TarjetaPrueba key={p.id} p={p} />)}
+          </div>
+        </Card>
+      )}
     </div>
   )
 }

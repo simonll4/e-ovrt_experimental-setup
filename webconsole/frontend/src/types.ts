@@ -758,6 +758,8 @@ export interface Documentacion extends ArchiveState {
   aportes: DocAporte[]
   vocabulario: DocFamilia[]
   colisiones: DocColision[]
+  /** Cada término del informe con su código y cómo aparece en la implementación (plan §4.4). */
+  equivalencias?: Array<{ termino: string; codigo: string | null; implementacion: string }>
   /** Índice plano por id. Es lo ÚNICO que `Termino` consulta. */
   terminos: Record<string, TerminoDef>
 }
@@ -1036,7 +1038,10 @@ export interface DemoStack {
 export type Gen2Estado = 'sin_correr' | 'completo' | 'parcial' | 'fallido' | 'desconocida'
 export interface Gen2Cifra {
   clave: string
+  /** El nombre que le puso el programa de la campaña. */
   nombre: string
+  /** El que muestra la consola: el de `results/evidence-vista/pruebas.yaml` o, si no hay, el del programa. */
+  nombre_consola?: string
   valor: number | string | boolean | null
   unidad: string | null
   gen1: number | string | boolean | null
@@ -1057,8 +1062,13 @@ export interface Gen2Prueba {
   fase: string | null
   familia: string | null
   informe: string[]
+  /** La pregunta del registro previo, tal cual: se cita solo en «Cómo se validó». */
   pregunta: string | null
   esperado: string | null
+  /** A cuál de las siete preguntas de la consola pertenece (`preguntas.yaml`). */
+  pregunta_consola?: string | null
+  /** Qué midió, en una oración, en el vocabulario de la consola. */
+  que_midio?: string | null
   /** `activa`, `opcional`, `pendiente_decision` o `no_se_regenera` (contraste: vale la gen 1). */
   registro: string
   no_se_regenera?: string | null
@@ -1096,6 +1106,8 @@ export interface Gen2Detalle extends Gen2Prueba {
   lecturas?: Array<{ nombre: string; resumen: Gen2Cifra[] }>
   /** Las tomas de una prueba en vivo: qué se esperaba de cada una y qué pasó. */
   tomas?: Gen2Toma[]
+  /** El desglose que dejaron sus evaluaciones: por clip (banco de clips) o por fuente (imágenes). */
+  desglose?: Gen2Desglose | null
   corridas: Record<string, Gen2Corrida> | null
   entorno: Gen2Entorno | null
   /** La GPU que registró la prueba de plataforma, cuando esta prueba no la registró. */
@@ -1104,6 +1116,15 @@ export interface Gen2Detalle extends Gen2Prueba {
   comandos: string | null
   archivos: { logs: string[]; evals: string[]; capturas: string[] }
 }
+export type Gen2Desglose =
+  | { tipo: 'clips'; clips: Array<{
+      clip: string; episodios: number | null; aciertos: number | null; perdidos: number | null
+      falsas_alarmas: number | null; re_alertas: number | null; t_alert_ms: number | null; sdr: number | null
+    }> }
+  | { tipo: 'imagenes'; fuentes: Array<{
+      fuente: string; map50: number | null; recall_cr01: number | null
+      clases: Array<{ clase: string; ap50: number | null; n_gt: number | null }>
+    }> }
 export interface Gen2Toma {
   escena?: string | null
   session_id?: string | null

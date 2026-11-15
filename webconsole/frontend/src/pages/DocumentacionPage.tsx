@@ -50,20 +50,20 @@ export default function DocumentacionPage() {
 
   if (q.isPending) {
     return <>
-      <PageHeader title="Documentación" meta="Lectura del disco" />
+      <PageHeader title="Cómo leer" meta="Lectura del disco" />
       <LoadingState lines={6}>Leyendo la documentación…</LoadingState>
     </>
   }
   if (q.error) {
     return <>
-      <PageHeader title="Documentación" />
+      <PageHeader title="Cómo leer" />
       <ErrorBanner detail={String(q.error)} onRetry={() => void q.refetch()} retrying={q.isFetching}>
         No se pudo leer la documentación.
       </ErrorBanner>
     </>
   }
   if (!q.data.available) return <>
-    <PageHeader title="Documentación" />
+    <PageHeader title="Cómo leer" />
     <EmptyState hint={q.data.message ?? undefined}>Documentación no disponible</EmptyState>
   </>
   const doc = q.data
@@ -88,6 +88,9 @@ export default function DocumentacionPage() {
       <p className="eo-doc__index-t">En esta página</p>
       <ol>
         <li><a href="#/documentacion#metodo" onClick={saltar('metodo')}>Cómo se trabajó</a></li>
+        {(doc.equivalencias ?? []).length > 0 && (
+          <li><a href="#/documentacion#equivalencias" onClick={saltar('equivalencias')}>Equivalencias</a></li>
+        )}
         <li><a href="#/documentacion#aportes" onClick={saltar('aportes')}>Qué aporta cada cosa</a></li>
         <li><a href="#/documentacion#colisiones" onClick={saltar('colisiones')}>Símbolos con más de un sentido</a></li>
         <li>
@@ -108,7 +111,7 @@ export default function DocumentacionPage() {
 
   return <div className="eo-doc">
     <PageHeader
-      title={doc.titulo ?? 'Documentación'}
+      title={doc.titulo ?? 'Cómo leer'}
       meta={`${doc.metodo.length} pasos · ${Object.keys(doc.terminos).length} términos definidos · lectura del disco`}
     />
     {doc.bajada && <p className="eo-note">{doc.bajada}</p>}
@@ -144,6 +147,30 @@ export default function DocumentacionPage() {
             </li>
           ))}
         </ol>
+
+        {(doc.equivalencias ?? []).length > 0 && (
+          <>
+            <h2 className="eo-doc__h2" id="equivalencias">Equivalencias</h2>
+            <p className="eo-doc__intro">Cada término de la consola, su código y cómo aparece en el
+              repositorio: archivos, carpetas, commits y nombres del despliegue.</p>
+            <Card flush>
+              <TableScroll label="Equivalencias">
+                <Table aria-label="Equivalencias">
+                  <thead><tr><th>En el informe y la consola</th><th>Código</th><th>En la implementación</th></tr></thead>
+                  <tbody>
+                    {(doc.equivalencias ?? []).map((e) => (
+                      <tr key={e.termino}>
+                        <td>{e.termino}</td>
+                        <td className="eo-mono">{e.codigo ?? '—'}</td>
+                        <td>{e.implementacion}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </Table>
+              </TableScroll>
+            </Card>
+          </>
+        )}
 
         <h2 className="eo-doc__h2" id="aportes">Qué aporta cada cosa</h2>
         <p className="eo-doc__intro">Corrida, experimento, campaña, evidencia y resultado se usan

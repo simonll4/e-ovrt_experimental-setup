@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest'
 import { cleanup, render } from '../test-utils'
-import NombreCodigo from '../components/ui/NombreCodigo'
+import NombreCodigo, { ConCodigos } from '../components/ui/NombreCodigo'
 import { NOMBRE_DE_CODIGO, NOMBRE_DE_PRUEBA, nombreConCodigo } from '../vocabulario'
 
 afterEach(() => cleanup())
@@ -49,5 +49,13 @@ describe('vocabulario (plan §4)', () => {
     const { container } = render(<NombreCodigo codigo="CR-99" />)
     expect(container.textContent).toBe('CR-99')
     expect(nombreConCodigo('CR-99')).toBe('CR-99')
+  })
+
+  it('dentro de un texto, cada código lleva su nombre llano delante, sin repetirlo si ya está', () => {
+    const texto = (t: string) => render(<ConCodigos texto={t} />).container.textContent
+    expect(texto('CR-02 como el guion')).toBe('Sin chaleco CR-02 como el guion')
+    expect(texto('Imágenes, CR-01: F1')).toBe('Imágenes, sin casco CR-01: F1')
+    expect(texto('Latencia por cuadro G2A, p95')).toBe('Latencia por cuadro G2A, p95')
+    expect(texto('Sin códigos')).toBe('Sin códigos')
   })
 })
