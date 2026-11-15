@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import Termino from '../Glosario'
 import { demoArchivoUrl } from '../../api'
-import { conditionLabel } from '../../labels'
+import NombreCodigo from '../ui/NombreCodigo'
 import type { DemoCifra, DemoSessionDetail } from '../../types'
 import { Banner, PageHeader } from '../ui'
 import { fechaCorta, hora, numero, segundos } from './formato'
@@ -19,7 +19,7 @@ const PERSISTENCIA_MS: Record<string, number> = { 'CR-01': 4000, 'CR-02': 7000 }
 
 function cifra(cifras: DemoCifra[], prueba: string, clave: string): string {
   const c = cifras.find((x) => x.prueba === prueba && x.clave === clave)
-  if (!c || c.pendiente) return 'cifra pendiente (generación 2)'
+  if (!c || c.pendiente) return 'cifra pendiente'
   return `${numero(c.valor, 3)}${c.unidad ? ` ${c.unidad}` : ''}`
 }
 
@@ -91,7 +91,7 @@ export default function ResultView({
         const persistencia = PERSISTENCIA_MS[alerta.condition_id]
         return (
           <section key={alerta.alert_id} aria-label={`Alerta ${alerta.n}`} className="eo-demo-alerta">
-            <h2>Alerta {alerta.n}: <Termino id={alerta.condition_id}>{conditionLabel(alerta.condition_id)}</Termino></h2>
+            <h2>Alerta {alerta.n}: <Termino id={alerta.condition_id}><NombreCodigo codigo={alerta.condition_id} /></Termino></h2>
             <div className="eo-demo-alerta__cuadros">
               {claves.map((c) => (
                 <figure key={c.archivo}>
@@ -141,7 +141,7 @@ export default function ResultView({
           <li>Falsas alarmas en obra real, por escena: {cifra(cifras, 'ALR-07', 'falsas_alarmas')}; por sujeto: {cifra(cifras, 'ALR-08', 'falsas_alarmas')}.</li>
         </ul>
         <p className="eo-demo-tarjeta__nota">
-          Las cifras son las de la generación 2, evaluadas contra la referencia temporal corregida en la revisión
+          Las cifras son las de los resultados, evaluadas contra la referencia temporal corregida en la revisión
           dirigida del 2026-10-26.
         </p>
       </section>

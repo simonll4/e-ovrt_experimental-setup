@@ -1,16 +1,17 @@
+import { NOMBRE_DE_CODIGO, nombreConCodigo } from './vocabulario'
+
 // Glosario de interfaz — nombres legibles para códigos que hoy solo existen como
-// identificadores crudos en la API. Ver docs/superpowers/specs/2026-07-26-rediseno-consola-design.md §3.
-// Los códigos (CR-01, CR-02) nunca se traducen ni se ocultan: se acompañan con su
-// nombre, nunca se reemplazan por él.
+// identificadores crudos en la API. El vocabulario vive en vocabulario.ts (plan de la consola
+// de evidencia, §4): el nombre llano va primero y el código al lado, nunca se oculta.
 
 export const CONDITION_NAMES: Record<string, string> = {
-  'CR-01': 'Presencia de persona sin casco',
-  'CR-02': 'Presencia de persona sin chaleco',
+  'CR-01': NOMBRE_DE_CODIGO['CR-01'],
+  'CR-02': NOMBRE_DE_CODIGO['CR-02'],
 }
 
+/** «Sin casco CR-01» como texto plano. En pantalla, con el código más chico: `NombreCodigo`. */
 export function conditionLabel(code: string): string {
-  const name = CONDITION_NAMES[code]
-  return name ? `${code} — ${name}` : code
+  return CONDITION_NAMES[code] ? nombreConCodigo(code) : code
 }
 
 // Vocabulario real y cerrado de motivos de descarte del media-plane, declarado en

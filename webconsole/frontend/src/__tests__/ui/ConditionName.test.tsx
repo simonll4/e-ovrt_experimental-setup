@@ -5,15 +5,15 @@ import { ConditionName } from '../../components/ui'
 afterEach(() => cleanup())
 
 describe('ConditionName', () => {
-  it('renderiza el código en un elemento eo-mono', () => {
+  it('renderiza el código en su propia marca, más chica (eo-codigo)', () => {
     render(<ConditionName code="CR-01" />)
     const el = screen.getByText('CR-01')
-    expect(el.className).toContain('eo-mono')
+    expect(el.className).toContain('eo-codigo')
   })
 
-  it('agrega el nombre despues del codigo para un codigo conocido', () => {
+  it('pone el nombre llano antes del código para un código conocido (plan §4.2)', () => {
     const { container } = render(<ConditionName code="CR-01" />)
-    expect(container.textContent).toBe('CR-01 — Presencia de persona sin casco')
+    expect(container.textContent).toBe('Sin casco CR-01')
   })
 
   it('un codigo desconocido muestra solo el codigo, sin separador colgando', () => {

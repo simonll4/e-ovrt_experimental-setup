@@ -39,7 +39,7 @@ const DETALLE: DemoSessionDetail = {
   testigo: [], state_log: [], respaldo: false,
 }
 const CIFRAS_PENDIENTES: DemoCifra[] = [
-  { prueba: 'ALR-01', clave: 'f1', que_es: 'F1', valor: null, unidad: null, pendiente: true, texto: 'cifra pendiente (generación 2)' },
+  { prueba: 'ALR-01', clave: 'f1', que_es: 'F1', valor: null, unidad: null, pendiente: true, texto: 'cifra pendiente' },
 ]
 
 function instalar(motor: DemoState['motor'], cifras: DemoCifra[] = CIFRAS_PENDIENTES, detalle: DemoSessionDetail = DETALLE) {
@@ -91,11 +91,12 @@ describe('/demo/resultado/:id', () => {
     expect(within(alerta).getByText(/12 ms/)).toBeTruthy()
   })
 
-  it('la tarjeta remite a las cifras de la generación 2 y las marca pendientes si no están', async () => {
+  it('la tarjeta remite a las cifras de los resultados y las marca pendientes si no están', async () => {
     instalar({ estado: 'fresco' })
     montar()
     const tarjeta = await screen.findByRole('region', { name: 'Qué muestra y qué no muestra esta demo' })
-    expect(within(tarjeta).getAllByText(/cifra pendiente \(generación 2\)/).length).toBeGreaterThan(0)
+    expect(within(tarjeta).getAllByText(/cifra pendiente/).length).toBeGreaterThan(0)
+    expect(within(tarjeta).queryByText(/generaci[oó]n/i)).toBeNull()
     expect(tarjeta.textContent).toMatch(/revisión\s+dirigida del 2026-10-26/)
   })
 

@@ -1,6 +1,7 @@
-/* Demo en vivo de la defensa (spec 2026-10-23 §5): oscura, letra grande, sin armazón.
-   Se proyecta duplicada: lo que ve el operador lo ve el tribunal. Usa los tokens de
-   styles/tokens.css; los colores de estado son los de la consola (--ok, --wn, --er). */
+/* Demo en vivo de la defensa (spec 2026-10-23 §5): letra grande, sin armazón. Sigue el tema
+   elegido (claro por defecto, plan de la consola de evidencia §10). Se proyecta duplicada: lo que
+   ve el operador lo ve el público. Usa los tokens de styles/tokens.css; los colores de estado son
+   los de la consola (--ok, --wn, --er). */
 
 .eo-demo {
   box-sizing: border-box;
@@ -213,7 +214,7 @@
   position: fixed; inset: 0;
   overflow: auto;
   padding: 28px 40px;
-  background: rgba(13, 13, 12, .97);
+  background: var(--capa-bg);
   font-size: 17px;
   z-index: 10;
 }
@@ -237,7 +238,7 @@
 /* Resultado */
 .eo-demo-resultado__respaldo { color: var(--wn); font-size: 26px; margin: 0; }
 .eo-demo-resultado__meta { color: var(--tx3); font-size: 18px; }
-.eo-demo-resultado__video video { width: 100%; max-width: 1280px; border-radius: var(--rc); background: #000; }
+.eo-demo-resultado__video video { width: 100%; max-width: 1280px; border-radius: var(--rc); background: var(--video-bg); }
 .eo-demo-resultado__rotulo { color: var(--tx3); font-size: 18px; }
 .eo-demo-alerta { margin-top: 32px; padding: 20px 24px; background: var(--s1); border-radius: var(--rc); border: 1px solid var(--bd); }
 .eo-demo-alerta__cuadros { display: flex; gap: 16px; flex-wrap: wrap; }

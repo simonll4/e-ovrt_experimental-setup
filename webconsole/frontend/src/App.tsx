@@ -31,8 +31,8 @@ function ValidacionInicial({ children }: { children: ReactNode }) {
     <>
       <div className="eo-gen1-aviso">
         <Banner tone="warn">
-          Estas cifras son de la validación inicial, en otra máquina y con la referencia anterior a la
-          revisión dirigida. Los resultados finales están en <Link to="/resultados">Resultados</Link>.
+          Estas cifras son de la etapa de desarrollo, en otra máquina y con la referencia anterior a la
+          revisión dirigida: no son las del informe. Los resultados están en <Link to="/resultados">Resultados</Link>.
         </Banner>
       </div>
       {children}

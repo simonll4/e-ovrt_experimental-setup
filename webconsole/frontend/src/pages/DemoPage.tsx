@@ -298,7 +298,7 @@ export default function DemoPage() {
       <PageHeader
         title="Demo en vivo"
         meta={corriendo ? 'En vivo' : cerrando ? 'Cerrando' : fase === 'done' || fase === 'failed' ? 'Última corrida cerrada' : 'Lista para iniciar'}
-        bajada="La cadena completa —cámara, detección, reglas temporales, distribución y broker— corriendo en vivo con la configuración congelada del informe. Proyectar la deja a pantalla completa, para el tribunal."
+        bajada="La cadena completa —cámara, detección, reglas temporales, distribución y broker— corriendo en vivo con la configuración congelada del informe. Proyectar la deja a pantalla completa."
         actions={(
           <div className="eo-demo-consola__acciones" role="toolbar" aria-label="Acciones de la demo">
             {!corriendo && !cerrando && (

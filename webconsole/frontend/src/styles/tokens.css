@@ -1,55 +1,89 @@
-:root {
-  color-scheme: dark;
+/* Dos temas (plan de la consola de evidencia, §10). El claro es el de por defecto y el de las
+   capturas y la presentación; el oscuro se elige con el selector de la barra lateral, que lo
+   marca con `data-theme="dark"` en <html> (src/tema.ts). Cada color es un par claro/oscuro:
+   el bloque `:root` define el claro y el de abajo pisa solo los colores.
 
-  /* superficies (5 niveles) */
-  --bg: #121211; /* lienzo de la página — el MÁS oscuro */
-  --s1: #1a1a19; /* tarjeta / barra lateral */
-  --s2: #212120; /* elevado: inputs, th, seg, chips neutros, hover de fila */
-  --s3: #2a2a28; /* emergente: popovers, tooltips, botón segmentado activo */
-  --sunken: #0d0d0c; /* hundido: fondo de medidor, visor, carril de línea de tiempo */
+   El contraste de cada par se comprueba en los dos temas con
+   src/__tests__/tokens-contraste.test.ts: si un valor baja del mínimo, el test se pone rojo. */
+
+:root {
+  color-scheme: light;
+
+  /* superficies (5 niveles). En el claro el lienzo es apenas más oscuro que las tarjetas y
+     lo emergente es blanco: la elevación la marcan el borde y la sombra. */
+  --bg: #f1f1ee; /* lienzo de la página */
+  --s1: #fcfcfb; /* tarjeta / barra lateral */
+  --s2: #efeeea; /* elevado: th, seg, chips neutros, hover de fila */
+  --s3: #ffffff; /* emergente: popovers, tooltips, botón segmentado activo */
+  --sunken: #e7e6e1; /* hundido: fondo de medidor, visor, carril de línea de tiempo */
+  /* Fondo de un campo de texto o selector: hundido en el oscuro, blanco en el claro. */
+  --field: #ffffff;
 
   /* bordes */
-  --bd: rgba(255, 255, 255, .09);
-  --bds: rgba(255, 255, 255, .17);
-  /* Límite de un control que se reconoce por su borde (campo, selector,
-     casilla): 3,3:1 sobre s1 y 3,1:1 sobre s2. Los bordes de agrupación
-     (--bd, --bds) no identifican un control y siguen siendo sutiles. */
-  --bd-ctl: #6e6d67;
+  --bd: rgba(20, 20, 15, .11);
+  --bds: rgba(20, 20, 15, .2);
+  /* Límite de un control que se reconoce por su borde (campo, selector, casilla): por encima
+     de 3:1 sobre s1 y s2 en los dos temas. Los de agrupación (--bd, --bds) son sutiles. */
+  --bd-ctl: #85847d;
 
-  /* texto. Medidos sobre las superficies reales (sRGB): --tx3 da 7,2:1 sobre s1
-     y 6,7:1 sobre s2; --tx4 5,6:1 sobre s1 y 5,2:1 sobre s2 — los dos por encima
-     de 4,5:1, porque son los que llevan motivos, unidades y metadatos. */
-  --tx: #f2f1ed;
-  --tx2: #b3b1a8;
-  --tx3: #aaa79e;
-  --tx4: #94928a;
+  /* texto: --tx3 y --tx4 llevan motivos, unidades y metadatos, así que también pasan 4,5:1
+     sobre todas las superficies. */
+  --tx: #1a1a18;
+  --tx2: #45443f;
+  --tx3: #52514c;
+  --tx4: #605f59;
 
   /* acento = acción / selección / foco / navegación activa */
-  --ac: #7d6ef2;
-  /* Texto de enlace y de selección: --ac como texto queda en 4,1:1 sobre s2. */
-  --ac-tx: #a89df6;
-  --ac-bg: rgba(125, 110, 242, .14);
-  --ac-bd: rgba(125, 110, 242, .42);
-  --ac-hover: #8b7df4;
-  --ac-text-on: #150f3d;
+  --ac: #5a49d6;
+  --ac-tx: #4a39c2;
+  --ac-bg: rgba(90, 73, 214, .1);
+  --ac-bd: rgba(90, 73, 214, .42);
+  --ac-hover: #4c3bc8;
+  --ac-text-on: #ffffff;
 
-  /* estados */
-  --live: #4b95e8;
-  --live-bg: rgba(75, 149, 232, .14);
-  --live-bd: rgba(75, 149, 232, .4);
-  --ok: #35b45a;
-  --ok-bg: rgba(53, 180, 90, .14);
-  --ok-bd: rgba(53, 180, 90, .4);
-  --wn: #e0a217;
-  --wn-bg: rgba(224, 162, 23, .13);
-  --wn-bd: rgba(224, 162, 23, .38);
-  --sr: #ee8a5c;
-  --sr-bg: rgba(238, 138, 92, .13);
-  --sr-bd: rgba(238, 138, 92, .38);
-  --er: #f0625f;
-  --er-bg: rgba(240, 98, 95, .13);
-  --er-bd: rgba(240, 98, 95, .4);
-  --nt: #8a8880;
+  /* estados: en el claro, el color se oscurece hasta leerse como texto sobre su propio tinte */
+  --live: #1d63bd;
+  --live-bg: rgba(42, 120, 214, .11);
+  --live-bd: rgba(42, 120, 214, .42);
+  --ok: #1b7335;
+  --ok-bg: rgba(27, 140, 60, .11);
+  --ok-bd: rgba(27, 140, 60, .4);
+  --wn: #8a5800;
+  --wn-bg: rgba(224, 162, 23, .16);
+  --wn-bd: rgba(184, 125, 0, .45);
+  --sr: #a8461a;
+  --sr-bg: rgba(225, 110, 60, .13);
+  --sr-bd: rgba(200, 90, 40, .42);
+  --er: #bb2a29;
+  --er-bg: rgba(208, 59, 59, .1);
+  --er-bd: rgba(208, 59, 59, .4);
+  --nt: #7c7b74;
+
+  /* Series de los gráficos: los ocho tonos de la paleta categórica, en el orden de
+     src/palette.ts (el orden es el mecanismo de seguridad para daltonismo: no reordenar sin
+     volver a validar). El claro toma los pasos de la superficie clara de la misma paleta. */
+  --c1: #2a78d6; /* azul */
+  --c2: #008300; /* verde */
+  --c3: #e87ba4; /* magenta */
+  --c4: #eda100; /* amarillo */
+  --c5: #1baf7a; /* aqua */
+  --c6: #eb6834; /* naranja */
+  --c7: #6250d6; /* violeta */
+  --c8: #e34948; /* rojo */
+
+  /* sombras y velos */
+  --shadow-pop: 0 6px 18px rgba(30, 30, 20, .14);
+  --shadow-tip: 0 4px 14px rgba(30, 30, 20, .16);
+  --shadow-drawer: 4px 0 16px rgba(30, 30, 20, .14);
+  --backdrop: rgba(20, 20, 15, .38);
+  --backdrop-zoom: rgba(20, 20, 15, .6);
+  /* La capa de evidencia de la demo tapa la pantalla casi entera. */
+  --capa-bg: rgba(241, 241, 238, .97);
+
+  /* El video es video en los dos temas: fondo negro y, encima, un velo oscuro con texto claro
+     (ver `.eo-siempre-oscuro`). */
+  --video-bg: #000000;
+  --video-veil: linear-gradient(to bottom, rgba(13, 13, 13, .82), rgba(13, 13, 13, .4) 70%, transparent);
 
   /* tipografía */
   --fs: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -96,6 +130,78 @@
   --text-md: 14px;
   --text-lg: 18px;
   --text-xl: 22px;
+}
+
+/* El tema oscuro. `.eo-siempre-oscuro` aplica los mismos valores a un elemento suelto en
+   cualquier tema: lo que va encima de un video (el velo del visor en vivo). */
+:root[data-theme="dark"],
+.eo-siempre-oscuro {
+  color-scheme: dark;
+
+  /* superficies (5 niveles) */
+  --bg: #121211; /* lienzo de la página — el MÁS oscuro */
+  --s1: #1a1a19; /* tarjeta / barra lateral */
+  --s2: #212120; /* elevado: inputs, th, seg, chips neutros, hover de fila */
+  --s3: #2a2a28; /* emergente: popovers, tooltips, botón segmentado activo */
+  --sunken: #0d0d0c; /* hundido: fondo de medidor, visor, carril de línea de tiempo */
+  --field: #0d0d0c;
+
+  /* bordes */
+  --bd: rgba(255, 255, 255, .09);
+  --bds: rgba(255, 255, 255, .17);
+  --bd-ctl: #6e6d67;
+
+  /* texto. Medidos sobre las superficies reales (sRGB): --tx3 da 7,2:1 sobre s1
+     y 6,7:1 sobre s2; --tx4 5,6:1 sobre s1 y 5,2:1 sobre s2. */
+  --tx: #f2f1ed;
+  --tx2: #b3b1a8;
+  --tx3: #aaa79e;
+  --tx4: #94928a;
+
+  /* acento */
+  --ac: #7d6ef2;
+  /* Texto de enlace y de selección: --ac como texto queda en 4,1:1 sobre s2. */
+  --ac-tx: #a89df6;
+  --ac-bg: rgba(125, 110, 242, .14);
+  --ac-bd: rgba(125, 110, 242, .42);
+  --ac-hover: #8b7df4;
+  --ac-text-on: #150f3d;
+
+  /* estados */
+  --live: #4b95e8;
+  --live-bg: rgba(75, 149, 232, .14);
+  --live-bd: rgba(75, 149, 232, .4);
+  --ok: #35b45a;
+  --ok-bg: rgba(53, 180, 90, .14);
+  --ok-bd: rgba(53, 180, 90, .4);
+  --wn: #e0a217;
+  --wn-bg: rgba(224, 162, 23, .13);
+  --wn-bd: rgba(224, 162, 23, .38);
+  --sr: #ee8a5c;
+  --sr-bg: rgba(238, 138, 92, .13);
+  --sr-bd: rgba(238, 138, 92, .38);
+  --er: #f0625f;
+  --er-bg: rgba(240, 98, 95, .13);
+  --er-bd: rgba(240, 98, 95, .4);
+  --nt: #8a8880;
+
+  /* series: los mismos ocho tonos, en los pasos para la superficie oscura #1a1a19 */
+  --c1: #3987e5;
+  --c2: #008300;
+  --c3: #d55181;
+  --c4: #c98500;
+  --c5: #199e70;
+  --c6: #d95926;
+  --c7: #9085e9;
+  --c8: #e66767;
+
+  /* sombras y velos */
+  --shadow-pop: 0 6px 18px rgba(0, 0, 0, .45);
+  --shadow-tip: 0 4px 14px rgba(0, 0, 0, .5);
+  --shadow-drawer: 4px 0 16px rgba(0, 0, 0, .4);
+  --backdrop: rgba(0, 0, 0, .5);
+  --backdrop-zoom: rgba(0, 0, 0, .7);
+  --capa-bg: rgba(13, 13, 12, .97);
 }
 
 @media (max-width: 1023px) { :root { --gutter: 20px; } }

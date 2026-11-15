@@ -28,6 +28,7 @@ export type { SelectOption } from './Select'
 export { Table, TableScroll, MonoCell, NumCell, SortableHeader, RowName, RowNameCell } from './Table'
 export type { SortState } from './Table'
 export { default as ConditionName } from './ConditionName'
+export { default as NombreCodigo } from './NombreCodigo'
 export { default as InlineDeleteConfirm } from './InlineDeleteConfirm'
 
 export {

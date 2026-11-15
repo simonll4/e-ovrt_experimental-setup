@@ -1,5 +1,5 @@
 import Termino from '../Glosario'
-import { conditionLabel } from '../../labels'
+import NombreCodigo from '../ui/NombreCodigo'
 import type { DemoCondicion } from '../../types'
 import { FALTA, SEVERIDAD, segundos } from './formato'
 
@@ -54,7 +54,7 @@ export default function ConditionCard({ condicion }: { condicion: DemoCondicion 
       {estado === 'alerta' && (
         <>
           <p className="eo-demo-card__cara eo-demo-card__cara--alerta">
-            ALERTA <Termino id={codigo}>{conditionLabel(codigo)}</Termino>
+            ALERTA <Termino id={codigo}><NombreCodigo codigo={codigo} /></Termino>
             {severidad ? ` (${SEVERIDAD[severidad] ?? severidad})` : ''}
           </p>
           {condicion.broker && <p className="eo-demo-card__broker">{BROKER[condicion.broker]}</p>}

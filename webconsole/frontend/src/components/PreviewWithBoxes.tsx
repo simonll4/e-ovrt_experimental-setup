@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { labelColor } from '../traceview'
+import { labelColorSobreVideo } from '../traceview'
 import type { TraceDetection } from '../types'
 import { Button, Dialog, IconClose, IconExpand } from './ui'
 
@@ -20,7 +20,7 @@ function Cajas({ detections }: { detections: TraceDetection[] }) {
               top: `${y1 * 100}%`,
               width: `${(x2 - x1) * 100}%`,
               height: `${(y2 - y1) * 100}%`,
-              borderColor: labelColor(d.label),
+              borderColor: labelColorSobreVideo(d.label),
             }}
           />
         )

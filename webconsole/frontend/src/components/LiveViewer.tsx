@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
-import { labelColor } from '../traceview'
+import { TINTA_SOBRE_VIDEO } from '../palette'
+import { labelColorSobreVideo } from '../traceview'
 import type { PreviewFrameHeader } from '../types'
 import Badge from './ui/Badge'
 
@@ -39,7 +40,7 @@ function drawFrame(
     const by = y1 * height
     const bw = (x2 - x1) * width
     const bh = (y2 - y1) * height
-    const color = labelColor(det.label)
+    const color = labelColorSobreVideo(det.label)
 
     ctx.strokeStyle = color
     ctx.lineWidth = Math.max(2, width / 320)
@@ -52,7 +53,7 @@ function drawFrame(
     const labelY = Math.max(0, by - labelHeight)
     ctx.fillStyle = color
     ctx.fillRect(bx, labelY, textWidth + 8, labelHeight)
-    ctx.fillStyle = '#0a0a0a'
+    ctx.fillStyle = TINTA_SOBRE_VIDEO
     ctx.fillText(text, bx + 4, labelY + labelHeight - 4)
   }
 }
@@ -86,7 +87,7 @@ export default function LiveViewer({ frameUrl, header, connected, fps, mode }: P
     <div className="eo-live-viewer" style={{ aspectRatio: `${aspect}` }}>
       <canvas ref={canvasRef} className="eo-live-viewer__canvas" />
       {!frameUrl && <span className="eo-live-viewer__empty">sin señal</span>}
-      <div className="eo-live-viewer__overlay">
+      <div className="eo-live-viewer__overlay eo-siempre-oscuro">
         <Badge tone={connected ? 'live' : 'neutral'}>{connected ? 'conectado' : 'desconectado'}</Badge>
         <span>{fps} cuadros/s</span>
         {header && (

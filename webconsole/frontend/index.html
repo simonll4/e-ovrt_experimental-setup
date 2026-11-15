@@ -4,6 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>E-OVRT Console</title>
+    <script>
+      // El tema elegido, antes de pintar: sin esto, una recarga en el oscuro destella en claro.
+      // La clave y los valores son los de src/tema.ts.
+      try { if (localStorage.getItem('eovrt-tema') === 'oscuro') document.documentElement.dataset.theme = 'dark' } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

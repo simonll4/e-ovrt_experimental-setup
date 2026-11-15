@@ -22,7 +22,7 @@ def prueba(prueba_id: str, request: Request) -> dict:
     try:
         return request.app.state.gen2.prueba(prueba_id)
     except PruebaInexistente as exc:
-        raise HTTPException(404, "Esa prueba no está en el catálogo de la generación 2") from exc
+        raise HTTPException(404, "Esa prueba no está en el catálogo") from exc
 
 
 @router.get("/pruebas/{prueba_id}/archivo")

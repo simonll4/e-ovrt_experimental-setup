@@ -90,24 +90,26 @@ describe('Resultados (/resultados)', () => {
     expect(screen.getByRole('heading', { name: 'Tiempo real' })).toBeTruthy()
     // Grupos sin pruebas no se dibujan vacíos.
     expect(screen.queryByRole('heading', { name: 'Estado por persona' })).toBeNull()
-    expect(screen.getByRole('link', { name: 'ALR-01 — Alerta por episodio, escena' }).getAttribute('href'))
+    // El nombre llano primero y el código al lado (plan §4.2); el nombre sale del vocabulario.
+    expect(screen.getByRole('link', { name: 'Alerta por episodio, por escena ALR-01' }).getAttribute('href'))
       .toBe('/resultados/ALR-01')
-    expect(screen.getByText(/Propuesto: Idéntico a la generación 1 \(sin confirmar\)/)).toBeTruthy()
+    expect(screen.getByText(/Propuesto: Idéntico a la etapa de desarrollo \(sin confirmar\)/)).toBeTruthy()
     expect(screen.getByText('Todavía no se corrió')).toBeTruthy()
     expect(screen.getByText('Parcial')).toBeTruthy()
-    expect(screen.getByText(/generación 1: 0,8406/)).toBeTruthy()
+    expect(screen.getByText(/etapa de desarrollo: 0,8406/)).toBeTruthy()
+    expect(screen.queryByText(/generaci[oó]n [12]/i)).toBeNull()
     expect(screen.getByText(/1 de 3 pruebas completas/)).toBeTruthy()
     expect(screen.getByRole('heading', { name: 'Ajuste fino' })).toBeTruthy()
     expect(urls.map((u) => u.pathname)).toEqual(['/api/gen2/pruebas'])
   })
 
-  it('un contraste que no se regenera no figura «sin correr»: muestra su cifra de la generación 1', async () => {
+  it('un contraste que no se regenera no figura «sin correr»: muestra su cifra de la etapa de desarrollo', async () => {
     const contraste = CONTRASTE
     http((u) => (u.pathname === '/api/gen2/pruebas' ? json([...PRUEBAS, contraste]) : undefined))
     render(<MemoryRouter><ResultadosPage /></MemoryRouter>)
-    const titulo = await screen.findByRole('link', { name: 'ALR-03 — Alerta por episodio, gdino-base-560' })
+    const titulo = await screen.findByRole('link', { name: 'Alerta por episodio con el contraste base-560 ALR-03' })
     const tarjeta = within(titulo.closest('article') as HTMLElement)
-    expect(tarjeta.getByText('Generación 1: no se regenera')).toBeTruthy()
+    expect(tarjeta.getByText('No se regenera: vale la etapa de desarrollo')).toBeTruthy()
     expect(tarjeta.queryByText('Todavía no se corrió')).toBeNull()
     expect(tarjeta.getByText('0,7143')).toBeTruthy()
     // Las completas se cuentan sobre las que se regeneran.
@@ -140,14 +142,15 @@ describe('Detalle de una prueba (/resultados/:id)', () => {
   it('antes de correr muestra el pre-registro y dice que todavía no se corrió', async () => {
     http((u) => (u.pathname === '/api/gen2/pruebas/RT-03' ? json(DETALLE_VACIO) : undefined))
     montarPrueba('RT-03')
-    expect(await screen.findByRole('heading', { name: 'RT-03 — Latencia en vivo' })).toBeTruthy()
-    expect(screen.getByText(/Todavía no se corrió\. Abajo está su pre-registro/)).toBeTruthy()
+    // Mientras carga, el encabezado ya lleva el nombre llano: se espera el aviso, no el título.
+    expect(await screen.findByText(/Todavía no se corrió\. Abajo está su pre-registro/)).toBeTruthy()
+    expect(screen.getByRole('heading', { name: 'Latencia en vivo con la OAK-D RT-03' })).toBeTruthy()
     expect(screen.getByText(/id: RT-03/)).toBeTruthy()
     expect(screen.queryByRole('table', { name: 'Cifras de la prueba' })).toBeNull()
     expect(screen.getByText('El veredicto aparece cuando la prueba corre.')).toBeTruthy()
   })
 
-  it('completa: cifras contra la gen 1, diferencias, cómo corrió, corridas y archivos', async () => {
+  it('completa: cifras contra la etapa de desarrollo, diferencias, cómo corrió, corridas y archivos', async () => {
     const detalle: Gen2Detalle = {
       ...fila({
         estado: 'completo', generado: '2026-11-01T03:00:00+00:00',
@@ -168,9 +171,9 @@ describe('Detalle de una prueba (/resultados/:id)', () => {
     montarPrueba('ALR-01')
     const cifras = await screen.findByRole('table', { name: 'Cifras de la prueba' })
     expect(within(cifras).getAllByText('0,8406')).toHaveLength(2)
-    const difs = screen.getByRole('table', { name: 'Diferencias con la generación 1' })
+    const difs = screen.getByRole('table', { name: 'Diferencias con la etapa de desarrollo' })
     expect(within(difs).getByText('matched')).toBeTruthy()
-    expect(screen.getByText(/Difiere de la generación 1: lo revisa una persona/)).toBeTruthy()
+    expect(screen.getByText(/Difiere de la etapa de desarrollo: lo revisa una persona/)).toBeTruthy()
     expect(screen.getByText('NVIDIA GeForce RTX 4060')).toBeTruthy()
     expect(screen.getByText('Contenedores (Docker)')).toBeTruthy()
     const corridas = screen.getByRole('table', { name: 'Corridas de la prueba' })
@@ -255,7 +258,7 @@ describe('Detalle de una prueba (/resultados/:id)', () => {
     expect(screen.getByRole('link', { name: 'PLAT-01' }).getAttribute('href')).toBe('/resultados/PLAT-01')
   })
 
-  it('un contraste muestra por qué no se regenera y su cifra de la generación 1, sin veredicto', async () => {
+  it('un contraste muestra por qué no se regenera y su cifra de la etapa de desarrollo, sin veredicto', async () => {
     const detalle: Gen2Detalle = {
       ...CONTRASTE,
       pre_registro: { texto: 'id: ALR-03\n', origen: 'catalogo', coincide_con_catalogo: null },
@@ -266,7 +269,7 @@ describe('Detalle de una prueba (/resultados/:id)', () => {
     montarPrueba('ALR-03')
     expect(await screen.findByRole('heading', { name: 'Por qué no se regenera' })).toBeTruthy()
     expect(screen.getByText(/cambia el modelo, no la plataforma/)).toBeTruthy()
-    const cifras = screen.getByRole('table', { name: 'Cifras de la generación 1' })
+    const cifras = screen.getByRole('table', { name: 'Cifras de la etapa de desarrollo' })
     expect(within(cifras).getByText('0,7143')).toBeTruthy()
     expect(screen.queryByText(/Todavía no se corrió\. Abajo está su pre-registro/)).toBeNull()
     expect(screen.getByText(/No se regenera, así que no tiene veredicto/)).toBeTruthy()
@@ -275,7 +278,7 @@ describe('Detalle de una prueba (/resultados/:id)', () => {
   it('una prueba que no está en el catálogo da un 404 dicho en llano', async () => {
     http(() => undefined)
     montarPrueba('ZZZ-99')
-    expect(await screen.findByText('Esa prueba no está en el catálogo de la generación 2.')).toBeTruthy()
+    expect(await screen.findByText('Esa prueba no está en el catálogo.')).toBeTruthy()
   })
 })
 
@@ -286,11 +289,12 @@ describe('Rutas (doc 135 §3.1)', () => {
     expect(await screen.findByRole('heading', { level: 1, name: 'Para el tribunal' })).toBeTruthy()
   })
 
-  it('la generación 1 sigue en /evidencia y en /evidencia/generacion-1, con su aviso fijo', async () => {
+  it('la etapa de desarrollo sigue en /evidencia y en /evidencia/generacion-1, con su aviso fijo', async () => {
     http(() => undefined)
     for (const ruta of ['/evidencia', '/evidencia/generacion-1']) {
       render(<MemoryRouter initialEntries={[ruta]}><App /></MemoryRouter>)
-      const aviso = screen.getByText(/Estas cifras son de la validación inicial/).closest('.eo-banner') as HTMLElement
+      const aviso = screen.getByText(/Estas cifras son de la etapa de desarrollo/).closest('.eo-banner') as HTMLElement
+      expect(aviso.textContent).toMatch(/no son las del informe/)
       expect(within(aviso).getByRole('link', { name: 'Resultados' }).getAttribute('href')).toBe('/resultados')
       cleanup()
     }

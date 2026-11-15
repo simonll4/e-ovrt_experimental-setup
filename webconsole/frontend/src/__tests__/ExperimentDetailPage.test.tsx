@@ -43,7 +43,7 @@ describe('ExperimentDetailPage', () => {
     ])
     vi.mocked(api.getExperimentReport).mockResolvedValue({ non_temporal: false, resultados: [] } as any)
     renderPage('exp_1b')
-    await waitFor(() => expect(screen.getByText(/CR-01 — Presencia de persona sin casco/)).toBeTruthy())
+    await waitFor(() => expect(screen.getByText(/Sin casco/).textContent).toBe('Sin casco CR-01'))
     expect(screen.getByText('Alta')).toBeTruthy()
     expect(screen.getByText('41,2 s')).toBeTruthy()
   })

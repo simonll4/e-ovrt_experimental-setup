@@ -7,6 +7,10 @@ import './styles/base.css'
 import './styles/ui.css'
 import App from './App'
 import { crearQueryClient } from './api/queryClient'
+import { aplicarTema, leerTema } from './tema'
+
+// El tema ya lo marcó index.html antes de pintar; se repite acá por si ese script no corrió.
+aplicarTema(leerTema())
 
 // Una sola instancia para toda la aplicación: es la caché compartida que hace
 // que el listado de corridas, la píldora de la barra lateral y los contadores se

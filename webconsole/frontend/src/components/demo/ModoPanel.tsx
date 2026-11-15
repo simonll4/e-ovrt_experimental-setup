@@ -1,6 +1,15 @@
 import type { DemoModos } from '../../types'
 import { Card, Tag } from '../ui'
 import { EVIDENCIA_MODO, valorCifra } from './modoPrompts'
+import { NOMBRE_DE_MODO, nombreDeModo, nombreLlano } from '../../vocabulario'
+import NombreCodigo from '../ui/NombreCodigo'
+
+/** El nombre de un modo en pantalla: si `modos.yaml` lo llama por un código del informe, el nombre
+ *  llano va primero y el código al lado (plan §4.2). */
+function NombreDelModo({ modo }: { modo: { id: string; nombre: string } }) {
+  if (!NOMBRE_DE_MODO[modo.id] && nombreLlano(modo.nombre)) return <NombreCodigo codigo={modo.nombre} />
+  return <>{nombreDeModo(modo)}</>
+}
 
 interface Props {
   modos: DemoModos
@@ -13,9 +22,9 @@ interface Props {
 }
 
 /** Los modos de prompts de la demo (✎ 2026-11-01): la lista cerrada de `modos.yaml`, cada uno un par
- *  prompt set + pattern set ya medido en la generación 2, con sus frases y sus cifras.
+ *  prompt set + pattern set ya medido en la campaña, con sus frases y sus cifras.
  *
- *  La elección vive solo en la pantalla (sin almacenamiento): arranca siempre en el campeón y vuelve
+ *  La elección vive solo en la pantalla (sin almacenamiento): arranca siempre en el perfil operativo y vuelve
  *  a él al terminar cada sesión, para que la defensa nunca arranque en un modo que quedó de un ensayo. */
 export default function ModoPanel({ modos, elegido, onElegir, soloLectura }: Props) {
   const actual = modos.modos.find((m) => m.id === elegido)
@@ -36,7 +45,7 @@ export default function ModoPanel({ modos, elegido, onElegir, soloLectura }: Pro
                 type="radio" name="demo-modo" value={m.id}
                 checked={m.id === actual?.id} disabled={deshabilitado} onChange={() => onElegir(m.id)}
               />
-              <span className="eo-demo-modos__nombre">{m.nombre}</span>
+              <span className="eo-demo-modos__nombre"><NombreDelModo modo={m} /></span>
               <Tag>{EVIDENCIA_MODO[m.evidencia] ?? m.evidencia}</Tag>
               {m.error && <span className="eo-demo-modos__error">No se puede usar: {m.error}</span>}
             </label>
@@ -45,7 +54,7 @@ export default function ModoPanel({ modos, elegido, onElegir, soloLectura }: Pro
       </fieldset>
 
       {actual && (
-        <section className="eo-demo-modo" aria-label={`Modo ${actual.nombre}`}>
+        <section className="eo-demo-modo" aria-label={`Modo ${nombreDeModo(actual)}`}>
           {soloLectura && (
             <p className="eo-demo-modo__nota">Es el modo de la sesión en curso: no se cambia hasta que termine.</p>
           )}
@@ -73,13 +82,13 @@ export default function ModoPanel({ modos, elegido, onElegir, soloLectura }: Pro
 
           {actual.evidencia === 'exploratoria' && (
             <p className="eo-demo-modo__aviso">
-              Sin medir en la generación 2: es una exploración, no evidencia. No hay cifra que mostrar.
+              No se midió: es una exploración, no evidencia. No hay cifra que mostrar.
             </p>
           )}
 
           {actual.cifras.length > 0 && (
             <>
-              <p className="eo-demo-modo__sub">Lo que midió la generación 2</p>
+              <p className="eo-demo-modo__sub">Lo que se midió</p>
               <ul className="eo-demo-modo__lista" aria-label="Cifras del modo">
                 {actual.cifras.map((c) => (
                   <li key={`${c.prueba}-${c.clave}`}>

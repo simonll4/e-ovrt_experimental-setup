@@ -1,5 +1,5 @@
 import type { BadgeTone, TraceFrame } from './types'
-import { SERIES_COLORS } from './palette'
+import { SERIES_COLORS, SERIES_SOBRE_VIDEO } from './palette'
 import { CONTROL_DROP_REASONS } from './labels'
 
 export function controlTone(control: string): BadgeTone {
@@ -25,12 +25,22 @@ export function controlLabelIsRaw(control: string): boolean {
   return !(reason in CONTROL_DROP_REASONS)
 }
 
-export function labelColor(label: string): string {
+function slotDe(label: string): number {
   let hash = 0
   for (let i = 0; i < label.length; i++) {
     hash += label.charCodeAt(i)
   }
-  return SERIES_COLORS[hash % SERIES_COLORS.length]
+  return hash % SERIES_COLORS.length
+}
+
+/** El color de una clase en la interfaz: sigue el tema. */
+export function labelColor(label: string): string {
+  return SERIES_COLORS[slotDe(label)]
+}
+
+/** El color de una clase dibujada encima de un cuadro (caja o rótulo): el mismo tono, fijo. */
+export function labelColorSobreVideo(label: string): string {
+  return SERIES_SOBRE_VIDEO[slotDe(label)]
 }
 
 export function frameHasActivity(f: TraceFrame): boolean {

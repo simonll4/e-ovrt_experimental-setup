@@ -5,11 +5,11 @@ import type { Gen2Cifra, Gen2Estado, Gen2Veredicto } from '../../types'
 /** Los tres veredictos del doc 134 (más los dos estados intermedios del driver),
  *  dichos en llano. El código queda en el `title` para quien lo busque. */
 export const VEREDICTO_LABEL: Record<string, string> = {
-  identico: 'Idéntico a la generación 1',
+  identico: 'Idéntico a la etapa de desarrollo',
   equivalente_con_diferencia: 'Equivalente, con la diferencia declarada',
   otra_combinacion: 'Otra combinación: se muestra al lado, no en reemplazo',
-  a_revisar: 'Difiere de la generación 1: lo revisa una persona',
-  sin_referencia: 'Sin cifra de la generación 1 para comparar',
+  a_revisar: 'Difiere de la etapa de desarrollo: lo revisa una persona',
+  sin_referencia: 'Sin cifra de la etapa de desarrollo para comparar',
 }
 
 const ESTADO: Record<Gen2Estado, { tono: 'ok' | 'warn' | 'error' | 'neutral'; texto: string }> = {
@@ -24,16 +24,16 @@ const ESTADO: Record<Gen2Estado, { tono: 'ok' | 'warn' | 'error' | 'neutral'; te
 export const REGISTRO_LABEL: Record<string, string> = {
   opcional: 'opcional',
   pendiente_decision: 'pendiente de decisión',
-  no_se_regenera: 'contraste: vale la generación 1',
+  no_se_regenera: 'contraste: vale la etapa de desarrollo',
 }
 
-/** Un contraste que no se regenera no está «sin correr»: su cifra es la de la generación 1. */
+/** Un contraste que no se regenera no está «sin correr»: su cifra es la de la etapa de desarrollo. */
 export const noSeRegenera = (p: { registro?: string | null; estado: Gen2Estado }) =>
   p.registro === 'no_se_regenera' && p.estado === 'sin_correr'
 
 export function EstadoPrueba({ estado, registro }: { estado: Gen2Estado; registro?: string | null }) {
   if (noSeRegenera({ estado, registro })) {
-    return <Badge tone="neutral" title="no_se_regenera">Generación 1: no se regenera</Badge>
+    return <Badge tone="neutral" title="no_se_regenera">No se regenera: vale la etapa de desarrollo</Badge>
   }
   const e = ESTADO[estado] ?? ESTADO.desconocida
   return <Badge tone={e.tono}>{e.texto}</Badge>
@@ -86,7 +86,7 @@ export function CifraFila({ c }: { c: Gen2Cifra }) {
 /** Las secciones del informe en orden, con lo que agrupa cada una (doc 135 §3.3). */
 export const GRUPOS: Array<{ titulo: string; informe: string; prefijos: string[]; explica: ReactNode }> = [
   { titulo: 'Percepción en imágenes', informe: 'Tabla 51', prefijos: ['IMG', 'EXT'],
-    explica: 'Qué tan bien detecta cada modelo personas, cascos, chalecos y cabezas descubiertas sobre 6.477 imágenes, por fuente y agregado; y una clase nueva sin entrenar.' },
+    explica: 'Qué tan bien detecta cada modelo personas, cascos, chalecos y cabezas descubiertas sobre el banco de imágenes, por fuente y agregado; y una clase nueva sin entrenar.' },
   { titulo: 'Estado por persona', informe: 'Tabla 52', prefijos: ['PER'],
     explica: 'Si el sistema determina bien, persona por persona, quién no tiene casco o chaleco.' },
   { titulo: 'Alerta por episodio', informe: 'Tabla 53', prefijos: ['ALR'],
@@ -98,7 +98,7 @@ export const GRUPOS: Array<{ titulo: string; informe: string; prefijos: string[]
   { titulo: 'Referencia', informe: '§17.5.7', prefijos: ['GT'],
     explica: 'Cuánto depende cada conclusión de la anotación manual.' },
   { titulo: 'Integridad y plataforma', informe: 'Anexo E · Tablas B.1 y B.3', prefijos: ['INT', 'PLAT'],
-    explica: 'Que los insumos sean exactamente los de la generación 1 y dónde y cómo corrió todo.' },
+    explica: 'Que los insumos sean exactamente los de la etapa de desarrollo y dónde y cómo corrió todo.' },
 ]
 
 export const prefijoDe = (id: string) => id.split('-')[0]

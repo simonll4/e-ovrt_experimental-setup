@@ -4,12 +4,13 @@
 // datos reales antes de darlo por bueno. No inventa datos ni intercepta nada (para eso está `capture_console.mjs`).
 //
 //   node webconsole/tools/mirar_pantallas.mjs --out <carpeta> [--base http://localhost:5173] \
-//        [--completa] [--tarjeta "Las tomas"] [--tecla e] <ruta>[=<nombre>] ...
+//        [--completa] [--tarjeta "Las tomas"] [--tecla e] [--tema oscuro] <ruta>[=<nombre>] ...
 //
 //   --completa   la página entera, no solo lo que entra en la ventana
 //   --tarjeta    captura solo la tarjeta que tiene ese título
 //   --tecla      aprieta esa tecla antes de capturar (por ejemplo `e` abre la capa de evidencia de una toma)
 //   --dialogo    captura solo el diálogo abierto (con --tecla e, la capa de evidencia: es texto, sin video)
+//   --tema       claro (por defecto, el de las capturas) u oscuro: el que dejaría elegido el selector de la barra
 //
 // Las rutas son las de la consola, sin el `#`: `/`, `/resultados/ALR-13`, `/demo/resultado/<sesión>`.
 //
@@ -31,8 +32,13 @@ const { values: o, positionals: rutas } = parseArgs({
     dialogo: { type: 'boolean', default: false }, ancho: { type: 'string', default: '1440' },
     alto: { type: 'string', default: '900' }, espera: { type: 'string', default: '2500' },
     'playwright-module': { type: 'string' }, chromium: { type: 'string' },
+    tema: { type: 'string', default: 'claro' },
   },
 })
+if (!['claro', 'oscuro'].includes(o.tema)) {
+  console.error('--tema es claro u oscuro')
+  process.exit(2)
+}
 if (!o.out || rutas.length === 0) {
   console.error('uso: mirar_pantallas.mjs --out <carpeta> <ruta>[=<nombre>] ...   (ver el encabezado del archivo)')
   process.exit(2)
@@ -53,7 +59,12 @@ await mkdir(o.out, { recursive: true })
 const navegador = await chromium.launch(o.chromium ? { executablePath: o.chromium } : {})
 const contexto = await navegador.newContext({
   viewport: { width: Number(o.ancho), height: Number(o.alto) }, deviceScaleFactor: 1, locale: 'es-AR',
+  colorScheme: o.tema === 'oscuro' ? 'dark' : 'light',
 })
+// La preferencia que guardaría el selector de tema (src/tema.ts), puesta antes de que cargue la consola.
+await contexto.addInitScript((tema) => {
+  try { localStorage.setItem('eovrt-tema', tema) } catch { /* sin almacenamiento: rige el claro */ }
+}, o.tema)
 let fallas = 0
 for (const item of rutas) {
   const [ruta, nombre] = item.split('=')
@@ -91,7 +102,7 @@ for (const item of rutas) {
     caracteres: document.body.innerText.length,
     medios: document.querySelectorAll('img, video').length,
   }))
-  console.log(`\n== ${ruta} -> ${archivo}`)
+  console.log(`\n== ${ruta} (tema ${o.tema}) -> ${archivo}`)
   console.log(`   ${info.alto} px de alto · ${info.caracteres} caracteres · ${info.medios} imágenes o videos`)
   console.log(`   encabezados: ${info.encabezados.join(' | ').slice(0, 500)}`)
   if (errores.length) console.log(`   errores (${errores.length}): ${errores.slice(0, 4).join(' || ')}`)

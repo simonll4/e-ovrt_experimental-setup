@@ -2,6 +2,8 @@ import { Link } from 'react-router-dom'
 import { useGen2Pruebas } from '../api/queries/gen2'
 import { Card, PageHeader } from '../components/ui'
 import { GEN1 } from '../nav'
+import { NOMBRE_DE_PRUEBA } from '../vocabulario'
+import NombreCodigo from '../components/ui/NombreCodigo'
 import type { Gen2Prueba } from '../types'
 import { EstadoDeLectura } from './evidencia/comun'
 import { EstadoPrueba, GRUPOS, REGISTRO_LABEL, Veredicto, noSeRegenera, prefijoDe, valorTexto } from './gen2/comun'
@@ -16,7 +18,9 @@ function TarjetaPrueba({ p }: { p: Gen2Prueba }) {
   return (
     <article className="eo-gen2__prueba" aria-labelledby={`prueba-${p.id}`}>
       <h3 id={`prueba-${p.id}`}>
-        <Link to={`/resultados/${encodeURIComponent(p.id)}`}>{p.id} — {p.titulo}</Link>
+        <Link to={`/resultados/${encodeURIComponent(p.id)}`}>
+          <NombreCodigo codigo={p.id} nombre={NOMBRE_DE_PRUEBA[p.id] ?? p.titulo ?? undefined} />
+        </Link>
       </h3>
       {p.pregunta && <p className="eo-note">{p.pregunta}</p>}
       <div className="eo-gen2__estado">
@@ -31,7 +35,7 @@ function TarjetaPrueba({ p }: { p: Gen2Prueba }) {
           {deGen1.map((c) => (
             <div key={c.clave}>
               <dt>{c.nombre}</dt>
-              <dd><b>{valorTexto(c.valor, c.unidad)}</b><span className="eo-note--meta"> · generación 1</span></dd>
+              <dd><b>{valorTexto(c.valor, c.unidad)}</b><span className="eo-note--meta"> · etapa de desarrollo</span></dd>
             </div>
           ))}
         </dl>
@@ -43,7 +47,7 @@ function TarjetaPrueba({ p }: { p: Gen2Prueba }) {
               <dt>{c.nombre}</dt>
               <dd>
                 <b>{valorTexto(c.valor, c.unidad)}</b>
-                {c.gen1 != null && <span className="eo-note--meta"> · generación 1: {valorTexto(c.gen1, c.unidad)}</span>}
+                {c.gen1 != null && <span className="eo-note--meta"> · etapa de desarrollo: {valorTexto(c.gen1, c.unidad)}</span>}
               </dd>
             </div>
           ))}
@@ -66,19 +70,19 @@ export default function ResultadosPage() {
     <div className="eo-gen2">
       <PageHeader
         title="Resultados"
-        meta={`Generación 2: los resultados finales del informe · ${completas} de ${aRegenerar} pruebas completas`}
+        meta={`Los resultados finales del informe · ${completas} de ${aRegenerar} pruebas completas`}
       />
       <p className="eo-note">
         Cada prueba se registró por escrito antes de correr (qué mide, con qué insumo y configuración, qué
-        se esperaba) y se comparó con la generación 1. El veredicto lo propone el programa que corre las
+        se esperaba) y se comparó con la etapa de desarrollo. El veredicto lo propone el programa que corre las
         pruebas y lo confirma una persona: <i>idéntico</i>, <i>equivalente con la diferencia declarada</i>{' '}
         u <i>otra combinación</i>, que se muestra al lado y nunca en reemplazo.
       </p>
       {contrastes > 0 && (
         <p className="eo-note">
           {contrastes === 1 ? 'Una prueba de contraste no se regenera' : `${contrastes} pruebas de contraste no se regeneran`}:
-          comparan otra configuración contra el campeón, y el mismo camino lo recorre la prueba del campeón
-          en esta PC. Su cifra vigente es la de la generación 1 y se muestra marcada así.
+          comparan otra configuración contra el perfil operativo, y el mismo camino lo recorre la prueba del
+          perfil operativo en esta PC. Su cifra vigente es la de la etapa de desarrollo y se muestra marcada así.
         </p>
       )}
       {GRUPOS.map((g) => {
@@ -95,9 +99,9 @@ export default function ResultadosPage() {
       })}
       <Card title="Ajuste fino" meta="Tabla 55">
         <p className="eo-note">
-          El ajuste fino corrió en el clúster Mendieta durante la generación 1 y no se regenera: el proyecto
-          no entrena en una PC local. Sus checkpoints y evaluaciones son evidencia de la
-          {' '}<Link to={GEN1.to}>validación inicial (generación 1)</Link>.
+          El ajuste fino corrió en el clúster Mendieta durante la etapa de desarrollo y no se regenera: el
+          proyecto no entrena en una PC local. Sus checkpoints y evaluaciones están en la
+          {' '}<Link to={GEN1.to}>etapa de desarrollo</Link>.
         </p>
       </Card>
     </div>

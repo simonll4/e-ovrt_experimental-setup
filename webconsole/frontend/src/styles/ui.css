@@ -190,7 +190,7 @@
   background: var(--s3);
   border: 1px solid var(--bds);
   border-radius: var(--r);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+  box-shadow: var(--shadow-pop);
   color: var(--tx);
   font-family: var(--fs);
   font-size: var(--fz-meta);
@@ -249,7 +249,7 @@
   background: var(--s3);
   border: 1px solid var(--bds);
   border-radius: var(--r);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+  box-shadow: var(--shadow-pop);
   color: var(--tx);
   font-family: var(--fs);
   font-size: var(--fz-meta);
@@ -1566,6 +1566,18 @@ th.eo-th--numeric .eo-th__btn { flex-direction: row-reverse; }
   font-variant-numeric: tabular-nums;
 }
 
+/* Un código del informe al lado de su nombre llano (plan §4.2): más chico y en segundo plano, sin
+   heredar el color de un enlace ni el peso de un título. Solo, sin nombre, conserva el tamaño. */
+.eo-codigo {
+  font-family: var(--fm);
+  font-size: 0.8em;
+  font-weight: 400;
+  color: var(--tx3);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.eo-codigo--solo { font-size: inherit; color: inherit; }
+
 /* Nombre en dos líneas: el título y su identificador debajo. Sin recortar con
    puntos suspensivos: envuelve por palabras y la tabla se desplaza si no entra. */
 .eo-rowname { display: flex; flex-direction: column; gap: 2px; min-width: 16ch; padding: 4px 0; }
@@ -1723,6 +1735,30 @@ th.eo-th--numeric .eo-th__btn { flex-direction: row-reverse; }
    con la barra colapsada. El nombre accesible sigue siendo el completo. */
 .eo-sidebar--collapsed .eo-sidebar__action > span:not(.eo-tip) { display: none; }
 
+/* El selector de tema: discreto, al pie. Encendido, lleva el tinte del acento. */
+.eo-sidebar__tema {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 32px;
+  padding: 0 8px;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: var(--r);
+  color: var(--tx2);
+  font-size: var(--fz-meta);
+  flex: none;
+  position: relative;
+}
+.eo-sidebar__tema svg { flex: none; }
+.eo-sidebar__tema:hover:not(:disabled) { background: var(--s2); color: var(--tx); border-color: var(--bds); }
+.eo-sidebar__tema[aria-pressed='true'] { color: var(--ac-tx); background: var(--ac-bg); border-color: var(--ac-bd); }
+.eo-sidebar--collapsed .eo-sidebar__tema { width: 36px; padding: 0; justify-content: center; margin: 0 auto; }
+.eo-sidebar--collapsed .eo-sidebar__tema > span:not(.eo-tip) { display: none; }
+.eo-sidebar--collapsed .eo-sidebar__tema:hover .eo-tip,
+.eo-sidebar--collapsed .eo-sidebar__tema:focus-visible .eo-tip { display: block; }
+
 .eo-sidebar__nav { display: flex; flex-direction: column; gap: 14px; }
 .eo-sidebar__group { display: flex; flex-direction: column; gap: 1px; width: 100%; }
 .eo-sidebar__group-title {
@@ -1817,7 +1853,7 @@ th.eo-th--numeric .eo-th__btn { flex-direction: row-reverse; }
   padding: 3px 8px;
   border-radius: 5px;
   white-space: nowrap;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+  box-shadow: var(--shadow-tip);
 }
 .eo-sidebar--collapsed .eo-sidebar__link:hover .eo-tip,
 .eo-sidebar--collapsed .eo-sidebar__link:focus-visible .eo-tip,
@@ -1931,14 +1967,14 @@ th.eo-th--numeric .eo-th__btn { flex-direction: row-reverse; }
   max-width: none;
   max-height: none;
 }
-.eo-drawer::backdrop { background: rgba(0, 0, 0, 0.5); }
+.eo-drawer::backdrop { background: var(--backdrop); }
 .eo-drawer .eo-sidebar {
   position: relative;
   width: min(300px, 88vw);
   height: 100%;
   flex: none;
   border-right: 1px solid var(--bds);
-  box-shadow: 4px 0 16px rgba(0, 0, 0, 0.4);
+  box-shadow: var(--shadow-drawer);
   animation: eo-drawer-in 0.16s ease-out;
 }
 .eo-drawer .eo-sidebar__link,
@@ -1958,7 +1994,7 @@ th.eo-th--numeric .eo-th__btn { flex-direction: row-reverse; }
   max-width: min(1200px, calc(100vw - 32px));
   max-height: calc(100vh - 32px);
 }
-.eo-zoom::backdrop { background: rgba(0, 0, 0, 0.7); }
+.eo-zoom::backdrop { background: var(--backdrop-zoom); }
 .eo-zoom__head { display: flex; align-items: center; gap: 12px; padding: 8px 8px 8px 14px; border-bottom: 1px solid var(--bd); }
 .eo-zoom__head h2 { font-size: var(--fz-panel); font-weight: 500; min-width: 0; overflow-wrap: anywhere; }
 .eo-zoom__head .eo-btn { margin-left: auto; }
@@ -2029,7 +2065,7 @@ th.eo-th--numeric .eo-th__btn { flex-direction: row-reverse; }
   flex-wrap: wrap;
   gap: 4px 12px;
   padding: 8px 12px;
-  background: linear-gradient(to bottom, rgba(13, 13, 13, 0.82), rgba(13, 13, 13, 0.4) 70%, transparent);
+  background: var(--video-veil);
   color: var(--tx);
   font-size: var(--fz-meta);
   pointer-events: none;
@@ -2077,7 +2113,7 @@ th.eo-th--numeric .eo-th__btn { flex-direction: row-reverse; }
   max-width: 720px;
   max-height: 46vh;
   border-radius: var(--r);
-  background: #000;
+  background: var(--video-bg);
 }
 
 /* ── Biblioteca de clips ────────────────────────────────────────────────── */
@@ -2246,7 +2282,7 @@ th.eo-th--numeric .eo-th__btn { flex-direction: row-reverse; }
   border: 1px solid var(--bds);
   border-radius: var(--r);
   overflow-y: auto;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  box-shadow: var(--shadow-pop);
   color: var(--tx);
   font-family: var(--fs);
 }

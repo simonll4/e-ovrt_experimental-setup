@@ -65,7 +65,7 @@ export function grupoContiene(group: NavGroup, pathname: string): boolean {
 }
 
 /** La validación inicial: el recorrido de evidencia de la generación 1. */
-export const GEN1 = { to: '/evidencia/generacion-1', label: 'Validación inicial (generación 1)' }
+export const GEN1 = { to: '/evidencia/generacion-1', label: 'Etapa de desarrollo' }
 
 // Rutas que no viven en la nav pero necesitan crumb propio.
 const STANDALONE: Record<string, string> = {

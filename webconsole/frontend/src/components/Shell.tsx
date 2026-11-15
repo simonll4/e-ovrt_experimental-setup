@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import { NAV_GROUPS, grupoContiene, type NavGroup } from '../nav'
 import { Dialog, IconClose, IconMenu, enfocarCuandoAparezca } from './ui'
-import { IconChevron, IconNavExperimentNew, IconPlus } from './ui/icons'
+import { IconChevron, IconNavExperimentNew, IconPlus, IconTema } from './ui/icons'
 import Breadcrumbs from './Breadcrumbs'
 import { GlosarioProvider } from './Glosario'
 import TargetBadge from './TargetBadge'
@@ -10,6 +10,7 @@ import LiveRunPill from './LiveRunPill'
 import { esProyeccion } from './demo/proyeccion'
 import { useSidebarCounts, type SidebarCounts } from '../api/queries/sidebar'
 import { useServiceHealth, type ServiceHealth, type ServiceStatus } from '../api/queries/platform'
+import { useTema } from '../tema'
 
 const COLLAPSE_KEY = 'eovrt-sidebar-collapsed'
 /** Grupos plegables abiertos a mano (por título). Preferencia de este navegador. */
@@ -82,6 +83,25 @@ function Servicio({ nombre, puerto, estado }: { nombre: string; puerto: string; 
       </span>
       <span className="eo-tip" aria-hidden="true" data-tip={tip} />
     </div>
+  )
+}
+
+/** El selector de tema (plan §10): el claro es el de por defecto; el botón activa el oscuro y
+ *  la elección queda recordada en este navegador. */
+function SelectorTema() {
+  const [tema, elegir] = useTema()
+  const oscuro = tema === 'oscuro'
+  return (
+    <button
+      type="button"
+      className="eo-sidebar__tema"
+      aria-pressed={oscuro}
+      onClick={() => elegir(oscuro ? 'claro' : 'oscuro')}
+    >
+      <IconTema />
+      <span>Tema oscuro</span>
+      <span className="eo-tip" aria-hidden="true" data-tip="Tema oscuro" />
+    </button>
   )
 }
 
@@ -195,6 +215,7 @@ function Navegacion({
           <Servicio nombre="Distribución de alertas" puerto=":8082" estado={health.distribution} />
         </div>
       )}
+      <SelectorTema />
     </>
   )
 }

@@ -506,7 +506,7 @@ def test_las_carpetas_adicionales_de_sesiones_salen_del_entorno():
 async def test_cifras_pendientes_sin_generacion_2(entorno):
     cifras = entorno.dm.cifras()
     assert cifras and all(c["pendiente"] for c in cifras)
-    assert all(c["texto"] == "cifra pendiente (generación 2)" for c in cifras)
+    assert all(c["texto"] == "cifra pendiente" for c in cifras)
 
 
 async def test_cifras_de_la_generacion_2_cuando_existen(entorno):

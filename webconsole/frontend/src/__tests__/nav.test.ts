@@ -95,10 +95,10 @@ describe('crumbsFor', () => {
     ])
   })
 
-  it('la generación 1 se llama «Validación inicial» en sus dos URLs', () => {
+  it('la etapa anterior se llama «Etapa de desarrollo» en sus dos URLs (plan §4.5)', () => {
     expect(crumbsFor('/evidencia')).toEqual([GEN1])
     expect(crumbsFor('/evidencia/generacion-1')).toEqual([GEN1])
-    expect(GEN1.label).toBe('Validación inicial (generación 1)')
+    expect(GEN1.label).toBe('Etapa de desarrollo')
   })
 
   it('un paso del recorrido encadena Validación inicial > Paso N, no queda vacío', () => {

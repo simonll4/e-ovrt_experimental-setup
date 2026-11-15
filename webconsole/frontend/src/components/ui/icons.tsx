@@ -260,3 +260,12 @@ export function IconNavClips() {
     </svg>
   )
 }
+
+/** El selector de tema: una luna (el tema oscuro). */
+export function IconTema() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+      <path d="M13.2 9.9A5.6 5.6 0 0 1 6.1 2.8a5.6 5.6 0 1 0 7.1 7.1z" />
+    </svg>
+  )
+}

@@ -26,7 +26,7 @@ small { font-size: var(--fz-meta); color: var(--tx3); }
 input, select, textarea, button { font-family: inherit; font-size: var(--fz-body); }
 
 input, select, textarea {
-  background: var(--sunken);
+  background: var(--field);
   color: var(--tx);
   border: 1px solid var(--bd-ctl);
   border-radius: var(--r);

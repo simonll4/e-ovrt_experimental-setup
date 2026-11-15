@@ -37,7 +37,11 @@ ni intercepta nada (para eso está `capture_console.mjs`).
 node webconsole/tools/mirar_pantallas.mjs --out /tmp/mirar /resultados /resultados/ALR-13
 node webconsole/tools/mirar_pantallas.mjs --out /tmp/mirar --tarjeta "Las tomas" /resultados/RT-06
 node webconsole/tools/mirar_pantallas.mjs --out /tmp/mirar --tecla e --dialogo /demo/resultado/<sesión>
+node webconsole/tools/mirar_pantallas.mjs --out /tmp/mirar-oscuro --tema oscuro /resultados /resultados/ALR-13
 ```
+
+Por defecto mira el tema claro, que es el de la consola y el de las capturas; `--tema oscuro` deja elegido el otro,
+como lo haría el selector de la barra lateral. Cada cambio se mira en los dos.
 
 Necesita Playwright, que no es dependencia del proyecto: se instala en `webconsole/tools/.capture-runtime`
 (ignorada por git) o se indica con `--playwright-module`. El navegador, con `--chromium <ruta>` si no hay uno

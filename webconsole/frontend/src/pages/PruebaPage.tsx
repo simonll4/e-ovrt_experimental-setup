@@ -3,6 +3,8 @@ import { gen2ArchivoUrl } from '../api'
 import { useGen2Prueba } from '../api/queries/gen2'
 import { Banner, Card, Disclosure, MonoCell, PageHeader, Table, TableScroll, Tag } from '../components/ui'
 import { GEN1 } from '../nav'
+import NombreCodigo from '../components/ui/NombreCodigo'
+import { NOMBRE_DE_PRUEBA, nombreConCodigo } from '../vocabulario'
 import type { Gen2Cifra, Gen2Corrida, Gen2Detalle, Gen2Entorno } from '../types'
 import { EstadoDeLectura } from './evidencia/comun'
 import { CifraFila, EstadoPrueba, VEREDICTO_LABEL, Veredicto, noSeRegenera, valorTexto } from './gen2/comun'
@@ -243,7 +245,7 @@ export default function PruebaPage() {
   const { id = '' } = useParams()
   const q = useGen2Prueba(id)
   if (q.isPending || q.error) {
-    return <EstadoDeLectura titulo={id} q={q} noExiste="Esa prueba no está en el catálogo de la generación 2." />
+    return <EstadoDeLectura titulo={nombreConCodigo(id)} q={q} noExiste="Esa prueba no está en el catálogo." />
   }
   const d = q.data
   const v = d.veredicto
@@ -255,7 +257,7 @@ export default function PruebaPage() {
   return (
     <div className="eo-gen2">
       <PageHeader
-        title={`${d.id} — ${d.titulo ?? ''}`}
+        title={<NombreCodigo codigo={d.id} nombre={NOMBRE_DE_PRUEBA[d.id] ?? d.titulo ?? undefined} />}
         meta={<>
           <EstadoPrueba estado={d.estado} registro={d.registro} />
           {d.informe.map((s) => <Tag key={s}>{s}</Tag>)}
@@ -264,7 +266,7 @@ export default function PruebaPage() {
       />
       {contraste && (
         <Card title="Por qué no se regenera">
-          <p>{d.no_se_regenera ?? 'Prueba de contraste: su cifra vigente es la de la generación 1.'}</p>
+          <p>{d.no_se_regenera ?? 'Prueba de contraste: su cifra vigente es la de la etapa de desarrollo.'}</p>
         </Card>
       )}
       {sinCorrer && (
@@ -289,10 +291,10 @@ export default function PruebaPage() {
         )}
       </Card>
       {cifrasGen1.length > 0 && (
-        <Card title="Las cifras" meta="Generación 1: la cifra vigente" flush>
-          <TableScroll label="Cifras de la generación 1">
-            <Table aria-label="Cifras de la generación 1">
-              <thead><tr><th>Qué se mide</th><th>Generación 1</th></tr></thead>
+        <Card title="Las cifras" meta="De la etapa de desarrollo: la cifra vigente" flush>
+          <TableScroll label="Cifras de la etapa de desarrollo">
+            <Table aria-label="Cifras de la etapa de desarrollo">
+              <thead><tr><th>Qué se mide</th><th>Etapa de desarrollo</th></tr></thead>
               <tbody>
                 {cifrasGen1.map((c) => (
                   <tr key={c.clave}>
@@ -309,7 +311,7 @@ export default function PruebaPage() {
         <Card title="Las cifras" flush>
           <TableScroll label="Cifras de la prueba">
             <Table aria-label="Cifras de la prueba">
-              <thead><tr><th>Qué se mide</th><th>Generación 2</th><th>Generación 1</th></tr></thead>
+              <thead><tr><th>Qué se mide</th><th>Resultado</th><th>Etapa de desarrollo</th></tr></thead>
               <tbody>{d.resumen.map((c) => <CifraFila key={c.clave} c={c} />)}</tbody>
             </Table>
           </TableScroll>
@@ -317,7 +319,7 @@ export default function PruebaPage() {
       )}
       <Lecturas d={d} />
       <Tomas d={d} />
-      <Card title="Contra la generación 1">
+      <Card title="Contra la etapa de desarrollo">
         {v ? (
           <>
             <p><Veredicto v={v} /></p>
@@ -328,14 +330,14 @@ export default function PruebaPage() {
         ) : (
           <p className="eo-note">
             {contraste
-              ? 'No se regenera, así que no tiene veredicto: la cifra de arriba es la de la generación 1.'
+              ? 'No se regenera, así que no tiene veredicto: la cifra de arriba es la de la etapa de desarrollo.'
               : sinCorrer ? 'El veredicto aparece cuando la prueba corre.' : 'Esta prueba no registró veredicto.'}
           </p>
         )}
         {difs.length > 0 && (
-          <TableScroll label="Diferencias con la generación 1">
-            <Table aria-label="Diferencias con la generación 1">
-              <thead><tr><th>Campo</th><th>Generación 2</th><th>Generación 1</th></tr></thead>
+          <TableScroll label="Diferencias con la etapa de desarrollo">
+            <Table aria-label="Diferencias con la etapa de desarrollo">
+              <thead><tr><th>Campo</th><th>Resultado</th><th>Etapa de desarrollo</th></tr></thead>
               <tbody>
                 {difs.map(([campo, par]) => (
                   <tr key={campo}>
@@ -349,14 +351,14 @@ export default function PruebaPage() {
           </TableScroll>
         )}
         <dl className="eo-deflist eo-gen2__gen1">
-          <div><dt>Resultado de la generación 1</dt><dd className="eo-mono">{d.gen1.result_id ?? '—'}</dd></div>
+          <div><dt>Resultado de la etapa de desarrollo</dt><dd className="eo-mono">{d.gen1.result_id ?? '—'}</dd></div>
           <div><dt>Documento</dt><dd className="eo-mono">{d.gen1.doc ?? '—'}</dd></div>
           {d.gen1.relacion && <div><dt>Relación</dt><dd>{VEREDICTO_LABEL[d.gen1.relacion] ?? d.gen1.relacion}</dd></div>}
           {d.gen1.motivo && <div><dt>Por qué</dt><dd>{d.gen1.motivo}</dd></div>}
           {d.gen1.nota && <div><dt>Nota</dt><dd>{d.gen1.nota}</dd></div>}
         </dl>
         <p className="eo-note--meta">
-          Las cifras de la generación 1 están en la <Link to={GEN1.to}>validación inicial</Link>.
+          Las cifras de la etapa de desarrollo están en su <Link to={GEN1.to}>recorrido</Link>.
         </p>
       </Card>
       {d.entorno && <ComoCorrio entorno={d.entorno} gpuDeLaPlataforma={d.gpu_de_la_plataforma} />}

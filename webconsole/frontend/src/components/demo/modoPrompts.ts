@@ -26,6 +26,6 @@ export function avisoModo(nombre: string): string {
 
 /** El valor de una cifra del modo, con el formato de la demo; pendiente, su texto. */
 export function valorCifra(c: DemoCifra): string {
-  if (c.pendiente || c.valor == null) return c.texto ?? 'cifra pendiente (generación 2)'
+  if (c.pendiente || c.valor == null) return c.texto ?? 'cifra pendiente'
   return `${numero(c.valor, 3)}${c.unidad ? ` ${c.unidad}` : ''}`
 }

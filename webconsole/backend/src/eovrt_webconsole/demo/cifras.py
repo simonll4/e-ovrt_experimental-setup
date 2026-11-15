@@ -4,7 +4,8 @@ La demo NO es evidencia de desempeño (spec §3.2): la tarjeta «Qué muestra y 
 remite a las cifras medidas. Esas cifras son las de la generación 2 (doc
 `operacion/134`), que se generan en la Victus: acá se leen en el momento de mostrarlas
 de `results/gen2/<ID>/resultado.json` y, si todavía no existen, la pantalla dice
-«cifra pendiente (generación 2)». Ningún número del informe v0.1 se escribe a mano acá.
+«cifra pendiente» (en la interfaz no se nombran las generaciones: plan de la consola de
+evidencia, §4). Ningún número del informe v0.1 se escribe a mano acá.
 """
 from __future__ import annotations
 
@@ -18,10 +19,10 @@ CIFRAS = (
     ("ALR-07", "falsas_alarmas", "Falsas alarmas en obra real, granularidad escena"),
     ("ALR-08", "falsas_alarmas", "Falsas alarmas en obra real, granularidad por sujeto"),
     ("RT-03", "fps_efectivos", "Cuadros por segundo efectivos en vivo (config de la demo)"),
-    ("RT-03", "g2a_p95_ms", "G2A p95 en vivo (config de la demo)"),
+    ("RT-03", "g2a_p95_ms", "Latencia por cuadro G2A, p95 en vivo (config de la demo)"),
     ("RT-03", "capture_to_host_p50_ms", "Captura → host p50 en vivo (config de la demo)"),
 )
-PENDIENTE = "cifra pendiente (generación 2)"
+PENDIENTE = "cifra pendiente"
 
 
 def _resultado(results_dir: Path, prueba: str) -> dict | None:

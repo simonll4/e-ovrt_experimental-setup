@@ -112,8 +112,9 @@ describe('TraceSection', () => {
     await renderTrace(withAlert)
     fireEvent.click(within(list()).getByText('frame_000019'))
     // Aparece en el banner y en el progreso de condiciones: los dos la nombran.
-    const named = screen.getAllByText(/CR-01 — Presencia de persona sin casco/)
+    const named = screen.getAllByText(/Sin casco/)
     expect(named.length).toBeGreaterThanOrEqual(1)
+    for (const n of named) expect(n.textContent).toBe('Sin casco CR-01')
     expect(screen.getByText(/Alerta confirmada/)).toBeTruthy()
   })
 

@@ -35,7 +35,7 @@ export const MODOS: DemoModos = {
         { prueba: 'ALR-04', clave: 'f1', que_es: 'F1 de alertas por episodio, mismas reglas temporales',
           valor: 0.4615, unidad: null, pendiente: false, texto: null, fuente: 'results/gen2/ALR-04/resultado.json' },
         { prueba: 'PER-01', clave: 'bench_obra/CR-02/f1_edir', que_es: 'CR-02, F1 por persona con la frase E-DIR sola',
-          valor: null, unidad: null, pendiente: true, texto: 'cifra pendiente (generación 2)' },
+          valor: null, unidad: null, pendiente: true, texto: 'cifra pendiente' },
       ],
       error: null,
     },

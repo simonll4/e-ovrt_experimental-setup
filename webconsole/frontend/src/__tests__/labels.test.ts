@@ -11,9 +11,9 @@ import {
 } from '../labels'
 
 describe('conditionLabel', () => {
-  it('agrega el nombre legible a un código de condición conocido', () => {
-    expect(conditionLabel('CR-01')).toBe('CR-01 — Presencia de persona sin casco')
-    expect(conditionLabel('CR-02')).toBe('CR-02 — Presencia de persona sin chaleco')
+  it('pone el nombre llano primero y el código al lado (plan §4.2)', () => {
+    expect(conditionLabel('CR-01')).toBe('Sin casco CR-01')
+    expect(conditionLabel('CR-02')).toBe('Sin chaleco CR-02')
   })
 
   it('cae al código crudo si no hay nombre mapeado (no inventa uno)', () => {

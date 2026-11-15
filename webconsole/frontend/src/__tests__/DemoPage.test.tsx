@@ -481,7 +481,7 @@ describe('/demo — modos de prompts', () => {
     globales = true
     montar('/demo')
     await tarjeta()
-    expect(radio(/Campeón/).checked).toBe(true)
+    expect(radio(/Perfil operativo/).checked).toBe(true)
     await screen.findByRole('radiogroup', { name: 'Cámara de la demo' })
     fireEvent.click(screen.getByRole('button', { name: /^Iniciar/ }))
     await waitFor(() => expect(peticiones.find((p) => p.path === '/api/demo/start')?.body)
@@ -504,7 +504,7 @@ describe('/demo — modos de prompts', () => {
     await waitFor(() => expect(urls).toContain('GET /api/demo/preflight?modo=edir'))
     const chequeos = screen.getByRole('list', { name: 'Chequeo previo' })
     await waitFor(() => expect(within(chequeos).getByText('prompts del modo')).toBeTruthy())
-    expect(screen.getByRole('region', { name: 'Modo E-DIR' }).textContent)
+    expect(screen.getByRole('region', { name: 'Modo Por detección directa E-DIR' }).textContent)
       .toMatch(/«construction worker without safety helmet»/)
     fireEvent.click(screen.getByRole('button', { name: /^Iniciar/ }))
     await waitFor(() => expect(peticiones.find((p) => p.path === '/api/demo/start')?.body)
@@ -512,7 +512,7 @@ describe('/demo — modos de prompts', () => {
 
     // De vuelta al campeón: el próximo chequeo va sin `?modo=`.
     const antes = preflights().length
-    fireEvent.click(radio(/Campeón/))
+    fireEvent.click(radio(/Perfil operativo/))
     await waitFor(() => expect(preflights().slice(antes)).toContain('GET /api/demo/preflight'))
   })
 
@@ -529,7 +529,7 @@ describe('/demo — modos de prompts', () => {
     unmount()
     montar('/demo')
     await tarjeta()
-    expect(radio(/Campeón/).checked).toBe(true)
+    expect(radio(/Perfil operativo/).checked).toBe(true)
   })
 
   it('durante la corrida la tarjeta muestra el modo de la sesión y no deja cambiarlo', async () => {
@@ -562,7 +562,7 @@ describe('/demo — modos de prompts', () => {
     // La sesión termina sin pasar por el Resultado (vuelve a Listo en esta misma pantalla).
     estado = { ...IDLE }
     await screen.findByRole('radiogroup', { name: 'Cámara de la demo' }, { timeout: 6000 })
-    expect(radio(/Campeón/).checked).toBe(true)
+    expect(radio(/Perfil operativo/).checked).toBe(true)
     const antes = preflights().length
     await waitFor(() => expect(preflights().length).toBeGreaterThan(antes), { timeout: 6000 })
     expect(preflights().slice(antes).every((u) => u === 'GET /api/demo/preflight')).toBe(true)

@@ -12,7 +12,7 @@ const clase = (extra: Partial<PromptClass> = {}): PromptClass => ({
 describe('ayudaDeClase — la explicación sale de lo que el propio conjunto declara', () => {
   it('junta condición, estrategia y la frase exacta que se le manda al modelo', () => {
     const a = ayudaDeClase(clase())
-    expect(a.titulo).toBe('CR-01 — Presencia de persona sin casco · Negación sintáctica')
+    expect(a.titulo).toBe('Sin casco CR-01 · Negación sintáctica')
     expect(a.texto).toBe(ESTRATEGIAS.syntactic_negation.que)
     expect(a.ejemplo).toBe('person without hard hat')
   })
@@ -27,7 +27,7 @@ describe('ayudaDeClase — la explicación sale de lo que el propio conjunto dec
   it('una estrategia que la consola no conoce no se traduce a una explicación falsa', () => {
     const a = ayudaDeClase(clase({ strategy: 'estrategia_nueva' }))
     expect(a.texto).toBeUndefined()
-    expect(a.titulo).toBe('CR-01 — Presencia de persona sin casco · estrategia_nueva')
+    expect(a.titulo).toBe('Sin casco CR-01 · estrategia_nueva')
   })
 
   it('avisa si está desactivada por defecto y si es solo diagnóstico', () => {

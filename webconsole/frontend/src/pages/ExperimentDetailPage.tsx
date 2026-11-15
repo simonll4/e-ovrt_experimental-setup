@@ -21,8 +21,8 @@ import {
   APPLICABILITY_STATUS,
   DISTRIBUTION_OUTCOME,
   applicabilityLabel,
-  conditionLabel,
 } from '../labels'
+import NombreCodigo from '../components/ui/NombreCodigo'
 import type {
   ActiveRiskPattern,
   ExperimentAlert,
@@ -469,7 +469,7 @@ export default function ExperimentDetailPage() {
                 {alerts.map((a) => (
                   <tr key={a.alert_id}>
                     <td className="eo-mono">{a.alert_id}</td>
-                    <td><Termino id={a.condition_id}>{conditionLabel(a.condition_id)}</Termino></td>
+                    <td><Termino id={a.condition_id}><NombreCodigo codigo={a.condition_id} /></Termino></td>
                     <td>
                       <Badge tone={alertSeverityTone(a.severity)}>
                         {SEVERITY_LABEL[a.severity] ?? a.severity}
