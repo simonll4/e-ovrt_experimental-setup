@@ -185,10 +185,10 @@ class Plataforma:
             ps = filas.get(nombre)
             etiquetas = _normalize_labels(svc.get("labels"))
             estado = str(ps.get("State")) if ps else "ausente"
-            # Si se reconstruyó la imagen después de levantar el contenedor, compose muestra su digest: se muestra
-            # el nombre declarado y se avisa que corre la versión anterior.
+            # Si la etiqueta se movió a otra construcción después de crear el contenedor, compose muestra el digest
+            # de la imagen con que se creó: se muestra el nombre declarado y se avisa que la etiqueta ya no es esa.
             imagen = (ps or {}).get("Image") or svc.get("image")
-            anterior = bool(imagen and str(imagen).startswith("sha256:"))
+            movida = bool(imagen and str(imagen).startswith("sha256:"))
             return {
                 "servicio": nombre,
                 "nombre": NUCLEO.get(nombre),
@@ -196,8 +196,8 @@ class Plataforma:
                 "modelo": etiquetas.get(MODEL_REF_LABEL),
                 "estado": estado,
                 "salud": (ps or {}).get("Health") or None,
-                "imagen": svc.get("image") if anterior else imagen,
-                "imagen_anterior": anterior,
+                "imagen": svc.get("image") if movida else imagen,
+                "etiqueta_movida": movida,
                 "desde": desde.get((ps or {}).get("Name") or "") if estado == "running" else None,
                 "puerto": _puerto(ps, svc.get("ports") or [], _SERVICE_PORT if grupo == "deteccion" else None),
                 "activa": nombre == activa,

@@ -2553,8 +2553,13 @@ a.eo-sidebar__tema:hover { text-decoration: none; }
 .eo-presentacion__nav kbd {
   padding: 0 6px; border: 1px solid var(--bds); border-radius: 4px; font-family: var(--fm); font-size: 14px;
 }
-/* Todo un 40 % más grande: la consola usa medidas en píxeles, y el zoom las escala juntas. */
+/* Todo más grande: la consola usa medidas en píxeles, y el zoom las escala juntas. Un 40 %, y un 60 % desde
+   1600 px de ancho (un proyector de 1920×1080), donde la mitad del texto quedaba por debajo de 18 px. */
 .eo-presentacion__contenido { zoom: 1.4; max-width: none; padding: 20px 28px 40px; }
+@media (min-width: 1600px) {
+  .eo-presentacion__nav { font-size: 24px; }
+  .eo-presentacion__contenido { zoom: 1.6; }
+}
 @media (max-width: 1023px) {
   .eo-presentacion__nav { padding: 10px 16px; font-size: 17px; }
   .eo-presentacion__contenido { zoom: 1.15; padding: 16px; }

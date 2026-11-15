@@ -106,9 +106,9 @@ function TablaServicios({ titulo, filas, meta, ocupado, enCurso, pedir }: {
                   <td>{ocupado === s.servicio ? <Badge tone="warn" pulse>Trabajando…</Badge> : <Badge tone={e.tono}>{e.texto}</Badge>}</td>
                   <td className="eo-mono">
                     {s.imagen ?? '—'}
-                    {s.imagen_anterior && (
-                      <span className="eo-note--meta eo-plataforma__anterior" title="La imagen se reconstruyó después de levantarlo: reiniciarlo toma la nueva">
-                        {' '}· versión anterior
+                    {s.etiqueta_movida && (
+                      <span className="eo-note--meta" title="El contenedor corre la imagen con la que se creó; después la etiqueta pasó a otra construcción">
+                        {' '}· la etiqueta apunta ahora a otra imagen
                       </span>
                     )}
                   </td>

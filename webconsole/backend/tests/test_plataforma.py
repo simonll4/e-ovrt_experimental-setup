@@ -84,9 +84,9 @@ def test_el_estado_trae_los_dos_grupos_con_salud_imagen_puerto_y_desde(cliente):
         "Motor de reglas", "running", "healthy", "img/control-plane", "8081")
     assert rc["desde"] == "2026-11-15T10:00:00Z"
     assert datos["nucleo"][3]["estado"] == "ausente"
-    # Una imagen reconstruida después de levantar el contenedor: el nombre declarado y el aviso.
-    assert (datos["nucleo"][2]["imagen"], datos["nucleo"][2]["imagen_anterior"]) == ("eovrt/alert-distribution:latest", True)
-    assert datos["nucleo"][1]["imagen_anterior"] is False
+    # La etiqueta se movió a otra construcción después de crear el contenedor: el nombre declarado y el aviso.
+    assert (datos["nucleo"][2]["imagen"], datos["nucleo"][2]["etiqueta_movida"]) == ("eovrt/alert-distribution:latest", True)
+    assert datos["nucleo"][1]["etiqueta_movida"] is False
     assert datos["deteccion"][0]["puerto"] == "8080 (red interna)"  # detenida y sin crear: el mismo puerto adentro
     assert [f["servicio"] for f in datos["deteccion"]] == ["mp-gdino-tiny-560", "mp-mock"]
     assert datos["deteccion"][1]["puerto"] == "8080 (red interna)"

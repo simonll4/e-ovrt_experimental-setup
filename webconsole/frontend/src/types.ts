@@ -1232,8 +1232,8 @@ export interface ServicioPlataforma {
   estado: string
   salud: string | null
   imagen: string | null
-  /** La imagen se reconstruyó después de levantar el contenedor: corre la versión anterior. */
-  imagen_anterior?: boolean
+  /** La etiqueta se movió a otra construcción después de crear el contenedor, que sigue con la suya. */
+  etiqueta_movida?: boolean
   /** Desde cuándo corre (ISO), si corre. */
   desde: string | null
   puerto: string | null
