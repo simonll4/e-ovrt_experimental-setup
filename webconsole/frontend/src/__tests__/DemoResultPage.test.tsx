@@ -123,7 +123,7 @@ describe('/demo/resultado/:id', () => {
     await waitFor(() => expect(screen.getByLabelText('Teclas').textContent).not.toMatch(/reiniciando/))
     await new Promise((r) => setTimeout(r, 50))
     await tecla('l')
-    expect(await screen.findByRole('heading', { name: /Demo en vivo/ })).toBeTruthy()
+    expect(await screen.findByRole('heading', { name: /Demo con cámara/ })).toBeTruthy()
   })
 })
 
@@ -191,7 +191,7 @@ describe('/demo/resultado/:id — moverse y modos', () => {
     await waitFor(() => expect(screen.getByLabelText('Teclas').textContent).not.toMatch(/reiniciando/))
     await new Promise((r) => setTimeout(r, 50))
     await tecla('l')
-    expect(await screen.findByRole('heading', { name: /Demo en vivo/ })).toBeTruthy()
+    expect(await screen.findByRole('heading', { name: /Demo con cámara/ })).toBeTruthy()
     expect(screen.getByText(/la entrada es una grabación/)).toBeTruthy()
     expect(screen.queryByRole('complementary', { name: 'Navegación principal' })).toBeNull()
   })

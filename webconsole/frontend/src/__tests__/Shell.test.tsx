@@ -178,3 +178,31 @@ describe('Shell', () => {
     expect(localStorage.getItem('eovrt-sidebar-collapsed')).toBe('1')
   })
 })
+
+describe('Modo presentación (plan de la consola, §7.3)', () => {
+  it('en cualquier pantalla: sin la barra lateral, con los destinos de Demostrar que conservan el modo', () => {
+    renderShell('/platform?proyectar=1')
+    expect(screen.queryByRole('complementary', { name: 'Navegación principal' })).toBeNull()
+    const franja = within(screen.getByRole('navigation', { name: 'Demostrar' }))
+    expect(franja.getAllByRole('link').map((a) => [a.textContent, a.getAttribute('href')])).toEqual([
+      ['Plataforma', '/platform?proyectar=1'], ['Correr un clip', '/correr-clip?proyectar=1'],
+      ['Demo con cámara', '/demo?proyectar=1'], ['Volver a la consola P', '/platform'],
+    ])
+    expect(franja.getByRole('link', { name: 'Plataforma' }).getAttribute('aria-current')).toBe('page')
+    expect(screen.getByText('contenido')).toBeTruthy()
+  })
+
+  it('se entra desde la barra y con la tecla P, y con P se sale; escribir una p en un campo no cuenta', async () => {
+    renderShell('/resultados')
+    expect(screen.getByRole('link', { name: /Modo presentación/ }).getAttribute('href')).toBe('/resultados?proyectar=1')
+    const campo = document.createElement('input')
+    document.body.appendChild(campo)
+    fireEvent.keyDown(campo, { key: 'p' })
+    expect(screen.getByRole('complementary', { name: 'Navegación principal' })).toBeTruthy()
+    campo.remove()
+    fireEvent.keyDown(window, { key: 'p' })
+    await waitFor(() => expect(screen.queryByRole('complementary', { name: 'Navegación principal' })).toBeNull())
+    fireEvent.keyDown(window, { key: 'P' })
+    await waitFor(() => expect(screen.getByRole('complementary', { name: 'Navegación principal' })).toBeTruthy())
+  })
+})

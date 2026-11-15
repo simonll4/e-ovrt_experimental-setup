@@ -128,7 +128,7 @@ describe('/demo — Listo', () => {
   it('en proyección va a pantalla completa, sin el armazón y sin consultas globales', async () => {
     instalar(() => IDLE)
     montar()
-    expect(await screen.findByRole('heading', { name: /Demo en vivo/ })).toBeTruthy()
+    expect(await screen.findByRole('heading', { name: /Demo con cámara/ })).toBeTruthy()
     expect(screen.queryByRole('complementary', { name: 'Navegación principal' })).toBeNull()
     await waitFor(() => expect(peticiones.some((p) => p.path === '/api/demo/preflight')).toBe(true))
     const paths = new Set(peticiones.map((p) => p.path))

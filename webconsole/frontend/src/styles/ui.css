@@ -2527,3 +2527,35 @@ a.eo-mini:hover { border-color: var(--ac-bd); text-decoration: none; color: inhe
 
 /* Pie sólo para lectores de pantalla y anuncios de estado discretos. */
 .eo-status-line { margin: 0 0 8px; font-size: var(--fz-meta); color: var(--tx3); }
+
+/* ── Modo presentación (plan de la consola de evidencia, §7.3) ───────────────
+   `?proyectar=1` o la tecla P, en cualquier pantalla: sin la barra lateral, con
+   letra grande para leer a cinco metros y una franja con los destinos de
+   «Demostrar». Sigue el tema elegido (el claro por defecto). */
+a.eo-sidebar__tema { text-decoration: none; }
+a.eo-sidebar__tema:hover { text-decoration: none; }
+.eo-sidebar__tema kbd {
+  margin-left: 4px; padding: 0 5px; border: 1px solid var(--bds); border-radius: 4px;
+  font-family: var(--fm); font-size: 11px; color: var(--tx3);
+}
+.eo-presentacion { min-height: 100vh; background: var(--bg); color: var(--tx); }
+.eo-presentacion__nav {
+  position: sticky; top: 0; z-index: 5;
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 24px;
+  padding: 12px 32px; background: var(--s1); border-bottom: 1px solid var(--bd);
+  font-size: 20px;
+}
+.eo-presentacion__marca { margin-right: 8px; }
+.eo-presentacion__nav a { color: var(--tx2); text-decoration: none; padding: 4px 2px; border-bottom: 3px solid transparent; }
+.eo-presentacion__nav a:hover { color: var(--tx); }
+.eo-presentacion__nav a[aria-current='page'] { color: var(--tx); font-weight: 600; border-bottom-color: var(--ac); }
+.eo-presentacion__salir { margin-left: auto; font-size: 16px; }
+.eo-presentacion__nav kbd {
+  padding: 0 6px; border: 1px solid var(--bds); border-radius: 4px; font-family: var(--fm); font-size: 14px;
+}
+/* Todo un 40 % más grande: la consola usa medidas en píxeles, y el zoom las escala juntas. */
+.eo-presentacion__contenido { zoom: 1.4; max-width: none; padding: 20px 28px 40px; }
+@media (max-width: 1023px) {
+  .eo-presentacion__nav { padding: 10px 16px; font-size: 17px; }
+  .eo-presentacion__contenido { zoom: 1.15; padding: 16px; }
+}

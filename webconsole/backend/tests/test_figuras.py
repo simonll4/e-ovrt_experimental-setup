@@ -24,7 +24,7 @@ REPO = Path(__file__).resolve().parents[3]
 VISTA = REPO / "results" / "evidence-vista"
 NUMERO = re.compile(r"(?<![\w\-−.,§])\d+(?:[.,]\d+)?(?![\w\-−])")
 # Las pantallas que se pueden publicar: solo texto, sin cuadros de video ni fotos.
-PANTALLAS_DE_TEXTO = {"[data-figura='momento-mensaje']", "#contenido"}
+PANTALLAS_DE_TEXTO = {"[data-figura='momento-mensaje']", "[data-figura='plataforma-servicios']"}
 
 
 def _declaradas() -> list[dict]:

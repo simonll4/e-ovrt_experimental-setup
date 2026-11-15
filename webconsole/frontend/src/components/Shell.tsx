@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { NAV_ARCHIVO, NAV_GROUPS, destinoActivo, type NavItem } from '../nav'
-import { Dialog, IconClose, IconMenu, enfocarCuandoAparezca } from './ui'
+import { Dialog, IconClose, IconExpand, IconMenu, enfocarCuandoAparezca } from './ui'
 import { IconTema } from './ui/icons'
 import Breadcrumbs from './Breadcrumbs'
 import { GlosarioProvider } from './Glosario'
 import TargetBadge from './TargetBadge'
 import LiveRunPill from './LiveRunPill'
-import { esProyeccion } from './demo/proyeccion'
+import { PARAM_PROYECTAR, esProyeccion } from './demo/proyeccion'
 import { useServiceHealth, type ServiceHealth, type ServiceStatus } from '../api/queries/platform'
 import { useTema } from '../tema'
 
@@ -84,6 +84,57 @@ function SelectorTema() {
   )
 }
 
+/** La búsqueda con el modo presentación prendido o apagado (plan §7.3: `?proyectar=1`, tecla P). */
+function conPresentacion(search: string, prender: boolean): string {
+  const params = new URLSearchParams(search)
+  if (prender) params.set(PARAM_PROYECTAR, '1')
+  else params.delete(PARAM_PROYECTAR)
+  const query = params.toString()
+  return query ? `?${query}` : ''
+}
+
+/** Una tecla escrita en un campo no es un atajo. */
+function escribiendo(destino: EventTarget | null): boolean {
+  const el = destino as HTMLElement | null
+  return Boolean(el && (el.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(el.tagName)))
+}
+
+/** Entra al modo presentación (plan §7.3): sin barra lateral y con letra grande, en cualquier pantalla. */
+function BotonPresentacion() {
+  const { pathname, search } = useLocation()
+  return (
+    <Link className="eo-sidebar__tema" to={`${pathname}${conPresentacion(search, true)}`}>
+      <IconExpand />
+      <span>Modo presentación <kbd>P</kbd></span>
+      <span className="eo-tip" aria-hidden="true" data-tip="Modo presentación" />
+    </Link>
+  )
+}
+
+/** El modo presentación: la pantalla sin la barra lateral, con letra grande y una franja con los destinos
+ *  de «Demostrar», que conservan el modo. Sigue el tema elegido (el claro por defecto). */
+function Presentacion({ children }: { children: ReactNode }) {
+  const { pathname, search } = useLocation()
+  const demostrar = NAV_GROUPS.find((g) => g.title === 'Demostrar')?.items ?? []
+  return (
+    <div className="eo-presentacion">
+      <nav className="eo-presentacion__nav" aria-label="Demostrar">
+        <b className="eo-presentacion__marca">E-OVRT</b>
+        {demostrar.map((item) => (
+          <Link key={item.to} to={`${item.to}${conPresentacion('', true)}`}
+            aria-current={destinoActivo(item, pathname) ? 'page' : undefined}>
+            {item.label}
+          </Link>
+        ))}
+        <Link className="eo-presentacion__salir" to={`${pathname}${conPresentacion(search, false)}`}>
+          Volver a la consola <kbd>P</kbd>
+        </Link>
+      </nav>
+      <main className="eo-content eo-presentacion__contenido" id="contenido">{children}</main>
+    </div>
+  )
+}
+
 /** Un destino de la barra: icono, nombre y, colapsada, su tooltip. */
 function Destino({ item, onNavigate }: { item: NavItem; onNavigate: () => void }) {
   const { pathname } = useLocation()
@@ -146,6 +197,7 @@ function Navegacion({
         </div>
       )}
       <SelectorTema />
+      <BotonPresentacion />
     </>
   )
 }
@@ -156,14 +208,17 @@ export default function Shell({ children }: { children: ReactNode }) {
   // La demo en vivo vive dentro de la consola; solo su modo proyección
   // (`?proyectar=1`, tecla P) va a pantalla completa, sin el armazón y sin ninguna
   // consulta global (spec 2026-10-23 §6.5; ✎ 2026-10-31, components/demo/proyeccion.ts).
-  const demo = (pathname === '/demo' || pathname.startsWith('/demo/')) && esProyeccion(search)
+  const presentando = esProyeccion(search)
+  const enDemo = pathname === '/demo' || pathname.startsWith('/demo/')
+  const demo = enDemo && presentando
+  const navigate = useNavigate()
   const desktop = useMediaQuery(DESKTOP_QUERY)
   const [open, setOpen] = useState(false)
   // Al cerrar por navegación el foco va al encabezado del destino, no de
   // vuelta al botón de menú.
   const [restaurarFoco, setRestaurarFoco] = useState(true)
   const [collapsed, setCollapsed] = useState(() => localStorage.getItem(COLLAPSE_KEY) === '1')
-  const health = useServiceHealth(!archive && !demo)
+  const health = useServiceHealth(!archive && !presentando)
   const menuRef = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
@@ -190,7 +245,20 @@ export default function Shell({ children }: { children: ReactNode }) {
     enfocarEncabezado()
   }
 
+  // La tecla P entra y sale del modo presentación en cualquier pantalla; la demo tiene la suya.
+  useEffect(() => {
+    if (enDemo) return
+    const alPulsar = (e: KeyboardEvent) => {
+      if (e.key.toLowerCase() !== 'p' || e.ctrlKey || e.metaKey || e.altKey || escribiendo(e.target)) return
+      e.preventDefault()
+      navigate(`${pathname}${conPresentacion(search, !presentando)}`, { replace: true })
+    }
+    window.addEventListener('keydown', alPulsar)
+    return () => window.removeEventListener('keydown', alPulsar)
+  }, [enDemo, navigate, pathname, search, presentando])
+
   if (demo) return <GlosarioProvider>{children}</GlosarioProvider>
+  if (presentando) return <GlosarioProvider><Presentacion>{children}</Presentacion></GlosarioProvider>
 
   return (
     <div className={desktop ? 'eo-shell eo-shell--desktop' : 'eo-shell eo-shell--compact'}>

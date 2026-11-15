@@ -279,9 +279,9 @@ export default function DemoPage() {
 
   if (proyectando) {
     return (
-      <main className="eo-demo eo-demo--proyeccion" aria-label="Demo en vivo">
+      <main className="eo-demo eo-demo--proyeccion" aria-label="Demo con cámara">
         <header className="eo-demo__cab">
-          <h1>Demo en vivo · E-OVRT</h1>
+          <h1>Demo con cámara · E-OVRT</h1>
           {avisoVariante && <p className="eo-demo__variante">{avisoVariante}</p>}
           {(corriendo || cerrando) && <LineaModo modo={estado?.modo_prompts} />}
         </header>

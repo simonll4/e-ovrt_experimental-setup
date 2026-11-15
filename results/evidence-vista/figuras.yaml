@@ -33,10 +33,9 @@ figuras:
       Los servicios de la plataforma corriendo en contenedores en el equipo de la campaña: el núcleo y las
       instancias de detección, con la activa destacada.
     privada: false
-    # Cuando esté: fuente: {pantalla: /platform, selector: <el panel de los servicios>}
-    pendiente: >-
-      Sale de la pantalla de la plataforma, que todavía se rehace, y se saca de la consola en contenedor con la
-      plataforma desplegada: en una consola nativa la pantalla dice que la orquestación no está habilitada.
+    # Se saca de la consola en contenedor con la plataforma desplegada: en una consola nativa la pantalla dice que
+    # la orquestación necesita los contenedores.
+    fuente: {pantalla: /platform, selector: "[data-figura='plataforma-servicios']"}
 
   # Reemplaza a la figura de la toma en vivo del capítulo 4 del informe.
   - id: toma-con-alerta
