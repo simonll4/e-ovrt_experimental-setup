@@ -6,3 +6,5 @@
 [2026-11-01T19:13:53+00:00] veredicto confirmado: identico (equipo E-OVRT-VDP): Consola reconstruida para F7 (884ed36); infraestructura declarada sin cambios; la version del cierre de F6 queda en PLAT-01.cierre-F6
 [2026-11-07T14:59:31+00:00] python -m tools.evidencia correr PLAT-01
 [2026-11-07T15:00:23+00:00] veredicto confirmado: identico (equipo E-OVRT-VDP): Consola reconstruida para la segunda jornada de F7 (encuadre calibrado en el chequeo previo, doc 134 s13.19; apertura de la OAK-D sin friccion, 638a2ef); infraestructura declarada sin cambios; la version de la jornada 1 queda en PLAT-01.F7-jornada-1
+[2026-11-15T23:19:44+00:00] python -m tools.evidencia correr PLAT-01
+[2026-11-15T23:20:22+00:00] veredicto confirmado: identico (equipo E-OVRT-VDP): Consola reconstruida con la consola de evidencia (etapas 1 a 6 del 2026-11-15, 9666478); infraestructura declarada sin cambios; imagenes del nucleo y de deteccion sin cambios, solo la de la consola es nueva; el repo del motor de reglas avanzo a 5e5e4c6 (patrones no oficiales de ALR-13 y ALR-14) sin reconstruir su imagen; la version anterior queda en PLAT-01.hasta-etapa-5
