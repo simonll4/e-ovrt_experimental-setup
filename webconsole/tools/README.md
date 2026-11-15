@@ -46,3 +46,20 @@ como lo haría el selector de la barra lateral. Cada cambio se mira en los dos.
 Necesita Playwright, que no es dependencia del proyecto: se instala en `webconsole/tools/.capture-runtime`
 (ignorada por git) o se indica con `--playwright-module`. El navegador, con `--chromium <ruta>` si no hay uno
 instalado por Playwright. Las opciones están en el encabezado del archivo.
+
+## `sacar_figuras.mjs`
+
+Saca las diez figuras del informe de una consola que ya está corriendo. La lista es
+`results/evidence-vista/figuras.yaml` y la herramienta la lee de la consola (`GET /api/figuras`): un gráfico se
+captura de la página de su pregunta, una pantalla se captura del elemento que dice el archivo y un archivo se copia.
+
+```bash
+node webconsole/tools/sacar_figuras.mjs                        # contra la consola en contenedor (8090)
+node webconsole/tools/sacar_figuras.mjs --base http://localhost:5173 --solo falsas-alarmas-por-causa
+```
+
+Cada figura va a su carpeta y a ninguna otra: la pública `results/gen2/<prueba>/capturas/` solo recibe gráficos y
+pantallas de texto (si el elemento tiene una imagen o un video, no se guarda) y lo que tiene personas o cuadros de
+terceros va a `defensa/capturas/figuras/`, que no va a git. Se sacan en el tema claro y al doble de resolución
+(`--escala`). Un archivo con `recorte_arriba` se copia sin esa franja de arriba (la banda de códigos internos que
+graba VIS-01). Las figuras pendientes se listan con su motivo. Sale con 1 si alguna falló.

@@ -20,6 +20,7 @@ from eovrt_webconsole.evidence_archive import EvidenceArchive
 from eovrt_webconsole.experiment.control_backend import ControlPlaneBackend
 from eovrt_webconsole.experiment.run_manager import ExperimentRunManager
 from eovrt_webconsole.gen2 import Gen2
+from eovrt_webconsole.figuras import Figuras
 from eovrt_webconsole.preguntas import Preguntas
 from eovrt_webconsole.http_reintento import ReintentoKeepAlive
 from eovrt_webconsole.orchestrator import ComposeOrchestrator, RunCmd, TargetManager
@@ -36,6 +37,7 @@ from eovrt_webconsole.routers import (
     documentacion,
     evidencia,
     experiments,
+    figuras,
     gen2,
     manifests,
     preguntas,
@@ -158,10 +160,13 @@ def create_app(
     app.state.gen2 = Gen2(settings.repo_root)
     # La portada y las siete preguntas (plan de la consola de evidencia, §2 y §9).
     app.state.preguntas = Preguntas(settings.repo_root, app.state.gen2)
+    # Las diez figuras del informe (§8): de dónde sale cada una y si ya existe.
+    app.state.figuras = Figuras(settings.repo_root, app.state.gen2)
     app.include_router(documentacion.router)
     app.include_router(evidencia.router)
     app.include_router(gen2.router)
     app.include_router(preguntas.router)
+    app.include_router(figuras.router)
     app.include_router(tomas.router)
     app.include_router(meta.router)
     app.include_router(catalog.router)

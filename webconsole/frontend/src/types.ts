@@ -1221,6 +1221,41 @@ export interface TomaEnVivo {
   /** Si la carpeta de la sesión está en este equipo: sin ella, el video no se publica. */
   disponible: boolean
 }
+/** Una de las diez figuras del informe (plan de la consola, §8). */
+export interface FiguraInforme {
+  id: string
+  numero: number
+  titulo: string
+  preguntas: string[]
+  seccion: string | null
+  prueba: string | null
+  pie: string | null
+  /** Tiene personas o cuadros de terceros: va a la carpeta privada y no se publica. */
+  privada: boolean
+  solo_informe: boolean
+  /** Por qué todavía no tiene fuente; una figura pendiente no se muestra. */
+  pendiente: string | null
+  fuente: { pantalla?: string; selector?: string; archivo?: string; recorte_arriba?: number }
+  grafico: GraficoBarras | GraficoLineas | null
+  destino: string | null
+  disponible: boolean
+  url: string | null
+}
+export interface GraficoBarras {
+  tipo: 'barras'
+  unidad: string | null
+  barras: Array<{ etiqueta: string; aparte: boolean; cifra: CifraPregunta }>
+}
+export interface GraficoLineas {
+  tipo: 'lineas'
+  series: string[]
+  puntos: Array<{ etiqueta: string; valores: CifraPregunta[] }>
+}
+export interface VistaFiguras {
+  figuras: FiguraInforme[]
+  errores: string[]
+}
+
 export interface VistaTomas {
   pruebas: Array<{ id: string; tomas: TomaEnVivo[] }>
   /** Calibraciones, ensayos, exploraciones y tomas descartadas, con su motivo. */

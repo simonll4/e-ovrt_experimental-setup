@@ -101,6 +101,8 @@ export const qk = {
   preguntas: ['preguntas'] as const,
   /** Las tomas en vivo agrupadas por prueba. */
   tomas: ['tomas'] as const,
+  /** Las diez figuras del informe. */
+  figuras: ['figuras'] as const,
 
   /** La demo en vivo de la defensa (`/demo`). */
   demo: {

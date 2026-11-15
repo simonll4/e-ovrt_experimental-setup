@@ -57,6 +57,38 @@
 .eo-celda__valor { font-variant-numeric: tabular-nums; white-space: nowrap; }
 .eo-celda__valor--falla { color: var(--er); }
 
+/* «Cómo se ve»: las figuras del informe. El lienzo es lo que se captura para el informe: lleva su
+   propio fondo y margen para que la imagen salga limpia. */
+.eo-figuras { display: flex; flex-direction: column; gap: 28px; }
+.eo-figura { margin: 0; display: flex; flex-direction: column; gap: 12px; }
+.eo-figura__cab { display: flex; flex-direction: column; gap: 4px; max-width: 80ch; }
+.eo-figura__titulo { font-size: var(--fz-panel); font-weight: 600; color: var(--tx); }
+.eo-figura__num { color: var(--tx3); font-weight: 500; margin-right: 4px; }
+.eo-figura__pie { font-size: var(--fz-meta); color: var(--tx3); line-height: 1.5; }
+.eo-figura__lienzo { background: var(--s1); padding: 16px 12px; border: 1px solid var(--bd); border-radius: var(--r); }
+.eo-figura__imagen { display: block; max-width: 100%; height: auto; border: 1px solid var(--bd); border-radius: var(--r); }
+.eo-figura__falta { margin: 0; padding: 16px; border: 1px dashed var(--bds); border-radius: var(--r); color: var(--tx3); }
+.eo-figura__fuente { margin: 0; }
+
+/* Barras horizontales de una sola serie: etiqueta, barra y cifra al final. */
+.eo-hbars { display: flex; flex-direction: column; gap: 8px; }
+.eo-hbars__unidad { margin: 0; font-size: var(--fz-meta); color: var(--tx3); }
+.eo-hbars__lista { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.eo-hbars__lista--aparte { padding-top: 10px; border-top: 1px dashed var(--bds); }
+.eo-hbars__fila { display: grid; grid-template-columns: minmax(12ch, 32%) 1fr; align-items: center; gap: 12px; }
+.eo-hbars__etiqueta { font-size: var(--fz-data); color: var(--tx2); text-align: right; line-height: 1.3; }
+.eo-hbars__pista { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.eo-hbars__barra { display: block; height: 14px; background: var(--c1); border-radius: 0 4px 4px 0; flex: none; }
+.eo-hbars__barra--aparte { background: var(--nt); }
+.eo-hbars__valor { font-family: var(--fm); font-size: var(--fz-meta); color: var(--tx); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* Líneas sobre categorías: leyenda arriba, nombre y última cifra al final de cada línea. */
+.eo-lineas { display: flex; flex-direction: column; gap: 4px; }
+.eo-lineas__leyenda { margin: 0 0 4px; }
+.eo-lineas__clave { width: 16px; height: 3px; border-radius: 2px; flex: none; display: inline-block; }
+.eo-lineas__final { font-size: 12px; fill: var(--tx2); }
+.eo-lineas__cifra { font-family: var(--fm); fill: var(--tx); }
+
 @media (max-width: 767px) {
   .eo-inicio__nombre { font-size: 24px; }
   .eo-inicio__titulo { font-size: var(--fz-panel); }

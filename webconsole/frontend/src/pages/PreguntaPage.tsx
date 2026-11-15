@@ -5,6 +5,7 @@ import { PREGUNTA_PATH } from '../nav'
 import type { TablaPregunta } from '../types'
 import { nombreConCodigo } from '../vocabulario'
 import { EstadoDeLectura } from './evidencia/comun'
+import ComoSeVe from './preguntas/ComoSeVe'
 import { CeldaCifras, Plantilla } from './preguntas/comun'
 import './preguntas/Preguntas.css'
 
@@ -48,7 +49,7 @@ function TablaDelInforme({ t }: { t: TablaPregunta }) {
 
 /** La página de una pregunta (plan de la consola de evidencia, §2.3): la respuesta en una oración, la
  *  tabla del informe con cada fila enlazada a su prueba y lo que la cifra no dice. Solo cifras
- *  finales, sin la etapa anterior ni veredictos. Las figuras («Cómo se ve») llegan en la etapa 4. */
+ *  finales, sin la etapa anterior ni veredictos, y las figuras del informe que la muestran. */
 export default function PreguntaPage() {
   const { id = '' } = useParams()
   const q = usePreguntas()
@@ -71,6 +72,7 @@ export default function PreguntaPage() {
       <PageHeader title={pr.titulo} meta={pr.informe.map((s) => <Tag key={s}>{s}</Tag>)} />
       <p className="eo-pregunta__respuesta"><Plantilla texto={pr.respuesta} cifras={pr.cifras} /></p>
       {pr.tablas.map((t) => <TablaDelInforme key={t.titulo} t={t} />)}
+      <ComoSeVe preguntaId={pr.id} />
       {pr.limites.length > 0 && (
         <Card title="Qué no dice esta cifra">
           <ul className="eo-pregunta__limites">

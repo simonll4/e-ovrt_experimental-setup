@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState, type RefObject } from 'react'
+import { useRef } from 'react'
 import { niceTicks } from './layout'
 import { SERIES_COLORS } from '../../palette'
+import { useAncho } from './useAncho'
 
 export interface BarRect {
   x: number
@@ -53,25 +54,6 @@ const fmtValue = (v: number) => v.toFixed(2).replace('.', ',')
 
 /** Ancho mínimo de un grupo: 120 px, o 40 px por serie si hay muchas. */
 const anchoMinimoDeGrupo = (series: number) => Math.max(120, 40 * series)
-
-/** Ancho disponible del contenedor, medido: el gráfico se dibuja en píxeles
- *  reales para que su tipografía no se achique al encoger la pantalla. */
-function useAncho(ref: RefObject<HTMLDivElement>, inicial: number) {
-  const [ancho, setAncho] = useState(inicial)
-  useEffect(() => {
-    const el = ref.current
-    if (!el || typeof ResizeObserver === 'undefined') return
-    const medir = () => {
-      const w = el.clientWidth
-      if (w > 0) setAncho(w)
-    }
-    medir()
-    const ro = new ResizeObserver(medir)
-    ro.observe(el)
-    return () => ro.disconnect()
-  }, [ref])
-  return ancho
-}
 
 export default function GroupedBars({ groups, series, labels, width = 720, height = 300 }: {
   groups: string[]

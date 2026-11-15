@@ -1,0 +1,185 @@
+# Las diez figuras del informe (plan de la consola de evidencia, §8.2): una lista cerrada.
+#
+# Criterio de entrada: una imagen entra solo si muestra algo que una tabla no puede mostrar. Este archivo
+# declara las diez —qué es cada una, de qué pantalla o archivo sale, su pie y su sección— y es lo único que
+# leen la herramienta que las genera (webconsole/tools/sacar_figuras.mjs) y el bloque «Cómo se ve» de cada
+# pregunta. Se sacan en el tema claro.
+#
+# Dos carpetas (§8.1):
+#   - pública: results/gen2/<prueba>/capturas/ — solo texto y gráficos, va al repositorio público;
+#   - privada: defensa/capturas/figuras/ — personas, cuadros de terceros o de clips de internet; no va a git.
+#     La consola también la lee. `solo_informe: true` marca lo que tampoco viaja al Drive (clips de internet).
+#
+# Una fuente es una de estas:
+#   {pantalla: <ruta de la consola>, selector: <css>}   se captura ese elemento de esa pantalla
+#   {archivo: <ruta en el repo>}                         se copia ese archivo (solo a la carpeta privada)
+#   {archivo: ..., recorte_arriba: <px>}                 se copia sin esa franja de arriba: la banda con los
+#                                                        códigos internos que graba la herramienta de VIS-01
+#   {grafico: barras | lineas, datos: [...]}             un gráfico que la consola dibuja con cifras resueltas
+# Una figura que todavía no tiene fuente lleva `pendiente:` con el motivo, y no se genera.
+#
+# Ninguna cifra se escribe a mano: los gráficos usan las mismas referencias que preguntas.yaml.
+
+schema: consola.figuras.v1
+
+figuras:
+  - id: plataforma
+    numero: 1
+    titulo: La plataforma desplegada
+    preguntas: [que-se-construyo]
+    seccion: "§17.6"
+    prueba: PLAT-01
+    pie: >-
+      Los servicios de la plataforma corriendo en contenedores en el equipo de la campaña: el núcleo y las
+      instancias de detección, con la activa destacada.
+    privada: false
+    # Cuando esté: fuente: {pantalla: /platform, selector: <el panel de los servicios>}
+    pendiente: >-
+      Sale de la pantalla de la plataforma, que todavía se rehace, y se saca de la consola en contenedor con la
+      plataforma desplegada: en una consola nativa la pantalla dice que la orquestación no está habilitada.
+
+  # Reemplaza a la figura de la toma en vivo del capítulo 4 del informe.
+  - id: toma-con-alerta
+    numero: 2
+    titulo: Una toma en vivo con su alerta confirmada
+    preguntas: [que-se-construyo, en-vivo]
+    seccion: "§17.5.5"
+    prueba: RT-04
+    pie: >-
+      El cuadro en que el sistema confirmó la alerta de sin casco en una toma de la obra simulada, con el estado
+      de cada condición en ese instante.
+    privada: true
+    fuente: {pantalla: /demo/resultado/demo_20261107T161545Z_P1, selector: "[data-figura='momento-toma']"}
+
+  - id: mensaje-del-broker
+    numero: 3
+    titulo: El mensaje que recibió el broker
+    preguntas: [que-se-construyo]
+    seccion: "§17.3"
+    prueba: RT-04
+    pie: >-
+      El mensaje de esa misma alerta tal como lo recibió el broker MQTT, y la línea de tiempo que va de la
+      primera evidencia a la confirmación y a la entrega.
+    privada: false
+    fuente: {pantalla: /demo/resultado/demo_20261107T161545Z_P1, selector: "[data-figura='momento-mensaje']"}
+
+  - id: acierto-del-rodaje
+    numero: 4
+    titulo: Un acierto del rodaje
+    preguntas: [que-agrega]
+    seccion: "§17.5.4"
+    prueba: VIS-01
+    pie: >-
+      Un cuadro del rodaje con una alerta acertada: las cajas predichas con su puntaje, la identidad de cada
+      persona y la región que evalúa la regla.
+    privada: true
+    fuente: {archivo: defensa/figuras/VIS-01/completas/exito_012_a_p1_c02_229.png, recorte_arriba: 44}
+
+  - id: chaleco-falso
+    numero: 5
+    titulo: El chaleco falso
+    preguntas: [en-vivo]
+    seccion: "§17.5.5"
+    prueba: RT-09
+    pie: >-
+      La misma escena, después de sacarse el chaleco, con remera negra y con remera blanca: con la negra el
+      detector sigue viendo un chaleco en el torso.
+    privada: true
+    pendiente: >-
+      Hace falta elegir el cuadro de cada toma: ninguna de las dos alertas de la remera negra existe, así que no
+      hay cuadro clave guardado y hay que sacarlo del video de cada sesión.
+
+  - id: falsa-alarma-obra-real
+    numero: 6
+    titulo: Una falsa alarma en obra real
+    preguntas: [obra-real]
+    seccion: "§18.3"
+    prueba: VIS-01
+    pie: >-
+      Una falsa alarma por sujeto en un clip de obra real sin infracción, con la caja que la disparó. Cuadro de
+      un video de internet; su fuente está en el Anexo F del informe.
+    privada: true
+    solo_informe: true
+    fuente: {archivo: defensa/figuras/VIS-01/completas/obra_real_026_v06_c01_1280.png, recorte_arriba: 44}
+
+  - id: falsas-alarmas-por-causa
+    numero: 7
+    titulo: Las falsas alarmas por sujeto en obra real, por causa
+    preguntas: [obra-real]
+    seccion: "§17.5.4"
+    prueba: ERR-01
+    pie: >-
+      Cada falsa alarma por sujeto en los clips de obra real sin infracción, asignada a una causa. Aparte, las
+      que agrega la fragmentación de identidad.
+    privada: false
+    fuente:
+      grafico: barras
+      unidad: falsas alarmas
+      datos:
+        - {etiqueta: EPP no detectado, prueba: ERR-01, clave: principal.P-no-detectado}
+        - {etiqueta: EPP visto de a ratos, prueba: ERR-01, clave: principal.P-intermitente}
+        - {etiqueta: Sin persona en la referencia, prueba: ERR-01, clave: principal.F-sin-persona}
+        - {etiqueta: Atributo que no se puede ver, prueba: ERR-01, clave: principal.U}
+        - {etiqueta: Persona parcial, prueba: ERR-01, clave: principal.F-parcial}
+        - {etiqueta: EPP disputado entre personas, prueba: ERR-01, clave: principal.P-disputado}
+        - {etiqueta: Error de la referencia, prueba: ERR-01, clave: principal.V}
+        - {etiqueta: EPP fuera de la región evaluada, prueba: ERR-01, clave: principal.P-fuera-region}
+        - {etiqueta: De más por fragmentación de identidad, prueba: ERR-01, clave: principal.alertas_extra_por_fragmentacion, aparte: true}
+
+  - id: f1-segun-cuadros-por-segundo
+    numero: 8
+    titulo: El F1 según los cuadros por segundo
+    preguntas: [en-vivo]
+    seccion: "§17.5.5"
+    prueba: DEN-07
+    pie: >-
+      El F1 por episodio del rodaje a cuatro densidades de evidencia, mirando la escena y siguiendo a cada
+      persona, con las mismas detecciones.
+    privada: false
+    fuente:
+      grafico: lineas
+      series: [Por escena, Por sujeto]
+      datos:
+        - etiqueta: Banco
+          valores:
+            - {prueba: ALR-01, clave: f1, decimales: 2}
+            - {prueba: ALR-02, clave: f1, decimales: 2}
+        - etiqueta: Techo en vivo
+          valores:
+            - {prueba: DEN-01, clave: f1, decimales: 2}
+            - {prueba: DEN-02, clave: f1, decimales: 2}
+        - etiqueta: Intermedia
+          valores:
+            - {prueba: DEN-03, clave: f1, decimales: 2}
+            - {prueba: DEN-04, clave: f1, decimales: 2}
+        - etiqueta: Peor caso
+          valores:
+            - {prueba: DEN-05, clave: f1, decimales: 2}
+            - {prueba: DEN-06, clave: f1, decimales: 2}
+
+  - id: curvas-del-ajuste-fino
+    numero: 9
+    titulo: Las curvas del ajuste fino
+    preguntas: [que-detecta]
+    seccion: "§17.5.6"
+    prueba: null
+    pie: >-
+      Las curvas de entrenamiento de los dos tramos del ajuste fino, con la retención medida.
+    privada: false
+    pendiente: >-
+      Las curvas por época están solo en el repositorio privado de documentación; para dibujarlas desde la
+      consola, sus datos tienen que estar en el repositorio público.
+
+  - id: clase-nueva
+    numero: 10
+    titulo: Una clase nueva detectada sin entrenar
+    preguntas: [que-detecta]
+    seccion: "§17.5.2"
+    prueba: EXT-01
+    pie: >-
+      Maquinaria detectada en una imagen de obra con una clase que nunca se configuró ni se entrenó. Imagen de
+      construction_site_safety (CC BY 4.0).
+    privada: false
+    pendiente: >-
+      Hace falta una imagen del banco con las cajas de la clase nueva dibujadas; la consola todavía no tiene una
+      pantalla que muestre las detecciones de una corrida de imágenes.
