@@ -1268,6 +1268,58 @@ export interface EstadoPlataforma {
   acciones: AccionPlataforma[]
 }
 
+/** «Correr un clip» (plan de la consola, §7.2). */
+export interface ClipDemostracion {
+  id: string
+  titulo: string
+  disponible: boolean
+  duracion_ms: number | null
+  referencia: Array<{ condicion: string; desde_ms: number; hasta_ms: number }>
+}
+export interface PasoClip {
+  estado: 'espera' | 'en_curso' | 'ok' | 'error'
+  cuadros?: number | null
+  mensajes?: number
+}
+export interface AlertaClip {
+  alert_id: string
+  condicion: string
+  confirmada_ms: number | null
+  primera_evidencia_ms: number | null
+  episodio: { condicion: string; desde_ms: number; hasta_ms: number | null } | null
+  /** Desde que empieza el episodio de la referencia. */
+  demora_ms: number | null
+  broker: { topic: string; recibido_en: string; payload: Record<string, unknown>; demora_ms: number | null } | null
+}
+export interface CorridaClip {
+  id: string
+  clip: { id: string; titulo: string }
+  experiment_id: string
+  fase: 'corriendo' | 'terminada' | 'fallida'
+  iniciada_en: string
+  terminada_en: string | null
+  cuadros_esperados: number | null
+  pasos: Record<'deteccion' | 'reglas' | 'distribucion' | 'broker', PasoClip>
+  resultado: {
+    alertas: AlertaClip[]
+    sin_alerta: Array<{ condicion: string; desde_ms: number; hasta_ms: number | null }>
+    evaluacion: { expected: number; observed: number; matched: number; missed: number; unexpected: number } | null
+    consolidado: string | null
+  } | null
+  error: string | null
+  demostracion: true
+}
+export interface VistaClips {
+  clips: ClipDemostracion[]
+  /** Uno de cada N cuadros del video: los cuadros por segundo, calculados del clip. */
+  cadencia?: { uno_de_cada: number; cuadros_por_segundo: number | null }
+  actual: CorridaClip | null
+}
+export interface PreparacionClip {
+  listo: boolean
+  items: Array<{ id: string; nombre: string; ok: boolean; detalle: string }>
+}
+
 /** Una de las diez figuras del informe (plan de la consola, §8). */
 export interface FiguraInforme {
   id: string

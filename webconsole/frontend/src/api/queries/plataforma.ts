@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
-  accionPlataforma, dejarPlataformaLista, getPlataforma,
+  accionPlataforma, correrClip, dejarPlataformaLista, getClipsDemostracion, getPlataforma, getPreparacionClip,
 } from '..'
 import { qk } from '../keys'
 import { POLL } from '../queryClient'
@@ -17,6 +17,7 @@ function useRefrescarPlataforma() {
     void qc.invalidateQueries({ queryKey: qk.platform.all })
     void qc.invalidateQueries({ queryKey: qk.target })
     void qc.invalidateQueries({ queryKey: qk.preflight })
+    void qc.invalidateQueries({ queryKey: qk.preparacionClip })
   }
 }
 
@@ -32,4 +33,28 @@ export function useAccionPlataforma() {
 export function useDejarLista() {
   const refrescar = useRefrescarPlataforma()
   return useMutation({ mutationFn: () => dejarPlataformaLista(), onSettled: refrescar })
+}
+
+/** «Correr un clip» (§7.2): mientras corre, se mira cada segundo; si no, cada tanto. */
+export function useClipsDemostracion() {
+  return useQuery({
+    queryKey: qk.demostracionClip,
+    queryFn: getClipsDemostracion,
+    refetchInterval: (q) => (q.state.data?.actual?.fase === 'corriendo' ? POLL.grabacion : POLL.salud),
+  })
+}
+
+export function usePreparacionClip(enabled = true) {
+  return useQuery({ queryKey: qk.preparacionClip, queryFn: getPreparacionClip, refetchInterval: POLL.salud, enabled })
+}
+
+export function useCorrerClip() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => correrClip(id),
+    onSettled: () => {
+      void qc.invalidateQueries({ queryKey: qk.demostracionClip })
+      void qc.invalidateQueries({ queryKey: qk.preparacionClip })
+    },
+  })
 }

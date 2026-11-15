@@ -105,6 +105,9 @@ export const qk = {
   figuras: ['figuras'] as const,
   /** La plataforma: estado de los servicios y registro de acciones. */
   plataforma: ['plataforma'] as const,
+  /** «Correr un clip»: los tres clips y la corrida actual; lo que falta para correr. */
+  demostracionClip: ['demostracion', 'clip'] as const,
+  preparacionClip: ['demostracion', 'clip', 'preparacion'] as const,
 
   /** La demo en vivo de la defensa (`/demo`). */
   demo: {

@@ -7,7 +7,7 @@ describe('NAV_GROUPS (plan de la consola de evidencia, §3)', () => {
   it('dos zonas en este orden, Evidencia y Demostrar, y el Archivo al pie', () => {
     expect(NAV_GROUPS.map((g) => g.title)).toEqual(['Evidencia', 'Demostrar'])
     expect(NAV_GROUPS.flatMap((g) => g.items.map((i) => i.label))).toEqual([
-      'Inicio', 'Pruebas', 'Tomas en vivo', 'Cómo leer', 'Plataforma', 'Demo con cámara',
+      'Inicio', 'Pruebas', 'Tomas en vivo', 'Cómo leer', 'Plataforma', 'Correr un clip', 'Demo con cámara',
     ])
     expect(NAV_ARCHIVO).toMatchObject({ to: GEN1.to, label: 'Archivo' })
   })

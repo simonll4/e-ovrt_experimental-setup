@@ -1,6 +1,6 @@
 import type { ComponentType } from 'react'
 import {
-  IconNavArchivo, IconNavCameras, IconNavDemo, IconNavDocs, IconNavEvidence, IconNavInicio,
+  IconNavArchivo, IconNavCameras, IconNavClips, IconNavDemo, IconNavDocs, IconNavEvidence, IconNavInicio,
   IconNavPlatform,
 } from './components/ui/icons'
 import { nombreLlano } from './vocabulario'
@@ -30,8 +30,10 @@ export const RUNS_PATH = '/corridas'
 /** La página de una pregunta: `/preguntas/<id>`. Las siete no se listan en la barra (§3). */
 export const PREGUNTA_PATH = '/preguntas'
 
-/** La navegación del plan de la consola de evidencia (§3): Evidencia, Demostrar y, al pie, Archivo.
- *  «Correr un clip» entra con su pantalla, en la etapa 5. */
+/** «Correr un clip» (§7.2): un clip del rodaje por la cadena completa. */
+export const CORRER_CLIP_PATH = '/correr-clip'
+
+/** La navegación del plan de la consola de evidencia (§3): Evidencia, Demostrar y, al pie, Archivo. */
 export const NAV_GROUPS: NavGroup[] = [
   {
     title: 'Evidencia',
@@ -46,6 +48,7 @@ export const NAV_GROUPS: NavGroup[] = [
     title: 'Demostrar',
     items: [
       { to: '/platform', label: 'Plataforma', icon: IconNavPlatform },
+      { to: CORRER_CLIP_PATH, label: 'Correr un clip', icon: IconNavClips },
       { to: '/demo', label: 'Demo con cámara', icon: IconNavCameras, exacta: true },
     ],
   },

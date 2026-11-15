@@ -27,7 +27,7 @@ const renderShell = (path = '/') =>
     </MemoryRouter>,
   )
 
-const DESTINOS = ['Inicio', 'Pruebas', 'Tomas en vivo', 'Cómo leer', 'Plataforma', 'Demo con cámara', 'Archivo']
+const DESTINOS = ['Inicio', 'Pruebas', 'Tomas en vivo', 'Cómo leer', 'Plataforma', 'Correr un clip', 'Demo con cámara', 'Archivo']
 const LABORATORIO = ['Corridas', 'Experimentos', 'Comparar', 'Conjuntos de prompts', 'Catálogos', 'Cámaras', 'Clips']
 
 describe('Shell', () => {

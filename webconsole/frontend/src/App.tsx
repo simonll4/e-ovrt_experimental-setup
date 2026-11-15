@@ -11,6 +11,7 @@ import ExperimentDetailPage from './pages/ExperimentDetailPage'
 import ExperimentsPage from './pages/ExperimentsPage'
 import NotFoundPage from './pages/NotFoundPage'
 import PlatformPage from './pages/PlatformPage'
+import CorrerClipPage from './pages/CorrerClipPage'
 import PromptSetsPage from './pages/PromptSetsPage'
 import RunDetailPage from './pages/RunDetailPage'
 import RunsPage from './pages/RunsPage'
@@ -23,7 +24,7 @@ import InicioPage from './pages/InicioPage'
 import PreguntaPage from './pages/PreguntaPage'
 import ResultadosPage from './pages/ResultadosPage'
 import PruebaPage from './pages/PruebaPage'
-import { PREGUNTA_PATH, RUNS_PATH } from './nav'
+import { CORRER_CLIP_PATH, PREGUNTA_PATH, RUNS_PATH } from './nav'
 
 /** El Archivo (plan de la consola, §5): el recorrido de evidencia de la etapa de desarrollo, de
  *  solo lectura, con un encabezado fijo que dice qué es y que sus cifras no son las del informe. */
@@ -66,6 +67,7 @@ export default function App() {
         <Route path="/compare" element={<ComparePage />} />
         <Route path="/runs/:id" element={<RunDetailPage />} />
         <Route path="/platform" element={<PlatformPage />} />
+        <Route path={CORRER_CLIP_PATH} element={<CorrerClipPage />} />
         <Route path="/experiments" element={<ExperimentsPage />} />
         {/* Declarada ANTES de /experiments/:id: si no, "new" matchea como :id y
             se ve el detalle buscando un experimento llamado "new" (ver test en

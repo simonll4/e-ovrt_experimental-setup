@@ -1,0 +1,32 @@
+/* «Correr un clip» (plan de la consola de evidencia, §7.2). Solo tokens. */
+
+.eo-clip { display: flex; flex-direction: column; gap: 16px; }
+.eo-clip__opciones { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+.eo-clip__opcion {
+  display: flex; flex-direction: column; gap: 6px; padding: 14px 16px; text-align: left;
+  background: var(--s1); color: var(--tx); border: 1px solid var(--bds); border-radius: var(--rc);
+  font: inherit; cursor: pointer;
+}
+.eo-clip__opcion:hover:not(:disabled) { border-color: var(--ac-bd); background: var(--s2); }
+.eo-clip__opcion:focus-visible { outline: 2px solid var(--ac); outline-offset: 2px; }
+.eo-clip__opcion:disabled { cursor: default; opacity: .7; }
+.eo-clip__opcion--elegida { border: 2px solid var(--ac); background: var(--ac-bg); padding: 13px 15px; }
+.eo-clip__titulo { font-size: var(--fz-panel); font-weight: 600; }
+.eo-clip__ref { font-size: var(--fz-data); color: var(--tx2); }
+.eo-clip__faltan { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; padding: 10px 12px; border: 1px solid var(--wn-bd); background: var(--wn-bg); border-radius: var(--r); }
+.eo-clip__faltan ul { margin: 0; padding-left: 18px; }
+.eo-clip__faltan .eo-btn { align-self: flex-start; }
+.eo-clip__accion { display: flex; gap: 8px; }
+.eo-clip__cadena { list-style: none; margin: 16px 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.eo-clip__paso { display: flex; flex-direction: column; gap: 4px; padding: 10px 12px; background: var(--s2); border-radius: var(--r); border-top: 3px solid var(--bds); }
+.eo-clip__paso--en_curso { border-top-color: var(--live); }
+.eo-clip__paso--ok { border-top-color: var(--ok); }
+.eo-clip__paso--error { border-top-color: var(--er); }
+.eo-clip__paso-nombre { font-weight: 600; }
+.eo-clip__paso > .eo-badge { align-self: flex-start; }
+.eo-clip__conteo { margin: 0 0 12px; font-size: 16px; }
+.eo-clip .eo-adv { margin-top: 12px; }
+
+@media (max-width: 767px) {
+  .eo-clip__cadena { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}

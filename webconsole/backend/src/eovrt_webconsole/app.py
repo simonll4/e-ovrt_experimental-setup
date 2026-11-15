@@ -21,6 +21,7 @@ from eovrt_webconsole.experiment.control_backend import ControlPlaneBackend
 from eovrt_webconsole.experiment.run_manager import ExperimentRunManager
 from eovrt_webconsole.gen2 import Gen2
 from eovrt_webconsole.figuras import Figuras
+from eovrt_webconsole.demostracion import CorrerClip
 from eovrt_webconsole.plataforma import Plataforma
 from eovrt_webconsole.preguntas import Preguntas
 from eovrt_webconsole.http_reintento import ReintentoKeepAlive
@@ -35,6 +36,7 @@ from eovrt_webconsole.routers import (
     compose,
     control,
     demo,
+    demostracion,
     documentacion,
     evidencia,
     experiments,
@@ -114,6 +116,9 @@ def create_app(
             app, settings.compose_dir, app.state.demo_manager.sesiones_dir / "acciones-plataforma.jsonl",
             run_cmd=compose_runner,
         )
+        # «Correr un clip» (§7.2): un clip del rodaje por la cadena completa, por el mismo
+        # administrador de experimentos. No es evidencia: queda en runs/demostracion.
+        app.state.correr_clip = CorrerClip(app)
         # Grabación de rodaje: vive en la consola, no depende del media-plane
         # (spec 2026-07-21). El chequeo del intérprete se hace acá y no al
         # apretar grabar: el fallo se descubre ahora, no en medio del rodaje.
@@ -133,6 +138,7 @@ def create_app(
         # Cancela/awaitea cualquier experimento en curso antes de cerrar los
         # clientes HTTP que usa -- evita un task pendiente huerfano al apagar.
         await app.state.demo_manager.aclose()
+        await app.state.correr_clip.aclose()
         await app.state.experiment_manager.aclose()
         await app.state.precalentamiento
         await app.state.http.aclose()
@@ -177,6 +183,7 @@ def create_app(
     app.include_router(preguntas.router)
     app.include_router(figuras.router)
     app.include_router(plataforma.router)
+    app.include_router(demostracion.router)
     app.include_router(tomas.router)
     app.include_router(meta.router)
     app.include_router(catalog.router)

@@ -9,7 +9,7 @@ import type {
   EvidenceRecorrido, EvidenceStepPage, EvidenceResultPage, ArchivedRunDetail, PlatformTestSlug,
   Documentacion, DemoCamara, DemoCamaraChequeo, DemoPreflight, DemoState, DemoSessionDetail, DemoSesionFila, DemoCifra, DemoStack, DemoModos,
   Gen2Detalle, Gen2Prueba, VistaFiguras, VistaPreguntas, VistaTomas,
-  AccionPlataforma, EstadoPlataforma,
+  AccionPlataforma, CorridaClip, EstadoPlataforma, PreparacionClip, VistaClips,
 } from '../types'
 
 export class ApiError extends Error {
@@ -155,6 +155,14 @@ export const accionPlataforma = (servicio: string, verbo: string, confirmar = fa
     { method: 'POST', body: JSON.stringify({ confirmar }) },
   )
 export const dejarPlataformaLista = () => request<AccionPlataforma>('/api/plataforma/lista', { method: 'POST' })
+
+/** «Correr un clip» (§7.2). */
+export const getClipsDemostracion = () => request<VistaClips>('/api/demostracion/clip')
+export const getPreparacionClip = () => request<PreparacionClip>('/api/demostracion/clip/preparacion')
+export const correrClip = (id: string) =>
+  request<{ id: string; experiment_id: string }>(`/api/demostracion/clip/${encodeURIComponent(id)}/correr`, { method: 'POST' })
+export const getCorridaClip = (id: string) =>
+  request<CorridaClip>(`/api/demostracion/clip/corridas/${encodeURIComponent(id)}`)
 
 export const getExperimentManifests = (
   vista?: EvidenceView, onMetadata?: (meta: EvidenceListingMeta) => void,
