@@ -1207,6 +1207,29 @@ export interface Proyecto {
   autores?: string[]
   enlaces?: { informe?: string | null; repositorios?: Array<{ nombre: string; url: string }> }
 }
+/** Una toma en vivo que cuenta en una prueba (`/api/tomas`, plan de la consola §6). */
+export interface TomaEnVivo {
+  session_id: string
+  escena?: string | null
+  remera?: string | null
+  stream?: string | null
+  motor?: string | null
+  camara?: string | null
+  modo?: string | null
+  como_se_esperaba?: boolean | null
+  sujeto_como_se_esperaba?: boolean | null
+  /** Si la carpeta de la sesión está en este equipo: sin ella, el video no se publica. */
+  disponible: boolean
+}
+export interface VistaTomas {
+  pruebas: Array<{ id: string; tomas: TomaEnVivo[] }>
+  /** Calibraciones, ensayos, exploraciones y tomas descartadas, con su motivo. */
+  otras: Array<{
+    session_id: string; escena?: string | null; iniciada_en?: string | null; disponible: boolean
+    tipo: 'descartada' | 'calibracion' | 'ensayo' | 'exploracion' | 'no_evaluable' | 'sin_prueba'
+    motivo: string; quien?: string | null; prueba?: string | null
+  }>
+}
 export interface VistaPreguntas {
   available: boolean
   message?: string

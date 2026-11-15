@@ -1,92 +1,111 @@
-import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { useDemoSesiones } from '../api/queries/demo'
-import { Card, ErrorBanner, LoadingState, MonoCell, PageHeader, SearchInput, Table, TableScroll } from '../components/ui'
-import type { DemoSesionFila } from '../types'
+import { useTomas } from '../api/queries/gen2'
+import { Card, Disclosure, MonoCell, PageHeader, Table, TableScroll } from '../components/ui'
+import NombreCodigo from '../components/ui/NombreCodigo'
+import type { TomaEnVivo, VistaTomas } from '../types'
+import { EstadoDeLectura } from './evidencia/comun'
 import './DemoPage.css'
 
-const FASE: Record<string, string> = {
-  done: 'cerrada', failed: 'falló', live: 'en vivo', preparing: 'preparando',
-  finishing: 'cerrando', rendering: 'armando el resultado', idle: 'sin iniciar',
+const TIPO: Record<VistaTomas['otras'][number]['tipo'], string> = {
+  descartada: 'Descartada',
+  calibracion: 'Calibración',
+  ensayo: 'Ensayo',
+  exploracion: 'Exploración',
+  no_evaluable: 'No evaluable',
+  sin_prueba: 'Sin prueba',
 }
 
-function fecha(iso: string | null | undefined) {
-  if (!iso) return '—'
-  const d = new Date(iso)
-  return Number.isNaN(d.getTime()) ? iso : d.toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'medium' })
+function EnlaceToma({ sid, disponible }: { sid: string; disponible: boolean }) {
+  if (!disponible) {
+    return <span className="eo-note--meta" title={sid}>no está en este equipo: el video no se publica</span>
+  }
+  return <Link className="eo-mono" to={`/demo/resultado/${encodeURIComponent(sid)}`}>{sid}</Link>
 }
 
-/** Lo que distingue una sesión de otra, en una línea: el modo de prompts o el motor
- *  explorado. Sin ninguno de los dos, corrió con la configuración del informe. */
-function configuracion(s: DemoSesionFila) {
-  if (s.exploracion) return `${s.exploracion.motor} · ${s.exploracion.camara}`
-  if (s.modo_prompts) return s.modo_prompts.nombre
-  return 'Configuración del informe'
-}
+const siNo = (v: boolean | null | undefined) =>
+  v == null ? '—' : v ? 'sí' : <span className="eo-note--error">no</span>
 
-/** Las sesiones guardadas de la demo: las tomas de las jornadas en vivo y las de
- *  esta consola. Cada una abre su Resultado (video con las detecciones, alertas,
- *  mensaje del broker y log), sin cámara y con los servicios apagados. */
-export default function DemoSesionesPage() {
-  const q = useDemoSesiones()
-  const [filtro, setFiltro] = useState('')
-  const filas = useMemo(() => {
-    const t = filtro.trim().toLowerCase()
-    const todas = q.data ?? []
-    if (!t) return todas
-    return todas.filter((s) => [s.session_id, s.escena, s.variante, configuracion(s)]
-      .some((x) => (x ?? '').toLowerCase().includes(t)))
-  }, [q.data, filtro])
-  const total = q.data?.length ?? 0
-  const archivadas = (q.data ?? []).filter((s) => s.archivada).length
+function TomasDeUnaPrueba({ id, tomas }: { id: string; tomas: TomaEnVivo[] }) {
+  const con = (campo: 'stream' | 'motor' | 'camara' | 'remera') => tomas.some((t) => t[campo])
+  const evaluadas = tomas.filter((t) => t.como_se_esperaba != null)
+  const comoElGuion = evaluadas.filter((t) => t.como_se_esperaba).length
   return (
-    <div className="eo-demo-consola" aria-label="Tomas en vivo">
-      <PageHeader
-        title="Tomas en vivo"
-        meta={q.data ? `${total} ${total === 1 ? 'sesión' : 'sesiones'}${archivadas ? ` · ${archivadas} de las jornadas en vivo` : ''}` : undefined}
-        bajada="Cada toma de la demo queda guardada con su video, sus alertas, el mensaje que recibió el broker y el log completo. Se abren sin cámara y con los servicios apagados."
-      />
-      {q.isPending && <LoadingState>Leyendo las sesiones guardadas…</LoadingState>}
-      {q.error != null && (
-        <ErrorBanner onRetry={() => void q.refetch()} retrying={q.isFetching}>
-          No se pudieron leer las sesiones guardadas.
-        </ErrorBanner>
-      )}
-      {q.data && total === 0 && (
-        <Card title="Todavía no hay sesiones">
-          <p className="eo-note">
-            Una sesión se guarda al terminar una corrida de la <Link to="/demo">demo en vivo</Link>. Las de las
-            jornadas se leen de las carpetas indicadas en <span className="eo-mono">EOVRT_CONSOLE_DEMO_SESSIONS_EXTRA</span>.
-          </p>
-        </Card>
-      )}
-      {total > 0 && (
-        <Card title="Sesiones" meta={filtro ? `${filas.length} de ${total}` : undefined} flush>
-          <div className="eo-demo-sesiones__filtro">
-            <SearchInput value={filtro} onChange={setFiltro} placeholder="Escena, fecha (20261107) o motor" ariaLabel="Filtrar sesiones" />
-          </div>
-          <TableScroll label="Tomas en vivo">
-            <Table aria-label="Tomas en vivo">
-              <thead>
-                <tr><th>Inicio</th><th>Escena</th><th>Cámara</th><th>Configuración</th><th>Estado</th><th>Origen</th><th>Sesión</th></tr>
-              </thead>
-              <tbody>
-                {filas.map((s) => (
-                  <tr key={s.session_id}>
-                    <td>{fecha(s.iniciada_en)}</td>
-                    <td>{s.escena ?? '—'}</td>
-                    <td>{s.variante ?? '—'}</td>
-                    <td>{configuracion(s)}</td>
-                    <td>{FASE[s.fase] ?? s.fase}{s.respaldo ? ' · respaldo' : ''}</td>
-                    <td>{s.archivada ? 'jornada en vivo' : 'esta consola'}</td>
-                    {s.tiene_resultado === false
-                      ? <MonoCell title="No tiene el resultado armado">{s.session_id}</MonoCell>
-                      : <td><Link className="eo-mono" to={`/demo/resultado/${encodeURIComponent(s.session_id)}`}>{s.session_id}</Link></td>}
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
-          </TableScroll>
+    <Card
+      title={<Link to={`/resultados/${encodeURIComponent(id)}`}><NombreCodigo codigo={id} /></Link>}
+      meta={evaluadas.length > 0 ? `${comoElGuion} de ${evaluadas.length} como el guion` : `${tomas.length} tomas`}
+      flush
+    >
+      <TableScroll label={`Tomas de ${id}`}>
+        <Table aria-label={`Tomas de ${id}`}>
+          <thead>
+            <tr>
+              <th>Escena</th>
+              {con('stream') && <th>Stream</th>}
+              {con('motor') && <th>Motor</th>}
+              {con('camara') && <th>Cámara</th>}
+              {con('remera') && <th>Remera</th>}
+              <th>Como el guion</th>
+              <th>Toma</th>
+            </tr>
+          </thead>
+          <tbody>
+            {tomas.map((t) => (
+              <tr key={t.session_id}>
+                <td>{t.escena ?? '—'}</td>
+                {con('stream') && <td>{t.stream ?? '—'}</td>}
+                {con('motor') && <MonoCell>{t.motor ?? '—'}</MonoCell>}
+                {con('camara') && <MonoCell>{t.camara ?? '—'}</MonoCell>}
+                {con('remera') && <td>{t.remera ?? '—'}</td>}
+                <td>
+                  {siNo(t.como_se_esperaba)}
+                  {t.sujeto_como_se_esperaba != null && t.sujeto_como_se_esperaba !== t.como_se_esperaba && (
+                    <span className="eo-note--meta"> · por sujeto: {t.sujeto_como_se_esperaba ? 'sí' : 'no'}</span>
+                  )}
+                </td>
+                <td><EnlaceToma sid={t.session_id} disponible={t.disponible} /></td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      </TableScroll>
+    </Card>
+  )
+}
+
+/** «Tomas en vivo» (plan de la consola, §6): las sesiones de las jornadas agrupadas por la prueba en la que
+ *  cuentan, cada una con su escena y si salió como el guion. Lo que no cuenta —calibraciones, ensayos,
+ *  exploraciones y tomas descartadas— va plegado, con su motivo. Cada toma abre su resultado. */
+export default function DemoSesionesPage() {
+  const q = useTomas()
+  if (q.isPending || q.error) return <EstadoDeLectura titulo="Tomas en vivo" q={q} />
+  const { pruebas, otras } = q.data
+  const total = pruebas.reduce((n, p) => n + p.tomas.length, 0)
+  return (
+    <div className="eo-gen2">
+      <PageHeader title="Tomas en vivo" meta={`${total} tomas en ${pruebas.length} pruebas`} />
+      {pruebas.map((p) => <TomasDeUnaPrueba key={p.id} id={p.id} tomas={p.tomas} />)}
+      {otras.length > 0 && (
+        <Card>
+          <Disclosure summary={<h2 className="eo-gen2__plegado">Ensayos, calibraciones y tomas que no cuentan ({otras.length})</h2>}>
+            <TableScroll label="Tomas que no cuentan">
+              <Table aria-label="Tomas que no cuentan">
+                <thead><tr><th>Toma</th><th>Escena</th><th>Qué es</th><th>Motivo</th></tr></thead>
+                <tbody>
+                  {otras.map((o) => (
+                    <tr key={o.session_id}>
+                      <td><EnlaceToma sid={o.session_id} disponible={o.disponible} /></td>
+                      <td>{o.escena ?? '—'}</td>
+                      <td>{TIPO[o.tipo] ?? o.tipo}</td>
+                      <td>
+                        {o.motivo}
+                        {o.quien && <span className="eo-note--meta"> · firmó {o.quien}{o.prueba ? ` en ${o.prueba}` : ''}</span>}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            </TableScroll>
+          </Disclosure>
         </Card>
       )}
     </div>

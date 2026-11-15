@@ -99,6 +99,8 @@ export const qk = {
 
   /** La portada y las siete preguntas: también archivos, resueltos contra results/gen2. */
   preguntas: ['preguntas'] as const,
+  /** Las tomas en vivo agrupadas por prueba. */
+  tomas: ['tomas'] as const,
 
   /** La demo en vivo de la defensa (`/demo`). */
   demo: {

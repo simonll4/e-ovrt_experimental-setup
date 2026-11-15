@@ -6,6 +6,7 @@ import type { DemoCifra, DemoSessionDetail } from '../../types'
 import { Banner, PageHeader } from '../ui'
 import { fechaCorta, hora, numero, segundos } from './formato'
 import LineaModo from './LineaModo'
+import MomentoDeLaAlerta from './MomentoDeLaAlerta'
 import { avisoModo } from './modoPrompts'
 
 const TIPO: Record<string, string> = {
@@ -100,22 +101,24 @@ export default function ResultView({
                 </figure>
               ))}
             </div>
-            <ol className="eo-demo-alerta__tramos">
-              <li>
-                <b>Evidencia → confirmación:</b> {segundos(alerta.tramos.evidencia_a_confirmacion_ms)} s. Es la espera a
-                propósito de la <Termino id={alerta.condition_id === 'CR-01' ? 'PR-01' : 'PR-02'}>ventana de
-                persistencia</Termino>{persistencia ? ` (${persistencia.toLocaleString('es-AR')} ms)` : ''}: no es un
-                requisito de latencia.
-              </li>
-              <li>
-                <b>Confirmación → broker:</b>{' '}
-                {alerta.tramos.confirmacion_a_broker_ms != null
-                  ? `${numero(alerta.tramos.confirmacion_a_broker_ms, 0)} ms (hora del testigo MQTT menos la de emisión)`
-                  : alerta.entrega === 'suppressed_cooldown'
-                    ? 'notificación suprimida por enfriamiento (30 s)'
-                    : 'el testigo no registró el mensaje'}
-              </li>
-            </ol>
+            <MomentoDeLaAlerta detalle={detalle} alerta={alerta}>
+              <ol className="eo-demo-alerta__tramos" aria-label="De la primera evidencia a la entrega">
+                <li>
+                  <b>Evidencia → confirmación:</b> {segundos(alerta.tramos.evidencia_a_confirmacion_ms)} s. Es la espera a
+                  propósito de la <Termino id={alerta.condition_id === 'CR-01' ? 'PR-01' : 'PR-02'}>ventana de
+                  persistencia</Termino>{persistencia ? ` (${persistencia.toLocaleString('es-AR')} ms)` : ''}: no es un
+                  requisito de latencia.
+                </li>
+                <li>
+                  <b>Confirmación → broker:</b>{' '}
+                  {alerta.tramos.confirmacion_a_broker_ms != null
+                    ? `${numero(alerta.tramos.confirmacion_a_broker_ms, 0)} ms (hora del testigo MQTT menos la de emisión)`
+                    : alerta.entrega === 'suppressed_cooldown'
+                      ? 'notificación suprimida por enfriamiento (30 s)'
+                      : 'el testigo no registró el mensaje'}
+                </li>
+              </ol>
+            </MomentoDeLaAlerta>
             <p className="eo-demo-alerta__nota">
               El tramo de la cámara al host (<Termino id="capture_to_host">captura → host</Termino>
               {captura && !captura.pendiente ? `, p50 ${numero(captura.valor, 0)} ms en vivo` : ''}) no está incluido:

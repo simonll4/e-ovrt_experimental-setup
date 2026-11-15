@@ -261,3 +261,21 @@
 /* Los ids largos de corrida no se salen de su tarjeta. */
 .eo-demo-capa__lista code { overflow-wrap: anywhere; }
 .eo-demo-capa h4 { margin: 14px 0 6px; font-size: 15px; }
+
+/* «El momento de la alerta» (plan de la consola, §6): el cuadro de la confirmación con el estado de cada
+   condición, y el mensaje del broker con la línea de tiempo. Cada mitad es una figura del informe. */
+.eo-momento { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--bd); }
+.eo-momento h3 { margin: 0 0 12px; font-size: 20px; }
+.eo-momento__cuerpo { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 20px; align-items: start; }
+@media (max-width: 1023px) { .eo-momento__cuerpo { grid-template-columns: 1fr; } }
+.eo-momento__toma, .eo-momento__mensaje { margin: 0; padding: 12px; background: var(--s1); border: 1px solid var(--bd); border-radius: var(--rc); }
+.eo-momento__toma img { display: block; width: 100%; height: auto; border-radius: var(--r); background: var(--video-bg); }
+.eo-momento__toma figcaption { margin-top: 10px; font-size: 16px; }
+.eo-momento__titulo { display: block; margin: 0 0 6px; font-weight: 600; font-size: 16px; }
+.eo-momento__estados { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.eo-momento__estado--alerta b { color: var(--er); }
+.eo-momento__estado--confirmando b, .eo-momento__estado--resolviendo b { color: var(--wn); }
+.eo-momento__estado--ok b, .eo-momento__estado--resuelta b { color: var(--ok); }
+/* El mensaje entero, sin recorte: es lo que se captura para el informe. */
+.eo-momento__json { font-size: 13px; max-height: none; overflow: visible; }
+.eo-momento__mensaje .eo-demo-alerta__tramos { margin: 12px 0 0; padding-left: 20px; font-size: 15px; display: grid; gap: 6px; }

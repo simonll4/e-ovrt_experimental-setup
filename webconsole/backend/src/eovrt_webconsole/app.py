@@ -39,6 +39,7 @@ from eovrt_webconsole.routers import (
     gen2,
     manifests,
     preguntas,
+    tomas,
     meta,
     platform,
     preview,
@@ -161,6 +162,7 @@ def create_app(
     app.include_router(evidencia.router)
     app.include_router(gen2.router)
     app.include_router(preguntas.router)
+    app.include_router(tomas.router)
     app.include_router(meta.router)
     app.include_router(catalog.router)
     app.include_router(compare.router)

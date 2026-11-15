@@ -8,7 +8,7 @@ import type {
   ArtifactEntry, ConditionInfo, RunComparison, TraceIndex, EvidenceListingMeta, EvidenceView,
   EvidenceRecorrido, EvidenceStepPage, EvidenceResultPage, ArchivedRunDetail, PlatformTestSlug,
   Documentacion, DemoCamara, DemoCamaraChequeo, DemoPreflight, DemoState, DemoSessionDetail, DemoSesionFila, DemoCifra, DemoStack, DemoModos,
-  Gen2Detalle, Gen2Prueba, VistaPreguntas,
+  Gen2Detalle, Gen2Prueba, VistaPreguntas, VistaTomas,
 } from '../types'
 
 export class ApiError extends Error {
@@ -27,6 +27,7 @@ export const getDocumentacion = () => request<Documentacion>('/api/documentacion
 /** La evidencia de la generación 2 (doc 135): pre-registros y resultados, del
  *  disco local. Tampoco toca servicios. */
 export const getPreguntas = () => request<VistaPreguntas>('/api/preguntas')
+export const getTomas = () => request<VistaTomas>('/api/tomas')
 export const getGen2Pruebas = () => request<Gen2Prueba[]>('/api/gen2/pruebas')
 export const getGen2Prueba = (id: string) =>
   request<Gen2Detalle>(`/api/gen2/pruebas/${encodeURIComponent(id)}`)
