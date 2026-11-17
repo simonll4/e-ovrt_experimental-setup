@@ -215,10 +215,10 @@ it('no ofrece un chip de clase para lo que no se ejecutó', async () => {
   expect(screen.getByRole('button', { name: /Resultado/ })).toBeTruthy()
 })
 
-it('dice dónde se consultan las ejecuciones de la generación 2', async () => {
+it('dice dónde se consultan las ejecuciones que respaldan los resultados del informe', async () => {
   page()
   await screen.findByText('talert_integrated_video')
-  const enlace = screen.getByRole('link', { name: /Resultados/ })
+  const enlace = screen.getByRole('link', { name: 'Pruebas' })
   expect(enlace.getAttribute('href')).toBe('/resultados')
 })
 

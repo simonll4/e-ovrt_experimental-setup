@@ -104,7 +104,9 @@ describe('crumbsFor', () => {
     expect(crumbsFor('/documentacion')).toEqual([{ to: '/documentacion', label: 'Cómo leer' }])
   })
 
-  it('la etapa de desarrollo es el «Archivo» en sus dos URLs (plan §5)', () => {
+  it('la etapa de desarrollo es el «Archivo», en /archivo y en sus dos URLs anteriores (plan §4 y §5)', () => {
+    expect(GEN1.to).toBe('/archivo')
+    expect(crumbsFor('/archivo')).toEqual([GEN1])
     expect(crumbsFor('/evidencia')).toEqual([GEN1])
     expect(crumbsFor('/evidencia/generacion-1')).toEqual([GEN1])
     expect(GEN1.label).toBe('Archivo')

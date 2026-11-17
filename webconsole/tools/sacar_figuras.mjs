@@ -31,7 +31,8 @@ const { values: o } = parseArgs({
   },
 })
 
-const PUBLICA = /^results\/gen2\/[A-Z]+-\d+\/capturas\/figura-\d{2}-[a-z0-9-]+\.png$/
+// Las curvas del ajuste fino no tienen prueba de la campaña: su figura va junto a sus datos.
+const PUBLICA = /^(results\/gen2\/[A-Z]+-\d+\/capturas|finetuning\/curvas)\/figura-\d{2}-[a-z0-9-]+\.png$/
 const PRIVADA = /^defensa\/capturas\/figuras\/figura-\d{2}-[a-z0-9-]+\.png$/
 
 /** El destino, ya resuelto, si es uno de los permitidos; si no, null. */

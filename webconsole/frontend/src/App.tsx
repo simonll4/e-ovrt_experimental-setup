@@ -56,6 +56,8 @@ export default function App() {
         <Route path="/resultados" element={<ResultadosPage />} />
         <Route path="/resultados/:id" element={<PruebaPage />} />
         <Route path="/documentacion" element={<DocumentacionPage />} />
+        <Route path="/archivo" element={gen1} />
+        {/* Las URLs anteriores del Archivo siguen respondiendo (nav.ts, ARCHIVO_ANTES). */}
         <Route path="/evidencia" element={gen1} />
         <Route path="/evidencia/generacion-1" element={gen1} />
         <Route path="/evidencia/paso" element={gen1} />

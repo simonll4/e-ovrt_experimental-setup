@@ -83,6 +83,21 @@ def test_el_pie_dice_cuantas_pruebas_y_de_cuando():
     assert pie["desde"] <= pie["hasta"]
 
 
+def test_la_prueba_de_plataforma_no_corre_la_fecha_de_la_campania(tmp_path):
+    repo = _repo(tmp_path, [])
+    cat = repo / "experiments" / "evidencia" / "PLAT-01"
+    cat.mkdir(parents=True)
+    (cat / "prueba.yaml").write_text(yaml.safe_dump({"id": "PLAT-01", "titulo": "p", "familia": "plataforma"}),
+                                     encoding="utf-8")
+    res = repo / "results" / "gen2" / "PLAT-01"
+    res.mkdir(parents=True)
+    (res / "resultado.json").write_text(json.dumps({"estado": "completo", "familia": "plataforma",
+                                                    "generado": "2026-11-15T23:19:46+00:00"}), encoding="utf-8")
+    pie = Preguntas(repo, Gen2(repo)).vista()["pie"]
+    assert pie["pruebas"] == 3
+    assert (pie["desde"], pie["hasta"]) == ("2026-10-30", "2026-10-30")
+
+
 # --- cómo se resuelve una referencia (repo sintético) ------------------------------------------
 
 def _repo(tmp_path: Path, preguntas: list[dict]) -> Path:

@@ -465,8 +465,8 @@ export default function ExperimentsPage() {
           <>
             Un experimento ejecuta la cadena completa (detección, reglas y distribución) a partir de un
             manifiesto, y reúne las corridas de cada plano bajo un mismo experiment_id. Es la «ejecución
-            experimental» del informe (§17.3.4.1). Las ejecuciones de la generación 2 no se listan acá: se
-            consultan por prueba, en <Link to="/resultados">Resultados</Link>.
+            experimental» del informe (§17.3.4.1). Las que respaldan los resultados del informe no se
+            listan acá: se consultan por prueba, en <Link to="/resultados">Pruebas</Link>.
           </>
         }
       />

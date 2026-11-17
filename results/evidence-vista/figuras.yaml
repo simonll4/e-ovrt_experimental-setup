@@ -6,19 +6,26 @@
 # pregunta. Se sacan en el tema claro.
 #
 # Dos carpetas (§8.1):
-#   - pública: results/gen2/<prueba>/capturas/ — solo texto y gráficos, va al repositorio público;
+#   - pública: results/gen2/<prueba>/capturas/ — solo texto y gráficos, va al repositorio público. La única
+#     figura pública sin prueba de la campaña, la de las curvas del ajuste fino, va a finetuning/curvas/, con sus
+#     datos;
 #   - privada: defensa/capturas/figuras/ — personas, cuadros de terceros o de clips de internet; no va a git.
 #     La consola también la lee. `solo_informe: true` marca lo que tampoco viaja al Drive (clips de internet).
 #
 # Una fuente es una de estas:
 #   {pantalla: <ruta de la consola>, selector: <css>}   se captura ese elemento de esa pantalla
-#   {archivo: <ruta en el repo>}                         se copia ese archivo (solo a la carpeta privada)
+#   {archivo: defensa/figuras/<prueba>/…}               se copia ese archivo (solo a la carpeta privada). Los de
+#                                                        VIS-01 los graba esa prueba; los de RT-09 y EXT-01,
+#                                                        webconsole/tools/armar_figuras_privadas.py
 #   {archivo: ..., recorte_arriba: <px>}                 se copia sin esa franja de arriba: la banda con los
 #                                                        códigos internos que graba la herramienta de VIS-01
 #   {grafico: barras | lineas, datos: [...]}             un gráfico que la consola dibuja con cifras resueltas
+#   {grafico: curvas, columna: ..., series: [{csv}]}     curvas por época leídas de CSV versionados en
+#                                                        finetuning/curvas/
 # Una figura que todavía no tiene fuente lleva `pendiente:` con el motivo, y no se genera.
 #
-# Ninguna cifra se escribe a mano: los gráficos usan las mismas referencias que preguntas.yaml.
+# Ninguna cifra se escribe a mano: los gráficos usan las mismas referencias que preguntas.yaml, y las curvas,
+# archivos de datos versionados.
 
 schema: consola.figuras.v1
 
@@ -81,12 +88,13 @@ figuras:
     seccion: "§17.5.5"
     prueba: RT-09
     pie: >-
-      La misma escena, después de sacarse el chaleco, con remera negra y con remera blanca: con la negra el
-      detector sigue viendo un chaleco en el torso.
+      La misma escena y el mismo instante, después de sacarse el chaleco: con remera negra el detector sigue
+      viendo un chaleco en el torso y la alerta no llega; con remera blanca, la alerta está confirmada.
     privada: true
-    pendiente: >-
-      Hace falta elegir el cuadro de cada toma: ninguna de las dos alertas de la remera negra existe, así que no
-      hay cuadro clave guardado y hay que sacarlo del video de cada sesión.
+    # La arma webconsole/tools/armar_figuras_privadas.py desde las imágenes anotadas de las dos tomas P2 del
+    # perfil operativo y los eventos del motor de reglas; cómo elige el instante, en esa herramienta y en el
+    # .json que deja al lado.
+    fuente: {archivo: defensa/figuras/RT-09/chaleco-falso.png}
 
   - id: falsa-alarma-obra-real
     numero: 6
@@ -138,20 +146,23 @@ figuras:
     fuente:
       grafico: lineas
       series: [Por escena, Por sujeto]
+      # Las cadencias de las etiquetas no son resultados: son el diseño de cada prueba (el paso entre cuadros
+      # del pre-registro sobre clips de 30 fps) y se escriben como en los nombres de fila de la Tabla 54
+      # (informe-tablas.yaml). Sin ellas, el eje de una figura «según los cuadros por segundo» no los dice.
       datos:
-        - etiqueta: Banco
+        - etiqueta: Banco (30 fps)
           valores:
             - {prueba: ALR-01, clave: f1, decimales: 2}
             - {prueba: ALR-02, clave: f1, decimales: 2}
-        - etiqueta: Techo en vivo
+        - etiqueta: Techo en vivo (≈4,29 fps)
           valores:
             - {prueba: DEN-01, clave: f1, decimales: 2}
             - {prueba: DEN-02, clave: f1, decimales: 2}
-        - etiqueta: Intermedia
+        - etiqueta: Intermedia (2,00 fps)
           valores:
             - {prueba: DEN-03, clave: f1, decimales: 2}
             - {prueba: DEN-04, clave: f1, decimales: 2}
-        - etiqueta: Peor caso
+        - etiqueta: Peor caso (≈1,15 fps)
           valores:
             - {prueba: DEN-05, clave: f1, decimales: 2}
             - {prueba: DEN-06, clave: f1, decimales: 2}
@@ -163,11 +174,20 @@ figuras:
     seccion: "§17.5.6"
     prueba: null
     pie: >-
-      Las curvas de entrenamiento de los dos tramos del ajuste fino, con la retención medida.
+      El mAP50 de validación de los dos tramos del ajuste fino, época por época: la proyección de clases sube
+      sin sobreajuste; el ajuste completo tiene su mejor época en la primera y después cae.
     privada: false
-    pendiente: >-
-      Las curvas por época están solo en el repositorio privado de documentación; para dibujarlas desde la
-      consola, sus datos tienen que estar en el repositorio público.
+    # Sin prueba de la campaña (la Tabla 55 no se regeneró): los datos son los results.csv de Mendieta,
+    # copiados byte a byte a finetuning/curvas/ (ver su README), y la figura se guarda al lado.
+    fuente:
+      grafico: curvas
+      columna: metrics/mAP50(B)
+      eje: mAP50 de validación
+      eje_x: época
+      decimales: 3
+      series:
+        - {nombre: T1 · proyección de clases, csv: finetuning/curvas/t1_full-1167640.results.csv}
+        - {nombre: T2 · ajuste completo, csv: finetuning/curvas/t2_full-1167982.results.csv}
 
   - id: clase-nueva
     numero: 10
@@ -178,7 +198,8 @@ figuras:
     pie: >-
       Maquinaria detectada en una imagen de obra con una clase que nunca se configuró ni se entrenó. Imagen de
       construction_site_safety (CC BY 4.0).
-    privada: false
-    pendiente: >-
-      Hace falta una imagen del banco con las cajas de la clase nueva dibujadas; la consola todavía no tiene una
-      pantalla que muestre las detecciones de una corrida de imágenes.
+    # La licencia permitiría publicarla, pero se arma con la imagen cruda del banco, que no está en git: la arma
+    # webconsole/tools/armar_figuras_privadas.py con las cajas de machinery de la corrida de obra de EXT-01, y va
+    # a la carpeta privada como las demás que se copian de un archivo.
+    privada: true
+    fuente: {archivo: defensa/figuras/EXT-01/clase-nueva.png}

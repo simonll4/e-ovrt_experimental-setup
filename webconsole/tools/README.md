@@ -63,3 +63,25 @@ pantallas de texto (si el elemento tiene una imagen o un video, no se guarda) y 
 terceros va a `defensa/capturas/figuras/`, que no va a git. Se sacan en el tema claro y al doble de resolución
 (`--escala`). Un archivo con `recorte_arriba` se copia sin esa franja de arriba (la banda de códigos internos que
 graba VIS-01). Las figuras pendientes se listan con su motivo. Sale con 1 si alguna falló.
+
+La figura 9 (las curvas del ajuste fino) no tiene prueba de la campaña: es un gráfico y va con sus datos a
+`finetuning/curvas/`.
+
+## `armar_figuras_privadas.py`
+
+Arma, desde la evidencia, los dos archivos que copian las figuras 5 y 10, y los deja en `defensa/figuras/<prueba>/`
+(git los ignora), cada uno con un `.json` al lado que dice de qué corridas y cuadros salió:
+
+- **Figura 5 (RT-09):** el mismo instante de dos tomas P2 del perfil operativo, con remera negra y con blanca,
+  dibujado con las funciones del Resultado de la demo (`eovrt_webconsole.demo.render`).
+- **Figura 10 (EXT-01):** una imagen de `construction_site_safety` con las cajas de `machinery` de la corrida de
+  obra.
+
+Corre donde estén las corridas y va **antes** de `sacar_figuras.mjs`:
+
+```bash
+# En la Victus, adentro de la consola (monta el workspace en la misma ruta):
+docker compose exec console sh -c 'python "$EOVRT_CONSOLE_REPO_ROOT/webconsole/tools/armar_figuras_privadas.py"'
+# En la PC de desarrollo, con los paquetes privados que traen las corridas:
+.venv/bin/python webconsole/tools/armar_figuras_privadas.py --raiz <paquete 11-07> --raiz <ws de la Victus>
+```

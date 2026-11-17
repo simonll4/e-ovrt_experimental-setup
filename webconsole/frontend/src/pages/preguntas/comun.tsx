@@ -45,9 +45,12 @@ export function CeldaCifras({ items }: { items: CifraPregunta[] | null }) {
       {items.map((c, i) => (
         <Fragment key={i}>
           {i > 0 && <span className="eo-celda__sep"> · </span>}
-          {c.etiqueta && <span className="eo-celda__etiqueta">{c.etiqueta} </span>}
-          <span className={c.ok ? 'eo-celda__valor' : 'eo-celda__valor eo-celda__valor--falla'} title={c.error}>
-            {textoCifra(c)}
+          {/* Cada cifra con su etiqueta va junta: si la celda no entra, se parte entre una cifra y la siguiente. */}
+          <span className="eo-celda__item">
+            {c.etiqueta && <span className="eo-celda__etiqueta">{c.etiqueta} </span>}
+            <span className={c.ok ? 'eo-celda__valor' : 'eo-celda__valor eo-celda__valor--falla'} title={c.error}>
+              {textoCifra(c)}
+            </span>
           </span>
         </Fragment>
       ))}

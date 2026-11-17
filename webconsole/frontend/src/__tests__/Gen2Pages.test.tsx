@@ -281,9 +281,9 @@ describe('Detalle de una prueba (/resultados/:id)', () => {
 })
 
 describe('Rutas (plan de la consola, §5)', () => {
-  it('el Archivo sigue en /evidencia y en /evidencia/generacion-1, con su aviso fijo', async () => {
+  it('el Archivo está en /archivo y sigue en sus dos URLs anteriores, con su aviso fijo', async () => {
     http(() => undefined)
-    for (const ruta of ['/evidencia', '/evidencia/generacion-1']) {
+    for (const ruta of ['/archivo', '/evidencia', '/evidencia/generacion-1']) {
       render(<MemoryRouter initialEntries={[ruta]}><App /></MemoryRouter>)
       const aviso = screen.getByText(/Estas cifras son de la etapa de desarrollo/).closest('.eo-banner') as HTMLElement
       expect(aviso.textContent).toMatch(/no son las del informe/)

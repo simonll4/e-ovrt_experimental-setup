@@ -25,7 +25,7 @@ function TablaDelInforme({ t }: { t: TablaPregunta }) {
             {t.filas.map((f) => (
               <tr key={f.nombre}>
                 <th scope="row" className="eo-pregunta__fila">{f.nombre}</th>
-                {f.celdas.map((c, i) => <td key={i} className="eo-num"><CeldaCifras items={c} /></td>)}
+                {f.celdas.map((c, i) => <td key={i} className="eo-num eo-pregunta__cifras"><CeldaCifras items={c} /></td>)}
                 <td className="eo-pregunta__respaldo">
                   {f.pruebas.map((pid, i) => (
                     <span key={pid}>

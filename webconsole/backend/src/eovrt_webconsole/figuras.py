@@ -8,6 +8,7 @@ contra results/gen2, igual que las preguntas. La consola lee las dos carpetas; l
 """
 from __future__ import annotations
 
+import csv
 import logging
 from pathlib import Path
 
@@ -20,6 +21,8 @@ logger = logging.getLogger(__name__)
 
 CARPETA_PUBLICA = "results/gen2/{prueba}/capturas"
 CARPETA_PRIVADA = "defensa/capturas/figuras"
+# Las curvas del ajuste fino no tienen prueba de la campaña: sus datos y su figura viven juntos acá.
+CARPETA_CURVAS = "finetuning/curvas"
 
 
 class FiguraInexistente(KeyError):
@@ -51,8 +54,39 @@ class Figuras:
         if figura.get("privada"):
             return f"{CARPETA_PRIVADA}/{nombre}"
         if not figura.get("prueba"):
-            return None
+            return f"{CARPETA_CURVAS}/{nombre}" if (figura.get("fuente") or {}).get("grafico") == "curvas" else None
         return f"{CARPETA_PUBLICA.format(prueba=figura['prueba'])}/{nombre}"
+
+    def _curvas(self, fuente: dict, r: _Resolutor, donde: str) -> dict:
+        """Curvas por época leídas de archivos CSV versionados bajo `finetuning/curvas/` (los `results.csv` de
+        Ultralytics). Se entregan como un gráfico de líneas: una categoría por época y una serie por archivo;
+        una época que una serie no tiene queda vacía."""
+        columna = str(fuente.get("columna") or "")
+        decimales = fuente.get("decimales", 3)
+        carpeta = (self.repo_root / CARPETA_CURVAS).resolve()
+        series: list[tuple[str, dict[int, float]]] = []
+        for i, s in enumerate(fuente.get("series") or []):
+            nombre = str((s or {}).get("nombre") or f"serie {i + 1}")
+            ruta = (self.repo_root / str((s or {}).get("csv") or "")).resolve()
+            valores: dict[int, float] = {}
+            if ruta.parent != carpeta or ruta.suffix != ".csv" or not ruta.is_file():
+                r.errores.append(f"{donde}.series[{i}]: «{s.get('csv')}» no es un CSV de {CARPETA_CURVAS}/")
+            else:
+                with ruta.open(newline="", encoding="utf-8") as fh:
+                    for fila in csv.DictReader(fh):
+                        fila = {(k or "").strip(): (v or "").strip() for k, v in fila.items()}
+                        try:
+                            valores[int(float(fila["epoch"]))] = float(fila[columna])
+                        except (KeyError, ValueError):
+                            r.errores.append(f"{donde}.series[{i}]: falta la época o la columna «{columna}»")
+                            break
+            series.append((nombre, valores))
+        epocas = sorted({e for _, v in series for e in v})
+        return {"tipo": "lineas", "eje": fuente.get("eje"), "eje_x": fuente.get("eje_x"),
+                "series": [n for n, _ in series],
+                "puntos": [{"etiqueta": str(e), "valores": [
+                    {"ok": True, "valor": v.get(e), "decimales": decimales, "prueba": None} for _, v in series]}
+                    for e in epocas]}
 
     def _grafico(self, fuente: dict, r: _Resolutor, donde: str) -> dict:
         if fuente.get("grafico") == "barras":
@@ -60,8 +94,10 @@ class Figuras:
                 {"etiqueta": d.get("etiqueta"), "aparte": bool(d.get("aparte")),
                  "cifra": r.resolver(d, None, None, f"{donde}.datos[{i}]")}
                 for i, d in enumerate(fuente.get("datos") or [])]}
+        if fuente.get("grafico") == "curvas":
+            return self._curvas(fuente, r, donde)
         if fuente.get("grafico") == "lineas":
-            return {"tipo": "lineas", "series": fuente.get("series") or [], "puntos": [
+            return {"tipo": "lineas", "eje": fuente.get("eje"), "series": fuente.get("series") or [], "puntos": [
                 {"etiqueta": d.get("etiqueta"),
                  "valores": [r.resolver(v, None, None, f"{donde}.datos[{i}].valores[{j}]")
                              for j, v in enumerate(d.get("valores") or [])]}

@@ -624,7 +624,7 @@ export default function RunsPage() {
     <>
       <PageHeader
         title="Corridas"
-        bajada="Una corrida es la ejecución de un solo plano; acá, la detección sobre una fuente. Las que respaldan un resultado de la generación 2 se agrupan bajo la prueba que las cita."
+        bajada="Una corrida es la ejecución de un solo plano; acá, la detección sobre una fuente. Las que respaldan un resultado del informe se agrupan bajo la prueba que las cita."
         meta={
           <>
             {total != null && <span>{total} corridas del plano de medios</span>}

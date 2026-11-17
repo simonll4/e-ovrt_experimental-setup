@@ -54,7 +54,8 @@ function Contenido({ f }: { f: FiguraInforme }) {
         <div className="eo-figura__lienzo" data-figura={f.id}>
           <LineasPorPunto
             nombre={f.titulo}
-            eje="F1"
+            eje={g.eje ?? 'F1'}
+            ejeX={g.eje_x ?? undefined}
             categorias={g.puntos.map((p) => p.etiqueta)}
             series={g.series.map((nombre, si) => ({
               nombre,

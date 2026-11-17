@@ -104,7 +104,7 @@ describe('Inicio (/)', () => {
     const pie = screen.getByRole('contentinfo')
     expect(pie.textContent).toMatch(/49 pruebas · campaña del 29 de octubre de 2026 al 12 de noviembre de 2026/)
     expect(pie.textContent).toMatch(/resultados en el commit 656c088/)
-    expect(within(pie).getByRole('link', { name: 'Archivo' }).getAttribute('href')).toBe('/evidencia/generacion-1')
+    expect(within(pie).getByRole('link', { name: 'Archivo' }).getAttribute('href')).toBe('/archivo')
     expect(within(pie).getByRole('link', { name: 'Cómo leer' }).getAttribute('href')).toBe('/documentacion')
     expect(within(pie).getByRole('link', { name: 'El informe' }).getAttribute('href')).toBe('https://example.org/informe')
     expect(within(pie).getByRole('link', { name: 'repo-a' })).toBeTruthy()

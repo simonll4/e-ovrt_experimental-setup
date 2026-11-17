@@ -27,21 +27,26 @@ export function separarEtiquetas(ys: number[], minimo = 16): number[] {
 /** Líneas sobre categorías ordenadas, con el dominio fijo en [0, 1] (un F1, una tasa): dos gráficos
  *  con la misma escala se pueden comparar. Con dos o más series lleva leyenda y, además, el nombre y la
  *  última cifra de cada serie al final de su línea. Las demás cifras están en el título de cada punto. */
-export default function LineasPorPunto({ categorias, series, nombre, eje, alto = 280 }: {
+export default function LineasPorPunto({ categorias, series, nombre, eje, ejeX, alto = 280 }: {
   categorias: string[]
   series: SerieDeLineas[]
   nombre: string
   /** El nombre de la magnitud, arriba del eje. */
   eje?: string
+  /** Qué son las categorías (p. ej. «época»), debajo de ellas. */
+  ejeX?: string
   alto?: number
 }) {
   const contenedor = useRef<HTMLDivElement>(null)
   const disponible = useAncho(contenedor, 720)
   const izq = 44
-  const der = 132
+  // El margen derecho lleva el nombre y la última cifra de cada serie: se ensancha con el más largo.
+  const der = Math.max(132, 24 + 7 * Math.max(0, ...series.map((s) => s.nombre.length + 1 + Math.max(0, ...s.textos.map((t) => t.length)))))
   const arriba = 34
-  const abajo = 36
-  const plotW = Math.max(categorias.length * 110, disponible - izq - der)
+  const abajo = ejeX ? 54 : 36
+  // Pocas categorías con nombre (densidades) piden aire; muchas cortas (épocas) entran más juntas.
+  const porCategoria = categorias.length > 8 ? 40 : 110
+  const plotW = Math.max(categorias.length * porCategoria, disponible - izq - der)
   const ancho = Math.round(plotW + izq + der)
   const plotH = alto - arriba - abajo
   const xDe = (i: number) => ((i + 0.5) * plotW) / Math.max(1, categorias.length)
@@ -73,7 +78,11 @@ export default function LineasPorPunto({ categorias, series, nombre, eje, alto =
       >
         <svg width={ancho} height={alto} viewBox={`0 0 ${ancho} ${alto}`} role="img" aria-label={nombre}>
           <g transform={`translate(${izq}, ${arriba})`}>
-            {eje && <text x={-8} y={-18} textAnchor="end" className="eo-bars__tick">{eje}</text>}
+            {/* Corto («F1») va pegado al eje; largo («mAP50 de validación») arranca en el borde y corre sobre el
+                gráfico, arriba de la línea de 1: alineado a la derecha se cortaba. */}
+            {eje && (eje.length <= 4
+              ? <text x={-8} y={-18} textAnchor="end" className="eo-bars__tick">{eje}</text>
+              : <text x={-izq} y={-18} textAnchor="start" className="eo-bars__tick">{eje}</text>)}
             {TICKS.map((t) => (
               <g key={t}>
                 <line x1={0} y1={yDe(t)} x2={plotW} y2={yDe(t)} stroke="var(--bd)" />
@@ -83,6 +92,7 @@ export default function LineasPorPunto({ categorias, series, nombre, eje, alto =
             {categorias.map((c, i) => (
               <text key={c} x={xDe(i)} y={plotH + 22} textAnchor="middle" className="eo-bars__group">{c}</text>
             ))}
+            {ejeX && <text x={plotW / 2} y={plotH + 44} textAnchor="middle" className="eo-bars__tick">{ejeX}</text>}
             {series.map((s, si) => {
               const color = SERIES_COLORS[si % SERIES_COLORS.length]
               const puntos = s.valores.map((v, i) => (v != null && Number.isFinite(v) ? [xDe(i), yDe(v), i] as const : null))

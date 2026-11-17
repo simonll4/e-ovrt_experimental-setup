@@ -55,7 +55,10 @@ export const NAV_GROUPS: NavGroup[] = [
 ]
 
 /** La etapa de desarrollo: el recorrido de evidencia de antes, de solo lectura. Va al pie (§5). */
-export const GEN1 = { to: '/evidencia/generacion-1', label: 'Archivo' }
+export const GEN1 = { to: '/archivo', label: 'Archivo' }
+/** Las URLs anteriores del Archivo: siguen respondiendo para no romper enlaces guardados, pero la interfaz ya no
+ *  las usa (la barra de direcciones no dice «generación», §4). */
+export const ARCHIVO_ANTES = ['/evidencia', '/evidencia/generacion-1'] as const
 export const NAV_ARCHIVO: NavItem = {
   to: GEN1.to, label: GEN1.label, icon: IconNavArchivo, tambien: (p) => p === '/evidencia' || p.startsWith('/evidencia/'),
 }
@@ -97,8 +100,8 @@ export function crumbsFor(pathname: string, search = ''): NavItem[] {
     // El título de la pregunta lo pone Breadcrumbs cuando la vista ya cargó; acá queda su id.
     return [{ to: '/', label: 'Inicio' }, { to: pathname, label: pathname.slice(PREGUNTA_PATH.length + 1) }]
   }
-  // El Archivo vive en dos URLs: la histórica y la nueva.
-  if (pathname === '/evidencia' || pathname === GEN1.to) return [GEN1]
+  // El Archivo vive en su URL y en las dos anteriores.
+  if (pathname === GEN1.to || (ARCHIVO_ANTES as readonly string[]).includes(pathname)) return [GEN1]
   if (pathname === '/evidencia/paso') {
     const n = new URLSearchParams(search).get('n')
     return [GEN1, { to: pathname + search, label: n ? `Paso ${n}` : 'Paso' }]

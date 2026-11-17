@@ -38,7 +38,7 @@ describe('Shell', () => {
     expect(lateral.getByRole('group', { name: 'Demostrar' })).toBeTruthy()
     const nav = lateral.getByRole('navigation', { name: 'Secciones' })
     expect(within(nav).getAllByRole('link').map((a) => a.getAttribute('aria-label'))).toEqual(DESTINOS)
-    expect(within(nav).getByRole('link', { name: 'Archivo' }).getAttribute('href')).toBe('/evidencia/generacion-1')
+    expect(within(nav).getByRole('link', { name: 'Archivo' }).getAttribute('href')).toBe('/archivo')
   })
 
   it('sin «Para el tribunal», sin el laboratorio y sin los botones de nueva corrida y nuevo experimento', () => {

@@ -1347,6 +1347,10 @@ export interface GraficoBarras {
 }
 export interface GraficoLineas {
   tipo: 'lineas'
+  /** La magnitud del eje vertical; sin ella, «F1». */
+  eje?: string | null
+  /** Qué son las categorías del eje horizontal (p. ej. «época»), si sus etiquetas no lo dicen. */
+  eje_x?: string | null
   series: string[]
   puntos: Array<{ etiqueta: string; valores: CifraPregunta[] }>
 }

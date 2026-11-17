@@ -217,10 +217,14 @@ preguntas:
   - id: en-vivo
     titulo: ¿Funciona en vivo?
     informe: ["§17.5.5", "Tabla 54"]
-    titular: "{fps} cuadros por segundo; alerta en {cr01}"
+    # «Confirmada» y la espera de la regla, a propósito: ese tiempo incluye la ventana de persistencia
+    # del patrón (cr01_cr02_v2), que no es demora de cómputo; el cómputo por cuadro está en la tabla
+    # (vidrio → resultado). No se escribe la duración de la ventana: no es una cifra de results/gen2.
+    titular: "{fps} cuadros por segundo; alerta confirmada en {cr01}"
     respuesta: >-
       Sí: con la cámara de la demo, la cadena procesa {fps} cuadros por segundo con {descartados}
-      descartados, y desde que la persona se saca el casco la alerta llega en {cr01} (mediana).
+      descartados, y desde que la persona se saca el casco la alerta se confirma en {cr01} (mediana),
+      en su mayor parte por la espera a propósito de la regla, no por el cómputo.
     cifras:
       fps: {prueba: RT-04, clave: fps_efectivos, decimales: 2, unidad: ""}
       descartados: {prueba: RT-04, clave: cuadros_descartados, decimales: 0}

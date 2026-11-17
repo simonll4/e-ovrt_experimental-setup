@@ -202,7 +202,11 @@ class Preguntas:
                                                     "(results/evidence-vista/preguntas.yaml)."}
         r = _Resolutor(self.gen2)
         preguntas = [self._pregunta(p, r) for p in datos.get("preguntas") or [] if isinstance(p, dict)]
-        fechas = sorted(f["generado"][:10] for f in r.filas() if isinstance(f.get("generado"), str))
+        # La campaña va del primer al último resultado medido. La prueba de plataforma no cuenta: se vuelve a
+        # correr cada vez que cambia la imagen de la consola, y su fecha es la del último despliegue, no la de una
+        # medición.
+        fechas = sorted(f["generado"][:10] for f in r.filas()
+                        if isinstance(f.get("generado"), str) and f.get("familia") != "plataforma")
         return {
             "available": True,
             "proyecto": datos.get("proyecto") or {},

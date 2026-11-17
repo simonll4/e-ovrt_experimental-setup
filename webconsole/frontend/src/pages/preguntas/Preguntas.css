@@ -52,6 +52,13 @@
 .eo-pregunta__limites { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 4px; }
 .eo-pregunta__pasos { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding-top: 8px; border-top: 1px solid var(--bd); }
 
+/* La tabla de una pregunta entra en su tarjeta, también en el modo presentación: la hoja global no deja
+   partir los `th` ni las celdas `.eo-num`, y una fila con muchas cifras ensanchaba la tabla hasta esconder
+   el «Respaldo» detrás de un desplazamiento. Acá el nombre de la fila parte entre palabras y la celda entre
+   una cifra y la siguiente (`.eo-celda__item`), nunca dentro de una. */
+.eo-table th.eo-pregunta__fila { white-space: normal; }
+.eo-table td.eo-num.eo-pregunta__cifras { white-space: normal; }
+.eo-celda__item { white-space: nowrap; }
 .eo-celda__etiqueta { color: var(--tx3); font-size: var(--fz-meta); }
 .eo-celda__sep { color: var(--tx4); }
 .eo-celda__valor { font-variant-numeric: tabular-nums; white-space: nowrap; }
@@ -66,7 +73,8 @@
 .eo-figura__num { color: var(--tx3); font-weight: 500; margin-right: 4px; }
 .eo-figura__pie { font-size: var(--fz-meta); color: var(--tx3); line-height: 1.5; }
 .eo-figura__lienzo { background: var(--s1); padding: 16px 12px; border: 1px solid var(--bd); border-radius: var(--r); }
-.eo-figura__imagen { display: block; max-width: 100%; height: auto; border: 1px solid var(--bd); border-radius: var(--r); }
+/* Una imagen alta (la de la clase nueva es cuadrada) no ocupa más que la pantalla: se achica sin deformarse. */
+.eo-figura__imagen { display: block; max-width: 100%; max-height: 72vh; width: auto; height: auto; object-fit: contain; border: 1px solid var(--bd); border-radius: var(--r); }
 .eo-figura__falta { margin: 0; padding: 16px; border: 1px dashed var(--bds); border-radius: var(--r); color: var(--tx3); }
 .eo-figura__fuente { margin: 0; }
 
