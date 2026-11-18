@@ -497,8 +497,10 @@ vocabulario:
         nivel: B
         result_ids: [clip_bench/r1_gdinotiny560_v2short_scene_s7]
         definicion: >
-          Densidad de evidencia: uno de cada 7 fotogramas, por escena. Es el
-          ancla del techo del camino en vivo de hoy.
+          Densidad de evidencia: uno de cada 7 fotogramas (≈4,29 por segundo),
+          por escena. Se ancló al techo que alcanzaba el camino en vivo en la
+          etapa de desarrollo. En la configuración de la demo el vivo procesa 5
+          por segundo, así que R1 queda apenas por debajo y es su mejor sustituto.
       - id: R2
         termino: R2
         nivel: B
@@ -673,8 +675,9 @@ vocabulario:
         termino: episodio
         definicion: >
           Una ventana de tiempo anotada a mano donde una condición está presente
-          y es observable. Son 37 en el banco, y son la unidad contra la que se
-          juzga cada alerta.
+          y es observable. Con la referencia corregida son 35 en el banco (33 en
+          el rodaje y 2 en la obra real), y son la unidad contra la que se juzga
+          cada alerta.
 
   - id: limitaciones
     titulo: Limitaciones declaradas
