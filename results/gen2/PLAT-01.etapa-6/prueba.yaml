@@ -1,0 +1,22 @@
+schema: prueba.gen2.v1
+id: PLAT-01
+titulo: "Qué corrió y dónde: la plataforma en contenedores en la Victus"
+informe: ["Tabla B.1", "Tabla B.3", "§17.6.4"]
+fase: F1
+familia: plataforma
+pregunta: "¿En qué equipo, con qué versiones e imágenes, y con qué servicios arriba se generó la evidencia final?"
+gen1:
+  result_id: "doc 133 (validación de la Victus)"
+  doc: operacion/133
+esperado: >
+  La consola responde, el modelo campeón listo, `docker compose config` válido, los servicios
+  arriba (`compose ps`), la GPU identificada y los digests de las 4 imágenes registrados en
+  plataforma.json. Las capturas de pantalla (stack arriba, consola) van a capturas/ a mano.
+veredictos_posibles: [identico]
+receta:
+  instancia: mp-gdino-tiny-560
+capturas_a_tomar:
+  - "Docker Desktop con los contenedores del proyecto eovrt arriba"
+  - "`docker compose ps` en una terminal"
+  - "La consola en http://localhost:8090 con el preflight en verde"
+salida: e-ovrt_experimental-setup/results/gen2/PLAT-01/
