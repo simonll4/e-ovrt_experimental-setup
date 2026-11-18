@@ -33,7 +33,7 @@ resultados:
     reclamo: Cuánto cuesta extender el vocabulario sin reentrenar.
   - result_id: bench_nivel_a/d1_gdinotiny560_edir_vs_eind
     etiqueta: "d1 gdinotiny560 edir vs eind"
-    titulo: E-DIR contra E-IND por sujeto (D1)
+    titulo: E-DIR contra E-IND, persona por persona en imágenes (D1 de imágenes)
     reclamo: La comparación pre-registrada entre las dos formulaciones, a nivel de persona.
   - result_id: bench_nivel_a/edir_vs_eind
     etiqueta: "edir vs eind"
@@ -172,9 +172,9 @@ resultados:
     reclamo: De dónde salían los fps perdidos en la ingesta.
   - result_id: realtime/regresion_g1_live
     etiqueta: "regresion g1 live"
-    titulo: Regresión de G1 en vivo
+    titulo: Regresión de la granularidad por sujeto en vivo (G1)
     reclamo: Verificación de que la identidad no se rompió en el camino vivo.
   - result_id: realtime/l0
     etiqueta: "l0"
-    titulo: El ensayo previo al rodaje (L0)
+    titulo: El ensayo previo al rodaje
     reclamo: La corrida de preparación que habilitó el día de rodaje.

@@ -186,8 +186,8 @@ figuras:
       eje_x: época
       decimales: 3
       series:
-        - {nombre: T1 · proyección de clases, csv: finetuning/curvas/t1_full-1167640.results.csv}
-        - {nombre: T2 · ajuste completo, csv: finetuning/curvas/t2_full-1167982.results.csv}
+        - {nombre: Tramo 1 · proyección de clases, csv: finetuning/curvas/t1_full-1167640.results.csv}
+        - {nombre: Tramo 2 · ajuste completo, csv: finetuning/curvas/t2_full-1167982.results.csv}
 
   - id: clase-nueva
     numero: 10

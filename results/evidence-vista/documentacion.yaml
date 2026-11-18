@@ -434,13 +434,15 @@ vocabulario:
   - id: campanas
     titulo: Campañas
     nota: >
-      Cada identificador es una combinación concreta, y el contraste entre filas
-      es el experimento. En el banco de VIDEO hay DOS referencias, una por
-      granularidad: T2, D1, H1, G1, B1 y las densidades de escena (R1, R3, R5)
-      se leen contra T1; las densidades por sujeto (R2, R4, R6) se leen contra
-      G1. I1 e I2 cambian el material y se leen aparte. S1 y B5 son del banco de
-      imágenes y NA1 es de otro nivel: ninguno de los tres se compara contra
-      T1.
+      Son los códigos de la etapa de desarrollo. Cada campaña cambia una sola
+      cosa respecto de su referencia, y el contraste entre filas es el
+      experimento. Hoy cada una tiene su prueba en la campaña final, y ése es el
+      nombre que se usa: el código sirve para encontrarla en el Archivo. En el
+      banco de VIDEO hay DOS referencias, una por granularidad: T2, D1, H1, G1, B1
+      y las densidades por escena (R1, R3, R5) se leen contra T1; las densidades
+      por sujeto (R2, R4, R6), contra G1. I1 e I2 cambian el material y se leen
+      aparte. S1 y B5 son del banco de imágenes y NA1 es de otro nivel: ninguno
+      de los tres se compara contra T1.
     terminos:
       - id: T1
         termino: T1
@@ -450,7 +452,7 @@ vocabulario:
           La línea de base del banco de clips: perfil operativo, prompt set congelado y
           granularidad de escena. No cambia nada: es la referencia de escena
           contra la que se leen las campañas que sí cambian algo. Las campañas
-          por sujeto tienen la suya, que es G1.
+          por sujeto tienen la suya, que es G1. En la campaña final, ALR-01.
       - id: T2
         termino: T2
         nivel: B
@@ -458,7 +460,7 @@ vocabulario:
         definicion: >
           Cambia el MODELO: el grande en lugar del perfil operativo, con todo lo demás
           igual. Sirve para separar qué mejora da el modelo y qué da la
-          plataforma.
+          plataforma. En la campaña final, ALR-03.
       - id: D1
         termino: D1
         nivel: A y B
@@ -468,14 +470,16 @@ vocabulario:
         definicion: >
           Cambia los PROMPTS: pregunta derecho por la ausencia en vez de deducir
           la infracción. Ojo, son dos experimentos distintos con el mismo
-          nombre, uno por nivel — ver las colisiones de símbolos.
+          nombre, uno por nivel — ver las colisiones de símbolos. Son dos
+          campañas: la de imágenes, persona por persona, es hoy PER-01; la del
+          rodaje, ALR-04.
       - id: H1
         termino: H1
         nivel: B
         result_ids: [clip_bench/h1_gdinotiny560_hybor_scene]
         definicion: >
           Cambia la ESTRATEGIA: fusiona las dos formulaciones de prompt. La
-          fusión por unión quedó refutada.
+          fusión por unión quedó refutada. En la campaña final, ALR-05.
       - id: G1
         termino: G1
         nivel: B
@@ -483,7 +487,7 @@ vocabulario:
         definicion: >
           Cambia la GRANULARIDAD: por sujeto en vez de por escena, con las
           detecciones bit a bit idénticas a T1. Es el mejor resultado del banco,
-          y toda la ganancia es del motor.
+          y toda la ganancia es del motor. En la campaña final, ALR-02.
       - id: B1
         termino: B1
         nivel: B
@@ -491,7 +495,7 @@ vocabulario:
         definicion: >
           Cambia el VOCABULARIO: pregunta por cabeza descubierta de forma
           directa, con el modelo grande. Gana cobertura del episodio y pierde
-          precision.
+          precision. En la campaña final, ALR-06.
       - id: R1
         termino: R1
         nivel: B
@@ -501,47 +505,51 @@ vocabulario:
           por escena. Se ancló al techo que alcanzaba el camino en vivo en la
           etapa de desarrollo. En la configuración de la demo el vivo procesa 5
           por segundo, así que R1 queda apenas por debajo y es su mejor sustituto.
+          En la campaña final, DEN-01.
       - id: R2
         termino: R2
         nivel: B
         result_ids: [clip_bench/r2_gdinotiny560_v2short_subject_s7]
         definicion: >
           Uno de cada 7 fotogramas, por sujeto. Es el par de R1: juntos miden si
-          la ganancia de la identidad sobrevive al decimado.
+          la ganancia de la identidad sobrevive al decimado. En la campaña final,
+          DEN-02.
       - id: R3
         termino: R3
         nivel: B
         result_ids: [clip_bench/r3_gdinotiny560_v2short_scene_s15]
-        definicion: Uno de cada 15 fotogramas, por escena.
+        definicion: Uno de cada 15 fotogramas, por escena. En la campaña final, DEN-03.
       - id: R4
         termino: R4
         nivel: B
         result_ids: [clip_bench/r4_gdinotiny560_v2short_subject_s15]
-        definicion: Uno de cada 15 fotogramas, por sujeto. El par de R3.
+        definicion: Uno de cada 15 fotogramas, por sujeto. El par de R3. En la campaña final, DEN-04.
       - id: R5
         termino: R5
         nivel: B
         result_ids: [clip_bench/r5_gdinotiny560_v2short_scene_s26]
-        definicion: Uno de cada 26 fotogramas, por escena.
+        definicion: Uno de cada 26 fotogramas, por escena. En la campaña final, DEN-05.
       - id: R6
         termino: R6
         nivel: B
         result_ids: [clip_bench/r6_gdinotiny560_v2short_subject_s26]
-        definicion: Uno de cada 26 fotogramas, por sujeto. El par de R5.
+        definicion: Uno de cada 26 fotogramas, por sujeto. El par de R5. En la campaña final, DEN-06.
       - id: I1
         termino: I1
         nivel: B
         result_ids: [clip_bench/i1_gdinotiny560_v2short_scene_internet]
         definicion: >
           Cambia el MATERIAL: obra real no guionada, por escena. Se reporta
-          siempre como fila aparte, nunca fusionada al rodaje.
+          siempre como fila aparte, nunca fusionada al rodaje. En la campaña
+          final, ALR-07.
       - id: I2
         termino: I2
         nivel: B
         result_ids: [clip_bench/i2_gdinotiny560_v2short_subject_internet]
         definicion: >
           Obra real no guionada, por sujeto. El par de I1. Acá el seguidor
-          fragmenta identidades en multitud, y eso explica su precision.
+          fragmenta identidades en multitud, y eso explica su precision. En la
+          campaña final, ALR-08.
       - id: NA1
         termino: NA1
         nivel: A
@@ -549,7 +557,7 @@ vocabulario:
         definicion: >
           Nivel A sobre video: estado por persona, fotograma a fotograma, sin
           motor temporal. Mide el derrumbe de precision al salir de las
-          imágenes.
+          imágenes. En la campaña final, PER-03.
       - id: S1
         termino: S1
         result_ids: [bench_imagenes/seleccion_s1]
@@ -560,14 +568,16 @@ vocabulario:
           no fue un eje de diseño, y la única excepción DOCUMENTADA —gdino-tiny a
           800, que corrió a un umbral distinto del resto— es justamente lo que
           confunde la comparación de resolución en ese par: está declarado como
-          defecto, no como método.
+          defecto, no como método. No se repitió en la campaña final: la
+          selección del modelo no se vuelve a hacer.
       - id: B5
         termino: B5
         result_ids: [bench_imagenes/confirmacion_b5]
         definicion: >
           La confirmación por estratos, y la única del banco de imágenes que
           corrió sobre el banco vigente: el perfil operativo sostiene el resultado en
-          cada una de las tres fuentes por separado, no sólo en el agregado.
+          cada una de las tres fuentes por separado, no sólo en el agregado. En
+          la campaña final, IMG-01, con IMG-02 e IMG-03 como contrastes.
 
   - id: metricas
     titulo: Métricas y bancos
@@ -767,21 +777,21 @@ vocabulario:
           cada notificación con su hora de llegada. Es la prueba de que la alerta
           pasó por el broker, no la palabra del que la envió.
       - id: G0
-        termino: G0
-        mono: true
+        termino: Por escena
         definicion: >
-          Granularidad de ESCENA: la condición se juzga sobre el cuadro entero,
-          sin identidad de personas. Es el núcleo validable.
+          La condición se juzga sobre el cuadro entero, sin identidad de
+          personas. Es el núcleo validable. En los documentos internos se la
+          llama G0.
       # `id` distinto del de la campaña G1 a propósito: el símbolo se repite y
       # el índice de términos es plano, así que con el mismo id uno pisaba al
       # otro y un G1 marcado en una tabla de campañas explicaba la granularidad.
       # El test `test_los_ids_de_termino_no_se_repiten` lo caza.
       - id: granularidad_g1
-        termino: G1 (granularidad)
+        termino: Por sujeto
         definicion: >
-          Granularidad de SUJETO: la condición se juzga por persona seguida. Ojo,
-          el mismo símbolo nombra también a la campaña G1, que es justamente la
-          que la mide.
+          La condición se juzga por persona seguida. Es la que mide la campaña G1
+          (en la campaña final, ALR-02). En los documentos internos se la llama
+          G1, como la campaña.
       - id: OVD
         termino: OVD
         mono: true
@@ -850,67 +860,47 @@ vocabulario:
           en el medio. Mide la plataforma.
 
 # ---------------------------------------------------------------------------
-# Los símbolos que significan más de una cosa. Es lo que más confusión ahorra:
-# un lector que no estuvo los pisa sí o sí si no se los avisan.
+# Los símbolos que significan más de una cosa DENTRO de lo que se puede
+# encontrar desde la consola. Regla de nombres del 2026-11-18: no se renombra
+# ningún identificador; se nombra por la prueba de la campaña final, y los
+# sentidos que viven solo en documentos internos (R1 a R4 del plan, R-01 a R-26,
+# D1 del tablero, los tres A1) no se listan acá.
 #
-# R1, D1 y A1 son las colisiones canónicas del glosario. T1/T2 va PRIMERA porque
-# es la más peligrosa de todas y no estaba declarada en ninguna parte: sus dos
-# sentidos viven a un click en `results/` —la de ajuste fino está enlazada desde
-# el índice— y sus veredictos son OPUESTOS (T1 es la línea de base que todo
-# supera en una serie, y un NO-GO en la otra).
+# T1/T2 va primera porque sus dos sentidos viven a un click en `results/` —el
+# ajuste fino está enlazado desde el índice— y sus veredictos son OPUESTOS.
 #
 # El número de entradas NO está hardcodeado en la pantalla ni en los tests: el
-# título y el conteo salen de esta lista. Agregar una quinta no rompe nada.
+# título y el conteo salen de esta lista.
 # ---------------------------------------------------------------------------
 colisiones:
   - simbolo: T1 / T2
     en_la_consola: >
-      En esta consola T1 y T2 son SIEMPRE campañas del banco de clips. El otro
-      sentido vive en la carpeta de ajuste fino, que no aporta ninguna cifra a
-      los cuatro índices de resultados. T3 no existe como campaña: si se lee un
-      T3, es ajuste fino sí o sí.
+      En esta consola T1 y T2 son siempre campañas del banco de clips. Los tres
+      tramos del ajuste fino se llaman «tramo 1», «tramo 2» y «tramo 3», como en
+      el informe. Solo sus archivos conservan el prefijo t1_ y t2_ (carpeta
+      finetuning/), porque son nombres de archivo con huella y no se renombraron.
     sentidos:
       - de: T1 y T2 (campañas)
         es: >
-          La línea de base del banco de clips y su contraste de modelo. T1 es la
-          línea de base de escena; G1 es la referencia de las campañas por
-          sujeto.
-      - de: T1, T2 y T3 (ajuste fino)
+          La línea de base del banco de clips y su contraste de modelo; en la
+          campaña final, ALR-01 y ALR-03. T1 es la referencia por escena; G1, la
+          referencia por sujeto.
+      - de: Tramos 1, 2 y 3 del ajuste fino (archivos t1_ y t2_)
         es: >
-          Los tres brazos de la jornada de ajuste fino: sonda lineal y ajuste
-          completo, los dos con veredicto NO-GO, y un tercero que quedó cerrado
-          con causa técnica sin llegar a veredicto. Ninguno se adoptó como
-          modelo de servicio.
-  - simbolo: R1
-    en_la_consola: >
-      En esta consola R1 a R6 son SIEMPRE las campañas de densidad del banco de
-      clips.
-    sentidos:
-      - de: R1 a R4
-        es: Los cuatro resultados defendibles del plan de trabajo.
-      - de: R1 a R6
-        es: Las seis campañas de densidad del banco de clips.
-      - de: R-01 a R-26
-        es: Los redlines del informe, con guion — "dice hoy / debe decir / evidencia".
+          Los tres tramos de la rama de ajuste fino: proyección de clases y ajuste
+          completo, los dos con veredicto NO-GO, y un tercero cerrado con causa
+          técnica sin llegar a veredicto. Ninguno se adoptó como modelo de servicio.
   - simbolo: D1
     en_la_consola: >
-      En esta consola D1 es una campaña, y hay DOS con ese nombre: una de Nivel
-      A y otra de Nivel B. El result_id las distingue.
+      D1 nombra dos campañas distintas de la etapa de desarrollo. La consola las
+      nombra por su prueba de la campaña final, que no se repite: PER-01 y
+      ALR-04. El result_id también las distingue.
     sentidos:
-      - de: D1
-        es: La primera dimensión de decisión del tablero — estrategia de detección.
-      - de: D1 de Nivel A
-        es: La comparación de formulaciones por sujeto, sobre imágenes.
-      - de: D1 de Nivel B
-        es: La campaña del banco de clips con los prompts directos de ausencia.
-  - simbolo: A1
-    en_la_consola: >
-      En esta consola A1 no aparece como campaña. Si se lo lee en un documento,
-      hay que decir cuál de los tres es.
-    sentidos:
-      - de: A1
-        es: El primer argumento de defensa de la detección de vocabulario abierto.
-      - de: Piloto A1
-        es: El piloto de clase nueva, el que mide qué cuesta agregar una clase.
-      - de: Gate A1
-        es: La compuerta que censura episodios demasiado cortos para juzgarlos.
+      - de: D1 por persona en imágenes (hoy PER-01)
+        es: >
+          La comparación, persona por persona, entre deducir la ausencia del EPP y
+          describir la infracción, sobre el banco de imágenes. Nivel A.
+      - de: D1 de punta a punta en el rodaje (hoy ALR-04)
+        es: >
+          La campaña del banco de clips con los prompts que describen la
+          infracción. Nivel B.

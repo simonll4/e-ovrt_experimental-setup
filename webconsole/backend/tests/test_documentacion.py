@@ -136,11 +136,13 @@ def test_la_tabla_de_aportes_cubre_los_cinco_terminos_que_se_confunden():
 
 
 def test_las_colisiones_de_simbolo_estan_declaradas():
-    """Las tres canónicas del glosario más `T1`/`T2`, que es la peor de todas y
-    no estaba declarada en ninguna parte: sus dos sentidos viven a un click en
-    `results/` (campañas del banco de clips contra brazos del ajuste fino) y sus
-    veredictos son OPUESTOS — T1 es la línea de base que todo supera en una
-    serie, y un NO-GO en la otra.
+    """Las dos que se pueden encontrar desde la consola, por la regla de nombres
+    del 2026-11-18: `T1`/`T2`, cuyos dos sentidos viven a un click en `results/`
+    (campañas del banco de clips contra tramos del ajuste fino) con veredictos
+    OPUESTOS —T1 es la línea de base que todo supera en una serie, y un NO-GO en
+    la otra—, y `D1`, que nombra dos campañas distintas. Los sentidos que viven
+    solo en documentos internos (R1 a R4 del plan, R-01 a R-26, D1 del tablero,
+    los tres A1) no se listan en la consola.
 
     La lista se afirma por CONTENIDO, no por longitud: agregar una quinta
     colisión no debe romper este test, y la pantalla saca su título y su conteo
@@ -150,7 +152,7 @@ def test_las_colisiones_de_simbolo_estan_declaradas():
     """
     colisiones = _doc().get('colisiones') or []
     simbolos = [c['simbolo'] for c in colisiones]
-    for esperado in ('R1', 'D1', 'A1', 'T1 / T2'):
+    for esperado in ('D1', 'T1 / T2'):
         assert esperado in simbolos, f'colisión sin declarar: {esperado}'
     for c in colisiones:
         assert len(c.get('sentidos') or []) >= 2, f"{c['simbolo']}: una colisión de un solo sentido"
