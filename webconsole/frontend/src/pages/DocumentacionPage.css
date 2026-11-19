@@ -140,3 +140,7 @@
 @media (max-width: 767px) {
   .eo-doc__paso { grid-template-columns: minmax(0, 1fr); gap: 8px; }
 }
+
+/* «Cómo se lee esta consola» (revisión del 2026-11-19): la guía corta que reemplaza a las secciones largas. */
+.eo-doc__guia { margin: 0 0 28px; padding-left: 20px; line-height: 1.6; max-width: 82ch; }
+.eo-doc__guia li { margin-bottom: 10px; }

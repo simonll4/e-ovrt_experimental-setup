@@ -23,6 +23,7 @@ from eovrt_webconsole.demo.sesion import (
     DemoOcupada,
     DemoSinSesion,
     VistaFallida,
+    _con_los_estados_de_cada_alerta,
     _SinCuadro,
 )
 from eovrt_webconsole.experiment.run_manager import ExperimentRunManager
@@ -1156,3 +1157,22 @@ async def test_camaras_traen_su_estado_y_la_oak_d_lo_toma_de_la_ultima_comprobac
     assert (await entorno.dm.comprobar_camara("oak_d_lab"))["estado"] == "ok"
     filas = {f["id"]: f for f in await entorno.dm.camaras()}
     assert filas["oak_d_lab"]["estado"] == "activa"
+
+
+def test_el_detalle_trae_el_registro_de_cada_alerta_aunque_la_toma_sea_larga():
+    """Revisión del 2026-11-19: el detalle mandaba solo las últimas 200 líneas del registro de estados (unos
+    100 s). En una toma larga, «El momento de la alerta» mostraba el estado de minutos después (la P6 del
+    11-01 tiene 1889 líneas). Ahora van también, de todo el registro, las que rodean cada confirmación."""
+    def linea(s: float) -> dict:
+        return {"t": f"2026-11-01T20:{int(s // 60):02d}:{s % 60:06.3f}+00:00", "condiciones": [{"condicion": "CR-01"}]}
+    todos = [linea(i * 0.5) for i in range(1000)]          # 500 s, un registro cada medio segundo
+    confirmada_s = 30.2                                      # una alerta temprana, fuera de las últimas 200
+    from datetime import datetime
+    confirmada_ms = datetime.fromisoformat(linea(confirmada_s)["t"]).timestamp() * 1000
+    eventos = _con_los_estados_de_cada_alerta(todos, todos[-200:], [{"n": 1, "confirmed_wall_ms": confirmada_ms}])
+    assert len(eventos) == 202 and eventos[-200:] == todos[-200:]
+    antes, despues = eventos[0], eventos[1]
+    assert (antes, despues) == (todos[60], todos[61])         # 30,0 s y 30,5 s: rodean a los 30,2 s
+    assert eventos == sorted(eventos, key=lambda e: todos.index(e))
+    # Sin alertas (o sin hora de confirmación), queda lo de siempre.
+    assert _con_los_estados_de_cada_alerta(todos, todos[-200:], [{"n": 1}]) == todos[-200:]

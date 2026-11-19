@@ -21,7 +21,7 @@ describe('ModoPanel', () => {
     expect(radios.map((r) => r.checked)).toEqual([true, false, false])
     // «Campeón» se dice «Perfil operativo», y E-DIR lleva su nombre llano primero (plan §4.2).
     expect(radio(/Perfil operativo/).closest('label')?.textContent).toMatch(/Configuración del informe/)
-    expect(radio(/Por detección directa E-DIR/).closest('label')?.textContent).toMatch(/Descartada por la evidencia/)
+    expect(radio(/Estrategia directa E-DIR/).closest('label')?.textContent).toMatch(/Descartada por la evidencia/)
     expect(grupo.textContent).not.toMatch(/campe[oó]n/i)
     expect(radio(/Clase nueva/).closest('label')?.textContent).toMatch(/Extensión sin entrenar/)
     expect(grupo.textContent).not.toMatch(/buena|mala/i)
@@ -35,7 +35,7 @@ describe('ModoPanel', () => {
 
   it('del modo elegido muestra resumen, nota, frases por clase y cifras con su prueba', () => {
     montar('edir')
-    const detalle = screen.getByRole('region', { name: 'Modo Por detección directa E-DIR' })
+    const detalle = screen.getByRole('region', { name: 'Modo Estrategia directa E-DIR' })
     expect(detalle.textContent).toMatch(/Pedirle al modelo la infracción/)
     expect(detalle.textContent).toMatch(/ADR-001/)
     expect(detalle.textContent).toMatch(/no cuenta como ensayo/)

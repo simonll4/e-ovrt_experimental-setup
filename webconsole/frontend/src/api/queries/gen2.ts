@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { getFiguras, getGen2Prueba, getGen2Pruebas, getPreguntas, getTomas } from '..'
+import { getClipDePrueba, getFalsasAlarmasErr01, getFiguras, getGen2Prueba, getGen2Pruebas, getPreguntas, getTomas } from '..'
 import { qk } from '../keys'
 
 /** Archivos versionados que solo cambian cuando el driver corre: sin sondeo.
@@ -18,6 +18,21 @@ export function usePreguntas(enabled = true) {
 
 export function useGen2Pruebas() {
   return useQuery({ queryKey: qk.gen2.pruebas, queryFn: getGen2Pruebas, retry: false })
+}
+
+/** Un clip de una prueba («ver el run»): archivos que no cambian, sin sondeo ni reintento. */
+export function useClipDePrueba(id: string, clip: string, lectura: string | null) {
+  return useQuery({
+    queryKey: qk.gen2.clip(id, clip, lectura ?? ''),
+    queryFn: () => getClipDePrueba(id, clip, lectura),
+    enabled: Boolean(id && clip),
+    retry: false,
+  })
+}
+
+/** Las falsas alarmas de obra real por sujeto con su causa (ERR-01), para abrir cada una en su clip. */
+export function useFalsasAlarmasErr01(enabled = true) {
+  return useQuery({ queryKey: qk.gen2.falsasAlarmas, queryFn: getFalsasAlarmasErr01, retry: false, enabled })
 }
 
 export function useGen2Prueba(id: string | undefined, enabled = true) {

@@ -504,7 +504,7 @@ describe('/demo — modos de prompts', () => {
     await waitFor(() => expect(urls).toContain('GET /api/demo/preflight?modo=edir'))
     const chequeos = screen.getByRole('list', { name: 'Chequeo previo' })
     await waitFor(() => expect(within(chequeos).getByText('prompts del modo')).toBeTruthy())
-    expect(screen.getByRole('region', { name: 'Modo Por detección directa E-DIR' }).textContent)
+    expect(screen.getByRole('region', { name: 'Modo Estrategia directa E-DIR' }).textContent)
       .toMatch(/«construction worker without safety helmet»/)
     fireEvent.click(screen.getByRole('button', { name: /^Iniciar/ }))
     await waitFor(() => expect(peticiones.find((p) => p.path === '/api/demo/start')?.body)

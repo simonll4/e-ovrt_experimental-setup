@@ -35,6 +35,17 @@ export function fechaCorta(iso: string | null | undefined): string {
   return fecha.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit' })
 }
 
+/** El nombre que el informe le da a cada cara de la tarjeta (§ máquina de estados del motor de patrones:
+ *  inactivo, candidato, confirmado, sostenido, resuelto). La tarjeta habla llano; esto va al lado, al pasar el
+ *  mouse y en la capa de evidencia (decisión del 2026-11-19). */
+export const ESTADO_DEL_INFORME: Record<string, string> = {
+  ok: 'inactivo',
+  confirmando: 'candidato',
+  alerta: 'confirmado o sostenido',
+  resolviendo: 'sostenido, con la histéresis en curso',
+  resuelta: 'resuelto',
+}
+
 export const SEVERIDAD: Record<string, string> = { high: 'alta', medium: 'media', low: 'baja' }
 
 /** «Sin casco» / «Sin chaleco»: lo que se ve en la tarjeta mientras confirma. */

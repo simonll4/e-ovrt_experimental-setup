@@ -74,7 +74,7 @@ metodo:
     hizo: >
       Se compararon dos maneras de escribir la pregunta. Por ausencia del EPP
       (E-IND) se pregunta por lo que se ve —persona, casco, chaleco— y se deduce
-      la ausencia. Por detección directa (E-DIR) se pregunta derecho por la
+      la ausencia. Estrategia directa (E-DIR) se pregunta derecho por la
       infracción. La comparación se escribió antes de correr, con su criterio de
       corte fijado antes de mirar los números.
     porque: >
@@ -146,23 +146,31 @@ equivalencias:
     implementacion: el patrón PR-01; cr01 en los conjuntos de prompts y de reglas
   - termino: Sin chaleco
     codigo: CR-02
-    implementacion: el patrón PR-02; cr02 en los conjuntos de prompts y de reglas
-  - termino: Por ausencia del EPP
+    implementacion: "el patrón PR-02; cr02 en los conjuntos de prompts y de reglas. La condición es «persona sin chaleco de alta visibilidad» (la v0.2 del informe decía «reflectivo»)"
+  - termino: Estrategia indirecta (por ausencia del EPP)
     codigo: E-IND
-    implementacion: los prompts eind_v1 y cr01_cr02_v2_short; la campaña T1
-  - termino: Por detección directa
+    implementacion: los prompts eind_v1 y cr01_cr02_v2_short; la campaña T1 (en la campaña final, ALR-01)
+  - termino: Estrategia directa (detección directa)
     codigo: E-DIR
-    implementacion: los prompts edir_v1 y las reglas cr01_cr02_edir_v1; la campaña D1
-  - termino: Por disyunción
+    implementacion: los prompts edir_v1 y las reglas cr01_cr02_edir_v1; las dos campañas D1 (en la campaña final, PER-01 y ALR-04)
+  - termino: Estrategia híbrida (por disyunción)
     codigo: E-HYB
-    implementacion: las reglas cr01_cr02_hyb_or_v1; la campaña H1
+    implementacion: las reglas cr01_cr02_hyb_or_v1; la campaña H1 (en la campaña final, ALR-05)
   - termino: Por escena y por sujeto
-    implementacion: la granularidad scene y subject del motor de reglas; las campañas T1 y G1
-  - termino: Latencia por cuadro
+    implementacion: la granularidad scene y subject del motor de reglas; las campañas T1 y G1 (en la campaña final, ALR-01 y ALR-02)
+  - termino: G2A (latencia por cuadro)
     codigo: G2A
     implementacion: Glass-to-Algorithm; g2a_ms en las métricas del motor de detección
-  - termino: Densidad del techo en vivo, intermedia y peor caso
-    implementacion: el stride del remuestreo; las campañas R1 a R6
+  - termino: FPS efectivos
+    implementacion: "fps_efectivos en los resultados: los cuadros procesados entre el primero y el último. La medición anterior, que dividía por la duración entera de la corrida, queda como fps_sobre_duracion"
+  - termino: Estado por persona y alerta por episodio
+    implementacion: "«Nivel A» y «Nivel B» en la v0.2 del informe y en la etapa de desarrollo; la carpeta results/bench_nivel_a"
+  - termino: La concordancia de una prueba
+    implementacion: "el campo veredicto de cada resultado (identico, equivalente_con_diferencia, otra_combinacion), que se firma con evidencia veredicto. «Veredicto» queda solo para el GO / NO-GO del ajuste fino"
+  - termino: "Los estados de la demo: en regla, confirmando, alerta, resolviendo, resuelta"
+    implementacion: "los del motor de patrones: inactivo (inactive), candidato (candidate), confirmado o sostenido (confirmed, sustained), sostenido con la histéresis en curso y resuelto (resolved)"
+  - termino: Densidad de uno de cada 7, 15 o 26 cuadros
+    implementacion: "el stride (paso entre cuadros) con que se decima el clip; las campañas R1 a R6 (en la campaña final, DEN-01 a DEN-06). En la etapa de desarrollo se las llamó «techo en vivo», «intermedia» y «peor caso»"
   - termino: Los resultados
     implementacion: la carpeta results/gen2, con una carpeta por prueba; gen2 en commits y carpetas
   - termino: La etapa de desarrollo (el Archivo)
@@ -175,9 +183,9 @@ equivalencias:
   - termino: El banco de imágenes
     implementacion: bench_v3, construido sobre el vocabulario canonical_v2
   - termino: El rodaje y la obra real
-    implementacion: el banco de clips clip_bench; los clips a_* son el rodaje y los v* la obra real
+    implementacion: el banco temporal clip_bench; los clips a_* son el rodaje y los v* la obra real
   - termino: La referencia
-    implementacion: el GT (ground truth), anotado en CVAT
+    implementacion: el GT (ground truth); en el banco temporal, anotado en CVAT; en el de imágenes, el de los datasets públicos
   - termino: Persona, casco, chaleco y cabeza descubierta
     implementacion: las clases person, helmet, vest y bare_head
   - termino: Motor de detección, motor de reglas y distribución
@@ -303,7 +311,7 @@ vocabulario:
         mono: true
         definicion: >
           Identidad de la fuente visual de una corrida: la carpeta, el archivo
-          de video, la cámara. En el banco de clips es igual al clip_id.
+          de video, la cámara. En el banco temporal es igual al clip_id.
       - id: track_id
         termino: track_id
         mono: true
@@ -336,8 +344,8 @@ vocabulario:
         termino: CR-02
         mono: true
         definicion: >
-          Presencia de persona sin chaleco. Severidad media. La otra condición
-          del núcleo validable.
+          Persona sin chaleco de alta visibilidad. Severidad media. La otra
+          condición del núcleo validable.
       - id: PR-01
         termino: PR-01
         mono: true
@@ -441,7 +449,7 @@ vocabulario:
       banco de VIDEO hay DOS referencias, una por granularidad: T2, D1, H1, G1, B1
       y las densidades por escena (R1, R3, R5) se leen contra T1; las densidades
       por sujeto (R2, R4, R6), contra G1. I1 e I2 cambian el material y se leen
-      aparte. S1 y B5 son del banco de imágenes y NA1 es de otro nivel: ninguno
+      aparte. S1 y B5 son del banco de imágenes y NA1 mide el estado por persona: ninguno
       de los tres se compara contra T1.
     terminos:
       - id: T1
@@ -449,7 +457,7 @@ vocabulario:
         nivel: B
         result_ids: [clip_bench/t1_gdinotiny560_v2short_scene]
         definicion: >
-          La línea de base del banco de clips: perfil operativo, prompt set congelado y
+          La línea de base del banco temporal: perfil operativo, prompt set congelado y
           granularidad de escena. No cambia nada: es la referencia de escena
           contra la que se leen las campañas que sí cambian algo. Las campañas
           por sujeto tienen la suya, que es G1. En la campaña final, ALR-01.
@@ -502,10 +510,11 @@ vocabulario:
         result_ids: [clip_bench/r1_gdinotiny560_v2short_scene_s7]
         definicion: >
           Densidad de evidencia: uno de cada 7 fotogramas (≈4,29 por segundo),
-          por escena. Se ancló al techo que alcanzaba el camino en vivo en la
-          etapa de desarrollo. En la configuración de la demo el vivo procesa 5
-          por segundo, así que R1 queda apenas por debajo y es su mejor sustituto.
-          En la campaña final, DEN-01.
+          por escena. Se ancló al techo que se había medido en vivo en la etapa de
+          desarrollo, con la medición de cuadros por segundo que después se
+          corrigió. En la configuración de la demo el vivo procesa 5 por segundo,
+          así que R1 queda apenas por debajo y es su mejor sustituto. En la
+          campaña final, DEN-01.
       - id: R2
         termino: R2
         nivel: B
@@ -555,7 +564,7 @@ vocabulario:
         nivel: A
         result_ids: [bench_nivel_a/na1_gdinotiny560_v2short_video]
         definicion: >
-          Nivel A sobre video: estado por persona, fotograma a fotograma, sin
+          Estado por persona sobre video, fotograma a fotograma, sin
           motor temporal. Mide el derrumbe de precision al salir de las
           imágenes. En la campaña final, PER-03.
       - id: S1
@@ -589,23 +598,26 @@ vocabulario:
         termino: F1
         definicion: >
           La media armónica entre precision y recall. Es la cifra de cabecera
-          del banco de clips. Los clips negativos no entran: su métrica son los
+          del banco temporal. Los clips negativos no entran: su métrica son los
           falsos positivos.
       - id: precision
         termino: precision
         definicion: >
-          De todo lo que el sistema afirmó, qué fracción era cierta. A Nivel B
-          se cuenta sobre alertas contra episodios; a Nivel A, sobre estados por
-          persona. Es el criterio que vetó a los prompts directos de ausencia.
+          De todo lo que el sistema afirmó, qué fracción era cierta. En la
+          alerta por episodio se cuenta sobre alertas contra episodios; en el
+          estado por persona, sobre estados de cada persona. Es el criterio que vetó a los prompts directos de ausencia.
       - id: recall
         termino: recall
         definicion: >
-          De todo lo que había que encontrar, qué fracción se encontró. A Nivel
-          B son episodios anotados; a Nivel A, personas en estado de infracción.
+          De todo lo que había que encontrar, qué fracción se encontró. En la
+          alerta por episodio son episodios anotados; en el estado por persona,
+          personas en estado de infracción.
           Ojo con una intuición que la medición NO sostiene: preguntar derecho
-          por la ausencia no compra recall a cambio de precision. A Nivel A el
+          por la ausencia no compra recall a cambio de precision. En el estado
+          por persona el
           costo es precision —un brazo directo llega a recuperar una parte de lo
-          que la formulación indirecta no ve, afirmando de más—, pero a Nivel B
+          que la formulación indirecta no ve, afirmando de más—, pero en la
+          alerta por episodio
           caen las DOS: el recall se desploma junto con la precision.
       - id: mAP50
         termino: mAP50
@@ -644,11 +656,17 @@ vocabulario:
           detecta en vivo (las cifras, en «¿Funciona en vivo?»). No
           representa sensor a notificación y se cita separado.
       - id: G2A
-        termino: G2A
+        termino: G2A (latencia por cuadro)
         definicion: >
-          De la captura al resultado del algoritmo, por fotograma. Arranca en el
-          momento en que el fotograma se saca de la cola en el host, no en el
-          fotón: lo que pasa antes se mide aparte.
+          Del momento en que el fotograma se saca de la cola en el host al
+          resultado del algoritmo, por fotograma. No incluye la captura ni el
+          transporte hasta el host, que se miden aparte.
+      - id: fps_efectivos
+        termino: FPS efectivos
+        definicion: >
+          Cuadros procesados por segundo, contados entre el primer y el último
+          cuadro de la corrida. No se divide por la duración entera: el arranque
+          y el cierre no los diluyen.
       - id: re_alerts
         termino: re_alerts
         mono: true
@@ -703,6 +721,8 @@ vocabulario:
           sostienen ninguna cota. Harían falta 3 horas de cumplimiento anotado y
           el banco llega a 0,27 h de tiempo negativo. La evidencia principal de
           falsas alarmas es el control de negativos.
+        # La duración negativa del banco sale de su registro público; la página pública la enlaza.
+        fuente: https://github.com/Pandulc/e-ovrt_datasets/blob/main/datasets/registry/clip_bench.md
       - id: L2
         termino: L2
         definicion: >
@@ -739,7 +759,7 @@ vocabulario:
       - id: L8
         termino: L8
         definicion: >
-          CR-02 a Nivel A no está cerrada: un solo estrato y intervalos de
+          CR-02 en el estado por persona no está cerrada: un solo estrato y intervalos de
           confianza solapados.
 
   - id: despliegue
@@ -849,15 +869,16 @@ vocabulario:
           siete: es la palanca con la que se simula la densidad del camino en
           vivo sobre material offline.
       - id: nivel_a
-        termino: Nivel A
+        termino: Estado por persona
         definicion: >
           Se juzga el estado de cada persona —por imagen o por fotograma, según
-          el material— sin motor temporal en el medio. Mide percepción.
+          el material— sin motor temporal en el medio. Mide percepción. Es lo
+          que antes se llamaba «Nivel A».
       - id: nivel_b
-        termino: Nivel B
+        termino: Alerta por episodio
         definicion: >
           Se juzga la alerta contra el episodio anotado, con el motor temporal
-          en el medio. Mide la plataforma.
+          en el medio. Mide la plataforma. Es lo que antes se llamaba «Nivel B».
 
 # ---------------------------------------------------------------------------
 # Los símbolos que significan más de una cosa DENTRO de lo que se puede
@@ -875,14 +896,14 @@ vocabulario:
 colisiones:
   - simbolo: T1 / T2
     en_la_consola: >
-      En esta consola T1 y T2 son siempre campañas del banco de clips. Los tres
+      En esta consola T1 y T2 son siempre campañas del banco temporal. Los tres
       tramos del ajuste fino se llaman «tramo 1», «tramo 2» y «tramo 3», como en
       el informe. Solo sus archivos conservan el prefijo t1_ y t2_ (carpeta
       finetuning/), porque son nombres de archivo con huella y no se renombraron.
     sentidos:
       - de: T1 y T2 (campañas)
         es: >
-          La línea de base del banco de clips y su contraste de modelo; en la
+          La línea de base del banco temporal y su contraste de modelo; en la
           campaña final, ALR-01 y ALR-03. T1 es la referencia por escena; G1, la
           referencia por sujeto.
       - de: Tramos 1, 2 y 3 del ajuste fino (archivos t1_ y t2_)
@@ -899,8 +920,8 @@ colisiones:
       - de: D1 por persona en imágenes (hoy PER-01)
         es: >
           La comparación, persona por persona, entre deducir la ausencia del EPP y
-          describir la infracción, sobre el banco de imágenes. Nivel A.
-      - de: D1 de punta a punta en el rodaje (hoy ALR-04)
+          describir la infracción, sobre el banco de imágenes. Estado por persona.
+      - de: D1 de extremo a extremo en el rodaje (hoy ALR-04)
         es: >
-          La campaña del banco de clips con los prompts que describen la
-          infracción. Nivel B.
+          La campaña del banco temporal con los prompts que describen la
+          infracción. Alerta por episodio.

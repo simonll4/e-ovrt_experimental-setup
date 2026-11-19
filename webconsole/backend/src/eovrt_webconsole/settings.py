@@ -71,6 +71,10 @@ class ConsoleSettings:
     # en vivo, que tienen video con personas y no viven en el repo. La consola las lista y las
     # abre, pero las sesiones nuevas siempre se escriben en `defensa/sesiones`.
     demo_sessions_extra: tuple[Path, ...] = ()
+    # Workspaces adicionales, de solo lectura, donde buscar las corridas de la campaña final (los `runs/` de
+    # e-ovrt_experimental-setup y de e-ovrt_media-plane) para «ver el run» de un clip. En la Victus no hace falta:
+    # las corridas están en su workspace. En la PC de desarrollo, el espejo de la Victus.
+    workspaces_extra: tuple[Path, ...] = ()
 
     @property
     def prompts_dir(self) -> Path:
@@ -176,5 +180,8 @@ class ConsoleSettings:
             ),
             demo_sessions_extra=tuple(
                 Path(p) for p in env.get("EOVRT_CONSOLE_DEMO_SESSIONS_EXTRA", "").split(os.pathsep) if p.strip()
+            ),
+            workspaces_extra=tuple(
+                Path(p) for p in env.get("EOVRT_CONSOLE_WORKSPACES_EXTRA", "").split(os.pathsep) if p.strip()
             ),
         )

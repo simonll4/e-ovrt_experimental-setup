@@ -24,6 +24,7 @@ import InicioPage from './pages/InicioPage'
 import PreguntaPage from './pages/PreguntaPage'
 import ResultadosPage from './pages/ResultadosPage'
 import PruebaPage from './pages/PruebaPage'
+import ClipPage from './pages/ClipPage'
 import { CORRER_CLIP_PATH, PREGUNTA_PATH, RUNS_PATH } from './nav'
 
 /** El Archivo (plan de la consola, §5): el recorrido de evidencia de la etapa de desarrollo, de
@@ -55,6 +56,7 @@ export default function App() {
         <Route path={RUNS_PATH} element={<RunsPage />} />
         <Route path="/resultados" element={<ResultadosPage />} />
         <Route path="/resultados/:id" element={<PruebaPage />} />
+        <Route path="/resultados/:id/clips/:clip" element={<ClipPage />} />
         <Route path="/documentacion" element={<DocumentacionPage />} />
         <Route path="/archivo" element={gen1} />
         {/* Las URLs anteriores del Archivo siguen respondiendo (nav.ts, ARCHIVO_ANTES). */}

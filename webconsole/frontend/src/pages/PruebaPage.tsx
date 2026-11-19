@@ -4,9 +4,10 @@ import { useGen2Prueba } from '../api/queries/gen2'
 import { Banner, Card, Disclosure, MonoCell, PageHeader, Table, TableScroll, Tag } from '../components/ui'
 import NombreCodigo, { ConCodigos } from '../components/ui/NombreCodigo'
 import { GEN1 } from '../nav'
-import { NOMBRE_DE_PRUEBA, nombreConCodigo } from '../vocabulario'
+import { NOMBRE_DE_PRUEBA, nombreConCodigo, nombreLectura } from '../vocabulario'
 import type { Gen2Cifra, Gen2Corrida, Gen2Desglose, Gen2Detalle, Gen2Entorno } from '../types'
 import { EstadoDeLectura } from './evidencia/comun'
+import FalsasAlarmasUnaPorUna from './gen2/FalsasAlarmasUnaPorUna'
 import { CifraFila, EstadoPrueba, VEREDICTO_LABEL, Veredicto, noSeRegenera, valorTexto } from './gen2/comun'
 import './gen2/Gen2.css'
 
@@ -21,9 +22,6 @@ function filasCorridas(corridas: Record<string, Gen2Corrida>) {
   return filas
 }
 
-/** El nombre de una lectura secundaria (`variantes` del resultado), dicho en llano. */
-const LECTURA: Record<string, string> = { sujeto: 'por sujeto', casco: 'solo casco', chaleco: 'solo chaleco', combinada: 'combinada' }
-const nombreLectura = (nombre: string) => nombre.split('_').map((t) => LECTURA[t] ?? t).join(', ')
 
 const nombreCifra = (c: Gen2Cifra) => <ConCodigos texto={c.nombre_consola ?? c.nombre} />
 
@@ -82,26 +80,31 @@ const CLASE: Record<string, string> = {
 const numero = (v: number | null | undefined, decimales: number) =>
   v == null ? '—' : v.toLocaleString('es-AR', { minimumFractionDigits: decimales, maximumFractionDigits: decimales })
 
-/** El desglose (§2.4): sobre un banco de clips, una fila por clip; sobre imágenes, por fuente y por
+/** El desglose (§2.4): sobre un banco temporal, una fila por clip; sobre imágenes, por fuente y por
  *  clase. Sale de las evaluaciones de la prueba (`evals/`), sin calcular nada. */
-function Desglose({ desglose }: { desglose: Gen2Desglose }) {
+function Desglose({ desglose, prueba, conRun }: { desglose: Gen2Desglose; prueba: string; conRun: boolean }) {
   if (desglose.tipo === 'clips') {
     return (
-      <Card title="Clip por clip" meta={`${desglose.clips.length} clips`} flush>
+      <Card title="Clip por clip" meta={`${desglose.clips.length} clips${conRun ? ' · cada clip abre su run' : ''}`} flush>
         <TableScroll label="Clip por clip">
           <Table aria-label="Clip por clip">
             <thead>
               <tr>
                 <th>Clip</th><th className="eo-num">Episodios</th><th className="eo-num">Aciertos</th>
                 <th className="eo-num">Perdidos</th><th className="eo-num">Falsas alarmas</th>
-                <th className="eo-num">Re-alertas</th><th className="eo-num">Tiempo hasta la alerta</th>
-                <th className="eo-num">SDR</th>
+                <th className="eo-num">Re-alertas</th><th className="eo-num">Latencia de alerta</th>
+                <th className="eo-num" title="Qué fracción del episodio anotado quedó cubierta por detecciones">SDR (cobertura del episodio)</th>
               </tr>
             </thead>
             <tbody>
               {desglose.clips.map((c) => (
                 <tr key={c.clip}>
-                  <MonoCell>{c.clip}</MonoCell>
+                  <MonoCell>
+                    {conRun
+                      ? <Link to={`/resultados/${encodeURIComponent(prueba)}/clips/${encodeURIComponent(c.clip)}`}
+                          aria-label={`Ver el run del clip ${c.clip}`}>{c.clip}</Link>
+                      : c.clip}
+                  </MonoCell>
                   <td className="eo-num">{numero(c.episodios, 0)}</td>
                   <td className="eo-num">{numero(c.aciertos, 0)}</td>
                   <td className="eo-num">{numero(c.perdidos, 0)}</td>
@@ -347,7 +350,7 @@ function ComoSeValido({ d }: { d: Gen2Detalle }) {
           {d.esperado && <p><b>Qué se esperaba:</b> {d.esperado}</p>}
         </blockquote>
 
-        <h3 className="eo-editor__section">El veredicto</h3>
+        <h3 className="eo-editor__section">La concordancia</h3>
         {v ? (
           <>
             <p><Veredicto v={v} /></p>
@@ -358,8 +361,8 @@ function ComoSeValido({ d }: { d: Gen2Detalle }) {
         ) : (
           <p className="eo-note">
             {contraste
-              ? 'No se regenera, así que no tiene veredicto: su cifra vigente es la de la etapa de desarrollo.'
-              : sinCorrer ? 'El veredicto aparece cuando la prueba corre.' : 'Esta prueba no registró veredicto.'}
+              ? 'No se regenera, así que no tiene concordancia: su cifra vigente es la de la etapa de desarrollo.'
+              : sinCorrer ? 'La concordancia aparece cuando la prueba corre.' : 'Esta prueba no registró concordancia.'}
           </p>
         )}
 
@@ -495,7 +498,9 @@ export default function PruebaPage() {
         meta={<>
           {d.estado !== 'completo' && <EstadoPrueba estado={d.estado} registro={d.registro} />}
           {d.informe.map((s) => <Tag key={s}>{s}</Tag>)}
-          {d.generado && <span>Corrió el {d.generado.slice(0, 10)}</span>}
+          {/* «generado» es cuándo se escribió el resultado, no cuándo se tomaron los datos: las pruebas en vivo se
+              re-agregaron el 2026-11-12 sobre tomas del 11-01 y del 11-07 (doc 134 §13.22). */}
+          {d.generado && <span>Resultado generado el {d.generado.slice(0, 10)}</span>}
         </>}
       />
       {d.que_midio && <p className="eo-gen2__que">{d.que_midio}</p>}
@@ -506,12 +511,15 @@ export default function PruebaPage() {
       )}
       {d.estado === 'parcial' && (
         <Banner tone="warn">
-          Quedó a mitad de camino: algunas corridas faltan o fallaron (ver «Archivos y comandos»). Lo que falta y
-          por qué está en «Cómo se validó».
+          Quedó parcial: no tiene todo lo que pedía su pre-registro. Lo que falta y por qué está en «Cómo se
+          validó»; las corridas, en «Archivos y comandos».
         </Banner>
       )}
       <ElResultado d={d} />
-      {d.desglose && <Desglose desglose={d.desglose} />}
+      {d.desglose && (
+        <Desglose desglose={d.desglose} prueba={d.id} conRun={Boolean(d.corridas && Object.keys(d.corridas).length > 0)} />
+      )}
+      {d.id === 'ERR-01' && <FalsasAlarmasUnaPorUna />}
       <Tomas d={d} />
       {d.entorno && <ComoCorrio entorno={d.entorno} gpuDeLaPlataforma={d.gpu_de_la_plataforma} />}
       <ComoSeValido d={d} />

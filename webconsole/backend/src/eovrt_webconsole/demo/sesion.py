@@ -145,6 +145,34 @@ def _ahora_iso(t: float | None = None) -> str:
     return datetime.fromtimestamp(time.time() if t is None else t, tz=UTC).isoformat()
 
 
+def _ms_de(t: Any) -> float | None:
+    """La hora de un registro de estados (ISO 8601) en ms de época, o None si no se puede leer."""
+    try:
+        return datetime.fromisoformat(str(t)).timestamp() * 1000.0
+    except (TypeError, ValueError):
+        return None
+
+
+def _con_los_estados_de_cada_alerta(todos: list[Any], recientes: list[Any], linea_de_tiempo: list[Any]) -> list[Any]:
+    """`recientes` más, para cada alerta con `confirmed_wall_ms`, el primer registro de `todos` desde la
+    confirmación y el último antes: los que «El momento de la alerta» necesita aunque la alerta haya
+    quedado fuera de los recientes. En orden de tiempo y sin repetir."""
+    con_hora = [(m, e) for e in todos if isinstance(e, dict) and (m := _ms_de(e.get("t"))) is not None]
+    elegidos = {id(e): e for e in recientes}
+    for alerta in linea_de_tiempo if isinstance(linea_de_tiempo, list) else []:
+        instante = alerta.get("confirmed_wall_ms") if isinstance(alerta, dict) else None
+        if not isinstance(instante, (int, float)):
+            continue
+        despues = [(m, e) for m, e in con_hora if m >= instante]
+        antes = [(m, e) for m, e in con_hora if m < instante]
+        if despues:
+            elegidos[id(min(despues, key=lambda x: x[0])[1])] = min(despues, key=lambda x: x[0])[1]
+        if antes:
+            elegidos[id(max(antes, key=lambda x: x[0])[1])] = max(antes, key=lambda x: x[0])[1]
+    orden = {id(e): i for i, e in enumerate(todos)}
+    return sorted(elegidos.values(), key=lambda e: orden.get(id(e), len(orden)))
+
+
 def _git_head(repo: Path) -> str | None:
     """Commit de HEAD leyendo `.git` a mano: la imagen de la consola no trae git."""
     git = repo / ".git"
@@ -1447,10 +1475,15 @@ class DemoManager:
                     testigo.append(json.loads(linea))
         except (OSError, json.JSONDecodeError):
             pass
+        linea_de_tiempo = leer("resultado/linea_de_tiempo.json") or []
         eventos = []
         try:
             lineas = (carpeta / "state_log.jsonl").read_text(encoding="utf-8").splitlines()
-            eventos = [json.loads(x) for x in lineas[-200:] if x.strip()]
+            todos = [json.loads(x) for x in lineas if x.strip()]
+            # Las últimas 200 (unos 100 s) más, de todo el registro, las que rodean la confirmación de cada
+            # alerta: «El momento de la alerta» busca el registro de ese instante, y en una toma larga la
+            # alerta puede haber quedado fuera de las últimas 200 (revisión del 2026-11-19).
+            eventos = _con_los_estados_de_cada_alerta(todos, todos[-200:], linea_de_tiempo)
         except (OSError, json.JSONDecodeError):
             pass
         chequeo = leer("preflight.json")
@@ -1458,7 +1491,7 @@ class DemoManager:
         return {
             "session": leer("session.json"),
             "resumen": leer("resultado/resumen.json"),
-            "linea_de_tiempo": leer("resultado/linea_de_tiempo.json") or [],
+            "linea_de_tiempo": linea_de_tiempo,
             "testigo": testigo,
             "state_log": eventos,
             "respaldo": self.respaldo() == session_id,

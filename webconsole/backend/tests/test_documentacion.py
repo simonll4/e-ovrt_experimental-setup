@@ -144,7 +144,7 @@ def test_las_colisiones_de_simbolo_estan_declaradas():
     solo en documentos internos (R1 a R4 del plan, R-01 a R-26, D1 del tablero,
     los tres A1) no se listan en la consola.
 
-    La lista se afirma por CONTENIDO, no por longitud: agregar una quinta
+    La lista se afirma por CONTENIDO, no por longitud: agregar otra
     colisión no debe romper este test, y la pantalla saca su título y su conteo
     de la misma lista. Lo que sí se exige es que ninguna entrada afirme una
     colisión con un solo sentido, y que todas digan qué significan ACÁ — sin eso

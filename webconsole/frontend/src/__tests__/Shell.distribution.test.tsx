@@ -24,12 +24,12 @@ describe('Salud del distribuidor en la barra lateral', () => {
       distribution: { service_url: 'distribution', healthy, ready: healthy },
     })
     const { container } = render(<MemoryRouter><Shell>contenido</Shell></MemoryRouter>)
-    const title = `Distribución de alertas — ${healthy ? 'operativo' : 'sin respuesta'}`
+    const title = `Módulo de distribución — ${healthy ? 'operativo' : 'sin respuesta'}`
     await waitFor(() => expect(screen.getByTitle(title)).toBeTruthy())
     expect(container.querySelectorAll('.eo-service')).toHaveLength(3)
     expect(screen.getByText(':8082')).toBeTruthy()
-    expect(screen.getByTitle('Motor de detección — operativo')).toBeTruthy()
-    expect(screen.getByTitle('Motor de reglas — operativo')).toBeTruthy()
+    expect(screen.getByTitle('Plano de medios — operativo')).toBeTruthy()
+    expect(screen.getByTitle('Plano de control — operativo')).toBeTruthy()
     expect(screen.getByTitle(title).querySelector('.eo-service__dot')).toHaveProperty(
       'style.background', healthy ? 'var(--ok)' : 'var(--er)',
     )
@@ -38,6 +38,6 @@ describe('Salud del distribuidor en la barra lateral', () => {
   it('informa caída si el BFF rechaza la consulta', async () => {
     vi.mocked(api.getPreflight).mockRejectedValue(new Error('BFF sin respuesta'))
     render(<MemoryRouter><Shell>contenido</Shell></MemoryRouter>)
-    await waitFor(() => expect(screen.getByTitle('Distribución de alertas — sin respuesta')).toBeTruthy())
+    await waitFor(() => expect(screen.getByTitle('Módulo de distribución — sin respuesta')).toBeTruthy())
   })
 })

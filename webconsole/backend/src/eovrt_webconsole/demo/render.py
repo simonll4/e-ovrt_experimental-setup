@@ -183,7 +183,7 @@ def _componer(
     px = idx * ancho // max(1, total)
     draw.line([(px, y_tira - 6), (px, alto)], fill=(255, 255, 255, 255), width=2)
     # «~» y no «≈»: la fuente por defecto de Pillow no trae ese glifo.
-    fps = f" · ~{fps_efectivos:.1f} cuadros/s efectivos" if fps_efectivos else ""
+    fps = f" · ~{fps_efectivos:.1f} FPS efectivos" if fps_efectivos else ""
     rotulo = f"t = {(cuadro.timestamp_ms - t0_ms) / 1000.0:5.1f} s · cuadro {idx + 1} de {total}{fps}"
     draw.text((12, alto - 22), rotulo, font=chica, fill=(230, 230, 230, 255))
     return img

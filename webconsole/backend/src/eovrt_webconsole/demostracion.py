@@ -23,6 +23,7 @@ from typing import Any, Callable
 
 import httpx
 
+from eovrt_webconsole.clips_de_prueba import tolerancia_de_bordes
 from eovrt_webconsole.demo import config as demo_config
 from eovrt_webconsole.demo.testigo import TestigoError, TestigoMqtt, ping_broker
 from eovrt_webconsole.experiment.manifest import ExperimentManifest
@@ -39,7 +40,7 @@ CLIPS: tuple[dict[str, str], ...] = (
 STRIDE = 6
 SLUG = "demostracion_clip"
 TIMEOUT_S = 300.0
-_VENTANA_MS = 10_000.0  # si la evaluación no la trae: hasta cuánto después del fin del episodio cuenta una alerta
+_VENTANA_MS = 10_000.0  # si la evaluación no la trae: hasta cuánto después del comienzo del episodio cuenta una alerta
 _FASES_DEMO = ("preparing", "live", "finishing", "rendering")
 _BANCO = Path("e-ovrt_datasets") / "datasets"
 
@@ -86,12 +87,18 @@ def armar_resultado(referencia: dict, alertas: list[dict], evaluacion: dict | No
     """Las alertas de la corrida al lado de los episodios de la referencia del clip.
 
     Las cifras de conteo son las del evaluador oficial (`temporal_evaluation.json`). El emparejamiento de cada
-    alerta con su episodio es solo para mostrarlas juntas: la misma condición, confirmada entre el comienzo del
-    episodio y su fin más la ventana que usó el evaluador. La demora es desde que empieza el episodio.
+    alerta con su episodio es solo para mostrarlas juntas, pero con la ventana del evaluador: la misma
+    condición, confirmada entre el comienzo del episodio más la persistencia mínima y el comienzo más
+    `t_alert_max` (control-plane, `temporal.py`). Las que el evaluador lista en `unexpected_alerts` son las de
+    más; una alerta que no se empareja y no está en esa lista es una re-alerta o quedó bajo umbral, que el
+    evaluador no cuenta como falsa alarma (ADR-011). La demora es desde que empieza el episodio.
     """
     fps = float(referencia.get("fps_nominal") or 30)
     episodios = [e for e in referencia.get("episodes") or [] if isinstance(e, dict)]
     ventanas = (evaluacion or {}).get("effective_matching_windows") or {}
+    inesperadas = {u.get("alert_id") for u in (evaluacion or {}).get("unexpected_alerts") or [] if isinstance(u, dict)}
+    # El evaluador ensancha la ventana en los dos bordes con la tolerancia de bordes que declara la referencia.
+    tolerancia = tolerancia_de_bordes(referencia)
     usados: set[str] = set()
     por_alerta = {((m.get("payload") or {}).get("alert_id")): m for m in mensajes if isinstance(m, dict)}
     filas = []
@@ -100,19 +107,29 @@ def armar_resultado(referencia: dict, alertas: list[dict], evaluacion: dict | No
         confirmada = a.get("timestamp_ms")
         primera = a.get("first_evidence_frame_index")
         episodio = None
+        ventana = ventanas.get(condicion) or {}
+        minimo = float(ventana.get("persistencia_min_ms") or 0.0) - tolerancia
+        maximo = float(ventana.get("t_alert_max_ms") or _VENTANA_MS) + tolerancia
         for e in episodios:
-            ventana = float((ventanas.get(condicion) or {}).get("t_alert_max_ms") or _VENTANA_MS)
+            inicio = e.get("start_ms", 0)
             if (e.get("id") not in usados and e.get("condition_id") == condicion and confirmada is not None
-                    and e.get("start_ms", 0) <= confirmada <= e.get("end_ms", 0) + ventana):
+                    and inicio + minimo <= confirmada <= inicio + maximo):
                 episodio = e
                 usados.add(e.get("id"))
                 break
+        if episodio:
+            tipo = "acierto"
+        elif not isinstance(evaluacion, dict) or "unexpected_alerts" not in evaluacion or a.get("alert_id") in inesperadas:
+            tipo = "de_mas"
+        else:
+            tipo = "no_penalizada"
         mensaje = por_alerta.get(a.get("alert_id"))
         payload = (mensaje or {}).get("payload") or {}
         emitida = payload.get("confirmed_wall_ms")
         filas.append({
             "alert_id": a.get("alert_id"),
             "condicion": condicion,
+            "tipo": tipo,
             "confirmada_ms": confirmada,
             "primera_evidencia_ms": round(primera / fps * 1000, 1) if isinstance(primera, (int, float)) else None,
             "episodio": {"condicion": episodio["condition_id"], "desde_ms": episodio["start_ms"],
@@ -239,11 +256,11 @@ class CorrerClip:
         else:
             activa = manager.active
             listo = activa == PERFIL_OPERATIVO and await self._sano(self._app.state.http, "/readyz")
-            item("deteccion", "Motor de detección", listo,
+            item("deteccion", "Plano de medios", listo,
                  f"{PERFIL_OPERATIVO} activo y listo" if listo else
                  f"tiene que estar activo {PERFIL_OPERATIVO} (ahora: {activa or 'ninguno'})")
-        item("reglas", "Motor de reglas", await self._sano(self._app.state.control_http), "")
-        item("distribucion", "Distribución de alertas", await self._sano(self._app.state.distribution_http), "")
+        item("reglas", "Plano de control", await self._sano(self._app.state.control_http), "")
+        item("distribucion", "Módulo de distribución", await self._sano(self._app.state.distribution_http), "")
         desp = demo_config.despliegue(settings, getattr(manager, "active", None))
         try:
             broker = await asyncio.to_thread(self._ping, desp.mqtt_host, desp.mqtt_port)

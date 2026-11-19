@@ -1125,6 +1125,54 @@ export type Gen2Desglose =
       fuente: string; map50: number | null; recall_cr01: number | null
       clases: Array<{ clase: string; ap50: number | null; n_gt: number | null }>
     }> }
+/** «Ver el run» de un clip de una prueba (`/api/gen2/pruebas/<ID>/clips/<clip>`). Los conteos son los del
+ *  evaluador; el estado de cada episodio y la clase de cada alerta salen de sus listas y de su ventana. */
+export interface EpisodioDeClip {
+  id: string
+  condicion: string
+  desde_ms: number
+  hasta_ms: number | null
+  /** null: sin la corrida en el equipo y con conteos que no permiten decirlo. */
+  estado: 'acierto' | 'perdido' | 'censurado' | null
+  ventana_ms: [number, number]
+}
+export interface AlertaDeClip {
+  alert_id: string
+  condicion: string
+  tipo: 'acierto' | 'falsa_alarma' | 're_alerta'
+  cuadro: number | null
+  ms: number | null
+  motivo: string | null
+  /** La causa de ERR-01 (solo falsas alarmas por sujeto en obra real). */
+  causa: string | null
+  caja: number[] | null
+  sujeto: string | null
+  primera_evidencia_ms: number | null
+}
+export interface ClipDePrueba {
+  prueba: string
+  clip: string
+  tipo_clip: 'rodaje' | 'obra_real'
+  lectura: string | null
+  lecturas: Array<string | null>
+  fps: number
+  duracion_ms: number | null
+  conteos: { episodios: number | null; aciertos: number | null; perdidos: number | null; falsas_alarmas: number | null
+    re_alertas: number | null; censurados: number | null } | null
+  episodios: EpisodioDeClip[]
+  alertas: AlertaDeClip[]
+  alertas_completas: boolean
+  cuadros: boolean
+  cajas: boolean
+  video: boolean
+  faltan: string[]
+  origen: { evaluacion: string | null; experiment_id: string | null; media_run_id: string | null; control_run_id: string | null }
+}
+export interface FalsasAlarmasErr01 {
+  prueba_de_las_alertas: string
+  falsas_alarmas: Array<{ alert_id: string; clip: string; condicion: string; causa: string; cuadro: number | null
+    banda: string | null; iluminacion: string | null }>
+}
 export interface Gen2Toma {
   escena?: string | null
   session_id?: string | null
@@ -1180,6 +1228,8 @@ export interface FilaPregunta {
   pruebas: string[]
   /** Una celda vacía es `null`; si no, una o varias cifras. */
   celdas: Array<CifraPregunta[] | null>
+  /** Una consulta para abrir los casos de esa fila en su prueba (`causa=P-no-detectado`), o nada. */
+  ver?: string | null
 }
 export interface TablaPregunta {
   titulo: string
@@ -1284,6 +1334,9 @@ export interface PasoClip {
 export interface AlertaClip {
   alert_id: string
   condicion: string
+  /** Como la cuenta el evaluador: acierto, de más (`unexpected_alerts`) o re-alerta / bajo umbral, que no es
+   *  falsa alarma (ADR-011). */
+  tipo?: 'acierto' | 'de_mas' | 'no_penalizada'
   confirmada_ms: number | null
   primera_evidencia_ms: number | null
   episodio: { condicion: string; desde_ms: number; hasta_ms: number | null } | null

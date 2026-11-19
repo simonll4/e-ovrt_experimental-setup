@@ -1,6 +1,6 @@
 import type { ComponentType } from 'react'
 import {
-  IconNavArchivo, IconNavCameras, IconNavClips, IconNavDemo, IconNavDocs, IconNavEvidence, IconNavInicio,
+  IconNavArchivo, IconNavCameras, IconNavClips, IconNavDemo, IconNavEvidence, IconNavInicio,
   IconNavPlatform,
 } from './components/ui/icons'
 import { nombreLlano } from './vocabulario'
@@ -33,7 +33,9 @@ export const PREGUNTA_PATH = '/preguntas'
 /** «Correr un clip» (§7.2): un clip del rodaje por la cadena completa. */
 export const CORRER_CLIP_PATH = '/correr-clip'
 
-/** La navegación del plan de la consola de evidencia (§3): Evidencia, Demostrar y, al pie, Archivo. */
+/** La navegación de la consola (plan §3, revisión del 2026-11-19): la barra es solo evidencia y demostración.
+ *  «Cómo leer» (corto) y el Archivo de la etapa de desarrollo están al pie del Inicio, no en la barra: el Archivo
+ *  tiene cifras de la etapa de desarrollo, con la referencia anterior, que no son las del informe. */
 export const NAV_GROUPS: NavGroup[] = [
   {
     title: 'Evidencia',
@@ -41,7 +43,6 @@ export const NAV_GROUPS: NavGroup[] = [
       { to: '/', label: 'Inicio', icon: IconNavInicio, tambien: (p) => p.startsWith(`${PREGUNTA_PATH}/`) },
       { to: '/resultados', label: 'Pruebas', icon: IconNavEvidence },
       { to: '/demo/sesiones', label: 'Tomas en vivo', icon: IconNavDemo, tambien: (p) => p.startsWith('/demo/resultado/') },
-      { to: '/documentacion', label: 'Cómo leer', icon: IconNavDocs },
     ],
   },
   {
@@ -54,7 +55,7 @@ export const NAV_GROUPS: NavGroup[] = [
   },
 ]
 
-/** La etapa de desarrollo: el recorrido de evidencia de antes, de solo lectura. Va al pie (§5). */
+/** La etapa de desarrollo: el recorrido de evidencia de antes, de solo lectura. Se llega desde el pie del Inicio. */
 export const GEN1 = { to: '/archivo', label: 'Archivo' }
 /** Las URLs anteriores del Archivo: siguen respondiendo para no romper enlaces guardados, pero la interfaz ya no
  *  las usa (la barra de direcciones no dice «generación», §4). */
@@ -136,6 +137,16 @@ export function crumbsFor(pathname: string, search = ''): NavItem[] {
     return [
       { to: RUNS_PATH, label: 'Corridas' },
       { to: pathname, label: runMatch[1] },
+    ]
+  }
+  // El run de un clip de una prueba: Pruebas › la prueba › el clip.
+  const clipMatch = pathname.match(/^\/resultados\/([^/]+)\/clips\/([^/]+)$/)
+  if (clipMatch) {
+    const prueba = decodeURIComponent(clipMatch[1])
+    return [
+      { to: '/resultados', label: 'Pruebas' },
+      { to: `/resultados/${clipMatch[1]}`, label: nombreLlano(prueba) ?? prueba },
+      { to: pathname + search, label: `Clip ${decodeURIComponent(clipMatch[2])}` },
     ]
   }
   const resultadoMatch = pathname.match(/^\/resultados\/(.+)$/)

@@ -105,7 +105,8 @@ describe('Correr un clip (plan de la consola, §7.2)', () => {
       resultado: { evaluacion: { expected: 0, observed: 0, matched: 0, missed: 0, unexpected: 0 },
                    alertas: [], sin_alerta: [], consolidado: null } }) })
     render(<CorrerClipPage />)
-    expect(await screen.findByText('Perfil operativo y configuración del informe, a 5 cuadros por segundo')).toBeTruthy()
+    // Es la configuración de la demo (uno de cada seis cuadros), no la del banco del informe (revisión del 2026-11-19).
+    expect(await screen.findByText('Perfil operativo y configuración de la demo, a 5 cuadros por segundo')).toBeTruthy()
     expect(screen.getByText('La referencia no espera alertas y la corrida no dio ninguna.')).toBeTruthy()
     expect(screen.queryByText(/acertada/)).toBeNull()
   })

@@ -24,7 +24,9 @@ const aqui = dirname(fileURLToPath(import.meta.url))
 const repo = resolve(aqui, '..', '..')
 const { values: o } = parseArgs({
   options: {
-    base: { type: 'string', default: 'http://localhost:8090' }, solo: { type: 'string' },
+    // 127.0.0.1 y no localhost: en Windows, Node resuelve localhost primero a ::1 y la conexión al puerto de
+    // Docker Desktop puede quedar colgada sin error (lo vio Matias el 2026-11-18).
+    base: { type: 'string', default: 'http://127.0.0.1:8090' }, solo: { type: 'string' },
     ancho: { type: 'string', default: '1280' }, alto: { type: 'string', default: '900' },
     escala: { type: 'string', default: '2' }, espera: { type: 'string', default: '2500' },
     'playwright-module': { type: 'string' }, chromium: { type: 'string' },
@@ -54,7 +56,7 @@ async function cargarPlaywright() {
   throw new Error('no encuentro Playwright: instalalo en webconsole/tools/.capture-runtime o pasá --playwright-module')
 }
 
-const respuesta = await fetch(`${o.base}/api/figuras`).catch((e) => {
+const respuesta = await fetch(`${o.base}/api/figuras`, { signal: AbortSignal.timeout(30000) }).catch((e) => {
   console.error(`no pude leer ${o.base}/api/figuras: ${e.message}`)
   process.exit(2)
 })

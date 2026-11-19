@@ -18,8 +18,8 @@ CIFRAS = (
     ("ALR-01", "f1", "F1 de alertas por episodio, granularidad escena (la de esta demo), rodaje guionado"),
     ("ALR-07", "falsas_alarmas", "Falsas alarmas en obra real, granularidad escena"),
     ("ALR-08", "falsas_alarmas", "Falsas alarmas en obra real, granularidad por sujeto"),
-    ("RT-03", "fps_efectivos", "Cuadros por segundo efectivos en vivo (config de la demo)"),
-    ("RT-03", "g2a_p95_ms", "Latencia por cuadro G2A, p95 en vivo (config de la demo)"),
+    ("RT-03", "fps_efectivos", "FPS efectivos en vivo, entre el primer y el último cuadro (config de la demo)"),
+    ("RT-03", "g2a_p95_ms", "G2A (latencia por cuadro), p95 en vivo (config de la demo)"),
     ("RT-03", "capture_to_host_p50_ms", "Captura → host p50 en vivo (config de la demo)"),
 )
 PENDIENTE = "cifra pendiente"

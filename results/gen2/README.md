@@ -40,7 +40,7 @@ corrida, que incluye abrir y cerrar la cámara) queda al lado como `fps_sobre_du
 
 | Carpeta | Qué es |
 |---|---|
-| `PLAT-01.hasta-F6`, `PLAT-01.cierre-F6`, `PLAT-01.F7-jornada-1` | versiones anteriores de `PLAT-01`, guardadas antes de volver a correrla (la consola se reconstruyó entre fases). La vigente es `PLAT-01/` |
+| `PLAT-01.hasta-F6`, `PLAT-01.cierre-F6`, `PLAT-01.F7-jornada-1`, `PLAT-01.hasta-etapa-5`, `PLAT-01.etapa-6`, `PLAT-01.cierre-11-18` | versiones anteriores de `PLAT-01`, guardadas antes de volver a correrla: la consola se reconstruyó entre fases y, después de la campaña, con cada etapa de la consola de evidencia y con la revisión del 2026-11-19. La vigente es `PLAT-01/` |
 | `INT-03.descartada-<fecha>` | la carpeta que el driver archiva cuando una prueba se vuelve a correr con `--forzar` porque su pre-registro cambió (acá, la huella de GDINO base pasó a la de la fuente). Queda como constancia y no cuenta en el índice |
 | `_calibraciones/` | las calibraciones de encuadre de las pruebas en vivo, una por sesión de calibración |
 | `_registro/` | los logs de las campañas y la constancia de `limpiar-rutas` |

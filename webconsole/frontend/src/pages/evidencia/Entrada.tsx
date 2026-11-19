@@ -66,7 +66,7 @@ export default function Entrada() {
       <div className="eo-mini eo-mini--static">
         <div className="eo-mini__h">Por material</div>
         <p className="eo-mini__d">La organización canónica de <b>results/</b>, que es la
-          fuente de las cifras: imágenes, Nivel A por sujeto, banco de clips y tiempo real.</p>
+          fuente de las cifras: imágenes, estado por persona, banco de clips y tiempo real.</p>
         <ul className="eo-mini__list">
           {q.data.indices.map((idx) => (
             <li key={idx.id}>

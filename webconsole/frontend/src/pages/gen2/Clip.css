@@ -1,0 +1,46 @@
+/* «Ver el run» de un clip (ClipPage) y la lista de falsas alarmas de ERR-01. Colores de los tokens: verde = acierto,
+   rojo = falsa alarma o episodio perdido, gris = re-alerta o referencia. */
+
+.eo-clip__conteos { margin: 8px 0 16px; font-size: 16px; }
+.eo-clip .eo-segmented { margin: 0 0 12px; }
+
+.eo-clip-linea { display: block; width: 100%; height: auto; margin: 4px 0 8px; }
+.eo-clip-linea__grilla { stroke: var(--bd); stroke-width: 1; }
+.eo-clip-linea__eje { fill: var(--tx3); font-size: 12px; font-family: var(--fm); }
+.eo-clip-linea__cond { fill: var(--tx2); font-size: 14px; font-family: var(--fm); }
+.eo-clip-linea__episodio { fill: var(--nt); fill-opacity: 0.25; stroke: var(--nt); stroke-width: 1; cursor: pointer; }
+.eo-clip-linea__episodio--acierto { fill: var(--ok); fill-opacity: 0.18; stroke: var(--ok); }
+.eo-clip-linea__episodio--perdido { fill: var(--er); fill-opacity: 0.12; stroke: var(--er); stroke-width: 2; stroke-dasharray: 5 3; }
+.eo-clip-linea__alerta { stroke: var(--bg); stroke-width: 2; cursor: pointer; }
+.eo-clip-linea__alerta--acierto { fill: var(--ok); }
+.eo-clip-linea__alerta--falsa_alarma { fill: var(--er); }
+.eo-clip-linea__alerta--re_alerta { fill: var(--nt); }
+.eo-clip-linea .is-sel { stroke: var(--tx); stroke-width: 3; }
+.eo-clip-linea [role='button']:focus-visible { outline: 2px solid var(--ac); outline-offset: 2px; }
+
+.eo-clip__leyenda { display: flex; flex-wrap: wrap; gap: 16px; margin: 0 0 16px; font-size: 13px; color: var(--tx2); }
+.eo-clip__ley::before { content: ''; display: inline-block; width: 12px; height: 12px; margin-right: 6px; vertical-align: -1px; border-radius: 3px; }
+.eo-clip__ley--episodio::before { background: var(--ok-bg); border: 1px solid var(--ok); }
+.eo-clip__ley--perdido::before { background: var(--er-bg); border: 2px dashed var(--er); }
+.eo-clip__ley--acierto::before { background: var(--ok); border-radius: 50%; }
+.eo-clip__ley--falsa::before { background: var(--er); border-radius: 50%; }
+.eo-clip__ley--re::before { background: var(--nt); border-radius: 50%; }
+
+.eo-clip-sel { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 20px; align-items: start; }
+.eo-clip-sel__cuadro { margin: 0; }
+.eo-clip-sel__cuadro img { display: block; width: 100%; height: auto; border-radius: var(--r); background: var(--video-bg); }
+.eo-clip-sel__cuadro figcaption { margin-top: 6px; font-size: 13px; color: var(--tx3); }
+.eo-clip-sel__texto p { margin: 0 0 10px; line-height: 1.5; }
+.eo-clip-sel__titular { font-size: 17px; }
+.eo-clip-sel__cargando { padding: 48px 0; text-align: center; background: var(--sunken); border-radius: var(--r); }
+.eo-clip-sel__acercado { margin: 8px 0 12px; max-width: 320px; }
+.eo-clip-sel__acercado img { display: block; width: 100%; height: auto; border-radius: var(--r); }
+.eo-clip-sel__acercado figcaption { margin-top: 4px; font-size: 13px; color: var(--tx3); }
+@media (max-width: 900px) { .eo-clip-sel { grid-template-columns: 1fr; } }
+
+.eo-clip__video { display: block; width: 100%; max-height: 70vh; background: var(--video-bg); border-radius: var(--r); }
+.eo-clip tr.is-sel td { background: var(--ac-bg); }
+.eo-clip__origen { margin: 8px 0 0; padding-left: 18px; line-height: 1.7; }
+
+.eo-gen2__filtro { padding: 12px 16px 4px; }
+.eo-gen2__filtro .eo-note { margin: 8px 0 0; }

@@ -46,10 +46,10 @@ resultados:
   - result_id: bench_nivel_a/na1_gdinotiny560_v2short_video
     etiqueta: "na1 gdinotiny560 v2short video"
     titulo: Estado por persona sobre video (NA1)
-    reclamo: "Nivel A sobre los clips: el derrumbe de precision al salir de las imágenes."
+    reclamo: "Estado por persona sobre los clips: el derrumbe de precision al salir de las imágenes."
   - result_id: clip_bench/t1_gdinotiny560_v2short_scene
     etiqueta: "t1 gdinotiny560 v2short scene"
-    titulo: Línea de base del Nivel B
+    titulo: Línea de base de la alerta por episodio
     # ✎ Acotado: decía «Toda campaña posterior se compara contra ésta». Hay DOS
     # referencias — clip_bench/index.md:246 dice «variable única contra T1/G1» y
     # los deltas de densidad por sujeto (R2/R4/R6) se publican contra G1.

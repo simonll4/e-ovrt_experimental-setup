@@ -87,16 +87,9 @@ const abrir = () => render(
 )
 
 describe('Documentación', () => {
-  it('es «Cómo leer», en la zona Evidencia, con su propia miga e icono (plan §3)', () => {
-    const evidencia = NAV_GROUPS.find((g) => g.title === 'Evidencia')!
-    const doc = evidencia.items.find((i) => i.to === '/documentacion')!
-    expect(doc.label).toBe('Cómo leer')
-    expect(doc.icon).toBeTruthy()
-    // Icono propio, no el de otro destino: con la barra colapsada es lo único
-    // que queda para distinguirlos.
-    const otros = NAV_GROUPS.flatMap((g) => g.items)
-      .filter((i) => i.to !== '/documentacion').map((i) => i.icon)
-    expect(otros).not.toContain(doc.icon)
+  it('es «Cómo leer», fuera de la barra y con su propia miga (revisión del 2026-11-19)', () => {
+    // La barra es solo evidencia y demostración: «Cómo leer» está al pie del Inicio y sigue respondiendo.
+    expect(NAV_GROUPS.flatMap((g) => g.items).some((i) => i.to === '/documentacion')).toBe(false)
     expect(crumbsFor('/documentacion')).toEqual([
       { to: '/documentacion', label: 'Cómo leer' },
     ])
@@ -104,60 +97,21 @@ describe('Documentación', () => {
 
   it('lee del disco y NO consulta ningún servicio', async () => {
     abrir()
-    await screen.findByRole('heading', { name: 'Cómo leer esta consola' })
+    await screen.findByRole('heading', { name: 'Cómo se lee esta consola' })
     expect(urls.map((u) => u.pathname)).toEqual(['/api/documentacion'])
   })
 
-  it('cada paso del método dice qué se hizo, POR QUÉ y qué quedó', async () => {
+  it('es corta: la guía y el vocabulario; lo largo queda para la documentación pública', async () => {
+    cuerpo = { ...doc, equivalencias: [{ termino: 'Sin casco', codigo: 'CR-01', implementacion: 'el patrón PR-01' }] }
     abrir()
-    await screen.findByRole('heading', { name: 'De dónde salen los datos' })
-    expect(screen.getAllByText('Por qué')).toHaveLength(2)
-    expect(screen.getByText('Cada dataset le pone su propio nombre a la misma cosa.')).toBeTruthy()
-    expect(screen.getByText('El banco de imágenes congelado.')).toBeTruthy()
-  })
-
-  it('enlaza a la evidencia sólo cuando el paso la declara', async () => {
-    abrir()
-    const enlace = await screen.findByRole('link', { name: 'Paso 1 — Qué ve el detector' })
-    expect(enlace.getAttribute('href')).toBe('/evidencia/paso?n=1')
-    // El paso 2 no declara evidencia: no hay un segundo enlace a /evidencia/paso.
-    expect(screen.getAllByRole('link').filter(
-      (a) => a.getAttribute('href')?.startsWith('/evidencia/paso'),
-    )).toHaveLength(1)
-  })
-
-  it('la tabla de aportes distingue los cinco términos y no inventa identificadores', async () => {
-    const { container } = abrir()
-    await screen.findByRole('table', { name: 'Qué aporta cada cosa' })
-    const fila = container.querySelector('#aporte-corrida')!
-    expect(within(fila as HTMLElement).getByText('run_id')).toBeTruthy()
-    expect(within(fila as HTMLElement).getByText('1436 hoy')).toBeTruthy()
-    // «Campaña» no es un campo de ningún contrato: se DECLARA que no tiene
-    // identificador propio en vez de dibujarle uno.
-    const campana = container.querySelector('#aporte-campana')!
-    expect(within(campana as HTMLElement).getByText('sin identificador propio')).toBeTruthy()
-    expect(within(campana as HTMLElement).queryByText(/hoy$/)).toBeNull()
-  })
-
-  it('la tabla de equivalencias: término, código y cómo aparece en la implementación (plan §4.4)', async () => {
-    cuerpo = { ...doc, equivalencias: [
-      { termino: 'Perfil operativo', codigo: null, implementacion: 'el modelo gdino-tiny-560' },
-      { termino: 'Sin casco', codigo: 'CR-01', implementacion: 'el patrón PR-01' },
-    ] }
-    abrir()
-    const tabla = await screen.findByRole('table', { name: 'Equivalencias' })
-    expect(within(tabla).getAllByRole('columnheader').map((th) => th.textContent))
-      .toEqual(['En el informe y la consola', 'Código', 'En la implementación'])
-    const fila = within(tabla).getByRole('row', { name: /Sin casco/ })
-    expect(within(fila).getAllByRole('cell').map((c) => c.textContent)).toEqual(['Sin casco', 'CR-01', 'el patrón PR-01'])
-    expect(screen.getByRole('link', { name: 'Equivalencias' })).toBeTruthy()
-  })
-
-  it('muestra las colisiones de símbolo con sus tres sentidos y qué significa acá', async () => {
-    abrir()
-    await screen.findByText('Los redlines del informe.')
-    expect(screen.getByText('Las campañas de densidad.')).toBeTruthy()
-    expect(screen.getByText('Acá R1 a R6 son siempre campañas de densidad.')).toBeTruthy()
+    await screen.findByRole('heading', { name: 'Cómo se lee esta consola' })
+    expect(screen.getByRole('heading', { name: 'Vocabulario' })).toBeTruthy()
+    // Cómo se trabajó, las equivalencias, qué aporta cada cosa y las colisiones viven en e-ovrt-vdp.
+    expect(screen.queryByRole('heading', { name: 'Cómo se trabajó' })).toBeNull()
+    expect(screen.queryByRole('table', { name: 'Equivalencias' })).toBeNull()
+    expect(screen.queryByRole('table', { name: 'Qué aporta cada cosa' })).toBeNull()
+    expect(screen.queryByText('Los redlines del informe.')).toBeNull()
+    expect(screen.getByText('e-ovrt-vdp')).toBeTruthy()
   })
 
   it('cada término del vocabulario tiene ancla propia y enlaza su evidencia', async () => {

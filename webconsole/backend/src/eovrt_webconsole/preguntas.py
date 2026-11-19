@@ -26,6 +26,7 @@ logger = logging.getLogger(__name__)
 ARCHIVOS = {"resultado": "resultado.json", "entorno": "entorno.json", "plataforma": "plataforma.json"}
 FORMATOS = {"numero", "signo", "porcentaje", "verificado"}
 PRESENTACION = ("etiqueta", "decimales", "formato", "unidad")
+VER = re.compile(r"[a-z_]+=[A-Za-z0-9_-]+")
 MARCADOR = re.compile(r"\{([a-z0-9_]+)\}")
 
 
@@ -243,7 +244,13 @@ class Preguntas:
                 for item in (i for c in celdas if c for i in c):
                     if item.get("prueba") and item["prueba"] not in pruebas:
                         pruebas.append(item["prueba"])
-                filas.append({"nombre": fila.get("nombre"), "pruebas": pruebas, "celdas": celdas})
+                # `ver`: una consulta para abrir los casos de esa fila en su prueba (p. ej. `causa=P-no-detectado`
+                # en ERR-01: las falsas alarmas de esa causa, cada una con su clip). Solo `clave=valor` simple.
+                ver = fila.get("ver")
+                if ver is not None and not (isinstance(ver, str) and VER.fullmatch(ver)):
+                    r.errores.append(f"{pid}.tablas[{t}].filas[{f}]: `ver` tiene que ser clave=valor")
+                    ver = None
+                filas.append({"nombre": fila.get("nombre"), "pruebas": pruebas, "celdas": celdas, "ver": ver})
             tablas.append({"titulo": tabla.get("titulo"), "informe": tabla.get("informe"),
                            "columnas": tabla.get("columnas") or [], "nota": tabla.get("nota"), "filas": filas})
         return {

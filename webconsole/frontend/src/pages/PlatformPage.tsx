@@ -107,8 +107,11 @@ function TablaServicios({ titulo, filas, meta, ocupado, enCurso, pedir }: {
                   <td className="eo-mono">
                     {s.imagen ?? '—'}
                     {s.etiqueta_movida && (
-                      <span className="eo-note--meta" title="El contenedor corre la imagen con la que se creó; después la etiqueta pasó a otra construcción">
-                        {' '}· la etiqueta apunta ahora a otra imagen
+                      // compose muestra un digest cuando la etiqueta se reconstruyó después de crear el contenedor, aunque
+                      // el contenido sea el mismo (un build que sale entero de caché renueva el índice): por eso no se
+                      // afirma que sea otra imagen (revisión del 2026-11-19; PLAT-01 lo mostró el 11-18).
+                      <span className="eo-note--meta" title="El contenedor corre la imagen con la que se creó. La etiqueta se reconstruyó después: puede ser el mismo contenido (un build que sale entero de caché cambia el identificador). Recrear el contenedor desde la etiqueta lo resuelve.">
+                        {' '}· la etiqueta se reconstruyó después de crear el contenedor
                       </span>
                     )}
                   </td>
@@ -176,6 +179,7 @@ export default function PlatformPage() {
   const [error, setError] = useState<string | null>(null)
   const [comando, setComando] = useState<string | null>(null)
   const [aConfirmar, setAConfirmar] = useState<Pedido | null>(null)
+  const [listaAConfirmar, setListaAConfirmar] = useState<string | null>(null)
 
   const pedir = async (p: Pedido, confirmar = false) => {
     setOcupado(p.servicio)
@@ -194,13 +198,17 @@ export default function PlatformPage() {
     }
   }
 
-  const dejarLista = async () => {
+  const dejarLista = async (confirmar = false) => {
     setOcupado('__lista__')
     setError(null)
+    setListaAConfirmar(null)
     try {
-      await lista.mutateAsync()
+      await lista.mutateAsync(confirmar)
     } catch (e) {
-      setError(motivo(e))
+      // Si cambiar el motor cortaría una demo o una corrida en curso, el backend pide confirmarlo.
+      const cuerpo = (e instanceof ApiError ? e.payload : null) as { detail?: string; confirmar?: boolean } | null
+      if (cuerpo?.confirmar) setListaAConfirmar(cuerpo.detail ?? 'Hay algo en curso.')
+      else setError(motivo(e))
     } finally {
       setOcupado(null)
     }
@@ -257,6 +265,16 @@ export default function PlatformPage() {
           {aConfirmar.detalle ?? 'Hay algo en curso.'}
         </Banner>
       )}
+      {listaAConfirmar && (
+        <Banner tone="warn" onClose={() => setListaAConfirmar(null)} action={(
+          <span className="eo-inline">
+            <Button variant="danger" onClick={() => void dejarLista(true)}>Dejarla lista igual</Button>
+            <Button onClick={() => setListaAConfirmar(null)}>Cancelar</Button>
+          </span>
+        )}>
+          {listaAConfirmar}
+        </Banner>
+      )}
 
       {!d.orquestada ? (
         <>
@@ -265,8 +283,8 @@ export default function PlatformPage() {
             cambiar de modelo necesita la consola en contenedor (<code className="eo-mono">infra/platform</code>).
           </Banner>
           <div className="eo-planes">
-            <Plano nombre="Motor de detección" estado={preflight?.media ?? null} />
-            <Plano nombre="Motor de reglas" estado={preflight?.control ?? null} />
+            <Plano nombre="Plano de medios" estado={preflight?.media ?? null} />
+            <Plano nombre="Plano de control" estado={preflight?.control ?? null} />
           </div>
         </>
       ) : (
@@ -278,7 +296,7 @@ export default function PlatformPage() {
       )}
       {d.orquestada && (
         <p className="eo-cap">
-          Una sola instancia de detección está activa a la vez: activar otra detiene la actual y espera a que cargue
+          Una sola instancia del plano de medios está activa a la vez: activar otra detiene la actual y espera a que cargue
           el modelo, que puede tardar unos minutos. «Dejar la plataforma lista» levanta lo que falte del núcleo y
           activa {d.perfil_operativo ? <code className="eo-mono">{d.perfil_operativo}</code> : 'el perfil operativo'},
           sin recrear lo que ya corre.
@@ -302,6 +320,14 @@ function ComoSeDesplego() {
   return (
     <section className="eo-plataforma__campana" aria-label="Cómo se desplegó en la campaña">
       <h2>Cómo se desplegó en la campaña</h2>
+      {/* PLAT-01 se vuelve a correr con cada consola nueva: la foto es la del último despliegue, con los mismos
+          motores de la campaña (revisión del 2026-11-19). */}
+      {typeof foto.fecha_utc === 'string' && (
+        <p className="eo-note--meta">
+          Foto del último despliegue registrado ({foto.fecha_utc.slice(0, 10)}): la prueba de plataforma se vuelve a
+          correr con cada consola nueva, sobre los mismos motores de la campaña.
+        </p>
+      )}
       <ComoCorrio entorno={foto} titulo="El equipo y las imágenes" />
       {servicios.length > 0 && (
         <Card title="Los servicios, al registrar la prueba" flush>

@@ -192,6 +192,10 @@ class TargetManager:
         self._transport = service_transport
         self._poll_interval = poll_interval
         self.active: str | None = None
+        # Un solo cambio de instancia a la vez, venga de donde venga (la pantalla de plataforma, /api/platform
+        # que usan plataforma.ps1, demo.ps1 y rodaje.ps1, o el reinicio del motor de la demo). Sin esto, dos
+        # pedidos simultáneos podían dejar dos motores en la GPU (revisión del 2026-11-19).
+        self._lock = asyncio.Lock()
 
     @staticmethod
     def _url(name: str) -> str:
@@ -243,6 +247,10 @@ class TargetManager:
             return False
 
     async def switch(self, name: str) -> dict:
+        async with self._lock:
+            return await self._switch(name)
+
+    async def _switch(self, name: str) -> dict:
         await self._orch.require(name)
         fleet = await self._orch.fleet()
         ps = await self._orch.ps()
@@ -284,6 +292,10 @@ class TargetManager:
         Mismas guardas que `switch`: sin target no hay nada que reiniciar, y con un
         run en curso no se toca. Mientras reinicia, la consola queda sin target.
         """
+        async with self._lock:
+            return await self._restart_active()
+
+    async def _restart_active(self) -> dict:
         name = self.active
         if name is None:
             raise SwitchFailed("restart", "no hay una instancia activa que reiniciar")
@@ -308,6 +320,10 @@ class TargetManager:
         )
 
     async def stop_active(self) -> None:
+        async with self._lock:
+            await self._stop_active()
+
+    async def _stop_active(self) -> None:
         if self.active is None:
             return
         run_id = await self._active_run_id()

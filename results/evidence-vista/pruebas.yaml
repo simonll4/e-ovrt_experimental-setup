@@ -18,13 +18,13 @@ pruebas:
     que_midio: "Cuántos episodios del rodaje alerta el perfil operativo mirando la escena, y con cuántas falsas alarmas, contra la referencia corregida."
   ALR-02:
     pregunta: que-agrega
-    que_midio: "Las mismas alertas del rodaje, con las mismas detecciones, pero siguiendo a cada persona en lugar de mirar la escena."
+    que_midio: "Cuántos episodios del rodaje alerta el sistema con las mismas detecciones, pero siguiendo a cada persona en lugar de mirar la escena."
   ALR-03:
     pregunta: que-agrega
     que_midio: "Si el contraste base-560, más fuerte en cabeza descubierta y chaleco, alerta mejor que el perfil operativo con las mismas reglas."
   ALR-04:
     pregunta: que-agrega
-    que_midio: "Qué logra de punta a punta describir la infracción entera en el texto, en lugar de deducirla por ausencia del EPP."
+    que_midio: "Qué logra de extremo a extremo describir la infracción entera en el texto, en lugar de deducirla por ausencia del EPP."
   ALR-05:
     pregunta: que-agrega
     que_midio: "Si sumar por disyunción las detecciones directas a las del núcleo mejora la alerta, sin inferencia nueva."
@@ -45,7 +45,7 @@ pruebas:
     que_midio: "Las falsas alarmas en obra real con el perfil operativo y el mismo umbral de caja que la prueba a mayor resolución: aísla la resolución."
   ALR-11:
     pregunta: que-agrega
-    que_midio: "Si YOLOE-26s, el motor que mejor anduvo en vivo de cerca, sostiene la alerta sobre el banco del rodaje."
+    que_midio: "Si YOLOE-26s, que en vivo, de cerca y con una persona, salió como el guion en todas sus tomas, sostiene la alerta sobre el rodaje guionado."
   ALR-12:
     pregunta: obra-real
     que_midio: "Cuántas falsas alarmas da YOLOE-26s en obra real, frente al perfil operativo."
@@ -54,107 +54,107 @@ pruebas:
     que_midio: "Qué gana y qué cuesta en el rodaje exigir más confianza para dar por presente el EPP, combinado y por partes."
   ALR-14:
     pregunta: obra-real
-    que_midio: "Qué cuesta en obra real la regla con umbrales de EPP más exigentes."
+    que_midio: "Qué cuesta en obra real los patrones con umbrales de EPP más exigentes."
   DEN-01:
     pregunta: en-vivo
-    que_midio: "Cuánto del resultado por escena sobrevive si el sistema ve menos cuadros por segundo: el techo medido en vivo."
+    que_midio: "Cuánto del resultado por escena sobrevive si el sistema procesa uno de cada siete cuadros."
   DEN-02:
     pregunta: en-vivo
-    que_midio: "Si seguir a cada persona sigue sumando con la densidad del techo en vivo."
+    que_midio: "Si seguir a cada persona sigue sumando cuando el sistema procesa uno de cada siete cuadros."
   DEN-03:
     pregunta: en-vivo
-    que_midio: "Cuánto del resultado por escena sobrevive con la densidad intermedia."
+    que_midio: "Cuánto del resultado por escena sobrevive si el sistema procesa uno de cada quince cuadros."
   DEN-04:
     pregunta: en-vivo
-    que_midio: "Si seguir a cada persona sigue sumando con la densidad intermedia."
+    que_midio: "Si seguir a cada persona sigue sumando cuando el sistema procesa uno de cada quince cuadros."
   DEN-05:
     pregunta: en-vivo
-    que_midio: "Cuánto del resultado por escena sobrevive en el peor caso de densidad."
+    que_midio: "Cuánto del resultado por escena sobrevive si el sistema procesa uno de cada veintiséis cuadros."
   DEN-06:
     pregunta: en-vivo
-    que_midio: "Si seguir a cada persona sigue sumando en el peor caso de densidad."
+    que_midio: "Si seguir a cada persona sigue sumando cuando el sistema procesa uno de cada veintiséis cuadros."
   DEN-07:
     pregunta: en-vivo
-    que_midio: "Si la ganancia por seguir a cada persona y la pérdida por densidad se sostienen clip por clip, con remuestreo pareado."
+    que_midio: "Si la ganancia por seguir a cada persona (por sujeto contra por escena, a la misma densidad) y la pérdida por densidad excluyen el cero, con remuestreo pareado por clip."
     cifras:
-      "R1−T1": "ΔF1 por escena: techo en vivo menos el banco"
-      "R3−T1": "ΔF1 por escena: densidad intermedia menos el banco"
-      "R5−T1": "ΔF1 por escena: peor caso menos el banco"
-      "R2−G1": "ΔF1 por sujeto: techo en vivo menos el banco"
-      "R4−G1": "ΔF1 por sujeto: densidad intermedia menos el banco"
-      "R6−G1": "ΔF1 por sujeto: peor caso menos el banco"
-      "R2−T1": "ΔF1: techo en vivo por sujeto menos el banco por escena"
-      "G1−T1": "Ganancia por seguir a cada persona, en el banco"
-      "R2−R1": "Ganancia por seguir a cada persona, techo en vivo"
-      "R4−R3": "Ganancia por seguir a cada persona, densidad intermedia"
-      "R6−R5": "Ganancia por seguir a cada persona, peor caso"
+      "R1−T1": "ΔF1 por escena: uno de cada 7 cuadros menos todos los cuadros"
+      "R3−T1": "ΔF1 por escena: uno de cada 15 cuadros menos todos los cuadros"
+      "R5−T1": "ΔF1 por escena: uno de cada 26 cuadros menos todos los cuadros"
+      "R2−G1": "ΔF1 por sujeto: uno de cada 7 cuadros menos todos los cuadros"
+      "R4−G1": "ΔF1 por sujeto: uno de cada 15 cuadros menos todos los cuadros"
+      "R6−G1": "ΔF1 por sujeto: uno de cada 26 cuadros menos todos los cuadros"
+      "R2−T1": "ΔF1: uno de cada 7 cuadros por sujeto menos todos los cuadros por escena"
+      "G1−T1": "Ganancia por seguir a cada persona, con todos los cuadros"
+      "R2−R1": "Ganancia por seguir a cada persona, uno de cada 7 cuadros"
+      "R4−R3": "Ganancia por seguir a cada persona, uno de cada 15 cuadros"
+      "R6−R5": "Ganancia por seguir a cada persona, uno de cada 26 cuadros"
   DIST-01:
     pregunta: que-se-construyo
-    que_midio: "Cuánto tarda la distribución desde la alerta hasta la confirmación del broker MQTT, en todas las alertas de la campaña."
+    que_midio: "Cuánto tarda la distribución desde la alerta hasta la confirmación del broker MQTT, en las alertas de las pruebas de alerta y de densidad del perfil operativo."
   ERR-01:
     pregunta: obra-real
     que_midio: "Por qué se equivoca el sistema en obra real: cada falsa alarma por sujeto, asignada a una causa."
     cifras:
-      "principal.falsas_alarmas": "Falsas alarmas por sujeto en los clips sin infracción"
+      "principal.falsas_alarmas": "Falsas alarmas por sujeto en los clips negativos (sin infracción)"
       "principal.P-no-detectado": "Por EPP no detectado"
       "principal.P-intermitente": "Por EPP visto de a ratos"
-      "principal.F-sin-persona": "Por una persona que no está en la referencia"
+      "principal.F-sin-persona": "Sin persona en la referencia"
       "principal.U": "Por un atributo que no se puede ver"
       "principal.F-parcial": "Por una persona parcial"
       "principal.P-disputado": "Por EPP disputado entre personas"
-      "principal.P-fuera-region": "Por EPP fuera de la región evaluada"
-      "principal.V": "Por un error de la referencia"
-      "principal.alertas_extra_por_fragmentacion": "Alertas de más por fragmentación de identidad"
+      "principal.P-fuera-region": "Por EPP fuera de la región de evaluación"
+      "principal.V": "Por una falta real, breve o fuera de episodio"
+      "principal.alertas_extra_por_fragmentacion": "De ellas, alertas de más por fragmentación de identidad"
   ERR-02:
     pregunta: obra-real
-    que_midio: "Si subir la resolución de entrada cambia las causas de las falsas alarmas en obra real."
+    que_midio: "Si subir la resolución de entrada, con el mismo umbral de caja, cambia las causas de las falsas alarmas en obra real."
     cifras:
-      "r560.falsas_alarmas": "Falsas alarmas por sujeto en los clips sin infracción, a 560 px"
-      "r560.P-no-detectado": "Por EPP no detectado, a 560 px"
-      "r560.P-intermitente": "Por EPP visto de a ratos, a 560 px"
-      "r560.F-sin-persona": "Por una persona que no está en la referencia, a 560 px"
-      "r560.U": "Por un atributo que no se puede ver, a 560 px"
-      "r560.F-parcial": "Por una persona parcial, a 560 px"
-      "r560.P-disputado": "Por EPP disputado entre personas, a 560 px"
-      "r560.P-fuera-region": "Por EPP fuera de la región evaluada, a 560 px"
-      "r560.V": "Por un error de la referencia, a 560 px"
-      "r560.alertas_extra_por_fragmentacion": "Alertas de más por fragmentación de identidad, a 560 px"
-      "r800.falsas_alarmas": "Falsas alarmas por sujeto en los clips sin infracción, a 800 px"
-      "r800.P-no-detectado": "Por EPP no detectado, a 800 px"
-      "r800.P-intermitente": "Por EPP visto de a ratos, a 800 px"
-      "r800.F-sin-persona": "Por una persona que no está en la referencia, a 800 px"
-      "r800.U": "Por un atributo que no se puede ver, a 800 px"
-      "r800.F-parcial": "Por una persona parcial, a 800 px"
-      "r800.P-disputado": "Por EPP disputado entre personas, a 800 px"
-      "r800.P-fuera-region": "Por EPP fuera de la región evaluada, a 800 px"
-      "r800.V": "Por un error de la referencia, a 800 px"
-      "r800.alertas_extra_por_fragmentacion": "Alertas de más por fragmentación de identidad, a 800 px"
+      "r560.falsas_alarmas": "Falsas alarmas por sujeto en los clips negativos (sin infracción), a 560 px con caja 0,35"
+      "r560.P-no-detectado": "Por EPP no detectado, a 560 px con caja 0,35"
+      "r560.P-intermitente": "Por EPP visto de a ratos, a 560 px con caja 0,35"
+      "r560.F-sin-persona": "Sin persona en la referencia, a 560 px con caja 0,35"
+      "r560.U": "Por un atributo que no se puede ver, a 560 px con caja 0,35"
+      "r560.F-parcial": "Por una persona parcial, a 560 px con caja 0,35"
+      "r560.P-disputado": "Por EPP disputado entre personas, a 560 px con caja 0,35"
+      "r560.P-fuera-region": "Por EPP fuera de la región de evaluación, a 560 px con caja 0,35"
+      "r560.V": "Por una falta real, breve o fuera de episodio, a 560 px con caja 0,35"
+      "r560.alertas_extra_por_fragmentacion": "De ellas, alertas de más por fragmentación de identidad, a 560 px con caja 0,35"
+      "r800.falsas_alarmas": "Falsas alarmas por sujeto en los clips negativos (sin infracción), a 800 px con caja 0,35"
+      "r800.P-no-detectado": "Por EPP no detectado, a 800 px con caja 0,35"
+      "r800.P-intermitente": "Por EPP visto de a ratos, a 800 px con caja 0,35"
+      "r800.F-sin-persona": "Sin persona en la referencia, a 800 px con caja 0,35"
+      "r800.U": "Por un atributo que no se puede ver, a 800 px con caja 0,35"
+      "r800.F-parcial": "Por una persona parcial, a 800 px con caja 0,35"
+      "r800.P-disputado": "Por EPP disputado entre personas, a 800 px con caja 0,35"
+      "r800.P-fuera-region": "Por EPP fuera de la región de evaluación, a 800 px con caja 0,35"
+      "r800.V": "Por una falta real, breve o fuera de episodio, a 800 px con caja 0,35"
+      "r800.alertas_extra_por_fragmentacion": "De ellas, alertas de más por fragmentación de identidad, a 800 px con caja 0,35"
   EXT-01:
     pregunta: que-detecta
-    que_midio: "Qué detecta una clase que nunca se configuró ni se entrenó, agregada solo por configuración."
+    que_midio: "Qué detecta una clase jamás configurada ni entrenada, agregada con unas líneas de prompt."
     cifras:
-      "ap50_machinery_obra": "AP50 de maquinaria en obra, una clase nunca configurada"
-      "ap50_vehicle_obra": "AP50 de vehículo, junto con maquinaria"
-      "ap50_vehicle_sin_machinery": "AP50 de vehículo, solo"
+      "ap50_machinery_obra": "AP50 de maquinaria en obra, una clase nueva sin entrenar"
+      "ap50_vehicle_obra": "AP50 de vehículo, con maquinaria entre las clases pedidas"
+      "ap50_vehicle_sin_machinery": "AP50 de vehículo, sin maquinaria entre las clases pedidas"
       "ap50_person_vs_worker_mocs": "AP50 de persona contra los trabajadores anotados de MOCS"
   GT-01:
     pregunta: confianza
-    que_midio: "Si las marcas que puso el operador al grabar coinciden con el inicio de los episodios de la referencia."
+    que_midio: "Si las marcas que anotó el operador al recortar cada toma, antes de la anotación, coinciden con el inicio de los episodios de la referencia."
   GT-02:
     pregunta: confianza
     que_midio: "En qué fracción de referencias con los bordes movidos se sostiene cada conclusión comparativa."
     cifras:
-      "C1_G1>T1": "Seguir a cada persona supera a la escena, en el banco"
+      "C1_G1>T1": "Seguir a cada persona supera a la escena, con todos los cuadros"
       "C2_T1>=T2": "El perfil operativo no queda debajo del contraste base-560"
       "C3_D1_prec<0.5": "La detección directa queda debajo de la precisión exigida"
       "C4_T1>H1": "El núcleo supera a la disyunción"
       "C5_T1>B1": "El núcleo supera al vocabulario nativo de cabeza descubierta"
-      "C6_R2>R1": "Seguir a cada persona supera a la escena, techo en vivo"
-      "C6_R4>R3": "Seguir a cada persona supera a la escena, densidad intermedia"
-      "C6_R6>R5": "Seguir a cada persona supera a la escena, peor caso"
-      "C7_T1>=R1": "El banco no queda debajo del techo en vivo"
-      "C7_R1>R3": "El techo en vivo supera a la densidad intermedia"
-      "C7_R3>R5": "La densidad intermedia supera al peor caso"
+      "C6_R2>R1": "Seguir a cada persona supera a la escena, uno de cada 7 cuadros"
+      "C6_R4>R3": "Seguir a cada persona supera a la escena, uno de cada 15 cuadros"
+      "C6_R6>R5": "Seguir a cada persona supera a la escena, uno de cada 26 cuadros"
+      "C7_T1>=R1": "Todos los cuadros dan al menos lo mismo que uno de cada 7"
+      "C7_R1>R3": "Uno de cada 7 cuadros supera a uno de cada 15"
+      "C7_R3>R5": "Uno de cada 15 cuadros supera a uno de cada 26"
       "C8_I1_FPneg<I2_FPneg": "En obra real, mirando la escena hay menos falsas alarmas que siguiendo a cada persona"
   IMG-01:
     pregunta: que-detecta
@@ -188,17 +188,17 @@ pruebas:
       "recall_cr01": "Recall de CR-01 por evidencia directa"
   IMG-04:
     pregunta: que-detecta
-    que_midio: "Cuánto cambia la detección al subir la resolución de entrada con el mismo umbral de caja."
+    que_midio: "Cuánto cambia la detección al subir la resolución de entrada con el mismo umbral de caja; las cifras de abajo son las de la resolución mayor."
     cifras:
-      "map50": "mAP50 sobre el banco de imágenes"
-      "ap50_person": "AP50 de persona"
-      "ap50_helmet": "AP50 de casco"
-      "ap50_vest": "AP50 de chaleco"
-      "ap50_bare_head": "AP50 de cabeza descubierta"
-      "recall_cr01": "Recall de CR-01 por evidencia directa"
+      "map50": "mAP50 sobre el banco de imágenes, a 800 px con caja 0,35"
+      "ap50_person": "AP50 de persona, a 800 px con caja 0,35"
+      "ap50_helmet": "AP50 de casco, a 800 px con caja 0,35"
+      "ap50_vest": "AP50 de chaleco, a 800 px con caja 0,35"
+      "ap50_bare_head": "AP50 de cabeza descubierta, a 800 px con caja 0,35"
+      "recall_cr01": "Recall de CR-01 por evidencia directa, a 800 px con caja 0,35"
   INT-01:
     pregunta: confianza
-    que_midio: "Si las imágenes del banco y sus estratos son exactamente los versionados."
+    que_midio: "Si las imágenes del banco y sus estratos son los mismos con que se midió en la etapa de desarrollo."
     cifras:
       "imagenes_bench_v3": "Huellas de las imágenes del banco"
       "estratos_byte_a_byte": "Estratos idénticos byte a byte"
@@ -230,28 +230,28 @@ pruebas:
     pregunta: como-expresar
     que_midio: "Persona por persona, si conviene deducir la ausencia del EPP o describir la infracción entera, con el perfil operativo."
     cifras:
-      "shel5k/CR-01/f1_eind": "Imágenes, CR-01: F1 por ausencia del EPP"
-      "shel5k/CR-01/f1_edir": "Imágenes, CR-01: F1 por detección directa (la mejor frase)"
-      "bench_obra/CR-01/f1_eind": "Núcleo curado, CR-01: F1 por ausencia del EPP"
-      "bench_obra/CR-01/f1_edir": "Núcleo curado, CR-01: F1 por detección directa (la mejor frase)"
-      "bench_obra/CR-02/f1_eind": "Imágenes, CR-02: F1 por ausencia del EPP"
-      "bench_obra/CR-02/f1_edir": "Imágenes, CR-02: F1 por detección directa (la mejor frase)"
+      "shel5k/CR-01/f1_eind": "Imágenes, CR-01: F1 con la estrategia indirecta"
+      "shel5k/CR-01/f1_edir": "Imágenes, CR-01: F1 con la estrategia directa (la mejor formulación)"
+      "bench_obra/CR-01/f1_eind": "Núcleo curado, CR-01: F1 con la estrategia indirecta"
+      "bench_obra/CR-01/f1_edir": "Núcleo curado, CR-01: F1 con la estrategia directa (la mejor formulación)"
+      "bench_obra/CR-02/f1_eind": "Núcleo curado, CR-02: F1 con la estrategia indirecta"
+      "bench_obra/CR-02/f1_edir": "Núcleo curado, CR-02: F1 con la estrategia directa (la mejor formulación)"
   PER-02:
     pregunta: como-expresar
     que_midio: "Persona por persona, la misma comparación entre las dos formas de expresar la infracción, con el contraste base-560."
     cifras:
-      "shel5k/CR-01/f1_eind": "Imágenes, CR-01: F1 por ausencia del EPP"
-      "shel5k/CR-01/f1_edir": "Imágenes, CR-01: F1 por detección directa (la mejor frase)"
-      "bench_obra/CR-01/f1_eind": "Núcleo curado, CR-01: F1 por ausencia del EPP"
-      "bench_obra/CR-01/f1_edir": "Núcleo curado, CR-01: F1 por detección directa (la mejor frase)"
-      "bench_obra/CR-02/f1_eind": "Imágenes, CR-02: F1 por ausencia del EPP"
-      "bench_obra/CR-02/f1_edir": "Imágenes, CR-02: F1 por detección directa (la mejor frase)"
+      "shel5k/CR-01/f1_eind": "Imágenes, CR-01: F1 con la estrategia indirecta"
+      "shel5k/CR-01/f1_edir": "Imágenes, CR-01: F1 con la estrategia directa (la mejor formulación)"
+      "bench_obra/CR-01/f1_eind": "Núcleo curado, CR-01: F1 con la estrategia indirecta"
+      "bench_obra/CR-01/f1_edir": "Núcleo curado, CR-01: F1 con la estrategia directa (la mejor formulación)"
+      "bench_obra/CR-02/f1_eind": "Núcleo curado, CR-02: F1 con la estrategia indirecta"
+      "bench_obra/CR-02/f1_edir": "Núcleo curado, CR-02: F1 con la estrategia directa (la mejor formulación)"
   PER-03:
     pregunta: como-expresar
-    que_midio: "Qué tan bien determina el sistema el estado de cada persona, cuadro por cuadro, en video de obra real."
+    que_midio: "Qué tan bien determina el sistema el estado de cada persona en video de obra real, en cuadros submuestreados a dos por segundo y sin reglas temporales."
   PLAT-01:
     pregunta: que-se-construyo
-    que_midio: "En qué equipo, con qué imágenes de contenedor y con qué servicios arriba corrió la campaña."
+    que_midio: "En qué equipo, con qué imágenes de contenedor y con qué servicios arriba está desplegada la plataforma de la campaña; se vuelve a correr con cada consola nueva."
     cifras:
       "consola_responde": "La consola responde"
       "media_plane_listo": "El motor de detección está listo"
@@ -262,22 +262,22 @@ pruebas:
     pregunta: en-vivo
     que_midio: "Cuánto agrega la plataforma por cuadro sin el costo del modelo, con un detector simulado."
     cifras:
-      "g2a_p50_ms": "Latencia por cuadro G2A, p50, con detector simulado"
-      "g2a_p95_ms": "Latencia por cuadro G2A, p95, con detector simulado"
+      "g2a_p50_ms": "G2A (latencia por cuadro), p50, con detector simulado"
+      "g2a_p95_ms": "G2A (latencia por cuadro), p95, con detector simulado"
   RT-02:
     pregunta: que-se-construyo
     que_midio: "Si una corrida en vivo pierde eventos en el bus y si, releída, produce exactamente las mismas alertas."
   RT-03:
     pregunta: en-vivo
-    que_midio: "Cuánto tarda cada cuadro en vivo con la OAK-D y personas en escena: desde la cola, desde la captura y de punta a punta."
+    que_midio: "Cuánto tarda cada cuadro en vivo con la OAK-D y personas en escena: desde la cola, desde la captura y de extremo a extremo."
     cifras:
-      "fps_efectivos": "Cuadros por segundo procesados, entre el primer y el último cuadro (960×540 a 5 fps)"
-      "g2a_p95_ms": "Latencia por cuadro G2A, p95 (960×540 a 5 fps)"
+      "fps_efectivos": "FPS efectivos: cuadros procesados por segundo, entre el primer y el último cuadro (960×540 a 5 fps)"
+      "g2a_p95_ms": "G2A (latencia por cuadro), p95 (960×540 a 5 fps)"
       "capture_to_host_p50_ms": "Captura → host, p50 (960×540 a 5 fps)"
       "vidrio_a_resultado_p95_ms": "Vidrio → resultado, p95 (960×540 a 5 fps)"
   RT-04:
     pregunta: en-vivo
-    que_midio: "Si cada escena del rodaje, repetida en vivo con la OAK-D, se comporta como su guion, y cuánto tarda de la acción a la alerta."
+    que_midio: "Si cada escena del rodaje, repetida en vivo con la OAK-D, se comporta como su guion, y cuánto tarda desde la consigna de cada acción hasta la alerta."
   RT-05:
     pregunta: en-vivo
     que_midio: "Qué cambia en vivo según el modelo y la cadencia de la cámara, con la misma escena guionada."
@@ -292,41 +292,41 @@ pruebas:
       "mp-yoloe-26x @ 960x540@15": "YOLOE-26x, cámara a 15 fps"
   RT-06:
     pregunta: en-vivo
-    que_midio: "Lo mismo que la obra simulada, con la cámara IP en lugar de la OAK-D y en sus dos configuraciones."
+    que_midio: "Si tres escenas del rodaje guionado se comportan como su guion con la cámara IP en lugar de la OAK-D, en sus dos configuraciones."
     cifras:
-      "g2a_p95_ms_secundario": "Latencia por cuadro G2A, p95 (cámara IP, 768×432 a 10 fps) — stream secundario"
-      "g2a_p95_ms_principal": "Latencia por cuadro G2A, p95 (cámara IP, 1920×1080 a 15 fps) — stream principal"
+      "g2a_p95_ms_secundario": "G2A (latencia por cuadro), p95 (cámara IP, 768×432 a 10 fps) — stream secundario"
+      "g2a_p95_ms_principal": "G2A (latencia por cuadro), p95 (cámara IP, 1920×1080 a 15 fps) — stream principal"
   RT-07:
     pregunta: en-vivo
     que_midio: "Si el sistema reconoce un chaleco distinto, amarillo y sin bandas reflectantes, y alerta cuando la persona se lo saca."
   RT-08:
     pregunta: en-vivo
-    que_midio: "Si el sistema reconoce el chaleco amarillo sin bandas reflectantes con la cámara IP en lugar de la OAK-D."
+    que_midio: "Si el sistema reconoce el chaleco amarillo sin bandas reflectantes con la cámara IP en lugar de la OAK-D, y alerta cuando la persona se lo saca."
     cifras:
-      "g2a_p95_ms_secundario": "Latencia por cuadro G2A, p95 (cámara IP, 768×432 a 10 fps) — stream secundario"
-      "g2a_p95_ms_principal": "Latencia por cuadro G2A, p95 (cámara IP, 1920×1080 a 15 fps) — stream principal"
+      "g2a_p95_ms_secundario": "G2A (latencia por cuadro), p95 (cámara IP, 768×432 a 10 fps) — stream secundario"
+      "g2a_p95_ms_principal": "G2A (latencia por cuadro), p95 (cámara IP, 1920×1080 a 15 fps) — stream principal"
   RT-09:
     pregunta: en-vivo
     que_midio: "Con qué prenda debajo del chaleco el sistema deja de ver un chaleco falso al sacárselo, y si cambiar la frase del chaleco lo resuelve."
     cifras:
       "P2/campeon/gdino-base-560/negra lisa/cr02": "CR-02 como el guion — P2, frases del perfil operativo con gdino-base-560, remera negra lisa"
-      "P2/campeon/gdino-base-560/negra lisa/fraccion_vest": "Cuadros con chaleco en el torso (mediana) — P2, frases del perfil operativo con gdino-base-560, remera negra lisa"
-      "P2/campeon/gdino-base-560/negra lisa/racha_vest_s": "Racha continua más larga con chaleco — P2, frases del perfil operativo con gdino-base-560, remera negra lisa"
+      "P2/campeon/gdino-base-560/negra lisa/fraccion_vest": "Fracción de cuadros en que el detector ve un chaleco en el torso (mediana) — P2, frases del perfil operativo con gdino-base-560, remera negra lisa"
+      "P2/campeon/gdino-base-560/negra lisa/racha_vest_s": "Racha más larga en que el detector ve un chaleco — P2, frases del perfil operativo con gdino-base-560, remera negra lisa"
       "P2/campeon/blanca lisa/cr02": "CR-02 como el guion — P2, frases del perfil operativo, remera blanca lisa"
-      "P2/campeon/blanca lisa/fraccion_vest": "Cuadros con chaleco en el torso (mediana) — P2, frases del perfil operativo, remera blanca lisa"
-      "P2/campeon/blanca lisa/racha_vest_s": "Racha continua más larga con chaleco — P2, frases del perfil operativo, remera blanca lisa"
+      "P2/campeon/blanca lisa/fraccion_vest": "Fracción de cuadros en que el detector ve un chaleco en el torso (mediana) — P2, frases del perfil operativo, remera blanca lisa"
+      "P2/campeon/blanca lisa/racha_vest_s": "Racha más larga en que el detector ve un chaleco — P2, frases del perfil operativo, remera blanca lisa"
       "P2/campeon/negra lisa/cr02": "CR-02 como el guion — P2, frases del perfil operativo, remera negra lisa"
-      "P2/campeon/negra lisa/fraccion_vest": "Cuadros con chaleco en el torso (mediana) — P2, frases del perfil operativo, remera negra lisa"
-      "P2/campeon/negra lisa/racha_vest_s": "Racha continua más larga con chaleco — P2, frases del perfil operativo, remera negra lisa"
+      "P2/campeon/negra lisa/fraccion_vest": "Fracción de cuadros en que el detector ve un chaleco en el torso (mediana) — P2, frases del perfil operativo, remera negra lisa"
+      "P2/campeon/negra lisa/racha_vest_s": "Racha más larga en que el detector ve un chaleco — P2, frases del perfil operativo, remera negra lisa"
       "P1/reflective/blanca lisa/cr02": "CR-02 como el guion — P1, frase «reflective vest», remera blanca lisa"
-      "P1/reflective/blanca lisa/fraccion_vest": "Cuadros con chaleco en el torso (mediana) — P1, frase «reflective vest», remera blanca lisa"
-      "P1/reflective/blanca lisa/racha_vest_s": "Racha continua más larga con chaleco — P1, frase «reflective vest», remera blanca lisa"
+      "P1/reflective/blanca lisa/fraccion_vest": "Fracción de cuadros en que el detector ve un chaleco en el torso (mediana) — P1, frase «reflective vest», remera blanca lisa"
+      "P1/reflective/blanca lisa/racha_vest_s": "Racha más larga en que el detector ve un chaleco — P1, frase «reflective vest», remera blanca lisa"
       "P2/reflective/blanca lisa/cr02": "CR-02 como el guion — P2, frase «reflective vest», remera blanca lisa"
-      "P2/reflective/blanca lisa/fraccion_vest": "Cuadros con chaleco en el torso (mediana) — P2, frase «reflective vest», remera blanca lisa"
-      "P2/reflective/blanca lisa/racha_vest_s": "Racha continua más larga con chaleco — P2, frase «reflective vest», remera blanca lisa"
+      "P2/reflective/blanca lisa/fraccion_vest": "Fracción de cuadros en que el detector ve un chaleco en el torso (mediana) — P2, frase «reflective vest», remera blanca lisa"
+      "P2/reflective/blanca lisa/racha_vest_s": "Racha más larga en que el detector ve un chaleco — P2, frase «reflective vest», remera blanca lisa"
   SEG-01:
     pregunta: obra-real
-    que_midio: "Cuántas veces el rastreador le cambia la identidad a una misma persona, en el rodaje y en obra real."
+    que_midio: "Cuántas veces el seguidor le cambia la identidad a una misma persona, en el rodaje y en obra real."
     cifras:
       "rodaje.cobertura": "Cobertura (rodaje)"
       "rodaje.cambios_de_identidad": "Cambios de identidad (rodaje)"
@@ -338,11 +338,11 @@ pruebas:
       "obra_real.tracks_por_persona_media": "Identidades por persona (obra real)"
   VIS-01:
     pregunta: obra-real
-    que_midio: "Cómo se ven sobre el cuadro un acierto y un fallo del sistema, con sus cajas, la región evaluada y la referencia."
+    que_midio: "Cómo se ven sobre el cuadro un acierto y un fallo del sistema, con sus cajas, la región de evaluación y la referencia."
     cifras:
       "rodaje.exito": "Cuadros de aciertos en el rodaje"
       "rodaje.fallo_falsa_alarma": "Cuadros de falsas alarmas en el rodaje"
       "rodaje.fallo_perdido": "Cuadros de episodios perdidos en el rodaje"
       "internet.exito": "Cuadros de aciertos en obra real"
       "internet.fallo_perdido": "Cuadros de episodios perdidos en obra real"
-      "internet.obra_real": "Cuadros de obra real"
+      "internet.obra_real": "Cuadros de la muestra de falsas alarmas de obra real"

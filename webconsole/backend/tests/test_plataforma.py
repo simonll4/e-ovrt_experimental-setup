@@ -81,7 +81,7 @@ def test_el_estado_trae_los_dos_grupos_con_salud_imagen_puerto_y_desde(cliente):
     assert [f["servicio"] for f in datos["nucleo"]] == ["console", "control-plane", "distribution", "mosquitto"]
     rc = datos["nucleo"][1]
     assert (rc["nombre"], rc["estado"], rc["salud"], rc["imagen"], rc["puerto"]) == (
-        "Motor de reglas", "running", "healthy", "img/control-plane", "8081")
+        "Plano de control (reglas)", "running", "healthy", "img/control-plane", "8081")
     assert rc["desde"] == "2026-11-15T10:00:00Z"
     assert datos["nucleo"][3]["estado"] == "ausente"
     # La etiqueta se movió a otra construcción después de crear el contenedor: el nombre declarado y el aviso.
@@ -138,11 +138,80 @@ def test_con_algo_en_curso_detener_pide_confirmacion(cliente, state):
 def test_dejar_lista_levanta_lo_que_falta_y_activa_el_perfil_operativo_sin_recrear(cliente, state):
     r = cliente.post("/api/plataforma/lista")
     assert r.status_code == 200
-    assert r.json()["detalle"] == "levantó distribución de alertas; levantó broker mqtt; activó mp-gdino-tiny-560"
+    assert r.json()["detalle"] == "levantó módulo de distribución (alertas); levantó broker mqtt; activó mp-gdino-tiny-560"
     assert ["up", "-d", "--no-build", "control-plane"] not in _verbos(state)
     antes = len(_verbos(state))
     r = cliente.post("/api/plataforma/lista")
     assert r.json()["detalle"] == "ya estaba lista" and len(_verbos(state)) == antes
+
+
+def test_dejar_lista_con_algo_en_curso_pide_confirmar_antes_de_cambiar_el_motor(cliente, state):
+    """Revisión del 2026-11-19: «Dejar la plataforma lista» cambiaba el motor sin mirar si había una demo o un
+    clip en curso; ahora pide confirmarlo, como detener."""
+    assert cliente.post("/api/plataforma/servicios/mp-mock/activar").status_code == 200
+    cliente.app.state.experiment_manager.current = lambda: {"experiment_id": "exp_clip"}
+    r = cliente.post("/api/plataforma/lista")
+    assert r.status_code == 409 and r.json()["confirmar"] is True and "exp_clip" in r.json()["detail"]
+    assert state["ps"]["mp-mock"] == "running" and state["ps"].get("mp-gdino-tiny-560") != "running"
+    r = cliente.post("/api/plataforma/lista", json={"confirmar": True})
+    assert r.status_code == 200 and state["ps"]["mp-gdino-tiny-560"] == "running"
+
+
+def test_un_solo_cambio_de_motor_a_la_vez_venga_de_donde_venga():
+    """Revisión del 2026-11-19: el lock vive en el TargetManager, así que la pantalla de plataforma, /api/platform
+    (el de plataforma.ps1, demo.ps1 y rodaje.ps1) y el reinicio del motor de la demo se ponen en fila. Sin el lock,
+    con un docker que tarda como uno real, dos cambios simultáneos dejaban dos motores en la GPU."""
+    import asyncio
+    from types import SimpleNamespace
+
+    from eovrt_webconsole.orchestrator import ComposeOrchestrator, TargetManager
+    from eovrt_webconsole.plataforma import Plataforma
+
+    config = {"services": {n: {"labels": {"eovrt.instance": "true", "eovrt.model_ref": n}}
+                           for n in ("mp-a", "mp-b", "mp-c")}}
+    ps = {"mp-a": "running", "mp-b": "exited", "mp-c": "exited"}
+    listo_desde = {"mp-a": 0.0}
+    maximo = {"n": 1}
+
+    async def run_cmd(*args: str, cwd: Path):
+        verbo = args[4]
+        if verbo == "config":
+            return 0, json.dumps(config), ""
+        if verbo == "ps":
+            return 0, "\n".join(json.dumps({"Service": n, "Name": f"eovrt-{n}-1", "State": s, "Image": "x"})
+                                for n, s in ps.items()), ""
+        if verbo in ("up", "stop", "restart"):
+            await asyncio.sleep(0.03)
+            ps[args[-1]] = "exited" if verbo == "stop" else "running"
+            if verbo != "stop":
+                listo_desde[args[-1]] = asyncio.get_running_loop().time() + 0.04
+            maximo["n"] = max(maximo["n"], sum(1 for s in ps.values() if s == "running"))
+        return 0, "", ""
+
+    def servicio(req: httpx.Request) -> httpx.Response:
+        if req.url.path == "/readyz":
+            n = req.url.host
+            listo = ps.get(n) == "running" and asyncio.get_running_loop().time() >= listo_desde.get(n, 1e18)
+            return httpx.Response(200 if listo else 503)
+        if req.url.path == "/api/runs":
+            return httpx.Response(200, json=[])
+        return httpx.Response(404)
+
+    async def escenario():
+        app = SimpleNamespace(state=SimpleNamespace(demo_manager=None, experiment_manager=None))
+        tm = TargetManager(app, ComposeOrchestrator(Path("/tmp"), run_cmd=run_cmd),
+                           SimpleNamespace(switch_timeout_seconds=5.0),
+                           service_transport=httpx.MockTransport(servicio), poll_interval=0.01)
+        app.state.target_manager = tm
+        plataforma = Plataforma(app, Path("/tmp"), Path("/tmp/eovrt-test-acciones.jsonl"), run_cmd=run_cmd)
+        await tm.bootstrap()
+        # La pantalla activa mp-b mientras un script activa mp-c por /api/platform.
+        await asyncio.gather(plataforma.accion("mp-b", "activar"), tm.switch("mp-c"))
+        return tm.active
+
+    activa = asyncio.run(escenario())
+    assert maximo["n"] == 1
+    assert [n for n, s in ps.items() if s == "running"] == [activa]
 
 
 def test_cada_pedido_queda_en_el_registro(cliente, state):

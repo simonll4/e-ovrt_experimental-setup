@@ -79,7 +79,7 @@ export default function ResultView({
             <video src={demoArchivoUrl(id, `resultado/${resumen.video}`)} controls preload="metadata" />
             <p className="eo-demo-resultado__rotulo">
               Se ven exactamente los cuadros que procesó el sistema
-              {resumen.fps_efectivos ? ` (≈ ${numero(resumen.fps_efectivos)} cuadros/s efectivos)` : ''}.
+              {resumen.fps_efectivos ? ` (≈ ${numero(resumen.fps_efectivos)} FPS efectivos)` : ''}.
             </p>
           </>
         ) : (

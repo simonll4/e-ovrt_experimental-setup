@@ -27,18 +27,20 @@ const renderShell = (path = '/') =>
     </MemoryRouter>,
   )
 
-const DESTINOS = ['Inicio', 'Pruebas', 'Tomas en vivo', 'Cómo leer', 'Plataforma', 'Correr un clip', 'Demo con cámara', 'Archivo']
+// Revisión del 2026-11-19: la barra es solo evidencia y demostración; «Cómo leer» y el Archivo están al pie del Inicio.
+const DESTINOS = ['Inicio', 'Pruebas', 'Tomas en vivo', 'Plataforma', 'Correr un clip', 'Demo con cámara']
 const LABORATORIO = ['Corridas', 'Experimentos', 'Comparar', 'Conjuntos de prompts', 'Catálogos', 'Cámaras', 'Clips']
 
 describe('Shell', () => {
-  it('dos zonas en orden, Evidencia y Demostrar, y el Archivo al pie (plan de la consola, §3)', () => {
+  it('dos zonas en orden, Evidencia y Demostrar, sin «Cómo leer» ni el Archivo en la barra', () => {
     renderShell()
     const lateral = within(screen.getByRole('complementary', { name: 'Navegación principal' }))
     expect(lateral.getByRole('group', { name: 'Evidencia' })).toBeTruthy()
     expect(lateral.getByRole('group', { name: 'Demostrar' })).toBeTruthy()
     const nav = lateral.getByRole('navigation', { name: 'Secciones' })
     expect(within(nav).getAllByRole('link').map((a) => a.getAttribute('aria-label'))).toEqual(DESTINOS)
-    expect(within(nav).getByRole('link', { name: 'Archivo' }).getAttribute('href')).toBe('/archivo')
+    expect(within(nav).queryByRole('link', { name: 'Archivo' })).toBeNull()
+    expect(within(nav).queryByRole('link', { name: 'Cómo leer' })).toBeNull()
   })
 
   it('sin «Para el tribunal», sin el laboratorio y sin los botones de nueva corrida y nuevo experimento', () => {
@@ -159,11 +161,11 @@ describe('Shell', () => {
     const [mediaService, controlService] = Array.from(services)
     await waitFor(() =>
       expect(controlService.querySelector('.eo-tip')?.getAttribute('data-tip')).toMatch(
-        /Motor de reglas — sin respuesta/i,
+        /Plano de control — sin respuesta/i,
       ),
     )
     expect(mediaService.querySelector('.eo-tip')?.getAttribute('data-tip')).toMatch(
-      /Motor de detección — operativo/i,
+      /Plano de medios — operativo/i,
     )
     expect(controlService.querySelector('.eo-service__dot')?.getAttribute('style')).toContain('--er')
     expect(mediaService.querySelector('.eo-service__dot')?.getAttribute('style')).toContain('--ok')

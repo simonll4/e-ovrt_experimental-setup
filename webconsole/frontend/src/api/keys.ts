@@ -95,6 +95,8 @@ export const qk = {
     all: ['gen2'] as const,
     pruebas: ['gen2', 'pruebas'] as const,
     prueba: (id: string) => ['gen2', 'prueba', id] as const,
+    clip: (id: string, clip: string, lectura: string) => ['gen2', 'clip', id, clip, lectura] as const,
+    falsasAlarmas: ['gen2', 'falsas-alarmas'] as const,
   },
 
   /** La portada y las siete preguntas: también archivos, resueltos contra results/gen2. */

@@ -323,7 +323,7 @@ async def _comprobar_oakd(preset: dict, ejecutar: Ejecutor, ahora: str, *, conte
             ["Esperá a que termine y volvé a comprobar."], _acciones(), ahora)
     if not contenedor:
         return _resultado(
-            preset, "falla", [_paso("motor", "Motor de detección", False, "no hay un motor activo")],
+            preset, "falla", [_paso("motor", "Plano de medios", False, "no hay un motor activo")],
             "No hay un motor de detección activo para hacer la prueba (se abre la cámara desde ahí, como en la corrida).",
             ["Activá un motor en Plataforma, o corré `plataforma.sh up`."], _acciones(), ahora)
     if not ip or sonda is None:
@@ -331,7 +331,7 @@ async def _comprobar_oakd(preset: dict, ejecutar: Ejecutor, ahora: str, *, conte
             preset, "falla", [_paso("prueba", "Prueba", False, "falta la dirección del preset o el script de prueba")],
             "No se pudo preparar la prueba de la OAK-D.", ["Revisá el preset en Cámaras."], _acciones(), ahora)
 
-    pasos = [_paso("motor", "Motor de detección", True, contenedor)]
+    pasos = [_paso("motor", "Plano de medios", True, contenedor)]
     codigo, salida, error = await ejecutar(
         ["docker", "exec", "-i", contenedor, "python3.11", "-", ip], sonda.encode(), 75.0)
     conecto = re.search(r"conectada en ([\d.]+) s: (.+)", salida)

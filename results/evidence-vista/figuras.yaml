@@ -37,7 +37,7 @@ figuras:
     seccion: "§17.6"
     prueba: PLAT-01
     pie: >-
-      Los servicios de la plataforma corriendo en contenedores en el equipo de la campaña: el núcleo y las
+      Los servicios de la plataforma corriendo en contenedores en el equipo de referencia: el núcleo y las
       instancias de detección, con la activa destacada.
     privada: false
     # Se saca de la consola en contenedor con la plataforma desplegada: en una consola nativa la pantalla dice que
@@ -52,7 +52,7 @@ figuras:
     seccion: "§17.5.5"
     prueba: RT-04
     pie: >-
-      El cuadro en que el sistema confirmó la alerta de sin casco en una toma de la obra simulada, con el estado
+      El cuadro en que el sistema confirmó la alerta de sin casco en una toma del rodaje guionado, con el estado
       de cada condición en ese instante.
     privada: true
     fuente: {pantalla: /demo/resultado/demo_20261107T161545Z_P1, selector: "[data-figura='momento-toma']"}
@@ -88,8 +88,9 @@ figuras:
     seccion: "§17.5.5"
     prueba: RT-09
     pie: >-
-      La misma escena y el mismo instante, después de sacarse el chaleco: con remera negra el detector sigue
-      viendo un chaleco en el torso y la alerta no llega; con remera blanca, la alerta está confirmada.
+      La misma escena y el mismo instante, después de sacarse el chaleco, con el perfil operativo: con remera
+      negra el detector sigue viendo un chaleco en el torso y la alerta no llega; con remera blanca, la alerta
+      está confirmada.
     privada: true
     # La arma webconsole/tools/armar_figuras_privadas.py desde las imágenes anotadas de las dos tomas P2 del
     # perfil operativo y los eventos del motor de reglas; cómo elige el instante, en esa herramienta y en el
@@ -116,8 +117,9 @@ figuras:
     seccion: "§17.5.4"
     prueba: ERR-01
     pie: >-
-      Cada falsa alarma por sujeto en los clips de obra real sin infracción, asignada a una causa. Aparte, las
-      que agrega la fragmentación de identidad.
+      Cada falsa alarma por sujeto en los clips negativos de obra real (sin infracción), asignada a una causa. Aparte,
+      cuántas de ellas sobran porque la misma persona recibió más de una identidad: ya están contadas en las
+      causas.
     privada: false
     fuente:
       grafico: barras
@@ -129,9 +131,11 @@ figuras:
         - {etiqueta: Atributo que no se puede ver, prueba: ERR-01, clave: principal.U}
         - {etiqueta: Persona parcial, prueba: ERR-01, clave: principal.F-parcial}
         - {etiqueta: EPP disputado entre personas, prueba: ERR-01, clave: principal.P-disputado}
-        - {etiqueta: Error de la referencia, prueba: ERR-01, clave: principal.V}
-        - {etiqueta: EPP fuera de la región evaluada, prueba: ERR-01, clave: principal.P-fuera-region}
-        - {etiqueta: De más por fragmentación de identidad, prueba: ERR-01, clave: principal.alertas_extra_por_fragmentacion, aparte: true}
+        # V es una falta real que la referencia marca, breve o fuera de episodio (errores.py), no un error de
+        # la referencia. Las de más por fragmentación están DENTRO de las de arriba: no se suman.
+        - {etiqueta: "Falta real, breve o fuera de episodio", prueba: ERR-01, clave: principal.V}
+        - {etiqueta: EPP fuera de la región de evaluación, prueba: ERR-01, clave: principal.P-fuera-region}
+        - {etiqueta: "De ellas, de más por fragmentación de identidad", prueba: ERR-01, clave: principal.alertas_extra_por_fragmentacion, aparte: true}
 
   - id: f1-segun-cuadros-por-segundo
     numero: 8
@@ -140,8 +144,8 @@ figuras:
     seccion: "§17.5.5"
     prueba: DEN-07
     pie: >-
-      El F1 por episodio del rodaje a cuatro densidades de evidencia, mirando la escena y siguiendo a cada
-      persona, con las mismas detecciones.
+      El F1 por episodio del rodaje a cuatro densidades de evidencia (todos los cuadros, o uno de cada siete,
+      quince o veintiséis), mirando la escena y siguiendo a cada persona, con las mismas detecciones.
     privada: false
     fuente:
       grafico: lineas
@@ -149,20 +153,23 @@ figuras:
       # Las cadencias de las etiquetas no son resultados: son el diseño de cada prueba (el paso entre cuadros
       # del pre-registro sobre clips de 30 fps) y se escriben como en los nombres de fila de la Tabla 54
       # (informe-tablas.yaml). Sin ellas, el eje de una figura «según los cuadros por segundo» no los dice.
+      # Se nombran por el paso, no por el anclaje de la etapa de desarrollo («techo en vivo», «peor caso»):
+      # esos anclajes salieron de la medición de cuadros por segundo que se corrigió (doc 134 §13.22), y en
+      # la campaña el vivo procesa más que el «techo».
       datos:
-        - etiqueta: Banco (30 fps)
+        - etiqueta: Todos los cuadros (30 fps)
           valores:
             - {prueba: ALR-01, clave: f1, decimales: 2}
             - {prueba: ALR-02, clave: f1, decimales: 2}
-        - etiqueta: Techo en vivo (≈4,29 fps)
+        - etiqueta: 1 de cada 7 (≈4,29 fps)
           valores:
             - {prueba: DEN-01, clave: f1, decimales: 2}
             - {prueba: DEN-02, clave: f1, decimales: 2}
-        - etiqueta: Intermedia (2,00 fps)
+        - etiqueta: 1 de cada 15 (2,00 fps)
           valores:
             - {prueba: DEN-03, clave: f1, decimales: 2}
             - {prueba: DEN-04, clave: f1, decimales: 2}
-        - etiqueta: Peor caso (≈1,15 fps)
+        - etiqueta: 1 de cada 26 (≈1,15 fps)
           valores:
             - {prueba: DEN-05, clave: f1, decimales: 2}
             - {prueba: DEN-06, clave: f1, decimales: 2}
@@ -196,8 +203,8 @@ figuras:
     seccion: "§17.5.2"
     prueba: EXT-01
     pie: >-
-      Maquinaria detectada en una imagen de obra con una clase que nunca se configuró ni se entrenó. Imagen de
-      construction_site_safety (CC BY 4.0).
+      Maquinaria detectada en una imagen de obra con una clase jamás configurada ni entrenada, agregada con
+      unas líneas de prompt. Imagen de construction_site_safety (CC BY 4.0).
     # La licencia permitiría publicarla, pero se arma con la imagen cruda del banco, que no está en git: la arma
     # webconsole/tools/armar_figuras_privadas.py con las cajas de machinery de la corrida de obra de EXT-01, y va
     # a la carpeta privada como las demás que se copian de un archivo.

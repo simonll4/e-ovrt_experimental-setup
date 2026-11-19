@@ -1,7 +1,7 @@
 import Termino from '../Glosario'
 import NombreCodigo from '../ui/NombreCodigo'
 import type { DemoCondicion } from '../../types'
-import { FALTA, SEVERIDAD, segundos } from './formato'
+import { ESTADO_DEL_INFORME, FALTA, SEVERIDAD, segundos } from './formato'
 
 const BROKER: Record<string, string> = {
   recibido: 'Mensaje recibido en el broker',
@@ -27,7 +27,8 @@ function Barra({ valor, umbral, etiqueta }: { valor: number | null; umbral: numb
 }
 
 /** Una tarjeta grande por condición (Casco, Chaleco), en una de cinco caras:
- *  OK · Confirmando (con barra) · ALERTA · Resolviendo (con barra) · Resuelta. */
+ *  OK · Confirmando (con barra) · ALERTA · Resolviendo (con barra) · Resuelta. Al pasar el mouse, el estado
+ *  con el nombre del informe (`ESTADO_DEL_INFORME`). */
 export default function ConditionCard({ condicion }: { condicion: DemoCondicion }) {
   const { condicion: codigo, nombre, estado, transcurrido_ms, umbral_ms, severidad } = condicion
   const patron = codigo === 'CR-01' ? 'PR-01' : 'PR-02'
@@ -36,6 +37,7 @@ export default function ConditionCard({ condicion }: { condicion: DemoCondicion 
       className={`eo-demo-card eo-demo-card--${estado}`}
       aria-label={`${nombre}: ${estado}`}
       aria-live="polite"
+      title={ESTADO_DEL_INFORME[estado] ? `En el informe: ${ESTADO_DEL_INFORME[estado]}` : undefined}
     >
       <h2 className="eo-demo-card__titulo">{nombre}</h2>
       {estado === 'ok' && <p className="eo-demo-card__cara">{nombre} ✓</p>}

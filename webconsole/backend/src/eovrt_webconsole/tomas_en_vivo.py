@@ -24,7 +24,8 @@ CAMPOS_TOMA = ("escena", "remera", "stream", "motor", "camara", "como_se_esperab
 MOTIVO = {
     "calibracion": "Calibración del encuadre antes de las tomas.",
     "ensayo": "Ensayo de la demo: no cuenta como toma de ninguna prueba.",
-    "exploracion": "Exploración con otro modo de prompts: no cuenta como toma.",
+    "exploracion": "Exploración con otro modelo o cámara: no cuenta como toma.",
+    "modo_prompts": "Exploración con otro modo de prompts: no cuenta como toma.",
     "sin_prueba": "No entra en ninguna prueba.",
 }
 
@@ -110,10 +111,14 @@ class TomasEnVivo:
                             prueba=descartes[sid]["prueba"])
             elif s.get("escena") == "CAL":
                 fila.update(tipo="calibracion", motivo=MOTIVO["calibracion"])
-            elif s.get("exploracion") or proposito == "ensayo":
+            # Ensayo = la escena de la demo o una toma marcada «ensayo». Una exploración de motor o de cámara en
+            # una escena del guion no es un ensayo de la demo (revisión del 2026-11-19: salían cruzados).
+            elif proposito == "ensayo" or s.get("escena") == "DEMO":
                 fila.update(tipo="ensayo", motivo=MOTIVO["ensayo"])
-            elif s.get("modo_prompts"):
+            elif s.get("exploracion"):
                 fila.update(tipo="exploracion", motivo=MOTIVO["exploracion"])
+            elif s.get("modo_prompts"):
+                fila.update(tipo="exploracion", motivo=MOTIVO["modo_prompts"])
             elif sid in no_evaluables:
                 fila.update(tipo="no_evaluable", motivo=no_evaluables[sid])
             else:

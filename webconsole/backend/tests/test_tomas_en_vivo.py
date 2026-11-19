@@ -30,6 +30,7 @@ def _armar(tmp_path: Path):
         "s_p1": {"escena": "P1"}, "s_desc": {"escena": "P1"}, "s_amarillo": {"escena": "P1"}, "s_prenda": {"escena": "P2"},
         "s_cal": {"escena": "CAL"}, "s_ensayo": {"escena": "DEMO", "exploracion": {"motor": "x"}},
         "s_marca_ensayo": {"escena": "P2"}, "s_modo": {"escena": "P2", "modo_prompts": {"id": "edir"}}, "s_suelta": {"escena": "P4"},
+        "s_explora": {"escena": "P1", "exploracion": {"motor": "mp-yoloe-26s"}},
     }
     for sid in guardadas:
         (sesiones_dir / sid).mkdir(parents=True)
@@ -67,7 +68,9 @@ def test_lo_que_no_cuenta_lleva_su_motivo(tmp_path):
         "descartada", "Causa física.", "equipo", "RT-04")
     assert (otras["s_cal"]["tipo"], otras["s_cal"]["motivo"]) == ("calibracion", MOTIVO["calibracion"])
     assert otras["s_ensayo"]["tipo"] == "ensayo" and otras["s_marca_ensayo"]["tipo"] == "ensayo"
-    assert otras["s_modo"]["tipo"] == "exploracion"
+    assert (otras["s_modo"]["tipo"], otras["s_modo"]["motivo"]) == ("exploracion", MOTIVO["modo_prompts"])
+    # Una exploración de motor en una escena del guion no es un ensayo de la demo (revisión del 2026-11-19).
+    assert (otras["s_explora"]["tipo"], otras["s_explora"]["motivo"]) == ("exploracion", MOTIVO["exploracion"])
     assert (otras["s_amarillo"]["tipo"], otras["s_amarillo"]["motivo"]) == ("no_evaluable", "otro chaleco")
     assert otras["s_suelta"]["tipo"] == "sin_prueba"
 

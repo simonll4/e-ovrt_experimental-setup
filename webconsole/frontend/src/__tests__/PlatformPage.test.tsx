@@ -106,7 +106,7 @@ describe('Plataforma (plan de la consola, §7.1)', () => {
     render(<PlatformPage />)
     expect(await screen.findByText(/necesita la consola en contenedor/)).toBeTruthy()
     expect(screen.queryByRole('button', { name: 'Dejar la plataforma lista' })).toBeNull()
-    expect(screen.getByText('Motor de detección')).toBeTruthy()
+    expect(screen.getByText('Plano de medios')).toBeTruthy()
   })
 })
 

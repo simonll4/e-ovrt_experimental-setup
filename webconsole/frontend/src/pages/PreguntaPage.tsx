@@ -36,6 +36,14 @@ function TablaDelInforme({ t }: { t: TablaPregunta }) {
                       </Link>
                     </span>
                   ))}
+                  {/* Los casos de la fila, uno por uno (p. ej. las falsas alarmas de esa causa, cada una con su clip). */}
+                  {f.ver && f.pruebas[0] && (
+                    <span>
+                      {' · '}
+                      <Link to={`/resultados/${encodeURIComponent(f.pruebas[0])}?${f.ver}`}
+                        aria-label={`Ver los casos: ${f.nombre}`}>ver los casos</Link>
+                    </span>
+                  )}
                 </td>
               </tr>
             ))}

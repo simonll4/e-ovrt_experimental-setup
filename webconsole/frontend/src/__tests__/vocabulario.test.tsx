@@ -33,10 +33,10 @@ describe('vocabulario (plan §4)', () => {
   it('los códigos del §4.2 del plan, con su nombre', () => {
     expect(nombreConCodigo('CR-01')).toBe('Sin casco CR-01')
     expect(nombreConCodigo('CR-02')).toBe('Sin chaleco CR-02')
-    expect(nombreConCodigo('E-IND')).toBe('Por ausencia del EPP E-IND')
-    expect(nombreConCodigo('E-DIR')).toBe('Por detección directa E-DIR')
+    expect(nombreConCodigo('E-IND')).toBe('Estrategia indirecta E-IND')
+    expect(nombreConCodigo('E-DIR')).toBe('Estrategia directa E-DIR')
     expect(nombreConCodigo('ALR-01')).toBe('Alerta por episodio, por escena ALR-01')
-    expect(nombreConCodigo('G2A')).toBe('Latencia por cuadro G2A')
+    expect(nombreConCodigo('G2A')).toBe('G2A (latencia por cuadro)')
   })
 
   it('en pantalla, el nombre va primero y el código al lado, en su propia marca', () => {
@@ -56,6 +56,8 @@ describe('vocabulario (plan §4)', () => {
     expect(texto('CR-02 como el guion')).toBe('Sin chaleco CR-02 como el guion')
     expect(texto('Imágenes, CR-01: F1')).toBe('Imágenes, sin casco CR-01: F1')
     expect(texto('Latencia por cuadro G2A, p95')).toBe('Latencia por cuadro G2A, p95')
+    expect(texto('G2A (latencia por cuadro), p95')).toBe('G2A (latencia por cuadro), p95')
+    expect(texto('La del G2A, en vivo')).toBe('La del G2A (latencia por cuadro), en vivo')
     expect(texto('Sin códigos')).toBe('Sin códigos')
   })
 })

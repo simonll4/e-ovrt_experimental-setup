@@ -83,7 +83,7 @@ describe('/demo/resultado/:id', () => {
     expect(await screen.findByRole('heading', { name: 'Resultado de la demo' })).toBeTruthy()
     const video = container.querySelector('video')
     expect(video?.getAttribute('src')).toBe(`/api/demo/sessions/${SID}/archivo/resultado/video.mp4`)
-    expect(screen.getByText(/Se ven exactamente los cuadros que procesó el sistema \(≈ 4,6 cuadros\/s efectivos\)/)).toBeTruthy()
+    expect(screen.getByText(/Se ven exactamente los cuadros que procesó el sistema \(≈ 4,6 FPS efectivos\)/)).toBeTruthy()
     const alerta = screen.getByRole('region', { name: 'Alerta 1' })
     expect(within(alerta).getByAltText('Primera evidencia, cuadro 10')).toBeTruthy()
     expect(within(alerta).getByAltText('Confirmación, cuadro 30')).toBeTruthy()

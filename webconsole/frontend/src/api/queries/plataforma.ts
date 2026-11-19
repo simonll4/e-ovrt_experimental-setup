@@ -32,7 +32,7 @@ export function useAccionPlataforma() {
 
 export function useDejarLista() {
   const refrescar = useRefrescarPlataforma()
-  return useMutation({ mutationFn: () => dejarPlataformaLista(), onSettled: refrescar })
+  return useMutation({ mutationFn: (confirmar: boolean = false) => dejarPlataformaLista(confirmar), onSettled: refrescar })
 }
 
 /** «Correr un clip» (§7.2): mientras corre, se mira cada segundo; si no, cada tanto. */

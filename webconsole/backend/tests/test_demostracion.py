@@ -141,8 +141,28 @@ def test_las_alertas_van_al_lado_de_la_referencia_con_su_demora_y_su_mensaje():
     assert segunda["episodio"] is None and segunda["broker"] is None
     assert r["sin_alerta"] == []
     assert r["evaluacion"] == {"expected": 1, "observed": 2, "matched": 1, "missed": 0, "unexpected": 1}
+    # Sin la lista `unexpected_alerts` en la evaluación, lo que no se empareja es de más.
+    assert (primera["tipo"], segunda["tipo"]) == ("acierto", "de_mas")
     sin = armar_resultado(REF, [], None, [])
     assert sin["sin_alerta"] == [{"condicion": "CR-01", "desde_ms": 3133, "hasta_ms": 27652}] and sin["evaluacion"] is None
+
+
+def test_la_tabla_empareja_con_la_ventana_del_evaluador_y_no_marca_de_mas_una_re_alerta():
+    """Revisión del 2026-11-19: antes se emparejaba en [inicio, fin + t_alert_max] y la tabla contradecía al
+    conteo oficial; ahora es [inicio + persistencia, inicio + t_alert_max], como el evaluador, y lo «de más»
+    sale de su `unexpected_alerts`."""
+    ventana = {"CR-01": {"persistencia_min_ms": 4000.0, "t_alert_max_ms": 10000.0}}
+    # Muy temprano (antes de la persistencia), en ventana, tardía y una segunda sobre el mismo episodio.
+    alertas = [{"alert_id": "temprana", "condition_id": "CR-01", "timestamp_ms": 4000.0},
+               {"alert_id": "buena", "condition_id": "CR-01", "timestamp_ms": 8000.0},
+               {"alert_id": "re", "condition_id": "CR-01", "timestamp_ms": 12000.0},
+               {"alert_id": "tarde", "condition_id": "CR-01", "timestamp_ms": 15000.0}]
+    evaluacion = {"effective_matching_windows": ventana,
+                  "unexpected_alerts": [{"alert_id": "temprana"}, {"alert_id": "tarde"}]}
+    r = armar_resultado(REF, alertas, evaluacion, [])
+    tipos = {a["alert_id"]: (a["tipo"], a["episodio"] is not None) for a in r["alertas"]}
+    assert tipos == {"temprana": ("de_mas", False), "buena": ("acierto", True),
+                     "re": ("no_penalizada", False), "tarde": ("de_mas", False)}
 
 
 def test_en_nativo_o_sin_el_perfil_operativo_no_corre(tmp_path, monkeypatch):

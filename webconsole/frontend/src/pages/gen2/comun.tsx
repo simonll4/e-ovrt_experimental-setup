@@ -59,11 +59,21 @@ export function Veredicto({ v }: { v: Gen2Veredicto | null | undefined }) {
 }
 
 /** Una cifra tal cual la escribió el driver; la consola solo la formatea. */
+/** Los decimales con que el informe escribe cada clase de cifra (revisión del 2026-11-19: la consola mostraba hasta
+ *  cuatro, «0,1905», donde el informe dice «0,190»): proporciones y F1 con 3, segundos y cuadros por segundo con 2,
+ *  milisegundos con 1. Los enteros, sin decimales. */
+const DECIMALES_POR_UNIDAD: Record<string, number> = { s: 2, fps: 2, ms: 1 }
+export function decimalesDelInforme(valor: number, unidad?: string | null): number {
+  if (Number.isInteger(valor)) return 0
+  return unidad && unidad in DECIMALES_POR_UNIDAD ? DECIMALES_POR_UNIDAD[unidad] : 3
+}
+
 export function valorTexto(valor: unknown, unidad?: string | null): string {
   if (valor === null || valor === undefined || valor === '') return '—'
   if (typeof valor === 'boolean') return valor ? 'sí' : 'no'
   if (typeof valor === 'number') {
-    const texto = valor.toLocaleString('es-AR', { maximumFractionDigits: 4 })
+    const d = decimalesDelInforme(valor, unidad)
+    const texto = valor.toLocaleString('es-AR', { minimumFractionDigits: d, maximumFractionDigits: d })
     return unidad ? `${texto} ${unidad}` : texto
   }
   return unidad ? `${String(valor)} ${unidad}` : String(valor)

@@ -49,7 +49,7 @@ def test_cada_fila_esta_bien_escrita():
         for t in p.get("tablas") or []:
             assert set(t) <= {"titulo", "informe", "columnas", "filas", "nota"}, (p["id"], t.get("titulo"))
             for f in t["filas"]:
-                assert set(f) <= {"nombre", "prueba", "variante", "celdas"}, (p["id"], f)
+                assert set(f) <= {"nombre", "prueba", "variante", "celdas", "ver"}, (p["id"], f)
                 assert isinstance(f.get("nombre"), str) and f["nombre"], (p["id"], f)
 
 

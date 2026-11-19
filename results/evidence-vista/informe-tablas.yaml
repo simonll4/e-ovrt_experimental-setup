@@ -17,7 +17,9 @@ tablas:
   Tabla 52:
     - Imágenes, CR-01
     - Núcleo curado, CR-01
-    - Imágenes, CR-02
+    # En la v0.2 esta fila se llama «Imágenes, CR-02», pero se mide sobre el núcleo curado (bench_obra), no
+    # sobre el estrato de «Imágenes, CR-01»: el informe se corrige en la redacción final.
+    - Núcleo curado, CR-02
     - Video de obra real - CR-01
     - Video de obra real - CR-02
   Tabla 53:
@@ -29,17 +31,20 @@ tablas:
     - Vocabulario nativo bare_head
     - YOLOE-26s, escena
     - YOLOE-26s, sujeto
-    - "Regla con umbrales de EPP más exigentes: combinada, escena"
-    - "Regla con umbrales de EPP más exigentes: combinada, sujeto"
-    - "Regla con umbrales de EPP más exigentes: solo casco, escena"
-    - "Regla con umbrales de EPP más exigentes: solo casco, sujeto"
-    - "Regla con umbrales de EPP más exigentes: solo chaleco, escena"
-    - "Regla con umbrales de EPP más exigentes: solo chaleco, sujeto"
+    - "Patrones con umbrales de EPP más exigentes: combinada, escena"
+    - "Patrones con umbrales de EPP más exigentes: combinada, sujeto"
+    - "Patrones con umbrales de EPP más exigentes: solo casco, escena"
+    - "Patrones con umbrales de EPP más exigentes: solo casco, sujeto"
+    - "Patrones con umbrales de EPP más exigentes: solo chaleco, escena"
+    - "Patrones con umbrales de EPP más exigentes: solo chaleco, sujeto"
   Tabla 54:
-    - "Densidad: Referencia del banco, 30 fps"
-    - "Densidad: Techo en vivo, aproximadamente 4,29 fps"
-    - "Densidad: Intermedia, aproximadamente 2,00 fps"
-    - "Densidad: Peor caso, aproximadamente 1,15 fps"
+    # En la v0.2 las densidades se nombran por su anclaje («Techo en vivo», «Intermedia», «Peor caso»).
+    # Esos anclajes salieron de la medición de cuadros por segundo que se corrigió (doc 134 §13.22): se
+    # nombran por el paso entre cuadros, y el informe se corrige en la redacción final.
+    - "Densidad: todos los cuadros del banco, 30 fps"
+    - "Densidad: uno de cada 7 cuadros, aproximadamente 4,29 fps"
+    - "Densidad: uno de cada 15 cuadros, aproximadamente 2,00 fps"
+    - "Densidad: uno de cada 26 cuadros, aproximadamente 1,15 fps"
     - "Identidad: cuatro densidades"
     - "Integridad: relectura frente a transmisión"
     - "Latencia: sobrecarga con detector simulado"

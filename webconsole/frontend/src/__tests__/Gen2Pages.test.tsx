@@ -67,7 +67,8 @@ describe('Pruebas (/resultados)', () => {
     expect(tarjeta.getByText('Cuántos episodios alerta, mirando la escena.')).toBeTruthy()
     // La cifra lleva el nombre de la consola, no el del programa.
     expect(tarjeta.getByText('F1 por episodio')).toBeTruthy()
-    expect(tarjeta.getByText('0,8406')).toBeTruthy()
+    // Con los decimales del informe (revisión del 2026-11-19): 0,8406 se escribe 0,841.
+    expect(tarjeta.getByText('0,841')).toBeTruthy()
     expect(screen.getByText('Todavía no se corrió')).toBeTruthy()
     expect(screen.getByText('Parcial')).toBeTruthy()
     // Ni la etapa anterior, ni el veredicto, ni la jerga de la campaña (§2.3, §4.3).
@@ -84,7 +85,7 @@ describe('Pruebas (/resultados)', () => {
     const tarjeta = within(titulo.closest('article') as HTMLElement)
     expect(tarjeta.getByText('No se regenera')).toBeTruthy()
     expect(tarjeta.queryByText('Todavía no se corrió')).toBeNull()
-    expect(tarjeta.queryByText('0,7143')).toBeNull()
+    expect(tarjeta.queryByText('0,714')).toBeNull()
   })
 })
 
@@ -119,7 +120,7 @@ describe('Detalle de una prueba (/resultados/:id)', () => {
     expect((screen.getByRole('heading', { name: 'Cómo se validó' }).closest('details') as HTMLDetailsElement).open).toBe(true)
     expect(screen.getByText(/id: RT-03/)).toBeTruthy()
     expect(screen.queryByRole('table', { name: 'Cifras de la prueba' })).toBeNull()
-    expect(screen.getByText('El veredicto aparece cuando la prueba corre.')).toBeTruthy()
+    expect(screen.getByText('La concordancia aparece cuando la prueba corre.')).toBeTruthy()
   })
 
   it('completa: cifras contra la etapa de desarrollo, diferencias, cómo corrió, corridas y archivos', async () => {
@@ -142,7 +143,7 @@ describe('Detalle de una prueba (/resultados/:id)', () => {
     http((u) => (u.pathname === '/api/gen2/pruebas/ALR-01' ? json(detalle) : undefined))
     montarPrueba('ALR-01')
     const cifras = await screen.findByRole('table', { name: 'Cifras de la prueba' })
-    expect(within(cifras).getAllByText('0,8406')).toHaveLength(2)
+    expect(within(cifras).getAllByText('0,841')).toHaveLength(2)
     const difs = screen.getByRole('table', { name: 'Diferencias con la etapa de desarrollo' })
     expect(within(difs).getByText('matched')).toBeTruthy()
     expect(screen.getByText(/Difiere de la etapa de desarrollo: lo revisa una persona/)).toBeTruthy()
@@ -179,7 +180,7 @@ describe('Detalle de una prueba (/resultados/:id)', () => {
     const cabeceras = within(tabla).getAllByRole('columnheader').map((th) => th.textContent)
     expect(cabeceras).toEqual(['Qué se mide', 'Lectura principal', 'combinada, por sujeto', 'solo casco'])
     const f1 = within(tabla).getByRole('row', { name: /F1 por episodio/ })
-    expect(within(f1).getAllByRole('cell').map((td) => td.textContent)).toEqual(['F1 por episodio', '0,7297', '0,7632', '0,7714'])
+    expect(within(f1).getAllByRole('cell').map((td) => td.textContent)).toEqual(['F1 por episodio', '0,730', '0,763', '0,771'])
     // Una cifra que solo tiene una lectura aparece igual, con «—» en las que no la traen.
     const falsas = within(tabla).getByRole('row', { name: /Falsas alarmas/ })
     expect(within(falsas).getAllByRole('cell').map((td) => td.textContent)).toEqual(['Falsas alarmas', '—', '—', '10'])
@@ -268,9 +269,9 @@ describe('Detalle de una prueba (/resultados/:id)', () => {
     expect(await screen.findByRole('heading', { name: 'Cómo se validó' })).toBeTruthy()
     expect(screen.getByText(/cambia el modelo, no la plataforma/)).toBeTruthy()
     const cifras = screen.getByRole('table', { name: 'Cifras de la etapa de desarrollo' })
-    expect(within(cifras).getByText('0,7143')).toBeTruthy()
+    expect(within(cifras).getByText('0,714')).toBeTruthy()
     expect(screen.queryByText(/Todavía no se corrió/)).toBeNull()
-    expect(screen.getByText(/No se regenera, así que no tiene veredicto/)).toBeTruthy()
+    expect(screen.getByText(/No se regenera, así que no tiene concordancia/)).toBeTruthy()
   })
 
   it('una prueba que no está en el catálogo da un 404 dicho en llano', async () => {

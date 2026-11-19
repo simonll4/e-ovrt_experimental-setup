@@ -4,12 +4,23 @@ import { GEN1, NAV_ARCHIVO, NAV_GROUPS, RUNS_PATH, crumbsFor, destinoActivo } fr
 const destino = (to: string) => [...NAV_GROUPS.flatMap((g) => g.items), NAV_ARCHIVO].find((i) => i.to === to)!
 
 describe('NAV_GROUPS (plan de la consola de evidencia, §3)', () => {
-  it('dos zonas en este orden, Evidencia y Demostrar, y el Archivo al pie', () => {
+  it('dos zonas en este orden, Evidencia y Demostrar; «Cómo leer» y el Archivo no van en la barra', () => {
+    // Revisión del 2026-11-19: la barra es solo evidencia y demostración. «Cómo leer» (corto) y el Archivo de la
+    // etapa de desarrollo están al pie del Inicio; sus direcciones siguen respondiendo.
     expect(NAV_GROUPS.map((g) => g.title)).toEqual(['Evidencia', 'Demostrar'])
     expect(NAV_GROUPS.flatMap((g) => g.items.map((i) => i.label))).toEqual([
-      'Inicio', 'Pruebas', 'Tomas en vivo', 'Cómo leer', 'Plataforma', 'Correr un clip', 'Demo con cámara',
+      'Inicio', 'Pruebas', 'Tomas en vivo', 'Plataforma', 'Correr un clip', 'Demo con cámara',
     ])
     expect(NAV_ARCHIVO).toMatchObject({ to: GEN1.to, label: 'Archivo' })
+    expect(crumbsFor('/documentacion')).toEqual([{ to: '/documentacion', label: 'Cómo leer' }])
+  })
+
+  it('el run de un clip cuelga de su prueba: Pruebas › la prueba › el clip', () => {
+    expect(crumbsFor('/resultados/ALR-08/clips/v01_c01', '?alerta=x')).toEqual([
+      { to: '/resultados', label: 'Pruebas' },
+      { to: '/resultados/ALR-08', label: 'Obra real, por sujeto' },
+      { to: '/resultados/ALR-08/clips/v01_c01?alerta=x', label: 'Clip v01_c01' },
+    ])
   })
 
   it('las pantallas de laboratorio y las acciones salen de la barra, sin borrarse', () => {

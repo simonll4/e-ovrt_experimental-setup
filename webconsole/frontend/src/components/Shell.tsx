@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { NAV_ARCHIVO, NAV_GROUPS, destinoActivo, type NavItem } from '../nav'
+import { NAV_GROUPS, destinoActivo, type NavItem } from '../nav'
 import { Dialog, IconClose, IconExpand, IconMenu, enfocarCuandoAparezca } from './ui'
 import { IconTema } from './ui/icons'
 import Breadcrumbs from './Breadcrumbs'
@@ -43,7 +43,9 @@ const statusText = (s: ServiceStatus) =>
 
 const enfocarEncabezado = () => enfocarCuandoAparezca('#contenido h1')
 
-function Servicio({ nombre, puerto, estado }: { nombre: string; puerto: string; estado: ServiceStatus }) {
+/** Un servicio en la barra: el nombre del informe completo en el `title` y en el lector de pantalla; `corto`, si no
+ *  entra en los 214 px de la barra («Módulo de distribución» se cortaba en «Módulo de distrib…»). */
+function Servicio({ nombre, corto, puerto, estado }: { nombre: string; corto?: string; puerto: string; estado: ServiceStatus }) {
   const tip = `${nombre} — ${statusText(estado)}`
   return (
     <div className="eo-service" title={tip}>
@@ -54,7 +56,7 @@ function Servicio({ nombre, puerto, estado }: { nombre: string; puerto: string; 
           background: estado === 'ok' ? 'var(--ok)' : estado === 'down' ? 'var(--er)' : 'var(--nt)',
         }}
       />
-      <span className="eo-service__label">{nombre}</span>
+      <span className="eo-service__label">{corto ?? nombre}</span>
       <code>{puerto}</code>
       <span className={estado === 'down' ? 'eo-service__state eo-service__state--down' : 'eo-service__state'}>
         <span className="eo-sr">{nombre}: </span>
@@ -180,20 +182,17 @@ function Navegacion({
             </div>
           </div>
         ))}
-        <div className="eo-sidebar__group eo-sidebar__group--pie">
-          <div className="eo-sidebar__group-items">
-            <Destino item={NAV_ARCHIVO} onNavigate={onNavigate} />
-          </div>
-        </div>
+        {/* «Cómo leer» y el Archivo no van en la barra (revisión del 2026-11-19): la barra es evidencia y demostración.
+            Los dos están al pie del Inicio. */}
       </nav>
       {!archive && <LiveRunPill onNavigate={onNavigate} />}
       {archive ? (
         <div className="eo-sidebar__services">Archivo local · servicios no consultados</div>
       ) : (
         <div className="eo-sidebar__services" role="group" aria-label="Estado de los servicios">
-          <Servicio nombre="Motor de detección" puerto=":8080" estado={health.media} />
-          <Servicio nombre="Motor de reglas" puerto=":8081" estado={health.control} />
-          <Servicio nombre="Distribución de alertas" puerto=":8082" estado={health.distribution} />
+          <Servicio nombre="Plano de medios" puerto=":8080" estado={health.media} />
+          <Servicio nombre="Plano de control" puerto=":8081" estado={health.control} />
+          <Servicio nombre="Módulo de distribución" corto="Distribución" puerto=":8082" estado={health.distribution} />
         </div>
       )}
       <SelectorTema />

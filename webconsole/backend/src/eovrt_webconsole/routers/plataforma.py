@@ -47,8 +47,8 @@ async def accion(servicio: str, verbo: str, request: Request, body: dict | None 
 
 
 @router.post("/lista")
-async def dejar_lista(request: Request):
+async def dejar_lista(request: Request, body: dict | None = None):
     try:
-        return await request.app.state.plataforma.dejar_lista()
+        return await request.app.state.plataforma.dejar_lista(bool((body or {}).get("confirmar")))
     except Exception as exc:  # noqa: BLE001
         return _error(exc)

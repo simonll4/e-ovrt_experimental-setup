@@ -64,7 +64,11 @@ export default function InicioPage() {
           <p className="eo-inicio__enlaces">
             {p.enlaces?.informe && <a href={p.enlaces.informe} target="_blank" rel="noreferrer">El informe</a>}
             <Link to="/documentacion">Cómo leer</Link>
-            <Link to={GEN1.to}>Archivo</Link>
+            {/* Fuera de la barra (revisión del 2026-11-19): el Archivo tiene las cifras de la etapa de desarrollo, con la
+                referencia anterior, y no son las del informe. Se dice en el enlace, no recién al entrar. */}
+            <Link to={GEN1.to} title="Las cifras de la etapa de desarrollo, con la referencia anterior: no son las del informe">
+              Archivo de la etapa de desarrollo
+            </Link>
           </p>
           {p.enlaces?.repositorios && p.enlaces.repositorios.length > 0 && (
             <p className="eo-inicio__repos">

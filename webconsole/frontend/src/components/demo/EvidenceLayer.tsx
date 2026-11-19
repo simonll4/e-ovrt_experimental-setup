@@ -133,22 +133,23 @@ export default function EvidenceLayer({
         </section>
 
         <section aria-label="Latencia y cuadros por segundo">
-          <h3>Latencia por cuadro y cuadros por segundo</h3>
+          <h3>G2A (latencia por cuadro) y FPS efectivos</h3>
           {estado?.metricas && Object.keys(estado.metricas).length > 0 ? (
             <p>
-              En esta corrida: ≈{numero(estado.metricas.fps)} cuadros/s efectivos · latencia del último cuadro{' '}
-              {numero(estado.metricas.latencia_ms, 0)} ms
+              En esta corrida: latencia del último cuadro {numero(estado.metricas.latencia_ms, 0)} ms (a ese ritmo
+              alcanzaría para ≈{numero(estado.metricas.fps)} cuadros por segundo; no son los FPS efectivos, que se
+              cuentan al cerrar la sesión)
             </p>
           ) : sesion?.resumen?.cuadros_procesados != null ? (
             <p>
               En esta sesión: {numero(sesion.resumen.cuadros_procesados, 0)} cuadros procesados
-              {sesion.resumen.fps_efectivos != null && <> · {numero(sesion.resumen.fps_efectivos, 2)} cuadros por segundo</>}
+              {sesion.resumen.fps_efectivos != null && <> · {numero(sesion.resumen.fps_efectivos, 2)} FPS efectivos (entre el primer y el último cuadro)</>}
             </p>
           ) : sesion ? null : (
             <p>Sin telemetría del motor en este momento.</p>
           )}
           <p className="eo-demo-capa__nota">
-            La latencia es la del <Termino id="G2A">G2A</Termino>: arranca cuando el cuadro sale de la cola en el
+            La latencia es la del <Termino id="G2A">G2A</Termino> (latencia por cuadro): arranca cuando el cuadro sale de la cola en el
             host. El tramo previo, de la cámara al host (<Termino id="capture_to_host">captura → host</Termino>), se
             mide aparte.
           </p>

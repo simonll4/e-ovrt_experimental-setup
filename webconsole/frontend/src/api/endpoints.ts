@@ -8,7 +8,7 @@ import type {
   ArtifactEntry, ConditionInfo, RunComparison, TraceIndex, EvidenceListingMeta, EvidenceView,
   EvidenceRecorrido, EvidenceStepPage, EvidenceResultPage, ArchivedRunDetail, PlatformTestSlug,
   Documentacion, DemoCamara, DemoCamaraChequeo, DemoPreflight, DemoState, DemoSessionDetail, DemoSesionFila, DemoCifra, DemoStack, DemoModos,
-  Gen2Detalle, Gen2Prueba, VistaFiguras, VistaPreguntas, VistaTomas,
+  Gen2Detalle, Gen2Prueba, VistaFiguras, VistaPreguntas, VistaTomas, ClipDePrueba, FalsasAlarmasErr01,
   AccionPlataforma, CorridaClip, EstadoPlataforma, PreparacionClip, VistaClips,
 } from '../types'
 
@@ -35,6 +35,22 @@ export const getGen2Prueba = (id: string) =>
   request<Gen2Detalle>(`/api/gen2/pruebas/${encodeURIComponent(id)}`)
 export const gen2ArchivoUrl = (id: string, ruta: string) =>
   `/api/gen2/pruebas/${encodeURIComponent(id)}/archivo?${new URLSearchParams({ ruta })}`
+/** «Ver el run» de un clip de una prueba: referencia, alertas, cuadros con cajas y video. */
+const clipBase = (id: string, clip: string) =>
+  `/api/gen2/pruebas/${encodeURIComponent(id)}/clips/${encodeURIComponent(clip)}`
+export const getClipDePrueba = (id: string, clip: string, lectura?: string | null) =>
+  request<ClipDePrueba>(`${clipBase(id, clip)}${lectura ? `?${new URLSearchParams({ lectura })}` : ''}`)
+export const clipCuadroUrl = (id: string, clip: string, cuadro: number, lectura?: string | null, alerta?: string | null,
+  acercar = false) => {
+  const q = new URLSearchParams()
+  if (lectura) q.set('lectura', lectura)
+  if (alerta) q.set('alerta', alerta)
+  if (acercar) q.set('acercar', 'true')
+  const s = q.toString()
+  return `${clipBase(id, clip)}/cuadro/${cuadro}${s ? `?${s}` : ''}`
+}
+export const clipVideoUrl = (id: string, clip: string) => `${clipBase(id, clip)}/video`
+export const getFalsasAlarmasErr01 = () => request<FalsasAlarmasErr01>('/api/gen2/pruebas/ERR-01/falsas-alarmas')
 
 export const getEvidenceRecorrido = () => request<EvidenceRecorrido>('/api/evidencia')
 export const getEvidenceStep = (n: number) =>
@@ -154,7 +170,10 @@ export const accionPlataforma = (servicio: string, verbo: string, confirmar = fa
     `/api/plataforma/servicios/${encodeURIComponent(servicio)}/${encodeURIComponent(verbo)}`,
     { method: 'POST', body: JSON.stringify({ confirmar }) },
   )
-export const dejarPlataformaLista = () => request<AccionPlataforma>('/api/plataforma/lista', { method: 'POST' })
+/** Sin `confirmar`, el backend se niega (409 con `confirmar: true`) si cambiar el motor cortaría algo en curso. */
+export const dejarPlataformaLista = (confirmar = false) =>
+  request<AccionPlataforma>('/api/plataforma/lista',
+    confirmar ? { method: 'POST', body: JSON.stringify({ confirmar }) } : { method: 'POST' })
 
 /** «Correr un clip» (§7.2). */
 export const getClipsDemostracion = () => request<VistaClips>('/api/demostracion/clip')

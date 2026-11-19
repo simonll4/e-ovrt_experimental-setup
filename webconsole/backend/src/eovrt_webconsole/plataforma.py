@@ -34,8 +34,10 @@ logger = logging.getLogger(__name__)
 # El núcleo, en el orden en que se muestra. La consola está pero no se orquesta desde sí misma.
 NUCLEO: dict[str, str] = {
     "console": "Consola",
-    "control-plane": "Motor de reglas",
-    "distribution": "Distribución de alertas",
+    # El nombre del informe y, entre paréntesis, qué hace (revisión del 2026-11-19: vocabulario del informe con
+    # una aclaración llana).
+    "control-plane": "Plano de control (reglas)",
+    "distribution": "Módulo de distribución (alertas)",
     "mosquitto": "Broker MQTT",
 }
 ORQUESTABLES = ("control-plane", "distribution", "mosquitto")
@@ -154,7 +156,7 @@ class Plataforma:
         """La memoria de GPU en uso, leída con `nvidia-smi` adentro de la instancia activa: el motor de
         detección no la expone por HTTP y su repositorio no se toca."""
         if not activa:
-            return {"disponible": False, "motivo": "no hay una instancia de detección activa"}
+            return {"disponible": False, "motivo": "no hay una instancia del plano de medios activa"}
         ahora = self._reloj()
         if self._gpu and ahora - self._gpu[0] < _GPU_TTL_S and (self._gpu[1] or {}).get("instancia") == activa:
             return self._gpu[1] or {}
@@ -307,10 +309,18 @@ class Plataforma:
                 raise
         return self._anotar(verbo, servicio, "ok", None, t0)
 
-    async def dejar_lista(self) -> dict[str, Any]:
-        """Levanta lo que falte del núcleo y activa el perfil operativo, sin recrear lo que ya corre."""
+    async def dejar_lista(self, confirmar: bool = False) -> dict[str, Any]:
+        """Levanta lo que falte del núcleo y activa el perfil operativo, sin recrear lo que ya corre.
+
+        Si para eso hay que cambiar el motor y hay una demo o una corrida en curso, pide confirmación, como
+        `accion()`: cambiar el motor la cortaría (revisión del 2026-11-19).
+        """
         if not self.orquestada:
             raise AccionInvalida("la orquestación necesita la consola en contenedor")
+        en_curso = self.en_curso()
+        activa = getattr(getattr(self._app.state, "target_manager", None), "active", None)
+        if en_curso and not confirmar and activa != PERFIL_OPERATIVO:
+            raise EnCurso(f"está en curso {en_curso} y dejarla lista cambia el motor: confirmalo para seguir")
         t0 = self._reloj()
         hecho: list[str] = []
         async with self._lock:

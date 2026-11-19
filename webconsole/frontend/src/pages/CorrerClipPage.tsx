@@ -83,7 +83,11 @@ function Resultado({ c }: { c: CorridaClip }) {
                 <tr key={a.alert_id}>
                   <th scope="row"><NombreCodigo codigo={a.condicion} /></th>
                   <td className="eo-num">{a.confirmada_ms != null ? `${segundos(a.confirmada_ms)} s` : '—'}</td>
-                  <td>{a.episodio ? <>desde el segundo {segundos(a.episodio.desde_ms)}</> : <Badge tone="warn">de más</Badge>}</td>
+                  <td>{a.episodio
+                    ? <>desde el segundo {segundos(a.episodio.desde_ms)}</>
+                    : a.tipo === 'no_penalizada'
+                      ? <Badge tone="neutral">re-alerta, no es falsa alarma</Badge>
+                      : <Badge tone="warn">de más</Badge>}</td>
                   <td className="eo-num">{a.demora_ms != null ? `${segundos(a.demora_ms)} s` : '—'}</td>
                   <td className="eo-num">{a.broker?.demora_ms != null ? `${Math.round(a.broker.demora_ms)} ms` : '—'}</td>
                 </tr>
@@ -166,7 +170,7 @@ export default function CorrerClipPage() {
         </div>
       </Card>
 
-      <Card title="2. Correr" meta={`Perfil operativo y configuración del informe${cadencia?.cuadros_por_segundo
+      <Card title="2. Correr" meta={`Perfil operativo y configuración de la demo${cadencia?.cuadros_por_segundo
         ? `, a ${cadencia.cuadros_por_segundo.toLocaleString('es-AR')} cuadros por segundo` : ''}`}>
         {!corriendo && faltan.length > 0 && (
           <div className="eo-clip__faltan">
@@ -174,7 +178,9 @@ export default function CorrerClipPage() {
               {faltan.map((i) => <li key={i.id}><b>{i.nombre}:</b> {i.detalle || 'no responde'}</li>)}
             </ul>
             {faltan.some((i) => i.id !== 'libre' && i.id !== 'orquestacion') && (
-              <Button onClick={() => void lista.mutateAsync().catch(() => undefined)} disabled={lista.isPending}>
+              <Button onClick={() => void lista.mutateAsync(false).catch((e: unknown) => setError(
+                e instanceof ApiError ? ((e.payload as { detail?: string } | null)?.detail ?? String(e.status)) : String(e)))}
+                disabled={lista.isPending}>
                 {lista.isPending ? 'Dejándola lista…' : 'Dejar la plataforma lista'}
               </Button>
             )}

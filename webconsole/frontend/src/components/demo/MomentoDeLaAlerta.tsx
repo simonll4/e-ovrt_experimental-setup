@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import { demoArchivoUrl } from '../../api'
 import type { DemoLineaAlerta, DemoSessionDetail } from '../../types'
 import NombreCodigo from '../ui/NombreCodigo'
-import { segundos } from './formato'
+import { ESTADO_DEL_INFORME, segundos } from './formato'
 
 /** El mensaje con sangría, pero con las listas de números en una sola línea (una caja, por ejemplo). */
 export function jsonLegible(valor: unknown): string {
@@ -34,8 +34,15 @@ export function estadoAlConfirmar(stateLog: unknown[], instanteMs: number | null
     if (d >= 0 && (!despues || d < despues.desfaseMs)) despues = { entrada: e, desfaseMs: d }
     if (d < 0 && (!antes || d > antes.desfaseMs)) antes = { entrada: e, desfaseMs: d }
   }
-  return despues ?? antes
+  const elegido = despues ?? antes
+  // Un registro lejos de la confirmación no dice el estado de ese instante: mejor no mostrarlo. El registro se
+  // toma cada medio segundo, así que el que corresponde está a menos de un segundo (revisión del 2026-11-19).
+  if (!elegido || Math.abs(elegido.desfaseMs) > MAX_DESFASE_MS) return null
+  return elegido
 }
+
+/** Hasta cuánto puede estar el registro de la confirmación para mostrarlo como su estado. */
+export const MAX_DESFASE_MS = 2000
 
 /** «El momento de la alerta» (plan de la consola, §6): el cuadro de la confirmación con el estado de cada
  *  condición, y el mensaje que llegó al broker con los tramos de esa alerta (`children`). De acá salen las
@@ -65,6 +72,7 @@ export default function MomentoDeLaAlerta({ detalle, alerta, children }: {
                   {estado.entrada.condiciones.map((c) => (
                     <li key={c.condicion} className={`eo-momento__estado eo-momento__estado--${c.estado}`}>
                       <NombreCodigo codigo={c.condicion} />: <b>{ESTADO[c.estado] ?? c.estado}</b>
+                      {ESTADO_DEL_INFORME[c.estado] && <span className="eo-note--meta"> (en el informe: {ESTADO_DEL_INFORME[c.estado]})</span>}
                       {(c.estado === 'confirmando' || c.estado === 'resolviendo') && c.transcurrido_ms != null && c.umbral_ms != null && (
                         <span className="eo-note--meta"> · {segundos(c.transcurrido_ms)} de {segundos(c.umbral_ms)} s</span>
                       )}
@@ -75,7 +83,13 @@ export default function MomentoDeLaAlerta({ detalle, alerta, children }: {
                   Registro de {segundos(Math.abs(estado.desfaseMs), 1)} s {estado.desfaseMs >= 0 ? 'después' : 'antes'} de la confirmación.
                 </span>
               </>
-            ) : <span className="eo-note--meta">La sesión no registró el estado.</span>}
+            ) : (
+              <span className="eo-note--meta">
+                {alerta.confirmed_wall_ms == null
+                  ? 'Esta alerta no tiene hora de confirmación registrada.'
+                  : 'La sesión no registró el estado en ese instante.'}
+              </span>
+            )}
           </figcaption>
         </figure>
         <div className="eo-momento__mensaje" data-figura="momento-mensaje">
@@ -90,7 +104,7 @@ export default function MomentoDeLaAlerta({ detalle, alerta, children }: {
           ) : (
             <p className="eo-note">
               {alerta.entrega === 'suppressed_cooldown'
-                ? 'No hubo mensaje: la notificación se suprimió por enfriamiento.'
+                ? 'No hubo mensaje: la notificación se suprimió por el cooldown (la pausa entre avisos).'
                 : 'El testigo del broker no registró un mensaje para esta alerta.'}
             </p>
           )}

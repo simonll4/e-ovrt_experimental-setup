@@ -49,7 +49,7 @@ describe('Tomas en vivo (/demo/sesiones, plan §6)', () => {
     const urls = http((u) => (u.pathname === '/api/tomas' ? json(VISTA) : undefined))
     montar()
     const rt04 = await screen.findByRole('table', { name: 'Tomas de RT-04' })
-    expect(screen.getByRole('link', { name: 'Obra simulada en vivo RT-04' }).getAttribute('href')).toBe('/resultados/RT-04')
+    expect(screen.getByRole('link', { name: 'Rodaje guionado en vivo RT-04' }).getAttribute('href')).toBe('/resultados/RT-04')
     expect(screen.getByText('1 de 2 como el guion')).toBeTruthy()
     expect(within(rt04).getAllByRole('columnheader').map((th) => th.textContent)).toEqual(['Escena', 'Remera', 'Como el guion', 'Toma'])
     const [, primera, segunda] = within(rt04).getAllByRole('row')

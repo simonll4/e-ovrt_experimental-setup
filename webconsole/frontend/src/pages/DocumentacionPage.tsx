@@ -9,6 +9,14 @@ import { IconChevron } from '../components/ui/icons'
 import Termino from '../components/Glosario'
 import './DocumentacionPage.css'
 
+/** Los dos niveles de evaluación, con el nombre que usa el informe (decisión del 2026-11-19: ya no
+ *  «Nivel A/B»). El YAML sigue guardando A y B como clave. */
+const NIVEL: Record<string, string> = {
+  A: 'Estado por persona',
+  B: 'Alerta por episodio',
+  'A y B': 'Estado por persona y alerta por episodio',
+}
+
 /** Desplaza hasta un elemento por id y le da el foco, sin dejarlo en el orden
  *  de tabulación. */
 function irA(id: string) {
@@ -87,12 +95,7 @@ export default function DocumentacionPage() {
     <nav className="eo-doc__index" aria-label="Índice de la documentación">
       <p className="eo-doc__index-t">En esta página</p>
       <ol>
-        <li><a href="#/documentacion#metodo" onClick={saltar('metodo')}>Cómo se trabajó</a></li>
-        {(doc.equivalencias ?? []).length > 0 && (
-          <li><a href="#/documentacion#equivalencias" onClick={saltar('equivalencias')}>Equivalencias</a></li>
-        )}
-        <li><a href="#/documentacion#aportes" onClick={saltar('aportes')}>Qué aporta cada cosa</a></li>
-        <li><a href="#/documentacion#colisiones" onClick={saltar('colisiones')}>Símbolos con más de un sentido</a></li>
+        <li><a href="#/documentacion#guia" onClick={saltar('guia')}>Cómo se lee esta consola</a></li>
         <li>
           <a href="#/documentacion#vocabulario" onClick={saltar('vocabulario')}>Vocabulario</a>
           <ol>
@@ -109,123 +112,35 @@ export default function DocumentacionPage() {
     </nav>
   )
 
+  // «Cómo leer» corto (revisión del 2026-11-19): la consola muestra la evidencia y el sistema funcionando; cómo se
+  // trabajó, las equivalencias con el código, qué aporta cada cosa y los símbolos con más de un sentido son
+  // documentación y viven en el repositorio público (generados desde el mismo documentacion.yaml). Acá queda cómo se
+  // lee la consola y el vocabulario, que es a donde apuntan los términos marcados de las otras pantallas.
   return <div className="eo-doc">
-    <PageHeader
-      title={doc.titulo ?? 'Cómo leer'}
-      meta={`${doc.metodo.length} pasos · ${Object.keys(doc.terminos).length} términos definidos · lectura del disco`}
-    />
-    {doc.bajada && <p className="eo-note">{doc.bajada}</p>}
+    <PageHeader title="Cómo leer" meta={`${Object.keys(doc.terminos).length} términos definidos · lectura del disco`} />
 
     <div className="eo-doc__layout">
       {indice}
       <div className="eo-doc__main">
-        <h2 className="eo-doc__h2" id="metodo">Cómo se trabajó</h2>
-        <p className="eo-doc__intro">Cinco pasos, en el orden en que se dieron. Cada uno dice
-          qué se hizo, <b>por qué</b>, y qué quedó.</p>
-        <ol className="eo-doc__pasos">
-          {doc.metodo.map((paso) => (
-            <li key={paso.n} className="eo-doc__paso" id={`paso-${paso.n}`}>
-              <div className="eo-doc__n" aria-hidden="true">{paso.n}</div>
-              <div className="eo-doc__cuerpo">
-                <h3 className="eo-doc__t">{paso.titulo}</h3>
-                <dl className="eo-doc__qpq">
-                  <dt>Qué se hizo</dt><dd>{paso.hizo}</dd>
-                  <dt>Por qué</dt><dd>{paso.porque}</dd>
-                  <dt>Qué quedó</dt><dd>{paso.quedo}</dd>
-                </dl>
-                {paso.terminos.length > 0 && <p className="eo-doc__chips">
-                  {paso.terminos.map((id) => <Termino key={id} id={id} />)}
-                </p>}
-                {/* El enlace a la evidencia sólo se dibuja si el YAML lo declara:
-                    un paso sin evidencia asociada no inventa un link. */}
-                {paso.evidencia_href && (
-                  <p className="eo-doc__ev">
-                    <Link to={paso.evidencia_href}>{paso.evidencia_label ?? 'Ver la evidencia'}</Link>
-                  </p>
-                )}
-              </div>
-            </li>
-          ))}
-        </ol>
-
-        {(doc.equivalencias ?? []).length > 0 && (
-          <>
-            <h2 className="eo-doc__h2" id="equivalencias">Equivalencias</h2>
-            <p className="eo-doc__intro">Cada término de la consola, su código y cómo aparece en el
-              repositorio: archivos, carpetas, commits y nombres del despliegue.</p>
-            <Card flush>
-              <TableScroll label="Equivalencias">
-                <Table aria-label="Equivalencias">
-                  <thead><tr><th>En el informe y la consola</th><th>Código</th><th>En la implementación</th></tr></thead>
-                  <tbody>
-                    {(doc.equivalencias ?? []).map((e) => (
-                      <tr key={e.termino}>
-                        <td>{e.termino}</td>
-                        <td className="eo-mono">{e.codigo ?? '—'}</td>
-                        <td>{e.implementacion}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </Table>
-              </TableScroll>
-            </Card>
-          </>
-        )}
-
-        <h2 className="eo-doc__h2" id="aportes">Qué aporta cada cosa</h2>
-        <p className="eo-doc__intro">Corrida, experimento, campaña, evidencia y resultado se usan
-          casi como sinónimos y no lo son. Cada uno suma algo que los otros no.</p>
-        <Card flush>
-          <TableScroll label="Qué aporta cada cosa">
-            <Table aria-label="Qué aporta cada cosa">
-              <thead><tr>
-                <th>Qué es</th><th>De qué habla</th><th>Qué suma</th><th>Dónde se ve</th>
-              </tr></thead>
-              <tbody>
-                {doc.aportes.map((fila) => (
-                  <tr key={fila.id} id={`aporte-${fila.id}`}>
-                    <td>
-                      <div className="eo-rowname">
-                        <b>{fila.termino}</b>
-                        {/* El identificador sólo si la fila lo tiene: «campaña» y
-                            «evidencia» no son un campo de ningún contrato. */}
-                        {fila.identificador
-                          ? <span className="eo-mono">{fila.identificador}</span>
-                          : <span className="eo-na">sin identificador propio</span>}
-                      </div>
-                    </td>
-                    <td className="eo-cell--wrap">{fila.que_es}</td>
-                    <td className="eo-cell--wrap">{fila.que_suma}</td>
-                    <td>
-                      {fila.href
-                        ? <Link to={fila.href}>{fila.donde}</Link>
-                        : <span className="eo-na">—</span>}
-                      {/* El conteo lo calcula el servidor contra el registro. */}
-                      {fila.conteo != null && <span className="eo-doc__n2">{fila.conteo} hoy</span>}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
-          </TableScroll>
-        </Card>
-
-        {/* El conteo sale de los datos, no se escribe a mano. */}
-        <h2 className="eo-doc__h2" id="colisiones">Símbolos que significan más de una cosa</h2>
-        <p className="eo-doc__intro">Son {doc.colisiones.length}. Es lo que más confusión ahorra:
-          un lector que no estuvo los pisa sí o sí si no se los avisan.</p>
-        <div className="eo-doc__cols">
-          {doc.colisiones.map((c) => (
-            <Card key={c.simbolo} level={3} title={<span className="eo-mono">{c.simbolo}</span>}>
-              <ul className="eo-doc__sentidos">
-                {c.sentidos.map((s) => (
-                  <li key={s.de}><span className="eo-mono">{s.de}</span> {s.es}</li>
-                ))}
-              </ul>
-              <p className="eo-doc__aqui">{c.en_la_consola}</p>
-            </Card>
-          ))}
-        </div>
+        <h2 className="eo-doc__h2" id="guia">Cómo se lee esta consola</h2>
+        <ul className="eo-doc__guia">
+          <li><b>Las siete preguntas</b> del <Link to="/">Inicio</Link> son las del informe. Cada una tiene su respuesta
+            en una oración, la tabla del informe que la sostiene y las pruebas que la respaldan.</li>
+          <li><b>Cada prueba</b> se escribió antes de correr y dice qué midió, su resultado y, en el banco temporal, clip
+            por clip. <b>Cada clip abre su run</b>: la referencia, las alertas, el cuadro de cada una con las cajas que
+            vio el sistema y el video.</li>
+          <li><b>Las tomas en vivo</b> son las sesiones con cámara de las jornadas, agrupadas por la prueba en la que
+            cuentan. Cada una abre su resultado: video, alertas y el mensaje que llegó al broker.</li>
+          <li><b>La concordancia</b> compara cada prueba con la referencia de su pre-registro: <i>idéntico</i> (valor por
+            valor), <i>equivalente con diferencia</i> (con la diferencia declarada) u <i>otra combinación</i> (se
+            muestra al lado, nunca en reemplazo). <i>Parcial</i> quiere decir que no tiene todo lo que pedía su
+            pre-registro, y dice por qué.</li>
+          <li><b>Por escena</b> juzga la condición sobre el cuadro entero; <b>por sujeto</b>, persona por persona.</li>
+          <li>Los términos subrayados muestran su definición al pasar el mouse y abren su entrada abajo.</li>
+          <li>Cómo se trabajó, las equivalencias con el código y los símbolos con más de un sentido están en la
+            documentación pública, en el repositorio <span className="eo-mono">e-ovrt-vdp</span>
+            (<span className="eo-mono">evidencia/consola/como-leer.md</span>).</li>
+        </ul>
 
         <h2 className="eo-doc__h2" id="vocabulario">Vocabulario</h2>
         <p className="eo-doc__intro">Agrupado por familia; cada una se abre con su cantidad de
@@ -251,7 +166,7 @@ export default function DocumentacionPage() {
                   <div key={t.id} className="eo-doc__voci" id={t.id}>
                     <dt className={t.mono ? 'eo-mono' : undefined}>
                       {t.termino}
-                      {t.nivel && <span className="eo-doc__nivel">Nivel {t.nivel}</span>}
+                      {t.nivel && <span className="eo-doc__nivel">{NIVEL[t.nivel] ?? t.nivel}</span>}
                     </dt>
                     <dd>
                       {t.definicion}
