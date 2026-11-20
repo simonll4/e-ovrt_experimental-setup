@@ -128,6 +128,7 @@
 .eo-demo-consola .eo-demo-cards { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
 .eo-demo-consola .eo-demo-card { border-width: 1px; padding: 14px 18px; min-height: 0; }
 .eo-demo-consola .eo-demo-card__titulo { font-size: 15px; margin: 0; color: var(--tx2); }
+.eo-demo-consola .eo-demo-card__informe { font-size: 12px; }
 .eo-demo-consola .eo-demo-card__cara { font-size: 20px; margin: 6px 0 10px; }
 .eo-demo-consola .eo-demo-card__broker { font-size: 13px; margin: 0; }
 .eo-demo-consola .eo-demo-card__nota { font-size: 12px; margin: 6px 0 0; }
@@ -185,7 +186,11 @@
   padding: 24px 28px;
   min-height: 220px;
 }
-.eo-demo-card__titulo { font-size: 30px; }
+.eo-demo-card__cabeza { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 16px; }
+.eo-demo-card__titulo { font-size: 30px; margin: 0; }
+.eo-demo-card__informe { margin: 0; font-size: 16px; color: var(--tx3); transition: color .15s; }
+.eo-demo-card__informe b { font-weight: 600; }
+.eo-demo-card:hover .eo-demo-card__informe { color: var(--tx); }
 .eo-demo-card__cara { font-size: 34px; font-weight: 600; margin: 8px 0 14px; }
 .eo-demo-card__cara--alerta { color: var(--er); }
 .eo-demo-card__broker { font-size: 22px; color: var(--tx2); }
@@ -272,7 +277,13 @@
 .eo-momento__toma img { display: block; width: 100%; height: auto; border-radius: var(--r); background: var(--video-bg); }
 .eo-momento__toma figcaption { margin-top: 10px; font-size: 16px; }
 .eo-momento__titulo { display: block; margin: 0 0 6px; font-weight: 600; font-size: 16px; }
-.eo-momento__estados { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.eo-momento__estados { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.eo-momento__estado { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 12px; }
+.eo-momento__informe {
+  padding: 1px 8px; border: 1px solid var(--bd); border-radius: 999px; background: var(--s2);
+  font-size: var(--fz-meta); color: var(--tx3); white-space: nowrap;
+}
+.eo-momento__estado .eo-momento__informe b { font-weight: 600; color: var(--tx2); }
 .eo-momento__estado--alerta b { color: var(--er); }
 .eo-momento__estado--confirmando b, .eo-momento__estado--resolviendo b { color: var(--wn); }
 .eo-momento__estado--ok b, .eo-momento__estado--resuelta b { color: var(--ok); }

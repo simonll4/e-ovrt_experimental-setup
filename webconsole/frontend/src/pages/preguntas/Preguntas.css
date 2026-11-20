@@ -35,12 +35,31 @@
 .eo-inicio__pregunta:hover { text-decoration: none; color: var(--tx); border-color: var(--ac-bd); background: var(--s2); }
 .eo-inicio__q { font-size: var(--fz-panel); font-weight: 600; }
 .eo-inicio__q::before { content: counter(pregunta) ". "; color: var(--tx3); font-weight: 500; }
-.eo-inicio__titular { font-size: 17px; line-height: 1.4; color: var(--tx2); margin-top: auto; }
+.eo-inicio__titular { font-size: 17px; line-height: 1.4; color: var(--tx2); }
 .eo-inicio__titular .eo-cifra-resuelta { color: var(--tx); }
+/* La última pregunta, si queda sola en su fila, ocupa la fila entera. */
+.eo-inicio__preguntas > li:last-child:nth-child(3n + 1) { grid-column: 1 / -1; }
 
-.eo-inicio__pie { display: flex; flex-direction: column; gap: 6px; padding-top: 16px; border-top: 1px solid var(--bd); font-size: var(--fz-meta); color: var(--tx3); }
-.eo-inicio__pie p { margin: 0; }
-.eo-inicio__enlaces { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: var(--fz-body); }
+/* El pie: los enlaces de lectura, los repositorios y, al final, de dónde salen las cifras. */
+.eo-inicio__pie {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px 40px;
+  padding-top: 20px; border-top: 1px solid var(--bd); font-size: var(--fz-meta); color: var(--tx3);
+}
+.eo-inicio__pie ul { list-style: none; margin: 0; padding: 0; }
+.eo-inicio__enlaces { display: grid; gap: 10px; align-content: start; font-size: var(--fz-body); }
+.eo-inicio__enlaces li { display: grid; gap: 2px; }
+.eo-inicio__enlaces a { font-weight: 500; justify-self: start; }
+.eo-inicio__aclara { font-size: var(--fz-meta); color: var(--tx3); }
+.eo-inicio__repos { display: grid; gap: 8px; align-content: start; }
+.eo-inicio__rotulo { font-weight: 600; color: var(--tx2); }
+.eo-inicio__repos ul { display: flex; flex-wrap: wrap; gap: 6px 8px; }
+.eo-inicio__repos a.eo-mono {
+  display: inline-block; padding: 2px 8px; border: 1px solid var(--bd); border-radius: var(--r);
+  background: var(--s1); color: var(--tx2); font-size: var(--fz-meta);
+}
+.eo-inicio__repos a.eo-mono:hover { text-decoration: none; color: var(--ac-tx); border-color: var(--ac-bd); }
+.eo-inicio__version { grid-column: 1 / -1; margin: 0; padding-top: 12px; border-top: 1px dashed var(--bd); }
+@media (max-width: 767px) { .eo-inicio__pie { grid-template-columns: 1fr; } }
 
 .eo-cifra-resuelta { font-weight: 650; font-variant-numeric: tabular-nums; white-space: nowrap; }
 
@@ -57,6 +76,10 @@
    el «Respaldo» detrás de un desplazamiento. Acá el nombre de la fila parte entre palabras y la celda entre
    una cifra y la siguiente (`.eo-celda__item`), nunca dentro de una. */
 .eo-table th.eo-pregunta__fila { white-space: normal; }
+/* Los encabezados largos («Latencia de alerta, desde el inicio del episodio») parten en líneas y no le roban
+   ancho al nombre de la fila. */
+.eo-pregunta__tabla .eo-table thead th { white-space: normal; vertical-align: bottom; min-width: 8ch; }
+.eo-pregunta__tabla .eo-table th.eo-pregunta__fila { min-width: 24ch; background: none; }
 .eo-table td.eo-num.eo-pregunta__cifras { white-space: normal; }
 .eo-celda__item { white-space: nowrap; }
 .eo-celda__etiqueta { color: var(--tx3); font-size: var(--fz-meta); }

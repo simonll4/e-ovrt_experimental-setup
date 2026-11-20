@@ -1,46 +1,100 @@
 /* «Ver el run» de un clip (ClipPage) y la lista de falsas alarmas de ERR-01. Colores de los tokens: verde = acierto,
-   rojo = falsa alarma o episodio perdido, gris = re-alerta o referencia. */
+   rojo = falsa alarma o episodio perdido, gris = re-alerta o no evaluable; el acento marca lo elegido. */
 
-.eo-clip__conteos { margin: 8px 0 16px; font-size: 16px; }
 .eo-clip .eo-segmented { margin: 0 0 12px; }
 
-.eo-clip-linea { display: block; width: 100%; height: auto; margin: 4px 0 8px; }
+/* La clave: qué es cada marca, con los conteos del evaluador. */
+.eo-clip-clave { display: flex; flex-wrap: wrap; gap: 10px 32px; margin: 0 0 14px; }
+.eo-clip-clave__grupo { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 16px; }
+.eo-clip-clave__titulo { font-size: var(--fz-meta); font-weight: 600; color: var(--tx2); letter-spacing: .02em; }
+.eo-clip-clave__titulo b { color: var(--tx); }
+.eo-clip-clave__item { display: inline-flex; align-items: center; gap: 6px; font-size: var(--fz-data); color: var(--tx2); }
+.eo-clip-clave__item b { color: var(--tx); font-weight: 600; font-variant-numeric: tabular-nums; }
+.eo-clip-clave__item::before { content: ''; flex: none; box-sizing: border-box; width: 20px; height: 12px; border-radius: 3px; }
+.eo-clip-clave__item--acierto::before { background: var(--ok-bg); border: 1px solid var(--ok); }
+.eo-clip-clave__item--perdido::before { background: var(--er-bg); border: 1.5px dashed var(--er); }
+.eo-clip-clave__item--censurado::before { background: var(--sunken); border: 1px solid var(--nt); }
+.eo-clip-clave__item--ventana::before { height: 6px; border: 1.5px solid var(--tx3); border-top: 0; border-radius: 0; }
+.eo-clip-clave__item--punto-acierto::before,
+.eo-clip-clave__item--punto-falsa::before,
+.eo-clip-clave__item--punto-re::before { width: 11px; height: 11px; border-radius: 50%; }
+.eo-clip-clave__item--punto-acierto::before { background: var(--ok); }
+.eo-clip-clave__item--punto-falsa::before { background: var(--er); }
+.eo-clip-clave__item--punto-re::before { background: var(--nt); }
+
+/* La línea de tiempo. */
+.eo-clip-linea { display: block; width: 100%; height: auto; margin: 0 0 4px; overflow: visible; }
 .eo-clip-linea__grilla { stroke: var(--bd); stroke-width: 1; }
-.eo-clip-linea__eje { fill: var(--tx3); font-size: 12px; font-family: var(--fm); }
-.eo-clip-linea__cond { fill: var(--tx2); font-size: 14px; font-family: var(--fm); }
-.eo-clip-linea__episodio { fill: var(--nt); fill-opacity: 0.25; stroke: var(--nt); stroke-width: 1; cursor: pointer; }
-.eo-clip-linea__episodio--acierto { fill: var(--ok); fill-opacity: 0.18; stroke: var(--ok); }
-.eo-clip-linea__episodio--perdido { fill: var(--er); fill-opacity: 0.12; stroke: var(--er); stroke-width: 2; stroke-dasharray: 5 3; }
-.eo-clip-linea__alerta { stroke: var(--bg); stroke-width: 2; cursor: pointer; }
+.eo-clip-linea__eje { fill: var(--tx3); font-size: 12px; font-family: var(--fs); font-variant-numeric: tabular-nums; }
+.eo-clip-linea__cond { fill: var(--tx); font-size: 15px; font-weight: 600; font-family: var(--fs); }
+.eo-clip-linea__codigo { fill: var(--tx3); font-size: 11px; font-family: var(--fm); }
+.eo-clip-linea__carril { fill: var(--sunken); opacity: .6; }
+.eo-clip-linea__episodio { fill: var(--sunken); stroke: var(--nt); stroke-width: 1; cursor: pointer; }
+.eo-clip-linea__episodio--acierto { fill: var(--ok-bg); stroke: var(--ok); }
+.eo-clip-linea__episodio--perdido { fill: var(--er-bg); stroke: var(--er); stroke-width: 1.5; stroke-dasharray: 6 3; }
+.eo-clip-linea__ventana { fill: none; stroke: var(--tx3); stroke-width: 1.5; }
+.eo-clip-linea__alerta { stroke: var(--s1); stroke-width: 2.5; cursor: pointer; }
 .eo-clip-linea__alerta--acierto { fill: var(--ok); }
 .eo-clip-linea__alerta--falsa_alarma { fill: var(--er); }
 .eo-clip-linea__alerta--re_alerta { fill: var(--nt); }
-.eo-clip-linea .is-sel { stroke: var(--tx); stroke-width: 3; }
+.eo-clip-linea__halo { fill: none; stroke: var(--ac); stroke-width: 2.5; pointer-events: none; }
+.eo-clip-linea__ahora { pointer-events: none; }
+.eo-clip-linea__ahora line { stroke: var(--ac); stroke-width: 1.5; stroke-dasharray: 4 3; }
+.eo-clip-linea__ahora text { fill: var(--ac-tx); font-size: 12px; font-weight: 600; font-family: var(--fs); font-variant-numeric: tabular-nums; }
+.eo-clip-linea [role='button']:hover { filter: brightness(1.06); }
 .eo-clip-linea [role='button']:focus-visible { outline: 2px solid var(--ac); outline-offset: 2px; }
 
-.eo-clip__leyenda { display: flex; flex-wrap: wrap; gap: 16px; margin: 0 0 16px; font-size: 13px; color: var(--tx2); }
-.eo-clip__ley::before { content: ''; display: inline-block; width: 12px; height: 12px; margin-right: 6px; vertical-align: -1px; border-radius: 3px; }
-.eo-clip__ley--episodio::before { background: var(--ok-bg); border: 1px solid var(--ok); }
-.eo-clip__ley--perdido::before { background: var(--er-bg); border: 2px dashed var(--er); }
-.eo-clip__ley--acierto::before { background: var(--ok); border-radius: 50%; }
-.eo-clip__ley--falsa::before { background: var(--er); border-radius: 50%; }
-.eo-clip__ley--re::before { background: var(--nt); border-radius: 50%; }
-
-.eo-clip-sel { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 20px; align-items: start; }
+/* Lo elegido: el cuadro a la izquierda, qué fue a la derecha. */
+.eo-clip-sel {
+  display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 24px; align-items: start;
+  margin-top: 16px; padding-top: 18px; border-top: 1px solid var(--bd);
+}
 .eo-clip-sel__cuadro { margin: 0; }
-.eo-clip-sel__cuadro img { display: block; width: 100%; height: auto; border-radius: var(--r); background: var(--video-bg); }
-.eo-clip-sel__cuadro figcaption { margin-top: 6px; font-size: 13px; color: var(--tx3); }
-.eo-clip-sel__texto p { margin: 0 0 10px; line-height: 1.5; }
-.eo-clip-sel__titular { font-size: 17px; }
-.eo-clip-sel__cargando { padding: 48px 0; text-align: center; background: var(--sunken); border-radius: var(--r); }
-.eo-clip-sel__acercado { margin: 8px 0 12px; max-width: 320px; }
-.eo-clip-sel__acercado img { display: block; width: 100%; height: auto; border-radius: var(--r); }
-.eo-clip-sel__acercado figcaption { margin-top: 4px; font-size: 13px; color: var(--tx3); }
+.eo-clip-sel__cuadro img {
+  display: block; width: 100%; height: auto; border-radius: var(--r); background: var(--video-bg); outline: 1px solid var(--bd);
+}
+.eo-clip-sel__cuadro figcaption { margin-top: 8px; font-size: var(--fz-meta); color: var(--tx3); line-height: 1.5; }
+.eo-clip-sel__cargando {
+  display: grid; place-items: center; aspect-ratio: 16 / 9; margin: 0; padding: 16px; text-align: center;
+  background: var(--sunken); border-radius: var(--r);
+}
+.eo-clip-sel__texto p { margin: 0 0 10px; line-height: 1.55; }
+.eo-clip-sel__texto .eo-clip-sel__tipo { margin: 0 0 8px; }
+.eo-clip-sel__texto .eo-clip-sel__titular { margin: 0 0 14px; font-size: var(--fz-h2); line-height: 1.35; }
+.eo-clip-sel__titular b { font-variant-numeric: tabular-nums; }
+.eo-clip-sel__acercado { margin: 14px 0 16px; max-width: 300px; }
+.eo-clip-sel__acercado img { display: block; width: 100%; height: auto; border-radius: var(--r); outline: 1px solid var(--bd); }
+.eo-clip-sel__acercado .eo-clip-sel__cargando { aspect-ratio: 4 / 3; }
+.eo-clip-sel__acercado figcaption { margin-top: 6px; font-size: var(--fz-meta); color: var(--tx3); }
+.eo-clip-sel__video { display: inline-flex; align-items: center; gap: 8px; }
 @media (max-width: 900px) { .eo-clip-sel { grid-template-columns: 1fr; } }
 
+.eo-clip__vacio {
+  margin: 4px 0 0; padding: 28px 16px; text-align: center; background: var(--sunken); border-radius: var(--r);
+}
+
 .eo-clip__video { display: block; width: 100%; max-height: 70vh; background: var(--video-bg); border-radius: var(--r); }
+
+/* Las dos tablas, lado a lado cuando entran. */
+.eo-clip__tablas {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(440px, 1fr)); gap: 16px; align-items: start; margin-bottom: 16px;
+}
+.eo-clip .eo-clip__tablas > .eo-card { margin-bottom: 0; }
 .eo-clip tr.is-sel td { background: var(--ac-bg); }
+.eo-clip td.eo-clip__ver { width: 1%; text-align: right; white-space: nowrap; }
+.eo-clip td.eo-clip__ver .eo-btn { color: var(--ac-tx); }
 .eo-clip__origen { margin: 8px 0 0; padding-left: 18px; line-height: 1.7; }
 
 .eo-gen2__filtro { padding: 12px 16px 4px; }
 .eo-gen2__filtro .eo-note { margin: 8px 0 0; }
+
+/* Las falsas alarmas de ERR-01, una por una. */
+.eo-falsas { scroll-margin-top: 16px; }
+/* En el modo presentación la barra de arriba queda fija: el título no tiene que quedar debajo. */
+.eo-presentacion .eo-falsas { scroll-margin-top: 80px; }
+.eo-falsas .eo-gen2__filtro { padding: 14px 14px 12px; border-bottom: 1px solid var(--bd); }
+.eo-falsas .eo-gen2__filtro .eo-note { margin: 10px 2px 0; }
+.eo-falsas tbody tr { position: relative; }
+.eo-falsas tbody tr:hover td { background: var(--s2); }
+.eo-falsas tbody a::after { content: ''; position: absolute; inset: 0; }
+.eo-falsas tbody tr:has(a:focus-visible) td { background: var(--ac-bg); }

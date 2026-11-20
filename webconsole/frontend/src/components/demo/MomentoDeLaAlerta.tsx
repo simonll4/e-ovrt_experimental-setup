@@ -71,11 +71,15 @@ export default function MomentoDeLaAlerta({ detalle, alerta, children }: {
                 <ul className="eo-momento__estados">
                   {estado.entrada.condiciones.map((c) => (
                     <li key={c.condicion} className={`eo-momento__estado eo-momento__estado--${c.estado}`}>
-                      <NombreCodigo codigo={c.condicion} />: <b>{ESTADO[c.estado] ?? c.estado}</b>
-                      {ESTADO_DEL_INFORME[c.estado] && <span className="eo-note--meta"> (en el informe: {ESTADO_DEL_INFORME[c.estado]})</span>}
-                      {(c.estado === 'confirmando' || c.estado === 'resolviendo') && c.transcurrido_ms != null && c.umbral_ms != null && (
-                        <span className="eo-note--meta"> · {segundos(c.transcurrido_ms)} de {segundos(c.umbral_ms)} s</span>
-                      )}
+                      <span className="eo-momento__cara">
+                        <NombreCodigo codigo={c.condicion} />: <b>{ESTADO[c.estado] ?? c.estado}</b>
+                        {(c.estado === 'confirmando' || c.estado === 'resolviendo') && c.transcurrido_ms != null && c.umbral_ms != null && (
+                          <span className="eo-note--meta"> · {segundos(c.transcurrido_ms)} de {segundos(c.umbral_ms)} s</span>
+                        )}
+                      </span>
+                      {ESTADO_DEL_INFORME[c.estado] && <>
+                        <span className="eo-sr">; </span><span className="eo-momento__informe">en el informe: <b>{ESTADO_DEL_INFORME[c.estado]}</b></span>
+                      </>}
                     </li>
                   ))}
                 </ul>

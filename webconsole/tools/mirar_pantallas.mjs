@@ -67,7 +67,12 @@ await contexto.addInitScript((tema) => {
 }, o.tema)
 let fallas = 0
 for (const item of rutas) {
-  const [ruta, nombre] = item.split('=')
+  // `/resultados/ERR-01?causa=P-intermitente` lleva un `=` por parámetro: el nombre es el `=` que sobra al final.
+  const partes = item.split('=')
+  const consulta = item.indexOf('?')
+  const conNombre = partes.length - 1 > (consulta < 0 ? 0 : item.slice(consulta + 1).split('&').length)
+  const ruta = conNombre ? partes.slice(0, -1).join('=') : item
+  const nombre = conNombre ? partes.at(-1) : undefined
   const pagina = await contexto.newPage()
   const errores = []
   pagina.on('console', (m) => { if (m.type() === 'error') errores.push(m.text().slice(0, 160)) })

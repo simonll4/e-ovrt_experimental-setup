@@ -1565,6 +1565,9 @@ th.eo-th--numeric .eo-th__btn { flex-direction: row-reverse; }
   color: var(--tx);
   font-variant-numeric: tabular-nums;
 }
+/* Un identificador que se abre tiene que verse como enlace. */
+a.eo-mono { color: var(--ac-tx); }
+a.eo-mono:hover { color: var(--tx); }
 
 /* Un código del informe al lado de su nombre llano (plan §4.2): más chico y en segundo plano, sin
    heredar el color de un enlace ni el peso de un título. Solo, sin nombre, conserva el tamaño. */

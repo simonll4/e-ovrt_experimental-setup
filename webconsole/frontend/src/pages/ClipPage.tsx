@@ -2,10 +2,10 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { clipCuadroUrl, clipVideoUrl } from '../api'
 import { useClipDePrueba } from '../api/queries/gen2'
-import { Badge, Banner, Button, Card, Disclosure, PageHeader, SegmentedControl, Table, TableScroll, Tag } from '../components/ui'
+import { Badge, Banner, Button, Card, Disclosure, IconPlay, PageHeader, SegmentedControl, Table, TableScroll, Tag } from '../components/ui'
 import NombreCodigo from '../components/ui/NombreCodigo'
 import type { AlertaDeClip, ClipDePrueba, EpisodioDeClip } from '../types'
-import { CAUSA_FALSA_ALARMA, NOMBRE_DE_PRUEBA, TIPO_DE_ALERTA, nombreConCodigo, nombreLectura } from '../vocabulario'
+import { CAUSA_FALSA_ALARMA, NOMBRE_DE_PRUEBA, TIPO_DE_ALERTA, nombreConCodigo, nombreLectura, nombreLlano } from '../vocabulario'
 import { EstadoDeLectura } from './evidencia/comun'
 import './gen2/Clip.css'
 
@@ -30,53 +30,108 @@ function inicial(d: ClipDePrueba, pedida: string | null): Seleccion | null {
 /** El instante que muestra una selección: la alerta, o el comienzo de la ventana en que el episodio debía alertar. */
 const instante = (s: Seleccion) => (s.tipo === 'alerta' ? s.alerta.ms : s.episodio.ventana_ms[0])
 
-/** La línea de tiempo del clip: por condición, los episodios de la referencia y las alertas encima. */
+/** La línea de tiempo del clip: por condición, un carril con los episodios de la referencia, la ventana en que cada
+ *  uno debía alertar y las alertas encima. Una línea vertical marca el instante de lo elegido. */
 function LineaDeTiempo({ d, sel, elegir }: { d: ClipDePrueba; sel: Seleccion | null; elegir: (s: Seleccion) => void }) {
   const fin = Math.max(d.duracion_ms ?? 0, ...d.alertas.map((a) => a.ms ?? 0), ...d.episodios.map((e) => e.hasta_ms ?? 0), 1000)
   const condiciones = Array.from(new Set([...d.episodios.map((e) => e.condicion), ...d.alertas.map((a) => a.condicion)])).sort()
-  const ANCHO = 1000, IZQ = 96, FILA = 44, ARRIBA = 8
-  const x = (ms: number) => IZQ + ((ANCHO - IZQ - 12) * ms) / fin
+  const ANCHO = 1000, IZQ = 132, DER = 14, FILA = 56, ARRIBA = 24, CARRIL = 24, EJE = 26
+  const x = (ms: number) => IZQ + ((ANCHO - IZQ - DER) * ms) / fin
   const paso = fin > 120_000 ? 30_000 : fin > 60_000 ? 10_000 : 5_000
   const marcas = Array.from({ length: Math.floor(fin / paso) + 1 }, (_, i) => i * paso)
-  const alto = ARRIBA + condiciones.length * FILA + 24
+  const abajo = ARRIBA + condiciones.length * FILA
+  const alto = abajo + EJE
+  const ahora = sel ? instante(sel) : null
   return (
     <svg className="eo-clip-linea" viewBox={`0 0 ${ANCHO} ${alto}`} role="group" aria-label="Línea de tiempo del clip">
       {marcas.map((m) => (
         <g key={m}>
-          <line x1={x(m)} x2={x(m)} y1={ARRIBA} y2={alto - 20} className="eo-clip-linea__grilla" />
+          <line x1={x(m)} x2={x(m)} y1={ARRIBA - 4} y2={abajo} className="eo-clip-linea__grilla" />
           <text x={x(m)} y={alto - 6} textAnchor="middle" className="eo-clip-linea__eje">{m / 1000} s</text>
         </g>
       ))}
       {condiciones.map((cond, i) => {
         const y = ARRIBA + i * FILA
+        const medio = y + 8 + CARRIL / 2
         return (
           <g key={cond}>
-            <text x={0} y={y + 22} className="eo-clip-linea__cond">{cond}</text>
-            {d.episodios.filter((e) => e.condicion === cond).map((e) => (
-              <rect key={e.id} x={x(e.desde_ms)} y={y + 10} width={Math.max(2, x(e.hasta_ms ?? fin) - x(e.desde_ms))} height={18}
-                rx={3} className={`eo-clip-linea__episodio eo-clip-linea__episodio--${e.estado ?? 'sin-dato'}${sel?.tipo === 'episodio' && sel.episodio.id === e.id ? ' is-sel' : ''}`}
-                role="button" tabIndex={0} aria-label={`Episodio de ${cond} de ${seg(e.desde_ms)} a ${seg(e.hasta_ms)}: ${e.estado ? ESTADO_EPISODIO[e.estado] : 'sin dato'}`}
-                onClick={() => elegir({ tipo: 'episodio', episodio: e })}
-                onKeyDown={(ev) => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); elegir({ tipo: 'episodio', episodio: e }) } }}>
-                <title>Referencia: {cond} de {seg(e.desde_ms)} a {seg(e.hasta_ms)}</title>
-              </rect>
-            ))}
+            <text x={0} y={medio - 3} className="eo-clip-linea__cond">{nombreLlano(cond) ?? cond}</text>
+            {nombreLlano(cond) && <text x={0} y={medio + 13} className="eo-clip-linea__codigo">{cond}</text>}
+            <rect x={IZQ} y={y + 8} width={ANCHO - IZQ - DER} height={CARRIL} rx={5} className="eo-clip-linea__carril" />
+            {d.episodios.filter((e) => e.condicion === cond).map((e) => {
+              const elegido = sel?.tipo === 'episodio' && sel.episodio.id === e.id
+              const [v0, v1] = e.ventana_ms
+              return (
+                <g key={e.id}>
+                  <rect x={x(e.desde_ms)} y={y + 8} width={Math.max(2, x(e.hasta_ms ?? fin) - x(e.desde_ms))} height={CARRIL}
+                    rx={5} className={`eo-clip-linea__episodio eo-clip-linea__episodio--${e.estado ?? 'sin-dato'}${elegido ? ' is-sel' : ''}`}
+                    role="button" tabIndex={0} aria-label={`Episodio de ${cond} de ${seg(e.desde_ms)} a ${seg(e.hasta_ms)}: ${e.estado ? ESTADO_EPISODIO[e.estado] : 'sin dato'}`}
+                    onClick={() => elegir({ tipo: 'episodio', episodio: e })}
+                    onKeyDown={(ev) => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); elegir({ tipo: 'episodio', episodio: e }) } }}>
+                    <title>Referencia: {cond} de {seg(e.desde_ms)} a {seg(e.hasta_ms)}</title>
+                  </rect>
+                  <path d={`M${x(v0)} ${y + CARRIL + 11}v5H${x(v1)}v-5`} className="eo-clip-linea__ventana" aria-hidden="true" />
+                  {elegido && (
+                    <rect x={x(e.desde_ms) - 4} y={y + 4} width={Math.max(2, x(e.hasta_ms ?? fin) - x(e.desde_ms)) + 8}
+                      height={CARRIL + 8} rx={8} className="eo-clip-linea__halo" aria-hidden="true" />
+                  )}
+                </g>
+              )
+            })}
             {d.alertas.filter((a) => a.condicion === cond && a.ms != null).map((a) => {
               const elegida = sel?.tipo === 'alerta' && sel.alerta.alert_id === a.alert_id
               return (
-                <circle key={a.alert_id} cx={x(a.ms!)} cy={y + 19} r={elegida ? 9 : 6}
-                  className={`eo-clip-linea__alerta eo-clip-linea__alerta--${a.tipo}${elegida ? ' is-sel' : ''}`}
-                  role="button" tabIndex={0} aria-label={`${TIPO_DE_ALERTA[a.tipo]} de ${cond} a los ${seg(a.ms)}`}
-                  onClick={() => elegir({ tipo: 'alerta', alerta: a })}
-                  onKeyDown={(ev) => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); elegir({ tipo: 'alerta', alerta: a }) } }}>
-                  <title>{TIPO_DE_ALERTA[a.tipo]} a los {seg(a.ms)}</title>
-                </circle>
+                <g key={a.alert_id}>
+                  {elegida && <circle cx={x(a.ms!)} cy={medio} r={13} className="eo-clip-linea__halo" aria-hidden="true" />}
+                  <circle cx={x(a.ms!)} cy={medio} r={elegida ? 8 : 7}
+                    className={`eo-clip-linea__alerta eo-clip-linea__alerta--${a.tipo}${elegida ? ' is-sel' : ''}`}
+                    role="button" tabIndex={0} aria-label={`${TIPO_DE_ALERTA[a.tipo]} de ${cond} a los ${seg(a.ms)}`}
+                    onClick={() => elegir({ tipo: 'alerta', alerta: a })}
+                    onKeyDown={(ev) => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); elegir({ tipo: 'alerta', alerta: a }) } }}>
+                    <title>{TIPO_DE_ALERTA[a.tipo]} a los {seg(a.ms)}</title>
+                  </circle>
+                </g>
               )
             })}
           </g>
         )
       })}
+      {ahora != null && (
+        <g className="eo-clip-linea__ahora" aria-hidden="true">
+          <line x1={x(ahora)} x2={x(ahora)} y1={ARRIBA - 6} y2={abajo} />
+          <text x={x(ahora)} y={ARRIBA - 10} textAnchor="middle">{seg(ahora)}</text>
+        </g>
+      )}
     </svg>
+  )
+}
+
+/** La clave de la línea de tiempo, con los conteos del evaluador al lado de cada marca. */
+function Clave({ k, conEpisodios }: { k: ClipDePrueba['conteos']; conEpisodios: boolean }) {
+  const n = (valor: number | null | undefined, uno: string, varios: string) =>
+    valor == null ? varios : <><b>{valor}</b> {valor === 1 ? uno : varios}</>
+  return (
+    <div className="eo-clip-clave">
+      <div className="eo-clip-clave__grupo">
+        <span className="eo-clip-clave__titulo">Referencia{k ? <> · {n(k.episodios, 'episodio', 'episodios')}</> : null}</span>
+        {conEpisodios && <>
+          {k ? <>
+            <span className="eo-clip-clave__item eo-clip-clave__item--acierto">{n(k.aciertos, 'con alerta', 'con alerta')}</span>
+            <span className="eo-clip-clave__item eo-clip-clave__item--perdido">{n(k.perdidos, 'perdido', 'perdidos')}</span>
+          </> : <span className="eo-clip-clave__item eo-clip-clave__item--censurado">episodio</span>}
+          {k && (k.censurados ?? 0) > 0 && (
+            <span className="eo-clip-clave__item eo-clip-clave__item--censurado">{n(k.censurados, 'no evaluable', 'no evaluables')}</span>
+          )}
+          <span className="eo-clip-clave__item eo-clip-clave__item--ventana">ventana en que debía alertar</span>
+        </>}
+      </div>
+      <div className="eo-clip-clave__grupo">
+        <span className="eo-clip-clave__titulo">Alertas</span>
+        <span className="eo-clip-clave__item eo-clip-clave__item--punto-acierto">acierto</span>
+        <span className="eo-clip-clave__item eo-clip-clave__item--punto-falsa">{n(k?.falsas_alarmas, 'falsa alarma', 'falsas alarmas')}</span>
+        <span className="eo-clip-clave__item eo-clip-clave__item--punto-re">{n(k?.re_alertas, 're-alerta', 're-alertas')}</span>
+      </div>
+    </div>
   )
 }
 
@@ -87,7 +142,7 @@ function Cuadro({ src, alt }: { src: string; alt: string }) {
   return (
     <>
       {estado === 'cargando' && <p className="eo-note eo-clip-sel__cargando">Sacando el cuadro del video…</p>}
-      {estado === 'falla' && <p className="eo-note">Este cuadro no se pudo sacar en este equipo.</p>}
+      {estado === 'falla' && <p className="eo-note eo-clip-sel__cargando">Este cuadro no se pudo sacar en este equipo.</p>}
       <img src={src} alt={alt} onLoad={() => setEstado('listo')} onError={() => setEstado('falla')}
         style={estado === 'listo' ? undefined : { display: 'none' }} />
     </>
@@ -119,8 +174,8 @@ function LoQueSeVe({ d, sel, lectura, alVideo }: { d: ClipDePrueba; sel: Selecci
       <div className="eo-clip-sel__texto">
         {sel.tipo === 'alerta' ? (
           <>
+            <p className="eo-clip-sel__tipo"><Badge tone={TONO_ALERTA[sel.alerta.tipo]}>{TIPO_DE_ALERTA[sel.alerta.tipo]}</Badge></p>
             <p className="eo-clip-sel__titular">
-              <Badge tone={TONO_ALERTA[sel.alerta.tipo]}>{TIPO_DE_ALERTA[sel.alerta.tipo]}</Badge>{' '}
               <NombreCodigo codigo={sel.alerta.condicion} /> a los <b>{seg(sel.alerta.ms)}</b>
             </p>
             {sel.alerta.causa && CAUSA_FALSA_ALARMA[sel.alerta.causa] && (
@@ -142,16 +197,18 @@ function LoQueSeVe({ d, sel, lectura, alVideo }: { d: ClipDePrueba; sel: Selecci
           </>
         ) : (
           <>
-            <p className="eo-clip-sel__titular">
+            <p className="eo-clip-sel__tipo">
               <Badge tone={sel.episodio.estado === 'perdido' ? 'error' : sel.episodio.estado === 'acierto' ? 'ok' : 'neutral'}>
                 {sel.episodio.estado ? ESTADO_EPISODIO[sel.episodio.estado] : 'Sin dato en este equipo'}
-              </Badge>{' '}
+              </Badge>
+            </p>
+            <p className="eo-clip-sel__titular">
               <NombreCodigo codigo={sel.episodio.condicion} /> en la referencia, de <b>{seg(sel.episodio.desde_ms)}</b> a <b>{seg(sel.episodio.hasta_ms)}</b>
             </p>
             <p>La regla tenía que alertar entre los {seg(sel.episodio.ventana_ms[0])} y los {seg(sel.episodio.ventana_ms[1])}: el cuadro es el del comienzo de esa ventana.</p>
           </>
         )}
-        {d.video && alVideo && <Button onClick={alVideo}>Ver en el video</Button>}
+        {d.video && alVideo && <Button className="eo-clip-sel__video" onClick={alVideo}><IconPlay /> Ver en el video</Button>}
       </div>
     </div>
   )
@@ -188,6 +245,7 @@ export default function ClipPage() {
     setParams(siguiente, { replace: true })
   }
   const k = d.conteos
+  const hayMarcas = d.alertas.length > 0 || d.episodios.length > 0
   return (
     <div className="eo-gen2 eo-clip">
       <PageHeader
@@ -202,73 +260,63 @@ export default function ClipPage() {
         <SegmentedControl label="Lectura" value={lectura ?? PRINCIPAL} onChange={elegirLectura}
           options={d.lecturas.map((l) => ({ value: l ?? PRINCIPAL, label: l ? nombreLectura(l) : 'Lectura principal' }))} />
       )}
-      {k && (
-        <p className="eo-clip__conteos">
-          {k.episodios} {k.episodios === 1 ? 'episodio' : 'episodios'} en la referencia · <b>{k.aciertos}</b> con alerta ·{' '}
-          <b>{k.perdidos}</b> {k.perdidos === 1 ? 'perdido' : 'perdidos'} · <b>{k.falsas_alarmas}</b>{' '}
-          {k.falsas_alarmas === 1 ? 'falsa alarma' : 'falsas alarmas'} · {k.re_alertas ?? 0} re-alertas
-        </p>
-      )}
       {d.faltan.length > 0 && (
         <Banner tone="warn">En este equipo falta {d.faltan.join('; ')}.</Banner>
       )}
-      <Card title="Lo que pasó" meta="cada marca se puede elegir">
-        <LineaDeTiempo d={d} sel={sel} elegir={setSel} />
-        <p className="eo-clip__leyenda">
-          <span className="eo-clip__ley eo-clip__ley--episodio">referencia</span>
-          <span className="eo-clip__ley eo-clip__ley--perdido">episodio perdido</span>
-          <span className="eo-clip__ley eo-clip__ley--acierto">acierto</span>
-          <span className="eo-clip__ley eo-clip__ley--falsa">falsa alarma</span>
-          <span className="eo-clip__ley eo-clip__ley--re">re-alerta</span>
-        </p>
-        {sel ? <LoQueSeVe d={d} sel={sel} lectura={lectura} alVideo={d.video ? alVideo : undefined} />
-          : <p className="eo-note">Sin alertas ni episodios en este clip.</p>}
+      <Card title="Lo que pasó" meta={hayMarcas ? 'cada marca se puede elegir' : undefined}>
+        <Clave k={k} conEpisodios={d.episodios.length > 0} />
+        {hayMarcas ? <>
+          <LineaDeTiempo d={d} sel={sel} elegir={setSel} />
+          {sel && <LoQueSeVe d={d} sel={sel} lectura={lectura} alVideo={d.video ? alVideo : undefined} />}
+        </> : <p className="eo-note eo-clip__vacio">Sin alertas ni episodios en este clip.</p>}
       </Card>
       {d.video && (
         <Card title="El video">
           <video ref={video} className="eo-clip__video" controls preload="metadata" src={clipVideoUrl(d.prueba, d.clip)} />
         </Card>
       )}
-      {d.alertas.length > 0 && (
-        <Card title="Las alertas" meta={d.alertas_completas ? `${d.alertas.length}` : 'solo las falsas alarmas: la corrida no está en este equipo'} flush>
-          <TableScroll label="Las alertas">
-            <Table aria-label="Las alertas">
-              <thead><tr><th className="eo-num">Segundo</th><th>Condición</th><th>Qué fue</th><th>Causa</th><th><span className="eo-sr">Ver</span></th></tr></thead>
-              <tbody>
-                {d.alertas.map((a) => (
-                  <tr key={a.alert_id} className={sel?.tipo === 'alerta' && sel.alerta.alert_id === a.alert_id ? 'is-sel' : undefined}>
-                    <td className="eo-num">{seg(a.ms)}</td>
-                    <td><NombreCodigo codigo={a.condicion} /></td>
-                    <td><Badge tone={TONO_ALERTA[a.tipo]}>{TIPO_DE_ALERTA[a.tipo]}</Badge></td>
-                    <td>{a.causa ? (CAUSA_FALSA_ALARMA[a.causa]?.nombre ?? a.causa) : '—'}</td>
-                    <td><Button onClick={() => setSel({ tipo: 'alerta', alerta: a })}>Ver</Button></td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
-          </TableScroll>
-        </Card>
-      )}
-      {d.episodios.length > 0 && (
-        <Card title="Los episodios de la referencia" meta={`${d.episodios.length}`} flush>
-          <TableScroll label="Los episodios de la referencia">
-            <Table aria-label="Los episodios de la referencia">
-              <thead><tr><th className="eo-num">Desde</th><th className="eo-num">Hasta</th><th>Condición</th><th>Resultado</th><th><span className="eo-sr">Ver</span></th></tr></thead>
-              <tbody>
-                {d.episodios.map((e) => (
-                  <tr key={e.id}>
-                    <td className="eo-num">{seg(e.desde_ms)}</td>
-                    <td className="eo-num">{seg(e.hasta_ms)}</td>
-                    <td><NombreCodigo codigo={e.condicion} /></td>
-                    <td>{e.estado ? ESTADO_EPISODIO[e.estado] : '—'}</td>
-                    <td><Button onClick={() => setSel({ tipo: 'episodio', episodio: e })}>Ver</Button></td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
-          </TableScroll>
-        </Card>
-      )}
+      <div className="eo-clip__tablas">
+        {d.alertas.length > 0 && (
+          <Card title="Las alertas" meta={d.alertas_completas ? `${d.alertas.length}` : 'solo las falsas alarmas: la corrida no está en este equipo'} flush>
+            <TableScroll label="Las alertas">
+              <Table aria-label="Las alertas">
+                <thead><tr><th className="eo-num">Segundo</th><th>Condición</th><th>Qué fue</th><th>Causa</th><th><span className="eo-sr">Ver</span></th></tr></thead>
+                <tbody>
+                  {d.alertas.map((a) => (
+                    <tr key={a.alert_id} className={sel?.tipo === 'alerta' && sel.alerta.alert_id === a.alert_id ? 'is-sel' : undefined}>
+                      <td className="eo-num">{seg(a.ms)}</td>
+                      <td><NombreCodigo codigo={a.condicion} /></td>
+                      <td><Badge tone={TONO_ALERTA[a.tipo]}>{TIPO_DE_ALERTA[a.tipo]}</Badge></td>
+                      <td>{a.causa ? (CAUSA_FALSA_ALARMA[a.causa]?.nombre ?? a.causa) : '—'}</td>
+                      <td className="eo-clip__ver"><Button variant="ghost" onClick={() => setSel({ tipo: 'alerta', alerta: a })}>Ver</Button></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            </TableScroll>
+          </Card>
+        )}
+        {d.episodios.length > 0 && (
+          <Card title="Los episodios de la referencia" meta={`${d.episodios.length}`} flush>
+            <TableScroll label="Los episodios de la referencia">
+              <Table aria-label="Los episodios de la referencia">
+                <thead><tr><th className="eo-num">Desde</th><th className="eo-num">Hasta</th><th>Condición</th><th>Resultado</th><th><span className="eo-sr">Ver</span></th></tr></thead>
+                <tbody>
+                  {d.episodios.map((e) => (
+                    <tr key={e.id} className={sel?.tipo === 'episodio' && sel.episodio.id === e.id ? 'is-sel' : undefined}>
+                      <td className="eo-num">{seg(e.desde_ms)}</td>
+                      <td className="eo-num">{seg(e.hasta_ms)}</td>
+                      <td><NombreCodigo codigo={e.condicion} /></td>
+                      <td>{e.estado ? ESTADO_EPISODIO[e.estado] : '—'}</td>
+                      <td className="eo-clip__ver"><Button variant="ghost" onClick={() => setSel({ tipo: 'episodio', episodio: e })}>Ver</Button></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            </TableScroll>
+          </Card>
+        )}
+      </div>
       <Card>
         <Disclosure summary={<h2 className="eo-gen2__plegado">De dónde sale</h2>}>
           <ul className="eo-clip__origen">

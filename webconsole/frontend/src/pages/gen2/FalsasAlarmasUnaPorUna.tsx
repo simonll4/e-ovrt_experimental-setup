@@ -34,8 +34,9 @@ export default function FalsasAlarmasUnaPorUna() {
     setParams(siguiente, { replace: true })
   }
   return (
-    <Card title="Las falsas alarmas, una por una" meta={`${visibles.length} de ${filas.length} · cada una abre su clip`} flush>
-      <div className="eo-gen2__filtro" id="falsas-alarmas">
+    <Card id="falsas-alarmas" className="eo-falsas" title="Las falsas alarmas, una por una"
+      meta={`${visibles.length} de ${filas.length} · cada una abre su clip`} flush>
+      <div className="eo-gen2__filtro">
         <SegmentedControl
           label="Causa"
           value={causa}
@@ -50,7 +51,7 @@ export default function FalsasAlarmasUnaPorUna() {
       <TableScroll label="Las falsas alarmas, una por una">
         <Table aria-label="Las falsas alarmas, una por una">
           <thead>
-            <tr><th>Clip</th><th>Condición</th><th className="eo-num">Cuadro</th><th>Causa</th><th>Luz</th></tr>
+            <tr><th>Clip</th><th>Condición</th><th className="eo-num">Cuadro</th>{causa === TODAS && <th>Causa</th>}<th>Luz</th></tr>
           </thead>
           <tbody>
             {visibles.map((f) => (
@@ -61,7 +62,7 @@ export default function FalsasAlarmasUnaPorUna() {
                 </MonoCell>
                 <td><NombreCodigo codigo={f.condicion} /></td>
                 <td className="eo-num">{f.cuadro ?? '—'}</td>
-                <td>{CAUSA_FALSA_ALARMA[f.causa]?.nombre ?? f.causa}</td>
+                {causa === TODAS && <td>{CAUSA_FALSA_ALARMA[f.causa]?.nombre ?? f.causa}</td>}
                 <td>{f.iluminacion ?? '—'}</td>
               </tr>
             ))}

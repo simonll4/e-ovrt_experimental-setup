@@ -44,7 +44,7 @@ describe('«El momento de la alerta» (plan §6)', () => {
     const toma = container.querySelector('[data-figura="momento-toma"]') as HTMLElement
     expect(within(toma).getByRole('img').getAttribute('src')).toContain('alerta01-confirmacion.jpg')
     const estados = within(toma).getAllByRole('listitem').map((li) => li.textContent)
-    expect(estados).toEqual(['Sin casco CR-01: en alerta (en el informe: confirmado o sostenido)', 'Sin chaleco CR-02: en regla (en el informe: inactivo)'])
+    expect(estados).toEqual(['Sin casco CR-01: en alerta; en el informe: confirmado o sostenido', 'Sin chaleco CR-02: en regla; en el informe: inactivo'])
     expect(within(toma).getByText('Registro de 0,4 s después de la confirmación.')).toBeTruthy()
   })
 

@@ -51,7 +51,31 @@ export default function InicioPage() {
 
       {pie && (
         <footer className="eo-inicio__pie">
-          <p>
+          <ul className="eo-inicio__enlaces">
+            {p.enlaces?.informe && (
+              <li><a href={p.enlaces.informe} target="_blank" rel="noreferrer">El informe</a></li>
+            )}
+            <li><Link to="/documentacion">Cómo leer</Link></li>
+            {/* Fuera de la barra (revisión del 2026-11-19): el Archivo tiene las cifras de la etapa de desarrollo, con la
+                referencia anterior, y no son las del informe. Se dice en el enlace, no recién al entrar. */}
+            <li>
+              <Link to={GEN1.to} aria-describedby="eo-inicio-archivo">Archivo de la etapa de desarrollo</Link>
+              <span className="eo-inicio__aclara" id="eo-inicio-archivo">
+                Las cifras de la etapa de desarrollo, con la referencia anterior: no son las del informe
+              </span>
+            </li>
+          </ul>
+          {p.enlaces?.repositorios && p.enlaces.repositorios.length > 0 && (
+            <div className="eo-inicio__repos">
+              <span className="eo-inicio__rotulo">Repositorios</span>
+              <ul>
+                {p.enlaces.repositorios.map((r) => (
+                  <li key={r.url}><a href={r.url} target="_blank" rel="noreferrer" className="eo-mono">{r.nombre}</a></li>
+                ))}
+              </ul>
+            </div>
+          )}
+          <p className="eo-inicio__version">
             {pie.pruebas} pruebas · campaña del {fechaLlana(pie.desde)} al {fechaLlana(pie.hasta)}
             {pie.version && (
               <>
@@ -61,26 +85,6 @@ export default function InicioPage() {
               </>
             )}
           </p>
-          <p className="eo-inicio__enlaces">
-            {p.enlaces?.informe && <a href={p.enlaces.informe} target="_blank" rel="noreferrer">El informe</a>}
-            <Link to="/documentacion">Cómo leer</Link>
-            {/* Fuera de la barra (revisión del 2026-11-19): el Archivo tiene las cifras de la etapa de desarrollo, con la
-                referencia anterior, y no son las del informe. Se dice en el enlace, no recién al entrar. */}
-            <Link to={GEN1.to} title="Las cifras de la etapa de desarrollo, con la referencia anterior: no son las del informe">
-              Archivo de la etapa de desarrollo
-            </Link>
-          </p>
-          {p.enlaces?.repositorios && p.enlaces.repositorios.length > 0 && (
-            <p className="eo-inicio__repos">
-              Repositorios:{' '}
-              {p.enlaces.repositorios.map((r, i) => (
-                <span key={r.url}>
-                  {i > 0 && ' · '}
-                  <a href={r.url} target="_blank" rel="noreferrer" className="eo-mono">{r.nombre}</a>
-                </span>
-              ))}
-            </p>
-          )}
         </footer>
       )}
     </div>

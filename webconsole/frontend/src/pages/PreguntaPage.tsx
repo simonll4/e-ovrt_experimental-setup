@@ -11,7 +11,7 @@ import './preguntas/Preguntas.css'
 
 function TablaDelInforme({ t }: { t: TablaPregunta }) {
   return (
-    <Card title={t.titulo} meta={t.informe ?? undefined} flush>
+    <Card className="eo-pregunta__tabla" title={t.titulo} meta={t.informe ?? undefined} flush>
       <TableScroll label={t.titulo}>
         <Table aria-label={t.titulo}>
           <thead>

@@ -138,7 +138,7 @@ export default function DocumentacionPage() {
           <li><b>Por escena</b> juzga la condición sobre el cuadro entero; <b>por sujeto</b>, persona por persona.</li>
           <li>Los términos subrayados muestran su definición al pasar el mouse y abren su entrada abajo.</li>
           <li>Cómo se trabajó, las equivalencias con el código y los símbolos con más de un sentido están en la
-            documentación pública, en el repositorio <span className="eo-mono">e-ovrt-vdp</span>
+            documentación pública, en el repositorio <span className="eo-mono">e-ovrt-vdp</span>{' '}
             (<span className="eo-mono">evidencia/consola/como-leer.md</span>).</li>
         </ul>
 
